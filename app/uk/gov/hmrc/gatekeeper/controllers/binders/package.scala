@@ -17,39 +17,60 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.mvc.PathBindable
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApplicationId, ApiVersion}
+import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import play.api.mvc.QueryStringBindable
 import uk.gov.hmrc.gatekeeper.models.UserId
 import scala.util.Try
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 package object binders extends ApplicationLogger {
+
+  private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
+    Try(UUID.fromString(text))
+      .toOption
+      .toRight(s"Cannot accept $text as ApplicationId")
+      .map(uuid => ApplicationId(uuid))
+  }
+
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+
     override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).map(ApplicationId(_))
+      textBinder.bind(key, value).flatMap(applicationIdFromString)
     }
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value
+      applicationId.value.toString()
     }
   }
 
   implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
-      for {
-        text <- textBinder.bind(key, params)
-      } yield {
-        text match {
-          case Right(appId) => Right(ApplicationId(appId))
-          case _            => Left("Unable to bind an application ID")
-        }
-      }
+      textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
     }
 
-    override def unbind(key: String, context: ApplicationId): String = {
-      textBinder.unbind(key, context.value)
+    override def unbind(key: String, applicationId: ApplicationId): String = {
+      textBinder.unbind(key, applicationId.value.toString())
+    }
+  }
+
+  private def eventTagFromString(text: String): Either[String, EventTag] = {
+    EventTags.fromString(text)
+      .toRight(s"Cannot accept $text as EventTag")
+  }
+
+  implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[EventTag] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, EventTag]] = {
+      textBinder.bind(key, params).map(_.flatMap(eventTagFromString))
+    }
+
+    override def unbind(key: String, tag: EventTag): String = {
+      textBinder.unbind(key, tag.toString())
     }
   }
 

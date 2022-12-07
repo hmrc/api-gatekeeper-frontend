@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import org.joda.time.DateTime
@@ -33,8 +32,9 @@ import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 @Singleton
 class SubscriptionConfigurationController @Inject()(

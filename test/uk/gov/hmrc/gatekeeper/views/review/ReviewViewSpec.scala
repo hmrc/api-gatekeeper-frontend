@@ -27,6 +27,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ReviewViewSpec extends CommonViewSpec {
 

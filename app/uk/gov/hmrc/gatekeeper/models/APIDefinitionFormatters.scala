@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import play.api.libs.json._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait APIDefinitionFormatters {
 
@@ -40,9 +41,6 @@ trait APIDefinitionFormatters {
   implicit val formatFieldName = Json.valueFormat[FieldName]
   implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
-
-  implicit val formatApiVersion = Json.valueFormat[ApiVersion]
-  implicit val formatApiContext = Json.valueFormat[ApiContext]
 
   implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
   implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value

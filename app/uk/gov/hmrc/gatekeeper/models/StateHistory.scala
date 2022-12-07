@@ -21,6 +21,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.models.State.State
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class Actor(id: String)
 
@@ -39,7 +40,6 @@ object StateHistory {
     }
   }
 
-  implicit val formatApplicationId = Json.valueFormat[ApplicationId]
   implicit val formatState = Json.formatEnum(State)
   implicit val formatActor = Json.format[Actor]
   implicit val format = Json.format[StateHistory]

@@ -35,6 +35,8 @@ import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
 class SubscriptionController @Inject()(

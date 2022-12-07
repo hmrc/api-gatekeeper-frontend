@@ -34,6 +34,8 @@ import org.joda.time.DateTime
 
 import java.time.Period
 import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -68,6 +70,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
+
+  val prodAppId = ApplicationId.random
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider
     with DeveloperConnectorMockProvider with XmlServiceMockProvider {
@@ -442,8 +446,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
@@ -459,8 +463,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
     }
   }
 

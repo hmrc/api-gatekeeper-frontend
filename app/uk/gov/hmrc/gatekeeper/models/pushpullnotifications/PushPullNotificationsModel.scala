@@ -20,6 +20,7 @@ import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class BoxId(value: String) extends AnyVal
 

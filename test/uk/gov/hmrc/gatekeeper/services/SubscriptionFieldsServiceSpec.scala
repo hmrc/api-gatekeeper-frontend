@@ -27,6 +27,7 @@ import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 

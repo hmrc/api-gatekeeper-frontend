@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.{MfaDetail, MfaType}
+import uk.gov.hmrc.gatekeeper.models.MfaDetail
 
 object MfaDetailHelper {
 

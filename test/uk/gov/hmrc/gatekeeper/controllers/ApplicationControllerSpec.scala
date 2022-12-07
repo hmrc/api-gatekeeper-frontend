@@ -50,6 +50,9 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import java.util.UUID
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec
@@ -251,7 +254,7 @@ class ApplicationControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         
         val applicationResponse = ApplicationResponse(
-            ApplicationId("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e"),
+            ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
             ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
             "the-gateway-id",
             "App Name",
@@ -348,7 +351,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService)
           .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*)
@@ -533,7 +536,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
         verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
       }
 
@@ -546,7 +549,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
         verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
       }
 
@@ -559,7 +562,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
         verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set()))(*)
       }
 
@@ -669,7 +672,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
@@ -762,7 +765,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
       }
@@ -1095,7 +1098,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
-            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Production")
             contentAsString(result) should include("Privileged")
             contentAsString(result) should include(totpSecret)
@@ -1122,7 +1125,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
-            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Sandbox")
             contentAsString(result) should include("Privileged")
             contentAsString(result) should include(totpSecret)
@@ -1147,7 +1150,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
             contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
-            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Production")
             contentAsString(result) should include("ROPC")
             contentAsString(result) should include(clientId.value)
@@ -1171,7 +1174,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
             contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
-            contentAsString(result) should include(applicationId.value)
+            contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Sandbox")
             contentAsString(result) should include("ROPC")
             contentAsString(result) should include(clientId.value)

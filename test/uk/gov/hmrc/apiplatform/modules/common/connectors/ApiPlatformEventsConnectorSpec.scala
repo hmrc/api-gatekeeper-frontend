@@ -24,10 +24,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import play.api.test.Helpers._
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.EventType
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.QueryableValues
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
 
 class ApiPlatformEventsConnectorSpec 
     extends AsyncHmrcSpec
@@ -49,7 +49,7 @@ class ApiPlatformEventsConnectorSpec
   }
 
   "calling fetchEventQueryValues" should {
-    val url = s"/application-event/${applicationId.value}/values"
+    val url = s"/application-event/${applicationId.value.toString()}/values"
 
     "return None when call returns NOT_FOUND" in new Setup {
       stubFor(
@@ -65,7 +65,7 @@ class ApiPlatformEventsConnectorSpec
 
     "return Some data when call returns OK" in new Setup {
 
-      val fakeResponse = QueryableValues(1900,1950, List(EventType.TEAM_MEMBER_ADDED, EventType.TEAM_MEMBER_REMOVED), List("bob@example.com", "iam@gatekeeper.com"))
+      val fakeResponse = QueryableValues(List(EventTags.COLLABORATOR))
 
       stubFor(
         get(urlEqualTo(url))
@@ -81,12 +81,12 @@ class ApiPlatformEventsConnectorSpec
   }
 
   "calling query" should {
-    val url = s"/application-event/${applicationId.value}"
+    val url = s"/application-event/${applicationId.value.toString()}"
 
-    "send year parameter when present" in new Setup {
+    "send eventTag parameter when present" in new Setup {
       stubFor(
         get(urlPathEqualTo(url))
-          .withQueryParam("year", equalTo("1900"))
+          .withQueryParam("eventTag", equalTo("COLLABORATOR"))
           .willReturn(
             aResponse()
               .withJsonBody(ApiPlatformEventsConnector.QueryResponse(Seq.empty))
@@ -94,35 +94,7 @@ class ApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some(1900), None, None))
-    }
-
-    "send eventType parameter when present" in new Setup {
-      stubFor(
-        get(urlPathEqualTo(url))
-          .withQueryParam("eventType", equalTo("TEAM_MEMBER_ADDED"))
-          .willReturn(
-            aResponse()
-              .withJsonBody(ApiPlatformEventsConnector.QueryResponse(Seq.empty))
-              .withStatus(OK)
-          )
-      )
-
-      await(connector.query(applicationId, None, Some(EventType.TEAM_MEMBER_ADDED), None))
-    }
-
-    "send actor parameter when present" in new Setup {
-      stubFor(
-        get(urlPathEqualTo(url))
-          .withQueryParam("actor", equalTo("bob@example.com"))
-          .willReturn(
-            aResponse()
-              .withJsonBody(ApiPlatformEventsConnector.QueryResponse(Seq.empty))
-              .withStatus(OK)
-          )
-      )
-
-      await(connector.query(applicationId, None, None, Some("bob@example.com")))
+      await(connector.query(applicationId, Some(EventTags.COLLABORATOR)))
     }
   }
 }

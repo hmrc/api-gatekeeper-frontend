@@ -42,6 +42,8 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApplicationsViewSpec extends CommonViewSpec {
 

@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.models.State.State
-
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import java.time.LocalDateTime
 
 

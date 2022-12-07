@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.Actor
 import org.joda.time.DateTime

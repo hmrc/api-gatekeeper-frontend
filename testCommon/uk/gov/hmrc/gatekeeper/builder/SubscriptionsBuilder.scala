@@ -18,12 +18,10 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApiVersionDefinition, Subscription, VersionSubscription}
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiVersion, ClientId, ApplicationId}
-import uk.gov.hmrc.gatekeeper.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.FieldValue
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models._
 import scala.util.Random
-import uk.gov.hmrc.gatekeeper.models.ApiIdentifier
-import uk.gov.hmrc.gatekeeper.models.ApiVersionSource
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait SubscriptionsBuilder {
 
@@ -43,7 +41,8 @@ trait SubscriptionsBuilder {
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: List[SubscriptionFieldValue] = List.empty) = {
-    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-${applicationId.value}"), ApiContext(s"context-${applicationId.value}"), ApiVersion(s"apiVersion-${applicationId.value}"), fields = fields)
+    val text = applicationId.value.toString()
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$text"), ApiContext(s"context-$text"), ApiVersion(s"apiVersion-$text"), fields = fields)
   }
 
   def buildSubscriptionFieldDefinition(

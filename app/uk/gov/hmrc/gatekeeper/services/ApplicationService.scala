@@ -26,11 +26,12 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.http.HeaderCarrier
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-
 import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
                                    productionApplicationConnector: ProductionApplicationConnector,
@@ -53,7 +54,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     def buildChanges(appId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
       stateHistory match {
         case state1 :: state2 :: others => ApplicationStateHistoryChange(
-          appId.value,
+          appId.value.toString(),
           appName,
           journeyVersion.toString,
           state1.state.toString,
@@ -63,7 +64,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
         ) :: buildChanges(appId, appName, journeyVersion, state2 :: others)
 
         case finalState :: Nil => List(ApplicationStateHistoryChange(
-          appId.value,
+          appId.value.toString(),
           appName,
           journeyVersion.toString,
           finalState.state.toString,

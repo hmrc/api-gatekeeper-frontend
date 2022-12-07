@@ -2,20 +2,20 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait ApmConnectorMock {
     self: WiremockSugarIt =>
 
   def mockApplicationWithSubscriptionData(applicationId: ApplicationId) {
-    stubFor(get(urlEqualTo(s"/applications/${applicationId.value}"))
+    stubFor(get(urlEqualTo(s"/applications/${applicationId.value.toString()}"))
         .willReturn(
             aResponse()
                 .withStatus(OK)
                 .withBody(
                     s"""{
                         |   "application": {
-                        |       "id": "${applicationId.value}",
+                        |       "id": "${applicationId.value.toString()}",
                         |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
                         |       "blocked": false,
                         |       "gatewayId": "12345",

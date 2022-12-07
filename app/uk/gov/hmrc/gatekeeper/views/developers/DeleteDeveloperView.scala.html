@@ -57,7 +57,7 @@
 
       @for(application <- applications) {
         <p class="govuk-body">
-          <a id="app-@{application.id.value}" class="govuk-link" href="@{routes.ApplicationController.applicationPage(application.id)}">
+          <a id="app-@{application.id.value.toString()}" class="govuk-link" href="@{routes.ApplicationController.applicationPage(application.id)}">
             @application.name
           </a>
         </p>

@@ -25,14 +25,15 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, UserId, _}
+import uk.gov.hmrc.gatekeeper.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import java.time.LocalDateTime
 import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
   import play.api.libs.json.Json
-  import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 
   case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
   case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])
@@ -54,8 +55,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def http: HttpClient
 
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value.toString()}"
   
+  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId.value.toString()}"
+
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
   def updateRateLimitTier(applicationId: ApplicationId, tier: RateLimitTier)
@@ -107,11 +110,11 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    http.GET[ApplicationWithHistory](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}")
+    http.GET[ApplicationWithHistory](baseTpaGatekeeperUrl(applicationId))
   }
 
   def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    http.GET[List[StateHistory]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/stateHistory")
+    http.GET[List[StateHistory]](s"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")
   }
 
   def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
@@ -209,7 +212,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def deleteApplication(applicationId: ApplicationId, deleteApplicationRequest: DeleteApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"$serviceBaseUrl/gatekeeper/application/${applicationId.value}/delete", deleteApplicationRequest)
+    http.POST[DeleteApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseTpaGatekeeperUrl(applicationId)}/delete", deleteApplicationRequest)
     .map( _ match {
       case Right(result) => ApplicationDeleteSuccessResult
       case Left(_) => ApplicationDeleteFailureResult
@@ -264,7 +267,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value}")
+    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value.toString()}")
     .map( _ match {
       case Some(_) => true
       case None    => false

@@ -14,12 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.events.domain.models
+package uk.gov.hmrc.gatekeeper.connectors
 
-import play.api.libs.json.Json
+import java.net.URLEncoder.encode
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
+import uk.gov.hmrc.gatekeeper.models.ClientId
 
-case class QueryableValues(firstYear: Int, lastYear: Int, eventTypes: List[EventType], actors: List[String])
-
-object QueryableValues {
-  implicit val format = Json.format[QueryableValues]
+trait UrlEncoders {
+  implicit class UrlEncodeContext(context: ApiContext) {
+    def urlEncode: String = encode(context.value, "UTF-8")
+  }
+  implicit class UrlEncodeVersion(version: ApiVersion) {
+    def urlEncode: String = encode(version.value, "UTF-8")
+  }
+  implicit class UrlEncodeClientId(clientId: ClientId) {
+    def urlEncode: String = encode(clientId.value, "UTF-8")
+  }
 }

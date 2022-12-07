@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.util.UUID
-import java.net.URLEncoder.encode
 import uk.gov.hmrc.gatekeeper.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
@@ -31,20 +30,9 @@ import play.api.libs.json.JodaWrites._
 
 import java.time.Period
 import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-case class ApplicationId(value: String) extends AnyVal
-
-object ApplicationId {
-  import play.api.libs.json.Json
-  implicit val applicationIdFormat = Json.valueFormat[ApplicationId]
-
-  def random: ApplicationId = ApplicationId(UUID.randomUUID().toString)
-}
-
-case class ClientId(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
-}
-
+case class ClientId(value: String) extends AnyVal
 object ClientId {
   import play.api.libs.json.Json
   implicit val clientIdFormat = Json.valueFormat[ClientId]

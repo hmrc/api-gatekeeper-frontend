@@ -290,7 +290,7 @@ class TeamMembersControllerSpec
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")          }
+            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")          }
 
           "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
@@ -473,7 +473,7 @@ class TeamMembersControllerSpec
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")
               }
           }
 
@@ -513,7 +513,7 @@ class TeamMembersControllerSpec
               val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")
               }
           }
         }

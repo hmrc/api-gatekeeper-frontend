@@ -24,7 +24,7 @@ import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models.ApiContext
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with WiremockSugarIt {
   val config = Configuration(

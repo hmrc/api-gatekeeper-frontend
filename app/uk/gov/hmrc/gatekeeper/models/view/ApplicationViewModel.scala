@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models.view
 
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.gatekeeper.models.StateHistory
 import uk.gov.hmrc.gatekeeper.models.TermsOfUseAgreement
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus

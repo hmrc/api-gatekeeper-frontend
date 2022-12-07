@@ -32,6 +32,7 @@ import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 
 class ApiGatekeeperBaseSpec
@@ -44,16 +45,16 @@ class ApiGatekeeperBaseSpec
     with ApiDefinitionTestData
     with UrlEncoding {
 
-  def stubNewApplication(application: String, appId: String) = {
-    stubFor(get(urlEqualTo(s"/applications/$appId")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  def stubNewApplication(application: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/applications/${appId.value.toString()}")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
 
-  def stubStateHistory(stateHistory: String, appId: String) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$appId/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+  def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
   }
 
-  def stubApiDefintionsForApplication(apiDefinitions: String, appId: String) = {
-    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=$appId&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
+  def stubApiDefintionsForApplication(apiDefinitions: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=${appId.value.toString()}&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
   def stubDevelopers(developers: List[RegisteredUser]) = {
@@ -61,7 +62,7 @@ class ApiGatekeeperBaseSpec
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: String) = {
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)

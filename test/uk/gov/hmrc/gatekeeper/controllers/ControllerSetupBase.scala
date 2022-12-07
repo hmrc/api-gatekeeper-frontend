@@ -30,6 +30,7 @@ import org.joda.time.DateTime
 import java.time.Period
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait ControllerSetupBase
     extends MockitoSugar

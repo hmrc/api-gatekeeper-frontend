@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.builder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.VersionData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-
 trait ApiBuilder {
 
   implicit class VersionDataExtension(versionData: VersionData) {

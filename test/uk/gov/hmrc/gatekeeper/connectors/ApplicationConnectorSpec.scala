@@ -34,6 +34,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
 
 import java.time.{LocalDateTime, Period}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -59,7 +61,7 @@ class ApplicationConnectorSpec
   private def compareByString[A](a1:A, a2:A) = a1.toString shouldBe a2.toString
 
   "updateGrantLength" should {
-    val url = s"/application/${applicationId.value}/grantlength"
+    val url = s"/application/${applicationId.value.toString()}/grantlength"
 
     "send Authorisation and return OK if the grant length update was successful on the backend" in new Setup {
       val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
@@ -95,7 +97,7 @@ class ApplicationConnectorSpec
   }
 
   "updateRateLimitTier" should {
-    val url = s"/application/${applicationId.value}/rate-limit-tier"
+    val url = s"/application/${applicationId.value.toString()}/rate-limit-tier"
 
     "send Authorisation and return OK if the rate limit tier update was successful on the backend" in new Setup {
       val body = Json.toJson(UpdateRateLimitTierRequest(RateLimitTier.GOLD)).toString
@@ -133,7 +135,7 @@ class ApplicationConnectorSpec
   "approveUplift" should {
     val gatekeeperId = "loggedin.gatekeeper"
     val body = Json.toJson(ApproveUpliftRequest("loggedin.gatekeeper")).toString
-    val url = s"/application/${applicationId.value}/approve-uplift"
+    val url = s"/application/${applicationId.value.toString()}/approve-uplift"
 
     "send Authorisation and return OK if the uplift was successful on the backend" in new Setup {
       stubFor(
@@ -168,7 +170,7 @@ class ApplicationConnectorSpec
     val gatekeeperId = "loggedin.gatekeeper"
     val rejectionReason = "A similar name is already taken by another application"
     val body = Json.toJson(RejectUpliftRequest(gatekeeperId, rejectionReason)).toString
-    val url = s"/application/${applicationId.value}/reject-uplift"
+    val url = s"/application/${applicationId.value.toString()}/reject-uplift"
 
     "send Authorisation and return Ok if the uplift rejection was successful on the backend" in new Setup {
       stubFor(
@@ -202,7 +204,7 @@ class ApplicationConnectorSpec
   "resend verification email" should {
     val gatekeeperId = "loggedin.gatekeeper"
     val body = Json.toJson(ResendVerificationRequest(gatekeeperId)).toString
-    val url = s"/application/${applicationId.value}/resend-verification"
+    val url = s"/application/${applicationId.value.toString()}/resend-verification"
 
     "send Verification request and return OK if the resend was successful on the backend" in new Setup {
       stubFor(
@@ -328,7 +330,7 @@ class ApplicationConnectorSpec
   }
 
   "fetchApplication" should {
-    val url = s"/gatekeeper/application/${applicationId.value}"
+    val url = s"/gatekeeper/application/${applicationId.value.toString()}"
     val grantLength: Period = Period.ofDays(547)
 
     val collaborators = Set(
@@ -375,7 +377,7 @@ class ApplicationConnectorSpec
 
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
-      val url = s"/gatekeeper/application/${applicationId.value}/stateHistory"
+      val url = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
       val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
       val response = Json.toJson(List(stateHistory)).toString
 
@@ -393,7 +395,7 @@ class ApplicationConnectorSpec
 
   "updateOverrides" should {
     val overridesRequest = UpdateOverridesRequest(Set(PersistLogin, SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
-    val url = s"/application/${applicationId.value}/access/overrides"
+    val url = s"/application/${applicationId.value.toString()}/access/overrides"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       stubFor(
@@ -425,7 +427,7 @@ class ApplicationConnectorSpec
   "updateScopes" should {
     val scopesRequest = UpdateScopesRequest(Set("hello", "read:individual-benefits"))
     val request = Json.toJson(scopesRequest).toString
-    val url = s"/application/${applicationId.value}/access/scopes"
+    val url = s"/application/${applicationId.value.toString()}/access/scopes"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       stubFor(
@@ -457,7 +459,7 @@ class ApplicationConnectorSpec
   }
 
   "updateIpAllowlist" should {
-    val url = s"/application/${applicationId.value}/ipAllowlist"
+    val url = s"/application/${applicationId.value.toString()}/ipAllowlist"
     val newIpAllowlist = IpAllowlist(required = false, Set("192.168.1.0/24", "192.168.2.0/24"))
     val request = Json.toJson(UpdateIpAllowlistRequest(newIpAllowlist.required, newIpAllowlist.allowlist)).toString
     
@@ -491,7 +493,7 @@ class ApplicationConnectorSpec
 
   "unsubscribeFromApi" should {
     val apiContext = ApiContext.random
-    val url = s"/application/${applicationId.value}/subscription?context=${apiContext.value}&version=${apiVersion1.value}"
+    val url = s"/application/${applicationId.value.toString()}/subscription?context=${apiContext.value}&version=${apiVersion1.value}"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
       stubFor(
@@ -555,7 +557,7 @@ class ApplicationConnectorSpec
     val gatekeeperUserId = "maxpower"
     val adminsToEmail = Set("admin1@example.com", "admin2@example.com")
 
-    val url = s"/application/${applicationId.value}/collaborator/delete"
+    val url = s"/application/${applicationId.value.toString()}/collaborator/delete"
 
     "send a DELETE request to the service with the correct params" in new Setup {
       stubFor(

@@ -27,6 +27,8 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {
@@ -39,12 +41,12 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       id = appId,
       clientId = clientId,
       gatewayId = "",
-      name = s"${appId.value}-name",
+      name = s"${appId.value.toString()}-name",
       createdOn = createdOn,
       lastAccess = Some(lastAccess),
       lastAccessTokenUsage = None,
       deployedTo = Environment.SANDBOX,
-      description = Some(s"${appId.value}-description"),
+      description = Some(s"${appId.value.toString()}-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       state = ApplicationState(State.PRODUCTION),
       rateLimitTier = RateLimitTier.BRONZE,

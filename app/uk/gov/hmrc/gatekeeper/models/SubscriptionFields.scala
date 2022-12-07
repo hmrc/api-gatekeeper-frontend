@@ -19,6 +19,8 @@ package uk.gov.hmrc.gatekeeper.models
 import play.api.libs.json.{Format, Json}
 import scala.util.Random
 import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class FieldName(value: String) extends AnyVal
 

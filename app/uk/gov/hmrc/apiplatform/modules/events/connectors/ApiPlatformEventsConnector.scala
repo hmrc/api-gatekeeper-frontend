@@ -24,20 +24,17 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.QueryableValues
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.EventType
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.ApplicationEvent
-import uk.gov.hmrc.apiplatform.modules.events.domain.services.EventJsonFormatters
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 object ApiPlatformEventsConnector {
   case class Config(baseUrl: String, enabled: Boolean)
 
-  case class QueryResponse(events: Seq[ApplicationEvent])
+  case class QueryResponse(events: Seq[AbstractApplicationEvent])
 
   object QueryResponse {
-    import EventJsonFormatters._
+    import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
     implicit val format = Json.format[QueryResponse]
   }
 
@@ -45,7 +42,7 @@ object ApiPlatformEventsConnector {
 
 @Singleton
 class ApiPlatformEventsConnector @Inject() (http: HttpClient, config: ApiPlatformEventsConnector.Config)(implicit val ec: ExecutionContext)
-    extends ApplicationLogger with EventJsonFormatters {
+    extends ApplicationLogger {
 
   import ApiPlatformEventsConnector._
 
@@ -53,20 +50,18 @@ class ApiPlatformEventsConnector @Inject() (http: HttpClient, config: ApiPlatfor
   private val applicationEventsUri   = s"$serviceBaseUrl/application-event"
 
   def fetchEventQueryValues(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[QueryableValues]] = {
-    http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value}/values")
+    http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value.toString()}/values")
   }
 
-  def query(appId: ApplicationId, year: Option[Int], eventType: Option[EventType], actor: Option[String])(implicit hc: HeaderCarrier): Future[Seq[ApplicationEvent]] = {
+  def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[Seq[AbstractApplicationEvent]] = {
     val queryParams =
       Seq(
-        year.map(y => "year" -> y.toString),
-        eventType.map(et => "eventType" -> et.entryName),
-        actor.map(a => "actor" -> a)
+        tag.map(et => "eventTag" -> et.toString)
       ).collect( _ match {
         case Some((a,b)) => a->b
       })
 
-    http.GET[QueryResponse](s"$applicationEventsUri/${appId.value}", queryParams)
+    http.GET[QueryResponse](s"$applicationEventsUri/${appId.value.toString()}", queryParams)
     .map(_.events)
   }
 }

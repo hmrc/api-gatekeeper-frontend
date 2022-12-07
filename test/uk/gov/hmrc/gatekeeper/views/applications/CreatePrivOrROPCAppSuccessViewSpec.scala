@@ -23,6 +23,7 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationSuccessView
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
@@ -32,7 +33,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
   "CreatePrivOrROPCAppSuccess page" when {
 
-    val appId = ApplicationId("245dfgs-2dfgd578-968sdg5-23f456-dgf324")
+    val appId = ApplicationId.random
     val appName = "This is my app name"
     val env = "Production"
     val clientId = ClientId.random
@@ -56,7 +57,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value.toString()}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
         elementExistsByText(document, "div", s"Environment $env") shouldBe true
         elementExistsByText(document, "div", "Access type Privileged") shouldBe true
@@ -81,7 +82,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value.toString()}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
         elementExistsByText(document, "div", s"Environment $env") shouldBe true
         elementExistsByText(document, "div", "Access type ROPC") shouldBe true

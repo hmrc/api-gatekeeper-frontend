@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.util.UUID._
 import uk.gov.hmrc.gatekeeper.models.State._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
@@ -24,6 +23,7 @@ import org.joda.time.DateTime
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val grantLength: Period = Period.ofDays(547)
@@ -66,7 +66,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   }
 
   def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
-    ApplicationResponse(ApplicationId(randomUUID().toString), ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
+    ApplicationResponse(ApplicationId.random, ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
       Some(lastAccess), Privileged(), ApplicationState(), grantLength, RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
   }
 

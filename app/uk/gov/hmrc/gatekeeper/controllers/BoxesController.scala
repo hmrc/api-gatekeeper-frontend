@@ -48,7 +48,7 @@ class BoxesController @Inject()(
     apmService.fetchAllBoxes().map(boxes => {
       val columnDefinitions : Seq[ColumnDefinition[Box]] = Seq(
         ColumnDefinition("environment",(box => box.environment.toString())),
-        ColumnDefinition("applicationId",(box => box.applicationId.fold("")(_.value))),
+        ColumnDefinition("applicationId",(box => box.applicationId.fold("")(_.value.toString()))),
         ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
         ColumnDefinition("name",(box => box.boxName)),
         ColumnDefinition("boxId",(box => box.boxId.value)),

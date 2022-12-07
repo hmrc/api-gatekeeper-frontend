@@ -18,7 +18,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import mocks.services.SubscriptionFieldsServiceMockProvider
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiVersion, FieldName, FieldValue}
+import uk.gov.hmrc.gatekeeper.models.{FieldName, FieldValue}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
@@ -201,7 +202,7 @@ class SubscriptionConfigurationControllerSpec
       val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions-configuration")
     
       val expectedFields = Map(fields.head._1 -> newValue)
 

@@ -23,14 +23,18 @@ import scala.concurrent.Future
 import org.joda.time.DateTime
 
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.models.{Environment,ApplicationId,ClientId}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.ClientId
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box,BoxId,BoxCreator,BoxSubscriber,SubscriptionType}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.models.Environment
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = app.materializer
+  val anAppId = ApplicationId.random
+  val appIdText = anAppId.value.toString()
 
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
@@ -54,12 +58,12 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       val box = Box(
         BoxId("boxId"),
         "boxName",
-        BoxCreator(ClientId("clientId")), Some(ApplicationId("applicationId")),
+        BoxCreator(ClientId("clientId")), Some(anAppId),
         Some(boxSubscriber), Environment.PRODUCTION
       )
 
-      val expectedCsv = """|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
-                            |PRODUCTION,applicationId,clientId,boxName,boxId,API_PUSH_SUBSCRIBER,callbackUrl
+      val expectedCsv = s"""|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
+                            |PRODUCTION,$appIdText,clientId,boxName,boxId,API_PUSH_SUBSCRIBER,callbackUrl
                             |""".stripMargin
 
       "return a CSV of all boxes" in new Setup {

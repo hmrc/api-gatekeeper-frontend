@@ -31,7 +31,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
   Feature("Block an application") {
     Scenario("I can block an application") {
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(applicationId)).toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(applicationId).toJsonString, applicationId)
       stubApplicationForBlockSuccess()
 
       When("I navigate to the application page")
@@ -46,7 +46,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     }
 
     Scenario("I cannot block an application that is already blocked") {
-      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
+      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(blockedApplicationId).toJsonString, blockedApplicationId)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
@@ -72,11 +72,11 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   }
 
   def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$applicationId/block")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/block")).willReturn(aResponse().withStatus(OK)))
   }
 
   def stubUnblockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
