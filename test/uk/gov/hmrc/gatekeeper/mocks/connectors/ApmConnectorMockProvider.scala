@@ -67,7 +67,9 @@ trait ApmConnectorMockProvider {
   }
 
   object ApmConnectorMock {
+
     object UpdateApplication {
+
       def succeeds(application: NewApplication) = when(
         mockApmConnector.updateApplication(*[ApplicationId], *[ApplicationUpdate])(*)
       ).thenReturn(successful(application))

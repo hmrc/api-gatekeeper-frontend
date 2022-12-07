@@ -46,8 +46,8 @@ class SubscriptionControllerSpec
   private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
-  private lazy val fixedClock = Clock.fixed(Instant.now(), ZoneOffset.UTC)
+  private lazy val errorHandler            = app.injector.instanceOf[ErrorHandler]
+  private lazy val fixedClock              = Clock.fixed(Instant.now(), ZoneOffset.UTC)
 
   running(app) {
 

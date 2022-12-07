@@ -128,10 +128,10 @@ class ApmConnectorSpec
   }
 
   "applicationUpdate" should {
-    val actor = Actors.GatekeeperUser("Admin Powers")
-    val apiIdentifier = ApiIdentifier.random
+    val actor              = Actors.GatekeeperUser("Admin Powers")
+    val apiIdentifier      = ApiIdentifier.random
     val unsubscribeFromApi = UnsubscribeFromApi(actor, apiIdentifier, LocalDateTime.now())
-    val requestBody = Json.toJsObject(unsubscribeFromApi) ++ Json.obj("updateType" -> "unsubscribeFromApi")
+    val requestBody        = Json.toJsObject(unsubscribeFromApi) ++ Json.obj("updateType" -> "unsubscribeFromApi")
 
     "return OK if the request was successful" in new Setup {
       val url = s"/applications/${applicationId.value}"
@@ -170,8 +170,8 @@ class ApmConnectorSpec
   }
 
   "subscribeToApi" should {
-    val apiIdentifier = ApiIdentifier.random
-    val actor = Actors.GatekeeperUser("Admin Powers")
+    val apiIdentifier  = ApiIdentifier.random
+    val actor          = Actors.GatekeeperUser("Admin Powers")
     val subscribeToApi = SubscribeToApi(actor, apiIdentifier, LocalDateTime.now())
 
     "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
@@ -186,7 +186,7 @@ class ApmConnectorSpec
               .withStatus(CREATED)
           )
       )
-        
+
       val result = await(underTest.subscribeToApi(applicationId, subscribeToApi))
 
       result shouldBe ApplicationUpdateSuccessResult
