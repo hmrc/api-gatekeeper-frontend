@@ -29,19 +29,20 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
+
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPublisherConnectorMockProvider {
     val serviceName = "ServiceName" + UUID.randomUUID
 
     implicit val hc = HeaderCarrier()
 
-    val service = new DeploymentApprovalService(mockSandboxApiPublisherConnector, mockProductionApiPublisherConnector)
+    val service   = new DeploymentApprovalService(mockSandboxApiPublisherConnector, mockProductionApiPublisherConnector)
     val underTest = spy(service)
   }
 
   "fetchUnapprovedServices" should {
     "fetch the unapproved services" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
-      val expectedSandboxSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
       ApiPublisherConnectorMock.Prod.FetchUnapproved.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.FetchUnapproved.returns(expectedSandboxSummaries: _*)
 

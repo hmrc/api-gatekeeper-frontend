@@ -31,18 +31,18 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit
 
     def categoriesWhereUserSelectedAllForCategory(user: RegisteredUser) =
       user.emailPreferences.interests
-      .filter(_.services.isEmpty)
-      .map(_.regime)
-    
+        .filter(_.services.isEmpty)
+        .map(_.regime)
+
     def xmlApisWhereUserSelectedAllForCategory(user: RegisteredUser) = {
       xmlServicesConnector.getApisForCategories(categoriesWhereUserSelectedAllForCategory(user))
-      .map(_.map(_.name).toSet)
+        .map(_.map(_.name).toSet)
     }
 
     for {
-      apis <- xmlServicesConnector.getAllApis()
+      apis        <- xmlServicesConnector.getAllApis()
       specificApis = filterXmlEmailPreferences(user.emailPreferences.interests, apis).toSet
-      allApis <- xmlApisWhereUserSelectedAllForCategory(user)
+      allApis     <- xmlApisWhereUserSelectedAllForCategory(user)
     } yield allApis ++ specificApis
   }
 

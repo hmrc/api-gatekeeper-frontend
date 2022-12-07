@@ -6,14 +6,15 @@ import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 
 trait ApiCataloguePublishStub {
   val publishByServiceNameUrl = "/api-platform-api-catalogue-publish/publish/"
-  val publishAllUrl = "/api-platform-api-catalogue-publish/publish-all"
+  val publishAllUrl           = "/api-platform-api-catalogue-publish/publish-all"
 
-  def primePublishByServiceName(status: Int, serviceName: String,  responseBody: ApiCataloguePublishConnector.PublishResponse): Unit = {
+  def primePublishByServiceName(status: Int, serviceName: String, responseBody: ApiCataloguePublishConnector.PublishResponse): Unit = {
     stubFor(post(urlEqualTo(s"$publishByServiceNameUrl$serviceName"))
       .willReturn(
         aResponse()
           .withStatus(status)
-          .withBody(Json.toJson(responseBody).toString())))
+          .withBody(Json.toJson(responseBody).toString())
+      ))
   }
 
   def primePublishAll(status: Int): Unit = {
@@ -21,6 +22,7 @@ trait ApiCataloguePublishStub {
       .willReturn(
         aResponse()
           .withStatus(status)
-          .withBody(Json.toJson(ApiCataloguePublishConnector.PublishAllResponse("Happy Happy")).toString())))
+          .withBody(Json.toJson(ApiCataloguePublishConnector.PublishAllResponse("Happy Happy")).toString())
+      ))
   }
 }

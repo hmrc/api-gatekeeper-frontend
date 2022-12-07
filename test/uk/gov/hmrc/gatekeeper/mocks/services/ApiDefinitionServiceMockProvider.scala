@@ -31,18 +31,19 @@ trait ApiDefinitionServiceMockProvider {
 
   object FetchAllApiDefinitions {
 
-    def inProd = Calling(Some(Environment.PRODUCTION))
+    def inProd    = Calling(Some(Environment.PRODUCTION))
     def inSandbox = Calling(Some(Environment.SANDBOX))
-    def inBoth = Calling(None)
-    def inAny = Calling()
+    def inBoth    = Calling(None)
+    def inAny     = Calling()
 
-    class Calling private(cond: Option[Environment.Value]) {
+    class Calling private (cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+      def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
-    object Calling {
+
+    object Calling                                          {
       def apply() = new Calling(*)
 
       def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))
@@ -52,18 +53,19 @@ trait ApiDefinitionServiceMockProvider {
 
   object FetchAllDistinctApisIgnoreVersions {
 
-    def inProd = Calling(Some(Environment.PRODUCTION))
+    def inProd    = Calling(Some(Environment.PRODUCTION))
     def inSandbox = Calling(Some(Environment.SANDBOX))
-    def inBoth = Calling(None)
-    def inAny = Calling()
-    
-    class Calling[T] private(cond: Option[Environment.Value]) {
+    def inBoth    = Calling(None)
+    def inAny     = Calling()
+
+    class Calling[T] private (cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+      def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
-    object Calling {
+
+    object Calling                                             {
       def apply() = new Calling(*)
 
       def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))
@@ -71,16 +73,16 @@ trait ApiDefinitionServiceMockProvider {
   }
 
   object Apis {
-    private val whenClause =  when(mockApiDefinitionService.apis(*))
+    private val whenClause = when(mockApiDefinitionService.apis(*))
 
     def returns(results: (ApiDefinition, Environment.Value)*) = whenClause.thenReturn(successful(results.toList))
-    def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+    def throws(throwable: Throwable)                          = whenClause.thenReturn(failed(throwable))
   }
-  
+
   object ApiCategories {
     private val whenClause = when(mockApiDefinitionService.apiCategories()(*))
 
     def returns(details: APICategoryDetails*) = whenClause.thenReturn(successful(details.toList))
-    def throws(throwable: Throwable) = whenClause.thenReturn(failed(throwable))
+    def throws(throwable: Throwable)          = whenClause.thenReturn(failed(throwable))
   }
 }

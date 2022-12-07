@@ -24,15 +24,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class DeploymentApprovalService @Inject()(sandboxApiPublisherConnector: SandboxApiPublisherConnector,
-                                          productionApiPublisherConnector: ProductionApiPublisherConnector)(implicit ec: ExecutionContext) {
+class DeploymentApprovalService @Inject() (
+    sandboxApiPublisherConnector: SandboxApiPublisherConnector,
+    productionApiPublisherConnector: ProductionApiPublisherConnector
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetchUnapprovedServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
-    val sandboxFuture = sandboxApiPublisherConnector.fetchUnapproved()
+    val sandboxFuture    = sandboxApiPublisherConnector.fetchUnapproved()
     val productionFuture = productionApiPublisherConnector.fetchUnapproved()
 
     for {
-      sandbox <- sandboxFuture
+      sandbox    <- sandboxFuture
       production <- productionFuture
     } yield (sandbox ++ production).distinct
   }

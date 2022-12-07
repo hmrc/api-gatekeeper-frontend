@@ -33,16 +33,18 @@ import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicationConnector,
-                                   productionApplicationConnector: ProductionApplicationConnector,
-                                   sandboxApiScopeConnector: SandboxApiScopeConnector,
-                                   productionApiScopeConnector: ProductionApiScopeConnector,
-                                   apmConnector: ApmConnector,
-                                   developerConnector: DeveloperConnector,
-                                   subscriptionFieldsService: SubscriptionFieldsService)(implicit ec: ExecutionContext) extends ApplicationLogger{
+class ApplicationService @Inject() (
+    sandboxApplicationConnector: SandboxApplicationConnector,
+    productionApplicationConnector: ProductionApplicationConnector,
+    sandboxApiScopeConnector: SandboxApiScopeConnector,
+    productionApiScopeConnector: ProductionApiScopeConnector,
+    apmConnector: ApmConnector,
+    developerConnector: DeveloperConnector,
+    subscriptionFieldsService: SubscriptionFieldsService
+  )(implicit ec: ExecutionContext
+  ) extends ApplicationLogger {
 
-  def resendVerification(application: Application, gatekeeperUserId: String)
-                        (implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
+  def resendVerification(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
@@ -54,24 +56,24 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     def buildChanges(appId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
       stateHistory match {
         case state1 :: state2 :: others => ApplicationStateHistoryChange(
-          appId.value.toString(),
-          appName,
-          journeyVersion.toString,
-          state1.state.toString,
-          state1.timestamp.toString,
-          state2.state.toString,
-          state2.timestamp.toString
-        ) :: buildChanges(appId, appName, journeyVersion, state2 :: others)
+            appId.value.toString(),
+            appName,
+            journeyVersion.toString,
+            state1.state.toString,
+            state1.timestamp.toString,
+            state2.state.toString,
+            state2.timestamp.toString
+          ) :: buildChanges(appId, appName, journeyVersion, state2 :: others)
 
         case finalState :: Nil => List(ApplicationStateHistoryChange(
-          appId.value.toString(),
-          appName,
-          journeyVersion.toString,
-          finalState.state.toString,
-          finalState.timestamp.toString,
-          "",
-          ""
-        ))
+            appId.value.toString(),
+            appName,
+            journeyVersion.toString,
+            finalState.state.toString,
+            finalState.timestamp.toString,
+            "",
+            ""
+          ))
 
         case Nil => {
           logger.warn(s"Found a PRODUCTION application ${appId} without any state history while running the Application State History report")
@@ -86,11 +88,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    val sandboxApplicationsFuture = sandboxApplicationConnector.fetchAllApplications()
+    val sandboxApplicationsFuture    = sandboxApplicationConnector.fetchAllApplications()
     val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()
 
     for {
-      sandboxApps <- sandboxApplicationsFuture
+      sandboxApps    <- sandboxApplicationsFuture
       productionApps <- productionApplicationsFuture
     } yield (sandboxApps ++ productionApps).distinct
   }
@@ -98,19 +100,19 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
     val connectors: List[ApplicationConnector] = envFilter match {
       case ProductionEnvironment => List(productionApplicationConnector)
-      case SandboxEnvironment => List(sandboxApplicationConnector)
-      case AnyEnvironment => List(productionApplicationConnector, sandboxApplicationConnector)
+      case SandboxEnvironment    => List(sandboxApplicationConnector)
+      case AnyEnvironment        => List(productionApplicationConnector, sandboxApplicationConnector)
     }
 
     apiFilter match {
-      case OneOrMoreSubscriptions =>
-        val allFutures = connectors.map(_.fetchAllApplications)
+      case OneOrMoreSubscriptions       =>
+        val allFutures    = connectors.map(_.fetchAllApplications)
         val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
         for {
-          all <- combine(allFutures)
+          all    <- combine(allFutures)
           noSubs <- combine(noSubsFutures)
         } yield all.filterNot(app => noSubs.contains(app)).distinct
-      case NoSubscriptions =>
+      case NoSubscriptions              =>
         val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
         for {
           apps <- combine(noSubsFutures)
@@ -120,7 +122,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
         for {
           apps <- combine(futures)
         } yield apps.distinct
-      case _ => fetchApplications
+      case _                            => fetchApplications
     }
   }
 
@@ -142,7 +144,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
 
       def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
         case overrideFlagWithScopes: OverrideFlagWithScopes => containsInvalidScopes(validScopes, overrideFlagWithScopes.scopes)
-        case _ => false
+        case _                                              => false
       }
 
       Future.successful(overrides.filter(doesOverrideTypeContainInvalidScopes))
@@ -152,11 +154,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       case _: Standard => {
         (
           for {
-            validScopes <- apiScopeConnectorFor(application).fetchAll()
+            validScopes                    <- apiScopeConnectorFor(application).fetchAll()
             overrideTypesWithInvalidScopes <- findOverrideTypesWithInvalidScopes(overrides, validScopes.map(_.key).toSet)
           } yield overrideTypesWithInvalidScopes
         ).flatMap(overrideTypes =>
-          if(overrideTypes.nonEmpty) {
+          if (overrideTypes.nonEmpty) {
             Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
             applicationConnectorFor(application).updateOverrides(application.id, UpdateOverridesRequest(overrides))
@@ -172,7 +174,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
       case _: AccessWithRestrictedScopes => {
         (
           for {
-            validScopes <- apiScopeConnectorFor(application).fetchAll()
+            validScopes     <- apiScopeConnectorFor(application).fetchAll()
             hasInvalidScopes = !scopes.subsetOf(validScopes.map(_.key).toSet)
           } yield hasInvalidScopes
         ).flatMap(hasInvalidScopes =>
@@ -180,22 +182,19 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
-      case _: Standard => Future.successful(UpdateScopesInvalidScopesResult) 
+      case _: Standard                   => Future.successful(UpdateScopesInvalidScopesResult)
     }
   }
 
-  def manageIpAllowlist(application: ApplicationResponse, required: Boolean, ipAllowlist: Set[String])
-                       (implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
+  def manageIpAllowlist(application: ApplicationResponse, required: Boolean, ipAllowlist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
     applicationConnectorFor(application).updateIpAllowlist(application.id, required, ipAllowlist)
   }
 
-  def validateApplicationName(application: ApplicationResponse, name: String)
-                       (implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+  def validateApplicationName(application: ApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
 
-  def updateApplicationName(application: ApplicationResponse, adminEmail: String, gatekeeperUser: String, name: String)
-                           (implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateApplicationName(application: ApplicationResponse, adminEmail: String, gatekeeperUser: String, name: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     if (application.name.equalsIgnoreCase(name)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
@@ -204,7 +203,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
           val timestamp = LocalDateTime.now
           applicationConnectorFor(application).updateApplicationName(application.id, instigator, timestamp, gatekeeperUser, name)
         }
-        case None => Future.successful(ApplicationUpdateFailureResult)
+        case None             => Future.successful(ApplicationUpdateFailureResult)
       }
     }
   }
@@ -241,17 +240,23 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     applicationConnectorFor(application).approveUplift(application.id, gatekeeperUserId)
   }
 
-  def rejectUplift(application: Application, gatekeeperUserId: String, rejectionReason: String)
-                  (implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
+  def rejectUplift(application: Application, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
     applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
   }
 
-  def createPrivOrROPCApp(appEnv: Environment, appName: String, appDescription: String, collaborators: List[Collaborator], access: AppAccess)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+  def createPrivOrROPCApp(
+      appEnv: Environment,
+      appName: String,
+      appDescription: String,
+      collaborators: List[Collaborator],
+      access: AppAccess
+    )(implicit hc: HeaderCarrier
+    ): Future[CreatePrivOrROPCAppResult] = {
     val req = CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access)
 
     appEnv match {
       case PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
-      case SANDBOX => sandboxApplicationConnector.createPrivOrROPCApp(req)
+      case SANDBOX    => sandboxApplicationConnector.createPrivOrROPCApp(req)
     }
   }
 
@@ -266,7 +271,7 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     val applicationConnector = applicationConnectorFor(app)
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
-      response <- applicationConnector.removeCollaborator(app.id, teamMemberToRemove, requestingEmail, adminsToEmail)
+      response      <- applicationConnector.removeCollaborator(app.id, teamMemberToRemove, requestingEmail, adminsToEmail)
     } yield response
   }
 
@@ -274,11 +279,11 @@ class ApplicationService @Inject()(sandboxApplicationConnector: SandboxApplicati
     val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
 
     developerConnector.fetchByEmails(adminEmails)
-    .map(registeredUsers =>
-      registeredUsers.filter(_.verified)
-        .map(_.email)
-        .toSet
-    )
+      .map(registeredUsers =>
+        registeredUsers.filter(_.verified)
+          .map(_.email)
+          .toSet
+      )
   }
 
   def applicationConnectorFor(application: Application): ApplicationConnector =

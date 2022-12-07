@@ -134,7 +134,9 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
 
         val document = Jsoup.parse(contentAsString(result))
         document.getElementById("heading").text() shouldBe "Publish Page"
-        document.getElementById("message").text() shouldBe """Publish by serviceName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
+        document.getElementById(
+          "message"
+        ).text() shouldBe """Publish by serviceName called ok serviceName - {"id":"id","publisherReference":"publisherReference","platformType":"platformType"}"""
 
         verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo("serviceName"))(*)
       }

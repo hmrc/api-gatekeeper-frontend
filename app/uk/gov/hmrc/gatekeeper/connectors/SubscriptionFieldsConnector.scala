@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
 import play.api.http.Status._
-import play.api.libs.json.{Format, Json, JsSuccess}
+import play.api.libs.json.{Format, JsSuccess, Json}
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.HttpClient
@@ -43,8 +43,12 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
   def http: HttpClient
 
-  def fetchFieldsValuesWithPrefetchedDefinitions(clientId: ClientId, apiIdentifier: ApiIdentifier, definitionsCache: DefinitionsByApiVersion)
-                                                (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
+  def fetchFieldsValuesWithPrefetchedDefinitions(
+      clientId: ClientId,
+      apiIdentifier: ApiIdentifier,
+      definitionsCache: DefinitionsByApiVersion
+    )(implicit hc: HeaderCarrier
+    ): Future[List[SubscriptionFieldValue]] = {
 
     def getDefinitions(): Future[List[SubscriptionFieldDefinition]] = Future.successful(definitionsCache.getOrElse(apiIdentifier, List.empty))
 
@@ -63,10 +67,13 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     http.GET[AllApiFieldValues](url).map(_.subscriptions)
   }
 
-  private def internalFetchFieldValues(getDefinitions: () => Future[List[SubscriptionFieldDefinition]])
-                                      (clientId: ClientId,
-                                       apiIdentifier: ApiIdentifier)
-                                      (implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
+  private def internalFetchFieldValues(
+      getDefinitions: () => Future[List[SubscriptionFieldDefinition]]
+    )(
+      clientId: ClientId,
+      apiIdentifier: ApiIdentifier
+    )(implicit hc: HeaderCarrier
+    ): Future[List[SubscriptionFieldValue]] = {
 
     def joinFieldValuesToDefinitions(defs: List[SubscriptionFieldDefinition], fieldValues: Fields.Alias): List[SubscriptionFieldValue] = {
       defs.map(field => SubscriptionFieldValue(field, fieldValues.getOrElse(field.name, FieldValue.empty)))
@@ -75,17 +82,16 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     def ifDefinitionsGetValues(definitions: List[SubscriptionFieldDefinition]): Future[Option[ApplicationApiFieldValues]] = {
       if (definitions.isEmpty) {
         Future.successful(None)
-      }
-      else {
+      } else {
         fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
       }
     }
 
     for {
       definitions: List[SubscriptionFieldDefinition] <- getDefinitions()
-      subscriptionFields <- ifDefinitionsGetValues(definitions)
-      fieldValues = subscriptionFields.fold(Fields.empty)(_.fields)
-    }  yield joinFieldValuesToDefinitions(definitions, fieldValues)
+      subscriptionFields                             <- ifDefinitionsGetValues(definitions)
+      fieldValues                                     = subscriptionFields.fold(Fields.empty)(_.fields)
+    } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
   def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldDefinition]] = {
@@ -96,38 +102,41 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def fetchAllFieldDefinitions()(implicit hc: HeaderCarrier): Future[DefinitionsByApiVersion] = {
     val url = s"$serviceBaseUrl/definition"
     http.GET[Option[AllApiFieldDefinitions]](url)
-    .map(_.fold(DefinitionsByApiVersion.empty)(toDomain))
+      .map(_.fold(DefinitionsByApiVersion.empty)(toDomain))
   }
 
-  def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
-                     (implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse] = {
+  def saveFieldValues(
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersion,
+      fields: Fields.Alias
+    )(implicit hc: HeaderCarrier
+    ): Future[SaveSubscriptionFieldsResponse] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
 
-    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)).map( _ match {
-      case resp: HttpResponse if(is2xx(resp.status)) => SaveSubscriptionFieldsSuccessResponse
+    http.PUT[SubscriptionFieldsPutRequest, HttpResponse](url, SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)).map(_ match {
+      case resp: HttpResponse if (is2xx(resp.status)) => SaveSubscriptionFieldsSuccessResponse
 
       case HttpResponse(BAD_REQUEST, body, _) =>
-          Json.parse(body).validate[Map[String, String]] match {
-            case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
-            case _ => SaveSubscriptionFieldsFailureResponse(Map.empty)
-          }
-      case HttpResponse(status, body, _)  => throw UpstreamErrorResponse(body, status)
+        Json.parse(body).validate[Map[String, String]] match {
+          case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
+          case _                                 => SaveSubscriptionFieldsFailureResponse(Map.empty)
+        }
+      case HttpResponse(status, body, _)      => throw UpstreamErrorResponse(body, status)
     })
   }
 
   def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     http.DELETE[HttpResponse](url).map(_.status match {
-        case NO_CONTENT | NOT_FOUND => FieldsDeleteSuccessResult
-        case _ => FieldsDeleteFailureResult
-      }
-     ) recover {
+      case NO_CONTENT | NOT_FOUND => FieldsDeleteSuccessResult
+      case _                      => FieldsDeleteFailureResult
+    }) recover {
       case _ => FieldsDeleteFailureResult
     }
-  }     
+  }
 
-  private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)
-                                       (implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
+  private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     http.GET[Option[ApplicationApiFieldValues]](url)
   }
@@ -158,10 +167,10 @@ object SubscriptionFieldsConnector extends UrlEncoders {
   }
 
   def toDomain(fs: AllApiFieldDefinitions): DefinitionsByApiVersion = {
-    fs.apis.map( fd =>
+    fs.apis.map(fd =>
       ApiIdentifier(fd.apiContext, fd.apiVersion) -> fd.fieldDefinitions.map(toDomain)
     )
-    .toMap
+      .toMap
   }
 
   private[connectors] case class FieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
@@ -173,34 +182,35 @@ object SubscriptionFieldsConnector extends UrlEncoders {
   private[connectors] case class AllApiFieldValues(subscriptions: List[ApplicationApiFieldValues])
 
   object JsonFormatters extends APIDefinitionFormatters {
-    implicit val format: Format[ApplicationApiFieldValues] = Json.format[ApplicationApiFieldValues]
-    implicit val formatFieldDefinition: Format[FieldDefinition] = Json.format[FieldDefinition]
-    implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions] = Json.format[ApiFieldDefinitions]
+    implicit val format: Format[ApplicationApiFieldValues]                            = Json.format[ApplicationApiFieldValues]
+    implicit val formatFieldDefinition: Format[FieldDefinition]                       = Json.format[FieldDefinition]
+    implicit val formatApiFieldDefinitionsResponse: Format[ApiFieldDefinitions]       = Json.format[ApiFieldDefinitions]
     implicit val formatAllApiFieldDefinitionsResponse: Format[AllApiFieldDefinitions] = Json.format[AllApiFieldDefinitions]
-    implicit val formatAllApplicationApiFieldValues: Format[AllApiFieldValues] = Json.format[AllApiFieldValues]
+    implicit val formatAllApplicationApiFieldValues: Format[AllApiFieldValues]        = Json.format[AllApiFieldValues]
   }
 }
 
 @Singleton
-class SandboxSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
-                                                   val httpClient: HttpClient,
-                                                   val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
-  extends AbstractSubscriptionFieldsConnector {
+class SandboxSubscriptionFieldsConnector @Inject() (
+    val appConfig: AppConfig,
+    val httpClient: HttpClient,
+    val proxiedHttpClient: ProxiedHttpClient
+  )(implicit val ec: ExecutionContext
+  ) extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.SANDBOX
-  val serviceBaseUrl: String = appConfig.subscriptionFieldsSandboxBaseUrl
-  val useProxy: Boolean = appConfig.subscriptionFieldsSandboxUseProxy
-  val bearerToken: String = appConfig.subscriptionFieldsSandboxBearerToken
-  val apiKey: String = appConfig.subscriptionFieldsSandboxApiKey
-  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
+  val serviceBaseUrl: String   = appConfig.subscriptionFieldsSandboxBaseUrl
+  val useProxy: Boolean        = appConfig.subscriptionFieldsSandboxUseProxy
+  val bearerToken: String      = appConfig.subscriptionFieldsSandboxBearerToken
+  val apiKey: String           = appConfig.subscriptionFieldsSandboxApiKey
+  val http: HttpClient         = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 }
 
 @Singleton
-class ProductionSubscriptionFieldsConnector @Inject()(val appConfig: AppConfig,
-                                                      val httpClient: HttpClient)(implicit val ec: ExecutionContext)
-  extends AbstractSubscriptionFieldsConnector {
+class ProductionSubscriptionFieldsConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit val ec: ExecutionContext)
+    extends AbstractSubscriptionFieldsConnector {
 
   val environment: Environment = Environment.PRODUCTION
-  val serviceBaseUrl: String = appConfig.subscriptionFieldsProductionBaseUrl
-  val http = httpClient
+  val serviceBaseUrl: String   = appConfig.subscriptionFieldsProductionBaseUrl
+  val http                     = httpClient
 }

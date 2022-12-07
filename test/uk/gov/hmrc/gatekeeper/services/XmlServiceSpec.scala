@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.services
 
 import mocks.connectors.XmlServicesConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.{XmlOrganisation, OrganisationId, VendorId, XmlApi}
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -35,7 +35,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
     val objectInTest = new XmlService(mockXmlServicesConnector)
 
     def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
-      val email = s"$name@example.com"
+      val email  = s"$name@example.com"
       val userId = UserId.random
       RegisteredUser(email, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
     }
@@ -48,14 +48,14 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       categories = Some(Seq(APICategory("PAYE"), APICategory("VAT")))
     )
 
-    val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two",categories = Some(Seq(APICategory("CUSTOMS"))))
+    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two", categories = Some(Seq(APICategory("CUSTOMS"))))
     val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Seq(APICategory("CUSTOMS"))))
-    val xmlApiFour = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Seq(APICategory("OTHER"))))
+    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Seq(APICategory("OTHER"))))
 
     val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Seq(APICategory("VAT"))))
     val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Seq(APICategory("VAT"))))
 
-    val xmlApis = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
+    val xmlApis               = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
     val xmlApisWithCategories = List(xmlApiWithCategory1, xmlApiWithCategory2)
 
     val restApiOne = "rest-api-one"
@@ -93,7 +93,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
 
         val result = await(objectInTest.getXmlServicesForUser(user))
 
-        result should contain only(xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+        result should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
       }
 
       "Return UpstreamErrorResponse when call to connector fails on getting apis for category" in new Setup {
@@ -102,7 +102,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
 
         intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
           case (e: UpstreamErrorResponse) => succeed
-          case _ => fail
+          case _                          => fail
         }
       }
 

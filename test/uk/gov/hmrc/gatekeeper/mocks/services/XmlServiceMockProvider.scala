@@ -26,11 +26,13 @@ import scala.concurrent.Future.successful
 
 trait XmlServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
-  
+
   val mockXmlService = mock[XmlService]
 
   object XmlServiceMock {
+
     object GetXmlServicesForUser {
+
       def returnsApis(user: RegisteredUser, xmlServiceNames: Set[String]) =
         when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenReturn(successful(xmlServiceNames))
 

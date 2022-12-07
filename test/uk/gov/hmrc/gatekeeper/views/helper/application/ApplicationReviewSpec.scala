@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-
 import uk.gov.hmrc.gatekeeper.models.State._
 import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -26,10 +25,10 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
-      val now = DateTime.now()
+      val now           = DateTime.now()
       val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
-      val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
-      val appResponse = anApplicationResponseWith(aCheckInformation())
+      val app           = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
+      val appResponse   = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {
         ApplicationReview.getApprovedBy(app.history) shouldBe Some("actor id")
@@ -49,7 +48,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilde
     }
     "application is not approved" should {
       val appWithHistory = anApplicationWithHistory()
-      val app = anApplicationResponse()
+      val app            = anApplicationResponse()
 
       "approved by return None" in {
         ApplicationReview.getApprovedBy(appWithHistory.history) shouldBe None

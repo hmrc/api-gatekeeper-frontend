@@ -27,9 +27,11 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with WiremockSugarIt {
+
   val config = Configuration(
     "microservice.services.api-definition-production.host" -> stubHost,
-    "microservice.services.api-definition-production.port" -> stubPort)
+    "microservice.services.api-definition-production.port" -> stubPort
+  )
 
   override def fakeApplication = GuiceApplicationBuilder()
     .configure(config)
@@ -38,97 +40,111 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
 
   trait Setup {
     implicit val hc = HeaderCarrier()
-    val connector = app.injector.instanceOf[ProductionApiDefinitionConnector]
-    val apiContext = ApiContext.random
-    val apiVersion = ApiVersion.random
+    val connector   = app.injector.instanceOf[ProductionApiDefinitionConnector]
+    val apiContext  = ApiContext.random
+    val apiVersion  = ApiVersion.random
   }
 
   "API status mapping" should {
     "map API status of PROTOTYPED to BETA" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
         s"""
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "${apiContext.value}",
-          |   "categories": ["VAT"],
-          |   "versions": [
-          |     {
-          |       "version": "${apiVersion.value}",
-          |       "status": "PROTOTYPED",
-          |       "versionSource" : "UNKNOWN",
-          |       "access": {
-          |         "type": "PUBLIC"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
+           |[
+           | {
+           |   "serviceName": "dummyAPI",
+           |   "serviceBaseUrl": "http://localhost/",
+           |   "name": "dummyAPI",
+           |   "description": "dummy api.",
+           |   "context": "${apiContext.value}",
+           |   "categories": ["VAT"],
+           |   "versions": [
+           |     {
+           |       "version": "${apiVersion.value}",
+           |       "status": "PROTOTYPED",
+           |       "versionSource" : "UNKNOWN",
+           |       "access": {
+           |         "type": "PUBLIC"
+           |       },
+           |       "endpoints": [
+           |         {
+           |           "uriPattern": "/arrgh",
+           |           "endpointName": "dummyAPI",
+           |           "method": "GET",
+           |           "authType": "USER",
+           |           "throttlingTier": "UNLIMITED",
+           |           "scope": "read:dummy-api-2"
+           |         }
+           |       ]
+           |     }
+           |   ],
+           |   "requiresTrust": false
+           | }
+           |]
+        """.stripMargin
+      )))
 
       val result: Seq[ApiDefinition] = await(connector.fetchPublic())
-      
+
       result shouldBe Seq(ApiDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), Some(List(APICategory("VAT")))))
+        "dummyAPI",
+        "http://localhost/",
+        "dummyAPI",
+        "dummy api.",
+        apiContext,
+        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        Some(false),
+        Some(List(APICategory("VAT")))
+      ))
     }
 
     "map API status of PUBLISHED to STABLE" in new Setup {
       stubFor(get(urlEqualTo(s"/api-definition")).willReturn(aResponse().withStatus(200).withBody(
         s"""
-          |[
-          | {
-          |   "serviceName": "dummyAPI",
-          |   "serviceBaseUrl": "http://localhost/",
-          |   "name": "dummyAPI",
-          |   "description": "dummy api.",
-          |   "context": "${apiContext.value}",
-          |   "versions": [
-          |     {
-          |       "version": "${apiVersion.value}",
-          |       "status": "PUBLISHED",
-          |       "versionSource" : "UNKNOWN",
-          |       "access": {
-          |         "type": "PUBLIC"
-          |       },
-          |       "endpoints": [
-          |         {
-          |           "uriPattern": "/arrgh",
-          |           "endpointName": "dummyAPI",
-          |           "method": "GET",
-          |           "authType": "USER",
-          |           "throttlingTier": "UNLIMITED",
-          |           "scope": "read:dummy-api-2"
-          |         }
-          |       ]
-          |     }
-          |   ],
-          |   "requiresTrust": false
-          | }
-          |]
-        """.stripMargin)))
+           |[
+           | {
+           |   "serviceName": "dummyAPI",
+           |   "serviceBaseUrl": "http://localhost/",
+           |   "name": "dummyAPI",
+           |   "description": "dummy api.",
+           |   "context": "${apiContext.value}",
+           |   "versions": [
+           |     {
+           |       "version": "${apiVersion.value}",
+           |       "status": "PUBLISHED",
+           |       "versionSource" : "UNKNOWN",
+           |       "access": {
+           |         "type": "PUBLIC"
+           |       },
+           |       "endpoints": [
+           |         {
+           |           "uriPattern": "/arrgh",
+           |           "endpointName": "dummyAPI",
+           |           "method": "GET",
+           |           "authType": "USER",
+           |           "throttlingTier": "UNLIMITED",
+           |           "scope": "read:dummy-api-2"
+           |         }
+           |       ]
+           |     }
+           |   ],
+           |   "requiresTrust": false
+           | }
+           |]
+        """.stripMargin
+      )))
 
       val result: Seq[ApiDefinition] = await(connector.fetchPublic())
-      
+
       result shouldBe Seq(ApiDefinition(
-        "dummyAPI", "http://localhost/",
-        "dummyAPI", "dummy api.", apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN,ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None))
+        "dummyAPI",
+        "http://localhost/",
+        "dummyAPI",
+        "dummy api.",
+        apiContext,
+        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        Some(false),
+        None
+      ))
     }
   }
 }

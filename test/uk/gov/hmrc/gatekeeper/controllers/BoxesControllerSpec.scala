@@ -25,7 +25,7 @@ import org.joda.time.DateTime
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.ClientId
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box,BoxId,BoxCreator,BoxSubscriber,SubscriptionType}
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models.Environment
@@ -33,8 +33,8 @@ import uk.gov.hmrc.gatekeeper.models.Environment
 class BoxesControllerSpec extends ControllerBaseSpec {
 
   implicit val materializer = app.materializer
-  val anAppId = ApplicationId.random
-  val appIdText = anAppId.value.toString()
+  val anAppId               = ApplicationId.random
+  val appIdText             = anAppId.value.toString()
 
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
@@ -58,8 +58,10 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       val box = Box(
         BoxId("boxId"),
         "boxName",
-        BoxCreator(ClientId("clientId")), Some(anAppId),
-        Some(boxSubscriber), Environment.PRODUCTION
+        BoxCreator(ClientId("clientId")),
+        Some(anAppId),
+        Some(boxSubscriber),
+        Environment.PRODUCTION
       )
 
       val expectedCsv = s"""|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl

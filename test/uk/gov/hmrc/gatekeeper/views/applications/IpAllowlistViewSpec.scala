@@ -33,9 +33,9 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 class IpAllowlistViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request = FakeRequest()
+    val request                          = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength: Period              = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -45,7 +45,10 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         "application1",
         "PRODUCTION",
         None,
-        Set(Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random), Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)),
+        Set(
+          Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
+          Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+        ),
         DateTime.now(),
         Some(DateTime.now()),
         Standard(),
@@ -67,8 +70,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
     }
 
     "show IP allowlist information when the allowlist is required" in new Setup {
-      val result: Appendable = ipAllowlistView(application.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24")))
-        )(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = ipAllowlistView(application.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24"))))(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

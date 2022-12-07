@@ -20,13 +20,13 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.connectors.{ApiPublisherConnector,SandboxApiPublisherConnector,ProductionApiPublisherConnector}
+import uk.gov.hmrc.gatekeeper.connectors.{ApiPublisherConnector, ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 
 trait ApiPublisherConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val mockProductionApiPublisherConnector = mock[ProductionApiPublisherConnector]
-  val mockSandboxApiPublisherConnector = mock[SandboxApiPublisherConnector]
+  val mockSandboxApiPublisherConnector    = mock[SandboxApiPublisherConnector]
 
   trait ApiPublisherConnectorMock {
     def mock: ApiPublisherConnector
@@ -45,6 +45,7 @@ trait ApiPublisherConnectorMockProvider {
   }
 
   object ApiPublisherConnectorMock {
+
     object Prod extends ApiPublisherConnectorMock {
       val mock = mockProductionApiPublisherConnector
     }

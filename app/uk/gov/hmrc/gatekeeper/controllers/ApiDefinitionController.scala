@@ -34,52 +34,73 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-case class ApiDefinitionView(apiName: String, serviceName: String, apiContext: ApiContext, apiVersion: ApiVersion, versionSource: ApiVersionSource, status: String, access: String, isTrial: Boolean, environment: String)
+case class ApiDefinitionView(
+    apiName: String,
+    serviceName: String,
+    apiContext: ApiContext,
+    apiVersion: ApiVersion,
+    versionSource: ApiVersionSource,
+    status: String,
+    access: String,
+    isTrial: Boolean,
+    environment: String
+  )
 
 @Singleton
-class ApiDefinitionController @Inject()(
-  apiDefinitionService: ApiDefinitionService,
-  val forbiddenView: ForbiddenView,
-  mcc: MessagesControllerComponents,
-  override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) 
-  with GatekeeperAuthorisationActions
-  with ErrorHelper {
-    
+class ApiDefinitionController @Inject() (
+    apiDefinitionService: ApiDefinitionService,
+    val forbiddenView: ForbiddenView,
+    mcc: MessagesControllerComponents,
+    override val errorTemplate: ErrorTemplate,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
+    with ErrorHelper {
+
   def apis() = anyAuthenticatedUserAction { implicit request =>
     val definitions = apiDefinitionService.apis
 
     definitions.map(allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
-        .flatMap { case(d, env) => toViewModel(d, env) }
+        .flatMap { case (d, env) => toViewModel(d, env) }
         .sortBy((vm: ApiDefinitionView) => (vm.apiName, vm.apiVersion))
-        
-      val columnDefinitions : Seq[ColumnDefinition[ApiDefinitionView]] = Seq(
-        ColumnDefinition("name",(vm => vm.apiName)),
+
+      val columnDefinitions: Seq[ColumnDefinition[ApiDefinitionView]] = Seq(
+        ColumnDefinition("name", (vm => vm.apiName)),
         ColumnDefinition("serviceName", (vm => vm.serviceName)),
-        ColumnDefinition("context",(vm => vm.apiContext.value)),
-        ColumnDefinition("version",(vm => vm.apiVersion.value)),
+        ColumnDefinition("context", (vm => vm.apiContext.value)),
+        ColumnDefinition("version", (vm => vm.apiVersion.value)),
         ColumnDefinition("source", (vm => vm.versionSource.asText)),
-        ColumnDefinition("status",(vm => vm.status)),
+        ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
         ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
         ColumnDefinition("environment", (vm => vm.environment))
-       )
+      )
 
       Ok(toCsvString(columnDefinitions, allDefinitionsAsRows))
     })
   }
 
   private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): List[ApiDefinitionView] = {
-    def isTrial(apiVersion: ApiVersionDefinition) : Boolean = {
+    def isTrial(apiVersion: ApiVersionDefinition): Boolean = {
       apiVersion.access.fold(false)(access => access.isTrial.getOrElse(false))
     }
 
     apiDefinition.versions.map(v =>
-      ApiDefinitionView(apiDefinition.name, apiDefinition.serviceName, apiDefinition.context, v.version, v.versionSource , v.displayedStatus, v.accessType.toString, isTrial(v), environment.toString)
+      ApiDefinitionView(
+        apiDefinition.name,
+        apiDefinition.serviceName,
+        apiDefinition.context,
+        v.version,
+        v.versionSource,
+        v.displayedStatus,
+        v.accessType.toString,
+        isTrial(v),
+        environment.toString
+      )
     )
   }
 }

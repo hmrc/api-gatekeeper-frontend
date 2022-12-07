@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.UserId
-import uk.gov.hmrc.gatekeeper.models.xml.{XmlOrganisation, XmlApi}
+import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
@@ -27,8 +27,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
-    (implicit ec: ExecutionContext) extends Logging {
+class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 
@@ -36,12 +35,13 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
    * TODO This handler can be removed once the backend is permanently deployed with no expectation of being rolled back
    * See also XmlServicesConnectorSpec
    */
-  private def handleUpstream404s[A](returnIf404: A): PartialFunction[Throwable, A] = (err: Throwable) => err match {
-    case _: NotFoundException => returnIf404
-    case e: UpstreamErrorResponse if e.statusCode == NOT_FOUND => returnIf404
-    case e: Throwable => throw e
-  }
-  
+  private def handleUpstream404s[A](returnIf404: A): PartialFunction[Throwable, A] = (err: Throwable) =>
+    err match {
+      case _: NotFoundException                                  => returnIf404
+      case e: UpstreamErrorResponse if e.statusCode == NOT_FOUND => returnIf404
+      case e: Throwable                                          => throw e
+    }
+
   def getAllApis()(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
     http.GET[List[XmlApi]](s"$baseUrl/xml/apis")
   }
@@ -51,8 +51,7 @@ class XmlServicesConnector @Inject()(config: Config, http: HttpClient)
       .recover(handleUpstream404s[List[XmlApi]](List.empty[XmlApi]))
   }
 
-  def findOrganisationsByUserId(userId: UserId)
-                               (implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     val userIdParams = Seq("userId" -> userId.value.toString)
     val sortByParams = Seq("sortBy" -> "ORGANISATION_NAME")
 

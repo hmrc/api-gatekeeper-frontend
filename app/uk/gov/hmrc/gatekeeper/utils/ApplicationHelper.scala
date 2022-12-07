@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import uk.gov.hmrc.gatekeeper.models._
 
 object ApplicationHelper {
+
   def applicationsWithTeamMemberAsOnlyAdmin(applications: List[Application], emailAddress: String): List[Application] = {
     applications.filter(application => isTheOnlyAdmin(application, emailAddress))
   }

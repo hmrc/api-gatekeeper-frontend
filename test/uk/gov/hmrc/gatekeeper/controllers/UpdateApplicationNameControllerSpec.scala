@@ -29,35 +29,41 @@ import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html._
-import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageApplicationNameAdminListView, ManageApplicationNameSingleAdminView, ManageApplicationNameSuccessView, ManageApplicationNameView}
+import uk.gov.hmrc.gatekeeper.views.html.applications.{
+  ManageApplicationNameAdminListView,
+  ManageApplicationNameSingleAdminView,
+  ManageApplicationNameSuccessView,
+  ManageApplicationNameView
+}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
-      
+
   implicit val materializer = app.materializer
 
-  val forbiddenView = mock[ForbiddenView]
-  val errorTemplate = mock[ErrorTemplate]
-  val apmService = mock[ApmService]
-  val errorHandler = mock[ErrorHandler]
+  val forbiddenView        = mock[ForbiddenView]
+  val errorTemplate        = mock[ErrorTemplate]
+  val apmService           = mock[ApmService]
+  val errorHandler         = mock[ErrorHandler]
   val newAppNameSessionKey = "newApplicationName"
 
   trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider {
-    val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
-    val manageApplicationNameView = app.injector.instanceOf[ManageApplicationNameView]
-    val manageApplicationNameAdminListView = app.injector.instanceOf[ManageApplicationNameAdminListView]
+    val csrfToken                            = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
+    val manageApplicationNameView            = app.injector.instanceOf[ManageApplicationNameView]
+    val manageApplicationNameAdminListView   = app.injector.instanceOf[ManageApplicationNameAdminListView]
     val manageApplicationNameSingleAdminView = app.injector.instanceOf[ManageApplicationNameSingleAdminView]
-    val manageApplicationNameSuccessView = app.injector.instanceOf[ManageApplicationNameSuccessView]
+    val manageApplicationNameSuccessView     = app.injector.instanceOf[ManageApplicationNameSuccessView]
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
 
     val updateApplicationNameFormCaptor = ArgCaptor[Form[UpdateApplicationNameForm]]
-    val validName = "valid app name"
-    val appId = ApplicationId.random
-    val underTest = new UpdateApplicationNameController(
+    val validName                       = "valid app name"
+    val appId                           = ApplicationId.random
+
+    val underTest                       = new UpdateApplicationNameController(
       mockApplicationService,
       forbiddenView,
       mcc,
@@ -92,7 +98,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "my app name"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/admin-email")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/admin-email")
     }
 
     "redisplay the name entry page if the name has not changed" in new Setup {
@@ -141,7 +147,8 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
     "display multiple admin page if there is > 1 admin for the app" in new Setup {
       val appWithMultipleAdmins = basicApplication.copy(collaborators =
-        Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator))
+        Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+      )
 
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(appWithMultipleAdmins, List.empty))
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
@@ -163,7 +170,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe  Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/updated")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/updated")
     }
 
     "display app name entry page with an error if app name update fails" in new Setup {

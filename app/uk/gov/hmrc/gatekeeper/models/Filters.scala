@@ -18,21 +18,22 @@ package uk.gov.hmrc.gatekeeper.models
 
 sealed trait ApiFilter[+A]
 case class Value[A](context: A, version: A) extends ApiFilter[A]
-case object NoApplications extends ApiFilter[Nothing]
-case object OneOrMoreApplications extends ApiFilter[Nothing]
-case object NoSubscriptions extends ApiFilter[Nothing]
-case object OneOrMoreSubscriptions extends ApiFilter[Nothing]
-case object AllUsers extends ApiFilter[Nothing]
+case object NoApplications                  extends ApiFilter[Nothing]
+case object OneOrMoreApplications           extends ApiFilter[Nothing]
+case object NoSubscriptions                 extends ApiFilter[Nothing]
+case object OneOrMoreSubscriptions          extends ApiFilter[Nothing]
+case object AllUsers                        extends ApiFilter[Nothing]
 
 case object ApiFilter {
-  private val ApiIdPattern = """^(.+)__(.+?)$""".r
+  private val ApiIdPattern                            = """^(.+)__(.+?)$""".r
+
   def apply(value: Option[String]): ApiFilter[String] = {
     value match {
-      case Some("ALL") | Some("") | None => AllUsers
-      case Some("ANYSUB") => OneOrMoreSubscriptions
-      case Some("ANYAPP") => OneOrMoreApplications
-      case Some("NOSUB") => NoSubscriptions
-      case Some("NOAPP") => NoApplications
+      case Some("ALL") | Some("") | None        => AllUsers
+      case Some("ANYSUB")                       => OneOrMoreSubscriptions
+      case Some("ANYAPP")                       => OneOrMoreApplications
+      case Some("NOSUB")                        => NoSubscriptions
+      case Some("NOAPP")                        => NoApplications
       case Some(ApiIdPattern(context, version)) => Value(context, version)
     }
   }
@@ -40,30 +41,32 @@ case object ApiFilter {
 
 sealed trait StatusFilter
 case object UnregisteredStatus extends StatusFilter
-case object UnverifiedStatus extends StatusFilter
-case object VerifiedStatus extends StatusFilter
-case object AnyStatus extends StatusFilter
+case object UnverifiedStatus   extends StatusFilter
+case object VerifiedStatus     extends StatusFilter
+case object AnyStatus          extends StatusFilter
 
 case object StatusFilter {
+
   def apply(value: Option[String]): StatusFilter = {
     value match {
       case Some("UNREGISTERED") => UnregisteredStatus
-      case Some("UNVERIFIED") => UnverifiedStatus
-      case Some("VERIFIED") => VerifiedStatus
-      case _ => AnyStatus
+      case Some("UNVERIFIED")   => UnverifiedStatus
+      case Some("VERIFIED")     => VerifiedStatus
+      case _                    => AnyStatus
     }
   }
 }
 
 sealed trait ApiSubscriptionInEnvironmentFilter
-case object AnyEnvironment extends ApiSubscriptionInEnvironmentFilter
+case object AnyEnvironment        extends ApiSubscriptionInEnvironmentFilter
 case object ProductionEnvironment extends ApiSubscriptionInEnvironmentFilter
-case object SandboxEnvironment extends ApiSubscriptionInEnvironmentFilter
+case object SandboxEnvironment    extends ApiSubscriptionInEnvironmentFilter
 
 case object ApiSubscriptionInEnvironmentFilter {
+
   def apply(value: Option[String]): ApiSubscriptionInEnvironmentFilter = value match {
     case Some("PRODUCTION") => ProductionEnvironment
-    case Some("SANDBOX") => SandboxEnvironment
-    case _ => AnyEnvironment
+    case Some("SANDBOX")    => SandboxEnvironment
+    case _                  => AnyEnvironment
   }
 }

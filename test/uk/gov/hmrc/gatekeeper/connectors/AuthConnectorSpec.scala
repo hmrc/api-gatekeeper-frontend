@@ -23,16 +23,16 @@ import uk.gov.hmrc.http.HttpClient
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class AuthConnectorSpec 
-    extends AsyncHmrcSpec 
-    with BeforeAndAfterEach 
+class AuthConnectorSpec
+    extends AsyncHmrcSpec
+    with BeforeAndAfterEach
     with GuiceOneAppPerSuite {
 
   trait Setup {
     implicit val hc = HeaderCarrier()
 
     val mockAppConfig = mock[AppConfig]
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient    = app.injector.instanceOf[HttpClient]
 
     val connector = new AuthConnector(httpClient, mockAppConfig)
 

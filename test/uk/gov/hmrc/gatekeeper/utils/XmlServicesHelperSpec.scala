@@ -24,8 +24,9 @@ import org.scalatest.wordspec.AnyWordSpec
 class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHelper {
 
   trait Setup {
+
     def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
-      val email = s"$name@example.com"
+      val email  = s"$name@example.com"
       val userId = UserId.random
       RegisteredUser(email, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
     }
@@ -34,24 +35,26 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
       name = "xml api one",
       serviceName = "xml-api-one",
       context = "context",
-      description = "description")
+      description = "description"
+    )
 
-    val xmlApiTwo = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two")
+    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two")
     val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three")
-    val xmlApiFour = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four")
-    val xmlApis = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
+    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four")
+    val xmlApis     = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
 
-    val restApiOne = "rest-api-one"
-    val restApiTwo = "rest-api-two"
+    val restApiOne   = "rest-api-one"
+    val restApiTwo   = "rest-api-two"
     val restApiThree = "rest-api-three"
-    val restApiFour = "rest-api-four"
+    val restApiFour  = "rest-api-four"
 
-    val restEmailPrefInterests = List(TaxRegimeInterests("TestRegimeOne", Set(restApiOne, restApiTwo)),
-                                      TaxRegimeInterests("TestRegimeTwo", Set(restApiThree, restApiFour)))
+    val restEmailPrefInterests = List(TaxRegimeInterests("TestRegimeOne", Set(restApiOne, restApiTwo)), TaxRegimeInterests("TestRegimeTwo", Set(restApiThree, restApiFour)))
 
     val emailPreferences = EmailPreferences(
-      interests = List(TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
-                       TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))),
+      interests = List(
+        TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
+        TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))
+      ),
       topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
     )
 

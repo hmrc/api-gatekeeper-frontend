@@ -23,13 +23,13 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 trait APIDefinitionFormatters {
 
   implicit val apiVersionSourceJF: Format[ApiVersionSource] = new Format[ApiVersionSource] {
-    import ApiVersionSource.{RAML, OAS, UNKNOWN}
-    
+    import ApiVersionSource.{OAS, RAML, UNKNOWN}
+
     def reads(json: JsValue): JsResult[ApiVersionSource] = json match {
-      case JsString(RAML.asText) => JsSuccess(RAML)
-      case JsString(OAS.asText) => JsSuccess(OAS)
+      case JsString(RAML.asText)    => JsSuccess(RAML)
+      case JsString(OAS.asText)     => JsSuccess(OAS)
       case JsString(UNKNOWN.asText) => JsSuccess(UNKNOWN)
-      case e => JsError(s"Cannot parse source value from '$e'")
+      case e                        => JsError(s"Cannot parse source value from '$e'")
     }
 
     def writes(foo: ApiVersionSource): JsValue = {
@@ -37,29 +37,29 @@ trait APIDefinitionFormatters {
     }
   }
 
-  implicit val formatFieldValue = Json.valueFormat[FieldValue]
-  implicit val formatFieldName = Json.valueFormat[FieldName]
-  implicit val keyReadsFieldName: KeyReads[FieldName] = key => JsSuccess(FieldName(key))
+  implicit val formatFieldValue                         = Json.valueFormat[FieldValue]
+  implicit val formatFieldName                          = Json.valueFormat[FieldName]
+  implicit val keyReadsFieldName: KeyReads[FieldName]   = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 
-  implicit val keyReadsApiContext: KeyReads[ApiContext] = key => JsSuccess(ApiContext(key))
+  implicit val keyReadsApiContext: KeyReads[ApiContext]   = key => JsSuccess(ApiContext(key))
   implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
 
-  implicit val keyReadsApiVersion: KeyReads[ApiVersion] = key => JsSuccess(ApiVersion(key))
+  implicit val keyReadsApiVersion: KeyReads[ApiVersion]   = key => JsSuccess(ApiVersion(key))
   implicit val keyWritesApiVersion: KeyWrites[ApiVersion] = _.value
 
-  implicit val formatAPIStatus = ApiStatusJson.apiStatusFormat(ApiStatus)
-  implicit val formatAPIAccess = Json.format[ApiAccess]
-  implicit val formatAPIVersion = Json.format[ApiVersionDefinition]
+  implicit val formatAPIStatus                   = ApiStatusJson.apiStatusFormat(ApiStatus)
+  implicit val formatAPIAccess                   = Json.format[ApiAccess]
+  implicit val formatAPIVersion                  = Json.format[ApiVersionDefinition]
   implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
-  implicit val formatSubscriptionFieldValue = Json.format[SubscriptionFieldValue]
-  implicit val formatSubscriptionFields = Json.format[SubscriptionFieldsWrapper]
-  implicit val formatVersionSubscription = Json.format[VersionSubscription]
-  implicit val formatAPIIdentifier = Json.format[ApiIdentifier]
-  implicit val formatApiDefinitions = Json.format[ApiDefinition]
+  implicit val formatSubscriptionFieldValue      = Json.format[SubscriptionFieldValue]
+  implicit val formatSubscriptionFields          = Json.format[SubscriptionFieldsWrapper]
+  implicit val formatVersionSubscription         = Json.format[VersionSubscription]
+  implicit val formatAPIIdentifier               = Json.format[ApiIdentifier]
+  implicit val formatApiDefinitions              = Json.format[ApiDefinition]
 
   implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
-  implicit val subscriptionWithoutFieldsJsonFormatter = Json.format[SubscriptionWithoutFields]
+  implicit val subscriptionWithoutFieldsJsonFormatter        = Json.format[SubscriptionWithoutFields]
 
   implicit val formatSubscriptionResponse = Json.format[SubscriptionResponse]
 }

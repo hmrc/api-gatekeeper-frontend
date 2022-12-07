@@ -31,34 +31,34 @@ trait User {
   def firstName: String
   def lastName: String
   lazy val sortField = User.asSortField(lastName, firstName)
-  lazy val fullName = s"${firstName} ${lastName}"
+  lazy val fullName  = s"${firstName} ${lastName}"
 }
 
 object User {
   def asSortField(lastName: String, firstName: String): String = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
-  
+
   def status(user: User): StatusFilter = user match {
-    case u : RegisteredUser if (u.verified) => VerifiedStatus
-    case u : RegisteredUser if (!u.verified) => UnverifiedStatus
-    case _ : UnregisteredUser => UnregisteredStatus
+    case u: RegisteredUser if (u.verified)  => VerifiedStatus
+    case u: RegisteredUser if (!u.verified) => UnverifiedStatus
+    case _: UnregisteredUser                => UnregisteredStatus
   }
 }
 
 case class RegisteredUser(
-  email: String,
-  userId: UserId,
-  firstName: String,
-  lastName: String,
-  verified: Boolean,
-  organisation: Option[String] = None,
-  mfaEnabled: Boolean = false,
-  mfaDetails: List[MfaDetail] = List.empty,
-  emailPreferences: EmailPreferences = EmailPreferences.noPreferences) extends User {
-}
+    email: String,
+    userId: UserId,
+    firstName: String,
+    lastName: String,
+    verified: Boolean,
+    organisation: Option[String] = None,
+    mfaEnabled: Boolean = false,
+    mfaDetails: List[MfaDetail] = List.empty,
+    emailPreferences: EmailPreferences = EmailPreferences.noPreferences
+  ) extends User {}
 
 object RegisteredUser {
   implicit val authenticatorAppMfaDetailFormat: OFormat[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
-  implicit val smsMfaDetailFormat: OFormat[SmsMfaDetail] = Json.format[SmsMfaDetail]
+  implicit val smsMfaDetailFormat: OFormat[SmsMfaDetail]                                  = Json.format[SmsMfaDetail]
 
   implicit val mfaDetailFormat: OFormat[MfaDetail] = Union.from[MfaDetail]("mfaType")
     .and[AuthenticatorAppMfaDetailSummary](MfaType.AUTHENTICATOR_APP.toString)
@@ -66,7 +66,7 @@ object RegisteredUser {
     .format
 
   val registeredUserReads: Reads[RegisteredUser] = (
-      (JsPath \ "email").read[String] and
+    (JsPath \ "email").read[String] and
       (JsPath \ "userId").read[UserId] and
       (JsPath \ "firstName").read[String] and
       (JsPath \ "lastName").read[String] and
@@ -74,22 +74,22 @@ object RegisteredUser {
       (JsPath \ "organisation").readNullable[String] and
       (JsPath \ "mfaEnabled").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
-      ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))) (RegisteredUser.apply _)
+      ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
+  )(RegisteredUser.apply _)
 
-  val registeredUserWrites: OWrites[RegisteredUser] = Json.writes[RegisteredUser]
+  val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
   implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
 
 }
 
 case class UnregisteredUser(email: String, userId: UserId) extends User {
   val firstName = "n/a"
-  val lastName = "n/a"
+  val lastName  = "n/a"
 }
 
-case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty,
-                     xmlOrganisations: List[XmlOrganisation] = List.empty) {
+case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty, xmlOrganisations: List[XmlOrganisation] = List.empty) {
   lazy val fullName = user.fullName
-  
+
   lazy val email = user.email
 
   lazy val userId = user.userId
@@ -99,43 +99,43 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
   lazy val xmlOrgs = xmlOrganisations
 
   lazy val mfaDetails: List[MfaDetail] = user match {
-    case UnregisteredUser(_,_) => List.empty
-    case r : RegisteredUser => r.mfaDetails
+    case UnregisteredUser(_, _) => List.empty
+    case r: RegisteredUser      => r.mfaDetails
   }
-  
+
   lazy val firstName: String = user match {
-    case UnregisteredUser(_,_) => "n/a"
-    case r : RegisteredUser => r.firstName
+    case UnregisteredUser(_, _) => "n/a"
+    case r: RegisteredUser      => r.firstName
   }
-  
+
   lazy val lastName: String = user match {
-    case UnregisteredUser(_,_) => "n/a"
-    case r : RegisteredUser => r.lastName
+    case UnregisteredUser(_, _) => "n/a"
+    case r: RegisteredUser      => r.lastName
   }
-  
+
   lazy val organisation: Option[String] = user match {
-    case UnregisteredUser(_,_) => None
-    case r : RegisteredUser => r.organisation
+    case UnregisteredUser(_, _) => None
+    case r: RegisteredUser      => r.organisation
   }
 
   lazy val verified: Boolean = user match {
-    case UnregisteredUser(_,_) => false
-    case r : RegisteredUser => r.verified
+    case UnregisteredUser(_, _) => false
+    case r: RegisteredUser      => r.verified
   }
 
   lazy val mfaEnabled: Boolean = user match {
-    case UnregisteredUser(_,_) => false
-    case r : RegisteredUser => MfaDetailHelper.isMfaVerified(r.mfaDetails)
+    case UnregisteredUser(_, _) => false
+    case r: RegisteredUser      => MfaDetailHelper.isMfaVerified(r.mfaDetails)
   }
 
   lazy val emailPreferences: EmailPreferences = user match {
-    case UnregisteredUser(_,_) => EmailPreferences.noPreferences
-    case r : RegisteredUser => r.emailPreferences
+    case UnregisteredUser(_, _) => EmailPreferences.noPreferences
+    case r: RegisteredUser      => r.emailPreferences
   }
 
   lazy val sortField: String = user match {
-    case UnregisteredUser(_,_) => User.asSortField(lastName, firstName)
-    case r : RegisteredUser => r.sortField
+    case UnregisteredUser(_, _) => User.asSortField(lastName, firstName)
+    case r: RegisteredUser      => r.sortField
   }
 
   lazy val status: StatusFilter = User.status(user)

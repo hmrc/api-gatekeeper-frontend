@@ -18,10 +18,11 @@ package uk.gov.hmrc.gatekeeper.config
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import com.google.inject.{Provider, Inject, Singleton}
+import com.google.inject.{Inject, Provider, Singleton}
 
 @Singleton
 class ApiCataloguePublishConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApiCataloguePublishConnector.Config] {
+
   override def get(): ApiCataloguePublishConnector.Config =
     ApiCataloguePublishConnector.Config(
       serviceBaseUrl = config.baseUrl("api-platform-api-catalogue-publish")

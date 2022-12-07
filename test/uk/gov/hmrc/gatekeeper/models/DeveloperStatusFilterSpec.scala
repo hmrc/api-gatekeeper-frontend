@@ -21,8 +21,8 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 class DeveloperStatusFilterSpec extends HmrcSpec {
 
   def aUser(name: String, verified: Option[Boolean]): User = {
-    verified.fold[User]( UnregisteredUser(s"$name@example.com", UserId.random))(v => RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))
-  } 
+    verified.fold[User](UnregisteredUser(s"$name@example.com", UserId.random))(v => RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))
+  }
 
   "DeveloperStatusFilter parsing" should {
 
@@ -54,8 +54,8 @@ class DeveloperStatusFilterSpec extends HmrcSpec {
   }
   "DeveloperStatusFilter isMatch" should {
 
-    val verifiedUser = aUser("user1", verified = Some(true))
-    val unverifiedUser = aUser("user2", verified = Some(false))
+    val verifiedUser     = aUser("user1", verified = Some(true))
+    val unverifiedUser   = aUser("user2", verified = Some(false))
     val noneVerifiedUser = aUser("user3", verified = None)
 
     "match verified" in {

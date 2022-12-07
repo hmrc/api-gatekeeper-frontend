@@ -31,11 +31,17 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
-  def buildApplication(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): NewApplication = {
-    val clientId = ClientId.random
-    val appOwnerEmail = "a@b.com"
+
+  def buildApplication(
+      appId: ApplicationId = ApplicationId.random,
+      createdOn: DateTime = DateTime.now(),
+      lastAccess: DateTime = DateTime.now(),
+      checkInformation: Option[CheckInformation] = None
+    ): NewApplication = {
+    val clientId            = ClientId.random
+    val appOwnerEmail       = "a@b.com"
     val grantLength: Period = Period.ofDays(547)
-    val ipAllowlist = IpAllowlist()
+    val ipAllowlist         = IpAllowlist()
 
     NewApplication(
       id = appId,
@@ -63,7 +69,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
   val DefaultApplication = buildApplication()
 
-  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] = 
+  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] =
     Set(
       ApiIdentifier(apiContext, apiVersion)
     )
@@ -72,9 +78,11 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     Map(apiContext -> Map(apiVersion -> fields))
   }
 
-  def buildApplicationWithSubscriptionData(apiContext: ApiContext = ApiContext.random,
-                                          apiVersion: ApiVersion = ApiVersion.random,
-                                          fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)): ApplicationWithSubscriptionData = {
+  def buildApplicationWithSubscriptionData(
+      apiContext: ApiContext = ApiContext.random,
+      apiVersion: ApiVersion = ApiVersion.random,
+      fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
+    ): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
       buildApplication(ApplicationId.random),
       buildSubscriptions(apiContext, apiVersion),
@@ -86,12 +94,15 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
-    
+
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) =
+      applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+
     def withDeveloper(developer: RegisteredUser) = {
       val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
+
     def withAdmin(developer: RegisteredUser) = {
       val newAppWithDev = this.applicationViewModel.application.withAdmin(developer)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
@@ -99,60 +110,61 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   }
 
   implicit class ApplicationStateExtension(applicationState: ApplicationState) {
-    def inProduction = applicationState.copy(name = State.PRODUCTION)
-    def inTesting = applicationState.copy(name = State.TESTING)
-    def pendingGKApproval = applicationState.copy(name = State.PENDING_GATEKEEPER_APPROVAL)
+    def inProduction        = applicationState.copy(name = State.PRODUCTION)
+    def inTesting           = applicationState.copy(name = State.TESTING)
+    def pendingGKApproval   = applicationState.copy(name = State.PENDING_GATEKEEPER_APPROVAL)
     def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
   }
 
   implicit class ApplicationExtension(app: NewApplication) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
-    def deployedToSandbox = app.copy(deployedTo = Environment.SANDBOX)
+    def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: String) = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
-    def withId(id: ApplicationId) = app.copy(id = id)
+    def withId(id: ApplicationId)        = app.copy(id = id)
     def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
     def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
-    
-    def withName(name: String) = app.copy(name = name)
+
+    def withName(name: String)               = app.copy(name = name)
     def withDescription(description: String) = app.copy(description = Some(description))
 
     def withAdmin(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR, developer.userId))
     }
+
     def withDeveloper(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.DEVELOPER, developer.userId))
     }
 
     def withAccess(access: Access) = app.copy(access = access)
-    def asStandard = app.copy(access = Standard())
-    def asPrivileged = app.copy(access = Privileged())
-    def asROPC = app.copy(access = Ropc())
+    def asStandard                 = app.copy(access = Standard())
+    def asPrivileged               = app.copy(access = Privileged())
+    def asROPC                     = app.copy(access = Ropc())
 
     def withState(state: ApplicationState) = app.copy(state = state)
-    def inProduction = app.copy(state = app.state.inProduction)
-    def inTesting = app.copy(state = app.state.inTesting)
-    def pendingGKApproval = app.copy(state = app.state.pendingGKApproval)
-    def pendingVerification = app.copy(state = app.state.pendingVerification)
+    def inProduction                       = app.copy(state = app.state.inProduction)
+    def inTesting                          = app.copy(state = app.state.inTesting)
+    def pendingGKApproval                  = app.copy(state = app.state.pendingGKApproval)
+    def pendingVerification                = app.copy(state = app.state.pendingVerification)
 
     def withBlocked(isBlocked: Boolean) = app.copy(blocked = isBlocked)
-    def blocked = app.copy(blocked = true)
-    def unblocked = app.copy(blocked = false)
+    def blocked                         = app.copy(blocked = true)
+    def unblocked                       = app.copy(blocked = false)
 
     def withCheckInformation(checkInfo: CheckInformation) = app.copy(checkInformation = Some(checkInfo))
-    def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
-    def noCheckInformation = app.copy(checkInformation = None)
+    def withEmptyCheckInformation                         = app.copy(checkInformation = Some(CheckInformation()))
+    def noCheckInformation                                = app.copy(checkInformation = None)
 
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
-    def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
+    def withCreatedOn(createdOnDate: DateTime)   = app.copy(createdOn = createdOnDate)
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
-    
-  }  
+
+  }
 }

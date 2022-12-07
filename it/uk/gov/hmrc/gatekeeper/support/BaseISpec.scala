@@ -11,7 +11,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 abstract class BaseISpec
-  extends AsyncHmrcSpec with WireMockSupport with MetricsTestSupport {
+    extends AsyncHmrcSpec with WireMockSupport with MetricsTestSupport {
 
   def app: Application
   protected def appBuilder: GuiceApplicationBuilder
@@ -22,7 +22,7 @@ abstract class BaseISpec
 
   protected implicit def materializer: Materializer = app.materializer
 
-  private lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+  private lazy val messagesApi            = app.injector.instanceOf[MessagesApi]
   private implicit def messages: Messages = messagesApi.preferred(Seq.empty[Lang])
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString

@@ -29,7 +29,7 @@ import play.api.libs.json.Json
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 class ApiScopeConnectorSpec
-  extends AsyncHmrcSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite {
 
@@ -46,18 +46,18 @@ class ApiScopeConnectorSpec
 
   "fetchAll" should {
     val url = "/scope"
-    
+
     "fetch a sequence of API scopes" in new Setup {
-      val scopes = Seq(ApiScope("aKey", "aName", "aDescription"))
+      val scopes  = Seq(ApiScope("aKey", "aName", "aDescription"))
       val payload = Json.toJson(scopes)
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload.toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
       )
 
       val result = await(connector.fetchAll())
@@ -68,10 +68,10 @@ class ApiScopeConnectorSpec
     "fail to fetch a sequence of API scopes" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
       intercept[FetchApiDefinitionsFailed] {
         await(connector.fetchAll())

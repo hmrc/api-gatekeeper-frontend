@@ -26,18 +26,15 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 trait SubscriptionsBuilder {
 
   def buildSubscription(name: String, context: Option[ApiContext] = None, versions: List[VersionSubscription] = List.empty) = {
-    Subscription(name = name,
-      serviceName = s"service-$name",
-      context = context.getOrElse(ApiContext(s"context-$name")),
-      versions = versions)
+    Subscription(name = name, serviceName = s"service-$name", context = context.getOrElse(ApiContext(s"context-$name")), versions = versions)
   }
 
-  def buildApiIdentifier(apiContext: ApiContext, apiVersion: ApiVersion) : ApiIdentifier = ApiIdentifier(apiContext, apiVersion)
+  def buildApiIdentifier(apiContext: ApiContext, apiVersion: ApiVersion): ApiIdentifier = ApiIdentifier(apiContext, apiVersion)
 
   def buildVersionWithSubscriptionFields(version: ApiVersion, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
-      val defaults = buildSubscriptionFieldsWrapper(applicationId)
+    val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
-      VersionSubscription(ApiVersionDefinition(version, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
+    VersionSubscription(ApiVersionDefinition(version, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: List[SubscriptionFieldValue] = List.empty) = {
@@ -46,14 +43,17 @@ trait SubscriptionsBuilder {
   }
 
   def buildSubscriptionFieldDefinition(
-    fieldName: FieldName = FieldName.random,
-    description: String = Random.nextString(8),
-    hint: String = Random.nextString(8),
-    `type`: String = "STRING",
-    shortDescription: String = Random.nextString(8)
-  ) = SubscriptionFieldDefinition(fieldName, description, hint, `type`, shortDescription)
+      fieldName: FieldName = FieldName.random,
+      description: String = Random.nextString(8),
+      hint: String = Random.nextString(8),
+      `type`: String = "STRING",
+      shortDescription: String = Random.nextString(8)
+    ) = SubscriptionFieldDefinition(fieldName, description, hint, `type`, shortDescription)
 
   def buildSubscriptionFieldValue(name: FieldName) = {
-    SubscriptionFieldValue(buildSubscriptionFieldDefinition(name, s"description-${name.value}", s"hint-${name.value}", "STRING", s"shortDescription-${name.value}"), FieldValue(s"value-${name.value}"))
+    SubscriptionFieldValue(
+      buildSubscriptionFieldDefinition(name, s"description-${name.value}", s"hint-${name.value}", "STRING", s"shortDescription-${name.value}"),
+      FieldValue(s"value-${name.value}")
+    )
   }
 }

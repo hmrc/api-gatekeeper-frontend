@@ -19,26 +19,26 @@ package uk.gov.hmrc.gatekeeper.models
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
-
-class FormValidationSpec  extends AsyncHmrcSpec {
+class FormValidationSpec extends AsyncHmrcSpec {
 
   "AccessOverrideForm" should {
 
     "fail validation with empty scopes" in {
       val invalidAccessOverrideForm = Map("grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "")
-      val boundForm =   accessOverridesForm.bind(invalidAccessOverrideForm)
+      val boundForm                 = accessOverridesForm.bind(invalidAccessOverrideForm)
       boundForm.errors.length shouldBe 1
     }
 
     "fail validation with invalid scope format" in {
       val invalidAccessOverrideForm = Map("grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "test1 \n test2")
-      val boundForm = accessOverridesForm.bind(invalidAccessOverrideForm)
+      val boundForm                 = accessOverridesForm.bind(invalidAccessOverrideForm)
       boundForm.errors.length shouldBe 1
     }
 
     "pass validation with valid scopes" in {
-      val validAccessOverrideForm = Map("grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "email, openid:mdtp, openid, openid:hmrc-enrolments, openid:government-gateway")
-      val boundForm = accessOverridesForm.bind(validAccessOverrideForm)
+      val validAccessOverrideForm =
+        Map("grantWithoutConsentEnabled" -> "true", "grantWithoutConsentScopes" -> "email, openid:mdtp, openid, openid:hmrc-enrolments, openid:government-gateway")
+      val boundForm               = accessOverridesForm.bind(validAccessOverrideForm)
       boundForm.errors shouldBe List.empty
     }
   }
@@ -46,19 +46,19 @@ class FormValidationSpec  extends AsyncHmrcSpec {
   "Scopes form for Privileged and ROPC apps" should {
 
     "fail validation with empty scopes" in {
-      val form = Map("scopes" -> "")
+      val form      = Map("scopes" -> "")
       val boundForm = scopesForm.bind(form)
       boundForm.errors.length shouldBe 1
     }
 
     "fail validation with invalid scope format" in {
-      val form = Map("scopes" -> "test1 \n test2")
+      val form      = Map("scopes" -> "test1 \n test2")
       val boundForm = scopesForm.bind(form)
       boundForm.errors.length shouldBe 1
     }
 
     "pass validation with valid scopes" in {
-      val form = Map("scopes" -> "email, openid:mdtp, openid, openid:hmrc-enrolments, openid:government-gateway")
+      val form      = Map("scopes" -> "email, openid:mdtp, openid, openid:hmrc-enrolments, openid:government-gateway")
       val boundForm = scopesForm.bind(form)
       boundForm.errors.length shouldBe 0
     }

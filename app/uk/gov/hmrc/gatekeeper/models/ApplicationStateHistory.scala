@@ -21,12 +21,10 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import java.time.LocalDateTime
 
-
 case class ApplicationStateHistoryItem(state: State, timestamp: LocalDateTime)
 case class ApplicationStateHistory(applicationId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem])
 
 object ApplicationStateHistory {
   implicit val formatApplicationStateHistoryItem = Json.format[ApplicationStateHistoryItem]
-  implicit val formatApplicationStateHistory = Json.format[ApplicationStateHistory]
+  implicit val formatApplicationStateHistory     = Json.format[ApplicationStateHistory]
 }
-

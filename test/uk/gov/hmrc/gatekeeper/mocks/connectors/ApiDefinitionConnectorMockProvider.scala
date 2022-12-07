@@ -27,7 +27,7 @@ trait ApiDefinitionConnectorMockProvider {
 
   val mockProductionApiDefinitionConnector = mock[ProductionApiDefinitionConnector]
   when(mockProductionApiDefinitionConnector.environment).thenReturn(Environment.PRODUCTION)
-  
+
   val mockSandboxApiDefinitionConnector = mock[SandboxApiDefinitionConnector]
   when(mockSandboxApiDefinitionConnector.environment).thenReturn(Environment.SANDBOX)
 
@@ -49,6 +49,7 @@ trait ApiDefinitionConnectorMockProvider {
   }
 
   object ApiDefinitionConnectorMock {
+
     object Prod extends ApiDefinitionConnectorMock {
       val mock = mockProductionApiDefinitionConnector
     }

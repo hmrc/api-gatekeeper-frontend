@@ -75,6 +75,7 @@ package object binders extends ApplicationLogger {
   }
 
   implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
+
     override def bind(key: String, value: String): Either[String, ApiContext] = {
       textBinder.bind(key, value).map(ApiContext(_))
     }
@@ -85,6 +86,7 @@ package object binders extends ApplicationLogger {
   }
 
   implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiContext] {
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiContext]] = {
       for {
         context <- textBinder.bind("context", params)
@@ -95,12 +97,14 @@ package object binders extends ApplicationLogger {
         }
       }
     }
-    override def unbind(key: String, context: ApiContext): String = {
+
+    override def unbind(key: String, context: ApiContext): String                                        = {
       textBinder.unbind("context", context.value)
     }
   }
 
   implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersion] = new PathBindable[ApiVersion] {
+
     override def bind(key: String, value: String): Either[String, ApiVersion] = {
       textBinder.bind(key, value).map(ApiVersion(_))
     }
@@ -111,6 +115,7 @@ package object binders extends ApplicationLogger {
   }
 
   implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersion] {
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersion]] = {
       for {
         version <- textBinder.bind("version", params)
@@ -121,21 +126,23 @@ package object binders extends ApplicationLogger {
         }
       }
     }
-    override def unbind(key: String, version: ApiVersion): String = {
+
+    override def unbind(key: String, version: ApiVersion): String                                        = {
       textBinder.unbind("version", version.value)
     }
   }
 
   import java.{util => ju}
-  
+
   private def eitherFromString(text: String): Either[String, UserId] = {
     Try(ju.UUID.fromString(text))
-    .toOption
-    .toRight(s"Cannot accept $text as userId")
-    .map(UserId(_))
+      .toOption
+      .toRight(s"Cannot accept $text as userId")
+      .map(UserId(_))
   }
 
   implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+
     override def bind(key: String, value: String): Either[String, UserId] = {
       textBinder.bind(key, value).flatMap(eitherFromString)
     }
@@ -145,17 +152,18 @@ package object binders extends ApplicationLogger {
     }
   }
 
-    private def warnOnEmailId(source: String)(id: DeveloperIdentifier): DeveloperIdentifier = id match {
+  private def warnOnEmailId(source: String)(id: DeveloperIdentifier): DeveloperIdentifier = id match {
     case EmailIdentifier(_) => logger.warn(s"Still using emails as identifier - source:$source"); id
-    case _ => id
+    case _                  => id
   }
 
   implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
+
     override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
       for {
         text <- textBinder.bind(key, value)
-        id <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
-        _ = warnOnEmailId(s"developerIdentifierBinder BIND $key")(id)
+        id   <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
+        _     = warnOnEmailId(s"developerIdentifierBinder BIND $key")(id)
       } yield id
     }
 
@@ -165,6 +173,7 @@ package object binders extends ApplicationLogger {
   }
 
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
+
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
       for {
         textOrBindError <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
@@ -172,9 +181,9 @@ package object binders extends ApplicationLogger {
         case Right(idText) =>
           for {
             id <- DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
-            _ = warnOnEmailId(s"queryStringBindable BIND $key")(id)
+            _   = warnOnEmailId(s"queryStringBindable BIND $key")(id)
           } yield id
-        case _ => Left("Unable to bind a developer identifier")
+        case _             => Left("Unable to bind a developer identifier")
       }
     }
 

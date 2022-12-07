@@ -24,15 +24,15 @@ import org.scalatest.matchers.should.Matchers
 trait UserTableHelper {
   self: Matchers =>
 
-    def verifyUserRow(document: Document, user: RegisteredUser): Unit ={
-      elementExistsByText(document, "td", user.email) shouldBe true
-      elementExistsByText(document, "td", user.firstName) shouldBe true
-      elementExistsByText(document, "td", user.lastName) shouldBe true
-    }
+  def verifyUserRow(document: Document, user: RegisteredUser): Unit = {
+    elementExistsByText(document, "td", user.email) shouldBe true
+    elementExistsByText(document, "td", user.firstName) shouldBe true
+    elementExistsByText(document, "td", user.lastName) shouldBe true
+  }
 
-    def verifyTableHeader(document: Document, tableIsVisible: Boolean = true): Unit ={
-      elementExistsByText(document, "th", "Email") shouldBe tableIsVisible
-      elementExistsByText(document, "th", "First name") shouldBe tableIsVisible
-      elementExistsByText(document, "th", "Last name") shouldBe tableIsVisible
-    }
+  def verifyTableHeader(document: Document, tableIsVisible: Boolean = true): Unit = {
+    elementExistsByText(document, "th", "Email") shouldBe tableIsVisible
+    elementExistsByText(document, "th", "First name") shouldBe tableIsVisible
+    elementExistsByText(document, "th", "Last name") shouldBe tableIsVisible
+  }
 }

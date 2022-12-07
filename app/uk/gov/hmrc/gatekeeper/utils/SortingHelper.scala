@@ -22,14 +22,14 @@ import uk.gov.hmrc.gatekeeper.models.ApiVersionDefinition
 import scala.util.Try
 
 object SortingHelper {
-  
+
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
-  private val fallback = Array(1, 0, 0)
+  private val fallback                = Array(1, 0, 0)
 
   private def versionSorter(v1: ApiVersionDefinition, v2: ApiVersionDefinition) = {
     val v1Parts = Try(v1.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
     val v2Parts = Try(v2.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-    val pairs = v1Parts.zip(v2Parts)
+    val pairs   = v1Parts.zip(v2Parts)
 
     val firstUnequalPair = pairs.find { case (one, two) => one != two }
     firstUnequalPair.fold(v1.version.value.length > v2.version.value.length) { case (a, b) => a > b }

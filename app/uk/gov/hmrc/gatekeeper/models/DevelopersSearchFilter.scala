@@ -20,11 +20,11 @@ import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, Developer
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class DevelopersSearchFilter(
-  maybeEmailFilter: Option[String] = None,
-  maybeApiFilter: Option[ApiContextVersion] = None,
-  environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
-  developerStatusFilter: DeveloperStatusFilter = AllStatus
-)
+    maybeEmailFilter: Option[String] = None,
+    maybeApiFilter: Option[ApiContextVersion] = None,
+    environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
+    developerStatusFilter: DeveloperStatusFilter = AllStatus
+  )
 
 case class ApiContextVersion(context: ApiContext, version: ApiVersion) {
   def toStringValue: String = s"${context.value}__${version.value}"
@@ -35,9 +35,9 @@ object ApiContextVersion {
 
   def apply(value: Option[String]): Option[ApiContextVersion] = {
     value match {
-      case None => None
+      case None                                    => None
       case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), ApiVersion(version)))
-      case _ => throw new Exception("Invalid API context or version")
+      case _                                       => throw new Exception("Invalid API context or version")
     }
   }
 }
@@ -54,8 +54,8 @@ case object DeveloperStatusFilter {
     val value = "VERIFIED"
 
     override def isMatch(user: User): Boolean = user match {
-      case r : RegisteredUser => r.verified
-      case u : UnregisteredUser => true   // TODO - really true ??
+      case r: RegisteredUser   => r.verified
+      case u: UnregisteredUser => true // TODO - really true ??
     }
   }
 
@@ -74,10 +74,10 @@ case object DeveloperStatusFilter {
   def apply(value: Option[String]): DeveloperStatusFilter = {
     value match {
       case Some(UnverifiedStatus.value) => UnverifiedStatus
-      case Some(VerifiedStatus.value) => VerifiedStatus
-      case Some(AllStatus.value) => AllStatus
-      case None => AllStatus
-      case Some(text) => throw new Exception("Invalid developer status filter: " + text)
+      case Some(VerifiedStatus.value)   => VerifiedStatus
+      case Some(AllStatus.value)        => AllStatus
+      case None                         => AllStatus
+      case Some(text)                   => throw new Exception("Invalid developer status filter: " + text)
     }
   }
 }

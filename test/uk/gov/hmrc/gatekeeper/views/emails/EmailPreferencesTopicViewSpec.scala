@@ -27,12 +27,13 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesTopicView
+
 class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray = new JsArray()
-    val emailPreferencesTopicView: EmailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
+    val emailRecipientsAsJson: JsArray                        = new JsArray()
+    val emailPreferencesTopicView: EmailPreferencesTopicView  = app.injector.instanceOf[EmailPreferencesTopicView]
   }
 
   "email preferences topic view" must {
@@ -50,15 +51,23 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesTopicView.render(users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", Some(TopicOptionChoice.BUSINESS_AND_POLICY), request, LoggedInUser(None), messagesProvider)
-      
+        emailPreferencesTopicView.render(
+          users,
+          emailRecipientsAsJson,
+          s"${user1.email}; ${user2.email}",
+          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
+
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-      emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
-      
+        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }
 

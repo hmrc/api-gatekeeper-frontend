@@ -33,11 +33,12 @@ import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class ClientId(value: String) extends AnyVal
+
 object ClientId {
   import play.api.libs.json.Json
   implicit val clientIdFormat = Json.valueFormat[ClientId]
 
-  def empty: ClientId = ClientId("")
+  def empty: ClientId  = ClientId("")
   def random: ClientId = ClientId(UUID.randomUUID().toString)
 }
 
@@ -53,8 +54,8 @@ trait Application {
 
   def isSoleAdmin(emailAddress: String) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
 
-  def isApproved = state.isApproved
-  def isPendingGatekeeperApproval = state.isPendingGatekeeperApproval
+  def isApproved                     = state.isApproved
+  def isPendingGatekeeperApproval    = state.isPendingGatekeeperApproval
   def isPendingRequesterVerification = state.isPendingRequesterVerification
 }
 
@@ -66,18 +67,20 @@ object ContactDetails {
 
 case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
 
-case class CheckInformation(contactDetails: Option[ContactDetails] = None,
-                            confirmedName: Boolean = false,
-                            providedPrivacyPolicyURL: Boolean = false,
-                            providedTermsAndConditionsURL: Boolean = false,
-                            applicationDetails: Option[String] = None,
-                            termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty) {
+case class CheckInformation(
+    contactDetails: Option[ContactDetails] = None,
+    confirmedName: Boolean = false,
+    providedPrivacyPolicyURL: Boolean = false,
+    providedTermsAndConditionsURL: Boolean = false,
+    applicationDetails: Option[String] = None,
+    termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
+  ) {
 
   def latestTOUAgreement: Option[TermsOfUseAgreement] = {
     implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
-    
+
     termsOfUseAgreements match {
-      case Nil => None
+      case Nil        => None
       case agreements => Option(agreements.maxBy(_.timeStamp))
     }
   }
@@ -92,13 +95,13 @@ object CheckInformation {
 sealed trait PrivacyPolicyLocation
 
 object PrivacyPolicyLocation {
-  case object NoneProvided extends PrivacyPolicyLocation
+  case object NoneProvided      extends PrivacyPolicyLocation
   case object InDesktopSoftware extends PrivacyPolicyLocation
   case class Url(value: String) extends PrivacyPolicyLocation
 
-  implicit val noneProvidedFormat = Json.format[NoneProvided.type]
+  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
   implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat = Json.format[Url]
+  implicit val urlFormat               = Json.format[Url]
 
   implicit val format = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
     .and[NoneProvided.type]("noneProvided")
@@ -110,13 +113,13 @@ object PrivacyPolicyLocation {
 sealed trait TermsAndConditionsLocation
 
 object TermsAndConditionsLocation {
-  case object NoneProvided extends TermsAndConditionsLocation
+  case object NoneProvided      extends TermsAndConditionsLocation
   case object InDesktopSoftware extends TermsAndConditionsLocation
   case class Url(value: String) extends TermsAndConditionsLocation
 
-  implicit val noneProvidedFormat = Json.format[NoneProvided.type]
+  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
   implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat = Json.format[Url]
+  implicit val urlFormat               = Json.format[Url]
 
   implicit val format = Union.from[TermsAndConditionsLocation]("termsAndConditionsType")
     .and[NoneProvided.type]("noneProvided")
@@ -124,7 +127,6 @@ object TermsAndConditionsLocation {
     .and[Url]("url")
     .format
 }
-
 
 trait LocalDateTimeFormatters extends EnvReads with EnvWrites {
 
@@ -138,13 +140,14 @@ object TermsOfUseAcceptance extends LocalDateTimeFormatters {
 }
 
 case class ResponsibleIndividual(fullName: ResponsibleIndividual.Name, emailAddress: ResponsibleIndividual.EmailAddress)
-object ResponsibleIndividual {
+
+object ResponsibleIndividual   {
   import play.api.libs.json.{Format, Json}
 
-  case class Name(value: String) extends AnyVal
+  case class Name(value: String)         extends AnyVal
   case class EmailAddress(value: String) extends AnyVal
-  
-  implicit val nameFormat = Json.valueFormat[Name]
+
+  implicit val nameFormat         = Json.valueFormat[Name]
   implicit val emailAddressFormat = Json.valueFormat[EmailAddress]
 
   implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
@@ -153,14 +156,14 @@ object ResponsibleIndividual {
 }
 
 case class ImportantSubmissionData(
-  termsAndConditionsLocation: TermsAndConditionsLocation,
-  privacyPolicyLocation: PrivacyPolicyLocation,
-  termsOfUseAcceptances: List[TermsOfUseAcceptance]
-)
+    termsAndConditionsLocation: TermsAndConditionsLocation,
+    privacyPolicyLocation: PrivacyPolicyLocation,
+    termsOfUseAcceptances: List[TermsOfUseAcceptance]
+  )
+
 object ImportantSubmissionData {
   implicit val format = Json.format[ImportantSubmissionData]
 }
-
 
 sealed trait Access {
   val accessType: AccessType.Value
@@ -170,11 +173,13 @@ sealed trait AccessWithRestrictedScopes extends Access {
   val scopes: Set[String]
 }
 
-case class Standard(redirectUris: List[String] = List.empty,
-                    termsAndConditionsUrl: Option[String] = None,
-                    privacyPolicyUrl: Option[String] = None,
-                    importantSubmissionData: Option[ImportantSubmissionData] = None,
-                    overrides: Set[OverrideFlag] = Set.empty) extends Access {
+case class Standard(
+    redirectUris: List[String] = List.empty,
+    termsAndConditionsUrl: Option[String] = None,
+    privacyPolicyUrl: Option[String] = None,
+    importantSubmissionData: Option[ImportantSubmissionData] = None,
+    overrides: Set[OverrideFlag] = Set.empty
+  ) extends Access {
   override val accessType = AccessType.STANDARD
 }
 
@@ -192,14 +197,15 @@ sealed trait OverrideFlag {
 
 object OverrideFlag {
   private implicit val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
-  private implicit val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
+
+  private implicit val formatPersistLogin: OFormat[PersistLogin.type]          = OFormat[PersistLogin.type](
     Reads { _ => JsSuccess(PersistLogin) },
     OWrites[PersistLogin.type] { _ => Json.obj() }
   )
 
-  private implicit val formatSuppressIvForAgents: OFormat[SuppressIvForAgents] = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
   private implicit val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals] = Json.format[SuppressIvForIndividuals]
+  private implicit val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
@@ -236,42 +242,39 @@ case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScop
 
 object OverrideType extends Enumeration {
   type OverrideType = Value
-  val PERSIST_LOGIN_AFTER_GRANT,
-  GRANT_WITHOUT_TAXPAYER_CONSENT,
-  SUPPRESS_IV_FOR_AGENTS,
-  SUPPRESS_IV_FOR_ORGANISATIONS,
-  SUPPRESS_IV_FOR_INDIVIDUALS = Value
+  val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS, SUPPRESS_IV_FOR_INDIVIDUALS = Value
 
   val displayedType: OverrideType => String = {
-    case PERSIST_LOGIN_AFTER_GRANT => "Persist login after grant"
+    case PERSIST_LOGIN_AFTER_GRANT      => "Persist login after grant"
     case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
-    case SUPPRESS_IV_FOR_AGENTS => "Suppress IV for agents"
-    case SUPPRESS_IV_FOR_ORGANISATIONS => "Suppress IV for organisations"
-    case SUPPRESS_IV_FOR_INDIVIDUALS => "Suppress IV for individuals"
+    case SUPPRESS_IV_FOR_AGENTS         => "Suppress IV for agents"
+    case SUPPRESS_IV_FOR_ORGANISATIONS  => "Suppress IV for organisations"
+    case SUPPRESS_IV_FOR_INDIVIDUALS    => "Suppress IV for individuals"
   }
 
   implicit val format = Json.formatEnum(OverrideType)
 }
 
-case class ApplicationResponse(id: ApplicationId,
-                               clientId: ClientId,
-                               gatewayId: String,
-                               name: String,
-                               deployedTo: String,
-                               description: Option[String] = None,
-                               collaborators: Set[Collaborator],
-                               createdOn: DateTime,
-                               lastAccess: Option[DateTime],
-                               access: Access,
-                               state: ApplicationState,
-                               grantLength: Period,
-                               rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
-                               termsAndConditionsUrl: Option[String] = None,
-                               privacyPolicyUrl: Option[String] = None,
-                               checkInformation: Option[CheckInformation] = None,
-                               blocked: Boolean = false,
-                               ipAllowlist: IpAllowlist = IpAllowlist())
-  extends Application
+case class ApplicationResponse(
+    id: ApplicationId,
+    clientId: ClientId,
+    gatewayId: String,
+    name: String,
+    deployedTo: String,
+    description: Option[String] = None,
+    collaborators: Set[Collaborator],
+    createdOn: DateTime,
+    lastAccess: Option[DateTime],
+    access: Access,
+    state: ApplicationState,
+    grantLength: Period,
+    rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
+    termsAndConditionsUrl: Option[String] = None,
+    privacyPolicyUrl: Option[String] = None,
+    checkInformation: Option[CheckInformation] = None,
+    blocked: Boolean = false,
+    ipAllowlist: IpAllowlist = IpAllowlist()
+  ) extends Application
 
 object ApplicationResponse {
   import play.api.libs.json.JodaReads._
@@ -279,21 +282,21 @@ object ApplicationResponse {
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
-  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatStandard   = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc = Json.format[Ropc]
+  private implicit val formatRopc       = Json.format[Ropc]
 
-  implicit val formatAccess = Union.from[Access]("accessType")
+  implicit val formatAccess        = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole = Json.formatEnum(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = Json.formatEnum(State)
-  implicit val format4 = Json.format[ApplicationState]
+  implicit val formatRole          = Json.formatEnum(CollaboratorRole)
+  implicit val format2             = Json.format[Collaborator]
+  implicit val format3             = Json.formatEnum(State)
+  implicit val format4             = Json.format[ApplicationState]
   implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
-  implicit val format5 = Json.format[ApprovedApplication]
+  implicit val format5             = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
     (JsPath \ "id").read[ApplicationId] and
@@ -314,12 +317,12 @@ object ApplicationResponse {
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
       (JsPath \ "ipAllowlist").read[IpAllowlist]
-    ) (ApplicationResponse.apply _)
+  )(ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {
     Format(applicationResponseReads, Json.writes[ApplicationResponse])
   }
-  implicit val format6 = Json.format[TermsOfUseAgreement]
+  implicit val format6                   = Json.format[TermsOfUseAgreement]
 }
 
 case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
@@ -335,9 +338,9 @@ object AccessType extends Enumeration {
   val STANDARD, PRIVILEGED, ROPC = Value
 
   val displayedType: AccessType => String = {
-    case STANDARD => "Standard"
+    case STANDARD   => "Standard"
     case PRIVILEGED => "Privileged"
-    case ROPC => "ROPC"
+    case ROPC       => "ROPC"
   }
 
   def from(accessType: String) = {
@@ -354,51 +357,52 @@ case class SubscriptionNameAndVersion(name: String, version: String)
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value
-  implicit val format = Json.formatEnum(State)
+  implicit val format                                                                                                                                        = Json.formatEnum(State)
 
   val displayedState: State => String = {
-    case TESTING => "Created"
+    case TESTING                                     => "Created"
     case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => "Pending Responsible Individual Verification"
-    case PENDING_GATEKEEPER_APPROVAL => "Pending gatekeeper check"
-    case PENDING_REQUESTER_VERIFICATION => "Pending submitter verification"
-    case PRE_PRODUCTION => "Active"
-    case PRODUCTION => "Active"
-    case DELETED => "Deleted"
+    case PENDING_GATEKEEPER_APPROVAL                 => "Pending gatekeeper check"
+    case PENDING_REQUESTER_VERIFICATION              => "Pending submitter verification"
+    case PRE_PRODUCTION                              => "Active"
+    case PRODUCTION                                  => "Active"
+    case DELETED                                     => "Deleted"
   }
 
   val additionalInformation: State => String = {
-    case TESTING =>
+    case TESTING                                     =>
       "A production application that its admin has created but not submitted for checking"
     case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION =>
       "A production application that has been submitted for checking, but the responsible individual has not completed the email verification process"
-    case PENDING_GATEKEEPER_APPROVAL =>
+    case PENDING_GATEKEEPER_APPROVAL                 =>
       "A production application that one of its admins has submitted for checking"
-    case PENDING_REQUESTER_VERIFICATION =>
+    case PENDING_REQUESTER_VERIFICATION              =>
       "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
-    case PRE_PRODUCTION =>
+    case PRE_PRODUCTION                              =>
       "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
-    case PRODUCTION =>
+    case PRODUCTION                                  =>
       "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
-    case DELETED =>
+    case DELETED                                     =>
       "An application that has been deleted and is no longer active"
   }
 
   implicit class StateHelpers(state: State) {
-    def isApproved = state == State.PRE_PRODUCTION || state == State.PRODUCTION
-    def isPendingGatekeeperApproval = state == State.PENDING_GATEKEEPER_APPROVAL
+    def isApproved                     = state == State.PRE_PRODUCTION || state == State.PRODUCTION
+    def isPendingGatekeeperApproval    = state == State.PENDING_GATEKEEPER_APPROVAL
     def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
-    def isDeleted = state == State.DELETED
+    def isDeleted                      = state == State.DELETED
   }
 }
 
 object Environment extends Enumeration {
   type Environment = Value
   val SANDBOX, PRODUCTION = Value
-  implicit val format = Json.formatEnum(Environment)
+  implicit val format     = Json.formatEnum(Environment)
 
   implicit class Display(e: Environment) {
+
     def asDisplayed() = e match {
-      case SANDBOX => "Sandbox"
+      case SANDBOX    => "Sandbox"
       case PRODUCTION => "Production"
     }
   }
@@ -412,21 +416,19 @@ object CollaboratorRole extends Enumeration {
 
   def from(role: Option[String]) = role match {
     case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
-    case _ => Some(CollaboratorRole.DEVELOPER)
+    case _       => Some(CollaboratorRole.DEVELOPER)
   }
 
   implicit val format = Json.formatEnum(CollaboratorRole)
 }
 
-
 case class Collaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
 
-case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None,
-                            verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now()) {
-  def isApproved = name.isApproved
-  def isPendingGatekeeperApproval = name.isPendingGatekeeperApproval
+case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now()) {
+  def isApproved                     = name.isApproved
+  def isPendingGatekeeperApproval    = name.isPendingGatekeeperApproval
   def isPendingRequesterVerification = name.isPendingRequesterVerification
-  def isDeleted = name.isDeleted
+  def isDeleted                      = name.isDeleted
 }
 
 object RateLimitTier extends Enumeration {
@@ -437,11 +439,11 @@ object RateLimitTier extends Enumeration {
   def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
 
   def displayedTier: RateLimitTier => String = {
-    case BRONZE => "Bronze"
-    case SILVER => "Silver"
-    case GOLD => "Gold"
+    case BRONZE   => "Bronze"
+    case SILVER   => "Silver"
+    case GOLD     => "Gold"
     case PLATINUM => "Platinum"
-    case RHODIUM => "Rhodium"
+    case RHODIUM  => "Rhodium"
   }
 
   lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
@@ -451,24 +453,24 @@ object RateLimitTier extends Enumeration {
 
 object GrantLength extends Enumeration {
   type GrantLength = Value
-  val thirtyDays = 30
-  val ninetyDays = 90
-  val oneHundredAndEightyDays = 180
-  val threeSixtyFiveDays = 365
-  val fiveHundredAndFortySevenDays = 547
-  val oneThousandNinetyFiveDays = 1095
+  val thirtyDays                               = 30
+  val ninetyDays                               = 90
+  val oneHundredAndEightyDays                  = 180
+  val threeSixtyFiveDays                       = 365
+  val fiveHundredAndFortySevenDays             = 547
+  val oneThousandNinetyFiveDays                = 1095
   val oneThousandEightHundredAndTwentyFiveDays = 1825
-  val threeThousandSixHundredAndFiftyDays = 3650
-  val thirtySixThousandFiveHundredDays = 36500
+  val threeThousandSixHundredAndFiftyDays      = 3650
+  val thirtySixThousandFiveHundredDays         = 36500
 
-  val ONE_MONTH = Value(thirtyDays)
-  val THREE_MONTHS = Value(ninetyDays)
-  val SIX_MONTHS = Value(oneHundredAndEightyDays)
-  val ONE_YEAR = Value(threeSixtyFiveDays)
-  val EIGHTEEN_MONTHS = Value(fiveHundredAndFortySevenDays)
-  val THREE_YEARS = Value(oneThousandNinetyFiveDays)
-  val FIVE_YEARS = Value(oneThousandEightHundredAndTwentyFiveDays)
-  val TEN_YEARS = Value(threeThousandSixHundredAndFiftyDays)
+  val ONE_MONTH         = Value(thirtyDays)
+  val THREE_MONTHS      = Value(ninetyDays)
+  val SIX_MONTHS        = Value(oneHundredAndEightyDays)
+  val ONE_YEAR          = Value(threeSixtyFiveDays)
+  val EIGHTEEN_MONTHS   = Value(fiveHundredAndFortySevenDays)
+  val THREE_YEARS       = Value(oneThousandNinetyFiveDays)
+  val FIVE_YEARS        = Value(oneThousandEightHundredAndTwentyFiveDays)
+  val TEN_YEARS         = Value(threeThousandSixHundredAndFiftyDays)
   val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
 
   def from(grantLength: Int) = {
@@ -478,16 +480,15 @@ object GrantLength extends Enumeration {
   }
 
   def displayedGrantLength(grantLength: Int): String = {
-    GrantLength.from(grantLength)
-    match {
-      case ONE_MONTH => "1 month"
-      case THREE_MONTHS => "3 months"
-      case SIX_MONTHS => "6 months"
-      case ONE_YEAR => "1 year"
-      case EIGHTEEN_MONTHS => "18 months"
-      case THREE_YEARS => "3 years"
-      case FIVE_YEARS => "5 years"
-      case TEN_YEARS => "10 years"
+    GrantLength.from(grantLength) match {
+      case ONE_MONTH         => "1 month"
+      case THREE_MONTHS      => "3 months"
+      case SIX_MONTHS        => "6 months"
+      case ONE_YEAR          => "1 year"
+      case EIGHTEEN_MONTHS   => "18 months"
+      case THREE_YEARS       => "3 years"
+      case FIVE_YEARS        => "5 years"
+      case TEN_YEARS         => "10 years"
       case ONE_HUNDRED_YEARS => "100 years"
     }
   }

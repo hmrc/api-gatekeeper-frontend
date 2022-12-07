@@ -27,16 +27,16 @@ import uk.gov.hmrc.gatekeeper.models.CombinedApi
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
- with EmailInformationViewHelper
- with EmailAllUsersViewHelper
- with EmailAPISubscriptionsViewHelper
- with EmailPreferencesChoiceViewHelper
- with EmailPreferencesTopicViewHelper
- with EmailPreferencesAPICategoryViewHelper
- with EmailPreferencesSpecificAPIViewHelper
- with EmailPreferencesSelectAPIViewHelper with APIDefinitionHelper {
-     self: HmrcSpec =>
- }
+    with EmailInformationViewHelper
+    with EmailAllUsersViewHelper
+    with EmailAPISubscriptionsViewHelper
+    with EmailPreferencesChoiceViewHelper
+    with EmailPreferencesTopicViewHelper
+    with EmailPreferencesAPICategoryViewHelper
+    with EmailPreferencesSpecificAPIViewHelper
+    with EmailPreferencesSelectAPIViewHelper with APIDefinitionHelper {
+  self: HmrcSpec =>
+}
 
 trait EmailLandingViewHelper extends EmailUsersHelper {
   self: HmrcSpec =>
@@ -93,7 +93,7 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
-  
+
   def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
@@ -199,9 +199,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document,
-                                                                categories: List[APICategoryDetails],
-                                                                selectedCategory: APICategoryDetails) = {
+  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -211,14 +209,16 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesAPICategoryResultsPage(document: Document,
-                                                     categories: List[APICategoryDetails],
-                                                     mayBeSelectedCategory: Option[APICategoryDetails],
-                                                     selectedTopic: TopicOptionChoice,
-                                                     users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesAPICategoryResultsPage(
+      document: Document,
+      categories: List[APICategoryDetails],
+      mayBeSelectedCategory: Option[APICategoryDetails],
+      selectedTopic: TopicOptionChoice,
+      users: Seq[RegisteredUser]
+    ) = {
     validateStaticPageElements(document, categories)
 
-    mayBeSelectedCategory.map{ selectedCategory =>
+    mayBeSelectedCategory.map { selectedCategory =>
       elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
       validateCopyToClipboardLink(document, users)
       getSelectedOptionValue(document) shouldBe Some(selectedCategory.category)
@@ -252,11 +252,13 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesSpecificAPIResults(document: Document,
-                                                 selectedTopic: TopicOptionChoice,
-                                                 selectedAPIs: Seq[CombinedApi],
-                                                 users: Seq[RegisteredUser],
-                                                 emailsString: String) = {
+  def validateEmailPreferencesSpecificAPIResults(
+      document: Document,
+      selectedTopic: TopicOptionChoice,
+      selectedAPIs: Seq[CombinedApi],
+      users: Seq[RegisteredUser],
+      emailsString: String
+    ) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs, 2)

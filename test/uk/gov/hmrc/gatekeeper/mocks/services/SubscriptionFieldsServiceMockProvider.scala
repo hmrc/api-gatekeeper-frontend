@@ -28,16 +28,18 @@ trait SubscriptionFieldsServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-  
+
   object SubscriptionFieldsServiceMock {
+
     object SaveFieldValues {
-      def succeeds() =  
+
+      def succeeds() =
         when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
+          .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       def failsWithFieldErrors(fieldErrors: Map[String, String]) =
         when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
-        .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
+          .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
 
       def verifyParams(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) =
         verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)

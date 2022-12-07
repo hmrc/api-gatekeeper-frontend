@@ -35,43 +35,46 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
-class SubscriptionFieldsController @Inject()(
-  val subscriptionFieldsService : SubscriptionFieldsService,
-  val forbiddenView: ForbiddenView,
-  mcc: MessagesControllerComponents,
-  override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
-  with GatekeeperAuthorisationActions
-  with ErrorHelper {
+class SubscriptionFieldsController @Inject() (
+    val subscriptionFieldsService: SubscriptionFieldsService,
+    val forbiddenView: ForbiddenView,
+    mcc: MessagesControllerComponents,
+    override val errorTemplate: ErrorTemplate,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
+    with ErrorHelper {
 
   def subscriptionFieldValues() = anyAuthenticatedUserAction { implicit request =>
     case class FlattenedSubscriptionFieldValue(clientId: ClientId, context: ApiContext, version: ApiVersion, name: FieldName)
 
-    val columnDefinitions : Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(
-      ColumnDefinition("Environment",(_ => Environment.PRODUCTION.toString())),
+    val columnDefinitions: Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(
+      ColumnDefinition("Environment", (_ => Environment.PRODUCTION.toString())),
       ColumnDefinition("ClientId", (data => data.clientId.value)),
       ColumnDefinition("ApiContext", (data => data.context.value)),
       ColumnDefinition("ApiVersion", (data => data.version.value)),
       ColumnDefinition("FieldName", (data => data.name.value))
     )
 
-    def flattendFieldValues(subscriptionFieldValues: List[ApplicationApiFieldValues]) : List[FlattenedSubscriptionFieldValue] = {
+    def flattendFieldValues(subscriptionFieldValues: List[ApplicationApiFieldValues]): List[FlattenedSubscriptionFieldValue] = {
       subscriptionFieldValues.flatMap(allsubscriptionFieldValues => {
-        allsubscriptionFieldValues.fields.seq.map{ fieldValue: (FieldName, FieldValue) => {
-          val fieldName = fieldValue._1
-          FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, allsubscriptionFieldValues.apiContext, allsubscriptionFieldValues.apiVersion, fieldName)
-        }}
+        allsubscriptionFieldValues.fields.seq.map { fieldValue: (FieldName, FieldValue) =>
+          {
+            val fieldName = fieldValue._1
+            FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, allsubscriptionFieldValues.apiContext, allsubscriptionFieldValues.apiVersion, fieldName)
+          }
+        }
       })
     }
 
-    subscriptionFieldsService.fetchAllProductionFieldValues().map(allFieldsValues =>{
-      
+    subscriptionFieldsService.fetchAllProductionFieldValues().map(allFieldsValues => {
+
       val sortedAndFlattenedFields = flattendFieldValues(allFieldsValues)
-        .sortBy(x=> (x.clientId.value, x.context, x.version, x.name.value))
-      
+        .sortBy(x => (x.clientId.value, x.context, x.version, x.name.value))
+
       Ok(toCsvString(columnDefinitions, sortedAndFlattenedFields))
     })
   }
