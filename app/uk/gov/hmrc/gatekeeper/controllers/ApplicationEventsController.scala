@@ -40,6 +40,7 @@ import play.api.data.Form
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.services.SimpleEventDetails
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
@@ -48,8 +49,7 @@ object ApplicationEventsController {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
     def apply(event: AbstractApplicationEvent): EventModel = {
-      val eventTag = EventTags.tag(event)
-      EventModel(dateTimeFormatter.format(event.eventDateTime), EventTags.describe(eventTag), "Something", who(event))
+      EventModel(dateTimeFormatter.format(event.eventDateTime), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), who(event))
     }
   }
 
