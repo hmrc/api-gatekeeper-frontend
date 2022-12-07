@@ -23,66 +23,61 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash) {
+@(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
-  @main(title = s"${applicationConfig.title} - Application Events") {
+@main(title = s"${applicationConfig.title} - Application Events") {
 
-    <span class="govuk-caption-l">@{queryModel.applicationName}</span>
-    <h1 class="govuk-heading-l">Audit Events</h1>
+  <span class="govuk-caption-l">@{queryModel.applicationName}</span>
+  <h1 class="govuk-heading-l">Application changes</h1>
 
-    <h2 class="govuk-heading-m">Filters</h2> 
+  <h2 class="govuk-heading-m">Filters</h2> 
 
-    @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), 'class -> "form") {
-    @helper.CSRF.formField
+  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), 'class -> "form") {
+  @helper.CSRF.formField
 
-      <div class="govuk-grid-row">
-        
-        @defining(form("eventTag").value) { eventTagValue =>
-          <div class="govuk-grid-column-one-third">          
-            <div class="govuk-form-group">
-              <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
-                Event type
-              </label>
-              <select class="govuk-select" id="eventTag" name="eventTag">
-                <option value="" @if(eventTagValue == None) {selected}>All</option>      
-                @for(eventTag <- queryModel.searchFilterValues.eventTags) {
-                  <option value="@eventTag" @if(eventTagValue == Some(eventTag)) {selected}>@eventTag</option>      
-                }
-              </select>
-            </div>
+    <div class="govuk-grid-row">
+      @defining(form("eventTag").value) { eventTagValue =>
+        <div class="govuk-grid-column-one-third">          
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
+              Event type
+            </label>
+            <select class="govuk-select" id="eventTag" name="eventTag">
+              <option value="" @if(eventTagValue == None) {selected}>All</option>      
+              @for(eventTag <- queryModel.searchFilterValues.eventTags) {
+                <option value="@eventTag" @if(eventTagValue == Some(eventTag)) {selected}>@eventTag</option>      
+              }
+            </select>
           </div>
-        }
-      
-        <div class="govuk-grid-column-full">          
-          <button id="submit" class="govuk-button" type="submit">Filter results</button>
         </div>
+      }
+    
+      <div class="govuk-grid-column-full">          
+        <button id="submit" class="govuk-button" type="submit">Filter results</button>
       </div>
-    }  
+    </div>
+  }  
 
-    <table class="govuk-table responsive-table" data-module="moj-sortable-table">
-      <thead class="govuk-table__head">
+  <table class="govuk-table responsive-table" data-module="moj-sortable-table">
+    <thead class="govuk-table__head">
+      <tr role="row" class="govuk-table__row">
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Date and time</th>
+        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Type of change</th>
+        <th scope="col" class="govuk-table__header" aria-sort="none">What changed</th>
+        <th scope="col" class="govuk-table__header" aria-sort="none">Changes made by</th>
+      </tr>
+    </thead>
+    
+    <tbody class="govuk-table__body">
+
+      @for(event <- queryModel.events) {
         <tr role="row" class="govuk-table__row">
-          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Event date</th>
-          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Event type</th>
-          <th scope="col" class="govuk-table__header" aria-sort="none">Event details</th>
-          <th scope="col" class="govuk-table__header" aria-sort="none">Done by user</th>
+          <td role="cell" class="govuk-table__cell">@{event.eventDateTime}</td>
+          <td role="cell" class="govuk-table__cell">@{event.eventTag}</td>
+          <td role="cell" class="govuk-table__cell">@{event.eventDetails}</td>
+          <td role="cell" class="govuk-table__cell">@{event.actor}</td>
         </tr>
-      </thead>
-      
-      
-      <!---->
-      
-      <tbody class="govuk-table__body">
-
-        @for(event <- queryModel.events) {
-          <tr role="row" class="govuk-table__row">
-            <td role="cell" class="govuk-table__cell">@{event.eventDateTime}</td>
-            <td role="cell" class="govuk-table__cell">@{event.eventTag}</td>
-            <td role="cell" class="govuk-table__cell">@{event.eventDetails}</td>
-            <td role="cell" class="govuk-table__cell">@{event.actor}</td>
-          </tr>
-        }
-      </tbody>
-    </table>   
-  }   
-}
+      }
+    </tbody>
+  </table>   
+}   
