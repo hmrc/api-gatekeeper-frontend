@@ -24,20 +24,23 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
-                                     productionApiDefinitionConnector: ProductionApiDefinitionConnector)(implicit ec: ExecutionContext) {
+class ApiDefinitionService @Inject() (
+    sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
+    productionApiDefinitionConnector: ProductionApiDefinitionConnector
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val connectors = environment match {
+    val connectors                                          = environment match {
       case Some(PRODUCTION) => List(productionApiDefinitionConnector)
-      case Some(SANDBOX) => List(sandboxApiDefinitionConnector)
-      case _ => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+      case Some(SANDBOX)    => List(sandboxApiDefinitionConnector)
+      case _                => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
     }
     val publicApisFuture: List[Future[List[ApiDefinition]]] = connectors.map(_.fetchPublic())
-    val privateApisFuture = connectors.map(_.fetchPrivate())
+    val privateApisFuture                                   = connectors.map(_.fetchPrivate())
 
     for {
-      publicApis <- Future.reduceLeft(publicApisFuture)(_ ++ _)
+      publicApis  <- Future.reduceLeft(publicApisFuture)(_ ++ _)
       privateApis <- Future.reduceLeft(privateApisFuture)(_ ++ _)
     } yield (publicApis ++ privateApis).distinct
   }
@@ -46,10 +49,10 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toList)
   }
 
-  def apis(implicit hc: HeaderCarrier) : Future[List[(ApiDefinition, Environment)]] = {
-    
-    def getApisFromConnector(connector: ApiDefinitionConnector) : Future[List[(ApiDefinition, Environment)]] = {
-      def addEnvironmentToApis(result: Future[List[ApiDefinition]]) : Future[List[(ApiDefinition, Environment)]] =
+  def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinition, Environment)]] = {
+
+    def getApisFromConnector(connector: ApiDefinitionConnector): Future[List[(ApiDefinition, Environment)]] = {
+      def addEnvironmentToApis(result: Future[List[ApiDefinition]]): Future[List[(ApiDefinition, Environment)]] =
         result.map(apis => apis.map(api => (api, connector.environment)))
 
       Future.sequence(
@@ -65,15 +68,14 @@ class ApiDefinitionService @Inject()(sandboxApiDefinitionConnector: SandboxApiDe
     Future.sequence(connectors
       .map(getApisFromConnector))
       .map(_.flatten)
-      .map(_.sortBy { case (api, env) => (api.name, env) } )
+      .map(_.sortBy { case (api, env) => (api.name, env) })
   }
 
-  def apiCategories()(implicit hc: HeaderCarrier) : Future[List[APICategoryDetails]] = {
-    for{
-      sandboxCategories <- sandboxApiDefinitionConnector.fetchAPICategories()
+  def apiCategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
+    for {
+      sandboxCategories    <- sandboxApiDefinitionConnector.fetchAPICategories()
       productionCategories <- productionApiDefinitionConnector.fetchAPICategories()
-    } yield( sandboxCategories ++ productionCategories).distinct
+    } yield (sandboxCategories ++ productionCategories).distinct
   }
-
 
 }

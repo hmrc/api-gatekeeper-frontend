@@ -19,28 +19,29 @@ package uk.gov.hmrc.gatekeeper.builder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.VersionData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 
 trait ApiBuilder {
 
   implicit class VersionDataExtension(versionData: VersionData) {
     def withStatus(newStatus: ApiStatus) = versionData.copy(status = newStatus)
-    def alpha = versionData.copy(status = ApiStatus.ALPHA)
-    def beta = versionData.copy(status = ApiStatus.BETA)
-    def stable = versionData.copy(status = ApiStatus.STABLE)
-    def deprecated = versionData.copy(status = ApiStatus.DEPRECATED)
-    def retired = versionData.copy(status = ApiStatus.RETIRED)
+    def alpha                            = versionData.copy(status = ApiStatus.ALPHA)
+    def beta                             = versionData.copy(status = ApiStatus.BETA)
+    def stable                           = versionData.copy(status = ApiStatus.STABLE)
+    def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
+    def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
     def withAccess(newAccessType: APIAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
-    def publicAccess = this.withAccess(APIAccessType.PUBLIC)
-    def privateAccess = this.withAccess(APIAccessType.PRIVATE)
+    def publicAccess                             = this.withAccess(APIAccessType.PUBLIC)
+    def privateAccess                            = this.withAccess(APIAccessType.PRIVATE)
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {
     def testSupport = apiData.copy(isTestSupport = true)
 
     def withName(newName: String) = apiData.copy(name = newName)
-    
+
     def withVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(version -> data))
 
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
@@ -49,10 +50,10 @@ trait ApiBuilder {
   val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = APIAccessType.PUBLIC))
 
   val DefaultServiceName = "A-Service"
-  val DefaultName = "API Name"
+  val DefaultName        = "API Name"
 
-  val VersionOne = ApiVersion("1.0")
-  val VersionTwo = ApiVersion("2.0")
+  val VersionOne   = ApiVersion("1.0")
+  val VersionTwo   = ApiVersion("2.0")
   val VersionThree = ApiVersion("3.0")
 
   val DefaultApiData = ApiData(

@@ -23,17 +23,17 @@ import uk.gov.hmrc.gatekeeper.models.CollaboratorRole._
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[String, UserId]()
-  
+
   def idOf(email: String): UserId = idsByEmail.getOrElseUpdate(email, UserId.random)
 }
 
 trait CollaboratorTracker extends UserIdTracker {
-  
+
   def collaboratorOf(email: String, role: CollaboratorRole): Collaborator = Collaborator(email, role, idOf(email))
 
   implicit class CollaboratorSyntax(value: String) {
     def asAdministratorCollaborator = collaboratorOf(value, ADMINISTRATOR)
-    def asDeveloperCollaborator = collaboratorOf(value, DEVELOPER)
+    def asDeveloperCollaborator     = collaboratorOf(value, DEVELOPER)
 
   }
 }

@@ -27,6 +27,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ReviewViewSpec extends CommonViewSpec {
 
@@ -52,7 +53,7 @@ class ReviewViewSpec extends CommonViewSpec {
 
   "review view" should {
     "show review information with pass and fail options" in new Setup {
-      val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails,request, LoggedInUser(None), messagesProvider)
+      val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails, request, LoggedInUser(None), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

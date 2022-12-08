@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 trait CommonEmailViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with EmailLandingViewHelper {
-  val mcc = app.injector.instanceOf[MessagesControllerComponents]
-  val messagesApi = mcc.messagesApi
+  val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]
+  val messagesApi                                 = mcc.messagesApi
   implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
 }

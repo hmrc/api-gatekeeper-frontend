@@ -22,15 +22,15 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-class DummyDeveloperConnectorSpec 
+class DummyDeveloperConnectorSpec
     extends AsyncHmrcSpec
-    with BeforeAndAfterEach 
+    with BeforeAndAfterEach
     with GuiceOneAppPerSuite {
 
   implicit val hc: HeaderCarrier = HeaderCarrier()
-  val email: String = "user@example.com"
-  val loggedInUser: String = "admin-user"
-  val underTest = new DummyDeveloperConnector
+  val email: String              = "user@example.com"
+  val loggedInUser: String       = "admin-user"
+  val underTest                  = new DummyDeveloperConnector
 
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
@@ -58,7 +58,7 @@ class DummyDeveloperConnectorSpec
 
   "deleteDeveloper" should {
     "return a success result" in {
-      await(underTest.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe  DeveloperDeleteSuccessResult
+      await(underTest.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe DeveloperDeleteSuccessResult
     }
   }
 

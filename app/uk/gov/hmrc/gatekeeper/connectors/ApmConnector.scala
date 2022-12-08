@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.ApiContext
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.gatekeeper.models.applications._
@@ -28,22 +27,15 @@ import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
-import uk.gov.hmrc.gatekeeper.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
-import uk.gov.hmrc.gatekeeper.models.ApiIdentifier
-import uk.gov.hmrc.gatekeeper.models.ApplicationUpdateResult
-import uk.gov.hmrc.gatekeeper.models.ApplicationUpdateSuccessResult
-import uk.gov.hmrc.gatekeeper.models.AddTeamMemberRequest
-import uk.gov.hmrc.gatekeeper.models.TeamMemberAlreadyExists
-import uk.gov.hmrc.gatekeeper.models.ApplicationNotFound
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.gatekeeper.models.CombinedApi
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -51,42 +43,43 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   import ApmConnector._
 
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] =
-    http.GET[Option[ApplicationWithSubscriptionData]](s"${config.serviceBaseUrl}/applications/${applicationId.value}")
+    http.GET[Option[ApplicationWithSubscriptionData]](s"${config.serviceBaseUrl}/applications/${applicationId.value.toString}")
 
   def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
     http.GET[Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
   }
-  
+
   def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
 
-    http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value}/collaborators", addTeamMember)
-    .map( _ match {
-      case Right(()) => ()
-      case Left(UpstreamErrorResponse(_, CONFLICT, _, _)) => throw TeamMemberAlreadyExists
-      case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
-      case Left(err) => throw err
-    })
+    http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value.toString}/collaborators", addTeamMember)
+      .map(_ match {
+        case Right(())                                       => ()
+        case Left(UpstreamErrorResponse(_, CONFLICT, _, _))  => throw TeamMemberAlreadyExists
+        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
+        case Left(err)                                       => throw err
+      })
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
     http.GET[Map[ApiContext, ApiData]](
-      s"${config.serviceBaseUrl}/api-definitions", 
-      Seq(
-        applicationIdQueryParam -> applicationId.value,
-        restrictedQueryParam -> "false"
-      )
+      url = s"${config.serviceBaseUrl}/api-definitions",
+      queryParams = Seq(
+        applicationIdQueryParam -> applicationId.value.toString(),
+        restrictedQueryParam    -> "false"
+      ),
+      headers = Seq.empty[(String, String)]
     )
   }
 
   def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](
-      s"${config.serviceBaseUrl}/applications/${applicationId.value}/subscriptions?restricted=false",
+      s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}/subscriptions?restricted=false",
       apiIdentifier
     )
-    .map(_ match {
-      case Right(_) => ApplicationUpdateSuccessResult
-      case Left(err) => throw err
-    })
+      .map(_ match {
+        case Right(_)  => ApplicationUpdateSuccessResult
+        case Left(err) => throw err
+      })
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
@@ -100,9 +93,9 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
 object ApmConnector {
   val applicationIdQueryParam = "applicationId"
-  val restrictedQueryParam = "restricted"
+  val restrictedQueryParam    = "restricted"
 
   case class Config(
       serviceBaseUrl: String
-  )
+    )
 }

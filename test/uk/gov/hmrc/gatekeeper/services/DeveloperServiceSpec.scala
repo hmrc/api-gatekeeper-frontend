@@ -34,6 +34,8 @@ import org.joda.time.DateTime
 
 import java.time.Period
 import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -61,16 +63,29 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
     val grantLength: Period = Period.ofDays(547)
     ApplicationResponse(
-      ApplicationId.random, ClientId("clientId"), "gatewayId", name, deployedTo, None,
-      collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
+      ApplicationId.random,
+      ClientId("clientId"),
+      "gatewayId",
+      name,
+      deployedTo,
+      None,
+      collaborators,
+      DateTime.now(),
+      Some(DateTime.now()),
+      Standard(),
+      ApplicationState(),
+      grantLength
+    )
   }
 
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
 
+  val prodAppId = ApplicationId.random
+
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider
-    with DeveloperConnectorMockProvider with XmlServiceMockProvider {
+      with DeveloperConnectorMockProvider with XmlServiceMockProvider {
     val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(
@@ -78,17 +93,18 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
-      mockXmlService)
+      mockXmlService
+    )
 
-    val verifiedAdminUser = aUser("admin1")
-    val verifiedAdminCollaborator = verifiedAdminUser.email.asAdministratorCollaborator
-    val unverifiedUser = aUser("admin2", verified = false)
+    val verifiedAdminUser           = aUser("admin1")
+    val verifiedAdminCollaborator   = verifiedAdminUser.email.asAdministratorCollaborator
+    val unverifiedUser              = aUser("admin2", verified = false)
     val unverifiedAdminCollaborator = unverifiedUser.email.asAdministratorCollaborator
-    val developerUser = aUser("developer1")
-    val developerCollaborator = developerUser.email.asDeveloperCollaborator
-    val commonUsers = List(verifiedAdminUser, unverifiedUser, developerUser)
-    val apiContext = ApiContext("api")
-    val apiVersion = ApiVersion.random
+    val developerUser               = aUser("developer1")
+    val developerCollaborator       = developerUser.email.asDeveloperCollaborator
+    val commonUsers                 = List(verifiedAdminUser, unverifiedUser, developerUser)
+    val apiContext                  = ApiContext("api")
+    val apiVersion                  = ApiVersion.random
 
     val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
 
@@ -96,8 +112,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     implicit val hc = HeaderCarrier()
 
-    def fetchDeveloperWillReturn(user: RegisteredUser, includeDeleted: FetchDeletedApplications, productionApps: List[ApplicationResponse] = List.empty,
-                                 sandboxApps: List[ApplicationResponse] = List.empty) = {
+    def fetchDeveloperWillReturn(
+        user: RegisteredUser,
+        includeDeleted: FetchDeletedApplications,
+        productionApps: List[ApplicationResponse] = List.empty,
+        sandboxApps: List[ApplicationResponse] = List.empty
+      ) = {
       DeveloperConnectorMock.FetchByEmail.handles(user)
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
@@ -130,18 +150,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
     }
 
-    def verifyCollaboratorRemovedFromApp(app: Application,
-                                         userToRemove: String,
-                                         gatekeeperUserId: String,
-                                         adminsToEmail: Set[String],
-                                         environment: String = "PRODUCTION") = {
+    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: String, gatekeeperUserId: String, adminsToEmail: Set[String], environment: String = "PRODUCTION") = {
       environment match {
         case "PRODUCTION" =>
-          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove),
-            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
-        case "SANDBOX" =>
-          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove),
-            eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+        case "SANDBOX"    =>
+          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
       }
     }
 
@@ -154,12 +168,17 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "filter all users (no unregistered collaborators)" in new Setup {
       val applications = List(
-        anApp("application1", Set(
-          "Bob@example.com".asAdministratorCollaborator,
-          "Jacob@example.com".asDeveloperCollaborator)))
+        anApp(
+          "application1",
+          Set(
+            "Bob@example.com".asAdministratorCollaborator,
+            "Jacob@example.com".asDeveloperCollaborator
+          )
+        )
+      )
 
-      val bob = aDeveloper("Bob", applications)
-      val jim = aDeveloper("Jim", applications)
+      val bob   = aDeveloper("Bob", applications)
+      val jim   = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
       val users = List(bob, jim, jacob)
@@ -171,15 +190,24 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "filter all users (including unregistered collaborators)" in new Setup {
       val applications = List(
-        anApp("application1", Set(
-          "Bob@example.com".asAdministratorCollaborator,
-          "Jacob@example.com".asDeveloperCollaborator)),
-        anApp("application2", Set(
-          "Julia@example.com".asAdministratorCollaborator,
-          "Jim@example.com".asDeveloperCollaborator)))
+        anApp(
+          "application1",
+          Set(
+            "Bob@example.com".asAdministratorCollaborator,
+            "Jacob@example.com".asDeveloperCollaborator
+          )
+        ),
+        anApp(
+          "application2",
+          Set(
+            "Julia@example.com".asAdministratorCollaborator,
+            "Jim@example.com".asDeveloperCollaborator
+          )
+        )
+      )
 
-      val bob = aDeveloper("Bob", applications)
-      val jim = aDeveloper("Jim", applications)
+      val bob   = aDeveloper("Bob", applications)
+      val jim   = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
       val users = List(bob, jim, jacob)
@@ -190,15 +218,24 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "filter users that have access to 1 or more applications" in new Setup {
       val applications = List(
-        anApp("application1", Set(
-          "Bob@example.com".asAdministratorCollaborator,
-          "Jacob@example.com".asDeveloperCollaborator)),
-        anApp("application2", Set(
-          "Julia@example.com".asAdministratorCollaborator,
-          "Jim@example.com".asDeveloperCollaborator)))
+        anApp(
+          "application1",
+          Set(
+            "Bob@example.com".asAdministratorCollaborator,
+            "Jacob@example.com".asDeveloperCollaborator
+          )
+        ),
+        anApp(
+          "application2",
+          Set(
+            "Julia@example.com".asAdministratorCollaborator,
+            "Jim@example.com".asDeveloperCollaborator
+          )
+        )
+      )
 
-      val bob = aDeveloper("Bob", applications)
-      val jim = aDeveloper("Jim", applications)
+      val bob   = aDeveloper("Bob", applications)
+      val jim   = aDeveloper("Jim", applications)
       val jacob = aDeveloper("Jacob", applications)
 
       val users = List(bob, jim, jacob)
@@ -210,17 +247,26 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "filter users that are not associated with any applications" in
       new Setup {
         val applications = List(
-          anApp("application1", Set(
-            "Shirley@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator)),
-          anApp("application2", Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator)))
+          anApp(
+            "application1",
+            Set(
+              "Shirley@example.com".asAdministratorCollaborator,
+              "Jacob@example.com".asDeveloperCollaborator
+            )
+          ),
+          anApp(
+            "application2",
+            Set(
+              "Julia@example.com".asAdministratorCollaborator,
+              "Jim@example.com".asDeveloperCollaborator
+            )
+          )
+        )
 
-        val gaia = aDeveloper("Gaia")
-        val jimbob = aDeveloper("Jimbob")
+        val gaia    = aDeveloper("Gaia")
+        val jimbob  = aDeveloper("Jimbob")
         val shirley = aDeveloper("Shirley")
-        val users = List(shirley, jimbob, gaia)
+        val users   = List(shirley, jimbob, gaia)
 
         val result = underTest.filterUsersBy(NoApplications, applications)(users)
         result should contain allElementsOf List(gaia, jimbob)
@@ -228,24 +274,28 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "filter users who have no subscriptions" in new Setup {
       val _allApplications = List(
-        anApp("application1", Set(
-          "Bob@example.com".asAdministratorCollaborator,
-          "Jim@example.com".asDeveloperCollaborator,
-          "Jacob@example.com".asDeveloperCollaborator
-        )
+        anApp(
+          "application1",
+          Set(
+            "Bob@example.com".asAdministratorCollaborator,
+            "Jim@example.com".asDeveloperCollaborator,
+            "Jacob@example.com".asDeveloperCollaborator
+          )
         ),
-        anApp("application2", Set(
-          "Julia@example.com".asAdministratorCollaborator,
-          "Jim@example.com".asDeveloperCollaborator
-        )
+        anApp(
+          "application2",
+          Set(
+            "Julia@example.com".asAdministratorCollaborator,
+            "Jim@example.com".asDeveloperCollaborator
+          )
         )
       )
 
-      val gaia = aDeveloper("Gaia")
-      val jimbob = aDeveloper("Jimbob")
+      val gaia    = aDeveloper("Gaia")
+      val jimbob  = aDeveloper("Jimbob")
       val shirley = aDeveloper("Shirley")
-      val jim = aDeveloper("Jim", _allApplications)
-      val users = List(shirley, jimbob, gaia, jim)
+      val jim     = aDeveloper("Jim", _allApplications)
+      val users   = List(shirley, jimbob, gaia, jim)
 
       val result = underTest.filterUsersBy(NoSubscriptions, _allApplications)(users)
 
@@ -260,16 +310,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     "filter by status does no filtering when any status" in new Setup {
-      val users = List(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
+      val users  = List(aDeveloper("Bob", verified = false), aDeveloper("Brian"), aDeveloper("Sheila"))
       val result = underTest.filterUsersBy(AnyStatus)(users)
       result shouldBe users
     }
 
     "filter by status only returns verified users when Verified status" in new Setup {
-      val bob = aDeveloper("Bob", verified = false)
-      val brian = aDeveloper("Brian")
+      val bob    = aDeveloper("Bob", verified = false)
+      val brian  = aDeveloper("Brian")
       val sheila = aDeveloper("Sheila")
-      val users = List(bob, brian, sheila)
+      val users  = List(bob, brian, sheila)
 
       val result = underTest.filterUsersBy(VerifiedStatus)(users)
 
@@ -277,10 +327,10 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     "filter by status only returns unverified users when Unverified status" in new Setup {
-      val bob = aDeveloper("Bob", verified = false)
-      val brian = aDeveloper("Brian")
+      val bob    = aDeveloper("Bob", verified = false)
+      val brian  = aDeveloper("Brian")
       val sheila = aDeveloper("Sheila")
-      val users = List(bob, brian, sheila)
+      val users  = List(bob, brian, sheila)
 
       val result = underTest.filterUsersBy(UnverifiedStatus)(users)
 
@@ -289,7 +339,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "fetch the developer and the applications they are a team member on" in new Setup {
       val developer = aUser("Fred")
-      val apps = List(anApp("application", Set(developer.email.asAdministratorCollaborator)))
+      val apps      = List(anApp("application", Set(developer.email.asAdministratorCollaborator)))
       fetchDeveloperWillReturn(developer, FetchDeletedApplications.Include, apps)
 
       val result = await(underTest.fetchDeveloper(developer.userId, FetchDeletedApplications.Include))
@@ -300,8 +350,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     "remove MFA" in new Setup {
-      val developer = aUser("Fred")
-      val developerId = UuidIdentifier(developer.userId)
+      val developer            = aUser("Fred")
+      val developerId          = UuidIdentifier(developer.userId)
       val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
@@ -314,11 +364,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   "fetchDeveloper" should {
     val emailPreferences = EmailPreferences(
-      interests = List(TaxRegimeInterests("TestRegimeOne", Set("TestServiceOne", "TestServiceTwo")),
-                       TaxRegimeInterests("TestRegimeTwo", Set("TestServiceThree", "TestServiceFour"))),
+      interests = List(
+        TaxRegimeInterests("TestRegimeOne", Set("TestServiceOne", "TestServiceTwo")),
+        TaxRegimeInterests("TestRegimeTwo", Set("TestServiceThree", "TestServiceFour"))
+      ),
       topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
     )
-    val user = aUser("Fred", emailPreferences = emailPreferences)
+    val user             = aUser("Fred", emailPreferences = emailPreferences)
 
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
@@ -376,8 +428,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   "developerService.deleteDeveloper" should {
     val gatekeeperUserId = "gate.keeper"
-    val user = aUser("Fred")
-    val developerId = UuidIdentifier(user.userId)
+    val user             = aUser("Fred")
+    val developerId      = UuidIdentifier(user.userId)
 
     "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
 
@@ -432,7 +484,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
 
       val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
-      val sandboxApps = List(anApp(
+      val sandboxApps    = List(anApp(
         name = "sandboxApplication",
         collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
       ))
@@ -442,8 +494,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
@@ -451,7 +503,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         name = "productionApplication",
         collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
       ))
-      val sandboxApps = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
+      val sandboxApps    = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
 
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
 
@@ -459,14 +511,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(ApplicationId("productionApplication")), *, *, *)(*)
+      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
     }
   }
 
   "developerService searchDevelopers" should {
     "find users" in new Setup {
-      private val user = aUser("fred")
+      private val user        = aUser("fred")
       private val emailFilter = "example"
       DeveloperConnectorMock.SearchDevelopers.returns(user)
 
@@ -568,8 +620,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       DeveloperConnectorMock.FetchByEmails.returns(user1, user2, user3)
 
-      val filter = DevelopersSearchFilter(maybeEmailFilter =
-        Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)), developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
+      val filter = DevelopersSearchFilter(
+        maybeEmailFilter =
+          Some(emailFilter),
+        maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)),
+        developerStatusFilter = DeveloperStatusFilter.VerifiedStatus
+      )
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -580,9 +636,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "find by developer status should sort users by email" in new Setup {
 
-      val firstInTheListUser = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
+      val firstInTheListUser  = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
       val secondInTheListUser = RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
-      val thirdInTheListUser = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
+      val thirdInTheListUser  = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
       DeveloperConnectorMock.SearchDevelopers.returnsFor(None, DeveloperStatusFilter.AllStatus)(thirdInTheListUser, firstInTheListUser, secondInTheListUser)
 
       val filter = DevelopersSearchFilter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)
@@ -595,7 +651,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "find by api context and version and Production environment" in new Setup {
       val productionUser = aUser("production")
-      val sandboxUser = aUser("sandbox")
+      val sandboxUser    = aUser("sandbox")
 
       private val email1 = productionUser.email
 
@@ -615,7 +671,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "find by api context and version and Sandbox environment" in new Setup {
       val productionUser = aUser("production")
-      val sandboxUser = aUser("sandbox")
+      val sandboxUser    = aUser("sandbox")
 
       private val email2 = sandboxUser.email
 
@@ -634,15 +690,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
   }
   "developerService fetchDevelopersByEmailPreferences" should {
-    val topic = TopicOptionChoice.BUSINESS_AND_POLICY
+    val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1 = APICategory("category1")
-    val category2 = APICategory("category2")
-    val categories = List(category1, category2)
-    val apiName1 = "apiName1"
-    val apiName2 = "apiName2"
-    val apiName3 = "apiName3"
-    val apis = List(apiName1, apiName2, apiName3)
+    val category1   = APICategory("category1")
+    val category2   = APICategory("category2")
+    val categories  = List(category1, category2)
+    val apiName1    = "apiName1"
+    val apiName2    = "apiName2"
+    val apiName3    = "apiName3"
+    val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when only passed a topic" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, None, false)(sandboxUser)
@@ -651,7 +707,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *, * )(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *, *)(*)
     }
 
     "call the connector correctly when only passed a topic and a category" in new Setup {

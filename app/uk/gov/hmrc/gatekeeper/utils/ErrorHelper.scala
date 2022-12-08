@@ -24,16 +24,15 @@ import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 trait ErrorHelper {
   val errorTemplate: ErrorTemplate
 
-  def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
-    InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties",
-      "Sorry, we’re experiencing technical difficulties"))
+  def technicalDifficulties(implicit request: Request[_], messagesProvider: MessagesProvider): Result = {
+    InternalServerError(errorTemplate("Technical difficulties", "Technical difficulties", "Sorry, we’re experiencing technical difficulties"))
   }
 
-  def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+  def notFound(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider): Result = {
     NotFound(errorTemplate("Not found", "404 - Not found", errors))
   }
 
-  def badRequest(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider) : Result = {
+  def badRequest(errors: String)(implicit request: Request[_], messagesProvider: MessagesProvider): Result = {
     BadRequest(errorTemplate("Bad request", "400 - Bad request", errors))
   }
 }

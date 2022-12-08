@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
-class TeamMembersControllerSpec 
+class TeamMembersControllerSpec
     extends ControllerBaseSpec
     with WithCSRFAddToken
     with TitleChecker
@@ -38,30 +38,36 @@ class TeamMembersControllerSpec
 
   implicit val materializer = app.materializer
 
-  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val errorTemplateView     = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView         = app.injector.instanceOf[ForbiddenView]
   private lazy val manageTeamMembersView = app.injector.instanceOf[ManageTeamMembersView]
-  private lazy val addTeamMemberView = app.injector.instanceOf[AddTeamMemberView]
-  private lazy val removeTeamMemberView = app.injector.instanceOf[RemoveTeamMemberView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
-  
-   running(app) {
+  private lazy val addTeamMemberView     = app.injector.instanceOf[AddTeamMemberView]
+  private lazy val removeTeamMemberView  = app.injector.instanceOf[RemoveTeamMemberView]
+  private lazy val errorHandler          = app.injector.instanceOf[ErrorHandler]
+
+  running(app) {
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
+      val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
+      override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
-      override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
+      override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))), List.empty)
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        List.empty
+      )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), List.empty)
+        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        List.empty
+      )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
+        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        List.empty
+      )
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
@@ -93,7 +99,7 @@ class TeamMembersControllerSpec
 
             status(result) shouldBe OK
 
-            // The auth connector checks you are logged on. And the controller checks you are also a super user as it's a privileged app.          
+            // The auth connector checks you are logged on. And the controller checks you are also a super user as it's a privileged app.
           }
         }
 
@@ -183,7 +189,6 @@ class TeamMembersControllerSpec
         }
       }
     }
-
 
     "addTeamMember" when {
       "managing a privileged app" when {
@@ -277,7 +282,8 @@ class TeamMembersControllerSpec
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
             verify(mockApplicationService)
-              .addTeamMember(eqTo(application.application), eqTo(email.asDeveloperCollaborator))(*)          }
+              .addTeamMember(eqTo(application.application), eqTo(email.asDeveloperCollaborator))(*)
+          }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
@@ -287,10 +293,11 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.AddTeamMember.succeeds()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
-            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")          }
+            redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")
+          }
 
           "show 400 BadRequest when the service call fails with TeamMemberAlreadyExists" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
@@ -299,7 +306,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.AddTeamMember.failsDueToExistingAlready()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
-            val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -313,7 +320,8 @@ class TeamMembersControllerSpec
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("email", "NOT AN EMAIL ADDRESS"),
-              ("role", "DEVELOPER"))
+              ("role", "DEVELOPER")
+            )
 
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
@@ -327,7 +335,8 @@ class TeamMembersControllerSpec
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
-              ("role", ""))
+              ("role", "")
+            )
 
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
@@ -345,7 +354,8 @@ class TeamMembersControllerSpec
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
-              ("role", "DEVELOPER"))
+              ("role", "DEVELOPER")
+            )
 
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
@@ -361,7 +371,8 @@ class TeamMembersControllerSpec
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
-              ("role", "DEVELOPER"))
+              ("role", "DEVELOPER")
+            )
 
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
@@ -379,7 +390,8 @@ class TeamMembersControllerSpec
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email),
-              ("role", "DEVELOPER"))
+              ("role", "DEVELOPER")
+            )
 
             val result = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
@@ -399,10 +411,11 @@ class TeamMembersControllerSpec
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = addToken(underTest.removeTeamMember(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
-            contentAsString(result) should include(email)          }
+            contentAsString(result) should include(email)
+          }
         }
 
         "the form is invalid" should {
@@ -411,7 +424,7 @@ class TeamMembersControllerSpec
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = addToken(underTest.removeTeamMember(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -425,7 +438,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = addToken(underTest.removeTeamMember(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -437,7 +450,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = addToken(underTest.removeTeamMember(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -449,7 +462,7 @@ class TeamMembersControllerSpec
             givenTheAppWillBeReturned()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
-            val result = addToken(underTest.removeTeamMember(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
           }
@@ -470,11 +483,11 @@ class TeamMembersControllerSpec
               givenTheAppWillBeReturned()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+              val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
-              }
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")
+            }
           }
 
           "the action is confirmed" should {
@@ -484,14 +497,14 @@ class TeamMembersControllerSpec
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
               givenTheAppWillBeReturned()
               ApplicationServiceMock.RemoveTeamMember.succeeds()
-              
+
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+              val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
 
               verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(emailToRemove), eqTo("Bobby Example"))(*)
-              }
+            }
 
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
@@ -499,7 +512,7 @@ class TeamMembersControllerSpec
               ApplicationServiceMock.RemoveTeamMember.failsDueToLastAdmin()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+              val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe BAD_REQUEST
             }
@@ -510,11 +523,11 @@ class TeamMembersControllerSpec
               ApplicationServiceMock.RemoveTeamMember.succeeds()
 
               val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
-              val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+              val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
-              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/team-members")
-              }
+              redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/team-members")
+            }
           }
         }
 
@@ -525,7 +538,7 @@ class TeamMembersControllerSpec
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", "NOT AN EMAIL ADDRESS"))
-            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
           }
@@ -539,7 +552,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -551,7 +564,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
           }
@@ -564,7 +577,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.RemoveTeamMember.succeeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
-            val result = addToken(underTest.removeTeamMemberAction(applicationId))(request)
+            val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
           }

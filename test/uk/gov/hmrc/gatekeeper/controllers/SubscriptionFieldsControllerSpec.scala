@@ -27,21 +27,24 @@ import java.util.UUID
 import scala.concurrent.Future
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase {
     val subscriptionFieldsService = mock[SubscriptionFieldsService]
-    val controller = new SubscriptionFieldsController(subscriptionFieldsService,forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock)
+
+    val controller                =
+      new SubscriptionFieldsController(subscriptionFieldsService, forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock)
   }
-  
+
   "subscriptionFieldValues" should {
     "return a csv" in new Setup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-      
+
       val expectedValues = List(ApplicationApiFieldValues(
         ClientId("my-client-id"),
         ApiContext("my-api-context"),
@@ -52,7 +55,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
       when(subscriptionFieldsService.fetchAllProductionFieldValues()(*))
         .thenReturn(Future.successful(expectedValues))
-      
+
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 
       val expectedCsv = """|Environment,ClientId,ApiContext,ApiVersion,FieldName
@@ -65,7 +68,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
     "Forbidden if not authenticated" in new Setup {
       StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
       LdapAuthorisationServiceMock.Auth.notAuthorised
-      
+
       val result = controller.subscriptionFieldValues()(aLoggedOutRequest)
 
       status(result) shouldBe FORBIDDEN

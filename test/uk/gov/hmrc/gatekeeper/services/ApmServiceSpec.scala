@@ -24,6 +24,7 @@ import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApmConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 
@@ -31,6 +32,8 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
     val apmService = new ApmService(mockApmConnector)
+
+    val anAppId = ApplicationId.random
 
     val combinedRestApi1 = CombinedApi(
       "displayName1",
@@ -47,7 +50,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       ApiType.XML_API,
       Some(PUBLIC)
     )
-    val combinedList = List(combinedRestApi1, combinedXmlApi2)
+    val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 
   }
 
@@ -58,7 +61,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchApplicationById.returns(None)
 
-        val result = await(apmService.fetchApplicationById(ApplicationId("applicationId")))
+        val result = await(apmService.fetchApplicationById(anAppId))
         result shouldBe None
       }
     }
@@ -68,7 +71,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         FetchAllPossibleSubscriptions.returns(Map.empty)
 
-        val result = await(apmService.fetchAllPossibleSubscriptions(ApplicationId("applicationId")))
+        val result = await(apmService.fetchAllPossibleSubscriptions(anAppId))
         result shouldBe Map.empty
       }
     }
@@ -96,7 +99,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchAllBoxes" should {
       "return a list of PPNS Boxes" in new Setup {
         val allBoxes = List.empty
-        
+
         FetchAllBoxes.returns(allBoxes)
 
         val result = await(apmService.fetchAllBoxes())

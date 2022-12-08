@@ -21,12 +21,12 @@ import play.api.Configuration
 import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 
 @Singleton
-class StrideAuthConnectorConfigProvider @Inject()(configuration: Configuration) extends Provider[StrideAuthConnector.Config] with BaseUrlExtractor {
+class StrideAuthConnectorConfigProvider @Inject() (configuration: Configuration) extends Provider[StrideAuthConnector.Config] with BaseUrlExtractor {
   val config = configuration.underlying
 
   override def get(): StrideAuthConnector.Config = {
     val baseUrl = extractBaseUrl("auth")
-    
+
     StrideAuthConnector.Config(baseUrl)
   }
 }

@@ -26,10 +26,11 @@ import uk.gov.hmrc.gatekeeper.connectors._
 
 trait DeveloperConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
-  
+
   val mockDeveloperConnector = mock[DeveloperConnector]
 
   object DeveloperConnectorMock {
+
     object FetchByEmail {
       def handles(user: User) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*)).thenReturn(successful(user))
     }
@@ -39,6 +40,7 @@ trait DeveloperConnectorMockProvider {
     }
 
     object FetchById {
+
       def handles(user: User) = {
         when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*)).thenReturn(successful(user))
         when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*)).thenReturn(successful(user))
@@ -46,25 +48,30 @@ trait DeveloperConnectorMockProvider {
     }
 
     object FetchByEmailPreferences {
+
       def returnsFor(
-        topic: TopicOptionChoice,
-        maybeApis: Option[Seq[String]],
-        maybeApiCategory: Option[Seq[APICategory]],
-        privateapimatch: Boolean)
-        ( users: RegisteredUser*) =
+          topic: TopicOptionChoice,
+          maybeApis: Option[Seq[String]],
+          maybeApiCategory: Option[Seq[APICategory]],
+          privateapimatch: Boolean
+        )(
+          users: RegisteredUser*
+        ) =
         when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch))(*))
           .thenReturn(successful(users.toList))
     }
 
     object FetchByEmails {
-      def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*)                         = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
+
       def returnsFor(emails: Set[String])(users: RegisteredUser*) =
         when(mockDeveloperConnector.fetchByEmails(eqTo(emails))(*)).thenReturn(successful(users.toList))
     }
 
     object SearchDevelopers {
+
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperConnector.searchDevelopers(*,*)(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(successful(users.toList))
 
       def returnsFor(maybeEmail: Option[String], status: DeveloperStatusFilter.DeveloperStatusFilter)(users: RegisteredUser*) =
         when(mockDeveloperConnector.searchDevelopers(eqTo(maybeEmail), eqTo(status))(*)).thenReturn(successful(users.toList))

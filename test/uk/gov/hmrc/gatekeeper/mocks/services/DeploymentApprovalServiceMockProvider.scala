@@ -28,17 +28,21 @@ trait DeploymentApprovalServiceMockProvider {
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
   object DeploymentApprovalServiceMock {
+
     object FetchUnapprovedServices {
+
       def returns(approvalSummaries: APIApprovalSummary*) =
         when(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).thenReturn(successful(approvalSummaries.toList))
     }
 
     object FetchApprovalSummary {
+
       def returnsForEnv(environment: Environment.Value)(approvalSummary: APIApprovalSummary) =
         when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
     }
 
     object ApproveService {
+
       def succeeds() =
         when(mockDeploymentApprovalService.approveService(*, *)(*)).thenReturn(successful(()))
     }

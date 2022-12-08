@@ -46,6 +46,6 @@ case object UserNavLinks {
 
   def apply(userFullName: Option[String]): Seq[NavLink] = userFullName match {
     case Some(name) => loggedInNavLinks(name)
-    case None => loggedOutNavLinks
+    case None       => loggedOutNavLinks
   }
 }

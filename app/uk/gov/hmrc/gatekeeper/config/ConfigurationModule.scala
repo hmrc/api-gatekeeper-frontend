@@ -37,7 +37,6 @@ class ConfigurationModule extends Module {
 
     Seq(
       developerConnectorBinding,
-
       bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("SANDBOX"))
         .to[SandboxSubscriptionFieldsConnector],

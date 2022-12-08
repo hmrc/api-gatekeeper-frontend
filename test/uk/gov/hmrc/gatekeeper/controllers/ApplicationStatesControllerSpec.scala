@@ -21,7 +21,8 @@ import play.api.http.Status.{FORBIDDEN, OK}
 import play.api.test.Helpers.{contentAsString, contentType, header, running, status}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
-import uk.gov.hmrc.gatekeeper.models.{ApplicationId, ApplicationStateHistoryChange}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -36,16 +37,20 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
 
     "csv" should {
       val appStateHistoryChanges = Array(
-        ApplicationStateHistoryChange(ApplicationId.random.value, "app 1 name", "app 1 version", "old state 1", "old ts 1", "new state 1", "new ts 1"),
-        ApplicationStateHistoryChange(ApplicationId.random.value, "app 2 name", "app 2 version", "old state 2", "old ts 2", "new state 2", "new ts 2")
+        ApplicationStateHistoryChange(ApplicationId.random.value.toString, "app 1 name", "app 1 version", "old state 1", "old ts 1", "new state 1", "new ts 1"),
+        ApplicationStateHistoryChange(ApplicationId.random.value.toString, "app 2 name", "app 2 version", "old state 2", "old ts 2", "new state 2", "new ts 2")
       )
-      val expectedCsv = "applicationId,applicationName,journeyVersion,oldState,oldTimestamp,newState,newTimestamp\n" +
-        appStateHistoryChanges.map(c => s"${c.applicationId},${c.appName},${c.journeyVersion},${c.oldState},${c.oldTimestamp},${c.newState},${c.newTimestamp}").mkString("", "\n", "\n")
+      val expectedCsv            = "applicationId,applicationName,journeyVersion,oldState,oldTimestamp,newState,newTimestamp\n" +
+        appStateHistoryChanges.map(c => s"${c.applicationId},${c.appName},${c.journeyVersion},${c.oldState},${c.oldTimestamp},${c.newState},${c.newTimestamp}").mkString(
+          "",
+          "\n",
+          "\n"
+        )
 
       "return csv data for ldap authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -53,7 +58,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
 
       "return csv data for stride authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -62,7 +67,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       "return csv data with correct headers" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges:_*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentType(result) shouldBe Some("text/csv")

@@ -25,20 +25,23 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class PublishTemplateSpec extends CommonViewSpec {
 
-  sealed case class TestApplication(name: String,
-                                    collaborators: Set[Collaborator],
-                                    id: ApplicationId = ApplicationId.random,
-                                    state: ApplicationState = ApplicationState(State.PRODUCTION),
-                                    clientId: ClientId = ClientId("a-client-id"),
-                                    deployedTo: String = "PRODUCTION") extends Application
+  sealed case class TestApplication(
+      name: String,
+      collaborators: Set[Collaborator],
+      id: ApplicationId = ApplicationId.random,
+      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      clientId: ClientId = ClientId("a-client-id"),
+      deployedTo: String = "PRODUCTION"
+    ) extends Application
 
   def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
 
   "Publish Template" should {
-    implicit val request = FakeRequest().withCSRFToken
+    implicit val request  = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
@@ -58,6 +61,6 @@ class PublishTemplateSpec extends CommonViewSpec {
       elementExistsById(document, "publish-one-input") shouldBe true
 
     }
-}
+  }
 
 }

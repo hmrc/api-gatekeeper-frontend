@@ -23,7 +23,7 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import com.google.inject.{Singleton, Inject}
+import com.google.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -34,28 +34,28 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
-class BoxesController @Inject()(
-  mcc: MessagesControllerComponents,
-  val apmService: ApmService,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
-  with GatekeeperAuthorisationActions {
-    
-  def getAll(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+class BoxesController @Inject() (
+    mcc: MessagesControllerComponents,
+    val apmService: ApmService,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions {
 
+  def getAll(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     apmService.fetchAllBoxes().map(boxes => {
-      val columnDefinitions : Seq[ColumnDefinition[Box]] = Seq(
-        ColumnDefinition("environment",(box => box.environment.toString())),
-        ColumnDefinition("applicationId",(box => box.applicationId.fold("")(_.value))),
-        ColumnDefinition("clientId",(box => box.boxCreator.clientId.value)),
-        ColumnDefinition("name",(box => box.boxName)),
-        ColumnDefinition("boxId",(box => box.boxId.value)),
-        ColumnDefinition("subscriptionType",(box => (box.subscriber.fold("")(s=>s.subscriptionType.toString())))),
-        ColumnDefinition("callbackUrl", (box => box.subscriber.fold("")(s=>s.callBackUrl)))
+      val columnDefinitions: Seq[ColumnDefinition[Box]] = Seq(
+        ColumnDefinition("environment", (box => box.environment.toString())),
+        ColumnDefinition("applicationId", (box => box.applicationId.fold("")(_.value.toString()))),
+        ColumnDefinition("clientId", (box => box.boxCreator.clientId.value)),
+        ColumnDefinition("name", (box => box.boxName)),
+        ColumnDefinition("boxId", (box => box.boxId.value)),
+        ColumnDefinition("subscriptionType", (box => (box.subscriber.fold("")(s => s.subscriptionType.toString())))),
+        ColumnDefinition("callbackUrl", (box => box.subscriber.fold("")(s => s.callBackUrl)))
       )
-      
+
       Ok(CsvHelper.toCsvString(columnDefinitions, boxes))
     })
   }

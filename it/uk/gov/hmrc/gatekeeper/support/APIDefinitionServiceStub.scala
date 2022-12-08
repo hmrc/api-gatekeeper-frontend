@@ -7,16 +7,17 @@ import play.api.http.Status
 import play.api.libs.json.Json
 
 trait APIDefinitionServiceStub {
-  val apiPublicDefinitionUrl = "/api-definition"
+  val apiPublicDefinitionUrl  = "/api-definition"
   val apiPrivateDefinitionUrl = "/api-definition?type=private"
-  val getCategoriesUrl = "/api-categories"
+  val getCategoriesUrl        = "/api-categories"
 
   def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[ApiDefinition]): Unit = {
     stubFor(get(urlEqualTo(apiPublicDefinitionUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
-          .withBody(Json.toJson(apis).toString())))
+          .withBody(Json.toJson(apis).toString())
+      ))
   }
 
   def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinition]): Unit = {
@@ -24,7 +25,8 @@ trait APIDefinitionServiceStub {
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
-          .withBody(Json.toJson(apis).toString())))
+          .withBody(Json.toJson(apis).toString())
+      ))
   }
 
   def primeGetAllCategories(apis: Seq[APICategoryDetails]): Unit = {
@@ -32,6 +34,7 @@ trait APIDefinitionServiceStub {
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
-          .withBody(Json.toJson(apis).toString())))
+          .withBody(Json.toJson(apis).toString())
+      ))
   }
 }

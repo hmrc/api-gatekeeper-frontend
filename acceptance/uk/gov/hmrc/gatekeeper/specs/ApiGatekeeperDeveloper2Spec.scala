@@ -28,6 +28,7 @@ import scala.collection.immutable.List
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 

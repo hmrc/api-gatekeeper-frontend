@@ -20,6 +20,7 @@ import com.google.inject.AbstractModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 
 class ConfigurationModule extends AbstractModule {
+
   override def configure() = {
     bind(classOf[StrideAuthConfig]).toProvider(classOf[StrideAuthConfigProvider])
     bind(classOf[StrideAuthConnector.Config]).toProvider(classOf[StrideAuthConnectorConfigProvider])

@@ -18,7 +18,6 @@ package uk.gov.hmrc.apiplatform.modules.gkauth.config
 
 import com.typesafe.config.Config
 
-
 trait BaseUrlExtractor {
   def config: Config
 

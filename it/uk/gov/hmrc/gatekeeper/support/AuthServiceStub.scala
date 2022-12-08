@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 
 trait AuthServiceStub {
-  val authUrl = "/auth/authorise"
+  val authUrl                = "/auth/authorise"
   private val authUrlMatcher = urlEqualTo(authUrl)
 
   val headersWithBearer = Map()
@@ -17,9 +17,9 @@ trait AuthServiceStub {
           .withStatus(Status.OK)
           .withBody(
             s"""{
-            |}""".stripMargin)
-      )
-    )
+               |}""".stripMargin
+          )
+      ))
   }
 
   def primeAuthServiceSuccess(): Unit = {
@@ -31,9 +31,9 @@ trait AuthServiceStub {
             s"""{
                |  "authorisedEnrolments": [ { "key" : "user-role", "identifiers": [], "state": "123"} ],
                |  "optionalName": {"name": "bob", "lastName": "hope"}
-               |}""".stripMargin)
-      )
-    )
+               |}""".stripMargin
+          )
+      ))
   }
 
   def primeAuthServiceFail(): Unit = {
@@ -42,8 +42,6 @@ trait AuthServiceStub {
         aResponse()
           .withStatus(Status.UNAUTHORIZED)
           .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
-
-      )
-    )
+      ))
   }
 }

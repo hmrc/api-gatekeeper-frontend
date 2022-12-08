@@ -20,28 +20,30 @@ import org.joda.time.DateTime
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class BoxId(value: String) extends AnyVal
 
 case class Box(
-  boxId: BoxId,
-  boxName: String,
-  boxCreator : BoxCreator,
-  applicationId : Option[ApplicationId],
-  subscriber: Option[BoxSubscriber],
-  environment: Environment
-)
+    boxId: BoxId,
+    boxName: String,
+    boxCreator: BoxCreator,
+    applicationId: Option[ApplicationId],
+    subscriber: Option[BoxSubscriber],
+    environment: Environment
+  )
 
 case class BoxCreator(clientId: ClientId)
-case class BoxSubscriber(
-  callBackUrl: String,
-  subscribedDateTime: DateTime,
-  subscriptionType: SubscriptionType
-)
 
+case class BoxSubscriber(
+    callBackUrl: String,
+    subscribedDateTime: DateTime,
+    subscriptionType: SubscriptionType
+  )
 
 sealed trait SubscriptionType extends EnumEntry
-object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType]  {
+
+object SubscriptionType       extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType] {
   val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
 
   case object API_PUSH_SUBSCRIBER extends SubscriptionType

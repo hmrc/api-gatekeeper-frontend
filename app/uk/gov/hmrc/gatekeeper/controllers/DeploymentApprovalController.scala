@@ -36,20 +36,21 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 
-class DeploymentApprovalController @Inject()(
-  val forbiddenView: ForbiddenView,
-  deploymentApprovalService: DeploymentApprovalService,
-  apiCataloguePublishConnector: ApiCataloguePublishConnector,
-  mcc: MessagesControllerComponents,
-  deploymentApproval: DeploymentApprovalView,
-  deploymentReview: DeploymentReviewView,
-  override val errorTemplate: ErrorTemplate,
-  strideAuthorisationService: StrideAuthorisationService,
-  val ldapAuthorisationService: LdapAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
-  with GatekeeperAuthorisationActions
-  with ErrorHelper {
+class DeploymentApprovalController @Inject() (
+    val forbiddenView: ForbiddenView,
+    deploymentApprovalService: DeploymentApprovalService,
+    apiCataloguePublishConnector: ApiCataloguePublishConnector,
+    mcc: MessagesControllerComponents,
+    deploymentApproval: DeploymentApprovalView,
+    deploymentReview: DeploymentReviewView,
+    override val errorTemplate: ErrorTemplate,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
+    with ErrorHelper {
 
   def pendingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
@@ -67,12 +68,13 @@ class DeploymentApprovalController @Inject()(
 
     def doCalls(serviceName: String, environment: Environment.Value): Future[Unit] = {
       deploymentApprovalService.approveService(serviceName, environment)
-        .flatMap(_ => environment match {
+        .flatMap(_ =>
+          environment match {
             case Environment.PRODUCTION => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
-            case _ => successful(())
-          })
+            case _                      => successful(())
+          }
+        )
     }
-
 
     def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
       validForm.approval_confirmation match {
@@ -80,7 +82,7 @@ class DeploymentApprovalController @Inject()(
           doCalls(serviceName, Environment.withName(environment)) map {
             _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
           }
-        case _ => throw new UnsupportedOperationException("Can't Reject Service Approval")
+        case _     => throw new UnsupportedOperationException("Can't Reject Service Approval")
       }
     }
 
@@ -91,4 +93,3 @@ class DeploymentApprovalController @Inject()(
     deploymentApprovalService.fetchApprovalSummary(serviceName, Environment.withName(environment))
   }
 }
-

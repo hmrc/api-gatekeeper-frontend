@@ -33,23 +33,21 @@ trait LdapAuthorisationServiceMockModule {
     def aMock: LdapAuthorisationService
 
     object Auth {
+
       private def wrap[A](fn: MessagesRequest[A] => Future[Either[MessagesRequest[A], LoggedInRequest[A]]]) = {
         when(aMock.refineLdap[A]).thenReturn(fn)
       }
-      def succeeds[A] = {
-        wrap[A](
-          (msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), GatekeeperRoles.READ_ONLY, msg)))
-        )
+
+      def succeeds[A]                                                                                       = {
+        wrap[A]((msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), GatekeeperRoles.READ_ONLY, msg))))
       }
 
       def notAuthorised[A] = {
-        wrap[A](
-          (msg) => successful(Left(msg))
-        )
+        wrap[A]((msg) => successful(Left(msg)))
       }
     }
   }
-  
+
   object LdapAuthorisationServiceMock extends BaseLdapAuthorisationServiceMock {
     val aMock = mock[LdapAuthorisationService]
   }

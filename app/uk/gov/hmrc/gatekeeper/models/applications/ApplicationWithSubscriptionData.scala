@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import uk.gov.hmrc.gatekeeper.models.ApiContext
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
-import uk.gov.hmrc.gatekeeper.models.ApiIdentifier
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 
 case class ApplicationWithSubscriptionData(
     application: NewApplication,
     subscriptions: Set[ApiIdentifier] = Set.empty,
     subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Fields.Alias]] = Map.empty
-)
+  )

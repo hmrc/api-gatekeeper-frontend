@@ -30,36 +30,37 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import JsonFormatters._
 import play.api.libs.json.Json
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-class SubscriptionFieldsConnectorSpec 
-    extends AsyncHmrcSpec 
+class SubscriptionFieldsConnectorSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite {
 
   private implicit val hc: HeaderCarrier = HeaderCarrier()
 
-  private val clientId = ClientId.random
-  private val apiContext = ApiContext.random
-  private val apiVersion = ApiVersion.random
-  private val fieldName = FieldName.random
-  private val subscriptionDefinition = SubscriptionFieldDefinition(fieldName, "my-description", "my-hint", "my-type", "my-shortDescription")
+  private val clientId                       = ClientId.random
+  private val apiContext                     = ApiContext.random
+  private val apiVersion                     = ApiVersion.random
+  private val fieldName                      = FieldName.random
+  private val subscriptionDefinition         = SubscriptionFieldDefinition(fieldName, "my-description", "my-hint", "my-type", "my-shortDescription")
   private val expectedSubscriptionDefinition = SubscriptionFieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
-  private val subscriptionFieldValue = SubscriptionFieldValue(subscriptionDefinition, FieldValue.random)
-  private val fieldDefinition1 = FieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
-  private val fieldDefinition2 = fieldDefinition1.copy(name = FieldName.random)
-  private val definitions = List(fieldDefinition1, fieldDefinition2)
-  private val definitionsFromRestService = List(fieldDefinition1)
+  private val subscriptionFieldValue         = SubscriptionFieldValue(subscriptionDefinition, FieldValue.random)
+  private val fieldDefinition1               = FieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
+  private val fieldDefinition2               = fieldDefinition1.copy(name = FieldName.random)
+  private val definitions                    = List(fieldDefinition1, fieldDefinition2)
+  private val definitionsFromRestService     = List(fieldDefinition1)
 
   private val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
-  private val fieldsId = UUID.randomUUID()
+  private val fieldsId      = UUID.randomUUID()
 
-  val valueUrl = SubscriptionFieldsConnector.urlSubscriptionFieldValues("")(clientId,apiContext,apiVersion)
-  val definitionUrl = SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("")(apiContext,apiVersion)
+  val valueUrl      = SubscriptionFieldsConnector.urlSubscriptionFieldValues("")(clientId, apiContext, apiVersion)
+  val definitionUrl = SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("")(apiContext, apiVersion)
 
   trait Setup {
     implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient               = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.subscriptionFieldsProductionBaseUrl).thenReturn(wireMockUrl)
 
@@ -71,7 +72,11 @@ class SubscriptionFieldsConnectorSpec
       SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(ClientId("1"), ApiContext("path"), ApiVersion("1")) shouldBe "base/field/application/1/context/path/version/1"
     }
     "return complex encoded url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(ClientId("1 2"), ApiContext("path1/path2"), ApiVersion("1.0 demo")) shouldBe "base/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
+      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(
+        ClientId("1 2"),
+        ApiContext("path1/path2"),
+        ApiVersion("1.0 demo")
+      ) shouldBe "base/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
     }
   }
 
@@ -81,7 +86,10 @@ class SubscriptionFieldsConnectorSpec
     }
 
     "return complex encoded url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(ApiContext("path1/path2"), ApiVersion("1.0 demo")) shouldBe "base/definition/context/path1%2Fpath2/version/1.0+demo"
+      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(
+        ApiContext("path1/path2"),
+        ApiVersion("1.0 demo")
+      ) shouldBe "base/definition/context/path1%2Fpath2/version/1.0+demo"
     }
   }
 
@@ -98,11 +106,11 @@ class SubscriptionFieldsConnectorSpec
 
       stubFor(
         get(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
@@ -114,10 +122,10 @@ class SubscriptionFieldsConnectorSpec
 
       stubFor(
         get(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -128,10 +136,10 @@ class SubscriptionFieldsConnectorSpec
     "return empty when api-subscription-fields returns a 404" in new Setup {
       stubFor(
         get(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.fetchFieldsValuesWithPrefetchedDefinitions(clientId, apiIdentifier, prefetchedDefinitions))
@@ -149,13 +157,13 @@ class SubscriptionFieldsConnectorSpec
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validResponse)
+          )
       )
-      private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
+      private val result = await(subscriptionFieldsConnector.fetchAllFieldDefinitions())
 
       val expectedResult = Map(apiIdentifier -> definitions.map(toDomain))
 
@@ -165,10 +173,10 @@ class SubscriptionFieldsConnectorSpec
     "fail when api-subscription-fields returns a 500" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -179,43 +187,44 @@ class SubscriptionFieldsConnectorSpec
     "fail when api-subscription-fields returns unexpected response" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
-      private val result = await (subscriptionFieldsConnector.fetchAllFieldDefinitions())
-      result shouldBe Map.empty[String,String]
+      private val result = await(subscriptionFieldsConnector.fetchAllFieldDefinitions())
+      result shouldBe Map.empty[String, String]
     }
   }
 
   "fetchAllFieldValues" should {
     val url = "/field"
-    
+
     "return all fields values" in new Setup {
       val fieldValues = Map.empty[FieldName, FieldValue]
 
       val expectedResult = List(ApplicationApiFieldValues(
-          ClientId("clientId-1"),
-          ApiContext("apiContext"),
-          ApiVersion("1.0"),
-          UUID.randomUUID(),
-          fieldValues))
+        ClientId("clientId-1"),
+        ApiContext("apiContext"),
+        ApiVersion("1.0"),
+        UUID.randomUUID(),
+        fieldValues
+      ))
 
-      val data : AllApiFieldValues = AllApiFieldValues(expectedResult)
+      val data: AllApiFieldValues = AllApiFieldValues(expectedResult)
 
       private val validResponse = Json.toJson(data).toString()
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validResponse)
+          )
       )
-      private val result = await (subscriptionFieldsConnector.fetchAllFieldValues())
+      private val result = await(subscriptionFieldsConnector.fetchAllFieldValues())
 
       result shouldBe data.subscriptions
     }
@@ -229,11 +238,11 @@ class SubscriptionFieldsConnectorSpec
     "return definitions" in new Setup {
       stubFor(
         get(urlEqualTo(definitionUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validResponse)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.fetchFieldDefinitions(apiContext, apiVersion))
@@ -244,10 +253,10 @@ class SubscriptionFieldsConnectorSpec
     "fail when api-subscription-fields returns a 500" in new Setup {
       stubFor(
         get(urlEqualTo(definitionUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -269,20 +278,20 @@ class SubscriptionFieldsConnectorSpec
 
       stubFor(
         get(urlEqualTo(definitionUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validDefinitionsResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validDefinitionsResponse)
+          )
       )
 
       stubFor(
         get(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validValuesResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validValuesResponse)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
@@ -293,10 +302,10 @@ class SubscriptionFieldsConnectorSpec
     "fail when fetching field definitions returns a 500" in new Setup {
       stubFor(
         get(urlEqualTo(definitionUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -307,18 +316,18 @@ class SubscriptionFieldsConnectorSpec
     "fail when fetching field definition values returns a 500" in new Setup {
       stubFor(
         get(urlEqualTo(definitionUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(validDefinitionsResponse)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(validDefinitionsResponse)
+          )
       )
       stubFor(
         get(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
       intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.fetchFieldValues(clientId, apiContext, apiVersion))
@@ -327,17 +336,17 @@ class SubscriptionFieldsConnectorSpec
   }
 
   "saveFieldValues" should {
-    val fieldsValues = fields(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
+    val fieldsValues        = fields(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     val subFieldsPutRequest = Json.toJson(SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)).toString
 
     "save the fields" in new Setup {
       stubFor(
         put(urlEqualTo(valueUrl))
-        .withRequestBody(equalTo(subFieldsPutRequest))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-        )
+          .withRequestBody(equalTo(subFieldsPutRequest))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+          )
       )
       private val result = await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
 
@@ -347,11 +356,11 @@ class SubscriptionFieldsConnectorSpec
     "fail when api-subscription-fields returns a 500" in new Setup {
       stubFor(
         put(urlEqualTo(valueUrl))
-        .withRequestBody(equalTo(subFieldsPutRequest))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .withRequestBody(equalTo(subFieldsPutRequest))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
       intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
@@ -361,11 +370,11 @@ class SubscriptionFieldsConnectorSpec
     "fail when api-subscription-fields returns a 404" in new Setup {
       stubFor(
         put(urlEqualTo(valueUrl))
-        .withRequestBody(equalTo(subFieldsPutRequest))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .withRequestBody(equalTo(subFieldsPutRequest))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
       intercept[UpstreamErrorResponse] {
         await(subscriptionFieldsConnector.saveFieldValues(clientId, apiContext, apiVersion, fieldsValues))
@@ -378,10 +387,10 @@ class SubscriptionFieldsConnectorSpec
     "return success after delete call has returned 204 NO CONTENT" in new Setup {
       stubFor(
         delete(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(NO_CONTENT)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NO_CONTENT)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))
@@ -392,10 +401,10 @@ class SubscriptionFieldsConnectorSpec
     "return failure if api-subscription-fields returns unexpected status" in new Setup {
       stubFor(
         delete(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(ACCEPTED)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(ACCEPTED)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))
@@ -406,10 +415,10 @@ class SubscriptionFieldsConnectorSpec
     "return failure when api-subscription-fields returns a 500" in new Setup {
       stubFor(
         delete(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))
@@ -420,10 +429,10 @@ class SubscriptionFieldsConnectorSpec
     "return success when api-subscription-fields returns a 404" in new Setup {
       stubFor(
         delete(urlEqualTo(valueUrl))
-        .willReturn(
-          aResponse()
-          .withStatus(NOT_FOUND)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
       )
 
       private val result = await(subscriptionFieldsConnector.deleteFieldValues(clientId, apiContext, apiVersion))

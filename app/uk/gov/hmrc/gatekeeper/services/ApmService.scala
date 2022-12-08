@@ -22,9 +22,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import javax.inject.Inject
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions._
-import uk.gov.hmrc.gatekeeper.models.{ApplicationId,ApiDefinitions,ApiContext,CombinedApi}
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
 
@@ -36,11 +38,11 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
   }
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias]  = {
+  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
     apmConnector.getAllFieldDefinitions(environment)
   }
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]]  = {
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     apmConnector.fetchAllCombinedApis()
   }
 

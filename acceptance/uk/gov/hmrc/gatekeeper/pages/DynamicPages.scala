@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.pages
 
 import uk.gov.hmrc.gatekeeper.common.WebPage
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait DynamicPage extends WebPage {
   val pageHeading: String
@@ -26,17 +27,17 @@ trait DynamicPage extends WebPage {
   })
 }
 
-case class ReviewPage(applicationId: String, applicationName: String) extends DynamicPage {
+case class ReviewPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/review?id=$applicationId"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/review?id=${applicationId.value.toString()}"
 }
 
-case class ApprovedPage(applicationId: String, applicationName: String) extends DynamicPage {
+case class ApprovedPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/approved?id=$applicationId"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/approved?id=${applicationId.value.toString()}"
 }
 
-case class ResendVerificationPage(applicationId: String, applicationName: String) extends DynamicPage {
+case class ResendVerificationPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
   override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/$applicationId/resend-verification"
+  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/${applicationId.value.toString()}/resend-verification"
 }

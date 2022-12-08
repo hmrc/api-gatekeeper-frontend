@@ -8,9 +8,9 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
 trait WiremockSpec
-  extends AnyWordSpec
-  with Matchers
-  with GuiceOneServerPerSuite
-  with FutureAwaits
-  with DefaultAwaitTimeout
-  with WiremockSugarIt
+    extends AnyWordSpec
+    with Matchers
+    with GuiceOneServerPerSuite
+    with FutureAwaits
+    with DefaultAwaitTimeout
+    with WiremockSugarIt

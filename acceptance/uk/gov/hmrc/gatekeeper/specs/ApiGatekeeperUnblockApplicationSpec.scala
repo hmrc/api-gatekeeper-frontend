@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.gatekeeper.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationResponseTestData, ApplicationWithHistoryTestData}
 import uk.gov.hmrc.gatekeeper.models.UserId
 
@@ -32,7 +31,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
 
   Feature("Unblock an application") {
     Scenario("I can unblock an application") {
-      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(ApplicationId(blockedApplicationId)).toJsonString, blockedApplicationId)
+      stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(blockedApplicationId).toJsonString, blockedApplicationId)
       stubApplicationForUnblockSuccess()
 
       When("I navigate to the application page")
@@ -71,7 +70,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
   }
 
   def stubApplicationForUnblockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/$blockedApplicationId/unblock")).willReturn(aResponse().withStatus(OK)))
+    stubFor(post(urlEqualTo(s"/application/${blockedApplicationId.value.toString()}/unblock")).willReturn(aResponse().withStatus(OK)))
   }
 
     def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
@@ -97,6 +96,6 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
   }
 
   def stubBlockedApplication() {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$blockedApplicationId")).willReturn(aResponse().withBody(blockedApplicationWithHistory.toJsonString).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${blockedApplicationId.value.toString()}")).willReturn(aResponse().withBody(blockedApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 }

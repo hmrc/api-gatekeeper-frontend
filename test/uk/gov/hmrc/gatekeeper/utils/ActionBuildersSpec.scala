@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.builder.{SubscriptionsBuilder, ApplicationBuilder, FieldDefinitionsBuilder, ApiBuilder}
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.gatekeeper.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import play.api.mvc.Results.Ok
 import play.api.mvc._
 import play.api.test.FakeRequest
@@ -37,20 +37,21 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 
 class ActionBuildersSpec extends ControllerBaseSpec {
+
   trait Setup extends ControllerSetupBase {
-    implicit val materializer = app.materializer
+    implicit val materializer      = app.materializer
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val underTest = new ActionBuilders {
       val applicationService: ApplicationService = mockApplicationService
-      val apmService: ApmService = mockApmService
-      val errorHandler: ErrorHandler = app.injector.instanceOf[ErrorHandler]
+      val apmService: ApmService                 = mockApmService
+      val errorHandler: ErrorHandler             = app.injector.instanceOf[ErrorHandler]
     }
 
-    val fakeRequest = FakeRequest()
-    val msgRequest = new MessagesRequest(fakeRequest, stubMessagesApi())
+    val fakeRequest                   = FakeRequest()
+    val msgRequest                    = new MessagesRequest(fakeRequest, stubMessagesApi())
     implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
-    implicit val messages = mcc.messagesApi.preferred(aUserLoggedInRequest)
+    implicit val messages             = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 
@@ -58,21 +59,25 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   trait WithSubscription extends Setup with SubscriptionsBuilder {
-    val subscription = buildSubscription("mySubscription", versions = List(
-      buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
-      buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
-    ))
+
+    val subscription = buildSubscription(
+      "mySubscription",
+      versions = List(
+        buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
+        buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
+      )
+    )
   }
-  
+
   trait SubscriptionsWithMixOfSubscribedVersionsSetup extends WithSubscription {
-    val version1Subscribed = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
+    val version1Subscribed    = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
     val version2NotSubscribed = buildVersionWithSubscriptionFields(ApiVersion.random, false, applicationId)
 
-    val emptySubscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId)
+    val emptySubscriptionFieldsWrapper   = buildSubscriptionFieldsWrapper(applicationId)
     val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
-    val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
-    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
+    val subscriptionFieldValue        = buildSubscriptionFieldValue(FieldName.random)
+    val subscriptionFieldsWrapper     = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
     val subscription1 = buildSubscription("Subscription1")
@@ -128,8 +133,8 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
     "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-        val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-        val apiContextAndApiData = Map(apiContext -> apiData)
+      val apiData              = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+      val apiContextAndApiData = Map(apiContext -> apiData)
 
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -138,7 +143,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions.nonEmpty shouldBe true
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions(apiContext).keySet.contains(apiVersion) shouldBe true
-        
+
         Future.successful(Ok(expectedResult))
       })
 
@@ -155,7 +160,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION))
 
-      val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)( _ =>
+      val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)(_ =>
         Future.successful(Ok(expectedResult))
       )
 

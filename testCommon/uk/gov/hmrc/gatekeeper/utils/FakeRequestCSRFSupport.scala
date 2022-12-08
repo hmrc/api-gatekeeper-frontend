@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import play.api.test.{CSRFTokenHelper, FakeRequest}
 
 object FakeRequestCSRFSupport {
+
   implicit class CSRFFakeRequest[A](request: FakeRequest[A]) {
     def withCSRFToken: FakeRequest[A] = new FakeRequest(CSRFTokenHelper.addCSRFToken(request))
   }

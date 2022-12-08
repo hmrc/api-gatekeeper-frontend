@@ -25,6 +25,5 @@ case class UserId(value: UUID) extends AnyVal {
 object UserId {
   import play.api.libs.json.Json
   implicit val format = Json.valueFormat[UserId]
-  def random = UserId(UUID.randomUUID())
+  def random          = UserId(UUID.randomUUID())
 }
-

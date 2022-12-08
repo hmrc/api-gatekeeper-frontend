@@ -28,31 +28,34 @@ import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import com.google.inject.{Singleton, Inject}
+import com.google.inject.{Inject, Singleton}
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
-class SubscriptionController @Inject()(
-  manageSubscriptionsView: ManageSubscriptionsView,
-  mcc: MessagesControllerComponents,
-  val forbiddenView: ForbiddenView,
-  val errorTemplate: ErrorTemplate,
-  val applicationService: ApplicationService,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
-  strideAuthorisationService: StrideAuthorisationService
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders {
-    
+class SubscriptionController @Inject() (
+    manageSubscriptionsView: ManageSubscriptionsView,
+    mcc: MessagesControllerComponents,
+    val forbiddenView: ForbiddenView,
+    val errorTemplate: ErrorTemplate,
+    val applicationService: ApplicationService,
+    val apmService: ApmService,
+    val errorHandler: ErrorHandler,
+    strideAuthorisationService: StrideAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders {
+
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersion]): List[VersionSubscriptionWithoutFields] = {
       apiData.versions.map {
-        case (version, data) => 
+        case (version, data) =>
           VersionSubscriptionWithoutFields(
             ApiVersionDefinition(version, ApiVersionSource.UNKNOWN, data.status, Some(data.access)),
             apiVersions.contains(version)
@@ -60,21 +63,22 @@ class SubscriptionController @Inject()(
       }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)
     }
 
-    def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext) : List[ApiVersion] = {
+    def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext): List[ApiVersion] = {
       subscriptions.filter(id => id.context == context).map(id => id.version).toList
     }
 
     def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
       allPossibleSubs.map {
-        case (context, data) => SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
+        case (context, data) =>
+          SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
       }.toList
     }
 
     withAppAndSubsData(appId) { appWithSubsData =>
       for {
-        allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
-        subscriptions = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)
-        sortedSubscriptions = subscriptions.sortWith(_.name.toLowerCase < _.name.toLowerCase)
+        allPossibleSubs       <- apmService.fetchAllPossibleSubscriptions(appId)
+        subscriptions          = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)
+        sortedSubscriptions    = subscriptions.sortWith(_.name.toLowerCase < _.name.toLowerCase)
         subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, sortedSubscriptions)
       } yield Ok(manageSubscriptionsView(subscriptionsViewModel))
     }

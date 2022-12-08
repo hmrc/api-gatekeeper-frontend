@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -49,137 +50,138 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 @Singleton
-class ApplicationController @Inject()(
-  strideAuthorisationService: StrideAuthorisationService,
-  val applicationService: ApplicationService,
-  val forbiddenView: ForbiddenView,
-  apiDefinitionService: ApiDefinitionService,
-  developerService: DeveloperService,
-  mcc: MessagesControllerComponents,
-  applicationsView: ApplicationsView,
-  applicationView: ApplicationView,
-  manageAccessOverridesView: ManageAccessOverridesView,
-  manageScopesView: ManageScopesView,
-  ipAllowlistView: IpAllowlistView,
-  manageIpAllowlistView: ManageIpAllowlistView,
-  manageRateLimitView: ManageRateLimitView,
-  deleteApplicationView: DeleteApplicationView,
-  deleteApplicationSuccessView: DeleteApplicationSuccessView,
-  override val errorTemplate: ErrorTemplate,
-  blockApplicationView: BlockApplicationView,
-  blockApplicationSuccessView: BlockApplicationSuccessView,
-  unblockApplicationView: UnblockApplicationView,
-  unblockApplicationSuccessView: UnblockApplicationSuccessView,
-  reviewView: ReviewView,
-  approvedView: ApprovedView,
-  createApplicationView: CreateApplicationView,
-  createApplicationSuccessView: CreateApplicationSuccessView,
-  manageGrantLengthView: ManageGrantLengthView,
-  manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-  val apmService: ApmService,
-  val errorHandler: ErrorHandler,
-  val ldapAuthorisationService: LdapAuthorisationService
-
-)(implicit val appConfig: AppConfig, override val ec: ExecutionContext)
-  extends GatekeeperBaseController(strideAuthorisationService, mcc)
-  with GatekeeperAuthorisationActions
-    with ErrorHelper 
-    with ActionBuilders 
+class ApplicationController @Inject() (
+    strideAuthorisationService: StrideAuthorisationService,
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    apiDefinitionService: ApiDefinitionService,
+    developerService: DeveloperService,
+    mcc: MessagesControllerComponents,
+    applicationsView: ApplicationsView,
+    applicationView: ApplicationView,
+    manageAccessOverridesView: ManageAccessOverridesView,
+    manageScopesView: ManageScopesView,
+    ipAllowlistView: IpAllowlistView,
+    manageIpAllowlistView: ManageIpAllowlistView,
+    manageRateLimitView: ManageRateLimitView,
+    deleteApplicationView: DeleteApplicationView,
+    deleteApplicationSuccessView: DeleteApplicationSuccessView,
+    override val errorTemplate: ErrorTemplate,
+    blockApplicationView: BlockApplicationView,
+    blockApplicationSuccessView: BlockApplicationSuccessView,
+    unblockApplicationView: UnblockApplicationView,
+    unblockApplicationSuccessView: UnblockApplicationSuccessView,
+    reviewView: ReviewView,
+    approvedView: ApprovedView,
+    createApplicationView: CreateApplicationView,
+    createApplicationSuccessView: CreateApplicationSuccessView,
+    manageGrantLengthView: ManageGrantLengthView,
+    manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+    val apmService: ApmService,
+    val errorHandler: ErrorHandler,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit val appConfig: AppConfig,
+    override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions
+    with ErrorHelper
+    with ActionBuilders
     with ApplicationLogger {
 
   implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
-    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
-    val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
-    val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) => 
-      if(appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
-        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
+    val env                                              = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
+    val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
       else
         routes.ApplicationController.applicationPage(appId).url
 
     for {
       paginatedApplicationResponse <- applicationService.searchApplications(env, params)
-      apis <- apiDefinitionService.fetchAllApiDefinitions(env)
+      apis                         <- apiDefinitionService.fetchAllApiDefinitions(env)
     } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val env      = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
-    val params = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val params   = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
     applicationService.searchApplications(env, params)
       .map(applicationResponse => Ok(toCsvContent(applicationResponse)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse) : String = {    
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
-      ColumnDefinition("Name",                  (app => app.name)),
-      ColumnDefinition("App ID",                (app => app.id.value)),
-      ColumnDefinition("Client ID",             (app => app.clientId.value)),
-      ColumnDefinition("Gateway ID",            (app => app.gatewayId)),
-      ColumnDefinition("Environment",           (app => app.deployedTo)),
-      ColumnDefinition("Status",                (app => State.displayedState(app.state.name))),
-      ColumnDefinition("Rate limit tier",       (app => app.rateLimitTier.toString())),
-      ColumnDefinition("Access type",           (app => app.access.accessType.toString())),
-      ColumnDefinition("Blocked",               (app => app.blocked.toString())),
-      ColumnDefinition("Has IP Allow List",     (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
-      ColumnDefinition("Submitted/Created on",  (app => app.createdOn.toString())),
-      ColumnDefinition("Last API call",         (app => app.lastAccess.fold("")(_.toString)))
+      ColumnDefinition("Name", (app => app.name)),
+      ColumnDefinition("App ID", (app => app.id.value.toString())),
+      ColumnDefinition("Client ID", (app => app.clientId.value)),
+      ColumnDefinition("Gateway ID", (app => app.gatewayId)),
+      ColumnDefinition("Environment", (app => app.deployedTo)),
+      ColumnDefinition("Status", (app => State.displayedState(app.state.name))),
+      ColumnDefinition("Rate limit tier", (app => app.rateLimitTier.toString())),
+      ColumnDefinition("Access type", (app => app.access.accessType.toString())),
+      ColumnDefinition("Blocked", (app => app.blocked.toString())),
+      ColumnDefinition("Has IP Allow List", (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
+      ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
+      ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString)))
     )
-    
-    val pagingRow =  s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results" 
-    
+
+    val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"
+
     toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
-    
+
     val csvRows = toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
-    
+
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
-      val app = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
-      val subscriptions: Set[ApiIdentifier] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+      val app                                                              = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+      val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
-      val stateHistory = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value}"
+      val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
+      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
 
-      def isSubscribed( t: (ApiContext, ApiData) ): Boolean = {
+      def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)
       }
 
-      def filterOutVersions( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
-        val apiContext = t._1
-        val filteredVersions = t._2.versions.filter( versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
-        val filteredApiData = t._2.copy(versions = filteredVersions)
+      def filterOutVersions(t: (ApiContext, ApiData)): (ApiContext, ApiData) = {
+        val apiContext       = t._1
+        val filteredVersions = t._2.versions.filter(versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
+        val filteredApiData  = t._2.copy(versions = filteredVersions)
         (apiContext, filteredApiData)
       }
 
-      def filterForFields( t: (ApiContext, ApiData) ): (ApiContext, ApiData) = {
+      def filterForFields(t: (ApiContext, ApiData)): (ApiContext, ApiData) = {
         def hasFields(apiContext: ApiContext, apiVersion: ApiVersion): Boolean = {
           subscriptionFieldValues.get(apiContext) match {
             case Some(versions) => versions.get(apiVersion).isDefined
-            case None => false
+            case None           => false
           }
         }
-        
-        val apiContext = t._1
+
+        val apiContext       = t._1
         val filteredVersions = t._2.versions.filter(v => hasFields(apiContext, v._1))
-        val filteredApiData = t._2.copy(versions = filteredVersions)
+        val filteredApiData  = t._2.copy(versions = filteredVersions)
         (apiContext, filteredApiData)
       }
 
       def asListOfList(data: ApiData): List[(String, List[(ApiVersion, ApiStatus)])] = {
 
-        if(data.versions.isEmpty) {
+        if (data.versions.isEmpty) {
           List.empty
         } else {
-          List( (data.name, data.versions.toList.sortBy(v => v._1).map(v => (v._1, v._2.status))) )
+          List((data.name, data.versions.toList.sortBy(v => v._1).map(v => (v._1, v._2.status))))
         }
       }
 
@@ -188,32 +190,47 @@ class ApplicationController @Inject()(
           case Standard(_, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances)), _) => {
             buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
           }
-          case _  => List.empty
+          case _                                                                                => List.empty
         }
       }
 
       for {
-        collaborators <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
-        allPossibleSubs <- apmService.fetchAllPossibleSubscriptions(appId)
-        subscribedContexts = allPossibleSubs.filter(isSubscribed)
-        subscribedVersions = subscribedContexts.map(filterOutVersions)
-        subscribedWithFields = subscribedVersions.map(filterForFields)
+        collaborators                  <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
+        allPossibleSubs                <- apmService.fetchAllPossibleSubscriptions(appId)
+        subscribedContexts              = allPossibleSubs.filter(isSubscribed)
+        subscribedVersions              = subscribedContexts.map(filterOutVersions)
+        subscribedWithFields            = subscribedVersions.map(filterForFields)
         doesApplicationHaveSubmissions <- applicationService.doesApplicationHaveSubmissions(appId)
 
-        seqOfSubscriptions = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        responsibleIndividualHistory = getResponsibleIndividualHistory(app.access)
-      } yield Ok(applicationView(ApplicationViewModel(collaborators, app, seqOfSubscriptions, subscriptionsThatHaveFieldDefns, stateHistory, doesApplicationHaveSubmissions, gatekeeperApprovalsUrl, responsibleIndividualHistory)))
+        responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
+      } yield Ok(applicationView(ApplicationViewModel(
+        collaborators,
+        app,
+        seqOfSubscriptions,
+        subscriptionsThatHaveFieldDefns,
+        stateHistory,
+        doesApplicationHaveSubmissions,
+        gatekeeperApprovalsUrl,
+        responsibleIndividualHistory
+      )))
     }
   }
 
   private def buildResponsibleIndividualHistoryItems(termsOfUseAcceptances: List[TermsOfUseAcceptance]): List[ResponsibleIndividualHistoryItem] = {
     def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
     termsOfUseAcceptances match {
-      case Nil => List.empty
-      case first :: Nil => List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), "Present"))
-      case first :: second :: others => List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), formatDateTime(second.dateTime))) ++
-        buildResponsibleIndividualHistoryItems(second :: others)
+      case Nil                       => List.empty
+      case first :: Nil              =>
+        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), "Present"))
+      case first :: second :: others => List(ResponsibleIndividualHistoryItem(
+          first.responsibleIndividual.fullName.value,
+          first.responsibleIndividual.emailAddress.value,
+          formatDateTime(first.dateTime),
+          formatDateTime(second.dateTime)
+        )) ++
+          buildResponsibleIndividualHistoryItems(second :: others)
     }
   }
 
@@ -237,13 +254,12 @@ class ApplicationController @Inject()(
   def updateAccessOverrides(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
-        case SuppressIvForAgents(_) => FormFields.suppressIvForAgentsScopes
+        case SuppressIvForAgents(_)        => FormFields.suppressIvForAgentsScopes
         case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
-        case SuppressIvForIndividuals(_) => FormFields.suppressIvForIndividualsScopes
-        case GrantWithoutConsent(_) => FormFields.grantWithoutConsentScopes
+        case SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
+        case GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
       }
 
-      
       def handleValidForm(overrides: Set[OverrideFlag]) = {
         applicationService.updateOverrides(app.application, overrides).map {
           case UpdateOverridesFailureResult(overrideFlagErrors) =>
@@ -257,7 +273,7 @@ class ApplicationController @Inject()(
             )
 
             BadRequest(manageAccessOverridesView(app.application, form, request.role.isSuperUser))
-          case UpdateOverridesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+          case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
@@ -276,7 +292,7 @@ class ApplicationController @Inject()(
           val form = scopesForm.fill(access.scopes)
           Future.successful(Ok(manageScopesView(app.application, form)))
         }
-        case _ => Future.failed(new RuntimeException("Invalid access type on application"))
+        case _                                  => Future.failed(new RuntimeException("Invalid access type on application"))
       }
     }
   }
@@ -288,7 +304,7 @@ class ApplicationController @Inject()(
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
             BadRequest(manageScopesView(app.application, form))
-            
+
           case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
@@ -307,10 +323,12 @@ class ApplicationController @Inject()(
     }
   }
 
-  def manageIpAllowlistPage(appId: ApplicationId) = atLeastSuperUserAction{ implicit request =>
+  def manageIpAllowlistPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(manageIpAllowlistView(app.application,
-        IpAllowlistForm.form.fill(IpAllowlistForm(app.application.ipAllowlist.required, app.application.ipAllowlist.allowlist)))))
+      Future.successful(Ok(manageIpAllowlistView(
+        app.application,
+        IpAllowlistForm.form.fill(IpAllowlistForm(app.application.ipAllowlist.required, app.application.ipAllowlist.allowlist))
+      )))
     }
   }
 
@@ -395,8 +413,7 @@ class ApplicationController @Inject()(
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
           }
-        }
-        else {
+        } else {
           val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
           Future.successful(BadRequest(deleteApplicationView(app, request.role.isSuperUser, formWithErrors)))
@@ -425,8 +442,7 @@ class ApplicationController @Inject()(
             case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
-        }
-        else {
+        } else {
           messagesApi.preferred(request)("invalid.scope")
           val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
@@ -456,8 +472,7 @@ class ApplicationController @Inject()(
             case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
-        }
-        else {
+        } else {
           val formWithErrors = unblockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
           Future.successful(BadRequest(unblockApplicationView(app, formWithErrors)))
@@ -474,7 +489,7 @@ class ApplicationController @Inject()(
 
   private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
     val versions = for {
-      api <- apis
+      api     <- apis
       version <- api.versions
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
@@ -491,7 +506,7 @@ class ApplicationController @Inject()(
 
   private def fetchApplicationReviewDetails(appId: ApplicationId)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
     for {
-      app <- applicationService.fetchApplication(appId)
+      app        <- applicationService.fetchApplication(appId)
       submission <- lastSubmission(app)
     } yield applicationReviewDetails(app.application, submission)
   }
@@ -511,7 +526,7 @@ class ApplicationController @Inject()(
 
       def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
         val verified = app.isApproved
-        val details = applicationReviewDetails(app, submissionDetails)(request)
+        val details  = applicationReviewDetails(app, submissionDetails)(request)
 
         ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
       }
@@ -519,9 +534,9 @@ class ApplicationController @Inject()(
       redirectIfIsSandboxApp(app) {
 
         for {
-          submission <- lastSubmission(app)
-          admins <- administrators(app)
-          approval = lastApproval(app)
+          submission                      <- lastSubmission(app)
+          admins                          <- administrators(app)
+          approval                         = lastApproval(app)
           approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
         } yield Ok(approvedView(approvedApp))
       }
@@ -534,7 +549,8 @@ class ApplicationController @Inject()(
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
     developerService.fetchUser(submission.actor.id).map(s =>
-      SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt))
+      SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt)
+    )
   }
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
@@ -542,13 +558,13 @@ class ApplicationController @Inject()(
 
     val contactDetails = for {
       checkInformation <- app.checkInformation
-      contactDetails <- checkInformation.contactDetails
+      contactDetails   <- checkInformation.contactDetails
     } yield contactDetails
 
-    val reviewContactName = contactDetails.map(_.fullname)
-    val reviewContactEmail = contactDetails.map(_.email)
+    val reviewContactName      = contactDetails.map(_.fullname)
+    val reviewContactEmail     = contactDetails.map(_.email)
     val reviewContactTelephone = contactDetails.map(_.telephoneNumber)
-    val applicationDetails = app.checkInformation.flatMap(_.applicationDetails)
+    val applicationDetails     = app.checkInformation.flatMap(_.applicationDetails)
 
     ApplicationReviewDetails(
       app.id,
@@ -561,7 +577,8 @@ class ApplicationController @Inject()(
       reviewContactTelephone,
       applicationDetails,
       app.termsAndConditionsUrl,
-      app.privacyPolicyUrl)
+      app.privacyPolicyUrl
+    )
   }
 
   def handleUplift(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -582,11 +599,11 @@ class ApplicationController @Inject()(
         def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
           UpliftAction.from(validForm.action) match {
             case Some(APPROVE) =>
-              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (
-                _ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-            case Some(REJECT) =>
-              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (
-                _ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (_ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+            case Some(REJECT)  =>
+              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (_ =>
+                Redirect(routes.ApplicationController.applicationPage(appId))
+              ) recover recovery
 
           }
         }
@@ -596,21 +613,21 @@ class ApplicationController @Inject()(
   }
 
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
-      withApp(appId) { app =>
-        val result = Redirect(routes.ApplicationController.applicationPage(appId))
-        if (request.role.isSuperUser) {
-          val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-          applicationService.updateRateLimitTier(app.application, newTier) map {
-            case ApplicationUpdateSuccessResult =>
-              result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
-            case _ =>
-              result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
-          }
-        } else {
-          Future.successful(result)
+    withApp(appId) { app =>
+      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      if (request.role.isSuperUser) {
+        val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
+        applicationService.updateRateLimitTier(app.application, newTier) map {
+          case ApplicationUpdateSuccessResult =>
+            result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
+          case _                              =>
+            result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
         }
+      } else {
+        Future.successful(result)
       }
     }
+  }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
     if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
@@ -628,10 +645,10 @@ class ApplicationController @Inject()(
     import cats.data._
     import cats.implicits._
     import cats.data.Validated._
-        
-    type FieldName = String
-    type ErrorCode = String
-    type ValidationResult[A] = ValidatedNec[(FieldName,ErrorCode), A]
+
+    type FieldName                = String
+    type ErrorCode                = String
+    type ValidationResult[A]      = ValidatedNec[(FieldName, ErrorCode), A]
     type FieldValidationResult[A] = ValidatedNec[ErrorCode, A]
 
     implicit class WithFieldSyntax[T](v: FieldValidationResult[T]) {
@@ -643,15 +660,15 @@ class ApplicationController @Inject()(
         case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == applicationName))
         case _                      => true
       }
-      if(isValid) applicationName.valid else "application.name.already.exists".invalidNec
+      if (isValid) applicationName.valid else "application.name.already.exists".invalidNec
     }
 
     def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {
-      case None                                            => "admin.email.is.not.registered".invalidNec
-      case Some(UnregisteredUser(_,_))                     => "admin.email.is.not.registered".invalidNec
-      case Some(user: RegisteredUser) if(!user.verified)   => "admin.email.is.not.verified".invalidNec
-      case Some(user: RegisteredUser) if(!MfaDetailHelper.isMfaVerified(user.mfaDetails)) => "admin.email.is.not.mfa.enabled".invalidNec
-      case Some(user: RegisteredUser)                      => user.validNec
+      case None                                                                            => "admin.email.is.not.registered".invalidNec
+      case Some(UnregisteredUser(_, _))                                                    => "admin.email.is.not.registered".invalidNec
+      case Some(user: RegisteredUser) if (!user.verified)                                  => "admin.email.is.not.verified".invalidNec
+      case Some(user: RegisteredUser) if (!MfaDetailHelper.isMfaVerified(user.mfaDetails)) => "admin.email.is.not.mfa.enabled".invalidNec
+      case Some(user: RegisteredUser)                                                      => user.validNec
     }
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
@@ -659,40 +676,42 @@ class ApplicationController @Inject()(
         val collaborators = List(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
 
         applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
-        .map {
-          case CreatePrivOrROPCAppFailureResult => InternalServerError("Unexpected problems creating application")
-          case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) => Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
-        }
+          .map {
+            case CreatePrivOrROPCAppFailureResult                                                 => InternalServerError("Unexpected problems creating application")
+            case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
+              Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
+          }
       }
 
-      def validateValues(apps: Seq[ApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] = 
+      def validateValues(apps: Seq[ApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
         (
           validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
           validateUserSuitability(user).withField("adminEmail")
         )
-        .mapN( (n,u) => ((n,u)))
-        
-      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] = 
+          .mapN((n, u) => ((n, u)))
+
+      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] =
         validateValues(apps, user)
-        .fold[Future[Result]](
-          errs => successful(viewWithFormErrors(errs)),
-          goodData => createApp(goodData._2, accessType)
-        )
+          .fold[Future[Result]](
+            errs => successful(viewWithFormErrors(errs)),
+            goodData => createApp(goodData._2, accessType)
+          )
 
-      def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivOrROPCAppForm] = 
-        errs.foldLeft(createPrivOrROPCAppForm.fill(form))( (f,e) => f.withError(e._1, e._2))
+      def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivOrROPCAppForm] =
+        errs.foldLeft(createPrivOrROPCAppForm.fill(form))((f, e) => f.withError(e._1, e._2))
 
-      def viewWithFormErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Result = 
+      def viewWithFormErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Result =
         BadRequest(createApplicationView(formWithErrors(errs)))
 
-      val accessType = form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
+      val accessType =
+        form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
       val fApps = applicationService.fetchApplications
       val fUser = developerService.seekUser(form.adminEmail)
-      
+
       for {
-        apps <- fApps
-        user <- fUser
+        apps   <- fApps
+        user   <- fUser
         result <- handleValues(apps, user, accessType)
       } yield result
     }

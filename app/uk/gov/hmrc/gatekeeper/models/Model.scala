@@ -34,6 +34,8 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 import java.time.LocalDateTime
 
@@ -47,15 +49,12 @@ object BearerToken {
 
 object GatekeeperSessionKeys {
   val LoggedInUser = "LoggedInUser"
-  val AuthToken = SessionKeys.authToken
+  val AuthToken    = SessionKeys.authToken
 }
 
-case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory,
-                                                               subscriptionsWithFieldDefinitions: List[Subscription])
+case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory, subscriptionsWithFieldDefinitions: List[Subscription])
 
-case class ApplicationAndSubscriptionVersion( application: ApplicationWithHistory,
-                                              subscription: Subscription,
-                                              version: VersionSubscription)
+case class ApplicationAndSubscriptionVersion(application: ApplicationWithHistory, subscription: Subscription, version: VersionSubscription)
 
 case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: List[Subscription])
 
@@ -64,32 +63,36 @@ case class ApplicationWithHistory(application: ApplicationResponse, history: Lis
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
 object ApiDefinitions {
-  type Alias = Map[ApiContext,Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
+  type Alias = Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
-case class ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubscriptionData: ApplicationWithSubscriptionData, apiDefinitions: ApiDefinitions.Alias, allPossibleSubs: Map[ApiContext, ApiData])
+case class ApplicationWithSubscriptionDataAndFieldDefinitions(
+    applicationWithSubscriptionData: ApplicationWithSubscriptionData,
+    apiDefinitions: ApiDefinitions.Alias,
+    allPossibleSubs: Map[ApiContext, ApiData]
+  )
 
 object ApplicationWithHistory {
   implicit val formatTotpIds = Json.format[TotpIds]
 
-  private implicit val formatStandard = Json.format[Standard]
+  private implicit val formatStandard   = Json.format[Standard]
   private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc = Json.format[Ropc]
+  private implicit val formatRopc       = Json.format[Ropc]
 
   implicit val formatAccess = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole = Json.formatEnum(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
-  implicit val format3 = Json.format[ApplicationState]
-  implicit val format4 = Json.formatEnum(State)
-  implicit val format5 = Json.format[SubmissionDetails]
-  implicit val format6 = Json.format[ApplicationReviewDetails]
-  implicit val format7 = Json.format[ApprovedApplication]
-  implicit val format8 = Json.format[ApplicationResponse]
-  implicit val format9 = Json.format[ApplicationWithHistory]
+  implicit val formatRole   = Json.formatEnum(CollaboratorRole)
+  implicit val format2      = Json.format[Collaborator]
+  implicit val format3      = Json.format[ApplicationState]
+  implicit val format4      = Json.formatEnum(State)
+  implicit val format5      = Json.format[SubmissionDetails]
+  implicit val format6      = Json.format[ApplicationReviewDetails]
+  implicit val format7      = Json.format[ApprovedApplication]
+  implicit val format8      = Json.format[ApplicationResponse]
+  implicit val format9      = Json.format[ApplicationWithHistory]
 }
 
 case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
@@ -106,11 +109,10 @@ object UpdateGrantLengthRequest {
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
 
-
 object ApplicationWithUpliftRequest {
 
   implicit val formatState = Json.formatEnum(State)
-  implicit val format = Json.format[ApplicationWithUpliftRequest]
+  implicit val format      = Json.format[ApplicationWithUpliftRequest]
 
   val compareBySubmittedOn = (a: ApplicationWithUpliftRequest, b: ApplicationWithUpliftRequest) => a.submittedOn.isBefore(b.submittedOn)
 }
@@ -138,7 +140,6 @@ object ApproveUpliftRequest {
 sealed trait ApproveUpliftSuccessful
 
 case object ApproveUpliftSuccessful extends ApproveUpliftSuccessful
-
 
 case class RejectUpliftRequest(gatekeeperUserId: String, reason: String)
 
@@ -177,17 +178,19 @@ object SubmissionDetails {
   implicit val format = Json.format[SubmissionDetails]
 }
 
-case class ApplicationReviewDetails(id: ApplicationId,
-                                    name: String,
-                                    description: String,
-                                    rateLimitTier: Option[RateLimitTier],
-                                    submission: SubmissionDetails,
-                                    reviewContactName: Option[String],
-                                    reviewContactEmail: Option[String],
-                                    reviewContactTelephone: Option[String],
-                                    applicationDetails: Option[String],
-                                    termsAndConditionsUrl: Option[String] = None,
-                                    privacyPolicyUrl: Option[String] = None)
+case class ApplicationReviewDetails(
+    id: ApplicationId,
+    name: String,
+    description: String,
+    rateLimitTier: Option[RateLimitTier],
+    submission: SubmissionDetails,
+    reviewContactName: Option[String],
+    reviewContactEmail: Option[String],
+    reviewContactTelephone: Option[String],
+    applicationDetails: Option[String],
+    termsAndConditionsUrl: Option[String] = None,
+    privacyPolicyUrl: Option[String] = None
+  )
 
 object ApplicationReviewDetails {
   import SubmissionDetails.format
@@ -196,7 +199,7 @@ object ApplicationReviewDetails {
 
 case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: DateTime, verified: Boolean)
 
-object  ApprovedApplication {
+object ApprovedApplication {
   implicit val format1 = Json.format[ApplicationReviewDetails]
   implicit val format2 = Json.format[ApprovedApplication]
 }
@@ -216,7 +219,7 @@ object UpdateOverridesRequest {
 
 sealed trait UpdateOverridesResult
 
-case object UpdateOverridesSuccessResult extends UpdateOverridesResult
+case object UpdateOverridesSuccessResult                                                   extends UpdateOverridesResult
 case class UpdateOverridesFailureResult(overrideFlagErrors: Set[OverrideFlag] = Set.empty) extends UpdateOverridesResult
 
 case class UpdateScopesRequest(scopes: Set[String])
@@ -226,7 +229,7 @@ object UpdateScopesRequest {
 }
 
 sealed trait UpdateScopesResult
-case object UpdateScopesSuccessResult extends UpdateScopesResult
+case object UpdateScopesSuccessResult       extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
 case class UpdateIpAllowlistRequest(required: Boolean, allowlist: Set[String])
@@ -256,6 +259,7 @@ case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalD
 case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmailAddress: String, reasons: String, timestamp: LocalDateTime) extends ApplicationUpdate
 
 trait ApplicationUpdateFormatters {
+
   implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
     .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
   implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]
@@ -263,14 +267,14 @@ trait ApplicationUpdateFormatters {
 }
 
 sealed trait UpdateApplicationNameResult
-case object UpdateApplicationNameSuccessResult extends UpdateApplicationNameResult
-case object UpdateApplicationNameFailureInvalidResult extends UpdateApplicationNameResult
+case object UpdateApplicationNameSuccessResult          extends UpdateApplicationNameResult
+case object UpdateApplicationNameFailureInvalidResult   extends UpdateApplicationNameResult
 case object UpdateApplicationNameFailureDuplicateResult extends UpdateApplicationNameResult
 
 sealed trait ValidateApplicationNameResult
-case object ValidateApplicationNameSuccessResult extends ValidateApplicationNameResult
-sealed trait ValidateApplicationNameFailureResult extends ValidateApplicationNameResult
-case object ValidateApplicationNameFailureInvalidResult extends ValidateApplicationNameFailureResult
+case object ValidateApplicationNameSuccessResult          extends ValidateApplicationNameResult
+sealed trait ValidateApplicationNameFailureResult         extends ValidateApplicationNameResult
+case object ValidateApplicationNameFailureInvalidResult   extends ValidateApplicationNameFailureResult
 case object ValidateApplicationNameFailureDuplicateResult extends ValidateApplicationNameFailureResult
 
 sealed trait ApplicationUpdateResult
@@ -295,7 +299,9 @@ case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
 sealed trait CreatePrivOrROPCAppResult
 
-case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: String, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess) extends CreatePrivOrROPCAppResult
+case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: String, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
+    extends CreatePrivOrROPCAppResult
+
 object CreatePrivOrROPCAppSuccessResult {
   implicit val rds1 = Json.reads[TotpSecrets]
   implicit val rds2 = Json.formatEnum(AccessType)
@@ -308,71 +314,87 @@ object CreatePrivOrROPCAppSuccessResult {
 }
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 
-
-
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
+
 object ApiScope {
   implicit val formats = Json.format[ApiScope]
 }
 
 final case class DeleteApplicationForm(applicationNameConfirmation: String, collaboratorEmail: Option[String])
+
 object DeleteApplicationForm {
   implicit val format = Json.format[DeleteApplicationForm]
 }
 
 final case class DeleteApplicationRequest(gatekeeperUserId: String, requestedByEmailAddress: String)
+
 object DeleteApplicationRequest {
   implicit val format = Json.format[DeleteApplicationRequest]
 }
 
 final case class BlockApplicationForm(applicationNameConfirmation: String)
+
 object BlockApplicationForm {
   implicit val format = Json.format[BlockApplicationForm]
 }
 
 final case class UnblockApplicationForm(applicationNameConfirmation: String)
+
 object UnblockApplicationForm {
   implicit val format = Json.format[UnblockApplicationForm]
 }
 
 final case class BlockApplicationRequest(gatekeeperUserId: String)
+
 object BlockApplicationRequest {
   implicit val format = Json.format[BlockApplicationRequest]
 }
 
 final case class UnblockApplicationRequest(gatekeeperUserId: String)
+
 object UnblockApplicationRequest {
   implicit val format = Json.format[UnblockApplicationRequest]
 }
 
 case class DeleteCollaboratorRequest(
-  email: String,
-  adminsToEmail: Set[String],
-  notifyCollaborator: Boolean
-)
+    email: String,
+    adminsToEmail: Set[String],
+    notifyCollaborator: Boolean
+  )
 
 object DeleteCollaboratorRequest {
   implicit val writesDeleteCollaboratorRequest = Json.writes[DeleteCollaboratorRequest]
 }
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)
-object DeleteDeveloperRequest {
+
+object DeleteDeveloperRequest  {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
 
-final case class CreatePrivOrROPCAppForm(environment: Environment = SANDBOX, accessType: Option[String] = None, applicationName: String = "", applicationDescription: String = "", adminEmail: String = "")
+final case class CreatePrivOrROPCAppForm(
+    environment: Environment = SANDBOX,
+    accessType: Option[String] = None,
+    applicationName: String = "",
+    applicationDescription: String = "",
+    adminEmail: String = ""
+  )
+
 object CreatePrivOrROPCAppForm {
 
-  def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
+  def invalidAppName(form: Form[CreatePrivOrROPCAppForm])                  = {
     form.withError("applicationName", "application.name.already.exists")
   }
-  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm]) = {
+
+  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm])       = {
     form.withError("adminEmail", "admin.email.is.not.registered")
   }
+
   def adminMustBeVerifiedEmailAddress(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.verified")
   }
-  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm]) = {
+
+  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm])         = {
     form.withError("adminEmail", "admin.email.is.not.mfa.enabled")
   }
 }
@@ -381,8 +403,8 @@ sealed trait FieldsDeleteResult
 case object FieldsDeleteSuccessResult extends FieldsDeleteResult
 case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
-
 final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
+
 object CreatePrivOrROPCAppRequest {
   implicit val format1 = Json.formatEnum(AccessType)
   implicit val format2 = Json.formatEnum(CollaboratorRole)

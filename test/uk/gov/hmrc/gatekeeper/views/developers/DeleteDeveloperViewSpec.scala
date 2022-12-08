@@ -25,27 +25,30 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class DeleteDeveloperViewSpec extends CommonViewSpec {
 
-  sealed case class TestApplication(name: String,
-                                    collaborators: Set[Collaborator],
-                                    id: ApplicationId = ApplicationId.random,
-                                    state: ApplicationState = ApplicationState(State.PRODUCTION),
-                                    clientId: ClientId = ClientId("a-client-id"),
-                                    deployedTo: String = "PRODUCTION") extends Application
+  sealed case class TestApplication(
+      name: String,
+      collaborators: Set[Collaborator],
+      id: ApplicationId = ApplicationId.random,
+      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      clientId: ClientId = ClientId("a-client-id"),
+      deployedTo: String = "PRODUCTION"
+    ) extends Application
 
   def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
 
   "delete developer view" should {
-    implicit val request = FakeRequest().withCSRFToken
+    implicit val request  = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
+      val app       = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
       val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
@@ -55,7 +58,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app = TestApplication("appName1", Set(admin("email@example.com")))
+      val app       = TestApplication("appName1", Set(admin("email@example.com")))
       val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)

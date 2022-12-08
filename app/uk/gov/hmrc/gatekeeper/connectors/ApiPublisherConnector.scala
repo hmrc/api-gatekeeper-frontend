@@ -44,35 +44,35 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   }
 
   def approveService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
-    http.POST[ApproveServiceRequest, Either[UpstreamErrorResponse, Unit]](s"$serviceBaseUrl/service/$serviceName/approve",
-      ApproveServiceRequest(serviceName), Seq("Content-Type" -> "application/json"))
+    http.POST[ApproveServiceRequest, Either[UpstreamErrorResponse, Unit]](
+      s"$serviceBaseUrl/service/$serviceName/approve",
+      ApproveServiceRequest(serviceName),
+      Seq("Content-Type" -> "application/json")
+    )
       .map(_.fold(err => throw err, _ => ()))
   }
 
 }
 
 @Singleton
-class SandboxApiPublisherConnector @Inject()(val appConfig: AppConfig,
-                                             val httpClient: HttpClient,
-                                             val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
-  extends ApiPublisherConnector {
+class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient, val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+    extends ApiPublisherConnector {
 
-  val environment = Environment.SANDBOX
+  val environment    = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
-  val useProxy = appConfig.apiPublisherSandboxUseProxy
-  val bearerToken = appConfig.apiPublisherSandboxBearerToken
-  val apiKey = appConfig.apiPublisherSandboxApiKey
+  val useProxy       = appConfig.apiPublisherSandboxUseProxy
+  val bearerToken    = appConfig.apiPublisherSandboxBearerToken
+  val apiKey         = appConfig.apiPublisherSandboxApiKey
 
   val http = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
 }
 
 @Singleton
-class ProductionApiPublisherConnector @Inject()(val appConfig: AppConfig,
-                                                val httpClient: HttpClient)(implicit val ec: ExecutionContext)
-  extends ApiPublisherConnector {
+class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit val ec: ExecutionContext)
+    extends ApiPublisherConnector {
 
-  val environment = Environment.PRODUCTION
+  val environment    = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
 
   val http = httpClient

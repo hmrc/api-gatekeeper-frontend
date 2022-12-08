@@ -20,10 +20,11 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 
 trait UserFunctionsWrapper {
+
   def mapEmptyStringToNone(filter: Option[String]): Option[String] = {
     filter match {
-      case None | Some("")  => None
-      case _ => filter
+      case None | Some("") => None
+      case _               => filter
     }
   }
 
@@ -37,15 +38,15 @@ trait UserFunctionsWrapper {
 
   def getApiVersionsDropDownValues(apiDefinitions: List[ApiDefinition]) = {
     def toKeyValue(api: ApiDefinition, versionDefinition: ApiVersionDefinition) = {
-      val value: String = ApiContextVersion(api.context, versionDefinition.version).toStringValue.trim
+      val value: String           = ApiContextVersion(api.context, versionDefinition.version).toStringValue.trim
       val displayedStatus: String = ApiStatus.displayedStatus(versionDefinition.status).trim
-      val description: String = s"${api.name} (${versionDefinition.version.value}) ($displayedStatus)"
+      val description: String     = s"${api.name} (${versionDefinition.version.value}) ($displayedStatus)"
 
       DropDownValue(value, description)
     }
 
     (for {
-      api <- apiDefinitions
+      api     <- apiDefinitions
       version <- api.versions
     } yield toKeyValue(api, version))
       .distinct

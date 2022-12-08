@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.common.utils
 
-import org.scalatest.{OptionValues, EitherValues, Inside}
+import org.scalatest.{EitherValues, Inside, OptionValues}
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}

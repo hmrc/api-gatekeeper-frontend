@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 
-class PaginationHelperSpec extends AnyWordSpec with Matchers{
+class PaginationHelperSpec extends AnyWordSpec with Matchers {
   "PaginationHelper" should {
     "get max page size" in {
       PaginationHelper.maxPage(totalResults = 0, pageSize = 10) shouldBe 0

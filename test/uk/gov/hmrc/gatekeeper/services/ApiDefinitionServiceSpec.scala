@@ -26,32 +26,43 @@ import scala.concurrent.Future
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import mocks.connectors.ApiDefinitionConnectorMockProvider
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
+
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiDefinitionConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
-
 
     val definitionService = new ApiDefinitionService(mockSandboxApiDefinitionConnector, mockProductionApiDefinitionConnector)
 
     val publicDefinition = ApiDefinition(
-      "publicAPI", "http://localhost/",
-      "publicAPI", "public api.", ApiContext.random,
-      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))), Some(false), None
+      "publicAPI",
+      "http://localhost/",
+      "publicAPI",
+      "public api.",
+      ApiContext.random,
+      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+      Some(false),
+      None
     )
 
     val privateDefinition = ApiDefinition(
-      "privateAPI", "http://localhost/",
-      "privateAPI", "private api.", ApiContext.random,
-      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))), Some(false), None
+      "privateAPI",
+      "http://localhost/",
+      "privateAPI",
+      "private api.",
+      ApiContext.random,
+      List(ApiVersionDefinition(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PRIVATE)))),
+      Some(false),
+      None
     )
-
 
     val version1 = ApiVersionDefinition(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))
     val version2 = ApiVersionDefinition(ApiVersion("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
     val version3 = ApiVersionDefinition(ApiVersion("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PRIVATE)))
 
-    val customsDeclarations1 = ApiDefinition(serviceName = "customs-declarations",
+    val customsDeclarations1 = ApiDefinition(
+      serviceName = "customs-declarations",
       serviceBaseUrl = "https://customs-declarations.protected.mdtp",
       name = "Customs Declarations",
       description = "Single WCO-compliant Customs Declarations API",
@@ -61,7 +72,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       categories = Some(List(APICategory("CUSTOMS")))
     )
 
-    val customsDeclarations2 = ApiDefinition(serviceName = "customs-declarations",
+    val customsDeclarations2 = ApiDefinition(
+      serviceName = "customs-declarations",
       serviceBaseUrl = "https://customs-declarations.protected.mdtp",
       name = "Customs Declarations",
       description = "Single WCO-compliant Customs Declarations API",
@@ -155,8 +167,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   "apis" when {
     "get all apis" in new Setup {
 
-      val publicSandbox = publicDefinition.copy(name="sandbox-public")
-      val privateSandbox = privateDefinition.copy(name="sandbox-private")
+      val publicSandbox  = publicDefinition.copy(name = "sandbox-public")
+      val privateSandbox = privateDefinition.copy(name = "sandbox-private")
 
       ApiDefinitionConnectorMock.Prod.FetchPublic.returns(publicDefinition)
       ApiDefinitionConnectorMock.Prod.FetchPrivate.returns(privateDefinition)
@@ -176,15 +188,15 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
   "apiCategories" when {
     "get all apiCategories" in new Setup {
-      val prodCategories = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"))
+      val prodCategories    = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"))
       val sandboxCategories = List(APICategoryDetails("VAT", "Vat"), APICategoryDetails("EXAMPLE", "Example"), APICategoryDetails("AGENTS", "Agents"))
-      val allCategories = (prodCategories ++ sandboxCategories).distinct
-      
+      val allCategories     = (prodCategories ++ sandboxCategories).distinct
+
       ApiDefinitionConnectorMock.Prod.FetchAPICategories.returns(prodCategories: _*)
       ApiDefinitionConnectorMock.Sandbox.FetchAPICategories.returns(sandboxCategories: _*)
 
       val response: List[APICategoryDetails] = await(definitionService.apiCategories)
-      response should contain only (allCategories:_*)
+      response should contain only (allCategories: _*)
     }
   }
 }

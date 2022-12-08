@@ -35,26 +35,33 @@ trait DeveloperServiceMockProvider {
 
   object DeveloperServiceMock {
 
-    val mfaDetail = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
-    def mfaEnabledToMfaDetails(mfaEnabled: Boolean)={
-      if(mfaEnabled){
+    val mfaDetail                                   = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
+
+    def mfaEnabledToMfaDetails(mfaEnabled: Boolean) = {
+      if (mfaEnabled) {
         List(mfaDetail)
-      }else List.empty
+      } else List.empty
     }
-    object FilterUsersBy {
-      def returnsFor(apiFilter: ApiFilter[String],apps: Application*)(developers: Developer*) = when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
-      def returnsFor(statusFilter: StatusFilter)(developers: Developer*) = when(mockDeveloperService.filterUsersBy(eqTo(statusFilter))(*)).thenReturn(developers.toList)
+
+    object FilterUsersBy         {
+
+      def returnsFor(apiFilter: ApiFilter[String], apps: Application*)(developers: Developer*) =
+        when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
+      def returnsFor(statusFilter: StatusFilter)(developers: Developer*)                       = when(mockDeveloperService.filterUsersBy(eqTo(statusFilter))(*)).thenReturn(developers.toList)
     }
+
     object GetDevelopersWithApps {
-      def returnsFor(apps: Application*)(users: User*)(developers: Developer*) = 
+
+      def returnsFor(apps: Application*)(users: User*)(developers: Developer*) =
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps.toList), eqTo(users.toList)))
-        .thenReturn(developers.toList)
+          .thenReturn(developers.toList)
     }
 
     object FetchUsers {
-      def returns(users: RegisteredUser*) = 
+
+      def returns(users: RegisteredUser*) =
         when(mockDeveloperService.fetchUsers(*))
-        .thenReturn(successful(users.toList))
+          .thenReturn(successful(users.toList))
     }
 
     object FetchDeveloper {
@@ -63,36 +70,58 @@ trait DeveloperServiceMockProvider {
 
     object RemoveMfa {
       def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(successful(user))
-      def throws(t: Throwable) =  when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
+      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
     }
-    
 
-    object DeleteDeveloper {
+    object DeleteDeveloper         {
+
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
         when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*))
-        .thenReturn(successful((result,developer)))
+          .thenReturn(successful((result, developer)))
     }
+
     object FetchDevelopersByEmails {
       def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmails(*)(*)).thenReturn(successful(developers.toList))
     }
-    object SearchDevelopers {
+
+    object SearchDevelopers        {
       def returns(users: User*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
     }
 
-    object SeekRegisteredUser {
+    object SeekRegisteredUser   {
+
       def returnsFor(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
 
-        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled, mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)))))
+        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(
+          email,
+          idOf(email),
+          "first",
+          "last",
+          verified = verified,
+          mfaEnabled = mfaEnabled,
+          mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)
+        ))))
       }
     }
+
     object SeekUnregisteredUser {
+
       def returnsFor(email: String) =
         when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(UnregisteredUser(email, idOf(email)))))
     }
 
     object FetchOrCreateUser {
+
       def handles(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) =
-        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(email, idOf(email), "first", "last", verified = verified, mfaEnabled = mfaEnabled, mfaDetails = mfaEnabledToMfaDetails(mfaEnabled))))
+        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(
+          email,
+          idOf(email),
+          "first",
+          "last",
+          verified = verified,
+          mfaEnabled = mfaEnabled,
+          mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)
+        )))
     }
 
     object FetchDevelopersByEmailPreferences {
@@ -100,18 +129,20 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersBySpecificAPIEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*,*,*,*)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*, *, *, *)(*)).thenReturn(successful(users.toList))
     }
 
     object FetchDevelopersByAPICategoryEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[APICategory])(*)).thenReturn(successful(users.toList))
+
+      def returns(users: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[APICategory])(*)).thenReturn(successful(users.toList))
     }
 
     def userExists(email: String): Unit = {
       when(mockDeveloperService.fetchUser(eqTo(email))(*)).thenReturn(successful(aUser(email)))
     }
   }
-  
+
   def aUser(email: String, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
 
 }

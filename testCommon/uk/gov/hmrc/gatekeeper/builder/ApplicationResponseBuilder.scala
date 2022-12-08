@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.util.UUID._
 import uk.gov.hmrc.gatekeeper.models.State._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
@@ -24,14 +23,20 @@ import org.joda.time.DateTime
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val grantLength: Period = Period.ofDays(547)
 
-  def buildApplicationResponse(appId: ApplicationId = ApplicationId.random, createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now(), checkInformation: Option[CheckInformation] = None): ApplicationResponse = {
+  def buildApplicationResponse(
+      appId: ApplicationId = ApplicationId.random,
+      createdOn: DateTime = DateTime.now(),
+      lastAccess: DateTime = DateTime.now(),
+      checkInformation: Option[CheckInformation] = None
+    ): ApplicationResponse = {
 
-      val clientId = ClientId.random
-      val appOwnerEmail = "a@b.com"
+    val clientId      = ClientId.random
+    val appOwnerEmail = "a@b.com"
 
     ApplicationResponse(
       id = appId,
@@ -60,14 +65,29 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   val DefaultApplicationResponse = buildApplicationResponse()
 
-  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(),
-                               stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
+  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
   def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
-    ApplicationResponse(ApplicationId(randomUUID().toString), ClientId("clientid"), "gatewayId", "appName", "deployedTo", None, Set.empty, createdOn,
-      Some(lastAccess), Privileged(), ApplicationState(), grantLength, RateLimitTier.BRONZE, Some("termsUrl"), Some("privacyPolicyUrl"), None)
+    ApplicationResponse(
+      ApplicationId.random,
+      ClientId("clientid"),
+      "gatewayId",
+      "appName",
+      "deployedTo",
+      None,
+      Set.empty,
+      createdOn,
+      Some(lastAccess),
+      Privileged(),
+      ApplicationState(),
+      grantLength,
+      RateLimitTier.BRONZE,
+      Some("termsUrl"),
+      Some("privacyPolicyUrl"),
+      None
+    )
   }
 
   def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
@@ -75,9 +95,13 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   }
 
   def aCheckInformation(): CheckInformation = {
-    CheckInformation(contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
-      confirmedName = true, providedPrivacyPolicyURL = true, providedTermsAndConditionsURL = true,
-      applicationDetails = Some("application details"))
+    CheckInformation(
+      contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
+      confirmedName = true,
+      providedPrivacyPolicyURL = true,
+      providedTermsAndConditionsURL = true,
+      applicationDetails = Some("application details")
+    )
   }
 
   def aStateHistory(state: State, changedAt: DateTime = DateTime.now()): StateHistory = {
@@ -88,39 +112,39 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   implicit class ApplicationResponseExtension(app: ApplicationResponse) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION.toString)
-    def deployedToSandbox = app.copy(deployedTo = Environment.SANDBOX.toString)
+    def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX.toString)
 
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
-    def withId(id: ApplicationId) = app.copy(id = id)
+    def withId(id: ApplicationId)        = app.copy(id = id)
     def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
     def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
-    
-    def withName(name: String) = app.copy(name = name)
+
+    def withName(name: String)               = app.copy(name = name)
     def withDescription(description: String) = app.copy(description = Some(description))
 
     def withAccess(access: Access) = app.copy(access = access)
-    def asStandard = app.copy(access = Standard())
-    def asPrivileged = app.copy(access = Privileged())
-    def asROPC = app.copy(access = Ropc())
+    def asStandard                 = app.copy(access = Standard())
+    def asPrivileged               = app.copy(access = Privileged())
+    def asROPC                     = app.copy(access = Ropc())
 
-    def withState(state: ApplicationState) = app.copy(state = state) 
+    def withState(state: ApplicationState) = app.copy(state = state)
 
     def withBlocked(isBlocked: Boolean) = app.copy(blocked = isBlocked)
-    def blocked = app.copy(blocked = true)
-    def unblocked = app.copy(blocked = false)
+    def blocked                         = app.copy(blocked = true)
+    def unblocked                       = app.copy(blocked = false)
 
     def withCheckInformation(checkInfo: CheckInformation) = app.copy(checkInformation = Some(checkInfo))
-    def withEmptyCheckInformation = app.copy(checkInformation = Some(CheckInformation()))
-    def noCheckInformation = app.copy(checkInformation = None)
+    def withEmptyCheckInformation                         = app.copy(checkInformation = Some(CheckInformation()))
+    def noCheckInformation                                = app.copy(checkInformation = None)
 
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
-    def withCreatedOn(createdOnDate: DateTime) = app.copy(createdOn = createdOnDate)
+    def withCreatedOn(createdOnDate: DateTime)   = app.copy(createdOn = createdOnDate)
     def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 
     def toSeq = Seq(app)
-  } 
+  }
 }

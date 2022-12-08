@@ -23,7 +23,6 @@ import org.scalatest.Tag
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import uk.gov.hmrc.gatekeeper.specs.MockDataSugar.xmlApis
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
@@ -62,7 +61,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
       verifyText("data-environment", "Production")
-      verifyText("data-app-id", applicationId)
+      verifyText("data-app-id", applicationId.value.toString)
       verifyText("data-status", "Active")
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)

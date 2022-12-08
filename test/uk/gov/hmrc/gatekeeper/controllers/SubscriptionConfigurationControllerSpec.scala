@@ -18,7 +18,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import mocks.services.SubscriptionFieldsServiceMockProvider
-import uk.gov.hmrc.gatekeeper.models.{ApiContext, ApiVersion, FieldName, FieldValue}
+import uk.gov.hmrc.gatekeeper.models.{FieldName, FieldValue}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
@@ -26,7 +27,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration.
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, SubscriptionsBuilder, ApplicationBuilder}
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.builder.FieldDefinitionsBuilder
 import uk.gov.hmrc.gatekeeper.models.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.Environment
@@ -38,17 +39,18 @@ class SubscriptionConfigurationControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer = app.materializer
-  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  implicit val materializer                          = app.materializer
+  private lazy val errorTemplateView                 = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView                     = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]
   private lazy val editSubscriptionConfigurationView = app.injector.instanceOf[EditSubscriptionConfigurationView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorHandler                      = app.injector.instanceOf[ErrorHandler]
 
-  trait Setup extends ControllerSetupBase 
-      with SubscriptionsBuilder 
+  trait Setup extends ControllerSetupBase
+      with SubscriptionsBuilder
       with SubscriptionFieldsServiceMockProvider {
-    lazy val controller = new SubscriptionConfigurationController (
+
+    lazy val controller = new SubscriptionConfigurationController(
       mockApplicationService,
       mockSubscriptionFieldsService,
       forbiddenView,
@@ -61,12 +63,12 @@ class SubscriptionConfigurationControllerSpec
       StrideAuthorisationServiceMock.aMock
     )
 
-    val version = ApiVersion.random
-    val context = ApiContext.random
-    val subscriptionFieldValue = buildSubscriptionFieldValue(FieldName.random)
-    val subscriptionFieldsWrapper = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
+    val version                       = ApiVersion.random
+    val context                       = ApiContext.random
+    val subscriptionFieldValue        = buildSubscriptionFieldValue(FieldName.random)
+    val subscriptionFieldsWrapper     = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
     val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
-    val subscription = buildSubscription("My Subscription", Some(context), List(versionWithSubscriptionFields))
+    val subscription                  = buildSubscription("My Subscription", Some(context), List(versionWithSubscriptionFields))
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder with ApplicationBuilder {
@@ -79,28 +81,30 @@ class SubscriptionConfigurationControllerSpec
 
     val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion, fields)
 
-    val apiName = "API Name"
-    val versionData = DefaultVersionData
-    val apiData = DefaultApiData.withName(apiName).withVersion(apiVersion, versionData)
+    val apiName         = "API Name"
+    val versionData     = DefaultVersionData
+    val apiData         = DefaultApiData.withName(apiName).withVersion(apiVersion, versionData)
     val allPossibleSubs = Map(apiContext -> apiData)
   }
 
   trait EditSaveFormData extends AppWithSubscriptionDataAndFieldDefinitionsSetup {
-    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request : FakeRequest[_]) = {
+
+    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request: FakeRequest[_]) = {
       request.withFormUrlEncodedBody(
-        "fields[0].name" -> fieldName.value,
-        "fields[0].value" -> fieldValue.value)
+        "fields[0].name"  -> fieldName.value,
+        "fields[0].value" -> fieldValue.value
+      )
     }
   }
 
   "list Subscription Configuration" should {
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-      
+
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
-      
+
       val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
       status(result) shouldBe OK
 
@@ -145,7 +149,7 @@ class SubscriptionConfigurationControllerSpec
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
-      
+
       val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest)
 
       status(result) shouldBe OK
@@ -166,7 +170,7 @@ class SubscriptionConfigurationControllerSpec
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
 
-     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
+    "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
@@ -196,13 +200,13 @@ class SubscriptionConfigurationControllerSpec
 
       val newValue = FieldValue.random
 
-      val request = requestWithFormData(fields.head._1 , newValue)(aLoggedInRequest)
+      val request = requestWithFormData(fields.head._1, newValue)(aLoggedInRequest)
 
       val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions-configuration")
-    
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions-configuration")
+
       val expectedFields = Map(fields.head._1 -> newValue)
 
       SubscriptionFieldsServiceMock.SaveFieldValues.verifyParams(applicationWithSubscriptionData.application, apiContext, apiVersion, expectedFields)
@@ -213,13 +217,13 @@ class SubscriptionConfigurationControllerSpec
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
-      
+
       val validationMessage = "My validation error"
-      val errors = Map(fields.head._1.value -> validationMessage)
+      val errors            = Map(fields.head._1.value -> validationMessage)
 
       SubscriptionFieldsServiceMock.SaveFieldValues.failsWithFieldErrors(errors)
 
-      val request = requestWithFormData(fields.head._1 , FieldValue.random)(aLoggedInRequest)
+      val request = requestWithFormData(fields.head._1, FieldValue.random)(aLoggedInRequest)
 
       val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
 
@@ -246,7 +250,7 @@ class SubscriptionConfigurationControllerSpec
 
     "When logged in as normal user renders forbidden page" in new EditSaveFormData {
       StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
-      
+
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
       val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)

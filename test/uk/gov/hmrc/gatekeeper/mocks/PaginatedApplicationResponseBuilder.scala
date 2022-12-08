@@ -20,9 +20,10 @@ import uk.gov.hmrc.gatekeeper.models.PaginatedApplicationResponse
 import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 
 object PaginatedApplicationResponseBuilder {
-    def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-      val page = 1
-      val pageSize = 10
-      PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
-    }
+
+  def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
+    val page     = 1
+    val pageSize = 10
+    PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+  }
 }

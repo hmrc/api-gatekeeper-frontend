@@ -21,18 +21,18 @@ import play.api.libs.json.Json
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
-  implicit val emailOptionsFormat = Json.formatEnum(EmailOptionChoice)
+  implicit val emailOptionsFormat                          = Json.formatEnum(EmailOptionChoice)
 
   val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email preferences"
-    case API_SUBSCRIPTION => "API subscription"
-    case EMAIL_ALL_USERS => "Email all users"
+    case API_SUBSCRIPTION  => "API subscription"
+    case EMAIL_ALL_USERS   => "Email all users"
   }
 
   val optionHint: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email users based on their preferences"
-    case API_SUBSCRIPTION => "Email users mandatory information about APIs they subscribe to"
-    case EMAIL_ALL_USERS => "Email all users with a Developer Hub account"
+    case API_SUBSCRIPTION  => "Email users mandatory information about APIs they subscribe to"
+    case EMAIL_ALL_USERS   => "Email all users with a Developer Hub account"
   }
 }
 
@@ -45,14 +45,14 @@ object EmailPreferencesChoice extends Enumeration {
 
   val optionLabel: EmailPreferencesChoice => String = {
     case SPECIFIC_API => "Users interested in a specific API or APIs"
-    case TAX_REGIME => "Users interested in a tax regime"
-    case TOPIC => "Users interested in a topic"
+    case TAX_REGIME   => "Users interested in a tax regime"
+    case TOPIC        => "Users interested in a topic"
   }
 
   val optionHint: EmailPreferencesChoice => String = {
     case SPECIFIC_API => "For example, VAT MTD"
-    case TAX_REGIME => "For example, Income Tax"
-    case TOPIC => "For example, event invites"
+    case TAX_REGIME   => "For example, Income Tax"
+    case TOPIC        => "For example, event invites"
   }
 }
 
@@ -65,15 +65,15 @@ object TopicOptionChoice extends Enumeration {
 
   val optionLabel: TopicOptionChoice => String = {
     case BUSINESS_AND_POLICY => "Business and policy"
-    case TECHNICAL => "Technical"
-    case RELEASE_SCHEDULES => "Release schedules"
-    case EVENT_INVITES => "Event Invites"
+    case TECHNICAL           => "Technical"
+    case RELEASE_SCHEDULES   => "Release schedules"
+    case EVENT_INVITES       => "Event Invites"
   }
 
   val optionHint: TopicOptionChoice => String = {
     case BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support"
-    case TECHNICAL => "Specifications, service guides, bux fixes and known errors"
-    case RELEASE_SCHEDULES => "Notifications about planned releases and outages"
-    case EVENT_INVITES => "Get invites to knowledge share events and user research opportunities"
+    case TECHNICAL           => "Specifications, service guides, bux fixes and known errors"
+    case RELEASE_SCHEDULES   => "Notifications about planned releases and outages"
+    case EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities"
   }
 }

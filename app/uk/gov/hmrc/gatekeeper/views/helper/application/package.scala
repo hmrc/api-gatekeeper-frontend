@@ -25,16 +25,17 @@ import org.joda.time.format.DateTimeFormat
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 
 object ApplicationPublicDescription {
+
   def apply(application: NewApplication): Option[String] = {
     for {
       checkInformation <- application.checkInformation
-      description <- checkInformation.applicationDetails
+      description      <- checkInformation.applicationDetails
     } yield description
   }
 }
 
 object ApplicationFormatter {
-  val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  val dateFormatter         = DateTimeFormat.forPattern("dd MMMM yyyy")
   val initialLastAccessDate = new DateTime(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
   def getCreatedOn(app: NewApplication): String = {
@@ -42,17 +43,17 @@ object ApplicationFormatter {
   }
 
   def getLastAccess(app: NewApplication): String = {
-   app.lastAccess match {
-     case Some(lastAccess) =>
-       if (secondsBetween(app.createdOn, lastAccess).getSeconds == 0) {
-         "No API called"
-       } else if (daysBetween(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate).getDays > 0) {
-         dateFormatter.print(lastAccess)
-       } else {
-         s"More than ${monthsBetween(lastAccess, DateTime.now()).getMonths} months ago"
-       }
-     case None =>  "No API called"
-   }
+    app.lastAccess match {
+      case Some(lastAccess) =>
+        if (secondsBetween(app.createdOn, lastAccess).getSeconds == 0) {
+          "No API called"
+        } else if (daysBetween(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate).getDays > 0) {
+          dateFormatter.print(lastAccess)
+        } else {
+          s"More than ${monthsBetween(lastAccess, DateTime.now()).getMonths} months ago"
+        }
+      case None             => "No API called"
+    }
 
   }
 }
@@ -65,17 +66,16 @@ object ApplicationSubmission {
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption
 
-
   def getSubmittedBy(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
       submission <- getLastSubmission(stateHistory)
-      email <- Some(submission.actor.id)
+      email      <- Some(submission.actor.id)
     } yield email
   }
 
   def getSubmittedOn(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
-      submission <- getLastSubmission(stateHistory)
+      submission  <- getLastSubmission(stateHistory)
       submittedOn <- Some(dateFormatter.print(submission.changedAt))
     } yield submittedOn
   }
@@ -97,21 +97,21 @@ object ApplicationReview {
   def getReviewContactName(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
       checkInformation <- checkInformationOpt
-      contactDetails <- checkInformation.contactDetails
+      contactDetails   <- checkInformation.contactDetails
     } yield contactDetails.fullname
   }
 
   def getReviewContactEmail(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
       checkInformation <- checkInformationOpt
-      contactDetails <- checkInformation.contactDetails
+      contactDetails   <- checkInformation.contactDetails
     } yield contactDetails.email
   }
 
   def getReviewContactTelephone(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
       checkInformation <- checkInformationOpt
-      contactDetails <- checkInformation.contactDetails
+      contactDetails   <- checkInformation.contactDetails
     } yield contactDetails.telephoneNumber
   }
 }

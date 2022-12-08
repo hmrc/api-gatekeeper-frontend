@@ -30,9 +30,10 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
-class ApiPublisherConnectorSpec 
-  extends AsyncHmrcSpec
+class ApiPublisherConnectorSpec
+    extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite {
 
@@ -44,25 +45,25 @@ class ApiPublisherConnectorSpec
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiPublisherProductionBaseUrl).thenReturn(wireMockUrl)
 
-    val connector = new ProductionApiPublisherConnector(mockAppConfig, httpClient)
+    val connector   = new ProductionApiPublisherConnector(mockAppConfig, httpClient)
     val apiVersion1 = ApiVersion.random
   }
 
   "fetchUnapproved" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = "/services/unapproved"
+    val url         = "/services/unapproved"
 
     "return unapproved API approval summaries" in new Setup {
       val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(PRODUCTION)))
-      val payload = Json.toJson(response)
+      val payload  = Json.toJson(response)
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(payload.toString)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
       )
 
       await(connector.fetchUnapproved()) shouldBe response
@@ -71,10 +72,10 @@ class ApiPublisherConnectorSpec
     "fail when api-subscription-fields returns an internal server error" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -85,18 +86,18 @@ class ApiPublisherConnectorSpec
 
   "fetchApprovalSummary" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = s"/service/$serviceName/summary"
+    val url         = s"/service/$serviceName/summary"
 
     "return approval summary for an API" in new Setup {
       val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(PRODUCTION))
 
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-          .withBody(Json.stringify(Json.toJson(validResponse)))
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.stringify(Json.toJson(validResponse)))
+          )
       )
 
       await(connector.fetchApprovalSummary(serviceName)) shouldBe validResponse
@@ -105,10 +106,10 @@ class ApiPublisherConnectorSpec
     "fail when fetch approval summary returns an internal server error" in new Setup {
       stubFor(
         get(urlEqualTo(url))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {
@@ -118,18 +119,18 @@ class ApiPublisherConnectorSpec
   }
 
   "approveService" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
-    val url = s"/service/$serviceName/approve"
+    val serviceName           = "ServiceName" + UUID.randomUUID()
+    val url                   = s"/service/$serviceName/approve"
     val approveServiceRequest = ApproveServiceRequest(serviceName)
 
     "return ok for approve service" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-        .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
-        .willReturn(
-          aResponse()
-          .withStatus(OK)
-        )
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+          )
       )
 
       await(connector.approveService(serviceName)) shouldBe ((): Unit)
@@ -138,11 +139,11 @@ class ApiPublisherConnectorSpec
     "fail when approve service returns an internal server error" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-        .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
-        .willReturn(
-          aResponse()
-          .withStatus(INTERNAL_SERVER_ERROR)
-        )
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
       )
 
       intercept[UpstreamErrorResponse] {

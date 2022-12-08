@@ -27,16 +27,18 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 
 import java.time.LocalDateTime
-
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
-  sealed case class TestApplication(id: ApplicationId,
-                                    name: String,
-                                    state: ApplicationState,
-                                    collaborators: Set[Collaborator],
-                                    clientId: ClientId = ClientId("a-client-id"),
-                                    deployedTo: String = "PRODUCTION") extends Application
+  sealed case class TestApplication(
+      id: ApplicationId,
+      name: String,
+      state: ApplicationState,
+      collaborators: Set[Collaborator],
+      clientId: ClientId = ClientId("a-client-id"),
+      deployedTo: String = "PRODUCTION"
+    ) extends Application
 
   trait Setup {
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
@@ -53,7 +55,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
         name = "****6789",
         mobileNumber = "0123456789",
         createdOn = LocalDateTime.now,
-        verified = true)
+        verified = true
+      )
 
     val smsMfaDetailUnverified = smsMfaDetailVerified.copy(verified = false)
 
@@ -61,7 +64,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       AuthenticatorAppMfaDetailSummary(
         name = "Google Auth App",
         createdOn = LocalDateTime.now,
-        verified = true)
+        verified = true
+      )
 
     def testDeveloperDetails(developer: Developer) = {
       val result = developerDetails.render(developer, buildXmlServicesFeUrl, superUserRequest)
@@ -75,12 +79,12 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       document.getElementById("last-name").text shouldBe developer.lastName
       document.getElementById("organisation").text shouldBe (developer.organisation match {
         case Some(text) => text
-        case None => ""
+        case None       => ""
       })
       document.getElementById("status").text shouldBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
-        case VerifiedStatus => "verified"
-        case _ => "unregistered"
+        case VerifiedStatus   => "verified"
+        case _                => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
       if (developer.xmlEmailPrefServices.isEmpty) {
@@ -90,7 +94,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       if (developer.xmlOrganisations.isEmpty) {
         document.getElementById("xml-organisation").text shouldBe "None"
       } else {
-        val orgId = developer.xmlOrganisations.map(org => org.organisationId).head
+        val orgId   = developer.xmlOrganisations.map(org => org.organisationId).head
         val orgName = developer.xmlOrganisations.map(org => org.name).head
         document.getElementById("xml-organisation-td").text shouldBe orgName
         document.getElementById("xml-organisation-link").attr("href") shouldBe s"/api-gatekeeper-xml-services/organisations/${orgId.value}"
@@ -120,7 +124,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
           RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
           List.empty,
           xmlServiceNames,
-          xmlOrganisations)
+          xmlOrganisations
+        )
 
       testDeveloperDetails(verifiedDeveloper)
     }
@@ -141,8 +146,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
-      val testApplication1: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
-      val testApplication2: TestApplication = TestApplication(ApplicationId(UUID.randomUUID().toString), "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
+      val testApplication1: TestApplication =
+        TestApplication(ApplicationId.random, "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
+      val testApplication2: TestApplication =
+        TestApplication(ApplicationId.random, "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
@@ -191,8 +198,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
           firstName = "firstname",
           lastName = "lastName",
           verified = true,
-          mfaDetails = List(smsMfaDetailUnverified, authAppMfaDetailVerified, smsMfaDetailVerified)),
-        applications = List.empty)
+          mfaDetails = List(smsMfaDetailUnverified, authAppMfaDetailVerified, smsMfaDetailVerified)
+        ),
+        applications = List.empty
+      )
 
       val result: HtmlFormat.Appendable = developerDetails.render(developerWithMfaDetails, buildXmlServicesFeUrl, superUserRequest)
 
@@ -217,8 +226,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
           firstName = "firstname",
           lastName = "lastName",
           verified = true,
-          mfaDetails = List(smsMfaDetailUnverified)),
-        applications = List.empty)
+          mfaDetails = List(smsMfaDetailUnverified)
+        ),
+        applications = List.empty
+      )
 
       val result: HtmlFormat.Appendable = developerDetails.render(developerWithMfaDetailsUnverified, buildXmlServicesFeUrl, superUserRequest)
 
@@ -231,4 +242,3 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     }
   }
 }
-

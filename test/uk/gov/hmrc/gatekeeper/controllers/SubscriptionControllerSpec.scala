@@ -31,42 +31,49 @@ import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionDat
 import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-class SubscriptionControllerSpec 
-    extends ControllerBaseSpec 
+class SubscriptionControllerSpec
+    extends ControllerBaseSpec
     with WithCSRFAddToken
     with TitleChecker {
-      
+
   implicit val materializer = app.materializer
 
-  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
+  private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
-  private lazy val errorHandler = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorHandler            = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
     trait Setup extends ControllerSetupBase {
 
-      val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
-      override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
+      val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
+      override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
-      override val anAdminLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
+      override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))), List.empty)
+        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        List.empty
+      )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))), List.empty)
+        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        List.empty
+      )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))), List.empty)
+        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        List.empty
+      )
 
       def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
-      val page = 1
-      val pageSize = 10
-      PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
-    }
+        val page     = 1
+        val pageSize = 10
+        PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+      }
 
       val underTest = new SubscriptionController(
         manageSubscriptionsView,
@@ -85,7 +92,6 @@ class SubscriptionControllerSpec
       }
     }
 
-
     "subscribeToApi" should {
       val apiContext = ApiContext.random
 
@@ -98,7 +104,7 @@ class SubscriptionControllerSpec
         val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
         verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(ApiIdentifier(apiContext, ApiVersion("1.0"))))(*)
       }
@@ -128,7 +134,7 @@ class SubscriptionControllerSpec
         val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value}/subscriptions")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
         verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
       }
@@ -150,11 +156,11 @@ class SubscriptionControllerSpec
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val newApplication = buildApplication()
+          val newApplication                  = buildApplication()
           val applicationWithSubscriptionData = ApplicationWithSubscriptionData(newApplication, Set.empty, Map.empty)
-          val apiData = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-          val apiContext = ApiContext("Api Context")
-          val apiContextAndApiData = Map(apiContext -> apiData)
+          val apiData                         = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+          val apiContext                      = ApiContext("Api Context")
+          val apiContextAndApiData            = Map(apiContext -> apiData)
 
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
@@ -163,7 +169,7 @@ class SubscriptionControllerSpec
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 
           status(result) shouldBe OK
-          }
+        }
       }
 
       "the user is not a superuser" should {

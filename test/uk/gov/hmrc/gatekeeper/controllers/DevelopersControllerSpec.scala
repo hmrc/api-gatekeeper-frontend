@@ -24,14 +24,14 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer = app.materializer
+  implicit val materializer                         = app.materializer
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView = app.injector.instanceOf[ForbiddenView]
-  private lazy val developersView = app.injector.instanceOf[DevelopersView]
-
+  private lazy val forbiddenView                    = app.injector.instanceOf[ForbiddenView]
+  private lazy val developersView                   = app.injector.instanceOf[DevelopersView]
 
   Helpers.running(app) {
 
@@ -40,7 +40,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
     trait Setup extends ControllerSetupBase {
 
-      override val aLoggedInRequest = FakeRequest().withSession(authToken, userToken).withCSRFToken
+      override val aLoggedInRequest          = FakeRequest().withSession(authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(authToken, superUserToken).withCSRFToken
 
       val developersController = new DevelopersController(
@@ -50,8 +50,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         mcc,
         developersView,
         errorTemplateView,
-       StrideAuthorisationServiceMock.aMock,
-       LdapAuthorisationServiceMock.aMock
+        StrideAuthorisationServiceMock.aMock,
+        LdapAuthorisationServiceMock.aMock
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
@@ -59,16 +59,16 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       }
 
       def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
-        val apiFilter = ApiFilter(Some(""))
+        val apiFilter         = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
-        val statusFilter = StatusFilter(None)
-        val users = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter,environmentFilter, apps:_*)
+        val statusFilter      = StatusFilter(None)
+        val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
         FetchAllApiDefinitions.inAny.returns()
-        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter,apps:_*)(developers:_*)
-        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers:_*)
-        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps:_*)(users:_*)(developers:_*)
-        DeveloperServiceMock.FetchUsers.returns(users:_*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps: _*)(developers: _*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers: _*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps: _*)(users: _*)(developers: _*)
+        DeveloperServiceMock.FetchUsers.returns(users: _*)
       }
 
     }
@@ -84,7 +84,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       }
     }
-    
+
     "developersPage" should {
 
       "show no results when initially opened" in new Setup {
@@ -106,12 +106,12 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         DeveloperServiceMock.SearchDevelopers.returns()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody(
-                          "emailFilter"-> EMPTY,
-                          "apiVersionFilter" -> EMPTY,
-                          "environmentFilter" -> EMPTY,
-                          "developerStatusFilter" -> EMPTY
-                      )
-        val result = developersController.developersPage()(request)
+          "emailFilter"           -> EMPTY,
+          "apiVersionFilter"      -> EMPTY,
+          "environmentFilter"     -> EMPTY,
+          "developerStatusFilter" -> EMPTY
+        )
+        val result  = developersController.developersPage()(request)
 
         await(result)
 
@@ -122,15 +122,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        private val emailAddress = "developer@example.com"
+        private val emailAddress        = "developer@example.com"
         private val partialEmailAddress = "example"
-        private val user = aUser(emailAddress)
+        private val user                = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter"-> partialEmailAddress)
-        val result = developersController.developersPage()(request)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> partialEmailAddress)
+        val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(emailAddress)
 
@@ -146,8 +146,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         DeveloperServiceMock.SearchDevelopers.returns()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter"-> searchFilter)
-        val result = developersController.developersPage()(request)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> searchFilter)
+        val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(s"""value="$searchFilter"""")
       }
@@ -160,41 +160,43 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         private val email2 = "b@example.com"
         private val email3 = "c@example.com"
 
-        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1,true), aUser(email2,true), aUser(email3))
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1, true), aUser(email2, true), aUser(email3))
 
         implicit val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
-        val result = developersController.developersPage()(request)
+        val result           = developersController.developersPage()(request)
 
         contentAsString(result) should include(s"$email1; $email2")
       }
-      
+
       "search by api version" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        private val emailAddress = "developer@example.com"
-        private val user = aUser(emailAddress)
+        private val emailAddress                   = "developer@example.com"
+        private val user                           = aUser(emailAddress)
         private val apiDefinitionValueFromDropDown = "api-definition__1.0"
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("apiVersionFilter" -> apiDefinitionValueFromDropDown)
-        val result = developersController.developersPage()(request)
+        val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(emailAddress)
 
-        val filter = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
+        val filter         = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
         val expectedFilter = DevelopersSearchFilter(maybeApiFilter = Some(filter))
         verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
       }
-
 
       "show an api version filter dropdown with correct display text" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA), ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE))
+        val apiVersions   = List(
+          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
+          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+        )
         val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
@@ -211,7 +213,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val apiContext = ApiContext.random
 
-        val apiVersions = List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE), ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE))
+        val apiVersions   = List(
+          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
+          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+        )
         val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
@@ -228,7 +233,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition         = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 
@@ -246,7 +251,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1), aUser(email2))
 
         implicit val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
-        val result = developersController.developersPage()(request)
+        val result           = developersController.developersPage()(request)
 
         contentAsString(result) should include("Showing 2 entries")
       }
@@ -257,13 +262,13 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         private val emailAddress = "developer@example.com"
         private val statusFilter = "VERIFIED"
-        private val user = aUser(emailAddress)
+        private val user         = aUser(emailAddress)
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> statusFilter)
-        val result = developersController.developersPage()(request)
+        val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(emailAddress)
 
@@ -275,15 +280,15 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        private val emailAddress = "developer@example.com"
-        private val user = aUser(emailAddress)
+        private val emailAddress      = "developer@example.com"
+        private val user              = aUser(emailAddress)
         private val environmentFilter = "PRODUCTION"
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("environmentFilter" -> environmentFilter)
-        val result = developersController.developersPage()(request)
+        val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(emailAddress)
 

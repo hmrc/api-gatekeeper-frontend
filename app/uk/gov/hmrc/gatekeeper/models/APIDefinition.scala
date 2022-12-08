@@ -21,57 +21,37 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import play.api.libs.json.Json
 
-import scala.util.Random
-import java.net.URLEncoder.encode
-
-case class ApiContext(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
-}
-
-object ApiContext {
-  implicit val ordering: Ordering[ApiContext] = new Ordering[ApiContext] {
-    override def compare(x: ApiContext, y: ApiContext): Int = x.value.compareTo(y.value)
-  }
-
-  def random = ApiContext(Random.alphanumeric.take(10).mkString)
-}
-
-case class ApiVersion(value: String) extends AnyVal {
-  def urlEncode = encode(value, "UTF-8")
-}
-
-object ApiVersion {
-  implicit val ordering: Ordering[ApiVersion] = new Ordering[ApiVersion] {
-    override def compare(x: ApiVersion, y: ApiVersion): Int = x.value.compareTo(y.value)
-  }
-
-  def random = ApiVersion(Random.nextDouble().toString)
-}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 sealed trait ApiVersionSource {
   def asText: String
 }
 
 object ApiVersionSource {
-  case object RAML extends ApiVersionSource {
+
+  case object RAML    extends ApiVersionSource {
     val asText = "RAML"
   }
-  case object OAS extends ApiVersionSource {
+
+  case object OAS     extends ApiVersionSource {
     val asText = "OAS"
   }
+
   case object UNKNOWN extends ApiVersionSource {
     val asText = "UNKNOWN"
   }
 }
 
-case class ApiDefinition(serviceName: String,
-                         serviceBaseUrl: String,
-                         name: String,
-                         description: String,
-                         context: ApiContext,
-                         versions: List[ApiVersionDefinition],
-                         requiresTrust: Option[Boolean],
-                         categories: Option[List[APICategory]]) {
+case class ApiDefinition(
+    serviceName: String,
+    serviceBaseUrl: String,
+    name: String,
+    description: String,
+    context: ApiContext,
+    versions: List[ApiVersionDefinition],
+    requiresTrust: Option[Boolean],
+    categories: Option[List[APICategory]]
+  ) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
     v1.version.version.value.toDouble > v2.version.version.value.toDouble
@@ -79,21 +59,22 @@ case class ApiDefinition(serviceName: String,
 }
 
 case class APICategory(value: String) extends AnyVal
-object APICategory{
+
+object APICategory {
   implicit val formatApiCategory = Json.valueFormat[APICategory]
 }
 
-case class APICategoryDetails(category: String, name: String){
-  def toAPICategory: APICategory ={
+case class APICategoryDetails(category: String, name: String) {
+
+  def toAPICategory: APICategory = {
     APICategory(category)
   }
 }
-object APICategoryDetails{
+
+object APICategoryDetails                                     {
   implicit val formatApiCategory = Json.format[APICategoryDetails]
 }
-case class VersionSubscription(version: ApiVersionDefinition,
-                               subscribed: Boolean,
-                               fields: SubscriptionFieldsWrapper)
+case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
 case class ApiVersionDefinition(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = ApiStatus.displayedStatus(status)
@@ -108,62 +89,53 @@ object ApiStatus extends Enumeration {
   val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
 
   val displayedStatus: (ApiStatus) => String = {
-    case ApiStatus.ALPHA => "Alpha"
-    case ApiStatus.BETA => "Beta"
-    case ApiStatus.STABLE => "Stable"
+    case ApiStatus.ALPHA      => "Alpha"
+    case ApiStatus.BETA       => "Beta"
+    case ApiStatus.STABLE     => "Stable"
     case ApiStatus.DEPRECATED => "Deprecated"
-    case ApiStatus.RETIRED => "Retired"
+    case ApiStatus.RETIRED    => "Retired"
   }
 }
 
-case class ApiAccess(`type`: APIAccessType, isTrial : Option[Boolean] = None)
+case class ApiAccess(`type`: APIAccessType, isTrial: Option[Boolean] = None)
 
 sealed trait APIAccessType extends EnumEntry
 
 object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
   val values = findValues
   case object PRIVATE extends APIAccessType
-  case object PUBLIC extends APIAccessType
-}
-
-case class ApiIdentifier(context: ApiContext, version: ApiVersion)
-object ApiIdentifier {
-  def random() = ApiIdentifier(ApiContext.random, ApiVersion.random)
+  case object PUBLIC  extends APIAccessType
 }
 
 class FetchApiDefinitionsFailed extends Throwable
-class FetchApiCategoriesFailed extends Throwable
+class FetchApiCategoriesFailed  extends Throwable
 
 case class VersionSummary(name: String, status: ApiStatus, apiIdentifier: ApiIdentifier)
 
 case class SubscriptionResponse(apiIdentifier: ApiIdentifier, applications: List[String])
 
-case class Subscription(name: String,
-                        serviceName: String,
-                        context: ApiContext,
-                        versions: List[VersionSubscription]) {
+case class Subscription(name: String, serviceName: String, context: ApiContext, versions: List[VersionSubscription]) {
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
-case class SubscriptionWithoutFields(name: String,
-                                     serviceName: String,
-                                     context: ApiContext,
-                                     versions: List[VersionSubscriptionWithoutFields]) {
+case class SubscriptionWithoutFields(name: String, serviceName: String, context: ApiContext, versions: List[VersionSubscriptionWithoutFields]) {
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
 case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
 
 object Subscription {
+
   def subscriptionNumberLabel(versions: List[VersionSubscription]) = versions.count(_.subscribed) match {
-    case 1 => s"1 subscription"
+    case 1      => s"1 subscription"
     case number => s"$number subscriptions"
   }
 }
 
 object SubscriptionWithoutFields {
+
   def subscriptionNumberLabel(versions: List[VersionSubscriptionWithoutFields]) = versions.count(_.subscribed) match {
-    case 1 => s"1 subscription"
+    case 1      => s"1 subscription"
     case number => s"$number subscriptions"
   }
 }

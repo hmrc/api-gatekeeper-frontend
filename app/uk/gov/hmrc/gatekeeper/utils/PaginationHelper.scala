@@ -17,10 +17,11 @@
 package uk.gov.hmrc.gatekeeper.utils
 
 object PaginationHelper {
+
   def maxPage(totalResults: Int, pageSize: Int) = {
     if (pageSize == 0) 0
     else {
-      val add =  if (totalResults % pageSize == 0) 0 else 1
+      val add = if (totalResults % pageSize == 0) 0 else 1
       Math.ceil(totalResults / pageSize).toInt + add
     }
   }

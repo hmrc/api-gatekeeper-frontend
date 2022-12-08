@@ -28,10 +28,10 @@ object SecretRequest {
   implicit val format = Json.format[SecretRequest]
 }
 
-trait SendsSecretRequest  {
+trait SendsSecretRequest {
   def payloadEncryption: PayloadEncryption
 
-  def secretRequest[I,R](input: I)(block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
+  def secretRequest[I, R](input: I)(block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
     block(toSecretRequest(w.writes(input)))
   }
 
@@ -50,7 +50,7 @@ class PayloadEncryption(jsonEncryptionKey: String) {
   }
 
   def decrypt[T](payload: JsValue)(implicit reads: Reads[T]): T = {
-    val decryptor = new JsonDecryptor()(crypto, reads)
+    val decryptor                         = new JsonDecryptor()(crypto, reads)
     val decrypted: JsResult[Protected[T]] = decryptor.reads(payload)
 
     decrypted.asOpt.map(_.decryptedValue).getOrElse(throw new scala.RuntimeException(s"Failed to decrypt payload: [$payload]"))
@@ -58,8 +58,9 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 }
 
 private[encryption] class LocalCrypto(anEncryptionKey: String) extends CompositeSymmetricCrypto {
+
   override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
     override protected val encryptionKey: String = anEncryptionKey
   }
-  override protected val previousCryptos: Seq[Decrypter] = Seq.empty
+  override protected val previousCryptos: Seq[Decrypter]         = Seq.empty
 }

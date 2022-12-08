@@ -32,17 +32,20 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import org.joda.time.DateTime
 import java.time.Period
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
+
   trait Setup {
     implicit val request = FakeRequest()
-    val applicationView = app.injector.instanceOf[ApplicationView]
+    val applicationView  = app.injector.instanceOf[ApplicationView]
 
     val developers = List[RegisteredUser] {
       new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
     }
 
-    val clientId = ClientId("clientid")
+    val clientId            = ClientId("clientid")
     val grantLength: Period = Period.ofDays(547)
 
     val application = NewApplication(
@@ -78,23 +81,23 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
   }
 
   trait SubscriptionsSetup extends Setup {
-      val subscriptionsViewData: List[(String, List[(ApiVersion, ApiStatus)])] = List(
-        (
-          "My API Name", 
-          List(
-            (VersionOne, ApiStatus.STABLE), 
-            (VersionTwo, ApiStatus.BETA)
-          )
-        ),
-        (
-          "My Other API Name", 
-          List(
-            (VersionOne, ApiStatus.STABLE) 
-          )
+
+    val subscriptionsViewData: List[(String, List[(ApiVersion, ApiStatus)])] = List(
+      (
+        "My API Name",
+        List(
+          (VersionOne, ApiStatus.STABLE),
+          (VersionTwo, ApiStatus.BETA)
+        )
+      ),
+      (
+        "My Other API Name",
+        List(
+          (VersionOne, ApiStatus.STABLE)
         )
       )
+    )
   }
-
 
   "application view" should {
     "show application with no check information" in new Setup {
@@ -109,7 +112,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "show application with check information but no terms of use agreed" in new Setup {
 
-      val checkInformation = CheckInformation()
+      val checkInformation                          = CheckInformation()
       val applicationWithCheckInformationButNoTerms = application.withCheckInformation(checkInformation)
 
       val result = applicationView.render(
@@ -126,9 +129,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application with check information and terms of use agreed" in new Setup {
-      val termsOfUseVersion = "1.0"
-      val termsOfUseAgreement = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
-      val checkInformation = CheckInformation(termsOfUseAgreements = List(termsOfUseAgreement))
+      val termsOfUseVersion         = "1.0"
+      val termsOfUseAgreement       = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
+      val checkInformation          = CheckInformation(termsOfUseAgreements = List(termsOfUseAgreement))
       val applicationWithTermsOfUse = application.withCheckInformation(checkInformation)
 
       val result = applicationView.render(
@@ -148,11 +151,11 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application with check information and multiple terms of use agreed" in new Setup {
-      val oldVersion = "1.0"
-      val oldTOUAgreement = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
-      val newVersion = "1.1"
-      val newTOUAgreement = TermsOfUseAgreement("test", DateTime.now(), newVersion)
-      val checkInformation = CheckInformation(termsOfUseAgreements = List(oldTOUAgreement, newTOUAgreement))
+      val oldVersion                = "1.0"
+      val oldTOUAgreement           = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
+      val newVersion                = "1.1"
+      val newTOUAgreement           = TermsOfUseAgreement("test", DateTime.now(), newVersion)
+      val checkInformation          = CheckInformation(termsOfUseAgreements = List(oldTOUAgreement, newTOUAgreement))
       val applicationWithTermsOfUse = application.copy(checkInformation = Some(checkInformation))
 
       val result = applicationView.render(
@@ -324,7 +327,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information and click on associated developer" in new Setup {
-      val user = RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
+      val user   = RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
       val result = applicationView.render(
         DefaultApplicationViewModel.withDeveloper(user),
         strideUserRequest,
@@ -368,8 +371,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       result.body.contains(s"${VersionOne.value} (Stable)") shouldBe true
     }
 
-     "show subscriptions that have subscription fields configurartion" in new SubscriptionsSetup {
-       val result = applicationView.render(
+    "show subscriptions that have subscription fields configurartion" in new SubscriptionsSetup {
+      val result = applicationView.render(
         DefaultApplicationViewModel.withSubscriptionsThatHaveFieldDefns(subscriptionsViewData),
         strideUserRequest,
         Flash.emptyCookie
@@ -423,7 +426,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show view IP allowlist link for normal users when the IP allowlist is active" in new Setup {
-      val x = DefaultApplicationViewModel.withApplication(application.withIpAllowlist(IpAllowlist(allowlist = Set("1.1.1.1/24"))))
+      val x      = DefaultApplicationViewModel.withApplication(application.withIpAllowlist(IpAllowlist(allowlist = Set("1.1.1.1/24"))))
       val result = applicationView.render(
         x,
         strideUserRequest,

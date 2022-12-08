@@ -20,6 +20,7 @@ import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.Json
 
 case class TaxRegimeInterests(regime: String, services: Set[String])
+
 object TaxRegimeInterests {
   implicit val formatTaxRegimeInterests = Json.format[TaxRegimeInterests]
 }
@@ -31,9 +32,9 @@ object EmailTopic extends Enum[EmailTopic] with PlayJsonEnum[EmailTopic] {
   val values = findValues
 
   case object BUSINESS_AND_POLICY extends EmailTopic
-  case object TECHNICAL extends EmailTopic
-  case object RELEASE_SCHEDULES extends EmailTopic
-  case object EVENT_INVITES extends EmailTopic
+  case object TECHNICAL           extends EmailTopic
+  case object RELEASE_SCHEDULES   extends EmailTopic
+  case object EVENT_INVITES       extends EmailTopic
 }
 
 case class EmailPreferences(interests: List[TaxRegimeInterests], topics: Set[EmailTopic])
@@ -43,4 +44,3 @@ object EmailPreferences {
 
   def noPreferences: EmailPreferences = EmailPreferences(interests = List.empty[TaxRegimeInterests], Set.empty[EmailTopic])
 }
-

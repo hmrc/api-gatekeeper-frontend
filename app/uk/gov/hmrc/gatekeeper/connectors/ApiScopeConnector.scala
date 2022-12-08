@@ -35,38 +35,36 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
 
   def http: HttpClient
 
-  private def for5xx(ex: Throwable): PartialFunction[Throwable,Nothing] = (err: Throwable) => err match {
-    case e: UpstreamErrorResponse if(is5xx(e.statusCode)) => throw ex 
-  }
+  private def for5xx(ex: Throwable): PartialFunction[Throwable, Nothing] = (err: Throwable) =>
+    err match {
+      case e: UpstreamErrorResponse if (is5xx(e.statusCode)) => throw ex
+    }
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[ApiScope]] = {
     http.GET[List[ApiScope]](s"$serviceBaseUrl/scope")
-    .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
+      .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
   }
 }
 
 @Singleton
-class SandboxApiScopeConnector @Inject()(val appConfig: AppConfig,
-                                         val httpClient: HttpClient,
-                                         val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
-  extends ApiScopeConnector {
+class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient, val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+    extends ApiScopeConnector {
 
-  val environment = Environment.SANDBOX
+  val environment    = Environment.SANDBOX
   val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
-  val useProxy = appConfig.apiScopeSandboxUseProxy
-  val bearerToken = appConfig.apiScopeSandboxBearerToken
-  val apiKey = appConfig.apiScopeSandboxApiKey
+  val useProxy       = appConfig.apiScopeSandboxUseProxy
+  val bearerToken    = appConfig.apiScopeSandboxBearerToken
+  val apiKey         = appConfig.apiScopeSandboxApiKey
 
   val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
 }
 
 @Singleton
-class ProductionApiScopeConnector @Inject()(val appConfig: AppConfig,
-                                            val httpClient: HttpClient)(implicit val ec: ExecutionContext)
-  extends ApiScopeConnector {
+class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit val ec: ExecutionContext)
+    extends ApiScopeConnector {
 
-  val environment = Environment.PRODUCTION
+  val environment    = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
 
   val http = httpClient

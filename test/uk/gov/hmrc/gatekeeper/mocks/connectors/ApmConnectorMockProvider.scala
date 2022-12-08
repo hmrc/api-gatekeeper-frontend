@@ -19,16 +19,18 @@ package mocks.connectors
 import org.mockito.MockitoSugar
 import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.models._
 
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val mockApmConnector = mock[ApmConnector]
+  val mockApmConnector       = mock[ApmConnector]
   val mockApmConnectorConfig = mock[ApmConnector.Config]
 
   object FetchAllCombinedApis {
@@ -36,30 +38,38 @@ trait ApmConnectorMockProvider {
   }
 
   object FetchApplicationById {
-    def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) = when(mockApmConnector.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
+
+    def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) =
+      when(mockApmConnector.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
   }
 
   object FetchAllPossibleSubscriptions {
-    def returns(possibleSubscriptions: Map[ApiContext, ApiData]) = when(mockApmConnector.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
+
+    def returns(possibleSubscriptions: Map[ApiContext, ApiData]) =
+      when(mockApmConnector.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
   }
 
   object GetAllFieldDefinitions {
     def returns(fieldDefinitions: ApiDefinitions.Alias) = when(mockApmConnector.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
   }
-  
+
   object FetchAllBoxes {
     def returns(allBoxes: List[Box]) = when(mockApmConnector.fetchAllBoxes()(*)).thenReturn(successful(allBoxes))
   }
 
   object ApmConnectorConfigMock {
+
     object ServiceBaseUrl {
+
       def returns(url: String) =
         when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(url)
     }
   }
 
   object ApmConnectorMock {
+
     object SubscribeToApi {
+
       def succeeds() = when(
         mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
       ).thenReturn(successful(ApplicationUpdateSuccessResult))

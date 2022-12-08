@@ -23,14 +23,14 @@ import mocks.TestRoles
 import play.api.Configuration
 
 @Singleton
-class FakeAppConfigImpl @Inject()(config: Configuration)
-  extends AppConfigImpl(config) {
+class FakeAppConfigImpl @Inject() (config: Configuration)
+    extends AppConfigImpl(config) {
 
   override def title = "Unit Test Title"
 
   override val strideLoginUrl = "https://loginUri"
 
-  override val userRole = TestRoles.userRole
-  override val adminRole = TestRoles.adminRole
+  override val userRole      = TestRoles.userRole
+  override val adminRole     = TestRoles.adminRole
   override val superUserRole = TestRoles.superUserRole
 }

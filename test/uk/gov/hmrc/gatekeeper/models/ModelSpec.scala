@@ -21,8 +21,9 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
-class ModelSpec  extends AsyncHmrcSpec {
+class ModelSpec extends AsyncHmrcSpec {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
@@ -65,15 +66,27 @@ class ModelSpec  extends AsyncHmrcSpec {
   }
 
   "Application.isSoleAdmin" should {
-    val emailAddress = "admin@example.com"
-    val admin = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random)
-    val developer = Collaborator(emailAddress, CollaboratorRole.DEVELOPER, UserId.random)
-    val otherAdmin = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
-    val otherDeveloper = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
-    val grantLength: Period = Period.ofDays(547)
+    val emailAddress                                = "admin@example.com"
+    val admin                                       = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random)
+    val developer                                   = Collaborator(emailAddress, CollaboratorRole.DEVELOPER, UserId.random)
+    val otherAdmin                                  = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+    val otherDeveloper                              = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+    val grantLength: Period                         = Period.ofDays(547)
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(
-        ApplicationId.random, ClientId("clientid"), "gatewayId", "application", "PRODUCTION", None, teamMembers, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
+        ApplicationId.random,
+        ClientId("clientid"),
+        "gatewayId",
+        "application",
+        "PRODUCTION",
+        None,
+        teamMembers,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      )
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))

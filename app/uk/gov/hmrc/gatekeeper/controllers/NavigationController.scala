@@ -26,9 +26,8 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class NavigationController @Inject()(mcc: MessagesControllerComponents)
-                                    (implicit val appConfig: AppConfig, val ec: ExecutionContext)
-  extends FrontendController(mcc) {
+class NavigationController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext)
+    extends FrontendController(mcc) {
 
   def navLinks() = Action.async { _ =>
     Future.successful(Ok(Json.toJson(StaticNavLinks())))

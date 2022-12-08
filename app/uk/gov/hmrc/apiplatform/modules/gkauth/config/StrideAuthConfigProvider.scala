@@ -20,34 +20,32 @@ import javax.inject.{Inject, Provider, Singleton}
 import play.api.Configuration
 
 case class StrideAuthRoles(
-  adminRole: String,
-  superUserRole: String,
-  userRole: String
-)
+    adminRole: String,
+    superUserRole: String,
+    userRole: String
+  )
 
 case class StrideAuthConfig(
-  strideLoginUrl: String,
-  successUrl: String,
-  origin: String,
-  roles: StrideAuthRoles
-)
-
+    strideLoginUrl: String,
+    successUrl: String,
+    origin: String,
+    roles: StrideAuthRoles
+  )
 
 @Singleton
-class StrideAuthConfigProvider @Inject()(configuration: Configuration) extends Provider[StrideAuthConfig] with BaseUrlExtractor {
+class StrideAuthConfigProvider @Inject() (configuration: Configuration) extends Provider[StrideAuthConfig] with BaseUrlExtractor {
   val config = configuration.underlying
 
   override def get(): StrideAuthConfig = {
     val strideLoginUrl = s"${extractBaseUrl("stride-auth-frontend")}/stride/sign-in"
-    
-    val strideConfig = configuration.underlying.getConfig("stride")
-    val successUrl = strideConfig.getString("success-url")
-    val origin = strideConfig.getString("origin")
-    val adminRole = strideConfig.getString("roles.admin")
+
+    val strideConfig  = configuration.underlying.getConfig("stride")
+    val successUrl    = strideConfig.getString("success-url")
+    val origin        = strideConfig.getString("origin")
+    val adminRole     = strideConfig.getString("roles.admin")
     val superUserRole = strideConfig.getString("roles.super-user")
-    val userRole = strideConfig.getString("roles.user")
+    val userRole      = strideConfig.getString("roles.user")
 
     StrideAuthConfig(strideLoginUrl, successUrl, origin, StrideAuthRoles(adminRole, superUserRole, userRole))
   }
 }
-

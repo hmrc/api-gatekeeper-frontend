@@ -42,6 +42,8 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 import org.joda.time.DateTime
 
 import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
@@ -49,31 +51,89 @@ class ApplicationsViewSpec extends CommonViewSpec {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
-    implicit val loggedInUser = LoggedInUser(Some("Bob Dole"))
+    implicit val loggedInUser          = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      displayedStatus(STABLE) -> Seq(VersionSummary("Dummy API", STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersion.random))),
-      displayedStatus(BETA) -> Seq(VersionSummary("Beta API", BETA, ApiIdentifier(ApiContext("beta-api"), ApiVersion.random))),
-      displayedStatus(RETIRED) -> Seq(VersionSummary("Retired API", RETIRED, ApiIdentifier(ApiContext("ret-api"), ApiVersion.random))),
+      displayedStatus(STABLE)     -> Seq(VersionSummary("Dummy API", STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersion.random))),
+      displayedStatus(BETA)       -> Seq(VersionSummary("Beta API", BETA, ApiIdentifier(ApiContext("beta-api"), ApiVersion.random))),
+      displayedStatus(RETIRED)    -> Seq(VersionSummary("Retired API", RETIRED, ApiIdentifier(ApiContext("ret-api"), ApiVersion.random))),
       displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, ApiIdentifier(ApiContext("dep-api"), ApiVersion.random)))
     )
 
     val collaborators = Set(
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random))
-
-    val grantLength: Period = Period.ofDays(547)
-    val applications = List[ApplicationResponse](
-    ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Testing App", "PRODUCTION", Some("Testing App"), collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Gatekeeper Approval App", "PRODUCTION", Some("Pending Gatekeeper Approval App"), collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Pending Requester Verification App", "PRODUCTION", Some("Pending Requester Verification App"), collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength),
-      ApplicationResponse(ApplicationId.random, ClientId("clientid1"), "gatewayId1", "Production App", "PRODUCTION", Some("Production App"), collaborators, DateTime.now(), Some(DateTime.now()), Standard(), ApplicationState(), grantLength)
+      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
     )
-    val getApprovalsUrl = (appId: ApplicationId, deployedTo: String) => "approvals/url"
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApis: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApplication: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApplicationDocument = Jsoup.parse(applicationViewWithApplication().body)
+
+    val grantLength: Period                                         = Period.ofDays(547)
+
+    val applications                                                = List[ApplicationResponse](
+      ApplicationResponse(
+        ApplicationId.random,
+        ClientId("clientid1"),
+        "gatewayId1",
+        "Testing App",
+        "PRODUCTION",
+        Some("Testing App"),
+        collaborators,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      ),
+      ApplicationResponse(
+        ApplicationId.random,
+        ClientId("clientid1"),
+        "gatewayId1",
+        "Pending Gatekeeper Approval App",
+        "PRODUCTION",
+        Some("Pending Gatekeeper Approval App"),
+        collaborators,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      ),
+      ApplicationResponse(
+        ApplicationId.random,
+        ClientId("clientid1"),
+        "gatewayId1",
+        "Pending Requester Verification App",
+        "PRODUCTION",
+        Some("Pending Requester Verification App"),
+        collaborators,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      ),
+      ApplicationResponse(
+        ApplicationId.random,
+        ClientId("clientid1"),
+        "gatewayId1",
+        "Production App",
+        "PRODUCTION",
+        Some("Production App"),
+        collaborators,
+        DateTime.now(),
+        Some(DateTime.now()),
+        Standard(),
+        ApplicationState(),
+        grantLength
+      )
+    )
+    val getApprovalsUrl                                             = (appId: ApplicationId, deployedTo: String) => "approvals/url"
+
+    val applicationViewWithNoApis: () => HtmlFormat.Appendable      =
+      () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
+    val applicationViewWithApis: () => HtmlFormat.Appendable        = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
+
+    val applicationViewWithApplication: () => HtmlFormat.Appendable =
+      () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)
+    val applicationViewWithApplicationDocument                      = Jsoup.parse(applicationViewWithApplication().body)
   }
 
   "ApplicationsView" when {
@@ -102,10 +162,10 @@ class ApplicationsViewSpec extends CommonViewSpec {
       }
 
       "Include the application state filters" in new Setup {
-        applicationViewWithApis().body should include ("Stable")
-        applicationViewWithApis().body should include ("Beta")
-        applicationViewWithApis().body should include ("Retired")
-        applicationViewWithApis().body should include ("Deprecated")
+        applicationViewWithApis().body should include("Stable")
+        applicationViewWithApis().body should include("Beta")
+        applicationViewWithApis().body should include("Retired")
+        applicationViewWithApis().body should include("Deprecated")
       }
     }
 

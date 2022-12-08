@@ -20,16 +20,16 @@ import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 
-class CsvHelperSpec extends AnyWordSpec with Matchers{
+class CsvHelperSpec extends AnyWordSpec with Matchers {
   "CsvHelper" should {
     "turn data to a CSV" in {
       val data = Seq("Hello", "World!")
 
       val columnDefinitions = Seq[ColumnDefinition[String]](
-        ColumnDefinition("Value", (text=>text)),
-        ColumnDefinition("Length", (text=>text.length().toString()))
+        ColumnDefinition("Value", (text => text)),
+        ColumnDefinition("Length", (text => text.length().toString()))
       )
-      val csvText = toCsvString(columnDefinitions, data)
+      val csvText           = toCsvString(columnDefinitions, data)
 
       csvText shouldBe """Value,Length
 Hello,5
@@ -37,18 +37,18 @@ World!,6
 """
     }
   }
-  
+
   "CsvHelper" should {
     "handle line break characters in data" in {
       val data = Seq("\n")
 
       val columnDefinitions = Seq[ColumnDefinition[String]](
-        ColumnDefinition("Value", (text=>text)),
-        ColumnDefinition("Length", (text=>text.length().toString()))
+        ColumnDefinition("Value", (text => text)),
+        ColumnDefinition("Length", (text => text.length().toString()))
       )
-      val csvText = toCsvString(columnDefinitions, data)
+      val csvText           = toCsvString(columnDefinitions, data)
 
-      csvText shouldBe "Value,Length\n\"\n\",1\n" 
+      csvText shouldBe "Value,Length\n\"\n\",1\n"
     }
   }
 }

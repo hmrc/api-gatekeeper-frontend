@@ -30,6 +30,7 @@ trait XmlServicesConnectorMockProvider {
   val mockXmlServicesConnector = mock[XmlServicesConnector]
 
   object XmlServicesConnectorMock {
+
     object GetAllApis {
       def returnsApis(xmlApis: List[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
 
@@ -45,6 +46,7 @@ trait XmlServicesConnectorMockProvider {
     }
 
     object GetOrganisations {
+
       def returnsOrganisations(userId: UserId, xmlOrganisations: List[XmlOrganisation]) =
         when(mockXmlServicesConnector.findOrganisationsByUserId(eqTo(userId))(*)).thenReturn(successful(xmlOrganisations))
 

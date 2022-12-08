@@ -23,17 +23,19 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionDataAndFieldDefinitions
 import uk.gov.hmrc.gatekeeper.models.ApiStatus
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
-case class SubscriptionVersion(apiName: String, apiContext : ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
+case class SubscriptionVersion(apiName: String, apiContext: ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 
 object SubscriptionVersion {
+
   def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): List[SubscriptionVersion] = {
     app.apiDefinitions.flatMap(contextMap => {
       contextMap._2.map(versionMap => {
         def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): List[SubscriptionField] = {
           fieldNames.map(fieldName => {
             val subscriptionFieldDefinition = fieldName._2
-            val fieldValue = app.applicationWithSubscriptionData.subscriptionFieldValues(contextMap._1)(versionMap._1)(fieldName._1)
+            val fieldValue                  = app.applicationWithSubscriptionData.subscriptionFieldValues(contextMap._1)(versionMap._1)(fieldName._1)
 
             SubscriptionField(fieldName._1, subscriptionFieldDefinition.shortDescription, subscriptionFieldDefinition.description, subscriptionFieldDefinition.hint, fieldValue)
           }).toList
@@ -58,18 +60,19 @@ case class SubscriptionFieldValueForm(name: FieldName, value: FieldValue)
 case class EditApiMetadataForm(fields: List[SubscriptionFieldValueForm])
 
 object EditApiMetadataForm {
+
   val form: Form[EditApiMetadataForm] = Form(
     mapping(
       "fields" -> list(
         mapping(
-          "name" -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
+          "name"  -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
           "value" -> text.transform[FieldValue](FieldValue(_), fieldValue => fieldValue.value)
         )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
       )
     )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
   )
 
-  def toFields(form: EditApiMetadataForm) : Fields.Alias = {
+  def toFields(form: EditApiMetadataForm): Fields.Alias = {
     form.fields
       .map(f => (f.name -> f.value))
       .toMap[FieldName, FieldValue]
