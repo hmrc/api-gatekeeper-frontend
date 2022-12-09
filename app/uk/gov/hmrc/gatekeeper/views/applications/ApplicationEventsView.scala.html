@@ -41,7 +41,7 @@
             <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
               Type of change
             </label>
-            <select class="govuk-select" id="eventTag" name="eventTag">
+            <select class="govuk-select" id="eventTagFilter" name="eventTag">
               <option value="" @if(eventTagValue == None) {selected}>All</option>      
               @for(eventTag <- queryModel.searchFilterValues.eventTags) {
                 <option value="@eventTag" @if(eventTagValue == Some(eventTag)) {selected}>@eventTag</option>      
@@ -71,10 +71,10 @@
 
       @for(event <- queryModel.events) {
         <tr role="row" class="govuk-table__row">
-          <td role="cell" class="govuk-table__cell">@{event.eventDateTime}</td>
-          <td role="cell" class="govuk-table__cell">@{event.eventTag}</td>
-          <td role="cell" class="govuk-table__cell">@{event.eventDetails}</td>
-          <td role="cell" class="govuk-table__cell">@{event.actor}</td>
+          <td role="cell" class="govuk-table__cell" data-event-time>@{event.eventDateTime}</td>
+          <td role="cell" class="govuk-table__cell" data-event-tag>@{event.eventTag}</td>
+          <td role="cell" class="govuk-table__cell" data-event-details>@{event.eventDetails}</td>
+          <td role="cell" class="govuk-table__cell" data-event-actor>@{event.actor}</td>
         </tr>
       }
     </tbody>

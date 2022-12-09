@@ -95,6 +95,10 @@ trait NavigationSugar extends WebBrowser with Eventually  with Assertions with M
     webDriver.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText shouldBe expected
   }
 
+  def verifyCountOfElementsByAttribute(attributeName: String, expected: Int)(implicit webDriver: WebDriver) = {
+    webDriver.findElements(By.cssSelector(s"[$attributeName]")).size() shouldBe expected
+  }
+
   def verifyElementIsVisible(attributeId: String)(implicit webDriver: WebDriver) = {
     webDriver.findElement(By.id(attributeId)).isDisplayed
   }

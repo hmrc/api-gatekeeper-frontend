@@ -37,6 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Abstrac
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
 
 class ApiGatekeeperBaseSpec
@@ -74,11 +75,27 @@ class ApiGatekeeperBaseSpec
   def stubEvents(applicationId: ApplicationId, events: List[AbstractApplicationEvent]) = {
     val tags = events.map(e => EventTags.tag(e)).toSet
     val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
-    stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}/values")).willReturn(aResponse().withBody(queryResponse).withStatus(OK)))
+    stubFor(
+      get(urlMatching(s"/application-event/${applicationId.value.toString}/values"))
+      .willReturn(aResponse().withBody(queryResponse).withStatus(OK))
+    )
     
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
-    stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}")).willReturn(aResponse().withBody(eventResponse).withStatus(OK)))
+    stubFor(
+      get(urlMatching(s"/application-event/${applicationId.value.toString}"))
+      .willReturn(aResponse().withBody(eventResponse).withStatus(OK))
+    )
+  }
 
+  def stubFilteredEvents(applicationId: ApplicationId, tag: EventTag, events: List[AbstractApplicationEvent]) = {
+    val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
+    stubFor(
+      get(urlPathEqualTo(s"/application-event/${applicationId.value.toString}"))
+      .withQueryParam("eventTag", equalTo(tag.toString()))
+      .willReturn(
+        aResponse().withBody(eventResponse).withStatus(OK)
+      )
+    )
   }
 
   def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[AbstractApplicationEvent] = Nil) = {
@@ -86,7 +103,6 @@ class ApiGatekeeperBaseSpec
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
-    stubEvents(appId,events)
     
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
 
