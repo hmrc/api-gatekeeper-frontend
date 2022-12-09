@@ -40,6 +40,7 @@ import play.api.data.Form
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.services.SimpleEventDetails
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
@@ -48,48 +49,17 @@ object ApplicationEventsController {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
     def apply(event: AbstractApplicationEvent): EventModel = {
-      val eventTag = EventTags.tag(event)
-      EventModel(dateTimeFormatter.format(event.eventDateTime), EventTags.describe(eventTag), "Something", who(event))
+      EventModel(dateTimeFormatter.format(event.eventDateTime), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
     }
   }
 
-  def who(event: AbstractApplicationEvent): String = event match {
-    case ae: ApplicationEvent          => applicationEventWho(ae.actor)
-    case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)
-  }
-
-  def applicationEventWho(actor: Actor): String = actor match {
-    case Actors.Collaborator(email)  => email.value
-    case Actors.GatekeeperUser(user) => s"(GK) $user"
-    case Actors.ScheduledJob(jobId)  => s"Job($jobId)"
-    case Actors.Unknown              => "Unknown"
-  }
-
-  def oldStyleApplicationEventWho(actor: OldStyleActor): String = actor match {
-    case OldStyleActors.Collaborator(id)   => id
-    case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
-    case OldStyleActors.ScheduledJob(id)   => s"Job($id)"
-    case OldStyleActors.Unknown            => "Unknown"
-  }
-
-  def fromDescription(tag: String): Option[EventTag] = tag match {
-    case "Subscription"     => Some(EventTags.SUBSCRIPTION)
-    case "Collaborator"     => Some(EventTags.COLLABORATOR)
-    case "Client Secret"    => Some(EventTags.CLIENT_SECRET)
-    case "PPNS Callback"    => Some(EventTags.PPNS_CALLBACK)
-    case "Redirect URI"     => Some(EventTags.REDIRECT_URIS)
-    case "Terms of Use"     => Some(EventTags.TERMS_OF_USE)
-    case "Application Name" => Some(EventTags.APP_NAME)
-    case "Policy Locations" => Some(EventTags.POLICY_LOCATION)
-    case _                  => None
-  }
   case class SearchFilterValues(eventTags: List[String])
 
   object SearchFilterValues {
 
     def apply(qvs: QueryableValues): SearchFilterValues = {
-      val eventTags = qvs.eventTags.map(EventTags.describe)
-      SearchFilterValues(eventTags)
+      val eventTagDescriptions = qvs.eventTags.map(_.description)
+      SearchFilterValues(eventTagDescriptions)
     }
   }
 
@@ -147,7 +117,7 @@ class ApplicationEventsController @Inject() (
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
           queryForm           = QueryForm.form.fill(form)
-          events             <- eventsConnector.query(appId, form.eventTag.flatMap(fromDescription))
+          events             <- eventsConnector.query(appId, form.eventTag.flatMap(EventTags.fromDescription))
           eventModels         = events.map(EventModel(_))
         } yield {
           val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))

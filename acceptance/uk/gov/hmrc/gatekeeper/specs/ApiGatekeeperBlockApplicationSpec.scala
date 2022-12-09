@@ -22,10 +22,10 @@ import uk.gov.hmrc.gatekeeper.models.UserId
 import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, ApplicationResponseTestData}
-import uk.gov.hmrc.gatekeeper.testdata.{StateHistoryTestData, ApplicationWithHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{StateHistoryTestData, ApplicationWithStateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.models._
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithStateHistoryTestData {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 

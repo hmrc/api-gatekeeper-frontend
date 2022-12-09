@@ -18,7 +18,6 @@
 @import uk.gov.hmrc.gatekeeper.views.helper.application._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-@import uk.gov.hmrc.apiplatform.modules.events.domain.models._
 @import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
 
 @this(main: MainView, applicationConfig: AppConfig)
@@ -40,7 +39,7 @@
         <div class="govuk-grid-column-one-third">          
           <div class="govuk-form-group">
             <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
-              Event type
+              Type of change
             </label>
             <select class="govuk-select" id="eventTag" name="eventTag">
               <option value="" @if(eventTagValue == None) {selected}>All</option>      
@@ -53,7 +52,7 @@
       }
     
       <div class="govuk-grid-column-full">          
-        <button id="submit" class="govuk-button" type="submit">Filter results</button>
+        <button id="filterResults" class="govuk-button" type="submit">Filter results</button>
       </div>
     </div>
   }  
