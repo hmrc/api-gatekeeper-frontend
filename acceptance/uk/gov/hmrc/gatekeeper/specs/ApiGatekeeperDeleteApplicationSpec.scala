@@ -20,9 +20,9 @@ import uk.gov.hmrc.gatekeeper.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithStateHistoryTestData}
 
-class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithHistoryTestData {
+class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithStateHistoryTestData {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
 

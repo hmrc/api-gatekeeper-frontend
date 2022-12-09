@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
@@ -28,7 +28,7 @@ class ApiGatekeeperApplicationReviewSpec
     with StateHistoryTestData 
     with ApplicationWithSubscriptionDataTestData 
     with ApplicationResponseTestData 
-    with ApplicationWithHistoryTestData
+    with ApplicationWithStateHistoryTestData
     with UrlEncoding {
 
 

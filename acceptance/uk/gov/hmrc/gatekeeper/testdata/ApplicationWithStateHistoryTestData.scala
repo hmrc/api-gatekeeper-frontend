@@ -3,7 +3,7 @@ package uk.gov.hmrc.gatekeeper.testdata
 import uk.gov.hmrc.gatekeeper.models.ApplicationWithHistory
 import play.api.libs.json.Json
 
-trait ApplicationWithHistoryTestData extends ApplicationResponseTestData with StateHistoryTestData {
+trait ApplicationWithStateHistoryTestData extends ApplicationResponseTestData with StateHistoryTestData {
 
   val defaultApplicationWithHistory = ApplicationWithHistory(defaultApplicationResponse, stateHistories)
 

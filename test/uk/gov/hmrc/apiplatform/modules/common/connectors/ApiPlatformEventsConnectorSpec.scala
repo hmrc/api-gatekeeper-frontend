@@ -65,7 +65,7 @@ class ApiPlatformEventsConnectorSpec
 
     "return Some data when call returns OK" in new Setup {
 
-      val fakeResponse = QueryableValues(List(EventTags.COLLABORATOR))
+      val fakeResponse = QueryableValues(List(EventTags.TEAM_MEMBER))
 
       stubFor(
         get(urlEqualTo(url))
@@ -86,7 +86,7 @@ class ApiPlatformEventsConnectorSpec
     "send eventTag parameter when present" in new Setup {
       stubFor(
         get(urlPathEqualTo(url))
-          .withQueryParam("eventTag", equalTo("COLLABORATOR"))
+          .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
           .willReturn(
             aResponse()
               .withJsonBody(ApiPlatformEventsConnector.QueryResponse(Seq.empty))
@@ -94,7 +94,7 @@ class ApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some(EventTags.COLLABORATOR)))
+      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
     }
   }
 }

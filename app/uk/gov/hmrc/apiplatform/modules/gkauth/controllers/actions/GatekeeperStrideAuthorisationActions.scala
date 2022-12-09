@@ -98,6 +98,7 @@ trait GatekeeperAuthorisationActions {
   }
 
   def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] = {
+    println("***** anyAuthenticatedUserAction")
     Action.async { implicit request =>
       (
         anyAuthenticatedUserRefiner

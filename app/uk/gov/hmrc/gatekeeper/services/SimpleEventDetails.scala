@@ -108,4 +108,23 @@ object SimpleEventDetails {
     case e: ProductionLegacyAppTermsConditionsLocationChanged => s"Terms and conditions URL: ${e.newUrl}"
   }
   // format: on
+  
+  def who(event: AbstractApplicationEvent): String = event match {
+    case ae: ApplicationEvent          => applicationEventWho(ae.actor)
+    case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)
+  }
+
+  def applicationEventWho(actor: Actor): String = actor match {
+    case Actors.Collaborator(email)  => email.value
+    case Actors.GatekeeperUser(user) => s"(GK) $user"
+    case Actors.ScheduledJob(jobId)  => s"Job($jobId)"
+    case Actors.Unknown              => "Unknown"
+  }
+
+  def oldStyleApplicationEventWho(actor: OldStyleActor): String = actor match {
+    case OldStyleActors.Collaborator(id)   => id
+    case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
+    case OldStyleActors.ScheduledJob(id)   => s"Job($id)"
+    case OldStyleActors.Unknown            => "Unknown"
+  }
 }

@@ -112,13 +112,11 @@ lazy val appName = "api-gatekeeper-frontend"
 coverageMinimumStmtTotal := 84
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
-  "uk.gov.hmrc.apiplatform.modules.common.services",
   "<empty>",
-  "com.kenshoo.play.metrics",
-  ".*definition.*",
-  "prod",
-  "testOnlyDoNotUseInAppConf",
-  "app",
-  "uk.gov.hmrc.BuildInfo"
+  """.*\.controllers\.binders""",
+  """uk\.gov\.hmrc\.BuildInfo""" ,
+  """.*\.Routes""" ,
+  """.*\.RoutesPrefix""" ,
+  """.*\.Reverse[^.]*""",
+  """uk\.gov\.hmrc\.apiplatform\.modules\.common\..*"""
 ).mkString(";")
-  
