@@ -77,7 +77,6 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}/values")).willReturn(aResponse().withBody(queryResponse).withStatus(OK)))
     
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
-    println(s"GET /application-event/${applicationId.value.toString}")
     stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}")).willReturn(aResponse().withBody(eventResponse).withStatus(OK)))
 
   }

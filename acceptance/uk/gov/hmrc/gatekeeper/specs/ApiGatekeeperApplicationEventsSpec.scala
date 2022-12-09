@@ -22,8 +22,6 @@ import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
-import com.github.tomakehurst.wiremock.client.WireMock._
-import play.api.http.Status._
 
 class ApiGatekeeperApplicationEventsSpec
     extends ApiGatekeeperBaseSpec 

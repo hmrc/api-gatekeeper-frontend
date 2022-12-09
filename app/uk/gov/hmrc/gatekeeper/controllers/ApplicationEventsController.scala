@@ -101,9 +101,7 @@ class ApplicationEventsController @Inject() (
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
-      println("***** Trying to render page")
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
-        println("***** handleFormError")
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
@@ -116,7 +114,6 @@ class ApplicationEventsController @Inject() (
       }
 
       def handleValidForm(form: QueryForm): Future[Result] = {
-        println("***** handleValidForm")
         for {
           searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
           queryForm           = QueryForm.form.fill(form)
