@@ -3,7 +3,7 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.specs.MockDataSugar
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import java.time.LocalDateTime
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId

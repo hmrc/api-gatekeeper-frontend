@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import scala.io.Source
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 class ApiGatekeeperRemoveMfaSpec
   extends ApiGatekeeperBaseSpec
     with Assertions

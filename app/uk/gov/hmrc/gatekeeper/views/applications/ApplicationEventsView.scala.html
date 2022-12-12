@@ -57,26 +57,32 @@
     </div>
   }  
 
-  <table class="govuk-table responsive-table" data-module="moj-sortable-table">
-    <thead class="govuk-table__head">
-      <tr role="row" class="govuk-table__row">
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Date and time</th>
-        <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Type of change</th>
-        <th scope="col" class="govuk-table__header" aria-sort="none">What changed</th>
-        <th scope="col" class="govuk-table__header" aria-sort="none">Changes made by</th>
-      </tr>
-    </thead>
-    
-    <tbody class="govuk-table__body">
-
-      @for(event <- queryModel.events) {
+  <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
+  
+  @if(queryModel.events.isEmpty) {
+    <p class="govuk-body">There are no matching application changes</p>
+  } else {
+    <table class="govuk-table responsive-table" data-module="moj-sortable-table">
+      <thead class="govuk-table__head">
         <tr role="row" class="govuk-table__row">
-          <td role="cell" class="govuk-table__cell" data-event-time>@{event.eventDateTime}</td>
-          <td role="cell" class="govuk-table__cell" data-event-tag>@{event.eventTag}</td>
-          <td role="cell" class="govuk-table__cell" data-event-details>@{event.eventDetails}</td>
-          <td role="cell" class="govuk-table__cell" data-event-actor>@{event.actor}</td>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Date and time</th>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Type of change</th>
+          <th scope="col" class="govuk-table__header" aria-sort="none">What changed</th>
+          <th scope="col" class="govuk-table__header" aria-sort="none">Changes made by</th>
         </tr>
-      }
-    </tbody>
-  </table>   
+      </thead>
+      
+      <tbody class="govuk-table__body">
+
+        @for(event <- queryModel.events) {
+          <tr role="row" class="govuk-table__row">
+            <td role="cell" class="govuk-table__cell" data-event-time>@{event.eventDateTime}</td>
+            <td role="cell" class="govuk-table__cell" data-event-tag>@{event.eventTag}</td>
+            <td role="cell" class="govuk-table__cell" data-event-details>@{event.eventDetails}</td>
+            <td role="cell" class="govuk-table__cell" data-event-actor>@{event.actor}</td>
+          </tr>
+        }
+      </tbody>
+    </table>   
+  }
 }   

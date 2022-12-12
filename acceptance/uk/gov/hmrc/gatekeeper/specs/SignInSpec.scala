@@ -25,6 +25,7 @@ import org.scalatest.{GivenWhenThen, Tag}
 import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
 
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
 
   import MockDataSugar._

@@ -25,6 +25,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec
     with ApplicationWithSubscriptionDataTestData

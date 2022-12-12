@@ -34,7 +34,7 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
 import java.time.format.DateTimeFormatter
 import play.api.data.Form
 import scala.concurrent.Future
@@ -55,14 +55,6 @@ object ApplicationEventsController {
 
   case class SearchFilterValues(eventTags: List[String])
 
-  object SearchFilterValues {
-
-    def apply(qvs: QueryableValues): SearchFilterValues = {
-      val eventTagDescriptions = qvs.eventTags.map(_.description)
-      SearchFilterValues(eventTagDescriptions)
-    }
-  }
-
   case class QueryModel(applicationId: ApplicationId, applicationName: String, searchFilterValues: SearchFilterValues, events: Seq[EventModel])
 
   case class QueryForm(eventTag: Option[String])
@@ -80,7 +72,7 @@ object ApplicationEventsController {
 
 @Singleton
 class ApplicationEventsController @Inject() (
-    eventsConnector: ApiPlatformEventsConnector,
+    eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
     applicationEventsView: ApplicationEventsView,
     mcc: MessagesControllerComponents,
     strideAuthorisationService: StrideAuthorisationService,
@@ -100,28 +92,28 @@ class ApplicationEventsController @Inject() (
   import ApplicationEventsController._
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    withApp(appId) { application =>
+    withApp(appId) { applicationWithHistory =>
+      import applicationWithHistory._
+
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
-          searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
-          events             <- eventsConnector.query(appId, None)
+          tags               <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
+          events             <- eventsConnector.query(appId, application.deployedTo, None)
           eventModels         = events.map(EventModel(_))
         } yield {
-          val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
-          Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))
+          Ok(applicationEventsView(QueryModel(applicationWithHistory.application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
         }
       }
 
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
-          searchFilterValues <- eventsConnector.fetchEventQueryValues(appId)
+          tags               <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
           queryForm           = QueryForm.form.fill(form)
-          events             <- eventsConnector.query(appId, form.eventTag.flatMap(EventTags.fromDescription))
+          events             <- eventsConnector.query(appId, application.deployedTo, form.eventTag.flatMap(EventTags.fromDescription))
           eventModels         = events.map(EventModel(_))
         } yield {
-          val svfs = searchFilterValues.getOrElse(QueryableValues(Nil))
-          Ok(applicationEventsView(QueryModel(application.application.id, application.application.name, SearchFilterValues(svfs), eventModels), queryForm))
+          Ok(applicationEventsView(QueryModel(application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
         }
       }
 

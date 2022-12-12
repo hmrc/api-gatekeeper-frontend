@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.events.config
 import play.api.inject.Module
 import play.api.Environment
 import play.api.Configuration
-import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.events.connectors._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import com.google.inject.{Inject, Provider, Singleton}
 
@@ -27,17 +27,34 @@ class EventsConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
     Seq(
-      bind[ApiPlatformEventsConnector.Config].toProvider[LiveApiPlatformEventsConnectorProvider]
+      bind[SubordinateApiPlatformEventsConnector.Config].toProvider[SubordinateApiPlatformEventsConnectorProvider],
+      bind[PrincipalApiPlatformEventsConnector.Config].toProvider[PrincipalApiPlatformEventsConnectorProvider]
     )
   }
 }
 
 @Singleton
-class LiveApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[ApiPlatformEventsConnector.Config] {
+class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[SubordinateApiPlatformEventsConnector.Config] {
 
-  override def get(): ApiPlatformEventsConnector.Config = {
-    val url     = config.baseUrl("api-platform-events")
-    val enabled = config.getConfBool("api-platform-events.enabled", true)
-    ApiPlatformEventsConnector.Config(url, enabled)
+  override def get(): SubordinateApiPlatformEventsConnector.Config = {
+
+    val serviceBaseUrl     = config.baseUrl("api-platform-events-subordinate")
+    val useProxy = config.getConfBool("api-platform-events-subordinate.useProxy", true)
+    val bearerToken = config.getConfString("api-platform-events-subordinate.bearerToken", "")
+    val apiKey = config.getConfString("api-platform-events-subordinate.apiKey", "")
+
+    SubordinateApiPlatformEventsConnector.Config(serviceBaseUrl, useProxy, bearerToken, apiKey)
   }
+}
+
+@Singleton
+class PrincipalApiPlatformEventsConnectorProvider @Inject()(config: ServicesConfig) extends Provider[PrincipalApiPlatformEventsConnector.Config] {
+
+  override def get(): PrincipalApiPlatformEventsConnector.Config = {
+
+    val serviceBaseUrl     = config.baseUrl("api-platform-events-principal")
+
+    PrincipalApiPlatformEventsConnector.Config(serviceBaseUrl)
+  }
+  
 }
