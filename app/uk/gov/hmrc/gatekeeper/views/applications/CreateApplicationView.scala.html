@@ -28,7 +28,7 @@
 
   <h1 class="govuk-heading-l">Add privileged or ROPC application</h1>
 
-  @helper.form(action = routes.ApplicationController.createPrivOrROPCApplicationAction()) {
+  @helper.form(action = routes.ApplicationController.createPrivOrROPCApplicationAction) {
     <div class="govuk-form-group @if(form.errors("environment").nonEmpty) {govuk-form-group--error}">
       <fieldset id="environment" class="govuk-fieldset">
         @helper.CSRF.formField

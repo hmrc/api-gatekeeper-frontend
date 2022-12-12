@@ -28,11 +28,15 @@ case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
     currentUrl == url
   }
 
-  def typeOfChangeDropdown = find(id("eventTag")).get
+  private def submitButton = find(id("filterResults")).get
 
-  def submitButton = find(id("filterResults")).get
+  private def eventTagFilter = singleSel("eventTagFilter")
+
+  def submit() = clickOn(submitButton)
 
   def selectTypeOfChange(tag: EventTag) = {
-    singleSel("eventTag").value = tag.description
+    eventTagFilter.value = tag.description
   }
+
+  def getTypeOfChange = eventTagFilter.value
 }

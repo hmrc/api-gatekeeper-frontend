@@ -6,10 +6,12 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Abstrac
 
 trait ApplicationEventsTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationEventTestDataBuilder with ApplicationStateTestData {
 
-  def sampleEvents(applicationId: ApplicationId) = {
-    List[AbstractApplicationEvent](
-      makeTeamMemberAddedEvent(applicationId,1),
-      makeTeamMemberAddedEvent(applicationId,2)
-    )
+  val event1 = makeTeamMemberAddedEvent(applicationId,1)
+  val event2 = makeTeamMemberAddedEvent(applicationId,2).copy(eventDateTime = event1.eventDateTime.minusMinutes(1))
+  val event3 = makeTeamMemberRemovedEvent(applicationId,2).copy(eventDateTime = event2.eventDateTime.minusMinutes(1))
+  val event4 = makeApiSubscribed(applicationId,1).copy(eventDateTime = event3.eventDateTime.minusMinutes(1))
+
+  def makeSomeEvents(applicationId: ApplicationId) = {
+    List[AbstractApplicationEvent](event1, event2, event3, event4)
   }
 }
