@@ -33,6 +33,10 @@ import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
 
 
 class ApiGatekeeperBaseSpec
@@ -45,8 +49,13 @@ class ApiGatekeeperBaseSpec
     with ApiDefinitionTestData
     with UrlEncoding {
 
+  // Stub call to APM
   def stubNewApplication(application: String, appId: ApplicationId) = {
     stubFor(get(urlEqualTo(s"/applications/${appId.value.toString()}")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  }
+
+  def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))) 
   }
 
   def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
@@ -62,11 +71,22 @@ class ApiGatekeeperBaseSpec
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId) = {
+  def stubEvents(applicationId: ApplicationId, events: List[AbstractApplicationEvent]) = {
+    val tags = events.map(e => EventTags.tag(e)).toSet
+    val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
+    stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}/values")).willReturn(aResponse().withBody(queryResponse).withStatus(OK)))
+    
+    val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
+    stubFor(get(urlMatching(s"/application-event/${applicationId.value.toString}")).willReturn(aResponse().withBody(eventResponse).withStatus(OK)))
+
+  }
+
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[AbstractApplicationEvent] = Nil) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
+    stubEvents(appId,events)
     
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
 

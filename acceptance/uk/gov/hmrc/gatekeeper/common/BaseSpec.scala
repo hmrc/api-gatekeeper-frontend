@@ -61,7 +61,8 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
         "microservice.services.third-party-developer.port" -> stubPort,
         "microservice.services.api-platform-xml-services.host" -> stubHost,
         "microservice.services.api-platform-xml-services.port" -> stubPort,
-
+        "microservice.services.api-platform-events.host" -> stubHost,
+        "microservice.services.api-platform-events.port" -> stubPort
       )
       .in(Mode.Prod)
       .build()
