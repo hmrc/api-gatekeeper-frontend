@@ -141,4 +141,3 @@ trait ApiDefinitionTestData {
   """.stripMargin
 
 }
-

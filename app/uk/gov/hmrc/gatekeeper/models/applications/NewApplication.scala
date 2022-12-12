@@ -45,7 +45,7 @@ case class NewApplication(
     grantLength: Period
   ) {
 
-  lazy val privacyPolicyLocation      = access match {
+  lazy val privacyPolicyLocation = access match {
     case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
     case Standard(_, _, Some(url), _, _)                                                  => PrivacyPolicyLocation.Url(url)
     case _                                                                                => PrivacyPolicyLocation.NoneProvided
@@ -69,7 +69,7 @@ object NewApplication {
   private implicit val formatPrivileged = Json.format[Privileged]
   private implicit val formatRopc       = Json.format[Ropc]
 
-  implicit val formAccessType           = Union.from[Access]("accessType")
+  implicit val formAccessType = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)

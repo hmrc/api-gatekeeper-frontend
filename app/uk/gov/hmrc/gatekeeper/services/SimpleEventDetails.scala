@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborators._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.PrivacyPolicyLocation
@@ -108,7 +107,7 @@ object SimpleEventDetails {
     case e: ProductionLegacyAppTermsConditionsLocationChanged => s"Terms and conditions URL: ${e.newUrl}"
   }
   // format: on
-  
+
   def who(event: AbstractApplicationEvent): String = event match {
     case ae: ApplicationEvent          => applicationEventWho(ae.actor)
     case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)

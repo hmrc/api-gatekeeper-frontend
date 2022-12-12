@@ -50,7 +50,7 @@ trait ApplicationResponseTestData extends ApplicationResponseBuilder with Collab
     .withState(pendingApprovalState)
 
   implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[ApplicationResponse]) {
-    def toJson = Json.toJson(applicationResponses)
+    def toJson       = Json.toJson(applicationResponses)
     def toJsonString = Json.toJson(applicationResponses).toString
   }
 }

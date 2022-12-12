@@ -43,7 +43,7 @@ case class BoxSubscriber(
 
 sealed trait SubscriptionType extends EnumEntry
 
-object SubscriptionType       extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType] {
+object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[SubscriptionType] {
   val values: scala.collection.immutable.IndexedSeq[SubscriptionType] = findValues
 
   case object API_PUSH_SUBSCRIBER extends SubscriptionType

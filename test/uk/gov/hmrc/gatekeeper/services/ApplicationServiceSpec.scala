@@ -67,9 +67,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
     )
 
-    val grantLength: Period    = Period.ofDays(547)
+    val grantLength: Period = Period.ofDays(547)
 
-    val stdApp1                = ApplicationResponse(
+    val stdApp1 = ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid1"),
       "gatewayId1",
@@ -84,7 +84,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       grantLength
     )
 
-    val stdApp2                = ApplicationResponse(
+    val stdApp2 = ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid2"),
       "gatewayId2",
@@ -99,7 +99,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       grantLength
     )
 
-    val privilegedApp          = ApplicationResponse(
+    val privilegedApp = ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid3"),
       "gatewayId3",

@@ -30,7 +30,7 @@ object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
 case class CombinedApiCategory(value: String) extends AnyVal
 
 object CombinedApiCategory {
-  implicit val categoryFormat: Format[CombinedApiCategory]                 = Json.format[CombinedApiCategory]
+  implicit val categoryFormat: Format[CombinedApiCategory] = Json.format[CombinedApiCategory]
 
   def toAPICategory(combinedApiCategory: CombinedApiCategory): APICategory = {
     APICategory(combinedApiCategory.value)

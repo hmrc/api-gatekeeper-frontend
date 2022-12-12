@@ -35,7 +35,7 @@ trait DeveloperServiceMockProvider {
 
   object DeveloperServiceMock {
 
-    val mfaDetail                                   = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
+    val mfaDetail = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
 
     def mfaEnabledToMfaDetails(mfaEnabled: Boolean) = {
       if (mfaEnabled) {
@@ -43,7 +43,7 @@ trait DeveloperServiceMockProvider {
       } else List.empty
     }
 
-    object FilterUsersBy         {
+    object FilterUsersBy {
 
       def returnsFor(apiFilter: ApiFilter[String], apps: Application*)(developers: Developer*) =
         when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
@@ -73,7 +73,7 @@ trait DeveloperServiceMockProvider {
       def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
     }
 
-    object DeleteDeveloper         {
+    object DeleteDeveloper {
 
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
         when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*))
@@ -84,11 +84,11 @@ trait DeveloperServiceMockProvider {
       def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmails(*)(*)).thenReturn(successful(developers.toList))
     }
 
-    object SearchDevelopers        {
+    object SearchDevelopers {
       def returns(users: User*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
     }
 
-    object SeekRegisteredUser   {
+    object SeekRegisteredUser {
 
       def returnsFor(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
 

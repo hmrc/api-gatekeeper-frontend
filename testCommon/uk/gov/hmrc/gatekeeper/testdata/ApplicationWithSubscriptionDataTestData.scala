@@ -30,7 +30,7 @@ trait ApplicationWithSubscriptionDataTestData extends CommonTestData with Subscr
     import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
     implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]
 
-    def toJson = Json.toJson(applicationWithSubscriptionData)
+    def toJson       = Json.toJson(applicationWithSubscriptionData)
     def toJsonString = Json.toJson(applicationWithSubscriptionData).toString
   }
 }

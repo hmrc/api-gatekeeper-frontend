@@ -178,4 +178,3 @@ trait AllSubscribeableApisTestData {
        |}
        | """.stripMargin
 }
-

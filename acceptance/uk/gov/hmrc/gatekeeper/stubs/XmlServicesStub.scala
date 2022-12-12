@@ -5,7 +5,6 @@ import play.api.http.Status.OK
 import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.xmlApis
 
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 trait XmlServicesStub {
 
 

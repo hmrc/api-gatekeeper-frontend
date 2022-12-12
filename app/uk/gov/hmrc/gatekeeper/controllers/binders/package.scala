@@ -98,7 +98,7 @@ package object binders extends ApplicationLogger {
       }
     }
 
-    override def unbind(key: String, context: ApiContext): String                                        = {
+    override def unbind(key: String, context: ApiContext): String = {
       textBinder.unbind("context", context.value)
     }
   }
@@ -127,7 +127,7 @@ package object binders extends ApplicationLogger {
       }
     }
 
-    override def unbind(key: String, version: ApiVersion): String                                        = {
+    override def unbind(key: String, version: ApiVersion): String = {
       textBinder.unbind("version", version.value)
     }
   }

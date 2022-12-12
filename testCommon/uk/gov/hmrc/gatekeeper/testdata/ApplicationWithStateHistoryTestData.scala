@@ -28,7 +28,7 @@ trait ApplicationWithStateHistoryTestData extends ApplicationResponseTestData wi
   val pendingApprovalApplicationWithHistory = ApplicationWithHistory(pendingApprovalApplicationResponse, pendingApprovalStateHistory)
 
   implicit class ApplicationWithHistoryExtension(applicationWithHistory: ApplicationWithHistory) {
-    def toJson = Json.toJson(applicationWithHistory)
+    def toJson       = Json.toJson(applicationWithHistory)
     def toJsonString = Json.stringify(Json.toJson(applicationWithHistory))
   }
 }

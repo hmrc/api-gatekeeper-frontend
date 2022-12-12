@@ -42,16 +42,17 @@ object ApiPlatformEventsConnector {
 }
 
 @Singleton
-class EnvironmentAwareApiPlatformEventsConnector @Inject()(subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
+class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
 
-    private def connectorFor(deployedTo: String): ApiPlatformEventsConnector = deployedTo match {
-      case "PRODUCTION" => principal
-      case "SANDBOX" => subordinate
-    }
+  protected def connectorFor(deployedTo: String): ApiPlatformEventsConnector = deployedTo match {
+    case "PRODUCTION" => principal
+    case "SANDBOX"    => subordinate
+  }
 
-    def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[EventTag]] =  connectorFor(deployedTo).fetchQueryableEventTags(appId)
+  def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[EventTag]] = connectorFor(deployedTo).fetchQueryableEventTags(appId)
 
-    def query(appId: ApplicationId, deployedTo: String, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[AbstractApplicationEvent]] = connectorFor(deployedTo).query(appId, tag)
+  def query(appId: ApplicationId, deployedTo: String, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[AbstractApplicationEvent]] =
+    connectorFor(deployedTo).query(appId, tag)
 }
 
 abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends ApplicationLogger {
@@ -67,10 +68,10 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
   def fetchQueryableEventTags(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[EventTag]] = {
     http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value.toString()}/values")
-    .map {
-      case None => List.empty
-      case Some(qv) => qv.eventTags
-    }
+      .map {
+        case None     => List.empty
+        case Some(qv) => qv.eventTags
+      }
   }
 
   def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[AbstractApplicationEvent]] = {
@@ -83,38 +84,44 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
     http.GET[Option[QueryResponse]](s"$applicationEventsUri/${appId.value.toString()}", queryParams)
       .map {
-        case None => List.empty
+        case None           => List.empty
         case Some(response) => response.events
       }
   }
- 
+
 }
 
 object SubordinateApiPlatformEventsConnector {
+
   case class Config(
-    serviceBaseUrl: String,
-    useProxy: Boolean,
-    bearerToken: String,
-    apiKey: String
-  )
+      serviceBaseUrl: String,
+      useProxy: Boolean,
+      bearerToken: String,
+      apiKey: String
+    )
 }
 
 @Singleton
-class SubordinateApiPlatformEventsConnector @Inject()(val config: SubordinateApiPlatformEventsConnector.Config, val httpClient: HttpClient, val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
-    extends ApiPlatformEventsConnector {
+class SubordinateApiPlatformEventsConnector @Inject() (
+    val config: SubordinateApiPlatformEventsConnector.Config,
+    val httpClient: HttpClient,
+    val proxiedHttpClient: ProxiedHttpClient
+  )(implicit val ec: ExecutionContext
+  ) extends ApiPlatformEventsConnector {
 
   import config._
   val serviceBaseUrl: String = config.serviceBaseUrl
-  val environment    = Environment.SANDBOX
+  val environment            = Environment.SANDBOX
 
   val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
 
 }
 
 object PrincipalApiPlatformEventsConnector {
+
   case class Config(
-    serviceBaseUrl: String
-  )
+      serviceBaseUrl: String
+    )
 }
 
 @Singleton

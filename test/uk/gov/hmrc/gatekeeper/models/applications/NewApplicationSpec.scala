@@ -24,8 +24,8 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import java.time.Period
 
 class NewApplicationSpec extends HmrcSpec {
-  val url                     = "http://example.com"
-  val standardAccess          = Standard()
+  val url            = "http://example.com"
+  val standardAccess = Standard()
 
   val importantSubmissionData = ImportantSubmissionData(
     TermsAndConditionsLocation.NoneProvided,
@@ -33,7 +33,7 @@ class NewApplicationSpec extends HmrcSpec {
     List.empty
   )
 
-  val baseApplication         = NewApplication(
+  val baseApplication = NewApplication(
     ApplicationId.random,
     ClientId.random,
     "gatewayId",

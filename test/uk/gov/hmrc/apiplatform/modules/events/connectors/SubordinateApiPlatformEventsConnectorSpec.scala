@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTa
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
 import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
 
-class PrincipalApiPlatformEventsConnectorSpec
+class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite

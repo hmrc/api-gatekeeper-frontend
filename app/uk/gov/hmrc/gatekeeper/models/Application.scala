@@ -141,7 +141,7 @@ object TermsOfUseAcceptance extends LocalDateTimeFormatters {
 
 case class ResponsibleIndividual(fullName: ResponsibleIndividual.Name, emailAddress: ResponsibleIndividual.EmailAddress)
 
-object ResponsibleIndividual   {
+object ResponsibleIndividual {
   import play.api.libs.json.{Format, Json}
 
   case class Name(value: String)         extends AnyVal
@@ -198,7 +198,7 @@ sealed trait OverrideFlag {
 object OverrideFlag {
   private implicit val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
 
-  private implicit val formatPersistLogin: OFormat[PersistLogin.type]          = OFormat[PersistLogin.type](
+  private implicit val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
     Reads { _ => JsSuccess(PersistLogin) },
     OWrites[PersistLogin.type] { _ => Json.obj() }
   )

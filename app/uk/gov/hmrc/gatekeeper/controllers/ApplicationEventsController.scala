@@ -98,9 +98,9 @@ class ApplicationEventsController @Inject() (
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
-          tags               <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
-          events             <- eventsConnector.query(appId, application.deployedTo, None)
-          eventModels         = events.map(EventModel(_))
+          tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
+          events     <- eventsConnector.query(appId, application.deployedTo, None)
+          eventModels = events.map(EventModel(_))
         } yield {
           Ok(applicationEventsView(QueryModel(applicationWithHistory.application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
         }
@@ -108,10 +108,10 @@ class ApplicationEventsController @Inject() (
 
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
-          tags               <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
-          queryForm           = QueryForm.form.fill(form)
-          events             <- eventsConnector.query(appId, application.deployedTo, form.eventTag.flatMap(EventTags.fromDescription))
-          eventModels         = events.map(EventModel(_))
+          tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
+          queryForm   = QueryForm.form.fill(form)
+          events     <- eventsConnector.query(appId, application.deployedTo, form.eventTag.flatMap(EventTags.fromDescription))
+          eventModels = events.map(EventModel(_))
         } yield {
           Ok(applicationEventsView(QueryModel(application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
         }

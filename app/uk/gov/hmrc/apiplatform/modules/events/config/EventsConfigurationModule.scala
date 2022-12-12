@@ -38,23 +38,23 @@ class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: ServicesC
 
   override def get(): SubordinateApiPlatformEventsConnector.Config = {
 
-    val serviceBaseUrl     = config.baseUrl("api-platform-events-subordinate")
-    val useProxy = config.getConfBool("api-platform-events-subordinate.useProxy", true)
-    val bearerToken = config.getConfString("api-platform-events-subordinate.bearerToken", "")
-    val apiKey = config.getConfString("api-platform-events-subordinate.apiKey", "")
+    val serviceBaseUrl = config.baseUrl("api-platform-events-subordinate")
+    val useProxy       = config.getConfBool("api-platform-events-subordinate.useProxy", true)
+    val bearerToken    = config.getConfString("api-platform-events-subordinate.bearerToken", "")
+    val apiKey         = config.getConfString("api-platform-events-subordinate.apiKey", "")
 
     SubordinateApiPlatformEventsConnector.Config(serviceBaseUrl, useProxy, bearerToken, apiKey)
   }
 }
 
 @Singleton
-class PrincipalApiPlatformEventsConnectorProvider @Inject()(config: ServicesConfig) extends Provider[PrincipalApiPlatformEventsConnector.Config] {
+class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[PrincipalApiPlatformEventsConnector.Config] {
 
   override def get(): PrincipalApiPlatformEventsConnector.Config = {
 
-    val serviceBaseUrl     = config.baseUrl("api-platform-events-principal")
+    val serviceBaseUrl = config.baseUrl("api-platform-events-principal")
 
     PrincipalApiPlatformEventsConnector.Config(serviceBaseUrl)
   }
-  
+
 }
