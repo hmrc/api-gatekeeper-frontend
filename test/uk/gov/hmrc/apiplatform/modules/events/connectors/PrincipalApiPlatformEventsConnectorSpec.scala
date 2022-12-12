@@ -69,49 +69,50 @@ class PrincipalApiPlatformEventsConnectorSpec
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(Some(QueryableValues(List(EventTags.TEAM_MEMBER))))
+              .withJsonBody(QueryableValues(List(EventTags.TEAM_MEMBER)))
               .withStatus(OK)
           )
       )
 
       await(connector.fetchQueryableEventTags(applicationId)) shouldBe List(EventTags.TEAM_MEMBER)
     }
+  }
   
-    "calling query" should {
+  "calling query" should {
+    val url = s"/application-event/${applicationId.value.toString()}"
 
-      "return empty list when NOT_FOUND" in new Setup {
-        stubFor(
-          get(urlPathEqualTo(url))
-            .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
-            .willReturn(
-              aResponse()
-                .withStatus(NOT_FOUND)
-            )
-        )
+    "return empty list when NOT_FOUND" in new Setup {
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
+      )
 
-        await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER))) shouldBe List.empty
-      }
+      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER))) shouldBe List.empty
+    }
 
-      "return list when OK" in new Setup {
+    "return list when OK" in new Setup {
 
-        val sampleResponse = Some(ApiPlatformEventsConnector.QueryResponse(
-          makeSomeEvents(applicationId)
-        ))
+      val sampleResponse = ApiPlatformEventsConnector.QueryResponse(
+        List(event1, event2, event3)
+      )
 
-        stubFor(
-          get(urlPathEqualTo(url))
-            .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
-            .willReturn(
-              aResponse()
-                .withJsonBody(Some(sampleResponse))
-                .withStatus(OK)
-            )
-        )
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
+          .willReturn(
+            aResponse()
+              .withJsonBody(Some(sampleResponse))
+              .withStatus(OK)
+          )
+      )
 
-        val results = await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
+      val results = await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
 
-        results.length should be 3
-      }
+      results.length shouldBe 3
     }
   }
 }

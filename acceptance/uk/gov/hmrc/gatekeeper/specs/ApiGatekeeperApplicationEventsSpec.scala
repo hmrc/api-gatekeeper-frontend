@@ -51,7 +51,7 @@ class ApiGatekeeperApplicationEventsSpec
       val allEvents = makeSomeEvents(applicationId)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApplicationForActionRefiner(defaultApplicationWithHistory.toJsonString, applicationId)
-      stubEvents(applicationId,allEvents)
+      stubEvents(applicationId, allEvents)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.selectByApplicationName("My new app")
@@ -92,7 +92,6 @@ class ApiGatekeeperApplicationEventsSpec
       verifyEvent(0, event1.eventDateTime, "Team member added", "AppAdmin-1 with the role ADMIN", "(GK) iam@admin.com")
       verifyEvent(1, event2.eventDateTime, "Team member added", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
       verifyEvent(2, event3.eventDateTime, "Team member removed", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
-    
     }
   }
 
