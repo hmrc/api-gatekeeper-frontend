@@ -368,7 +368,7 @@ object DeleteCollaboratorRequest {
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)
 
-object DeleteDeveloperRequest  {
+object DeleteDeveloperRequest {
   implicit val format = Json.format[DeleteDeveloperRequest]
 }
 
@@ -382,11 +382,11 @@ final case class CreatePrivOrROPCAppForm(
 
 object CreatePrivOrROPCAppForm {
 
-  def invalidAppName(form: Form[CreatePrivOrROPCAppForm])                  = {
+  def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("applicationName", "application.name.already.exists")
   }
 
-  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm])       = {
+  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.registered")
   }
 
@@ -394,7 +394,7 @@ object CreatePrivOrROPCAppForm {
     form.withError("adminEmail", "admin.email.is.not.verified")
   }
 
-  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm])         = {
+  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.mfa.enabled")
   }
 }

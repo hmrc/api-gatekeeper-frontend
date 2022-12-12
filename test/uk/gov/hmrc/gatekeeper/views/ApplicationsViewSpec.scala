@@ -65,9 +65,9 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
     )
 
-    val grantLength: Period                                         = Period.ofDays(547)
+    val grantLength: Period = Period.ofDays(547)
 
-    val applications                                                = List[ApplicationResponse](
+    val applications    = List[ApplicationResponse](
       ApplicationResponse(
         ApplicationId.random,
         ClientId("clientid1"),
@@ -125,11 +125,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
         grantLength
       )
     )
-    val getApprovalsUrl                                             = (appId: ApplicationId, deployedTo: String) => "approvals/url"
+    val getApprovalsUrl = (appId: ApplicationId, deployedTo: String) => "approvals/url"
 
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable      =
+    val applicationViewWithNoApis: () => HtmlFormat.Appendable =
       () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApis: () => HtmlFormat.Appendable        = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
+    val applicationViewWithApis: () => HtmlFormat.Appendable   = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
 
     val applicationViewWithApplication: () => HtmlFormat.Appendable =
       () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)

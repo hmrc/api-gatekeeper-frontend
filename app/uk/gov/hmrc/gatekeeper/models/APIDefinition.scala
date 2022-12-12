@@ -29,11 +29,11 @@ sealed trait ApiVersionSource {
 
 object ApiVersionSource {
 
-  case object RAML    extends ApiVersionSource {
+  case object RAML extends ApiVersionSource {
     val asText = "RAML"
   }
 
-  case object OAS     extends ApiVersionSource {
+  case object OAS extends ApiVersionSource {
     val asText = "OAS"
   }
 
@@ -71,7 +71,7 @@ case class APICategoryDetails(category: String, name: String) {
   }
 }
 
-object APICategoryDetails                                     {
+object APICategoryDetails {
   implicit val formatApiCategory = Json.format[APICategoryDetails]
 }
 case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean, fields: SubscriptionFieldsWrapper)

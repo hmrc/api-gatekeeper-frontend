@@ -63,7 +63,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
     val validName                       = "valid app name"
     val appId                           = ApplicationId.random
 
-    val underTest                       = new UpdateApplicationNameController(
+    val underTest = new UpdateApplicationNameController(
       mockApplicationService,
       forbiddenView,
       mcc,

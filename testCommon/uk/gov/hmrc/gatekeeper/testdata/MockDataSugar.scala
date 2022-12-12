@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.specs
+package uk.gov.hmrc.gatekeeper.testdata
 
 import org.scalacheck.Gen
 import play.api.libs.json.Json
@@ -29,72 +29,73 @@ object MockDataSugar {
   val approvedApp2 = "a4b47c82-5888-41fd-aa83-da2bbd4679d1"
   val approvedApp3 = "9688ad02-230e-42b7-8f9a-be593565bfdc"
   val approvedApp4 = "56148b28-65b0-47dd-a3ce-2f02840ddd31"
-  val appToDelete = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
+  val appToDelete  = "fa38d130-7c8e-47d8-abc0-0374c7f73216"
 
-  val adminEmail = "admin@example.com"
-  val adminId = UserId.random.value
+  val adminEmail  = "admin@example.com"
+  val adminId     = UserId.random.value
   val admin2Email = "admin2@example.com"
-  val admin2Id = UserId.random.value
-  val firstName = "John"
-  val lastName = "Test"
+  val admin2Id    = UserId.random.value
+  val firstName   = "John"
+  val lastName    = "Test"
 
-  val developer = "purnima.fakename@example.com"
+  val developer    = "purnima.fakename@example.com"
   val devFirstName = "Purnima"
-  val devLastName = "Fakename"
-  val developerId = UserId.random.value
+  val devLastName  = "Fakename"
+  val developerId  = UserId.random.value
 
-  val developer2 = "imran.fakename@example.com"
-  val developer2Id = UserId.random.value
+  val developer2    = "imran.fakename@example.com"
+  val developer2Id  = UserId.random.value
   val dev2FirstName = "Imran"
-  val dev2LastName = "Fakename"
+  val dev2LastName  = "Fakename"
 
-  val developer4 = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
-  val developer4Id = UserId.random.value
+  val developer4    = "a.long.name.jane.hayjdjdu@a-very-long-email-address-exampleifi.com"
+  val developer4Id  = UserId.random.value
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
-  val dev4LastName = "Kassidyhmrcdevusercollaborato"
+  val dev4LastName  = "Kassidyhmrcdevusercollaborato"
 
-  val developer5 = "John.fakename@example.com"
-  val developer5Id = "1fe7b18e-a460-4936-b99f-fb0269b829e6"
+  val developer5    = "John.fakename@example.com"
+  val developer5Id  = "1fe7b18e-a460-4936-b99f-fb0269b829e6"
   val dev5FirstName = "John"
-  val dev5LastName = "Fakename"
+  val dev5LastName  = "Fakename"
 
-  val developer6 = "Vijaya.fakename@example.com"
-  val developer6Id = UserId.random.value
+  val developer6    = "Vijaya.fakename@example.com"
+  val developer6Id  = UserId.random.value
   val dev6FirstName = "Vijaya"
-  val dev6LastName = "Fakename"
+  val dev6LastName  = "Fakename"
 
-  val developer7 = "Kerri.fakename@example.com"
-  val developer7Id = UserId.random.value
+  val developer7    = "Kerri.fakename@example.com"
+  val developer7Id  = UserId.random.value
   val dev7FirstName = "Kerri"
-  val dev7LastName = "Fakename"
+  val dev7LastName  = "Fakename"
 
-  val developer8 = "Dixie.fakename@example.com"
-  val developer8Id = UserId.random.value
+  val developer8    = "Dixie.fakename@example.com"
+  val developer8Id  = UserId.random.value
   val dev8FirstName = "Dixie"
-  val dev8LastName = "Fakename"
+  val dev8LastName  = "Fakename"
 
-  val developer9 = "fred@example.com"
+  val developer9   = "fred@example.com"
   val developer9Id = UserId.random.value
-  val dev9name = "n/a"
+  val dev9name     = "n/a"
 
-  val developer10 = "peter.fakename@example.com"
+  val developer10   = "peter.fakename@example.com"
   val developer10Id = UserId.random.value
-  val dev10name = "n/a"
+  val dev10name     = "n/a"
 
   val randomEmail = s"john.smith${System.currentTimeMillis}@example.com"
 
-  val statusVerified = "verified"
-  val statusUnverified = "not yet verified"
+  val statusVerified     = "verified"
+  val statusUnverified   = "not yet verified"
   val statusUnregistered = "not registered"
 
   val xmlApiOne = XmlApi(
     name = "xml api one",
     serviceName = "xml-api-one",
     context = "context",
-    description = "description")
+    description = "description"
+  )
 
-  val xmlApis = Json.toJson(Seq(xmlApiOne)).toString
-  val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+  val xmlApis          = Json.toJson(Seq(xmlApiOne)).toString
+  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
   val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
   val approvedApplications =
@@ -608,11 +609,11 @@ object MockDataSugar {
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private val DeveloperGenerator: Gen[RegisteredUser] = for {
-    forename <- StringGenerator(5)
-    surname <- StringGenerator(5)
-    id = UserId.random.value
-    email = randomEmail
-    verified = true
+    forename  <- StringGenerator(5)
+    surname   <- StringGenerator(5)
+    id         = UserId.random.value
+    email      = randomEmail
+    verified   = true
     registered = None
   } yield RegisteredUser(email, UserId(id), forename, surname, verified)
 
@@ -624,7 +625,6 @@ object MockDataSugar {
       .map(_.sortWith((userA, userB) => userA.lastName > userB.lastName))
       .map(userList => Json.toJson(userList))
       .map(Json.stringify)
-
 
   def administrator(email: String = adminEmail, firstName: String = firstName, lastName: String = lastName) =
     s"""
@@ -643,7 +643,6 @@ object MockDataSugar {
        |
        |}
      """.stripMargin
-
 
   val applicationSubscription =
     s"""

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
-import uk.gov.hmrc.gatekeeper.specs.MockDataSugar
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}

@@ -41,11 +41,11 @@ trait StrideAuthorisationServiceMockModule {
         when(aMock.refineStride[A](*)).thenReturn(fn)
       }
 
-      def succeeds[A](role: GatekeeperStrideRole)                                               = {
+      def succeeds[A](role: GatekeeperStrideRole) = {
         wrap[A]((msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), role, msg))))
       }
 
-      def invalidBearerToken[A]        = {
+      def invalidBearerToken[A] = {
         wrap[A]((msg) => failed(new InvalidBearerToken))
       }
 

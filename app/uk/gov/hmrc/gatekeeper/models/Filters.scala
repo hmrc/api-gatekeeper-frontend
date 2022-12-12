@@ -25,7 +25,7 @@ case object OneOrMoreSubscriptions          extends ApiFilter[Nothing]
 case object AllUsers                        extends ApiFilter[Nothing]
 
 case object ApiFilter {
-  private val ApiIdPattern                            = """^(.+)__(.+?)$""".r
+  private val ApiIdPattern = """^(.+)__(.+?)$""".r
 
   def apply(value: Option[String]): ApiFilter[String] = {
     value match {

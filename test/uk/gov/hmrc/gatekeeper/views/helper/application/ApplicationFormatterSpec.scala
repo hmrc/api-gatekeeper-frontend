@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApplicationBuilder {
-  val FixedTimeNow: DateTime     = new DateTime("2019-09-01T00:30:00.000")
+  val FixedTimeNow: DateTime = new DateTime("2019-09-01T00:30:00.000")
 
   override def beforeAll(): Unit = {
     DateTimeUtils.setCurrentMillisFixed(FixedTimeNow.toDate.getTime)

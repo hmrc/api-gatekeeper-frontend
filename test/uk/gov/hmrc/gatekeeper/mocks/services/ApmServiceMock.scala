@@ -37,13 +37,13 @@ trait ApmServiceMockProvider {
     object FetchApplicationById {
       private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
 
-      def returns(app: ApplicationWithSubscriptionData)     =
+      def returns(app: ApplicationWithSubscriptionData) =
         whenClause.thenReturn(successful(Some(app)))
 
       def returnsNone(app: ApplicationWithSubscriptionData) =
         whenClause.thenReturn(successful(None))
 
-      def failsWith(throwable: Throwable)                   =
+      def failsWith(throwable: Throwable) =
         whenClause.thenReturn(failed(throwable))
     }
 

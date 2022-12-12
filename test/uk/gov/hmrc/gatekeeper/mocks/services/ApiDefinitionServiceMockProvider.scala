@@ -43,7 +43,7 @@ trait ApiDefinitionServiceMockProvider {
       def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
-    object Calling                                          {
+    object Calling {
       def apply() = new Calling(*)
 
       def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))
@@ -65,7 +65,7 @@ trait ApiDefinitionServiceMockProvider {
       def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
-    object Calling                                             {
+    object Calling {
       def apply() = new Calling(*)
 
       def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))

@@ -35,7 +35,7 @@ trait ApplicationServiceMockProvider {
   object ApplicationServiceMock {
 
     object FetchApplications {
-      def returns(apps: ApplicationResponse*)                                                                                 = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
 
       def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: ApplicationResponse*) =
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(*)).thenReturn(successful(apps.toList))

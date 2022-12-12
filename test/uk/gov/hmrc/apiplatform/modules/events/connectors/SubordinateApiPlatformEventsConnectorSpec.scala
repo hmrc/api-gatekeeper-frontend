@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.common.connectors
+package uk.gov.hmrc.apiplatform.modules.events.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -22,36 +22,34 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import play.api.test.Helpers._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
+import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
 
-class ApiPlatformEventsConnectorSpec
+class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
+    with ApplicationEventsTestData
     with UrlEncoding {
-
-  private val applicationId = ApplicationId.random
 
   trait Setup {
     val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient                                    = app.injector.instanceOf[HttpClient]
-    val mockConfig: ApiPlatformEventsConnector.Config = mock[ApiPlatformEventsConnector.Config]
-    when(mockConfig.baseUrl).thenReturn(wireMockUrl)
+    val httpClient                                             = app.injector.instanceOf[HttpClient]
+    val mockConfig: PrincipalApiPlatformEventsConnector.Config = mock[PrincipalApiPlatformEventsConnector.Config]
+    when(mockConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val connector = new ApiPlatformEventsConnector(httpClient, mockConfig)
+    val connector = new PrincipalApiPlatformEventsConnector(mockConfig, httpClient)
   }
 
-  "calling fetchEventQueryValues" should {
+  "calling fetchQueryableEventTags" should {
     val url = s"/application-event/${applicationId.value.toString()}/values"
 
-    "return None when call returns NOT_FOUND" in new Setup {
+    "return empty list when call returns NOT_FOUND" in new Setup {
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
@@ -60,41 +58,59 @@ class ApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.fetchEventQueryValues(applicationId)) shouldBe None
+      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List.empty
     }
 
-    "return Some data when call returns OK" in new Setup {
-
-      val fakeResponse = QueryableValues(List(EventTags.TEAM_MEMBER))
+    "return list of data when call returns OK" in new Setup {
 
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(fakeResponse)
+              .withJsonBody(QueryableValues(List(EventTags.TEAM_MEMBER)))
               .withStatus(OK)
           )
       )
 
-      await(connector.fetchEventQueryValues(applicationId)).value shouldBe fakeResponse
+      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List(EventTags.TEAM_MEMBER)
     }
   }
 
   "calling query" should {
     val url = s"/application-event/${applicationId.value.toString()}"
 
-    "send eventTag parameter when present" in new Setup {
+    "return empty list when NOT_FOUND" in new Setup {
       stubFor(
         get(urlPathEqualTo(url))
           .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
           .willReturn(
             aResponse()
-              .withJsonBody(ApiPlatformEventsConnector.QueryResponse(Seq.empty))
+              .withStatus(NOT_FOUND)
+          )
+      )
+
+      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER))) shouldBe List.empty
+    }
+
+    "return list when OK" in new Setup {
+
+      val sampleResponse = ApiPlatformEventsConnector.QueryResponse(
+        List(event1, event2, event3)
+      )
+
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
+          .willReturn(
+            aResponse()
+              .withJsonBody(Some(sampleResponse))
               .withStatus(OK)
           )
       )
 
-      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
+      val results = await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
+
+      results.length shouldBe 3
     }
   }
 }

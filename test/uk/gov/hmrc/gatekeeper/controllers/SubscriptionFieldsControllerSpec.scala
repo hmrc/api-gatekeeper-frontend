@@ -37,7 +37,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
   trait Setup extends ControllerSetupBase {
     val subscriptionFieldsService = mock[SubscriptionFieldsService]
 
-    val controller                =
+    val controller =
       new SubscriptionFieldsController(subscriptionFieldsService, forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock)
   }
 
