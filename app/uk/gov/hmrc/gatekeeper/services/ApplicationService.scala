@@ -224,8 +224,10 @@ class ApplicationService @Inject() (
     applicationConnectorFor(application).updateRateLimitTier(application.id, tier)
   }
 
-  def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationDeleteResult] = {
-    applicationConnectorFor(application).deleteApplication(application.id, DeleteApplicationRequest(gatekeeperUserId, requestByEmailAddress))
+  def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    val reasons = "Application deleted by Gatekeeper user"
+    val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, LocalDateTime.now)
+    applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
   }
 
   def blockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {

@@ -120,8 +120,8 @@ trait ApplicationConnectorMockProvider {
     }
 
     object DeleteApplication {
-      def succeeds() = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationDeleteSuccessResult))
-      def fails()    = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationDeleteFailureResult))
+      def succeeds() = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def fails()    = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateFailureResult))
     }
 
     object CreatePrivOrROPCApp {

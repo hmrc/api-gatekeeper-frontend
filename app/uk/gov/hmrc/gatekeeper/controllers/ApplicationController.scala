@@ -410,8 +410,8 @@ class ApplicationController @Inject() (
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
           applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
-            case ApplicationDeleteSuccessResult => Ok(deleteApplicationSuccessView(app))
-            case ApplicationDeleteFailureResult => technicalDifficulties
+            case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
+            case ApplicationUpdateFailureResult => technicalDifficulties
           }
         } else {
           val formWithErrors = deleteApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))

@@ -74,6 +74,9 @@ object SimpleEventDetails {
     case e: ProductionAppTermsConditionsLocationChanged       => "Terms and conditions URL changed"
     case e: ProductionLegacyAppPrivacyPolicyLocationChanged   => "Privacy policy URL changed"
     case e: ProductionLegacyAppTermsConditionsLocationChanged => "Terms and conditions URL changed"
+    case e: ApplicationDeleted                                => "Application deleted"
+    case e: ApplicationDeletedByGatekeeper                    => "Application deleted by Gatekeeper user"
+    case e: ProductionCredentialsApplicationDeleted           => "Production credentials request deleted"
   }
 
  def details(evt: AbstractApplicationEvent): String = evt match {
@@ -106,6 +109,9 @@ object SimpleEventDetails {
     case e: ProductionAppTermsConditionsLocationChanged       => s"Terms and conditions URL: ${details(e.newLocation)}"
     case e: ProductionLegacyAppPrivacyPolicyLocationChanged   => s"Privacy policy URL: ${e.newUrl}"
     case e: ProductionLegacyAppTermsConditionsLocationChanged => s"Terms and conditions URL: ${e.newUrl}"
+    case e: ApplicationDeleted                                => s"Application deleted - ${e.reasons}"
+    case e: ApplicationDeletedByGatekeeper                    => s"Application deleted - ${e.reasons}"
+    case e: ProductionCredentialsApplicationDeleted           => s"Production credentials request deleted - ${e.reasons}"
   }
   // format: on
   

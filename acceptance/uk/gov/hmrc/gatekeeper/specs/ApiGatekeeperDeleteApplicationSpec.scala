@@ -97,10 +97,10 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
   }
 
   def stubApplicationForDeleteSuccess() = {
-    stubFor(post(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}/delete")).willReturn(aResponse().withStatus(NO_CONTENT)))
+    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(NO_CONTENT)))
   }
 
   def stubApplicationForDeleteFailure() = {
-    stubFor(post(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}/delete")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
   }
 }

@@ -714,31 +714,39 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "delete the application in the correct environment" in new Setup {
       val emailAddress             = "email@example.com"
       val application              = stdApp1.copy(deployedTo = "PRODUCTION")
-      val deleteApplicationRequest = DeleteApplicationRequest(gatekeeperUserId, emailAddress)
+      val reasons                  = "Application deleted by Gatekeeper user"
+      val requestCaptor            = ArgCaptor[DeleteApplicationByGatekeeper]
 
       ApplicationConnectorMock.Prod.DeleteApplication.succeeds()
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
 
-      result shouldBe ApplicationDeleteSuccessResult
+      result shouldBe ApplicationUpdateSuccessResult
 
       verify(underTest).applicationConnectorFor(application)
-      verify(mockProductionApplicationConnector).deleteApplication(eqTo(application.id), eqTo(deleteApplicationRequest))(*)
+      verify(mockProductionApplicationConnector).deleteApplication(eqTo(application.id), requestCaptor)(*)
+      requestCaptor.value.gatekeeperUser shouldBe gatekeeperUserId
+      requestCaptor.value.requestedByEmailAddress shouldBe emailAddress
+      requestCaptor.value.reasons shouldBe reasons
     }
 
     "propagate ApplicationDeleteFailureResult from connector" in new Setup {
       val emailAddress             = "email@example.com"
       val application              = stdApp1.copy(deployedTo = "SANDBOX")
-      val deleteApplicationRequest = DeleteApplicationRequest(gatekeeperUserId, emailAddress)
+      val reasons                  = "Application deleted by Gatekeeper user"
+      val requestCaptor            = ArgCaptor[DeleteApplicationByGatekeeper]
 
       ApplicationConnectorMock.Sandbox.DeleteApplication.fails()
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
 
-      result shouldBe ApplicationDeleteFailureResult
+      result shouldBe ApplicationUpdateFailureResult
 
       verify(underTest).applicationConnectorFor(application)
-      verify(mockSandboxApplicationConnector).deleteApplication(eqTo(application.id), eqTo(deleteApplicationRequest))(*)
+      verify(mockSandboxApplicationConnector).deleteApplication(eqTo(application.id), requestCaptor)(*)
+      requestCaptor.value.gatekeeperUser shouldBe gatekeeperUserId
+      requestCaptor.value.requestedByEmailAddress shouldBe emailAddress
+      requestCaptor.value.reasons shouldBe reasons
     }
   }
 
