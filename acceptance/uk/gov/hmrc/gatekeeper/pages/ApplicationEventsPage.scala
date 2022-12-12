@@ -28,8 +28,6 @@ case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
     currentUrl == url
   }
 
-  // private def typeOfChangeDropdown = find(id("eventTag")).get
-
   private def submitButton = find(id("filterResults")).get
 
   private def eventTagFilter = singleSel("eventTagFilter")
