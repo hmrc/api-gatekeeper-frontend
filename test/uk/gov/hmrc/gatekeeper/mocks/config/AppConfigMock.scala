@@ -28,7 +28,6 @@ trait AppConfigMock extends MockitoSugar {
   when(mockConfig.userRole).thenReturn(userRole)
   when(mockConfig.adminRole).thenReturn(adminRole)
   when(mockConfig.superUserRole).thenReturn(superUserRole)
-  when(mockConfig.superUsers).thenReturn(Seq("superUserName"))
 
   when(mockConfig.strideLoginUrl).thenReturn("https://loginUri")
   when(mockConfig.appName).thenReturn("Gatekeeper app name")
