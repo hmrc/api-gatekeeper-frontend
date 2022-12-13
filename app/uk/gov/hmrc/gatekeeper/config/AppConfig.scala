@@ -66,7 +66,6 @@ trait AppConfig {
   def superUserRole: String
   def userRole: String
   def adminRole: String
-  def superUsers: Seq[String]
 
   def gatekeeperXmlServicesBaseUrl: String
 
@@ -85,11 +84,6 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
 
   def getConfigDefaulted[A](key: String, default: A)(implicit loader: ConfigLoader[A]) = config.getOptional[A](key)(loader).getOrElse(default)
 
-  def superUsers: Seq[String] = {
-    config
-      .getOptional[Seq[String]]("superUsers")
-      .getOrElse(Seq.empty)
-  }
 
   private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", defBool = false)
 
