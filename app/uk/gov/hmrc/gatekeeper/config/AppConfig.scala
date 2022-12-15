@@ -20,6 +20,7 @@ import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
 
 @ImplementedBy(classOf[AppConfigImpl])
 trait AppConfig {
@@ -77,24 +78,13 @@ trait AppConfig {
   def gatekeeperComposeEmailUsersUrl: String
 }
 
+
 @Singleton
-class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig {
+class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with EBbridgeConfigHelper {
 
   def title = "HMRC API Gatekeeper"
 
   def getConfigDefaulted[A](key: String, default: A)(implicit loader: ConfigLoader[A]) = config.getOptional[A](key)(loader).getOrElse(default)
-
-
-  private def useProxy(serviceName: String) = getConfBool(s"$serviceName.use-proxy", defBool = false)
-
-  private def serviceUrl(key: String)(serviceName: String): String = {
-    if (useProxy(serviceName)) s"${baseUrl(serviceName)}/${getConfString(s"$serviceName.context", key)}"
-    else baseUrl(serviceName)
-  }
-
-  private def apiKey(serviceName: String) = getConfString(s"$serviceName.api-key", "")
-
-  private def bearerToken(serviceName: String) = getConfString(s"$serviceName.bearer-token", "")
 
   val appName = getString("appName")
 
