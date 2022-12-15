@@ -88,7 +88,6 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
         case Some(response) => response.events
       }
   }
-
 }
 
 object SubordinateApiPlatformEventsConnector {

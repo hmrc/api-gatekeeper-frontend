@@ -22,6 +22,7 @@ import play.api.Configuration
 import uk.gov.hmrc.apiplatform.modules.events.connectors._
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import com.google.inject.{Inject, Provider, Singleton}
+import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
 
 class EventsConfigurationModule extends Module {
 
@@ -34,25 +35,20 @@ class EventsConfigurationModule extends Module {
 }
 
 @Singleton
-class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[SubordinateApiPlatformEventsConnector.Config] {
+class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[SubordinateApiPlatformEventsConnector.Config] {
 
   override def get(): SubordinateApiPlatformEventsConnector.Config = {
-
-    val serviceBaseUrl = config.baseUrl("api-platform-events-subordinate")
-    val useProxy       = config.getConfBool("api-platform-events-subordinate.useProxy", true)
-    val bearerToken    = config.getConfString("api-platform-events-subordinate.bearerToken", "")
-    val apiKey         = config.getConfString("api-platform-events-subordinate.apiKey", "")
-
-    SubordinateApiPlatformEventsConnector.Config(serviceBaseUrl, useProxy, bearerToken, apiKey)
+    val name = "api-platform-events-subordinate"
+    SubordinateApiPlatformEventsConnector.Config(serviceUrl("api-platform-events")(name), useProxy("api-platform-events-subordinate"), bearerToken(name), apiKey(name))
   }
 }
 
 @Singleton
-class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: ServicesConfig) extends Provider[PrincipalApiPlatformEventsConnector.Config] {
+class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[PrincipalApiPlatformEventsConnector.Config] {
 
   override def get(): PrincipalApiPlatformEventsConnector.Config = {
 
-    val serviceBaseUrl = config.baseUrl("api-platform-events-principal")
+    val serviceBaseUrl = serviceUrl("api-platform-events")("api-platform-events-principal")
 
     PrincipalApiPlatformEventsConnector.Config(serviceBaseUrl)
   }
