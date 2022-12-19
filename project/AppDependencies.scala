@@ -47,6 +47,6 @@ object AppDependencies {
     "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.12",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
     "org.scalatestplus.play"      %% "scalatestplus-play"                % "5.1.0",
-    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.38.0"
+    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.39.0"
   ).map (_ % testScopes)
 }
