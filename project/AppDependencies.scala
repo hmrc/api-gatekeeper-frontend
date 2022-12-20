@@ -33,7 +33,7 @@ object AppDependencies {
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-application-events"   % "0.7.0"
+    "uk.gov.hmrc"                 %% "api-platform-application-events"   % "0.8.0"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
@@ -47,6 +47,6 @@ object AppDependencies {
     "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.12",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
     "org.scalatestplus.play"      %% "scalatestplus-play"                % "5.1.0",
-    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.38.0"
+    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.39.0"
   ).map (_ % testScopes)
 }

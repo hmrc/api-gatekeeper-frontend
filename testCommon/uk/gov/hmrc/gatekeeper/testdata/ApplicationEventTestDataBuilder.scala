@@ -256,8 +256,7 @@ trait ApplicationEventTestDataBuilder {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = PrivacyPolicyLocations.InDesktopSoftware,
-    newLocation = PrivacyPolicyLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+    newLocation = PrivacyPolicyLocations.Url("http://example.com")
   )
 
   def makeProductionAppPrivacyPolicyLocationChangedEvent(applicationId: ApplicationId, counter: Int = 1): ProductionAppPrivacyPolicyLocationChanged = {
@@ -270,8 +269,7 @@ trait ApplicationEventTestDataBuilder {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
-    newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+    newUrl = "http://example.com/new"
   )
 
   def makeProductionLegacyAppPrivacyPolicyLocationChanged(applicationId: ApplicationId, counter: Int = 1): ProductionLegacyAppPrivacyPolicyLocationChanged = {
@@ -284,8 +282,7 @@ trait ApplicationEventTestDataBuilder {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldLocation = TermsAndConditionsLocations.InDesktopSoftware,
-    newLocation = TermsAndConditionsLocations.Url("http://example.com"),
-    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+    newLocation = TermsAndConditionsLocations.Url("http://example.com")
   )
 
   def makeProductionAppTermsConditionsLocationChanged(applicationId: ApplicationId, counter: Int = 1): ProductionAppTermsConditionsLocationChanged = {
@@ -298,8 +295,7 @@ trait ApplicationEventTestDataBuilder {
     eventDateTime = LocalDateTime.now(),
     actor = Actors.Collaborator(LaxEmailAddress("iam@admin.com")),
     oldUrl = "http://example.com/old",
-    newUrl = "http://example.com/new",
-    requestingAdminEmail = LaxEmailAddress("admin@example.com")
+    newUrl = "http://example.com/new"
   )
 
   def makeProductionLegacyAppTermsConditionsLocationChanged(applicationId: ApplicationId, counter: Int = 1): ProductionLegacyAppTermsConditionsLocationChanged = {
