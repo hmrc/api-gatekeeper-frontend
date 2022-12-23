@@ -480,7 +480,11 @@
             @for(collaborator <- application.collaborators) {
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" data-collaborator-email>
-                  <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
+                  @if(model.developers.exists(dev => dev.email == collaborator.emailAddress)) {
+                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
+                  } else {
+                    @collaborator.emailAddress
+                  }
                 </td>
                 <td class="govuk-table__cell" data-collaborator-role>
                   @{

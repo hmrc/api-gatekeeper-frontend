@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
   with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with XmlServicesStub {
 
-  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.mfaEnabled))
 
   Feature("Application List for Search Functionality") {
     info("AS A Product Owner")
