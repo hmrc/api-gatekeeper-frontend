@@ -90,15 +90,16 @@ class SubscriptionController @Inject() (
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      val subscribeToApi = SubscribeToApi(Actors.GatekeeperUser(loggedIn.userFullName.get), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
-      apmService.subscribeToApi(app.application.id, subscribeToApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val subscribeToApi = SubscribeToApi(Actors.GatekeeperUser(loggedIn.userFullName.getOrElse("Gatekeeper User")), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.subscribeToApi(appId, subscribeToApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      val unsubscribeFromApi = UnsubscribeFromApi(Actors.GatekeeperUser(loggedIn.userFullName.get), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
-      apmService.unsubscribeFromApi(app.application.id, unsubscribeFromApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      val unsubscribeFromApi =
+        UnsubscribeFromApi(Actors.GatekeeperUser(loggedIn.userFullName.getOrElse("Gatekeeper User")), ApiIdentifier(apiContext, version), LocalDateTime.now(clock))
+      apmService.unsubscribeFromApi(appId, unsubscribeFromApi).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
   }
 }
