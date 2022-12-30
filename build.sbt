@@ -11,9 +11,11 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import bloop.integrations.sbt.BloopDefaults
 
+lazy val appName = "api-gatekeeper-frontend"
+
 Global / bloopAggregateSourceDependencies := true
 
-lazy val microservice =  (project in file("."))
+lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     Concat.groups := Seq(
@@ -106,8 +108,6 @@ lazy val microservice =  (project in file("."))
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
  
-lazy val appName = "api-gatekeeper-frontend"
-
 coverageMinimumStmtTotal := 85
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
