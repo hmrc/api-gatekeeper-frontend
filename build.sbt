@@ -1,4 +1,3 @@
-import _root_.play.core.PlayVersion
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._
@@ -12,7 +11,7 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import bloop.integrations.sbt.BloopDefaults
 
-bloopAggregateSourceDependencies in Global := true
+Global / bloopAggregateSourceDependencies := true
 
 lazy val microservice =  (project in file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
@@ -43,7 +42,7 @@ lazy val microservice =  (project in file("."))
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
