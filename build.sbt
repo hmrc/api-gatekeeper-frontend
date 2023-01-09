@@ -20,6 +20,15 @@ lazy val SandboxTest = config("sandbox") extend Test
 lazy val appName = "api-gatekeeper-frontend"
 
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
+ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
+ 
+inThisBuild(
+  List(
+    scalaVersion := "2.12.15",
+    semanticdbEnabled := true,
+    semanticdbVersion := scalafixSemanticdb.revision
+  )
+)
 
 lazy val microservice =  (project in file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
