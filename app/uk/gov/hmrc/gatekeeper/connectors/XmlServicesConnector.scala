@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
-import uk.gov.hmrc.gatekeeper.models.UserId
-import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
 
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
+import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 
 @Singleton
 class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {

@@ -17,14 +17,15 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import javax.inject.{Inject, Named, Singleton}
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService._
+import scala.concurrent.Future
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService._
 
 @Singleton
 class SubscriptionFieldsService @Inject() (

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
 import play.api.libs.json.Json
 
 case class TaxRegimeInterests(regime: String, services: Set[String])

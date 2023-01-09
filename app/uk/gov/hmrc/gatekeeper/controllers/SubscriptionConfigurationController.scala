@@ -16,25 +16,27 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
+import scala.concurrent.{ExecutionContext, Future}
+
 import org.joda.time.DateTime
+
 import play.api.data
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionFieldsService}
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
+import uk.gov.hmrc.gatekeeper.models.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionFieldsService}
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class SubscriptionConfigurationController @Inject() (

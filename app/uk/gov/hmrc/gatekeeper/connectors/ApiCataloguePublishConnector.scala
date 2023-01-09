@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
-import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
+
+import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
 
 @Singleton
 class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClient)(implicit ec: ExecutionContext) extends ApplicationLogger {

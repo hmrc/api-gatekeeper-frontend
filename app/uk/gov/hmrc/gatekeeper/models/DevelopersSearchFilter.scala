@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class DevelopersSearchFilter(
     maybeEmailFilter: Option[String] = None,

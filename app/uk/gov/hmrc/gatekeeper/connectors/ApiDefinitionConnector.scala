@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models._
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
+import uk.gov.hmrc.gatekeeper.models._
 
 abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
   protected val httpClient: HttpClient

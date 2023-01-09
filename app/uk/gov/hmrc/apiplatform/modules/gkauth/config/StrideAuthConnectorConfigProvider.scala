@@ -17,7 +17,9 @@
 package uk.gov.hmrc.apiplatform.modules.gkauth.config
 
 import javax.inject.{Inject, Provider, Singleton}
+
 import play.api.Configuration
+
 import uk.gov.hmrc.apiplatform.modules.gkauth.connectors.StrideAuthConnector
 
 @Singleton

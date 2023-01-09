@@ -17,25 +17,20 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.http.HeaderCarrier
+import scala.concurrent.{ExecutionContext, Future}
 
-import uk.gov.hmrc.gatekeeper.models.applications._
-import scala.concurrent.Future
-
-import uk.gov.hmrc.http.HttpClient
-
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.http.UpstreamErrorResponse
 import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
+import uk.gov.hmrc.gatekeeper.models.applications._
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
+import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {

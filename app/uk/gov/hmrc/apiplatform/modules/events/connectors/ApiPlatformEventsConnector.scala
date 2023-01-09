@@ -16,16 +16,15 @@
 
 package uk.gov.hmrc.apiplatform.modules.events.connectors
 
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.libs.json.Json
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ProxiedHttpClient
 import uk.gov.hmrc.gatekeeper.models.Environment

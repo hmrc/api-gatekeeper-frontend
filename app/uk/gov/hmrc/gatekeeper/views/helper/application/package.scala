@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import uk.gov.hmrc.gatekeeper.models._
 import org.joda.time.DateTime
 import org.joda.time.Days.daysBetween
 import org.joda.time.Months.monthsBetween
 import org.joda.time.Seconds.secondsBetween
 import org.joda.time.format.DateTimeFormat
+
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 
 object ApplicationPublicDescription {

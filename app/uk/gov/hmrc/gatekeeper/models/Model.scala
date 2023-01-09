@@ -16,15 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
+import java.time.LocalDateTime
 import java.util.UUID
+
 import org.joda.time.DateTime
-import uk.gov.hmrc.auth.core.ConfidenceLevel
-import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.play.json.Union
+
 import play.api.data.Form
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
+import uk.gov.hmrc.auth.core.ConfidenceLevel
+import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.play.json.Union
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.Environment._
@@ -34,10 +40,6 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-
-import java.time.LocalDateTime
 
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken

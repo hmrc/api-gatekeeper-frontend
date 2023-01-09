@@ -16,18 +16,14 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions
 
-import play.api.mvc.{Action, AnyContent, Result}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.control.NonFatal
+
+import play.api.mvc.{Action, ActionRefiner, AnyContent, MessagesRequest, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.ActionRefiner
-import play.api.mvc.MessagesRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, GatekeeperStrideRole, LoggedInRequest}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
-import scala.util.control.NonFatal
 
 trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[_]): Result

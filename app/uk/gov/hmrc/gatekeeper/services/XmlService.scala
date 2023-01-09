@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
 import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
-import uk.gov.hmrc.http.HeaderCarrier
-
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
 
 class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
 

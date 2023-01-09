@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import java.net.URLEncoder.encode
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.gatekeeper.models.ClientId
 

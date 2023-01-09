@@ -17,8 +17,9 @@
 package uk.gov.hmrc.gatekeeper.utils
 
 import play.api.i18n.MessagesProvider
-import play.api.mvc.{Request, Result}
 import play.api.mvc.Results.{BadRequest, InternalServerError, NotFound}
+import play.api.mvc.{Request, Result}
+
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 trait ErrorHelper {

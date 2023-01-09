@@ -17,11 +17,12 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
 sealed trait ApiVersionSource {
   def asText: String

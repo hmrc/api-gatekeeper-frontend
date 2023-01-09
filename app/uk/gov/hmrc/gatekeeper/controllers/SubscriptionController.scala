@@ -16,27 +16,25 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
-import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.services.ApplicationService
-import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import com.google.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 
+import com.google.inject.{Inject, Singleton}
+
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.utils.SortingHelper
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class SubscriptionController @Inject() (

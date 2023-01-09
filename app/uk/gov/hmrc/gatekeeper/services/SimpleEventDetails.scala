@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{PrivacyPolicyLocation, PrivacyPolicyLocations, TermsAndConditionsLocation, TermsAndConditionsLocations}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborators._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.PrivacyPolicyLocation
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.PrivacyPolicyLocations
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.TermsAndConditionsLocation
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.TermsAndConditionsLocations
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 object SimpleEventDetails {
 

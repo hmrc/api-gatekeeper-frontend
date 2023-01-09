@@ -16,26 +16,26 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.Forms._
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.Future.successful
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, DeveloperService}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 trait WithRestrictedApp {
   self: TeamMembersController =>

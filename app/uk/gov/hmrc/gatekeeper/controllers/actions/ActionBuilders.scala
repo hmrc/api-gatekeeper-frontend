@@ -16,20 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.controllers.actions
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.mvc.Results.{BadRequest, NotFound}
+import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-
-import play.api.mvc.Result
-import play.api.mvc.Results.{BadRequest, NotFound}
-
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 
 trait ActionBuilders extends ApplicationLogger {
   def errorHandler: ErrorHandler

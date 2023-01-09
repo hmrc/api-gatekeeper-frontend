@@ -16,28 +16,26 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.data.Form
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
-
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models._
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.developers._
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
-import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
-
-import scala.concurrent.Future.successful
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class DeveloperController @Inject() (
