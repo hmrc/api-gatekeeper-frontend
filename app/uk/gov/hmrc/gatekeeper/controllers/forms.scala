@@ -80,7 +80,7 @@ object HandleApprovalForm {
 
   lazy val form = Form(
     mapping(
-      "approval_confirmation" -> text(0, 20)
+      "approval_confirmation" -> text(0, 20) // scalastyle:ignore
     )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
   )
 
