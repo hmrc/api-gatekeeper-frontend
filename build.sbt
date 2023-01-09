@@ -1,4 +1,3 @@
-import _root_.play.core.PlayVersion
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._
@@ -12,13 +11,13 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import bloop.integrations.sbt.BloopDefaults
 
-bloopAggregateSourceDependencies in Global := true
+lazy val appName = "api-gatekeeper-frontend"
+
+Global / bloopAggregateSourceDependencies := true
 
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
  
-lazy val appName = "api-gatekeeper-frontend"
-
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
  
@@ -30,7 +29,7 @@ inThisBuild(
   )
 )
 
-lazy val microservice =  (project in file("."))
+lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .settings(
     Concat.groups := Seq(
