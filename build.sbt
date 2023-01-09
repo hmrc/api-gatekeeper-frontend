@@ -14,8 +14,15 @@ import bloop.integrations.sbt.BloopDefaults
 
 bloopAggregateSourceDependencies in Global := true
 
+lazy val AcceptanceTest = config("acceptance") extend Test
+lazy val SandboxTest = config("sandbox") extend Test
+ 
+lazy val appName = "api-gatekeeper-frontend"
+
+ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
+
 lazy val microservice =  (project in file("."))
-  .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
+  .enablePlugins(PlayScala, SbtDistributablesPlugin)
   .settings(
     Concat.groups := Seq(
       "javascripts/apis-app.js" -> group(
@@ -39,11 +46,10 @@ lazy val microservice =  (project in file("."))
   .settings(SilencerSettings())
   .settings(
     targetJvm := "jvm-1.8",
-    scalaVersion := "2.12.12",
+    scalaVersion := "2.12.15",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
@@ -52,16 +58,15 @@ lazy val microservice =  (project in file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
-  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings)) 
   .configs(IntegrationTest)
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings)) 
+  .settings(integrationTestSettings())
   .settings(
-    Defaults.itSettings,
-    IntegrationTest / Keys.fork := false,
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"
-  )
+    )
   .configs(AcceptanceTest)
   .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
   .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
@@ -72,7 +77,9 @@ lazy val microservice =  (project in file("."))
     AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
-  )
+    )
+  .settings(headerSettings(AcceptanceTest) ++ automateHeaderSettings(AcceptanceTest))
+
   .configs(SandboxTest)
   .settings(inConfig(SandboxTest)(Defaults.testSettings): _*)
   .settings(inConfig(SandboxTest)(BloopDefaults.configSettings))
@@ -103,11 +110,6 @@ lazy val microservice =  (project in file("."))
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
-
-lazy val AcceptanceTest = config("acceptance") extend Test
-lazy val SandboxTest = config("sandbox") extend Test
- 
-lazy val appName = "api-gatekeeper-frontend"
 
 coverageMinimumStmtTotal := 85
 coverageFailOnMinimum := true
