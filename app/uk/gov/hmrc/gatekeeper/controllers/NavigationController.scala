@@ -17,13 +17,14 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.StaticNavLinks
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.libs.json._
 import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.StaticNavLinks
 
 @Singleton
 class NavigationController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext)

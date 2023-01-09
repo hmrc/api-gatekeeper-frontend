@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.gatekeeper.models.ApiStatusJson
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber}
+import uk.gov.hmrc.gatekeeper.models.{APIDefinitionFormatters, ApiStatusJson}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 

@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.models.UpliftAction
+import uk.gov.voa.play.form.ConditionalMappings._
+
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.voa.play.form.ConditionalMappings._
+
+import uk.gov.hmrc.gatekeeper.models.UpliftAction
 
 class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 
@@ -78,7 +80,7 @@ object HandleApprovalForm {
 
   lazy val form = Form(
     mapping(
-      "approval_confirmation" -> text(0, 20)
+      "approval_confirmation" -> text(0, 20) // scalastyle:ignore
     )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
   )
 

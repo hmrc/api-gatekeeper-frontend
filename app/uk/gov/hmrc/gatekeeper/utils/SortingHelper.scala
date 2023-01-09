@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.VersionSubscriptionWithoutFields
-import uk.gov.hmrc.gatekeeper.models.VersionSubscription
-import uk.gov.hmrc.gatekeeper.models.ApiVersionDefinition
 import scala.util.Try
+
+import uk.gov.hmrc.gatekeeper.models.{ApiVersionDefinition, VersionSubscription, VersionSubscriptionWithoutFields}
 
 object SortingHelper {
 

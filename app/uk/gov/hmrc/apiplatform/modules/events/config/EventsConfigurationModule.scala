@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.apiplatform.modules.events.config
 
-import play.api.inject.Module
-import play.api.Environment
-import play.api.Configuration
-import uk.gov.hmrc.apiplatform.modules.events.connectors._
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 import com.google.inject.{Inject, Provider, Singleton}
+
+import play.api.inject.Module
+import play.api.{Configuration, Environment}
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
+import uk.gov.hmrc.apiplatform.modules.events.connectors._
 
 class EventsConfigurationModule extends Module {
 
@@ -35,7 +36,8 @@ class EventsConfigurationModule extends Module {
 }
 
 @Singleton
-class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[SubordinateApiPlatformEventsConnector.Config] {
+class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper
+    with Provider[SubordinateApiPlatformEventsConnector.Config] {
 
   override def get(): SubordinateApiPlatformEventsConnector.Config = {
     val name = "api-platform-events-subordinate"
@@ -44,7 +46,8 @@ class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configura
 }
 
 @Singleton
-class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[PrincipalApiPlatformEventsConnector.Config] {
+class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper
+    with Provider[PrincipalApiPlatformEventsConnector.Config] {
 
   override def get(): PrincipalApiPlatformEventsConnector.Config = {
 

@@ -16,21 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
+
 import play.api.http.Status._
+import uk.gov.hmrc.http.{HttpClient, _}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.{UserId, _}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-
-import java.time.LocalDateTime
-import scala.concurrent.Future.{failed, successful}
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -216,9 +216,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def deleteApplication(applicationId: ApplicationId, request: DeleteApplicationByGatekeeper)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.PATCH[DeleteApplicationByGatekeeper, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), request)
-      .map( _ match {
+      .map(_ match {
         case Right(result) => ApplicationUpdateSuccessResult
-        case Left(_) => ApplicationUpdateFailureResult
+        case Left(_)       => ApplicationUpdateFailureResult
       })
   }
 

@@ -16,14 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.models.view
 
-import uk.gov.hmrc.gatekeeper.models._
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionDataAndFieldDefinitions
-import uk.gov.hmrc.gatekeeper.models.ApiStatus
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
+import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApplicationWithSubscriptionDataAndFieldDefinitions, _}
 
 case class SubscriptionVersion(apiName: String, apiContext: ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 

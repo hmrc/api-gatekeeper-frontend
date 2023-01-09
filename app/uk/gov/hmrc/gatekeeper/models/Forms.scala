@@ -16,20 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
-import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
-import uk.gov.hmrc.gatekeeper.models.OverrideType._
+import scala.util.{Failure, Try}
+
 import org.apache.commons.net.util.SubnetUtils
+import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
+
 import play.api.data.Forms._
 import play.api.data.format.Formatter
 import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
-import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
-import scala.util.{Failure, Try}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
+import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
+import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
+import uk.gov.hmrc.gatekeeper.models.OverrideType._
 
 object Forms {
 

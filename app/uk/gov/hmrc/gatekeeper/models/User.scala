@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
-import play.api.libs.json._
-import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
-import uk.gov.hmrc.play.json.Union
 import play.api.libs.functional.syntax._
+import play.api.libs.json._
+import uk.gov.hmrc.play.json.Union
+
 import uk.gov.hmrc.gatekeeper.models.MfaId.format
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
+import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
 case class CoreUserDetails(email: String, id: UserId)
 

@@ -16,18 +16,17 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
-import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
-import play.api.mvc._
-import scala.concurrent.Future
-import scala.concurrent.Future.successful
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.internalauth.client._
-import scala.concurrent.ExecutionContext
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.mvc._
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.internalauth.client.{FrontendAuthComponents, _}
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 @Singleton
 class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) extends ApplicationLogger {

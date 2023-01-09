@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.config
 
-import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
+
+import com.google.inject.{ImplementedBy, Singleton}
+
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
 
 @ImplementedBy(classOf[AppConfigImpl])
@@ -78,7 +81,6 @@ trait AppConfig {
   def gatekeeperComposeEmailUsersUrl: String
 }
 
-
 @Singleton
 class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with EBbridgeConfigHelper {
 
@@ -90,7 +92,7 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
 
   val devHubBaseUrl          = getString("devHubBaseUrl")
   val retryCount             = getConfigDefaulted("retryCount", 0)
-  val retryDelayMilliseconds = getConfigDefaulted("retryDelayMilliseconds", 500)
+  val retryDelayMilliseconds = getConfigDefaulted("retryDelayMilliseconds", 500)  // scalastyle:ignore
 
   val apiScopeSandboxBaseUrl        = serviceUrl("api-scope")("api-scope-sandbox")
   val apiScopeSandboxUseProxy       = useProxy("api-scope-sandbox")

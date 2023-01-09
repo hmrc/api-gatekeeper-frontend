@@ -17,22 +17,22 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.encryption._
+import scala.concurrent.{ExecutionContext, Future}
+
+import cats.data.OptionT
+import com.google.inject.name.Named
+
+import play.api.Logging
 import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.gatekeeper.models.UserId
-
-import scala.concurrent.{ExecutionContext, Future}
-import com.google.inject.name.Named
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import cats.data.OptionT
-import play.api.Logging
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.encryption._
+import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.{UserId, _}
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]

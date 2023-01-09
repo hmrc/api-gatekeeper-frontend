@@ -16,41 +16,42 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
-
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
-import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
+
 import org.joda.time.DateTime
+
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.services._
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
+import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
+import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
+import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-
-import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
-import scala.concurrent.Future.successful
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.services._
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class ApplicationController @Inject() (
@@ -98,10 +99,11 @@ class ApplicationController @Inject() (
     val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
     val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
-      else
+      } else {
         routes.ApplicationController.applicationPage(appId).url
+      }
 
     for {
       paginatedApplicationResponse <- applicationService.searchApplications(env, params)

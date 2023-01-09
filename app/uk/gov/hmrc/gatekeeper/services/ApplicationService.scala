@@ -16,22 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.gatekeeper.connectors._
-
+import java.time.LocalDateTime
 import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.http.HeaderCarrier
-import play.api.http.Status.NOT_FOUND
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.http.UpstreamErrorResponse
-
-import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -225,7 +224,7 @@ class ApplicationService @Inject() (
   }
 
   def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val reasons = "Application deleted by Gatekeeper user"
+    val reasons       = "Application deleted by Gatekeeper user"
     val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, LocalDateTime.now)
     applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
   }

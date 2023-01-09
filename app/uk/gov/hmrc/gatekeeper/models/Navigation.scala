@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.controllers.routes
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.gatekeeper.controllers.routes
 
 case class NavLink(label: String, href: Option[String])
 

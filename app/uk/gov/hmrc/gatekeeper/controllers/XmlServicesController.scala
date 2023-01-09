@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc.{Action, AnyContent}
+
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
+
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 
 @Singleton
 class XmlServicesController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {

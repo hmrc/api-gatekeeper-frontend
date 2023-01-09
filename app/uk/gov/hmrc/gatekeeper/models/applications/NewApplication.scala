@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
+import java.time.Period
+
 import org.joda.time.DateTime
+
 import uk.gov.hmrc.play.json.Union
 
-import java.time.Period
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
+import uk.gov.hmrc.gatekeeper.models._
 
 case class NewApplication(
     id: ApplicationId,

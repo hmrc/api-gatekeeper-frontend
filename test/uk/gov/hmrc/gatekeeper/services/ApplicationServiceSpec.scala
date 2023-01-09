@@ -712,10 +712,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "deleteApplication" should {
     "delete the application in the correct environment" in new Setup {
-      val emailAddress             = "email@example.com"
-      val application              = stdApp1.copy(deployedTo = "PRODUCTION")
-      val reasons                  = "Application deleted by Gatekeeper user"
-      val requestCaptor            = ArgCaptor[DeleteApplicationByGatekeeper]
+      val emailAddress  = "email@example.com"
+      val application   = stdApp1.copy(deployedTo = "PRODUCTION")
+      val reasons       = "Application deleted by Gatekeeper user"
+      val requestCaptor = ArgCaptor[DeleteApplicationByGatekeeper]
 
       ApplicationConnectorMock.Prod.DeleteApplication.succeeds()
 
@@ -731,10 +731,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate ApplicationDeleteFailureResult from connector" in new Setup {
-      val emailAddress             = "email@example.com"
-      val application              = stdApp1.copy(deployedTo = "SANDBOX")
-      val reasons                  = "Application deleted by Gatekeeper user"
-      val requestCaptor            = ArgCaptor[DeleteApplicationByGatekeeper]
+      val emailAddress  = "email@example.com"
+      val application   = stdApp1.copy(deployedTo = "SANDBOX")
+      val reasons       = "Application deleted by Gatekeeper user"
+      val requestCaptor = ArgCaptor[DeleteApplicationByGatekeeper]
 
       ApplicationConnectorMock.Sandbox.DeleteApplication.fails()
 

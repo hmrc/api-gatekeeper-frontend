@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.{Format, Json}
-import scala.util.Random
 import java.util.UUID
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import scala.util.Random
+
+import play.api.libs.json.{Format, Json}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class FieldName(value: String) extends AnyVal
 
@@ -30,7 +32,8 @@ object FieldName {
     override def compare(x: FieldName, y: FieldName): Int = x.value.compareTo(y.value)
   }
 
-  def random = FieldName(Random.alphanumeric.take(8).mkString)
+
+  def random = FieldName(Random.alphanumeric.take(8).mkString) // scalastyle:ignore
 }
 
 case class FieldValue(value: String) extends AnyVal {
@@ -40,7 +43,7 @@ case class FieldValue(value: String) extends AnyVal {
 object FieldValue {
   def empty = FieldValue("")
 
-  def random = FieldValue(Random.alphanumeric.take(8).mkString)
+  def random = FieldValue(Random.alphanumeric.take(8).mkString) // scalastyle:ignore
 }
 
 object SubscriptionFields {

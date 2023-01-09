@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
 import play.api.libs.json.{Format, Json}
 
 sealed trait ApiType extends EnumEntry

@@ -16,31 +16,27 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.mvc._
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import scala.concurrent.ExecutionContext
+import java.time.format.DateTimeFormatter
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.google.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.services.ApplicationService
-import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
-import java.time.format.DateTimeFormatter
 import play.api.data.Form
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import play.api.mvc._
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.services.SimpleEventDetails
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SimpleEventDetails}
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
+import uk.gov.hmrc.gatekeeper.views.html.applications._
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)

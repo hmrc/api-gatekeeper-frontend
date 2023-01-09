@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.config
 
-import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 import com.google.inject.{Inject, Provider, Singleton}
+
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 
 @Singleton
 class ApiCataloguePublishConnectorConfigProvider @Inject() (config: ServicesConfig) extends Provider[ApiCataloguePublishConnector.Config] {

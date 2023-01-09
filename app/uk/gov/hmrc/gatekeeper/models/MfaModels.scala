@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-import play.api.libs.json.{Format, Json}
-
 import java.time.LocalDateTime
 import java.util.UUID
 import scala.collection.immutable
+
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
+import play.api.libs.json.{Format, Json}
 
 case class MfaId(value: UUID) extends AnyVal
 

@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish
 
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.EitherT
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
+
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
+import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
+import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 
 @Singleton
 class ApiCataloguePublishController @Inject() (

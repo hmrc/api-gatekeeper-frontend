@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import scala.util.matching.Regex
 import java.util.UUID
 import scala.util.Try
+import scala.util.matching.Regex
+
 import play.api.libs.json.Json
 
 trait DeveloperIdentifier {

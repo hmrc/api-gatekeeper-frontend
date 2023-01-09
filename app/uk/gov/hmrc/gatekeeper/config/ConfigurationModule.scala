@@ -17,13 +17,14 @@
 package uk.gov.hmrc.gatekeeper.config
 
 import com.google.inject.name.Names
-import uk.gov.hmrc.gatekeeper.connectors._
-import play.api.{Configuration, Environment}
+
 import play.api.inject.Module
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.SubscriptionFieldsConnector
+import play.api.{Configuration, Environment}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.controllers.HandleForbiddenWithView
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.SubscriptionFieldsConnector
 
 class ConfigurationModule extends Module {
 

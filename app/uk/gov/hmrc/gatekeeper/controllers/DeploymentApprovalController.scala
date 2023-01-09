@@ -16,25 +16,24 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models._
-import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval._
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
 import javax.inject.Inject
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.data.Form
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
+import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
+import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval._
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DeploymentApprovalController @Inject() (
     val forbiddenView: ForbiddenView,
