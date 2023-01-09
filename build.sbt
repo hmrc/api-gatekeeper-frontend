@@ -1,4 +1,3 @@
-import _root_.play.core.PlayVersion
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._
@@ -12,9 +11,11 @@ import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
 import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
 import bloop.integrations.sbt.BloopDefaults
 
-bloopAggregateSourceDependencies in Global := true
+lazy val appName = "api-gatekeeper-frontend"
 
-lazy val microservice =  (project in file("."))
+Global / bloopAggregateSourceDependencies := true
+
+lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtAutoBuildPlugin, SbtDistributablesPlugin)
   .settings(
     Concat.groups := Seq(
@@ -43,7 +44,7 @@ lazy val microservice =  (project in file("."))
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    evictionWarningOptions in update := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
+    update / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false),
     routesGenerator := InjectedRoutesGenerator,
     shellPrompt := (_ => "> "),
     majorVersion := 0,
@@ -107,8 +108,6 @@ lazy val microservice =  (project in file("."))
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
  
-lazy val appName = "api-gatekeeper-frontend"
-
 coverageMinimumStmtTotal := 85
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
