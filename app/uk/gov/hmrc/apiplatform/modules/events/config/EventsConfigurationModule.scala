@@ -35,7 +35,8 @@ class EventsConfigurationModule extends Module {
 }
 
 @Singleton
-class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[SubordinateApiPlatformEventsConnector.Config] {
+class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper
+    with Provider[SubordinateApiPlatformEventsConnector.Config] {
 
   override def get(): SubordinateApiPlatformEventsConnector.Config = {
     val name = "api-platform-events-subordinate"
@@ -44,7 +45,8 @@ class SubordinateApiPlatformEventsConnectorProvider @Inject() (config: Configura
 }
 
 @Singleton
-class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper with Provider[PrincipalApiPlatformEventsConnector.Config] {
+class PrincipalApiPlatformEventsConnectorProvider @Inject() (config: Configuration) extends ServicesConfig(config) with EBbridgeConfigHelper
+    with Provider[PrincipalApiPlatformEventsConnector.Config] {
 
   override def get(): PrincipalApiPlatformEventsConnector.Config = {
 

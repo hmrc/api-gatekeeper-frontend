@@ -78,7 +78,6 @@ trait AppConfig {
   def gatekeeperComposeEmailUsersUrl: String
 }
 
-
 @Singleton
 class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with EBbridgeConfigHelper {
 

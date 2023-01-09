@@ -216,9 +216,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def deleteApplication(applicationId: ApplicationId, request: DeleteApplicationByGatekeeper)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.PATCH[DeleteApplicationByGatekeeper, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), request)
-      .map( _ match {
+      .map(_ match {
         case Right(result) => ApplicationUpdateSuccessResult
-        case Left(_) => ApplicationUpdateFailureResult
+        case Left(_)       => ApplicationUpdateFailureResult
       })
   }
 
