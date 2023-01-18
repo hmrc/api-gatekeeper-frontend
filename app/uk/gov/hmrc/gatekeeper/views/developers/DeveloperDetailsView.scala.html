@@ -28,6 +28,15 @@
 @(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 
 @main(title = s"${applicationConfig.title} - Developer Details") {
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="@{routes.DevelopersController.blankDevelopersPage}">Developers</a>
+            </li>
+        </ol>
+    </div>
+
+    <br />
 
     <h1 class="govuk-heading-l">@developer.email</h1>
 
