@@ -32,7 +32,6 @@ object FieldName {
     override def compare(x: FieldName, y: FieldName): Int = x.value.compareTo(y.value)
   }
 
-
   def random = FieldName(Random.alphanumeric.take(8).mkString) // scalastyle:ignore
 }
 

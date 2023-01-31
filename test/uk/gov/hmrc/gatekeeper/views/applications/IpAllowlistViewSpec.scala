@@ -16,19 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import java.time.Period
+
+import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.IpAllowlistView
-import org.joda.time.DateTime
-import uk.gov.hmrc.gatekeeper.models._
-
-import java.time.Period
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class IpAllowlistViewSpec extends CommonViewSpec {
 

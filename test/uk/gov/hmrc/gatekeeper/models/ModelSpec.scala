@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.gatekeeper.models.AccessType._
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import java.time.Period
+
 import org.joda.time.DateTime
 
-import java.time.Period
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.models.AccessType._
 
 class ModelSpec extends AsyncHmrcSpec {
 

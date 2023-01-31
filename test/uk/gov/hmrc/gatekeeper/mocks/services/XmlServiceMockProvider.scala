@@ -16,13 +16,15 @@
 
 package mocks.services
 
-import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
+import scala.concurrent.Future.successful
+
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.gatekeeper.services.XmlService
+
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import scala.concurrent.Future.successful
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
+import uk.gov.hmrc.gatekeeper.services.XmlService
 
 trait XmlServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

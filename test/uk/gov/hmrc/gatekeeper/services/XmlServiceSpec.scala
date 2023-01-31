@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import mocks.connectors.XmlServicesConnectorMockProvider
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import mocks.connectors.XmlServicesConnectorMockProvider
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 
 class XmlServiceSpec extends AsyncHmrcSpec {
 

@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 
 class CsvHelperSpec extends AnyWordSpec with Matchers {

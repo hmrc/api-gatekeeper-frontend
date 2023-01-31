@@ -16,20 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import akka.stream.Materializer
-import uk.gov.hmrc.gatekeeper.models.Environment.PRODUCTION
-import uk.gov.hmrc.gatekeeper.models._
-import play.api.http.Status._
+
+import play.api.http.Status.{FORBIDDEN, _}
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import play.api.test.Helpers._
-import play.api.http.Status.FORBIDDEN
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.gatekeeper.models.Environment.PRODUCTION
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 

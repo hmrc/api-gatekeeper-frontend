@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.models._
-import play.api.http.Status._
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import play.api.test.Helpers._
-import play.api.http.Status.FORBIDDEN
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+
+import play.api.http.Status.{FORBIDDEN, _}
+import play.api.test.Helpers._
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 

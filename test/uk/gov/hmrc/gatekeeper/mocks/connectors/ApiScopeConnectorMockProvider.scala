@@ -16,8 +16,10 @@
 
 package mocks.services
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.ApiScope
 

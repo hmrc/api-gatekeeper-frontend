@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import uk.gov.hmrc.gatekeeper.models.Collaborator
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole
-import uk.gov.hmrc.gatekeeper.models.UserId
+import uk.gov.hmrc.gatekeeper.models.{Collaborator, CollaboratorRole, UserId}
 
 trait CollaboratorsBuilder {
 

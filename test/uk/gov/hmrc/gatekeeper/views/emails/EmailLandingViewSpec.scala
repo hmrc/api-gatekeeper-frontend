@@ -17,11 +17,13 @@
 package uk.gov.hmrc.gatekeeper.views.emails
 
 import mocks.config.AppConfigMock
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import org.jsoup.Jsoup
+
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.Html
+
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonEmailViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailLandingView

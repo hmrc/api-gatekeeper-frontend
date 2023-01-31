@@ -17,12 +17,13 @@
 package uk.gov.hmrc.gatekeeper.utils
 
 import java.time.LocalDateTime
+import java.util.UUID
+
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
 import uk.gov.hmrc.gatekeeper.models.MfaType.{AUTHENTICATOR_APP, SMS}
 import uk.gov.hmrc.gatekeeper.models.{AuthenticatorAppMfaDetailSummary, MfaDetail, MfaId, MfaType, SmsMfaDetail}
-
-import java.util.UUID
 
 class MfaDetailHelperSpec extends AnyWordSpec with Matchers {
 

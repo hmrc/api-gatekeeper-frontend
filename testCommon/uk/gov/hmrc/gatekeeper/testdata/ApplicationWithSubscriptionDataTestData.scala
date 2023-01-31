@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 
 trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {
   val applicationWithSubscriptionData = ApplicationWithSubscriptionData(defaultApplication, defaultSubscriptions, Map.empty)

@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
+import org.joda.time.DateTime
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.State.State
-import uk.gov.hmrc.gatekeeper.models.Actor
-import org.joda.time.DateTime
-import uk.gov.hmrc.gatekeeper.models.StateHistory
+import uk.gov.hmrc.gatekeeper.models.{Actor, StateHistory}
 
 trait StateHistoryBuilder {
 

@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish
 
-import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.test.Helpers._
+
 import org.jsoup.Jsoup
+
 import play.api.test.FakeRequest
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import play.api.test.Helpers._
 import play.filters.csrf.CSRF
-import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
-import uk.gov.hmrc.gatekeeper.controllers.ControllerBaseSpec
-import uk.gov.hmrc.gatekeeper.controllers.ControllerSetupBase
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
+import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
+import uk.gov.hmrc.gatekeeper.views.html.apicataloguepublish.PublishTemplate
 
 class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 

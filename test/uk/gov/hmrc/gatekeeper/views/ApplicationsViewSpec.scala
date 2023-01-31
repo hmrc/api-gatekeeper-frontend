@@ -32,18 +32,20 @@
 
 package uk.gov.hmrc.gatekeeper.views
 
+import java.time.Period
+
+import org.joda.time.DateTime
+import org.jsoup.Jsoup
+
+import play.twirl.api.HtmlFormat
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
-import org.jsoup.Jsoup
-import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
-import org.joda.time.DateTime
-
-import java.time.Period
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApplicationsViewSpec extends CommonViewSpec {
 

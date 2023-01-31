@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import play.api.test.FakeRequest
-import mocks.services._
-
+import java.time.Period
 import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
+
 import mocks.connectors._
+import mocks.services._
+import org.joda.time.DateTime
 import org.mockito.stubbing.ScalaOngoingStubbing
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import play.api.test.FakeRequest
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
-import org.joda.time.DateTime
-import java.time.Period
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
 trait ControllerSetupBase
     extends MockitoSugar

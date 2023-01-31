@@ -92,7 +92,7 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
 
   val devHubBaseUrl          = getString("devHubBaseUrl")
   val retryCount             = getConfigDefaulted("retryCount", 0)
-  val retryDelayMilliseconds = getConfigDefaulted("retryDelayMilliseconds", 500)  // scalastyle:ignore
+  val retryDelayMilliseconds = getConfigDefaulted("retryDelayMilliseconds", 500) // scalastyle:ignore
 
   val apiScopeSandboxBaseUrl        = serviceUrl("api-scope")("api-scope-sandbox")
   val apiScopeSandboxUseProxy       = useProxy("api-scope-sandbox")

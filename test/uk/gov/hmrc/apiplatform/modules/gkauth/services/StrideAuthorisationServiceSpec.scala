@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import play.api.test.{FakeRequest, StubMessagesFactory}
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthConfig
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
-import play.api.mvc.Result
-import play.api.mvc.Results._
-import play.api.http.Status._
-import play.api.http.HeaderNames.LOCATION
+
 import org.scalatest.prop.TableDrivenPropertyChecks
+
+import play.api.http.HeaderNames.LOCATION
+import play.api.http.Status._
+import play.api.mvc.Results._
+import play.api.mvc.{MessagesRequest, Result}
+import play.api.test.{FakeRequest, StubMessagesFactory}
+
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.gkauth.config.{StrideAuthConfig, StrideAuthRoles}
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnectorMockModule with StubMessagesFactory with TableDrivenPropertyChecks {
   val strideAuthRoles = StrideAuthRoles(adminRole = "test-admin", superUserRole = "test-superUser", userRole = "test-user")

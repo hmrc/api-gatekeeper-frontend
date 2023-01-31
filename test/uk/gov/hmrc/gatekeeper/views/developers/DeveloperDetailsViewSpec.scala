@@ -16,18 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.views.developers
 
+import java.time.LocalDateTime
 import java.util.UUID
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+
 import play.twirl.api.HtmlFormat
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
-import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
-
-import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
+import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 
