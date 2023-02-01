@@ -16,17 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{optionHint, optionLabel, EmailOptionChoice}
+import org.jsoup.nodes.{Document, Element}
+
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
+import uk.gov.hmrc.gatekeeper.models.ApiType.{REST_API, XML_API}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import org.jsoup.nodes.{Document, Element}
+import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, _}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
-import uk.gov.hmrc.gatekeeper.models.ApiType.XML_API
-import uk.gov.hmrc.gatekeeper.models.ApiType.REST_API
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>

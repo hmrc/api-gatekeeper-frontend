@@ -262,7 +262,7 @@ case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmai
 
 trait ApplicationUpdateFormatters {
 
-  implicit val changeNameFormatter                    = Json.writes[ChangeProductionApplicationName]
+  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
     .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
 
   implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]

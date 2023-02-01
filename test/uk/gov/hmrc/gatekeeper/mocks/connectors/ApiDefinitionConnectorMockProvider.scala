@@ -16,11 +16,12 @@
 
 package mocks.connectors
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.gatekeeper.models._
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.models._
 
 trait ApiDefinitionConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

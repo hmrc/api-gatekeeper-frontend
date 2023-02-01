@@ -17,12 +17,11 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.LocalDateTime
+import java.util.UUID
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import java.util.UUID
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 trait ApplicationEventTestDataBuilder {
   def makeAppAdministrator(counter: Int): Collaborator = Collaborators.Administrator(UUID.randomUUID().toString, LaxEmailAddress(s"AppAdmin-$counter"))

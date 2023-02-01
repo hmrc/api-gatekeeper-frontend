@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
+import org.joda.time.DateTime
+
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.{ClientId, IpAllowlist, RateLimitTier}
-import org.joda.time.DateTime
 
 trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData
     with CheckInformationTestData {

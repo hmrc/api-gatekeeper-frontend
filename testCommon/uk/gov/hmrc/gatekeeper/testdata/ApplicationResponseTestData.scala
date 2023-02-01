@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.{ClientId, RateLimitTier}
 import org.joda.time.DateTime
+
 import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.models.{ApplicationResponse, ClientId, RateLimitTier}
 
 trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 

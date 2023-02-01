@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
-import uk.gov.hmrc.gatekeeper.utils.TitleChecker
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.views.html._
-import play.filters.csrf.CSRF.TokenProvider
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import play.filters.csrf.CSRF.TokenProvider
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
+import uk.gov.hmrc.gatekeeper.views.html._
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 
 class SubscriptionControllerSpec
     extends ControllerBaseSpec

@@ -16,18 +16,16 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
-
 import scala.concurrent.Future
-import play.api.mvc.Result
-import play.api.mvc.Results._
 import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import play.api.mvc.Results._
+import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.auth.core.InvalidBearerToken
+
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperStrideRole, LoggedInRequest}
 
 trait StrideAuthorisationServiceMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -16,11 +16,14 @@
 
 package mocks.config
 
-import com.google.inject.Singleton
-import uk.gov.hmrc.gatekeeper.config.AppConfigImpl
 import javax.inject.Inject
+
+import com.google.inject.Singleton
 import mocks.TestRoles
+
 import play.api.Configuration
+
+import uk.gov.hmrc.gatekeeper.config.AppConfigImpl
 
 @Singleton
 class FakeAppConfigImpl @Inject() (config: Configuration)

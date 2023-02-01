@@ -16,19 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.test.Helpers._
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import org.joda.time.DateTime
 
-import uk.gov.hmrc.gatekeeper.services.ApmService
+import play.api.test.Helpers._
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.ClientId
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.Environment
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
+import uk.gov.hmrc.gatekeeper.models.{ClientId, Environment}
+import uk.gov.hmrc.gatekeeper.services.ApmService
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 

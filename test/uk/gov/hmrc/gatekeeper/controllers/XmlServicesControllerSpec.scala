@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.test.Helpers._
-
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import play.api.test.Helpers._
 
 class XmlServicesControllerSpec extends ControllerBaseSpec {
   implicit val materializer = app.materializer

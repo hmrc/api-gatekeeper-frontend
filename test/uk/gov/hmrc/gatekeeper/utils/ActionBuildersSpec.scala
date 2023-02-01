@@ -16,25 +16,23 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
-import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
-import play.api.mvc.Results.Ok
-import play.api.mvc._
-import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.gatekeeper.services.ApplicationService
-import uk.gov.hmrc.http.HeaderCarrier
-
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-import uk.gov.hmrc.gatekeeper.models.FieldName
-import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+
+import play.api.mvc.Results.Ok
+import play.api.mvc.{MessagesRequest, _}
+import play.api.test.FakeRequest
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
+import uk.gov.hmrc.gatekeeper.models.{FieldName, _}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
 

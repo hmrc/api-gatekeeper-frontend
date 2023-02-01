@@ -17,20 +17,20 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
 
-import play.api.libs.json.Json
 import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.http.Status._
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HttpClient, _}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.http.Status._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 
 class ApiPublisherConnectorSpec
     extends AsyncHmrcSpec

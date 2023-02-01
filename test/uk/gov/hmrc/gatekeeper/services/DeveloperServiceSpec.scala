@@ -16,26 +16,26 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
-import org.mockito.invocation.InvocationOnMock
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
-import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import mocks.connectors._
-import mocks.services.XmlServiceMockProvider
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
-import org.joda.time.DateTime
-
 import java.time.Period
 import java.util.UUID
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future.successful
+
+import mocks.connectors._
+import mocks.services.XmlServiceMockProvider
+import org.joda.time.DateTime
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 

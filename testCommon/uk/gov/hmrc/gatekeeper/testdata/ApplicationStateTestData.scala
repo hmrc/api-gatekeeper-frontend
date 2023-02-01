@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.models.ApplicationState
-import uk.gov.hmrc.gatekeeper.models.State
 import org.joda.time._
+
+import uk.gov.hmrc.gatekeeper.models.{ApplicationState, State}
 
 trait ApplicationStateTestData extends CommonTestData {
 

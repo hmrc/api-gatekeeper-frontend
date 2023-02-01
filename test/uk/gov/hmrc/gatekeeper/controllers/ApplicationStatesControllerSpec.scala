@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import mocks.services.ApplicationServiceMockProvider
+
 import play.api.http.Status.{FORBIDDEN, OK}
 import play.api.test.Helpers.{contentAsString, contentType, header, running, status}
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
-
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class ApplicationStatesControllerSpec extends ControllerBaseSpec with ApplicationServiceMockProvider
     with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {

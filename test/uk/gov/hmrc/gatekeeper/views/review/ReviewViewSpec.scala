@@ -16,18 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.views.review
 
-import uk.gov.hmrc.gatekeeper.controllers.HandleUpliftForm
 import mocks.config.AppConfigMock
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import org.jsoup.Jsoup
-import play.api.test.FakeRequest
 import org.joda.time.DateTime
+import org.jsoup.Jsoup
+
+import play.api.test.FakeRequest
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.controllers.HandleUpliftForm
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 class ReviewViewSpec extends CommonViewSpec {
 

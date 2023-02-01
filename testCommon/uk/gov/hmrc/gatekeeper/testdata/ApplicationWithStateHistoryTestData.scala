@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.models.ApplicationWithHistory
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.gatekeeper.models.ApplicationWithHistory
 
 trait ApplicationWithStateHistoryTestData extends ApplicationResponseTestData with StateHistoryTestData {
 

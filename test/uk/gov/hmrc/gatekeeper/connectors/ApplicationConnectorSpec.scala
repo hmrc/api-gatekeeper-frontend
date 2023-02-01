@@ -16,26 +16,24 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
-import play.api.test.Helpers._
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import play.api.libs.json.Json
-
-import java.util.UUID
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import org.joda.time.DateTime
-
 import java.time.{LocalDateTime, Period}
+import java.util.UUID
+import scala.concurrent.ExecutionContext.Implicits.global
+
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.joda.time.DateTime
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.libs.json.Json
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec

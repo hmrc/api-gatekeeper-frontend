@@ -16,12 +16,14 @@
 
 package mocks.connectors
 
-import org.mockito.ArgumentMatchersSugar
-import org.mockito.MockitoSugar
+import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.UpstreamErrorResponse
+
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import scala.concurrent.Future.successful
 
 trait ApiCataloguePublishConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
