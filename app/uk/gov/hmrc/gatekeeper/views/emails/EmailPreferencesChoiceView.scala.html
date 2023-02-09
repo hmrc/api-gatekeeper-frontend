@@ -29,7 +29,7 @@
 @buildOptionRow(preferencesChoice: EmailPreferencesChoice, checked: Boolean = false) = {
   <div class="govuk-radios__item">
     <input class="govuk-radios__input" id="@preferencesChoice.toString" name="sendEmailPreferences" type="radio" value="@preferencesChoice.toString" @checkedFlag(checked)>
-    <label class="govuk-label govuk-radios__label govuk-!-font-weight-bold" for="@preferencesChoice.toString">
+    <label class="govuk-label govuk-radios__label govuk-!-font-weight-regular" for="@preferencesChoice.toString">
       @EmailPreferencesChoice.optionLabel(preferencesChoice)
     </label>
     <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
@@ -39,26 +39,31 @@
 }
 
 @main(title = s"${applicationConfig.title} - Who do you want to email?") {
-  <a href="@routes.EmailsController.chooseEmailOption()" class="govuk-back-link" data-back-link>Back</a>
+    <div class="govuk-main-wrapper" >
+        @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
+        @helper.CSRF.formField
 
-  @helper.form(action = routes.EmailsController.chooseEmailPreferences()) {
-    @helper.CSRF.formField
-
-    <div class="govuk-form-group">
-      <fieldset class="govuk-fieldset">
-        <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
-          <h1 id="pageTitle" class="govuk-fieldset__heading">
-            Who do you want to email?
-          </h1>
-        </legend>
-        <div class="govuk-radios" data-module="govuk-radios">
-          @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
-          @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
-          @buildOptionRow(EmailPreferencesChoice.TOPIC)
+        <div class="govuk-form-group">
+          <fieldset class="govuk-fieldset">
+            <legend class="govuk-fieldset__legend govuk-fieldset__legend--l">
+              <h1 id="pageTitle" class="govuk-fieldset__heading govuk-!-margin-bottom-3">
+                Who do you want to email?
+              </h1>
+            </legend>
+            <div class="govuk-radios" data-module="govuk-radios">
+              @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
+              @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
+              @buildOptionRow(EmailPreferencesChoice.TOPIC)
+            </div>
+          </fieldset>
         </div>
-      </fieldset>
-    </div>
 
-    <button id="submit" class="govuk-button" type="submit">Continue</button>
-  }
+        <button id="submit" class="govuk-button" type="submit">Continue</button>
+        <p class="govuk-body govuk-!-margin-top-3 govuk-!-margin-bottom-2">You can also:</p>
+        <ul class="govuk-list govuk-list--bullet">
+            <li><a class="govuk-link govuk-link--no-visited-state" href="all-users/information">email all users with a Developer Hub account</a></li>
+            <li><a class="govuk-link govuk-link--no-visited-state" href="api-subscription/information">email users mandatory information about APIs they subscribe to</a></li>
+        </ul>
+      }
+    </div>
 }
