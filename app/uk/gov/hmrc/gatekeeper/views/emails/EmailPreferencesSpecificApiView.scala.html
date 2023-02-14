@@ -47,22 +47,43 @@
                       <h1 class="govuk-heading-l" id="pageTitle">You have selected {filteredApisSize} {apiCaption}</h1>
                   }
               </legend>
-              <div class="govuk-form-group">
-                <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
-                @for(filteredApi <- filteredApis) {
-                    <li class="hmrc-add-to-a-list__contents">
-                        <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+              <div class="govuk-form-group govuk-grid-column-two-thirds govuk-!-margin-bottom-static-0 govuk-!-padding-left-0">
+                  <dl class="govuk-summary-list hmrc-list-with-actions hmrc-list-with-actions--short">
+                  @for(filteredApi <- filteredApis) {
+                      <div class="govuk-summary-list__row">
+                          <dt class="govuk-summary-list__key hmrc-summary-list__key govuk-!-font-weight-regular govuk-!-width-one-half">
                             @handleAppendXmlTag(filteredApi)
-                        </span>
-                        <span class="hmrc-add-to-a-list__remove">
-                            <a class="govuk-link" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None).url">
-                                <span aria-hidden="true">Remove</span>
-                                <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
-                            </a>
-                        </span>
-                        <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
-                        }
-                </ul>
+                          </dt>
+                          <dd class="govuk-summary-list__actions hmrc-summary-list__actions">
+                              <ul class="govuk-summary-list__actions-list">
+                                  <li class="govuk-summary-list__actions-list-item">
+                                      <a class="govuk-link govuk-link--no-visited-state" href="#"><span aria-hidden="true">Change</span>
+                                          <span class="govuk-visually-hidden">Change @{filteredApi}</span></a>
+                                  </li>
+                                  <li class="govuk-summary-list__actions-list-item">
+                                      <a class="govuk-link govuk-link--no-visited-state" href="#"><span aria-hidden="true">Remove</span>
+                                          <span class="govuk-visually-hidden">Remove @{filteredApi} from the list</span></a>
+                                  </li>
+                              </ul>
+                          </dd>
+                      </div>
+                  }
+                  </dl>
+                  @*<ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
+                    @for(filteredApi <- filteredApis) {
+                        <li class="hmrc-add-to-a-list__contents">
+                            <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
+                                @handleAppendXmlTag(filteredApi)
+                            </span>
+                            <span class="hmrc-add-to-a-list__remove">
+                                <a class="govuk-link" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None).url">
+                                    <span aria-hidden="true">Remove</span>
+                                    <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
+                                </a>
+                            </span>
+                            <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+                    }
+                </ul>*@
               </div>
               @*<div class="form-field">
                   <a href="#" onclick='document.getElementById("api-filters").submit();'>Add Another Api</a>
@@ -81,11 +102,11 @@
               <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                   <div class="govuk-radios__item">
                       <input class="govuk-radios__input" id="0" name="selectAnotherApi" value="Yes" type="radio">
-                      <label class="govuk-label govuk-radios__label govuk-!-font-weight-bold" for="yes">Yes</label>
+                      <label class="govuk-label govuk-radios__label" for="yes">Yes</label>
                   </div>
                   <div class="govuk-radios__item">
                       <input class="govuk-radios__input" id="1"  name="selectAnotherApi" value="No" type="radio">
-                      <label class="govuk-label govuk-radios__label govuk-!-font-weight-bold" for="no">No</label>
+                      <label class="govuk-label govuk-radios__label" for="no">No</label>
                   </div>
               </div>
               @for(filteredApi <- filteredApis) {
@@ -93,7 +114,7 @@
               }
           </fieldset>
       </div>
-      <button id="select" class="govuk-button" data-module="govuk-button" type="submit">Continue</button>
+      <button id="select" class="govuk-button govuk-!-margin-top-static-6" data-module="govuk-button" type="submit">Continue</button>
     </form>
 
     @if(maybeTopicFilter.isDefined) {
