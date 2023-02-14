@@ -147,10 +147,8 @@ class EmailsController @Inject() (
   def emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     if (selectedAPIs.forall(_.isEmpty)) {
-      println(s"NOT Received any selectedAPIs ${selectedAPIs}")
       Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
-      println(s"received selectedAPIs ${selectedAPIs}")
       for {
         apis         <- apmService.fetchAllCombinedApis()
         filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
