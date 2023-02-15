@@ -229,14 +229,13 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
   self: HmrcSpec =>
 
   private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
-    validatePageHeader(document, "Email users interested in a specific API")
     validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
-    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-    validateButtonText(document, "filter", filterButtonText)
-    validateTopicGrid(document, selectedTopic)
   }
 
-  def validateEmailPreferencesSpecificAPIPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+  def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+    val sizeOfSelectedApis = selectedApis.size
+    val headerTitle = if(sizeOfSelectedApis < 2) "API" else "APIs"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
     validateStaticPageElements(document, "Filter", None)
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
