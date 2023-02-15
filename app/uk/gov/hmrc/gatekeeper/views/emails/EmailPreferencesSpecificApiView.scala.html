@@ -80,8 +80,7 @@
           </fieldset>
       </div>
     </form>
-    <form id="add-another-api-choice" name="add-another-api-choice" action="@routes.EmailsController.selectSpecificApiYesOrNo("", None).url" method="get">
-@*    <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">*@
+    <form id="add-another-api-choice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherApiOption("", None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -90,12 +89,12 @@
               <div id="add-another-hint" class="govuk-hint">Add all the APIs you need to email about</div>
               <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="0" name="selectAnotherApi" value="Yes" type="radio">
-                      <label class="govuk-label govuk-radios__label" for="yes">Yes</label>
+                      <input class="govuk-radios__input" id="yes-option" name="selectOption" value="1" type="radio">
+                      <label class="govuk-label govuk-radios__label" for="yes-option">Yes</label>
                   </div>
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="1"  name="selectAnotherApi" value="No" type="radio">
-                      <label class="govuk-label govuk-radios__label" for="no">No</label>
+                      <input class="govuk-radios__input" id="no-option"  name="selectOption" value="0" type="radio" checked>
+                      <label class="govuk-label govuk-radios__label" for="no-option">No</label>
                   </div>
               </div>
               @for(filteredApi <- filteredApis) {
