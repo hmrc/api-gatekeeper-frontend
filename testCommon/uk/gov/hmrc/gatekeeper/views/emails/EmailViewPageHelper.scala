@@ -50,7 +50,6 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
 
     validateButtonText(document, "submit", "Continue")
   }
-
 }
 
 trait EmailInformationViewHelper extends EmailUsersHelper {
@@ -154,6 +153,10 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
+  def validateEmailPreferencesSelectTopicPage(document: Document) = {
+    elementExistsByText(document, "h1", "Select the topic of the email") shouldBe true
+    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+  }
   def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
@@ -161,9 +164,8 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     validateButtonText(document, "filter", "Filter Again")
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
     validateCopyToClipboardLink(document, users)
-    if (users.nonEmpty) {
-      verifyTableHeader(document)
-    }
+
+    if (users.nonEmpty) verifyTableHeader(document)
     users.foreach(verifyUserRow(document, _))
   }
 }
