@@ -35,7 +35,7 @@
 
 @drawEmailApiSubscribersInformation() = @{
   <h1 id="pageTitle" class="govuk-heading-l">Check you can send your email</h1>
-  <p class="govuk-body">You can only email all users based on their API subscription if your message is about:</p>
+  <p class="govuk-body">You can only email users based on their API subscription if your message is <br/>about:</p>
   <ul class="govuk-list govuk-list--bullet">
     <li>important notices and service updates</li>
     <li>changes to any application they have</li>
@@ -45,7 +45,7 @@
 
 
 @main(title = s"${applicationConfig.title} - Check you can send your email") {
-  <a href="@routes.EmailsController.chooseEmailOption()" class="govuk-back-link"  data-back-link>Back</a>
+  <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link"  data-back-link>Back</a>
 
   @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
     @helper.CSRF.formField

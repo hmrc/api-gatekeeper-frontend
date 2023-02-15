@@ -59,7 +59,7 @@ trait EmailInformationViewHelper extends EmailUsersHelper {
   def validateApiSubcriptionInformationPage(document: Document): Unit = {
     elementExistsContainsText(document, "title", "Check you can send your email") shouldBe true
     elementExistsByText(document, "h1", "Check you can send your email") shouldBe true
-    elementExistsContainsText(document, "div", "You can only email all users based on their API subscription if your message is about:") shouldBe true
+    elementExistsContainsText(document, "div", "You can only email users based on their API subscription if your message is about:") shouldBe true
     elementExistsByText(document, "li", "important notices and service updates") shouldBe true
     elementExistsByText(document, "li", "changes to any application they have") shouldBe true
     elementExistsByText(document, "li", "making their application accessible") shouldBe true
@@ -83,7 +83,6 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
   def validateEmailAllUsersPage(document: Document, users: Seq[RegisteredUser]): Unit = {
     elementExistsByText(document, "h1", "Email all users") shouldBe true
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
@@ -106,7 +105,6 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     }
     validateButtonText(document, "filter", "Filter")
     validateCopyToClipboardLink(document, Seq.empty)
-    //     elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     verifyTableHeader(document, tableIsVisible = false)
   }
 
@@ -124,7 +122,6 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     }
 
     validateCopyToClipboardLink(document, users)
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
   }
@@ -139,6 +136,7 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
     verifyEmailPreferencesChoiceOptions(SPECIFIC_API, document)
     verifyEmailPreferencesChoiceOptions(TAX_REGIME, document)
     verifyEmailPreferencesChoiceOptions(TOPIC, document)
+    verifyEmailNonPrimaryLinks(document)
   }
 }
 
@@ -152,7 +150,6 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     validateButtonText(document, "filter", "Filter")
 
     validateCopyToClipboardLink(document)
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     noInputChecked(document)
     verifyTableHeader(document, tableIsVisible = false)
   }
@@ -163,7 +160,6 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     if (users.nonEmpty) {
       verifyTableHeader(document)
@@ -265,9 +261,6 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     users.foreach(verifyUserRow(document, _))
 
     validateCopyToClipboardLink(document, users)
-
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
-    //    getElementBySelector(document, "a[data-clip-text]")
   }
 }
 

@@ -176,4 +176,9 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     elementExistsContainsText(document, "div", EmailPreferencesChoice.optionHint(option)) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
+
+  def verifyEmailNonPrimaryLinks(document: Document): Unit = {
+    elementIdentifiedByIdContainsText(document, "a", "email-all-users", "email all users with a Developer Hub account") shouldBe true
+    elementIdentifiedByIdContainsText(document, "a", "email-mandatory-info", "email users mandatory information about APIs they subscribe to") shouldBe true
+  }
 }
