@@ -50,7 +50,6 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
 
     validateButtonText(document, "submit", "Continue")
   }
-
 }
 
 trait EmailInformationViewHelper extends EmailUsersHelper {
@@ -83,7 +82,6 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
   def validateEmailAllUsersPage(document: Document, users: Seq[RegisteredUser]): Unit = {
     elementExistsByText(document, "h1", "Email all users") shouldBe true
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
@@ -106,7 +104,6 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     }
     validateButtonText(document, "filter", "Filter")
     validateCopyToClipboardLink(document, Seq.empty)
-    //     elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     verifyTableHeader(document, tableIsVisible = false)
   }
 
@@ -124,7 +121,6 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     }
 
     validateCopyToClipboardLink(document, users)
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
   }
@@ -152,22 +148,23 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     validateButtonText(document, "filter", "Filter")
 
     validateCopyToClipboardLink(document)
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe false
     noInputChecked(document)
     verifyTableHeader(document, tableIsVisible = false)
   }
 
+  def validateEmailPreferencesSelectTopicPage(document: Document) = {
+    elementExistsByText(document, "h1", "Select the topic of the email") shouldBe true
+    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+  }
   def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
     validateCopyToClipboardLink(document, users)
-    if (users.nonEmpty) {
-      verifyTableHeader(document)
-    }
+
+    if (users.nonEmpty) verifyTableHeader(document)
     users.foreach(verifyUserRow(document, _))
   }
 }
