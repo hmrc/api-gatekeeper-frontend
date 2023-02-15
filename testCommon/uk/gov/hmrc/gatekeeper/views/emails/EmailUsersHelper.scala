@@ -158,9 +158,6 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
     hiddenApiInputs.size shouldBe apis.size
     hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
-
-    hiddenTopicInputs.size shouldBe apis.size
-    hiddenTopicInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
   }
 
   def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {

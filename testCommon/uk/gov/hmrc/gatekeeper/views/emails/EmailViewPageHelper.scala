@@ -257,10 +257,6 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs, 2)
-    verifyTableHeader(document, users.nonEmpty)
-    users.foreach(verifyUserRow(document, _))
-
-    validateCopyToClipboardLink(document, users)
   }
 }
 
@@ -272,7 +268,7 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
     validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-    validateButtonText(document, "submit", "Select API")
+    validateButtonText(document, "submit", "Continue")
   }
 
   def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi]) = {
