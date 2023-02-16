@@ -34,7 +34,7 @@
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
   <div class="govuk-template__body">
     <div>
-        <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.selectSpecificApi(None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
     <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">

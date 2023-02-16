@@ -23,16 +23,23 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredApis: List[String], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
+
+@pageUrl() = @{
+    val qs = filteredApis.zipWithIndex.map { case (key,index)  =>  s"selectedAPIs=$key" }.mkString("&")
+    val uri = routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url
+    s"$uri?$qs"
+}
 
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {
     <div class="govuk-template__body">
-        <div>
-            <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
-        </div>
 
         <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
+            <div>
+                <a href="@pageUrl()" class="govuk-back-link" data-back-link>Back</a>
+            </div>
+
             <div class="govuk-form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">
@@ -41,7 +48,7 @@
                         </h1>
                     </legend>
                     @for(filteredApi <- filteredApis) {
-                        <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+                        <span><input type="hidden" name="selectedAPIs" value="@filteredApi"/></span>
                     }
                     <div class="govuk-radios" data-module="govuk-radios">
                         @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
