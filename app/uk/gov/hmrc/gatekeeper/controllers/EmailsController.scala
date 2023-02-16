@@ -111,8 +111,8 @@ class EmailsController @Inject() (
   }
 
   def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
-      selectOption.toInt match {
-        case 1 => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs)))
+      selectOption match {
+        case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs)))
         case _ => Future.successful(Ok(emailPreferencesSelectTopicView(List.empty, None)))
       }
   }
