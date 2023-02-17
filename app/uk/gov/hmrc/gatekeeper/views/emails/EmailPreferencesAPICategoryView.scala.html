@@ -19,12 +19,20 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
+@import play.api.libs.json.Json
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
+@tpdQuery() = @{
+    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
+}
+@userSelection() = @{
+    Map("Tax regime" -> selectedCategoryName,
+        "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
+}
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
         <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
@@ -35,16 +43,36 @@
                             <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
                         </legend>
 
-                        <div class="govuk-button-group govuk-!-margin-bottom-5">
-                            <button class="govuk-button" data-module="govuk-button">
-                                Compose email
-                            </button>
+                        @if(users.nonEmpty) {
+                            <div class="govuk-button-group">
+                                <div style="visibility: visible">
+                                    <form method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
+                                        @helper.CSRF.formField
+                                        <input type="hidden" name="user-selection" value="@{
+                                            Json.stringify(Json.toJson(userSelection))
+                                        }"/>
+                                        <input type="hidden" name="user-selection-query" value="@{
+                                            Json.toJson(tpdQuery)
+                                        }"/>
 
-                            <a href="#" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">
-                                Copy emails to clipboard
-                            </a>
-                        </div>
-
+                                        <div class="compose-email-send">
+                                            <button type="submit" class="govuk-button" data-module="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{
+                                                users.length
+                                            } displayed email addresses.">
+                                                Compose email
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="compose-email-clipboard">
+                                    <button id="copy-users-to-clip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
+                                        users.length
+                                    } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
+                                        Copy emails to clipboard
+                                    </button>
+                                </div>
+                            </div>
+                        }
                         <dl class="govuk-summary-list govuk-!-width-three-quarters">
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key" style="width: 15%;">
@@ -74,10 +102,7 @@
                                 </dd>
                             </div>
                         </dl>
-                        <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
-                        @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
-                            "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
-
+                        @recipientTable(users, composeEmailRecipients, emails, tpdQuery, applicationConfig, userSelection)
                     </fieldset>
 
                  @*   @if(maybeTopicFilter.isDefined) {

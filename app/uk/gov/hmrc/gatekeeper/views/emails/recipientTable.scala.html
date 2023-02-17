@@ -17,36 +17,11 @@
 @import uk.gov.hmrc.gatekeeper.models._
 
 @import play.api.libs.json.JsValue
-@import java.util.UUID
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import play.api.libs.json.Json
-@import uk.gov.hmrc.gatekeeper.controllers.routes
 
 @(users: Seq[User], composeEmailRecipients: JsValue, emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
-  <div class="govuk-button-group">
-    <div class="compose-email-clipboard">
-      <button id="copy-users-to-clip" type="submit" class="govuk-button copy-to-clip" name="compose-email-clipboard" value="" title="Copies all @{ users.length} email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
-        Copy emails to clipboard
-      </button>
-    </div>
-
-    <div style="visibility: visible">
-      <form method="post" action="@config.gatekeeperComposeEmailUrl">
-        @helper.CSRF.formField
-        <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
-        <input type="hidden" name="user-selection-query" value="@{Json.toJson(tpdQuery)}"/>
-
-        <div class="compose-email-send">
-          <button type="submit" class="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{users.length} displayed email addresses.">
-            Compose email to send
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
   <div class="govuk-body">@users.size results</div>
 
   <table id="developer-table" class="govuk-table">
