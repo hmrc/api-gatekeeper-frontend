@@ -35,7 +35,7 @@
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {
     <div class="govuk-template__body">
 
-        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
+        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
             <div>
                 <a href="@pageUrl()" class="govuk-back-link" data-back-link>Back</a>
             </div>
@@ -56,6 +56,7 @@
                         @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
                         @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
                     </div>
+
                 </fieldset>
             </div>
             <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Continue</button>

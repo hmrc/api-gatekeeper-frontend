@@ -199,6 +199,33 @@ class EmailsController @Inject() (
     ))
   }
 
+  def emailPreferencesAPICategoryOriginal(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val topicAndCategory: Option[(TopicOptionChoice, String)] =
+      for {
+        topic <- selectedTopic.map(TopicOptionChoice.withName)
+        category <- selectedCategory.filter(!_.isEmpty)
+      } yield (topic, category)
+
+    for {
+      categories <- apiDefinitionService.apiCategories
+      users <- topicAndCategory.map(tup =>
+        developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
+      )
+        .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+      usersAsJson = Json.toJson(users)
+      selectedCategories = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
+      selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
+    } yield Ok(emailPreferencesAPICategoryView(
+      users,
+      usersAsJson,
+      usersToEmailCopyText(users),
+      topicAndCategory.map(_._1),
+      categories,
+      selectedCategory.getOrElse(""),
+      selectedCategoryName
+    ))
+  }
+
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {
       case "all-users"        => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))

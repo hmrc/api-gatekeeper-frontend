@@ -25,45 +25,97 @@
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
-  <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
+    @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
+        <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
+        <div class="govuk-width-container">
+            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <legend >
+                            <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
+                        </legend>
 
-  <div class="govuk-template__body">
+                        <div class="govuk-button-group govuk-!-margin-bottom-5">
+                            <button class="govuk-button" data-module="govuk-button">
+                                Compose email
+                            </button>
 
-    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
+                            <a href="#" role="button" draggable="false" class="govuk-button govuk-button--secondary" data-module="govuk-button">
+                                Copy emails to clipboard
+                            </a>
+                        </div>
 
-      <div class="govuk-form-group">
-        <fieldset class="govuk-fieldset">
-            <legend >
-                <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
-            </legend>
-            <div class="govuk-form-group">
-                <label class="govuk-label govuk-!-font-weight-bold" for="selectedCategory">Select a tax regime from the list </label>
-                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value="@selectedCategory">
-                    <option value="">Select tax regime</option>
-                    @for(category <- categories.sortBy(_.name)) {
-                        <option @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
-                    }
-                </select>
-            </div>
-            <div class="govuk-form-group">
-                @topicRadioGrid(maybeTopicFilter)
-            </div>
-        </fieldset>
+                        <dl class="govuk-summary-list govuk-!-width-three-quarters">
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key" style="width: 15%;">
+                                    APIs
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    Agent Client Authorisation<br>
+                                    Business Rates List
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="api-list-2-change">
+                                        Change<span class="govuk-visually-hidden"> APIs</span>
+                                    </a>
+                                </dd>
+                            </div>
+                            <div class="govuk-summary-list__row">
+                                <dt class="govuk-summary-list__key app-summary-list__15">
+                                    Topic
+                                </dt>
+                                <dd class="govuk-summary-list__value">
+                                    Business and policy
+                                </dd>
+                                <dd class="govuk-summary-list__actions">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="select-topic-2">
+                                        Change<span class="govuk-visually-hidden"> topic</span>
+                                    </a>
+                                </dd>
+                            </div>
+                        </dl>
 
-        @if(maybeTopicFilter.isDefined) {
-          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter Again</button>
-        } else {
-          <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter</button>
-        }
-      </div>
-    </form>
+                    </fieldset>
 
-    @if(maybeTopicFilter.isDefined) {
-      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
-      @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
-    "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+                 @*   @if(maybeTopicFilter.isDefined) {
+                        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+                            Filter Again</button>
+                    } else {
+                        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
+                            Filter</button>
+                    }*@
+                </div>
+
+                <table class="govuk-table govuk-!-width-three-quarters">
+                    <caption class="govuk-table__caption govuk-table__caption--s govuk-!-margin-bottom-2 govuk-!-font-weight-regular">81 results</caption>
+                    <thead class="govuk-table__head">
+                        <tr class="govuk-table__row">
+                            <th scope="col" class="govuk-table__header">Email</th>
+                            <th scope="col" class="govuk-table__header">First name</th>
+                            <th scope="col" class="govuk-table__header">Last name</th>
+                        </tr>
+                    </thead>
+                    <tbody class="govuk-table__body">
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">zheng.lei2best-accountancy.co.uk</td>
+                            <td class="govuk-table__cell">Zheng</td>
+                            <td class="govuk-table__cell">Lei</td>
+                        </tr>
+                        <tr class="govuk-table__row">
+                            <td class="govuk-table__cell">sarthak.dayanand2cyclopsfinance.com</td>
+                            <td class="govuk-table__cell">Sarthak</td>
+                            <td class="govuk-table__cell">Dayanand</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </form>
+
+            @if(maybeTopicFilter.isDefined) {
+                <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+                @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
+                    "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+
+            }
+        </div>
 
     }
-  </div>
-}
