@@ -173,12 +173,11 @@ class EmailsController @Inject() (
   }
 
   def emailPreferencesAPICategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val topicAndCategory: Option[(TopicOptionChoice, String)] =
+    val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
       for {
         topic    <- selectedTopic.map(TopicOptionChoice.withName)
-        category <- selectedCategory.filter(!_.isEmpty)
+        category <- selectedCategory.filter(_.nonEmpty).orElse(Some(""))
       } yield (topic, category)
-
     for {
       categories          <- apiDefinitionService.apiCategories
       users               <- topicAndCategory.map(tup =>
