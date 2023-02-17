@@ -418,7 +418,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
           callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), selectedApis)
+        validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), selectedApis)
       }
 
       "redirect to select api page when no selectedApis in query params" in {

@@ -19,12 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -54,6 +52,7 @@ class EmailsController @Inject() (
     emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView,
     emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
     emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+    emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
@@ -109,6 +108,13 @@ class EmailsController @Inject() (
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
     } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
+  }
+
+  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+      selectOption match {
+        case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs)))
+        case _ => Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, None)))
+      }
   }
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
