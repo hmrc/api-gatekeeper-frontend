@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String, selectedAPIs: List[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @tpdQuery() = @{
     new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
@@ -36,7 +36,7 @@
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
         <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
-            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
+            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None, List.empty).url" method="get">
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend >
@@ -44,7 +44,7 @@
                         </legend>
 
                         @if(users.nonEmpty) {
-                            <div class="govuk-button-group">
+                            <div class="govuk-button-group govuk-!-margin-bottom-4">
                                 <div style="visibility: visible">
                                     <form method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
                                         @helper.CSRF.formField
@@ -79,11 +79,13 @@
                                     APIs
                                 </dt>
                                 <dd class="govuk-summary-list__value">
-                                    Agent Client Authorisation<br>
-                                    Business Rates List
+                                    @for(selectedAPI <- selectedAPIs) {
+                                        @selectedAPI.displayName<br/>
+                                    }
+
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="api-list-2-change">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
                                         Change<span class="govuk-visually-hidden"> APIs</span>
                                     </a>
                                 </dd>
@@ -93,7 +95,7 @@
                                     Topic
                                 </dt>
                                 <dd class="govuk-summary-list__value">
-                                    Business and policy
+                                    @userSelection().get("Topic")
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link govuk-link--no-visited-state" href="select-topic-2">
@@ -102,7 +104,31 @@
                                 </dd>
                             </div>
                         </dl>
-                        @recipientTable(users, composeEmailRecipients, emails, tpdQuery, applicationConfig, userSelection)
+                        <div class="govuk-summary-list govuk-!-width-three-quarters">
+                            @if(users.nonEmpty) {
+                                <div class="govuk-body">@users.size results</div>
+                                <table id="developer-table" class="govuk-table">
+                                    <thead class="govuk-table__head">
+                                        <tr class="govuk-table__row">
+                                            <th scope="col" class="govuk-table__header">Email</th>
+                                            <th scope="col" class="govuk-table__header">First name</th>
+                                            <th scope="col" class="govuk-table__header">Last name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="govuk-table__body">
+                                    @for((user, index) <- users.zipWithIndex) {
+                                        <tr class="govuk-table__row">
+                                            <td id="dev-email-@index" class="govuk-table__cell">@user.email</td>
+                                            <td id="dev-fn-@index" class="govuk-table__cell">@user.firstName</td>
+                                            <td id="dev-sn-@index" class="govuk-table__cell">@user.lastName</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            }else{
+                                <div class="govuk-body">0 results</div>
+                            }
+                        </div>
                     </fieldset>
 
                  @*   @if(maybeTopicFilter.isDefined) {

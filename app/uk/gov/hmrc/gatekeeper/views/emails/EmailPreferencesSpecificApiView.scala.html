@@ -34,10 +34,10 @@
 @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
   <div class="govuk-template__body">
     <div>
-        <a href="@routes.EmailsController.selectSpecificApi(None).url" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.selectSpecificApi(None, None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">
+    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None, None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -58,13 +58,18 @@
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName))).url">
+                                         href="@routes.EmailsController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), None).url">
+@* JG suggestion:                        href="@routes.EmailsController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter.map(_.toString).url">*@
                                           <span aria-hidden="true">Change</span>
-                                          <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span></a>
+                                          <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
+                                          @if(maybeTopicFilter.isDefined) {
+                                            <span><input type="hidden" name="selectedTopic" value="@maybeTopicFilter.get.toString"/></span>
+                                          }
+                                      </a>
                                   </li>
                                   @if(filteredApis.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None).url">
+                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None)).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
                                           </a>
