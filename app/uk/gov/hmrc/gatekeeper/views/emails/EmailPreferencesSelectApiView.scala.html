@@ -45,7 +45,7 @@
 
   <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 
-  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, selectedTopic).url" method="get">
+  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
 
     <div class="govuk-form-group">
       <label class="govuk-label" for="selectedAPIs">
@@ -56,7 +56,10 @@
           <input class="govuk-visually-hidden" type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
         }
       }
-      @drawAPIDropDown
+      @if(selectedTopic.nonEmpty) {
+          <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@selectedTopic"/>
+      }
+        @drawAPIDropDown
     </div>
     <button id="submit" class="govuk-button" type="submit">Continue</button>
   </form>

@@ -112,10 +112,10 @@ class EmailsController @Inject() (
     } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
   }
 
-  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
       selectOption match {
-        case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs, None)))
-        case _ => Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, None)))
+        case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs, selectedTopic)))
+        case _ => Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic.map(TopicOptionChoice.withName))))
       }
   }
 
