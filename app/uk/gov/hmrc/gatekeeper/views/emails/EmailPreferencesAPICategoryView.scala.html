@@ -98,7 +98,7 @@
                                     @userSelection().get("Topic")
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="select-topic-2">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.addAnotherApiOption("0", Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
                                         Change<span class="govuk-visually-hidden"> topic</span>
                                     </a>
                                 </dd>
