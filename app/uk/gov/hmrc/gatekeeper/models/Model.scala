@@ -36,6 +36,7 @@ import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionDat
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 import java.time.LocalDateTime
 

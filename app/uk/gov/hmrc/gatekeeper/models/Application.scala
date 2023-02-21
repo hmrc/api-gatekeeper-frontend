@@ -31,6 +31,7 @@ import play.api.libs.json.JodaWrites._
 import java.time.Period
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 case class ClientId(value: String) extends AnyVal
 

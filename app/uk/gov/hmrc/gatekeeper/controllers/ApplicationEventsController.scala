@@ -18,12 +18,11 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.mvc._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+
 import scala.concurrent.ExecutionContext
 import com.google.inject.{Inject, Singleton}
-
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
@@ -35,12 +34,16 @@ import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
+
 import java.time.format.DateTimeFormatter
 import play.api.data.Form
+
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.services.SimpleEventDetails
+
+import java.time.ZoneOffset
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
@@ -48,8 +51,8 @@ object ApplicationEventsController {
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
-    def apply(event: AbstractApplicationEvent): EventModel = {
-      EventModel(dateTimeFormatter.format(event.eventDateTime), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
+    def apply(event: ApplicationEvent): EventModel = {
+      EventModel(event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
     }
   }
 

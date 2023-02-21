@@ -17,10 +17,10 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
-import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
 
 import javax.inject.{Inject, Singleton}

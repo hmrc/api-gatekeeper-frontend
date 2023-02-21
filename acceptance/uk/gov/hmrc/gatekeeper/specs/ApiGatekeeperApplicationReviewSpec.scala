@@ -20,6 +20,7 @@ import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, Application
 import uk.gov.hmrc.gatekeeper.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 

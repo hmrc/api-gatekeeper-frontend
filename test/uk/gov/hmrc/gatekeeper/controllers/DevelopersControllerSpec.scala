@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
 import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 

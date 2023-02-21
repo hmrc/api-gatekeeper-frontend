@@ -23,10 +23,10 @@ import uk.gov.hmrc.gatekeeper.models.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequest
-import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 trait ApprovedBaseSpec extends BaseSpec

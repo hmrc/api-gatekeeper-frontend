@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+
 import java.time.format.DateTimeFormatter
-import java.time.LocalDateTime
+import java.time.{Instant, ZoneOffset}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 
 class ApiGatekeeperApplicationEventsSpec
-    extends ApiGatekeeperBaseSpec 
-    with StateHistoryTestData 
-    with ApplicationWithSubscriptionDataTestData 
-    with ApplicationResponseTestData 
+    extends ApiGatekeeperBaseSpec
+    with StateHistoryTestData
+    with ApplicationWithSubscriptionDataTestData
+    with ApplicationResponseTestData
     with ApplicationWithStateHistoryTestData
     with ApplicationEventsTestData
     with XmlServicesStub
@@ -48,7 +49,7 @@ class ApiGatekeeperApplicationEventsSpec
 
       on(ApplicationsPage)
 
-      val allEvents = makeSomeEvents(applicationId)
+      val allEvents = makeSomeEvents()
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApplicationForActionRefiner(defaultApplicationWithHistory.toJsonString, applicationId)
       stubEvents(applicationId, allEvents)
@@ -68,6 +69,7 @@ class ApiGatekeeperApplicationEventsSpec
 
       And("The filter is set to ALL")
       ApplicationEventsPage(applicationId).getTypeOfChange shouldBe ""
+      Thread.sleep(2000)
 
       And("I can the events")
       verifyCountOfElementsByAttribute("data-event-time",4)
@@ -95,10 +97,10 @@ class ApiGatekeeperApplicationEventsSpec
     }
   }
 
-  def verifyEvent(counter: Int, expectedDateTime: LocalDateTime, expectedTag: String, expectedDetails: String, expectedActor: String) = {
+  def verifyEvent(counter: Int, expectedDateTime: Instant, expectedTag: String, expectedDetails: String, expectedActor: String) = {
     val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
-    verifyText("data-event-time", dateTimeFormatter.format(expectedDateTime), counter)
+    verifyText("data-event-time", dateTimeFormatter.format(expectedDateTime.atZone(ZoneOffset.UTC)), counter)
     verifyText("data-event-tag", expectedTag, counter)
     verifyText("data-event-details", expectedDetails, counter)
     verifyText("data-event-actor", expectedActor, counter) 

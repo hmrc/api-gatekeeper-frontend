@@ -28,16 +28,13 @@ import play.api.libs.json.Json
 
 import scala.io.Source
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
-import uk.gov.hmrc.gatekeeper.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.AbstractApplicationEvent
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag, EventTags, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 
 
 class ApiGatekeeperBaseSpec
@@ -72,7 +69,7 @@ class ApiGatekeeperBaseSpec
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubEvents(applicationId: ApplicationId, events: List[AbstractApplicationEvent]) = {
+  def stubEvents(applicationId: ApplicationId, events: List[ApplicationEvent]) = {
     val tags = events.map(e => EventTags.tag(e)).toSet
     val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
     stubFor(
@@ -87,7 +84,7 @@ class ApiGatekeeperBaseSpec
     )
   }
 
-  def stubFilteredEvents(applicationId: ApplicationId, tag: EventTag, events: List[AbstractApplicationEvent]) = {
+  def stubFilteredEvents(applicationId: ApplicationId, tag: EventTag, events: List[ApplicationEvent]) = {
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
     stubFor(
       get(urlPathEqualTo(s"/application-event/${applicationId.value.toString}"))
@@ -98,7 +95,7 @@ class ApiGatekeeperBaseSpec
     )
   }
 
-  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[AbstractApplicationEvent] = Nil) = {
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[ApplicationEvent] = Nil) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)

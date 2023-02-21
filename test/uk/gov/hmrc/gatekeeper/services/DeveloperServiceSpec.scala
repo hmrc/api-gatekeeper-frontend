@@ -36,6 +36,7 @@ import java.time.Period
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 

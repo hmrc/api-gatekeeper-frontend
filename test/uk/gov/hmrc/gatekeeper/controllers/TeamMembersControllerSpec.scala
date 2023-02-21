@@ -29,6 +29,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class TeamMembersControllerSpec
     extends ControllerBaseSpec

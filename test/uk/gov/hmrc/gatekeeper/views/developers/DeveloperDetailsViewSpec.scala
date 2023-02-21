@@ -28,6 +28,7 @@ import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisat
 
 import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class DeveloperDetailsViewSpec extends CommonViewSpec {
 

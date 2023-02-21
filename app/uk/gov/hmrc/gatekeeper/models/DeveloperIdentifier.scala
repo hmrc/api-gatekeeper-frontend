@@ -20,6 +20,7 @@ import scala.util.matching.Regex
 import java.util.UUID
 import scala.util.Try
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait DeveloperIdentifier {
   def asText: String = DeveloperIdentifier.asText(this)

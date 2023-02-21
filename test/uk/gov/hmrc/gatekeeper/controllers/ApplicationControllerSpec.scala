@@ -53,6 +53,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceM
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec

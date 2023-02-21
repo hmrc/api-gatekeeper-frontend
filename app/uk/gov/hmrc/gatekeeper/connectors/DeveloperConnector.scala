@@ -26,13 +26,13 @@ import play.api.http.Status.NO_CONTENT
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse}
 import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.gatekeeper.models.UserId
 
 import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.name.Named
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import cats.data.OptionT
 import play.api.Logging
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]

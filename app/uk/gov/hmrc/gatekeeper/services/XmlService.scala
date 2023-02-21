@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
 import uk.gov.hmrc.http.HeaderCarrier
 

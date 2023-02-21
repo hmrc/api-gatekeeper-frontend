@@ -28,6 +28,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiView
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 

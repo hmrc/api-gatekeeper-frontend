@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.mvc.MessagesRequest
 import play.api.test.FakeRequest
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]

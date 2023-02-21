@@ -22,9 +22,9 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec

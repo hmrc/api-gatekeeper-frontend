@@ -16,18 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.Collaborators._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.PrivacyPolicyLocation
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.PrivacyPolicyLocations
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.TermsAndConditionsLocation
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.TermsAndConditionsLocations
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{
+  Collaborator,
+  PrivacyPolicyLocation,
+  PrivacyPolicyLocations,
+  TermsAndConditionsLocation,
+  TermsAndConditionsLocations
+}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
 
 object SimpleEventDetails {
 
   def details(collaborator: Collaborator): String = collaborator match {
-    case Administrator(_, email) => s"${email.value} with the role Admin"
-    case Developer(_, email)     => s"${email.value} with the role Developer"
+    case Administrator(_, email) => s"${email.text} with the role Admin"
+    case Developer(_, email)     => s"${email.text} with the role Developer"
   }
 
   def details(ppl: PrivacyPolicyLocation): String = ppl match {
@@ -43,21 +47,21 @@ object SimpleEventDetails {
   }
 
   // format: off
-  def typeOfChange(evt: AbstractApplicationEvent): String = evt match {
+  def typeOfChange(evt: ApplicationEvent): String = evt match {
     case e: ApiSubscribedEvent                                => "Subscribed to API"
-    case e: ApiSubscribed                                     => "Subscribed to API"
+    case e: ApiSubscribedV2                                   => "Subscribed to API"
     case e: ApiUnsubscribedEvent                              => "Unsubscribed from API"
-    case e: ApiUnsubscribed                                   => "Unsubscribed from API"
-    case e: CollaboratorAdded                                 => "Team member added"
-    case e: CollaboratorRemoved                               => "Team member removed"
+    case e: ApiUnsubscribedV2                                 => "Unsubscribed from API"
+    case e: CollaboratorAddedV2                               => "Team member added"
+    case e: CollaboratorRemovedV2                             => "Team member removed"
     case e: TeamMemberAddedEvent                              => "Team member added"
     case e: TeamMemberRemovedEvent                            => "Team member removed"
-    case e: ClientSecretAdded                                 => "Client secret added"
-    case e: ClientSecretRemoved                               => "Client secret removed" 
+    case e: ClientSecretAddedV2                               => "Client secret added"
+    case e: ClientSecretRemovedV2                             => "Client secret removed"
     case e: ClientSecretAddedEvent                            => "Client secret added"
     case e: ClientSecretRemovedEvent                          => "Client secret removed"
     case e: PpnsCallBackUriUpdatedEvent                       => "PPNS Callback URL changed"
-    case e: RedirectUrisUpdated                               => "Redirect URIs changed"
+    case e: RedirectUrisUpdatedV2                             => "Redirect URIs changed"
     case e: RedirectUrisUpdatedEvent                          => "Redirect URIs changed"
     case e: ResponsibleIndividualChanged                      => "Responsible individual changed"
     case e: ResponsibleIndividualChangedToSelf                => "Responsible individual changed to self"
@@ -78,31 +82,31 @@ object SimpleEventDetails {
     case e: ProductionCredentialsApplicationDeleted           => "Production credentials request deleted"
   }
 
- def details(evt: AbstractApplicationEvent): String = evt match {
+ def details(evt: ApplicationEvent): String = evt match {
     case e: ApiSubscribedEvent                                => s"${e.context} ${e.version}"
-    case e: ApiSubscribed                                     => s"${e.apiIdentifier.context.value} ${e.apiIdentifier.version.value}"
+    case e: ApiSubscribedV2                                   => s"${e.context.value} ${e.version.value}"
     case e: ApiUnsubscribedEvent                              => s"${e.context} ${e.version}"
-    case e: ApiUnsubscribed                                   => s"${e.apiIdentifier.context.value} ${e.apiIdentifier.version.value}"
-    case e: CollaboratorAdded                                 => details(e.collaborator)
-    case e: CollaboratorRemoved                               => details(e.collaborator)
-    case e: TeamMemberAddedEvent                              => s"${e.teamMemberEmail.value} with the role ${e.teamMemberRole}"
-    case e: TeamMemberRemovedEvent                            => s"${e.teamMemberEmail.value} with the role ${e.teamMemberRole}"
-    case e: ClientSecretAdded                                 => s"Client secret ${e.clientSecretName}"
-    case e: ClientSecretRemoved                               => s"Client secret ${e.clientSecretName}" 
+    case e: ApiUnsubscribedV2                                 => s"${e.context.value} ${e.version.value}"
+    case e: CollaboratorAddedV2                               => details(e.collaborator)
+    case e: CollaboratorRemovedV2                             => details(e.collaborator)
+    case e: TeamMemberAddedEvent                              => s"${e.teamMemberEmail.text} with the role ${e.teamMemberRole}"
+    case e: TeamMemberRemovedEvent                            => s"${e.teamMemberEmail.text} with the role ${e.teamMemberRole}"
+    case e: ClientSecretAddedV2                               => s"Client secret ${e.clientSecretName}"
+    case e: ClientSecretRemovedV2                             => s"Client secret ${e.clientSecretName}"
     case e: ClientSecretAddedEvent                            => s"Client secret ${e.clientSecretId}"
     case e: ClientSecretRemovedEvent                          => s"Client secret ${e.clientSecretId}"
     case e: PpnsCallBackUriUpdatedEvent                       => s"${e.boxName}: ${e.newCallbackUrl}"
-    case e: RedirectUrisUpdated                               => s"Redirect URIs: ${e.newRedirectUris.mkString}"
+    case e: RedirectUrisUpdatedV2                             => s"Redirect URIs: ${e.newRedirectUris.mkString}"
     case e: RedirectUrisUpdatedEvent                          => s"Redirect URIs: ${e.newRedirectUris.mkString}"
-    case e: ResponsibleIndividualChanged                      => s"Responsible individual: ${e.newResponsibleIndividualName} (${e.newResponsibleIndividualEmail.value})"
-    case e: ResponsibleIndividualChangedToSelf                => s"Responsible individual: ${e.requestingAdminName} (${e.requestingAdminEmail.value})"
-    case e: ResponsibleIndividualDeclined                     => s"Responsible individual declined ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.value})"
-    case e: ResponsibleIndividualDeclinedUpdate               => s"Responsible individual declined update ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.value})"
-    case e: ResponsibleIndividualDidNotVerify                 => s"Responsible individual did not verify ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.value})"
-    case e: ResponsibleIndividualSet                          => s"Responsible individual set to ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.value})"
-    case e: ResponsibleIndividualVerificationStarted          => s"Responsible individual verification started by ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.value})"
+    case e: ResponsibleIndividualChanged                      => s"Responsible individual: ${e.newResponsibleIndividualName} (${e.newResponsibleIndividualEmail.text})"
+    case e: ResponsibleIndividualChangedToSelf                => s"Responsible individual: ${e.requestingAdminName} (${e.requestingAdminEmail.text})"
+    case e: ResponsibleIndividualDeclined                     => s"Responsible individual declined ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
+    case e: ResponsibleIndividualDeclinedUpdate               => s"Responsible individual declined update ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
+    case e: ResponsibleIndividualDidNotVerify                 => s"Responsible individual did not verify ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
+    case e: ResponsibleIndividualSet                          => s"Responsible individual set to ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
+    case e: ResponsibleIndividualVerificationStarted          => s"Responsible individual verification started by ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
     case e: ApplicationStateChanged                           => s"State changes ${e.newAppState}"
-    case e: ApplicationApprovalRequestDeclined                => s"Approval declined by ${e.decliningUserName} (${e.decliningUserEmail.value})"
+    case e: ApplicationApprovalRequestDeclined                => s"Approval declined by ${e.decliningUserName} (${e.decliningUserEmail.text})"
     case e: ProductionAppNameChangedEvent                     => s"Application name: ${e.newAppName}"
     case e: ProductionAppPrivacyPolicyLocationChanged         => s"Privacy policy URL: ${details(e.newLocation)}"
     case e: ProductionAppTermsConditionsLocationChanged       => s"Terms and conditions URL: ${details(e.newLocation)}"
@@ -114,22 +118,13 @@ object SimpleEventDetails {
   }
   // format: on
 
-  def who(event: AbstractApplicationEvent): String = event match {
-    case ae: ApplicationEvent          => applicationEventWho(ae.actor)
-    case ose: OldStyleApplicationEvent => oldStyleApplicationEventWho(ose.actor)
-  }
+  def who(event: ApplicationEvent): String = applicationEventWho(event.actor)
 
   def applicationEventWho(actor: Actor): String = actor match {
-    case Actors.Collaborator(email)  => email.value
-    case Actors.GatekeeperUser(user) => s"(GK) $user"
-    case Actors.ScheduledJob(jobId)  => s"Job($jobId)"
-    case Actors.Unknown              => "Unknown"
+    case Actors.AppCollaborator(email) => email.text
+    case Actors.GatekeeperUser(user)   => s"(GK) $user"
+    case Actors.ScheduledJob(jobId)    => s"Job($jobId)"
+    case Actors.Unknown                => "Unknown"
   }
 
-  def oldStyleApplicationEventWho(actor: OldStyleActor): String = actor match {
-    case OldStyleActors.Collaborator(id)   => id
-    case OldStyleActors.GatekeeperUser(id) => s"(GK) $id"
-    case OldStyleActors.ScheduledJob(id)   => s"Job($id)"
-    case OldStyleActors.Unknown            => "Unknown"
-  }
 }

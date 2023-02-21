@@ -17,15 +17,18 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.mvc.PathBindable
+
 import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import play.api.mvc.QueryStringBindable
-import uk.gov.hmrc.gatekeeper.models.UserId
+
+
 import scala.util.Try
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 package object binders extends ApplicationLogger {
 

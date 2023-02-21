@@ -21,6 +21,7 @@ import org.scalatest.BeforeAndAfterEach
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class DummyDeveloperConnectorSpec
     extends AsyncHmrcSpec

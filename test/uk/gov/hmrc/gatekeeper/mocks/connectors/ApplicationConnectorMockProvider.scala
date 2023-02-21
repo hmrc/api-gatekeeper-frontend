@@ -25,6 +25,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

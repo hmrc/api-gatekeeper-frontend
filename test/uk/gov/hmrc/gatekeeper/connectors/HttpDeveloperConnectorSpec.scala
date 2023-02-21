@@ -33,6 +33,7 @@ import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequestWri
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class HttpDeveloperConnectorSpec
     extends AsyncHmrcSpec

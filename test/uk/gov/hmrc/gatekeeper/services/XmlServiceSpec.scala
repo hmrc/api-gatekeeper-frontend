@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class XmlServiceSpec extends AsyncHmrcSpec {
 

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.util.UUID
-
-case class UserId(value: UUID) extends AnyVal {
-  def asText = value.toString
-}
-
-object UserId {
-  import play.api.libs.json.Json
-  implicit val format = Json.valueFormat[UserId]
-  def random          = UserId(UUID.randomUUID())
-}
+//
+//case class UserId(value: UUID) extends AnyVal {
+//  def asText = value.toString
+//}
+//
+//object UserId {
+//  import play.api.libs.json.Json
+//  implicit val format = Json.valueFormat[UserId]
+//  def random          = UserId(UUID.randomUUID())
+//}
