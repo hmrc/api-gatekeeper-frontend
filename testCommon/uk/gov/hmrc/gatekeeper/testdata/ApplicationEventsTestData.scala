@@ -19,10 +19,8 @@ package uk.gov.hmrc.gatekeeper.testdata
 import java.time.temporal.ChronoUnit
 
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
-import uk.gov.hmrc.apiplatform.modules.events.domain.models._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 
-trait ApplicationEventsTestData extends ApplicationEventTestData with ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationEventTestDataBuilder with ApplicationStateTestData {
+trait ApplicationEventsTestData  extends ApplicationEventTestDataBuilder with CommonTestData {
 
   val event1 = makeTeamMemberAddedEvent(applicationId,1)
   val event2 = makeTeamMemberAddedEvent(applicationId,2).copy(eventDateTime = event1.eventDateTime.minus(1, ChronoUnit.MINUTES))

@@ -18,16 +18,25 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 
 import java.util.UUID
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.domain.models.ApplicationEventTestData
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 
-trait ApplicationEventTestDataBuilder extends ApplicationEventTestData {
+import java.time.{Clock, Instant, ZoneOffset}
+
+trait ApplicationEventTestDataBuilder {
+
+  val fixedClock: Clock = Clock.fixed(Instant.now, ZoneOffset.UTC)
+
+
+  val appCollaboratorActor: Actors.AppCollaborator = Actors.AppCollaborator(LaxEmailAddress("iam@admin.com"))
+  val gkActor: Actors.GatekeeperUser = Actors.GatekeeperUser("iam@admin.com")
+  val nowInstant: Instant = Instant.now(fixedClock)
+
+  val userId = UserId(UUID.randomUUID())
   def makeAppAdministrator(counter: Int): Collaborator = Collaborators.Administrator(UserId(UUID.randomUUID()), LaxEmailAddress(s"AppAdmin-$counter"))
   def makeAppDeveloper(counter: Int): Collaborator     = Collaborators.Developer(UserId(UUID.randomUUID()), LaxEmailAddress(s"AppDev-$counter"))
 

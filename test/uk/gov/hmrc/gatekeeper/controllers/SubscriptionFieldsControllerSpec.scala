@@ -20,7 +20,7 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import play.api.http.Status.{FORBIDDEN, _}
+import play.api.http.Status.FORBIDDEN
 import play.api.test.Helpers._
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._

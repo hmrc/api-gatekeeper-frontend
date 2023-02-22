@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import akka.stream.Materializer
 
-import play.api.http.Status.{FORBIDDEN, _}
+import play.api.http.Status.FORBIDDEN
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

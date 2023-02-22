@@ -50,8 +50,6 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions += "-Ypartial-unification",
   )
   .settings(scalaSettings: _*)
-  .settings(publishingSettings: _*)
-  .settings(SilencerSettings())
   .settings(
     scalaVersion := "2.12.15",
     name:= appName,
@@ -117,6 +115,14 @@ lazy val microservice = Project(appName, file("."))
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
+  .settings(
+    scalacOptions ++= Seq(
+      "-Wconf:cat=unused&src=views/.*\\.scala:s",
+      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
+  )
 
 coverageMinimumStmtTotal := 85
 coverageFailOnMinimum := true
