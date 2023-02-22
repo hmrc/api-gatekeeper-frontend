@@ -35,7 +35,7 @@
 @main(title = s"${applicationConfig.title} - Email users interested in a topic") {
     <div class="govuk-template__body">
 
-        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesAPICategory(None, None, List.empty).url" method="get">
+        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
             <div>
                 <a href="@pageUrl()" class="govuk-back-link" data-back-link>Back</a>
             </div>

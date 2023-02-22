@@ -19,27 +19,24 @@ package uk.gov.hmrc.gatekeeper.views.emails
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-
 import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
-
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesAPICategoryView
+import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesApiCategoryView
 
 class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
     val emailRecipientsAsJson: JsArray                                   = new JsArray()
-    val emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView = app.injector.instanceOf[EmailPreferencesAPICategoryView]
+    val emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   }
 
   val expectedTitle = "Email users interested in a tax regime"
@@ -79,7 +76,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     val categories = List(category1, category2, category3)
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "",  request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -88,7 +85,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "",  request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
@@ -96,14 +93,14 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and options when only Category filter provided" in new Setup {
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
 
     "show correct title and select correct option when both filters and user lists are present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(
+        emailPreferencesApiCategoryView.render(
           users,
           emailRecipientsAsJson,
           s"${user1.email}; ${user2.email}",
@@ -121,7 +118,7 @@ class EmailPreferencesAPICategoryViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesAPICategoryView.render(
+        emailPreferencesApiCategoryView.render(
           Seq.empty,
           emailRecipientsAsJson,
           "",

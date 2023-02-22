@@ -36,7 +36,7 @@
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
         <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
-            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None, List.empty).url" method="get">
+            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend >
@@ -130,14 +130,6 @@
                             }
                         </div>
                     </fieldset>
-
-                 @*   @if(maybeTopicFilter.isDefined) {
-                        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
-                            Filter Again</button>
-                    } else {
-                        <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">
-                            Filter</button>
-                    }*@
                 </div>
             </form>
         </div>

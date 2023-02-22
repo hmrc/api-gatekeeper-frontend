@@ -43,24 +43,25 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class EmailsController @Inject() (
-    developerService: DeveloperService,
-    apiDefinitionService: ApiDefinitionService,
-    emailLandingView: EmailLandingView,
-    emailInformationView: EmailInformationView,
-    emailsAllUsersView: EmailAllUsersView,
-    emailApiSubscriptionsView: EmailApiSubscriptionsView,
-    emailPreferencesChoiceView: EmailPreferencesChoiceView,
-    emailPreferencesTopicView: EmailPreferencesTopicView,
-    emailPreferencesAPICategoryView: EmailPreferencesAPICategoryView,
-    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
-    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
-    emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
-    val applicationService: ApplicationService,
-    val forbiddenView: ForbiddenView,
-    mcc: MessagesControllerComponents,
-    override val errorTemplate: ErrorTemplate,
-    val apmService: ApmService,
-    strideAuthorisationService: StrideAuthorisationService
+                                   developerService: DeveloperService,
+                                   apiDefinitionService: ApiDefinitionService,
+                                   emailLandingView: EmailLandingView,
+                                   emailInformationView: EmailInformationView,
+                                   emailsAllUsersView: EmailAllUsersView,
+                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
+                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
+                                   emailPreferencesTopicView: EmailPreferencesTopicView,
+                                   emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
+                                   emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+                                   emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+                                   emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
+                                   emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
+                                   val applicationService: ApplicationService,
+                                   val forbiddenView: ForbiddenView,
+                                   mcc: MessagesControllerComponents,
+                                   override val errorTemplate: ErrorTemplate,
+                                   val apmService: ApmService,
+                                   strideAuthorisationService: StrideAuthorisationService
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
@@ -94,7 +95,7 @@ class EmailsController @Inject() (
     def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None, None)))
-        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesAPICategory(None, None, List.empty)))
+        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
         case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
@@ -172,7 +173,7 @@ class EmailsController @Inject() (
       })
   }
 
-  def emailPreferencesAPICategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def emailPreferencesSelectedApiTopic(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
       for {
         topic    <- selectedTopic.map(TopicOptionChoice.withName)
@@ -189,7 +190,7 @@ class EmailsController @Inject() (
       usersAsJson          = Json.toJson(users)
       selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
       selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
-    } yield Ok(emailPreferencesAPICategoryView(
+    } yield Ok(emailPreferencesSelectedApiTopicView(
       users,
       usersAsJson,
       usersToEmailCopyText(users),
@@ -201,7 +202,7 @@ class EmailsController @Inject() (
     ))
   }
 
-  /*def emailPreferencesAPICategoryOriginal(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def emailPreferencesApiCategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val topicAndCategory: Option[(TopicOptionChoice, String)] =
       for {
         topic <- selectedTopic.map(TopicOptionChoice.withName)
@@ -217,7 +218,7 @@ class EmailsController @Inject() (
       usersAsJson = Json.toJson(users)
       selectedCategories = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
       selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
-    } yield Ok(emailPreferencesAPICategoryView(
+    } yield Ok(emailPreferencesApiCategoryView(
       users,
       usersAsJson,
       usersToEmailCopyText(users),
@@ -226,7 +227,7 @@ class EmailsController @Inject() (
       selectedCategory.getOrElse(""),
       selectedCategoryName
     ))
-  }*/
+  }
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {

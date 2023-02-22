@@ -53,10 +53,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailApiSubscriptionsView       = mock[EmailApiSubscriptionsView]
   private lazy val emailPreferencesChoiceView          = app.injector.instanceOf[EmailPreferencesChoiceView]
   private lazy val emailPreferencesTopicView           = app.injector.instanceOf[EmailPreferencesTopicView]
-  private lazy val emailPreferencesAPICategoryView     = app.injector.instanceOf[EmailPreferencesAPICategoryView]
+  private lazy val emailPreferencesApiCategoryView     = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   private lazy val mockEmailPreferencesSpecificApiView = mock[EmailPreferencesSpecificApiView]
   private lazy val mockEmailPreferencesSelectApiView   = mock[EmailPreferencesSelectApiView]
   private lazy val mockEmailPreferencesSelectTopicView   = mock[EmailPreferencesSelectTopicView]
+  private lazy val mockEmailPreferencesSelectedApiTopicView   = mock[EmailPreferencesSelectedApiTopicView]
   running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -64,8 +65,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailAllUsersView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectApiView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailApiSubscriptionsView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedApiTopicView.apply(*, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -153,10 +155,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailApiSubscriptionsView,
         emailPreferencesChoiceView,
         emailPreferencesTopicView,
-        emailPreferencesAPICategoryView,
+        emailPreferencesApiCategoryView,
         mockEmailPreferencesSpecificApiView,
         mockEmailPreferencesSelectApiView,
         mockEmailPreferencesSelectTopicView,
+        mockEmailPreferencesSelectedApiTopicView,
         mockApplicationService,
         forbiddenView,
         mcc,
@@ -320,7 +323,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List.empty), eqTo(None))(*, *, *)
       }
 
       "return ok when filters provided" in new Setup {
@@ -331,7 +334,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List(combinedRestApi1)))(*, *, *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedList.sortBy(_.displayName)), eqTo(List(combinedRestApi1)), eqTo(None))(*, *, *)
       }
     }
 
@@ -436,7 +439,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
         val request                = createGetRequest("/emails/email-preferences/by-api-category")
-        val result: Future[Result] = underTest.emailPreferencesAPICategory()(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory()(request)
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
@@ -448,7 +451,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-        val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -462,7 +465,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-        val result: Future[Result] = underTest.emailPreferencesAPICategory(Some("TECHNICAL"), Some(category1.category))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1.category))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
