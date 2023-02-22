@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.builder
+package uk.gov.hmrc.gatekeeper.services
 
-import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
-import uk.gov.hmrc.gatekeeper.models.State.State
-import uk.gov.hmrc.gatekeeper.models.StateHistory
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxEmailAddress}
 
-trait StateHistoryBuilder {
+object ActorSyntax {
 
-  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: DateTime = DateTime.now()): StateHistory = {
-    StateHistory(applicationId, state, actor, None, changedAt)
+  implicit class ActorSyntaxImp(actor: Actor) {
+    def id = actor match {
+      case Actors.AppCollaborator(LaxEmailAddress(emailText)) => emailText
+      case Actors.GatekeeperUser(user) => user
+      case Actors.ScheduledJob(jobId) => jobId
+      case Actors.Unknown => "Unknown"
+    }
   }
 }
