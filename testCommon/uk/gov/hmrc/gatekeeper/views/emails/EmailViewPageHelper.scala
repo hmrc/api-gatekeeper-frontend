@@ -196,6 +196,17 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
+  def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
+    validatePageHeader(document, "Email users interested in a specific API")
+
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
+      elementExistsById(document, "compose-email") shouldBe users.nonEmpty
+    }
+
+    verifyTableHeader(document)
+  }
+
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
@@ -251,13 +262,10 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
   def validateEmailPreferencesSpecificAPIResults(
       document: Document,
       selectedTopic: TopicOptionChoice,
-      selectedAPIs: Seq[CombinedApi],
-      users: Seq[RegisteredUser],
-      emailsString: String
+      selectedAPIs: Seq[CombinedApi]
     ) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
-    validateHiddenSelectedApiValues(document, selectedAPIs, 2)
   }
 }
 
