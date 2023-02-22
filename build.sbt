@@ -17,10 +17,10 @@ Global / bloopAggregateSourceDependencies := true
 
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
- 
+
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
- 
+
 inThisBuild(
   List(
     scalaVersion := "2.12.15",
@@ -50,8 +50,6 @@ lazy val microservice = Project(appName, file("."))
     scalacOptions += "-Ypartial-unification",
   )
   .settings(scalaSettings: _*)
-  .settings(publishingSettings: _*)
-  .settings(SilencerSettings())
   .settings(
     scalaVersion := "2.12.15",
     name:= appName,
@@ -66,7 +64,7 @@ lazy val microservice = Project(appName, file("."))
     Test / unmanagedSourceDirectories += baseDirectory.value / "test"
   )
   .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings)) 
+  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(integrationTestSettings())
   .settings(
     IntegrationTest / parallelExecution := false,
@@ -117,6 +115,14 @@ lazy val microservice = Project(appName, file("."))
     )
   )
   .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
+  .settings(
+    scalacOptions ++= Seq(
+      "-Wconf:cat=unused&src=views/.*\\.scala:s",
+      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
+      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
+      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+    )
+  )
 
 coverageMinimumStmtTotal := 85
 coverageFailOnMinimum := true

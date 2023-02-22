@@ -20,7 +20,8 @@ import uk.gov.hmrc.gatekeeper.pages._
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData, ApplicationWithStateHistoryTestData}
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
 class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithStateHistoryTestData {
 

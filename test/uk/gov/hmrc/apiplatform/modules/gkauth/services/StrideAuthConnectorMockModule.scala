@@ -20,7 +20,7 @@ import scala.concurrent.Future
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.auth.core.retrieve.{Name, ~, _}
+import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.auth.core.{Enrolment, Enrolments, _}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthRoles

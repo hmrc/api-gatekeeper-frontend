@@ -18,8 +18,9 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import scala.collection.mutable
 
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models.Collaborator
 import uk.gov.hmrc.gatekeeper.models.CollaboratorRole._
-import uk.gov.hmrc.gatekeeper.models.{Collaborator, UserId}
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[String, UserId]()

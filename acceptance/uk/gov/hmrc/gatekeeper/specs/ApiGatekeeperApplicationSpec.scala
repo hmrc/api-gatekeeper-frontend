@@ -17,11 +17,12 @@
 package uk.gov.hmrc.gatekeeper.specs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, UserId}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.openqa.selenium.By
 import org.scalatest.Tag
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import play.api.http.Status._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 

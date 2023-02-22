@@ -22,6 +22,7 @@ import java.util.UUID
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 
 trait CommonTestData {

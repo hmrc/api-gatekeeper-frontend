@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, Upstream5xxResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
-import uk.gov.hmrc.gatekeeper.utils.{UrlEncoding, _}
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiCataloguePublishConnectorSpec
     extends AsyncHmrcSpec

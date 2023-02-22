@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpClient, Upstrea
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 

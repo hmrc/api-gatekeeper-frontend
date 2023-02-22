@@ -28,6 +28,7 @@ import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequestWrite, RemoveMfaRequest}
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption

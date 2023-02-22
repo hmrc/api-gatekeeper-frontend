@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,8 +45,8 @@ object ApplicationEventsController {
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
-    def apply(event: AbstractApplicationEvent): EventModel = {
-      EventModel(dateTimeFormatter.format(event.eventDateTime), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
+    def apply(event: ApplicationEvent): EventModel = {
+      EventModel(event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
     }
   }
 

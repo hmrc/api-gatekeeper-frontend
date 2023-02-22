@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.models.Environment
 
 object ApiPlatformEventsConnector {
 
-  case class QueryResponse(events: List[AbstractApplicationEvent])
+  case class QueryResponse(events: List[ApplicationEvent])
 
   object QueryResponse {
     import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
@@ -50,7 +50,7 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
 
   def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[EventTag]] = connectorFor(deployedTo).fetchQueryableEventTags(appId)
 
-  def query(appId: ApplicationId, deployedTo: String, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[AbstractApplicationEvent]] =
+  def query(appId: ApplicationId, deployedTo: String, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[ApplicationEvent]] =
     connectorFor(deployedTo).query(appId, tag)
 }
 
@@ -73,13 +73,13 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
       }
   }
 
-  def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[AbstractApplicationEvent]] = {
+  def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[ApplicationEvent]] = {
     val queryParams =
       Seq(
         tag.map(et => "eventTag" -> et.toString)
-      ).collect(_ match {
+      ).collect {
         case Some((a, b)) => a -> b
-      })
+      }
 
     http.GET[Option[QueryResponse]](s"$applicationEventsUri/${appId.value.toString()}", queryParams)
       .map {
