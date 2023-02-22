@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-@*
+
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -31,7 +31,7 @@
 
   <div class="govuk-template__body">
 
-    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
+    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesApiCategory(None, None).url" method="get">
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
@@ -67,4 +67,4 @@
 
     }
   </div>
-}*@
+}
