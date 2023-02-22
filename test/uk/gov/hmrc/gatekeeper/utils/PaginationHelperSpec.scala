@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
 
 class PaginationHelperSpec extends AnyWordSpec with Matchers {
   "PaginationHelper" should {

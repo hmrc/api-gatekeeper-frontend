@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import com.github.nscala_time.time.Imports.DateTime
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.{ClientId, Environment, ImportantSubmissionData, PrivacyPolicyLocation, RateLimitTier, Standard, TermsAndConditionsLocation}
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-
 import java.time.Period
+
+import com.github.nscala_time.time.Imports.DateTime
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.models._
 
 class NewApplicationSpec extends HmrcSpec {
   val url            = "http://example.com"

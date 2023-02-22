@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
+
+import play.api.mvc.{MessagesControllerComponents, _}
+
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.mvc._
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class DevelopersController @Inject() (

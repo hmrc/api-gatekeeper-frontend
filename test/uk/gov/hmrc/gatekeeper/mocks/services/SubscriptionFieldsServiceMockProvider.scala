@@ -16,13 +16,14 @@
 
 package mocks.services
 
+import scala.concurrent.Future.successful
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
-
-import scala.concurrent.Future.successful
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 
 trait SubscriptionFieldsServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

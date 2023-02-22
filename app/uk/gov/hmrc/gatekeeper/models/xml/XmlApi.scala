@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.models.xml
 
-import uk.gov.hmrc.gatekeeper.models.APICategory
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.gatekeeper.models.APICategory
 
 case class XmlApi(name: String, serviceName: String, context: String, description: String, categories: Option[Seq[APICategory]] = None)
 

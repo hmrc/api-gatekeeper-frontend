@@ -16,25 +16,26 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
+import java.time.Period
+
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
+
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
+import uk.gov.hmrc.gatekeeper.models.ApiStatus._
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
-import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
-import uk.gov.hmrc.gatekeeper.models.ApiStatus._
-import org.joda.time.DateTime
-import java.time.Period
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
 

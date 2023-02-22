@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.apiplatform.modules.events.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.test.Helpers._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.QueryableValues
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTags, QueryableValues}
 import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec

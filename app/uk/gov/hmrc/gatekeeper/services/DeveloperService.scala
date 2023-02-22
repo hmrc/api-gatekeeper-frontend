@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import javax.inject.Inject
+import scala.concurrent.{ExecutionContext, Future}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
-
-import javax.inject.Inject
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
-import uk.gov.hmrc.http.HeaderCarrier
-
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.models._
 
 class DeveloperService @Inject() (
     appConfig: AppConfig,

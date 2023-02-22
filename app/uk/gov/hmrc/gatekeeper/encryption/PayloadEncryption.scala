@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.encryption
 
+import scala.concurrent.Future
+
 import play.api.libs.json._
 import uk.gov.hmrc.crypto._
 import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
-
-import scala.concurrent.Future
 
 case class SecretRequest(data: String)
 

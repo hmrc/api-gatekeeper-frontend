@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
+import java.time.{LocalDateTime, Period}
 import java.util.UUID
+
+import org.joda.time.DateTime
+
+import play.api.libs.functional.syntax._
+import play.api.libs.json.JodaReads._
+import play.api.libs.json.JodaWrites._
+import play.api.libs.json._
+import uk.gov.hmrc.play.json.Union
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
-import org.joda.time.DateTime
-import play.api.libs.functional.syntax._
-import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
-
-import java.time.Period
-import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 case class ClientId(value: String) extends AnyVal
 

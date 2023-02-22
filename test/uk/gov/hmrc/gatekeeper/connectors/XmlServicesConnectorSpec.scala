@@ -16,21 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import play.api.libs.json.Json
-import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.http.BadRequestException
-
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.libs.json.Json
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class XmlServicesConnectorSpec
     extends AsyncHmrcSpec

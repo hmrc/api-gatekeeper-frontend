@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{
   Collaborator,
   PrivacyPolicyLocation,
@@ -26,6 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{
   TermsAndConditionsLocations
 }
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 
 object SimpleEventDetails {
 

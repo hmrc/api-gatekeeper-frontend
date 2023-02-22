@@ -16,13 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
+import java.util.UUID
+
 import org.scalacheck.Gen
+
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
-
-import java.util.UUID
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"

@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import akka.stream.Materializer
-import play.api.mvc.Result
 import scala.concurrent.Future
+
+import akka.stream.Materializer
+
+import play.api.mvc.Result
 import play.api.test.Helpers._
+
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 trait TitleChecker extends AsyncHmrcSpec {

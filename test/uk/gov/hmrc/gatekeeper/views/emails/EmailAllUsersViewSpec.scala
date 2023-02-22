@@ -17,17 +17,19 @@
 package uk.gov.hmrc.gatekeeper.views.emails
 
 import mocks.config.AppConfigMock
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
 import org.jsoup.Jsoup
+
 import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailAllUsersView
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper {
 

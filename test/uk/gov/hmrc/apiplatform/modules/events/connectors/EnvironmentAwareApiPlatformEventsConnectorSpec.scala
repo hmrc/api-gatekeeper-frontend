@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.apiplatform.modules.events.connectors
 
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.Future.successful
+
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
 
 class EnvironmentAwareApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec

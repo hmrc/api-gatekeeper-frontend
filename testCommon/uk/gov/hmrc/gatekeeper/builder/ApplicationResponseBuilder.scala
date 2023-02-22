@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import uk.gov.hmrc.gatekeeper.models.State._
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
-import org.joda.time.DateTime
+import java.time.Period
+
 import org.joda.time.DateTime
 
-import java.time.Period
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
+import uk.gov.hmrc.gatekeeper.models.State._
+import uk.gov.hmrc.gatekeeper.models._
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val grantLength: Period = Period.ofDays(547)

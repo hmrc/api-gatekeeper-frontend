@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import java.time.temporal.ChronoUnit
+
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.apiplatform.modules.events.domain.models._
-
-import java.time.temporal.ChronoUnit
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 
 trait ApplicationEventsTestData extends ApplicationEventTestData with ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationEventTestDataBuilder with ApplicationStateTestData {
 

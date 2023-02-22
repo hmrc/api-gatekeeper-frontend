@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import mocks.config.FakeAppConfigImpl
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.Application
+import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.MessagesControllerComponents
+
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import play.api.inject.bind
 import uk.gov.hmrc.apiplatform.modules.gkauth.config.StrideAuthConfig
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 

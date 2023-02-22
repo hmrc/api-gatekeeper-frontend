@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.models._
-
 import java.time.LocalDateTime
 import java.util.UUID
+
+import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models._
 
 trait CommonTestData {
   val applicationId                = ApplicationId(UUID.fromString("a97541e8-f93d-4d0a-ab0b-862e63204b7d"))

@@ -18,11 +18,13 @@ package uk.gov.hmrc.gatekeeper.views
 
 import java.util.Locale
 
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.gatekeeper.views.emails.EmailLandingViewHelper
+
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+import uk.gov.hmrc.gatekeeper.views.emails.EmailLandingViewHelper
 
 trait CommonEmailViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with EmailLandingViewHelper {
   val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]

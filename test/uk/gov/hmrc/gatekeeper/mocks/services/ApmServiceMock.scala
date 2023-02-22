@@ -16,16 +16,18 @@
 
 package mocks.services
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import scala.concurrent.Future
+import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiContext
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import scala.concurrent.Future.{failed, successful}
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.services.ApmService
 
 trait ApmServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -16,23 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import mocks.services.SubscriptionFieldsServiceMockProvider
-import uk.gov.hmrc.gatekeeper.models.{FieldName, FieldValue}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.models.{ApiStatus, Environment, FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
-import uk.gov.hmrc.gatekeeper.builder.FieldDefinitionsBuilder
-import uk.gov.hmrc.gatekeeper.models.ApiStatus
-import uk.gov.hmrc.gatekeeper.models.Environment
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec

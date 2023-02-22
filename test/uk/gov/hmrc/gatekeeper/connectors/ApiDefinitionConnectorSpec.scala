@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import play.api.libs.json.Json
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.http.Status._
+import play.api.libs.json.Json
+import uk.gov.hmrc.http.{HttpClient, _}
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, WireMockSugar}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.http.Status._
-import uk.gov.hmrc.http._
-import uk.gov.hmrc.http.HttpClient
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, WireMockSugar}
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class ApiDefinitionConnectorSpec
     extends AsyncHmrcSpec

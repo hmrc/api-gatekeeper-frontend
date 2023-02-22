@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
+import org.openqa.selenium.{Cookie => SeleniumCookie}
+
 import play.api.Application
 import play.api.libs.ws.WSCookie
 import play.api.mvc.{Cookie, Session, SessionCookieBaker}
-import org.openqa.selenium.{Cookie => SeleniumCookie}
 import uk.gov.hmrc.crypto.PlainText
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.SessionCookieCrypto

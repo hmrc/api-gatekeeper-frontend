@@ -17,8 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.gatekeeper.builder.{ApplicationBuilder, ApplicationResponseBuilder}
 
 class ApplicationPublicDescriptionSpec extends AsyncHmrcSpec with ApplicationBuilder with ApplicationResponseBuilder {
   "ApplicationsPublicDescription" when {

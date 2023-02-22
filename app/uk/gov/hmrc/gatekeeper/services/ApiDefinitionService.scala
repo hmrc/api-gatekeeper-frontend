@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import javax.inject.Inject
-import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition}
+import scala.concurrent.{ExecutionContext, Future}
+
 import uk.gov.hmrc.http.HeaderCarrier
 
-import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
+import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition}
 
 class ApiDefinitionService @Inject() (
     sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,

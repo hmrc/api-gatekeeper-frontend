@@ -19,15 +19,16 @@ package uk.gov.hmrc.gatekeeper.views
 import java.util.Locale
 
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{MessagesControllerComponents, MessagesRequest}
+import play.api.test.FakeRequest
+
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.mvc.MessagesRequest
-import play.api.test.FakeRequest
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]

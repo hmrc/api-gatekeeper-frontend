@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
-import uk.gov.hmrc.gatekeeper.models.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests}
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
+
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
+import uk.gov.hmrc.gatekeeper.models.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests}
 
 class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHelper {
 

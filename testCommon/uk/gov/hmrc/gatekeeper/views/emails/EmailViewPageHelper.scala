@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
+import org.jsoup.nodes.Document
+
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition, ApiVersionDefinition}
-import org.jsoup.nodes.Document
+import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition, ApiVersionDefinition, CombinedApi, RegisteredUser}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
-import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
     with EmailInformationViewHelper

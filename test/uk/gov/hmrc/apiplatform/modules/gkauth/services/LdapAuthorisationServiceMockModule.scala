@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-
-import play.api.mvc.MessagesRequest
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import play.api.mvc.MessagesRequest
+
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 trait LdapAuthorisationServiceMockModule {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.models.UpliftAction
+import uk.gov.voa.play.form.ConditionalMappings._
+
 import play.api.data.Forms._
 import play.api.data._
-import uk.gov.voa.play.form.ConditionalMappings._
+
+import uk.gov.hmrc.gatekeeper.models.UpliftAction
 
 class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 

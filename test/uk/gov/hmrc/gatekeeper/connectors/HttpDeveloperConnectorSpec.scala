@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify}
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.BeforeAndAfterEach
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.gatekeeper.utils._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequestWrite
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequestWrite, RemoveMfaRequest}
+import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.utils._
 
 class HttpDeveloperConnectorSpec
     extends AsyncHmrcSpec

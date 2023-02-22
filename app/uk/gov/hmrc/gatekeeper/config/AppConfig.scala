@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.config
 
-import com.google.inject.{ImplementedBy, Singleton}
 import javax.inject.Inject
+
+import com.google.inject.{ImplementedBy, Singleton}
+
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
+
 import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
 
 @ImplementedBy(classOf[AppConfigImpl])

@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import scala.concurrent.ExecutionContext
+
 import play.api.mvc.MessagesControllerComponents
+
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class ApiDefinitionView(
     apiName: String,

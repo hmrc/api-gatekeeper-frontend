@@ -16,22 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import play.api.mvc.Action
-import play.api.mvc.AnyContent
-import play.api.mvc.MessagesControllerComponents
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.gatekeeper.services.ApmService
+
 import com.google.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
+import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationService
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 
 @Singleton
 class BoxesController @Inject() (

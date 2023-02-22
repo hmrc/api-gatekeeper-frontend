@@ -16,44 +16,42 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
-import uk.gov.hmrc.gatekeeper.models._
-import org.joda.time.DateTime
-import org.jsoup.Jsoup
-import org.mockito.ArgumentCaptor
-import play.api.mvc.Result
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
-import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
-import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import mocks.services.ApplicationServiceMockProvider
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
-import org.mockito.captor.ArgCaptor
 import mocks.connectors.ApplicationConnectorMockProvider
+import mocks.services.ApplicationServiceMockProvider
 import org.joda.time.DateTime
-import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.LdapAuthorisationServiceMockModule
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import org.jsoup.Jsoup
+import org.mockito.ArgumentCaptor
+import org.mockito.captor.ArgCaptor
+
+import play.api.mvc.Result
+import play.api.test.Helpers._
+import play.api.test.{FakeRequest, Helpers}
+import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import java.util.UUID
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
+import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
+import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec

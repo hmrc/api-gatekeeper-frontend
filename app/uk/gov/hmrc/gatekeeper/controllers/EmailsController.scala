@@ -17,40 +17,29 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future.successful
+import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.data.Form
+import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
-import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EMAIL_ALL_USERS, _}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
+import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
-import play.api.data.Form
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
+import uk.gov.hmrc.gatekeeper.views.html.emails._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.views.html.emails.{
-  EmailAllUsersView,
-  EmailApiSubscriptionsView,
-  EmailInformationView,
-  EmailLandingView,
-  EmailPreferencesAPICategoryView,
-  EmailPreferencesChoiceView,
-  EmailPreferencesSelectApiView,
-  EmailPreferencesSpecificApiView,
-  EmailPreferencesTopicView
-}
-import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-
-import scala.concurrent.{ExecutionContext, Future}
-import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
-
-import scala.concurrent.Future.successful
 
 @Singleton
 class EmailsController @Inject() (

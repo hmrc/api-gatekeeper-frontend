@@ -16,29 +16,29 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
-import org.mockito.captor.ArgCaptor
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-
+import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-import org.mockito.scalatest.ResetMocksAfterEachTest
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.connectors.ApmConnectorMockProvider
+
+import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
-import uk.gov.hmrc.gatekeeper.models.State.State
-import java.time.{LocalDateTime, Period}
+import org.mockito.captor.ArgCaptor
+import org.mockito.scalatest.ResetMocksAfterEachTest
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.gatekeeper.models.State.State
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 

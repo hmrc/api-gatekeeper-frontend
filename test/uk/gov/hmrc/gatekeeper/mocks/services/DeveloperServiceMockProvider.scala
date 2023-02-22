@@ -16,17 +16,16 @@
 
 package mocks.services
 
-import org.mockito.MockitoSugar
-import org.mockito.ArgumentMatchersSugar
-import uk.gov.hmrc.gatekeeper.services.DeveloperService
-
-import scala.concurrent.Future.{failed, successful}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
-
 import java.time.LocalDateTime
 import java.util.UUID
+import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.DeveloperService
+import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
 
 trait DeveloperServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar with UserIdTracker =>

@@ -16,14 +16,15 @@
 
 package mocks.services
 
-import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-import uk.gov.hmrc.gatekeeper.services.ApplicationService
-
-import scala.concurrent.Future.{failed, successful}
-import uk.gov.hmrc.gatekeeper.models._
 import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import scala.concurrent.Future.{failed, successful}
+
+import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
 trait ApplicationServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

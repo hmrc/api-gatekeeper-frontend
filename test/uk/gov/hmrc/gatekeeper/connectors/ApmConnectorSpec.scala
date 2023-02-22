@@ -16,30 +16,27 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.http.HttpClient
-
 import scala.concurrent.ExecutionContext.Implicits.global
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.subscriptions.VersionData
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
-import play.api.test.Helpers._
-import play.api.libs.json.Json
+
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.http.UpstreamErrorResponse
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import org.joda.time.DateTime
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
+import play.api.libs.json.Json
+import play.api.test.Helpers._
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, _}
+import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
+import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
+import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
+import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorSpec
     extends AsyncHmrcSpec

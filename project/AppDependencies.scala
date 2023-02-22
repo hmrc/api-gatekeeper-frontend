@@ -8,18 +8,18 @@ object AppDependencies {
   lazy val jsoupVersion = "1.12.1"
   lazy val scalaCheckVersion = "1.15.4"
   lazy val enumeratumVersion = "1.6.2"
-  lazy val bootstrapVersion = "7.3.0"
+  lazy val bootstrapVersion = "7.12.0"
   lazy val seleniumVersion = "4.4.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-28"        % bootstrapVersion,
-    "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "3.32.0-play-28",
+    "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "5.3.0-play-28",
     "uk.gov.hmrc"                 %% "time"                              % "3.25.0",
-    "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.9.0-play-28",
-    "uk.gov.hmrc"                 %% "json-encryption"                   % "4.10.0-play-28",
-    "uk.gov.hmrc"                 %% "emailaddress"                      % "3.5.0",
+    "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.12.0-play-28",
+    "uk.gov.hmrc"                 %% "json-encryption"                   % "5.1.0-play-28",
+    "uk.gov.hmrc"                 %% "emailaddress"                      % "3.7.0",
     "commons-net"                 %  "commons-net"                       % "3.6",
     "org.slf4j"                   %  "slf4j-api"                         % slf4jVersion,
     "org.slf4j"                   %  "jcl-over-slf4j"                    % slf4jVersion,
@@ -47,6 +47,6 @@ object AppDependencies {
     "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.12",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
     "org.scalatestplus.play"      %% "scalatestplus-play"                % "5.1.0",
-    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.39.0"
+    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.40.0"
   ).map (_ % testScopes)
 }
