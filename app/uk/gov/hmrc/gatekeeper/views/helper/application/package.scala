@@ -24,6 +24,7 @@ import org.joda.time.format.DateTimeFormat
 
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ApplicationPublicDescription {
 

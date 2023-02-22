@@ -32,7 +32,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilde
       val appResponse   = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {
-        ApplicationReview.getApprovedBy(app.history) shouldBe Some("actor id")
+        ApplicationReview.getApprovedBy(app.history) shouldBe Some("Unknown")
       }
       "approved on return Some" in {
         ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.print(now))

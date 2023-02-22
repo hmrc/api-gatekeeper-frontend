@@ -25,7 +25,7 @@ class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationResponseBu
     "submittedBy" should {
       "is present" in {
         val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
-        ApplicationSubmission.getSubmittedBy(app.history) shouldBe Some("actor id")
+        ApplicationSubmission.getSubmittedBy(app.history) shouldBe Some("Unknown")
       }
       "is not present" in {
         val app = anApplicationWithHistory()

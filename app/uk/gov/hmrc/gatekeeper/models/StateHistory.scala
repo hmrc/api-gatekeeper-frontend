@@ -21,11 +21,9 @@ import org.joda.time.DateTime
 import play.api.libs.json.JodaReads._
 import play.api.libs.json.JodaWrites._
 import play.api.libs.json.Json
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import uk.gov.hmrc.gatekeeper.models.State.State
-
-case class Actor(id: String)
 
 case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: DateTime = DateTime.now())
 
@@ -39,6 +37,5 @@ object StateHistory {
   }
 
   implicit val formatState = Json.formatEnum(State)
-  implicit val formatActor = Json.format[Actor]
   implicit val format      = Json.format[StateHistory]
 }

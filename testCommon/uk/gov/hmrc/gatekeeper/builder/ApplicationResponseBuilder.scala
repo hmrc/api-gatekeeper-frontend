@@ -17,10 +17,9 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.Period
-
 import org.joda.time.DateTime
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State._
 import uk.gov.hmrc.gatekeeper.models._
@@ -108,7 +107,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
   }
 
-  def anActor() = Actor("actor id")
+  def anActor() = Actors.Unknown
 
   implicit class ApplicationResponseExtension(app: ApplicationResponse) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION.toString)

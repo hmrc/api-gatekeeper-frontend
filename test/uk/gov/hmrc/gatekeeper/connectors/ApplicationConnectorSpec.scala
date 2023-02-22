@@ -17,24 +17,22 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.{LocalDateTime, Period}
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.joda.time.DateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -355,7 +353,7 @@ class ApplicationConnectorSpec
       Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
       Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
     )
-    val stateHistory     = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
+    val stateHistory     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress.toLaxEmail), None, DateTime.now)
     val applicationState = ApplicationState(State.TESTING, None, None, DateTime.now)
     val application      = ApplicationResponse(
       applicationId,
@@ -407,7 +405,7 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url          = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
-      val stateHistory = StateHistory(ApplicationId.random, State(2), Actor(UUID.randomUUID().toString), None, DateTime.now)
+      val stateHistory = StateHistory(ApplicationId.random, State(2), Actors.Unknown, None, DateTime.now)
       val response     = Json.toJson(List(stateHistory)).toString
 
       stubFor(
