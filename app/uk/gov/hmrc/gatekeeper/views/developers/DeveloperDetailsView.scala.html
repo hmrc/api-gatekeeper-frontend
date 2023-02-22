@@ -28,6 +28,15 @@
 @(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 
 @main(title = s"${applicationConfig.title} - Developer Details") {
+    <div class="govuk-breadcrumbs">
+        <ol class="govuk-breadcrumbs__list">
+            <li class="govuk-breadcrumbs__list-item">
+                <a class="govuk-breadcrumbs__link" href="@{routes.DevelopersController.blankDevelopersPage}">Developers</a>
+            </li>
+        </ol>
+    </div>
+
+    <br />
 
     <h1 class="govuk-heading-l">@developer.email</h1>
 
@@ -123,30 +132,26 @@
         }
     }
 
-    <table class="govuk-table">
-        <caption class="govuk-table__caption govuk-table__caption--m">Associated applications</caption>
-        <tbody class="govuk-table__body">
+    <h2 class="govuk-heading-m" id="mfa-heading">Associated applications</h2>
+    <dl class="govuk-summary-list">
         @if(developer.applications.isEmpty) {
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header"><p class="govuk-body" id="applications">None</p></th>
-            </tr>
+            <div class="govuk-summary-list__row">
+                <dd class="govuk-summary-list__value" id="applications">None</dd>
+            </div>
         } else {
-            @for(app <- developer.applications) {
-                <tr class="govuk-table__row">
-                    <td class="govuk-table__cell"><a href="@{
-                        routes.ApplicationController.applicationPage(app.id)
-                    }">@app.name</a>
-                    </th>
-                    <td class="govuk-table__cell"><p class="govuk-body">@app.deployedTo.toLowerCase.capitalize</p></td>
-                    <td class="govuk-table__cell">
-                        <p class="govuk-body">
+            @for((app, idx) <- developer.applications.zipWithIndex) {
+                <div class="govuk-summary-list__row">
+                    <dt class="govuk-summary-list__value" id="app-@idx">
+                        <a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a>
+                    </dt>
+                    <dd class="govuk-summary-list__value" id="app-name-@idx">@app.deployedTo.toLowerCase.capitalize</dd>
+                    <dd class="govuk-summary-list__value" id="collaborator-@idx">
                         @app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
                             case CollaboratorRole.ADMINISTRATOR => "Admin"
                             case CollaboratorRole.DEVELOPER => "Developer"
                         })
-                        </p>
-                    </td>
-                    <td class="govuk-table__cell">
+                    </dd>
+                    <dd class="govuk-summary-list__value" id="production-status-@idx">
                         @defining(app.state.name match {
                             case PRODUCTION => ("status status--verified", "Active")
                             case PRE_PRODUCTION => ("status status--verified", "Active")
@@ -155,16 +160,14 @@
                             case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
                             case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                             case _ => ("status", "Created")
-                            }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
-                    </td>
-                </tr>
+                        }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+                    </dd>
+                </div>
             }
         }
-        </tbody>
-    </table>
+    </dl>
 
     <h2 class="govuk-heading-m">Associated XML organisations</h2>
-
     @if(developer.xmlOrganisations.isEmpty) {
         <p class="govuk-body" id="xml-organisation">None</p>
     } else {
@@ -176,12 +179,11 @@
             </ul>
         }
     }
-
     <br>
-
     @if(loggedInRequest.role.isSuperUser) {
-        <a id="delete-developer" href="@{
-            routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))
-        }" class="govuk-button govuk-button--warning">Delete developer</a>
+        <a id="delete-developer"
+           href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
+           class="govuk-button govuk-button--secondary">Remove developer
+        </a>
     }
 }

@@ -54,7 +54,7 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable = {
         emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
       }
-      validateEmailPreferencesSpecificAPIPage(Jsoup.parse(result.body), List.empty)
+      validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), List.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {

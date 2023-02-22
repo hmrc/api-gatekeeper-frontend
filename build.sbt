@@ -1,4 +1,3 @@
-import _root_.play.core.PlayVersion
 import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._

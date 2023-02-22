@@ -50,7 +50,7 @@ object EmailPreferencesChoice extends Enumeration {
   }
 
   val optionHint: EmailPreferencesChoice => String = {
-    case SPECIFIC_API => "For example, VAT MTD"
+    case SPECIFIC_API => "For example, VAT MTD, PAYE Online"
     case TAX_REGIME   => "For example, Income Tax"
     case TOPIC        => "For example, event invites"
   }
@@ -71,9 +71,9 @@ object TopicOptionChoice extends Enumeration {
   }
 
   val optionHint: TopicOptionChoice => String = {
-    case BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support"
-    case TECHNICAL           => "Specifications, service guides, bux fixes and known errors"
-    case RELEASE_SCHEDULES   => "Notifications about planned releases and outages"
-    case EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities"
+    case BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support."
+    case TECHNICAL           => "Specifications, service guides, bux fixes and known errors."
+    case RELEASE_SCHEDULES   => "Notifications about planned releases and outages."
+    case EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities."
   }
 }

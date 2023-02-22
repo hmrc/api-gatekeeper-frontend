@@ -99,10 +99,11 @@ class ApplicationController @Inject() (
     val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
     val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION")
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
-      else
+      } else {
         routes.ApplicationController.applicationPage(appId).url
+      }
 
     for {
       paginatedApplicationResponse <- applicationService.searchApplications(env, params)

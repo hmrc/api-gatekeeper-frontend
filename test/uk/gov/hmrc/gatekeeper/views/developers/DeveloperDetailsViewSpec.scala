@@ -141,9 +141,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       result.contentType should include("text/html")
 
       elementExistsByText(document, "h2", "Multi-factor authentication") shouldBe true
+      elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "Remove multi-factor authentication") shouldBe false
 
-      elementExistsByText(document, "caption", "Associated applications") shouldBe true
       document.getElementById("applications").text shouldBe "None"
       document.getElementById("no-mfa").text shouldBe "None"
     }
@@ -163,11 +163,11 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       result.contentType should include("text/html")
 
       elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
-      elementExistsByText(document, "caption", "Associated applications") shouldBe true
+      elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
-      elementExistsByText(document, "p", "Admin") shouldBe true
       elementExistsByText(document, "a", "appName2") shouldBe true
-      elementExistsByText(document, "p", "Developer") shouldBe true
+      document.getElementById("collaborator-0").text shouldBe "Admin"
+      document.getElementById("collaborator-1").text shouldBe "Developer"
       document.getElementById("no-mfa").text shouldBe "None"
     }
 
@@ -179,7 +179,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       result.contentType should include("text/html")
 
       document.getElementById("no-mfa").text shouldBe "None"
-      elementExistsByText(document, "a", "Delete developer") shouldBe true
+      elementExistsByText(document, "a", "Remove developer") shouldBe true
     }
 
     "show developer details without delete button when logged in as non-superuser" in new Setup {

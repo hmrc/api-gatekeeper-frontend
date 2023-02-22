@@ -258,13 +258,14 @@ trait GatekeeperApplicationUpdate extends ApplicationUpdate {
   def gatekeeperUser: String
 }
 
-case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String) extends ApplicationUpdate
+case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String)            extends ApplicationUpdate
 case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmailAddress: String, reasons: String, timestamp: LocalDateTime) extends ApplicationUpdate
 
 trait ApplicationUpdateFormatters {
 
   implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
     .transform(_.as[JsObject] + ("updateType" -> JsString("changeProductionApplicationName")))
+
   implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]
     .transform(_.as[JsObject] + ("updateType" -> JsString("deleteApplicationByGatekeeper")))
 }

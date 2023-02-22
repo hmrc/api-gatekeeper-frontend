@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 
 trait ApplicationEventTestData {
-  
+
   val fixedClock: Clock = Clock.fixed(Instant.now, ZoneOffset.UTC)
 
 
