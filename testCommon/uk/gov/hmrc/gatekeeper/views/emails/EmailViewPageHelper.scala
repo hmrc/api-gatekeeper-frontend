@@ -157,6 +157,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
     elementExistsByText(document, "h1", "Select the topic of the email") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
   }
+
   def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
@@ -194,6 +195,17 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     getSelectedOptionValue(document) shouldBe None
 
     verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
+    validatePageHeader(document, "Email users interested in a specific API")
+
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
+      elementExistsById(document, "compose-email") shouldBe users.nonEmpty
+    }
+
+    verifyTableHeader(document)
   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
@@ -236,7 +248,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
     val sizeOfSelectedApis = selectedApis.size
-    val headerTitle = if(sizeOfSelectedApis < 2) "API" else "APIs"
+    val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
     validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
     validateStaticPageElements(document, "Filter", None)
     validateHiddenSelectedApiValues(document, selectedApis, 2)
@@ -251,13 +263,10 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
   def validateEmailPreferencesSpecificAPIResults(
       document: Document,
       selectedTopic: TopicOptionChoice,
-      selectedAPIs: Seq[CombinedApi],
-      users: Seq[RegisteredUser],
-      emailsString: String
+      selectedAPIs: Seq[CombinedApi]
     ) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
-    validateHiddenSelectedApiValues(document, selectedAPIs, 2)
   }
 }
 

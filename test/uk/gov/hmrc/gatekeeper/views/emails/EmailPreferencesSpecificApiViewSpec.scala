@@ -67,16 +67,15 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList, List.empty, "")
+      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList)
     }
 
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
-      val emailsStr                     = users.map(_.email).sorted.mkString("; ")
+      val emails                        = users.map(_.email).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(users, new JsArray(), emailsStr, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(users, new JsArray(), emails, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList, users, emailsStr)
+      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList)
     }
   }
-
 }
