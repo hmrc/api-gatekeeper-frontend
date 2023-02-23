@@ -34,7 +34,7 @@
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
 }
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
-        <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
             <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
                 <div class="govuk-form-group">
