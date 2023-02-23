@@ -278,7 +278,7 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
     validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
-    validateButtonText(document, "submit", "Continue")
+    validateButtonText(document, "submit", "Select API")
   }
 
   def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi]) = {

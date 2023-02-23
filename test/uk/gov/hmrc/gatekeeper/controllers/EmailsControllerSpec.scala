@@ -18,16 +18,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import akka.stream.Materializer
-
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -55,7 +52,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailPreferencesTopicView                = app.injector.instanceOf[EmailPreferencesTopicView]
   private lazy val emailPreferencesApiCategoryView          = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   private lazy val mockEmailPreferencesSpecificApiView      = mock[EmailPreferencesSpecificApiView]
+  private lazy val mockEmailPreferencesSpecificApiViewNew   = mock[EmailPreferencesSpecificApiViewNew]
   private lazy val mockEmailPreferencesSelectApiView        = mock[EmailPreferencesSelectApiView]
+  private lazy val mockEmailPreferencesSelectApiViewNew     = mock[EmailPreferencesSelectApiViewNew]
   private lazy val mockEmailPreferencesSelectTopicView      = mock[EmailPreferencesSelectTopicView]
   private lazy val mockEmailPreferencesSelectedApiTopicView = mock[EmailPreferencesSelectedApiTopicView]
   running(app) {
@@ -65,7 +64,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailAllUsersView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectApiView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailApiSubscriptionsView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedApiTopicView.apply(*, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
@@ -161,7 +160,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailPreferencesTopicView,
         emailPreferencesApiCategoryView,
         mockEmailPreferencesSpecificApiView,
+        mockEmailPreferencesSpecificApiViewNew,
         mockEmailPreferencesSelectApiView,
+        mockEmailPreferencesSelectApiViewNew,
         mockEmailPreferencesSelectTopicView,
         mockEmailPreferencesSelectedApiTopicView,
         mockApplicationService,
@@ -327,7 +328,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty), eqTo(None))(*, *, *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
       }
 
       "return ok when filters provided" in new Setup {
@@ -338,7 +339,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)), eqTo(None))(*, *, *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)))(*, *, *)
       }
     }
 
@@ -539,7 +540,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.addAnotherApiOption("1", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api-new?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
       }
 
       "return select api page when selected option no" in new Setup {
