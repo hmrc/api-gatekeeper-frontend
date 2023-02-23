@@ -18,13 +18,16 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import akka.stream.Materializer
+
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -143,9 +146,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val serviceNameOne = "serviceNameOne"
       val serviceNameTwo = "serviceNameTwo"
 
-      val combinedRestApi = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-      val combinedXmlApi  = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
-      val combinedApisList     = List(combinedRestApi, combinedXmlApi)
+      val combinedRestApi  = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
+      val combinedXmlApi   = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
+      val combinedApisList = List(combinedRestApi, combinedXmlApi)
 
       val underTest = new EmailsController(
         mockDeveloperService,
@@ -482,10 +485,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
 
-        val request = createGetRequest("/emails/email-preferences/select-topic")
+        val request                = createGetRequest("/emails/email-preferences/select-topic")
         val result: Future[Result] = underTest.selectTopicPage(
           Some(combinedApisList.map(_.serviceName)),
-          Some(TopicOptionChoice.TECHNICAL.toString))(request)
+          Some(TopicOptionChoice.TECHNICAL.toString)
+        )(request)
 
         status(result) shouldBe OK
       }
@@ -499,11 +503,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
         givenApiDefinition3Categories()
 
-        val request = createGetRequest("/emails/email-preferences/selected-api-topic")
+        val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.emailPreferencesSelectedApiTopic(
-            Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString),
-            Some(category1.category),
-            combinedApisList.map(_.serviceName)
+          Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString),
+          Some(category1.category),
+          combinedApisList.map(_.serviceName)
         )(request)
         status(result) shouldBe OK
 
@@ -516,7 +520,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
-        val request = createGetRequest("/emails/email-preferences/selected-api-topic")
+        val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.emailPreferencesSelectedApiTopic(
           Some(TopicOptionChoice.TECHNICAL.toString),
           Some(category1.category),

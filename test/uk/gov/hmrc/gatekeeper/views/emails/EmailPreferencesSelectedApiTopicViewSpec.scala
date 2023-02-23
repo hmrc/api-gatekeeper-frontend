@@ -18,10 +18,12 @@ package uk.gov.hmrc.gatekeeper.views.emails
 
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
+
 import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
@@ -33,21 +35,33 @@ import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectedApiTopic
 class EmailPreferencesSelectedApiTopicViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                   = new JsArray()
+    implicit val request: FakeRequest[AnyContentAsEmpty.type]                      = FakeRequest().withCSRFToken
+    val emailRecipientsAsJson: JsArray                                             = new JsArray()
     val emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView = app.injector.instanceOf[EmailPreferencesSelectedApiTopicView]
-    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
-    val users = Seq(user1, user2)
-    val categories = List()
-    val expectedTitle = "Email users interested in a specific API"
+    val user1                                                                      = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
+    val user2                                                                      = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val users                                                                      = Seq(user1, user2)
+    val categories                                                                 = List()
+    val expectedTitle                                                              = "Email users interested in a specific API"
   }
 
   "email preferences selected api topic view" should {
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedApiTopicView.render(users, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", List(), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedApiTopicView.render(
+          users,
+          emailRecipientsAsJson,
+          "",
+          Some(BUSINESS_AND_POLICY),
+          categories,
+          "",
+          "",
+          List(),
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
 
       validateEmailPreferencesSelectedApiTopicPage(Jsoup.parse(result.body), users)
     }
