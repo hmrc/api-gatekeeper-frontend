@@ -50,18 +50,6 @@
     )
   )
 ) {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}">Subscription configuration</a>
-      </li>
-    </ol>
-  </div>
-
   <h1 class="govuk-heading-l">@pageTitle</h1>
 
   @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
