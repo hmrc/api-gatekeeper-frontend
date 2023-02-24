@@ -279,3 +279,26 @@ p.error-notification {
 .word-break-all {
   word-break: break-all;
 }
+
+.before-content-banner {
+  display: flex;
+}
+
+@media (min-width: 40.0625em) {
+  .subnav {
+    &-auth {
+      display: flex;
+      align-items: center;
+      margin-left: auto !important;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      &-links {
+        display: flex;
+        margin: 0 !important;
+        & > *:first-child {
+          padding-right: 15px;
+        }
+      }
+    }
+  }
+}

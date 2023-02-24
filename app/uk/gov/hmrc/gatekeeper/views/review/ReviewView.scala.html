@@ -18,21 +18,22 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(form: Form[controllers.HandleUpliftForm], application: ApplicationReviewDetails)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Review Application") {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="/api-gatekeeper/applications">Applications</a>
-      </li>
-    </ol>
-  </div>
-
+@main(
+  title = s"${applicationConfig.title} - Review Application",
+  breadcrumbs = Seq(
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
   <h1 class="govuk-heading-l">@{application.name}</h1>
 
   @if(form.hasErrors) {

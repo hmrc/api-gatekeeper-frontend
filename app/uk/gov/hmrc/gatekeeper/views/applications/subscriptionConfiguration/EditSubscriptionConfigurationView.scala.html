@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -29,19 +30,26 @@
 
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version.value} ${subscriptionViewModel.displayedStatus}"}
 
-@main(title = s"${applicationConfig.title} - $pageTitle") {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.SubscriptionConfigurationController.listConfigurations(application.id)}">Subscription configuration</a>
-      </li>
-    </ol>
-  </div>
-
+@main(
+  title = s"${applicationConfig.title} - $pageTitle",
+  breadcrumbs = Seq(
+    Crumb(
+      "Subscription configuration",
+      s"${routes.SubscriptionConfigurationController.listConfigurations(application.id)}",
+      Some("data-breadcrumb-subscription-configuration")
+    ),
+    Crumb(
+      s"${application.name}",
+      s"${routes.ApplicationController.applicationPage(application.id)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
   <h1 class="govuk-heading-l">@pageTitle</h1>
 
   @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
