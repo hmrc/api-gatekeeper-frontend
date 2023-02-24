@@ -68,7 +68,7 @@
                                   </li>
                                   @if(filteredApis.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApisNew(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
                                           </a>

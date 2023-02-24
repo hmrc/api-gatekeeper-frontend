@@ -64,7 +64,7 @@
   Seq(
     NavigationItem(content = Text("Applications"), href = Some(routes.ApplicationController.applicationsPage(None).url)),
     NavigationItem(content = Text("Developers"), href = Some(routes.DevelopersController.blankDevelopersPage.url)),
-    NavigationItem(content = Text("Emails"), href = Some(routes.EmailsController.emailPreferencesChoice.url)),
+    NavigationItem(content = Text("Email"), href = Some(routes.EmailsController.landing().url)),
     NavigationItem(content = Text("API Approvals"), href = Some(routes.DeploymentApprovalController.pendingPage.url)),
     NavigationItem(content = Text("XML"), href = Some(routes.XmlServicesController.organisationsSearchPage.url))
   )
