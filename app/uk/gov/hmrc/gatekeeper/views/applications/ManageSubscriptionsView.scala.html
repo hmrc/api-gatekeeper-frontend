@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -27,22 +28,26 @@
 
 @subscriptions = @{model.subscriptions}
 
-@main(title = s"${applicationConfig.title} - Manage Subscriptions") {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(model.applicationId)}">@model.applicationName</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.SubscriptionController.manageSubscription(model.applicationId)}">Manage subscriptions</a>
-      </li>
-    </ol>
-  </div>
-
+@main(
+  title = s"${applicationConfig.title} - Manage Subscriptions",
+  breadcrumbs = Seq(
+    Crumb(
+      "Manage subscriptions",
+      s"${routes.SubscriptionController.manageSubscription(model.applicationId)}",
+      Some("data-breadcrumb-manage-application-subscriptions")
+    ),
+    Crumb(
+      s"${model.applicationName}",
+      s"${routes.ApplicationController.applicationPage(model.applicationId)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
   <h1 class="govuk-heading-l">Manage subscriptions</h1>
 
   <div class="govuk-accordion" data-module="govuk-accordion" id="accordion-default">

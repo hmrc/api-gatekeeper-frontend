@@ -27,6 +27,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -139,17 +140,16 @@
   }
 }
 
-@main(title = s"${applicationConfig.title} - Application Details") {
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
-      </li>
-    </ol>
-  </div>
-
-  <br />
-
+@main(
+  title = s"${applicationConfig.title} - Application Details",
+  breadcrumbs = Seq(
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-application")
+    )
+  )
+) {
   @if(flash.get("success").isDefined) {
     <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
       <div class="govuk-notification-banner__content">

@@ -20,25 +20,27 @@
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
 @import uk.gov.hmrc.gatekeeper.views.html.include.fieldError
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[UpdateApplicationNameForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Change the application name") {
-
-    <div class="govuk-breadcrumbs">
-      <ol class="govuk-breadcrumbs__list">
-        <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
-        </li>
-        <li class="govuk-breadcrumbs__list-item">
-          <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
-        </li>
-      </ol>
-    </div>
-    <br />
-
+@main(
+  title = s"${applicationConfig.title} - Change the application name",
+  breadcrumbs = Seq(
+    Crumb(
+      s"${application.name}",
+      s"${routes.ApplicationController.applicationPage(application.id)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
     @errorSummary2(form)
 
     <h1 class="govuk-heading-l">Change the application name</h1>
