@@ -422,6 +422,23 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), selectedApis)
       }
 
+      "respond with 200 and render the page correctly on initial load with selectedApis New" in {
+        primeAuthServiceSuccess()
+
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
+        result.status shouldBe OK
+
+        validateEmailPreferencesSpecificApiPageNew(Jsoup.parse(result.body), selectedApis)
+      }
+
+      "redirect to select api new page when no selectedApis in query params" in {
+        primeAuthServiceSuccess()
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new", validHeaders)
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
+      }
+
       "redirect to select api page when no selectedApis in query params" in {
         primeAuthServiceSuccess()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
@@ -449,6 +466,13 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
         result.status shouldBe FORBIDDEN
       }
+
+      "respond with 403 when specific api new page is not authorised" in {
+        primeAuthServiceFail()
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
+        result.status shouldBe FORBIDDEN
+      }
+
     }
 
     def validateRedirect(response: WSResponse, expectedLocation: String) {

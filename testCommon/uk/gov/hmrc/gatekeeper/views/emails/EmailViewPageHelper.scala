@@ -290,9 +290,6 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     users.foreach(verifyUserRow(document, _))
 
     validateCopyToClipboardLink(document, users)
-
-    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
-    //    getElementBySelector(document, "a[data-clip-text]")
   }
 
   def validateEmailPreferencesSpecificAPIResults(
@@ -308,20 +305,20 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[CombinedApi]) {
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
-    validateFormDestination(document, "apiSelectionForm", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateFormDestination(document, "apiSelectionForm", expectedDestination)
     validateButtonText(document, "submit", "Select API")
   }
 
-  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi]) = {
-    validateStaticPageElements(document, dropDownAPIs)
+  def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) = {
+    validateStaticPageElements(document, dropDownAPIs, expectedDestination)
   }
 
-  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi]) = {
-    validateStaticPageElements(document, dropDownAPIs)
+  def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi], expectedDestination: String) = {
+    validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateHiddenSelectedApiValues(document, selectedAPIs)
   }
 }
