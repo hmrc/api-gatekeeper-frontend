@@ -135,6 +135,10 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
     verifyEmailPreferencesChoiceOptions(SPECIFIC_API, document)
     verifyEmailPreferencesChoiceOptions(TAX_REGIME, document)
     verifyEmailPreferencesChoiceOptions(TOPIC, document)
+  }
+
+  def validateEmailPreferencesChoiceNewPage(document: Document): Unit = {
+    validateEmailPreferencesChoicePage(document)
     verifyEmailNonPrimaryLinks(document)
   }
 }
@@ -242,11 +246,11 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
+  private def validateStaticPageElementsNew(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
     validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
   }
 
-  def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+  def validateEmailPreferencesSpecificApiPageNew(document: Document, selectedApis: Seq[CombinedApi]) = {
     val sizeOfSelectedApis = selectedApis.size
     val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
     validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
@@ -255,9 +259,41 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
+  private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
+    validatePageHeader(document, "Email users interested in a specific API")
+    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
+    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateButtonText(document, "filter", filterButtonText)
+    validateTopicGrid(document, selectedTopic)
+  }
+
+  def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+    validateStaticPageElements(document, "Filter", None)
+    validateHiddenSelectedApiValues(document, selectedApis, 2)
+    verifyTableHeader(document, tableIsVisible = false)
+  }
   def validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(document: Document, selectedTopic: TopicOptionChoice) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     verifyTableHeader(document, tableIsVisible = false)
+  }
+
+  def validateEmailPreferencesSpecificAPIResults(
+                                                  document: Document,
+                                                  selectedTopic: TopicOptionChoice,
+                                                  selectedAPIs: Seq[CombinedApi],
+                                                  users: Seq[RegisteredUser],
+                                                  emailsString: String
+                                                ) = {
+    validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
+    validateSelectedSpecificApiItems(document, selectedAPIs)
+    validateHiddenSelectedApiValues(document, selectedAPIs, 2)
+    verifyTableHeader(document, users.nonEmpty)
+    users.foreach(verifyUserRow(document, _))
+
+    validateCopyToClipboardLink(document, users)
+
+    //    elementExistsByAttr(document, "a", "data-clip-text") shouldBe users.nonEmpty
+    //    getElementBySelector(document, "a[data-clip-text]")
   }
 
   def validateEmailPreferencesSpecificAPIResults(

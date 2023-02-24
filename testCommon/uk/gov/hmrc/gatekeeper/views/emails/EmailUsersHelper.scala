@@ -152,10 +152,10 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     })
   }
 
-  def validateSelectedSpecificApiItems(document: Document, apis: Seq[CombinedApi]): Unit = {
+  def validateSelectedSpecificApiItems(document: Document, apis: Seq[CombinedApi], hiddenInputSizeInto: Int = 1): Unit = {
     val hiddenApiInputs = getElementsBySelector(document, "form#api-filters input[type=hidden]")
 
-    hiddenApiInputs.size shouldBe apis.size * 2
+    hiddenApiInputs.size shouldBe apis.size * hiddenInputSizeInto
     hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
   }
 
