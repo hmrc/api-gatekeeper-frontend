@@ -310,13 +310,24 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
     validateFormDestination(document, "apiSelectionForm", expectedDestination)
+  }
+
+  private def validateStaticPageElementsCurrent(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
+    validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateButtonText(document, "submit", "Select API")
+  }
+  private def validateStaticPageElementsNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
+    validateStaticPageElements(document, dropDownAPIs, expectedDestination)
+    validateButtonText(document, "submit", "Continue")
   }
 
   def validateSelectAPIPageWithNonePreviouslySelected(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) = {
-    validateStaticPageElements(document, dropDownAPIs, expectedDestination)
+    validateStaticPageElementsCurrent(document, dropDownAPIs, expectedDestination)
   }
 
+  def validateSelectAPIPageWithNonePreviouslySelectedNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) = {
+    validateStaticPageElementsNew(document, dropDownAPIs, expectedDestination)
+  }
   def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi], expectedDestination: String) = {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateHiddenSelectedApiValues(document, selectedAPIs)

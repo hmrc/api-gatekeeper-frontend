@@ -51,7 +51,7 @@ class EmailPreferencesSelectApiNewViewSpec extends CommonViewSpec with EmailPref
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectApiNewView.render(dropDownApis, Seq.empty, None, request, LoggedInUser(None), messagesProvider)
 
-      validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), dropDownApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
+      validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), dropDownApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
     }
 
     "show correct title and options when selectedAPis are provided" in new Setup {

@@ -268,6 +268,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
       }
 
+      "redirect to new select page when SPECIFIC_API passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences-new", validHeaders, "sendEmailPreferences=SPECIFIC_API")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
+      }
+
       "redirect to select page when TAX_REGIME passed in the form" in {
         primeAuthServiceSuccess()
         val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
@@ -386,8 +392,19 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis)
+        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api")
       }
+
+      "respond with 200 and render the new page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api-new", validHeaders)
+        result.status shouldBe OK
+
+        validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
+      }
+
 
       "respond with 200 and render the page correctly when selectedAPis provided" in {
         val selectedApis = List(combinedApi4, combinedApi5, combinedApi6)
@@ -398,7 +415,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)
+        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api")
       }
 
       "respond with 403 when not authorised" in {
