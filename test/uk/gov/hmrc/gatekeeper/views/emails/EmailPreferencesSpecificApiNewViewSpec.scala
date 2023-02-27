@@ -30,14 +30,14 @@ import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiView
+import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiViewNew
 
-class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
+class EmailPreferencesSpecificApiNewViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
+    val emailPreferencesSpecificApiViewNew: EmailPreferencesSpecificApiViewNew = app.injector.instanceOf[EmailPreferencesSpecificApiViewNew]
   }
 
   "email preferences specific api view" must {
@@ -52,30 +52,9 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable = {
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiViewNew.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
       }
-      validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), List.empty)
-    }
-
-    "show correct title and elements when topic filter provided but nothing else" in new Setup {
-      val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-      validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body), selectedTopic)
-    }
-
-    "show correct title and elements when topic filter provided and selectedApis" in new Setup {
-      val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-
-      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList, List.empty, "")
-    }
-
-    "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
-      val emails                        = users.map(_.email).sorted.mkString("; ")
-      val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(users, new JsArray(), emails, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
-
-      validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList)
+      validateEmailPreferencesSpecificApiPageNew(Jsoup.parse(result.body), List.empty)
     }
   }
 }

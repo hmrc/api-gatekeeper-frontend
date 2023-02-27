@@ -50,10 +50,13 @@ class EmailsController @Inject() (
     emailsAllUsersView: EmailAllUsersView,
     emailApiSubscriptionsView: EmailApiSubscriptionsView,
     emailPreferencesChoiceView: EmailPreferencesChoiceView,
+    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
     emailPreferencesTopicView: EmailPreferencesTopicView,
     emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
     emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+    emailPreferencesSpecificApiViewNew: EmailPreferencesSpecificApiViewNew,
     emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
     emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
     val applicationService: ApplicationService,
@@ -91,26 +94,51 @@ class EmailsController @Inject() (
     Future.successful(Ok(emailPreferencesChoiceView()))
   }
 
+  def emailPreferencesChoiceNew(): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    Future.successful(Ok(emailPreferencesChoiceNewView()))
+  }
+
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
+    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result]   = {
       form.sendEmailPreferences match {
-        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None, None)))
+        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
         case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
         case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
-
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
       Future.successful(BadRequest(emailPreferencesChoiceView()))
 
     SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
-  def selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def chooseEmailPreferencesNew(): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
+      form.sendEmailPreferences match {
+        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(None, None)))
+        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
+        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
+      }
+    }
+
+    def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
+      Future.successful(BadRequest(emailPreferencesChoiceNewView()))
+
+    SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+  }
+
+  def selectSpecificApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
-    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
+    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
+  }
+
+  def selectSpecificApiNew(selectedAPIs: Option[List[String]], selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    for {
+      apis         <- apmService.fetchAllCombinedApis()
+      selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
+    } yield Ok(emailPreferencesSelectApiNewView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
   }
 
   def selectTopicPage(selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -119,7 +147,7 @@ class EmailsController @Inject() (
 
   def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     selectOption match {
-      case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(selectedAPIs, selectedTopic)))
+      case "1" => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(selectedAPIs, selectedTopic)))
       case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(selectedAPIs, selectedTopic)))
     }
   }
@@ -150,10 +178,26 @@ class EmailsController @Inject() (
     })
   }
 
+  def emailPreferencesSpecificApisNew(selectedAPIs: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
+    if (selectedAPIs.forall(_.isEmpty)) {
+      Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(None, selectedTopicStr)))
+    } else {
+      for {
+        apis         <- apmService.fetchAllCombinedApis()
+        filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+        publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, PUBLIC)
+        privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
+        combinedUsers = publicUsers ++ privateUsers
+        usersAsJson   = Json.toJson(combinedUsers)
+      } yield Ok(emailPreferencesSpecificApiViewNew(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+    }
+  }
+
   def emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     if (selectedAPIs.forall(_.isEmpty)) {
-      Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None, selectedTopicStr)))
+      Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
       for {
         apis         <- apmService.fetchAllCombinedApis()
@@ -166,7 +210,7 @@ class EmailsController @Inject() (
     }
   }
 
-  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent]                                       = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
     val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
