@@ -405,7 +405,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
       }
 
-
       "respond with 200 and render the page correctly when selectedAPis provided" in {
         val selectedApis = List(combinedApi4, combinedApi5, combinedApi6)
 
@@ -486,7 +485,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 403 when specific api new page is not authorised" in {
         primeAuthServiceFail()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
         result.status shouldBe FORBIDDEN
       }
 

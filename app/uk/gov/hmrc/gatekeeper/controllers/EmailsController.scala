@@ -19,10 +19,12 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -97,11 +99,11 @@ class EmailsController @Inject() (
   }
 
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
+    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result]   = {
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
-        case TAX_REGIME => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
-        case TOPIC => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
+        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
+        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
@@ -114,8 +116,8 @@ class EmailsController @Inject() (
     def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(None, None)))
-        case TAX_REGIME => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
-        case TOPIC => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
+        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
+        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
 
@@ -127,7 +129,7 @@ class EmailsController @Inject() (
 
   def selectSpecificApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
-      apis <- apmService.fetchAllCombinedApis()
+      apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
     } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
   }
@@ -198,16 +200,17 @@ class EmailsController @Inject() (
       Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
       for {
-        apis <- apmService.fetchAllCombinedApis()
-        filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PUBLIC)
+        apis         <- apmService.fetchAllCombinedApis()
+        filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+        publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, PUBLIC)
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
         combinedUsers = publicUsers ++ privateUsers
-        usersAsJson = Json.toJson(combinedUsers)
+        usersAsJson   = Json.toJson(combinedUsers)
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
-  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent]                                       = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
     val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))

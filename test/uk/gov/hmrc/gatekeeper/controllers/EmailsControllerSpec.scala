@@ -18,13 +18,16 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import akka.stream.Materializer
+
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -483,7 +486,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render the view as expected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
-        val request = createGetRequest("/emails/email-preferences-new")
+        val request                = createGetRequest("/emails/email-preferences-new")
         val result: Future[Result] = underTest.emailPreferencesChoiceNew()(request)
         status(result) shouldBe OK
 

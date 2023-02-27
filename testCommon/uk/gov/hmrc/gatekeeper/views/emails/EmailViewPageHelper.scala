@@ -272,17 +272,19 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
   }
+
   def validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(document: Document, selectedTopic: TopicOptionChoice) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesSpecificAPIResults( document: Document,
-                                                  selectedTopic: TopicOptionChoice,
-                                                  selectedAPIs: Seq[CombinedApi],
-                                                  users: Seq[RegisteredUser],
-                                                  emailsString: String
-                                                ) = {
+  def validateEmailPreferencesSpecificAPIResults(
+      document: Document,
+      selectedTopic: TopicOptionChoice,
+      selectedAPIs: Seq[CombinedApi],
+      users: Seq[RegisteredUser],
+      emailsString: String
+    ) = {
     validateStaticPageElements(document, "Filter Again", Some(selectedTopic))
     validateSelectedSpecificApiItems(document, selectedAPIs)
     validateHiddenSelectedApiValues(document, selectedAPIs, 2)
@@ -316,6 +318,7 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateButtonText(document, "submit", "Select API")
   }
+
   private def validateStaticPageElementsNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateButtonText(document, "submit", "Continue")
@@ -328,6 +331,7 @@ trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
   def validateSelectAPIPageWithNonePreviouslySelectedNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) = {
     validateStaticPageElementsNew(document, dropDownAPIs, expectedDestination)
   }
+
   def validateSelectAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi], expectedDestination: String) = {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateHiddenSelectedApiValues(document, selectedAPIs)
