@@ -30,7 +30,7 @@
     new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
 }
 @userSelection() = @{
-    Map("API" -> selectedAPIs.map(_.displayName).mkString("\n"),
+    Map("API" -> selectedAPIs.map(_.displayName).mkString(", \n"),
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
 }
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
