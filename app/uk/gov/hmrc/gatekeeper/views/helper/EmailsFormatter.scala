@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper
 
-import uk.gov.hmrc.gatekeeper.models.Collaborator
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole.CollaboratorRole
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.gatekeeper.models.CollaboratorRole
 
 object EmailsFormatter {
 
-  def format(collaborators: Set[Collaborator], maybeFilter: Option[CollaboratorRole] = None) = {
-    maybeFilter match {
-      case Some(filter) => collaborators.filter(_.role == filter).map(_.emailAddress).mkString("; ")
-      case _            => collaborators.map(_.emailAddress).mkString("; ")
-    }
+  def format(collaborators: Set[Collaborator], maybeFilter: Option[CollaboratorRole.CollaboratorRole] = None): String = {
+    (maybeFilter match {
+      case Some(CollaboratorRole.ADMINISTRATOR) => collaborators.filter(_.isAdministrator)
+      case Some(CollaboratorRole.DEVELOPER)     => collaborators.filter(_.isDeveloper)
+      case _                                    => collaborators
+    }).map(_.emailAddress.text).mkString("; ")
   }
 }

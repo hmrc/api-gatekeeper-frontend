@@ -31,6 +31,11 @@ import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -261,23 +266,36 @@ class ApplicationService @Inject() (
     }
   }
 
-  def addTeamMember(app: Application, teamMember: Collaborator)(implicit hc: HeaderCarrier): Future[Unit] = {
-    for {
-      response <- apmConnector.addTeamMember(app.id, AddTeamMemberRequest(teamMember.emailAddress, teamMember.role, None))
-    } yield response
+  val unexpectedDispatchErrors = () => { throw new RuntimeException("Unexpected errors") }
 
-  }
-
-  def removeTeamMember(app: Application, teamMemberToRemove: String, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     val applicationConnector = applicationConnectorFor(app)
+
     for {
-      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
-      response      <- applicationConnector.removeCollaborator(app.id, teamMemberToRemove, requestingEmail, adminsToEmail)
+      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
+      cmd            = AddCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+      response      <- applicationConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response
   }
 
-  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[Set[String]] = {
-    val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
+  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[CommandFailures.CannotRemoveLastAdmin.type,Unit]] = {
+    import cats.syntax.either._
+    val applicationConnector = applicationConnectorFor(app)
+    val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(teamMemberToRemove)).get  // Safe to do here.
+
+    val fails: PartialFunction[List[CommandFailure], Either[CommandFailures.CannotRemoveLastAdmin.type, Unit]] = (errs) => errs match {
+      case List(CommandFailures.CannotRemoveLastAdmin) => CommandFailures.CannotRemoveLastAdmin.asLeft[Unit]
+    }
+
+    for {
+      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
+      cmd            = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+      response      <- applicationConnector.dispatch(app.id, cmd, adminsToEmail)
+    } yield response.fold(fails(_) orElse unexpectedDispatchErrors(), _ => ().asRight)
+  }
+
+  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Set[LaxEmailAddress]] = {
+    val adminEmails = collaborators.filter(_.isAdministrator).map(_.emailAddress).filterNot(excludes.contains(_))
 
     developerConnector.fetchByEmails(adminEmails)
       .map(registeredUsers =>

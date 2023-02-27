@@ -41,6 +41,7 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 case class BearerToken(authToken: String, expiry: DateTime) {
   override val toString = authToken
@@ -88,7 +89,6 @@ object ApplicationWithHistory {
     .and[Ropc](AccessType.ROPC.toString)
     .format
   implicit val formatRole   = Json.formatEnum(CollaboratorRole)
-  implicit val format2      = Json.format[Collaborator]
   implicit val format3      = Json.format[ApplicationState]
   implicit val format4      = Json.formatEnum(State)
   implicit val format5      = Json.format[SubmissionDetails]
@@ -412,7 +412,6 @@ final case class CreatePrivOrROPCAppRequest(environment: String, name: String, d
 object CreatePrivOrROPCAppRequest {
   implicit val format1 = Json.formatEnum(AccessType)
   implicit val format2 = Json.formatEnum(CollaboratorRole)
-  implicit val format3 = Json.format[Collaborator]
   implicit val format4 = Json.format[TotpSecrets]
   implicit val format6 = Json.format[AppAccess]
   implicit val format7 = Json.format[CreatePrivOrROPCAppRequest]
@@ -424,7 +423,6 @@ final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.Coll
 
 object AddTeamMemberRequest {
   implicit val format1 = Json.formatEnum(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[AddTeamMemberRequest]
 }
 

@@ -88,16 +88,16 @@
           </legend>
           @fieldError2(form.errors, "collaboratorEmail")
           <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-            @{application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(c =>
+            @{application.collaborators.filter(_.isAdministrator).map(c =>
               <div class="govuk-radios__item">
                 {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress) {
-                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress} checked=""></input>
+                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress.text} checked=""></input>
                   <label class="govuk-label govuk-radios__label" for="emailAddress">
                     {c.emailAddress}
                   </label>
                 }
                 else {
-                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress}></input>
+                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress.text}></input>
                   <label class="govuk-label govuk-radios__label" for="emailAddress">
                     {c.emailAddress}
                   </label>

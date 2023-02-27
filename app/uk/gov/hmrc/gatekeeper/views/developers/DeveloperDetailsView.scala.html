@@ -22,6 +22,7 @@
 @import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -146,9 +147,9 @@
                     </dt>
                     <dd class="govuk-summary-list__value" id="app-name-@idx">@app.deployedTo.toLowerCase.capitalize</dd>
                     <dd class="govuk-summary-list__value" id="collaborator-@idx">
-                        @app.collaborators.filter(_.emailAddress == developer.email).map(_.role match {
-                            case CollaboratorRole.ADMINISTRATOR => "Admin"
-                            case CollaboratorRole.DEVELOPER => "Developer"
+                        @app.collaborators.filter(_.emailAddress == developer.email).map(_ match {
+                            case _: Collaborators.Administrator => "Admin"
+                            case _: Collaborators.Developer => "Developer"
                         })
                     </dd>
                     <dd class="govuk-summary-list__value" id="production-status-@idx">

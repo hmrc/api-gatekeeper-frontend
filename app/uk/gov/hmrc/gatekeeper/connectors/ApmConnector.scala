@@ -31,6 +31,7 @@ import uk.gov.hmrc.gatekeeper.models.applications._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -83,6 +84,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
+  }
+
+  // TODO - better return type
+  // TODO - better error handling for expected errors
+  def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
+    import ApplicationCommandFormatters._
+    val url = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
+    http.PATCH[ApplicationCommand,Either[UpstreamErrorResponse, Unit]](url,cmd)
   }
 }
 

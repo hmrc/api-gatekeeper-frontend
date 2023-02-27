@@ -100,10 +100,10 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNameAdminEmailPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val adminEmails = app.application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress)
+      val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
       Future.successful(adminEmails.size match {
-        case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head))
-        case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails, UpdateApplicationNameAdminEmailForm.form))
+        case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
+        case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), UpdateApplicationNameAdminEmailForm.form))
       })
     }
   }
@@ -126,10 +126,10 @@ class UpdateApplicationNameController @Inject() (
       }
 
       def handleFormError(form: Form[UpdateApplicationNameAdminEmailForm]) = {
-        val adminEmails = app.application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress)
+        val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
         Future.successful(adminEmails.size match {
-          case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head))
-          case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails, form))
+          case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
+          case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), form))
         })
       }
 

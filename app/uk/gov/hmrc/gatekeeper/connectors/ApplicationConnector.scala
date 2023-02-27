@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status._
@@ -32,6 +31,10 @@ import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -247,22 +250,30 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def removeCollaborator(
+  def dispatch(
       applicationId: ApplicationId,
-      teamMemberToDelete: String,
-      gatekeeperUserId: String,
-      adminsToEmail: Set[String]
+      command: ApplicationCommand,
+      adminsToEmail: Set[LaxEmailAddress]
     )(implicit hc: HeaderCarrier
-    ): Future[ApplicationUpdateResult] = {
-    val url     = s"${baseApplicationUrl(applicationId)}/collaborator/delete"
-    val request = DeleteCollaboratorRequest(teamMemberToDelete, adminsToEmail, true)
+    ): Future[Either[List[CommandFailure], DispatchSuccessResult]] = {
+    
+    import play.api.libs.json._
+    def parseMsgAsCommandFailuresOrThrow(uer: UpstreamErrorResponse): List[CommandFailure] = {
+      import CommandFailureJsonFormatters._
+      Json.parse(uer.getMessage).asOpt[List[CommandFailure]]
+      .fold(throw uer)(identity)
+    }
 
-    http.POST[DeleteCollaboratorRequest, Either[UpstreamErrorResponse, Unit]](url, request)
-      .flatMap(_ match {
-        case Right(_)                                        => successful(ApplicationUpdateSuccessResult)
-        case Left(UpstreamErrorResponse(_, FORBIDDEN, _, _)) => failed(TeamMemberLastAdmin)
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => failed(ApplicationNotFound)
-        case Left(err)                                       => failed(err)
+    val url     = s"${baseApplicationUrl(applicationId)}/dispatch"
+    val request = DispatchRequest(command, adminsToEmail)
+    val extraHeaders = Seq.empty[(String, String)]
+    import cats.syntax.either._
+
+    http.PATCH[DispatchRequest, Either[UpstreamErrorResponse, DispatchSuccessResult]](url, request, extraHeaders)
+      .map(_ match {
+        case Right(result) => Right(result)
+        case Left(uer @ UpstreamErrorResponse(msg, BAD_REQUEST, _, _)) => parseMsgAsCommandFailuresOrThrow(uer).asLeft[DispatchSuccessResult]
+        case Left(uer : UpstreamErrorResponse) => throw uer
       })
   }
 
@@ -278,10 +289,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[String]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
-    http.POST[SearchCollaboratorsRequest, List[String]](s"$serviceBaseUrl/collaborators", request)
+    http.POST[SearchCollaboratorsRequest, List[LaxEmailAddress]](s"$serviceBaseUrl/collaborators", request)
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {

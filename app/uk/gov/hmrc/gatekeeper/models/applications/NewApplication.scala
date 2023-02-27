@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 
 case class NewApplication(
     id: ApplicationId,
@@ -78,7 +79,6 @@ object NewApplication {
     .format
 
   implicit val formatRole             = Json.formatEnum(CollaboratorRole)
-  implicit val formatCollaborator     = Json.format[Collaborator]
   implicit val formatApplicationState = Json.format[ApplicationState]
   implicit val formatRateLimitTier    = Json.formatEnum(RateLimitTier)
   implicit val formatGrantLength      = Json.formatEnum(GrantLength)

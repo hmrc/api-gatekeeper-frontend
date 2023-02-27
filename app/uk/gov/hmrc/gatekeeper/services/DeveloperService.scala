@@ -26,6 +26,11 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import java.time.LocalDateTime
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class DeveloperService @Inject() (
     appConfig: AppConfig,
@@ -40,9 +45,9 @@ class DeveloperService @Inject() (
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None)                 => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
-      case (maybeEmailFilter, Some(apiFilter)) => {
+      case (maybePartialEmailFilter, Some(apiFilter)) => {
         for {
-          collaboratorEmails             <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybeEmailFilter, apiFilter)
+          collaboratorEmails             <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybePartialEmailFilter, apiFilter)
           users                          <- developerConnector.fetchByEmails(collaboratorEmails)
           filteredRegisteredUsers        <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
           filteredByDeveloperStatusUsers <- Future.successful(filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch))
@@ -52,15 +57,15 @@ class DeveloperService @Inject() (
 
     for {
       results <- unsortedResults
-    } yield results.sortBy(_.email)
+    } yield results.sortBy(_.email.text)
   }
 
   private def getCollaboratorsByApplicationEnvironments(
       environmentFilter: ApiSubscriptionInEnvironmentFilter,
-      maybeEmailFilter: Option[String],
+      maybePartialEmailFilter: Option[String],
       apiFilter: ApiContextVersion
     )(implicit hc: HeaderCarrier
-    ): Future[Set[String]] = {
+    ): Future[Set[LaxEmailAddress]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
       case ProductionEnvironment => List(productionApplicationConnector)
@@ -68,8 +73,8 @@ class DeveloperService @Inject() (
       case AnyEnvironment        => List(productionApplicationConnector, sandboxApplicationConnector)
     }
 
-    val allCollaboratorEmailsFutures: List[Future[List[String]]] = environmentApplicationConnectors
-      .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybeEmailFilter))
+    val allCollaboratorEmailsFutures: List[Future[List[LaxEmailAddress]]] = environmentApplicationConnectors
+      .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybePartialEmailFilter))
 
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }
@@ -78,7 +83,7 @@ class DeveloperService @Inject() (
 
     val registeredEmails = users.map(_.user.email)
 
-    type KEY = Tuple2[String, UserId]
+    type KEY = Tuple2[LaxEmailAddress, UserId]
 
     def asKey(collaborator: Collaborator): KEY = ((collaborator.emailAddress, collaborator.userId))
 
@@ -134,15 +139,15 @@ class DeveloperService @Inject() (
     developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
-  def seekUser(email: String)(implicit hc: HeaderCarrier): Future[Option[User]] = {
+  def seekUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]] = {
     developerConnector.seekUserByEmail(email)
   }
 
-  def fetchOrCreateUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
     developerConnector.fetchOrCreateUser(email)
   }
 
-  def fetchUser(email: String)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
     developerConnector.fetchByEmail(email)
   }
 
@@ -167,7 +172,7 @@ class DeveloperService @Inject() (
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations)
   }
 
-  def fetchDevelopersByEmails(emails: Iterable[String])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
   }
 
@@ -193,13 +198,13 @@ class DeveloperService @Inject() (
     developerConnector.removeMfa(developerId, loggedInUser)
   }
 
-  def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
+  def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(email: String)(app: Application): Future[Set[String]] = {
+    def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: Application): Future[Set[LaxEmailAddress]] = {
       if (app.deployedTo == "SANDBOX") {
         Future.successful(Set.empty)
       } else {
-        val appAdmins = app.admins.filterNot(_.emailAddress == email).map(_.emailAddress)
+        val appAdmins = app.admins.filterNot(_.emailAddress == filterOutThisEmail).map(_.emailAddress)
         for {
           users        <- fetchDevelopersByEmails(appAdmins)
           verifiedUsers = users.toSet.filter(_.verified)
@@ -208,23 +213,28 @@ class DeveloperService @Inject() (
       }
     }
 
-    def removeTeamMemberFromApp(email: String)(app: Application) = {
+    def removeTeamMemberFromApp(developer: Developer)(app: Application): Future[Unit] = {
       val connector = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+      val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(developer.email)).get   // Safe as we know we're a dev on this app
 
       for {
-        adminsToEmail <- fetchAdminsToEmail(email)(app)
-        result        <- connector.removeCollaborator(app.id, email, gatekeeperUserId, adminsToEmail)
+        adminsToEmail <- fetchAdminsToEmail(developer.email)(app)
+        cmd            = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+        result        <- connector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
+          case Left(_) => throw new RuntimeException("Faled to remove team member from app")
+          case Right(_) => ()
+        })
       } yield result
     }
 
     fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
-      val email                               = developer.email
+      val email = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {
         for {
-          _      <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(email))
-          result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserId, email))
+          _      <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(developer))
+          result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
         } yield (result, developer)
       } else {
         Future.successful((DeveloperDeleteFailureResult, developer))

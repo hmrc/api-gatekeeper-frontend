@@ -16,6 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 @import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 @import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 @import uk.gov.hmrc.gatekeeper.models.State._
@@ -481,19 +482,16 @@
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" data-collaborator-email>
                   @if(model.developers.exists(dev => dev.email == collaborator.emailAddress)) {
-                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress</a>
+                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress.text</a>
                   } else {
-                    @collaborator.emailAddress
+                    @collaborator.emailAddress.text
                   }
                 </td>
                 <td class="govuk-table__cell" data-collaborator-role>
                   @{
-                    if (collaborator.role == CollaboratorRole.ADMINISTRATOR) {
-                      "Admin"
-                    } else if (collaborator.role == CollaboratorRole.DEVELOPER) {
-                      "Developer"
-                    } else {
-                      ""
+                    collaborator match {
+                      case Collaborators.Administrator(_,_) => "Admin"
+                      case _ => "Developer"
                     }
                   }
                 </td>

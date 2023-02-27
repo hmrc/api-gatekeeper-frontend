@@ -24,11 +24,12 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.MfaId.format
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-case class CoreUserDetails(email: String, id: UserId)
+case class CoreUserDetails(email: LaxEmailAddress, id: UserId)
 
 trait User {
-  def email: String
+  def email: LaxEmailAddress
   def userId: UserId
   def firstName: String
   def lastName: String
@@ -47,7 +48,7 @@ object User {
 }
 
 case class RegisteredUser(
-    email: String,
+    email: LaxEmailAddress,
     userId: UserId,
     firstName: String,
     lastName: String,
@@ -68,7 +69,7 @@ object RegisteredUser {
     .format
 
   val registeredUserReads: Reads[RegisteredUser] = (
-    (JsPath \ "email").read[String] and
+    (JsPath \ "email").read[LaxEmailAddress] and
       (JsPath \ "userId").read[UserId] and
       (JsPath \ "firstName").read[String] and
       (JsPath \ "lastName").read[String] and
@@ -84,7 +85,7 @@ object RegisteredUser {
 
 }
 
-case class UnregisteredUser(email: String, userId: UserId) extends User {
+case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends User {
   val firstName = "n/a"
   val lastName  = "n/a"
 }

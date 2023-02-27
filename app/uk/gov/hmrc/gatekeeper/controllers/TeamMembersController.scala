@@ -24,7 +24,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -36,6 +36,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, Develope
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
@@ -83,14 +84,16 @@ class TeamMembersController @Inject() (
     }
   }
 
-  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction ( implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
+        val emailAddress = LaxEmailAddress(form.email)
+
         for {
-          user        <- developerService.fetchOrCreateUser(form.email)
+          user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
-          collaborator = Collaborator(form.email, role, user.userId)
-          result      <- applicationService.addTeamMember(app.application, collaborator)
+          collaborator = if(role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
+          result      <- applicationService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
                            .map(_ => Redirect(uk.gov.hmrc.gatekeeper.controllers.routes.TeamMembersController.manageTeamMembers(appId)))
                            .recover {
                              case _ @TeamMemberAlreadyExists => BadRequest(addTeamMemberView(
@@ -106,7 +109,7 @@ class TeamMembersController @Inject() (
 
       AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }
-  }
+  )
 
   def removeTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
@@ -125,17 +128,16 @@ class TeamMembersController @Inject() (
   def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-        form.confirm match {
-          case Some("Yes") => applicationService.removeTeamMember(app.application, form.email, loggedIn.userFullName.get).map {
-              _ => Redirect(routes.TeamMembersController.manageTeamMembers(appId))
-            } recover {
-              case _ @TeamMemberLastAdmin =>
-                BadRequest(removeTeamMemberView(
+        val emailAddress = LaxEmailAddress(form.email)
+        lazy val success = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val failure = BadRequest(removeTeamMemberView(
                   app.application,
                   RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),
                   form.email
                 ))
-            }
+
+        form.confirm match {
+          case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map { _.fold(_ => failure, _ => success) }
           case _           => successful(Redirect(routes.TeamMembersController.manageTeamMembers(appId)))
         }
       }
