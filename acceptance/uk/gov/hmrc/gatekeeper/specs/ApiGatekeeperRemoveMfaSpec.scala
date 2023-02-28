@@ -31,6 +31,7 @@ import scala.io.Source
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class ApiGatekeeperRemoveMfaSpec
   extends ApiGatekeeperBaseSpec
     with Assertions
@@ -152,7 +153,7 @@ class ApiGatekeeperRemoveMfaSpec
 
     When("I select a developer email")
     DeveloperPage.searchByPartialEmail(developer8)
-    DeveloperPage.selectByDeveloperEmail(developer8)
+    DeveloperPage.selectByDeveloperEmail(developer8.toLaxEmail)
 
     Then("I am successfully navigated to the Developer Details page")
     on(DeveloperDetailsPage)
@@ -205,7 +206,7 @@ class ApiGatekeeperRemoveMfaSpec
 
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))
-        .withJsonRequestBody(FindUserIdRequest(developer8))
+        .withJsonRequestBody(FindUserIdRequest(developer8.toLaxEmail))
         .willReturn(
           aResponse()
             .withStatus(OK)

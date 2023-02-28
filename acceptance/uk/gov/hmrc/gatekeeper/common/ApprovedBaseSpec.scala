@@ -28,6 +28,7 @@ import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with UrlEncoding {
@@ -43,7 +44,7 @@ trait ApprovedBaseSpec extends BaseSpec
   }
 
   protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
-    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
+    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email.toLaxEmail)))
     implicit val format = Json.writes[FindUserIdResponse]
     val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 

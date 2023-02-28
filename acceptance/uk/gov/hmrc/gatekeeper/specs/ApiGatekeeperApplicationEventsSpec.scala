@@ -26,6 +26,7 @@ import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApiGatekeeperApplicationEventsSpec
     extends ApiGatekeeperBaseSpec
@@ -37,7 +38,7 @@ class ApiGatekeeperApplicationEventsSpec
     with XmlServicesStub
     with UrlEncoding {
 
-  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Show application changes") {
     Scenario("I see the application changes page with all events displayed") {

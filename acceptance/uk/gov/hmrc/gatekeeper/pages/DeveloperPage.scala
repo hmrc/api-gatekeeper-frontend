@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.pages
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object DeveloperPage extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/developers"
@@ -26,7 +27,7 @@ object DeveloperPage extends WebPage {
     currentUrl == url
   }
 
-  def developerEmail(email:String) = find(linkText(email)).get
+  def developerEmail(email:LaxEmailAddress) = find(linkText(email.text)).get
 
   private def searchBox = textField("emailFilter")
 
@@ -38,7 +39,7 @@ object DeveloperPage extends WebPage {
 
   private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
 
-  def selectByDeveloperEmail(email: String) = {
+  def selectByDeveloperEmail(email: LaxEmailAddress) = {
     // If we use click we sometimes get a selenium error where it can't click on the element.
     // However, if we open using the keyboard, we don't get these problems.
     val element = developerEmail(email)

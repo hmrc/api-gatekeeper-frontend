@@ -17,14 +17,12 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.time.Period
-
 import org.joda.time.DateTime
-
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.AccessType._
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class ModelSpec extends AsyncHmrcSpec {
 
   "UpliftAction" should {
@@ -68,11 +66,11 @@ class ModelSpec extends AsyncHmrcSpec {
   }
 
   "Application.isSoleAdmin" should {
-    val emailAddress                                = "admin@example.com"
-    val admin                                       = Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random)
-    val developer                                   = Collaborator(emailAddress, CollaboratorRole.DEVELOPER, UserId.random)
-    val otherAdmin                                  = Collaborator("otheradmin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
-    val otherDeveloper                              = Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+    val emailAddress                                = "admin@example.com".toLaxEmail
+    val admin                                       = Collaborators.Administrator(UserId.random,emailAddress )
+    val developer                                   = Collaborators.Developer(UserId.random, emailAddress)
+    val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
+    val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     val grantLength: Period                         = Period.ofDays(547)
     def application(teamMembers: Set[Collaborator]) =
       ApplicationResponse(

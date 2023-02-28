@@ -22,7 +22,7 @@ import org.scalatest.wordspec.AnyWordSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
 import uk.gov.hmrc.gatekeeper.models.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests}
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHelper {
 
   trait Setup {
@@ -30,7 +30,7 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
     def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
       val email  = s"$name@example.com"
       val userId = UserId.random
-      RegisteredUser(email, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
+      RegisteredUser(email.toLaxEmail, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
     }
 
     val xmlApiOne = XmlApi(

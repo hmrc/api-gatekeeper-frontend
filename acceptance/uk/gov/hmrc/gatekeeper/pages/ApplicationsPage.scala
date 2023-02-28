@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.pages
 import uk.gov.hmrc.gatekeeper.common.{NavigationSugar, WebPage}
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage.APIFilter.APIFilterList
 import org.openqa.selenium.Keys.ENTER
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationsPage extends WebPage with NavigationSugar {
 
@@ -66,8 +67,8 @@ object ApplicationsPage extends WebPage with NavigationSugar {
     element.underlying.sendKeys(ENTER)
   }
 
-  def selectDeveloperByEmail(email: String) = {
-    click on find(linkText(email)).get
+  def selectDeveloperByEmail(email: LaxEmailAddress) = {
+    click on find(linkText(email.text)).get
   }
 
   def developersNavLink = find(linkText("Developers")).get

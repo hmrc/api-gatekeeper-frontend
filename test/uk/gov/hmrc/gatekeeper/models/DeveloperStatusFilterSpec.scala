@@ -18,11 +18,11 @@ package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class DeveloperStatusFilterSpec extends HmrcSpec {
 
   def aUser(name: String, verified: Option[Boolean]): User = {
-    verified.fold[User](UnregisteredUser(s"$name@example.com", UserId.random))(v => RegisteredUser(s"$name@example.com", UserId.random, "Fred", "Example", v))
+    verified.fold[User](UnregisteredUser(s"$name@example.com".toLaxEmail, UserId.random))(v => RegisteredUser(s"$name@example.com".toLaxEmail, UserId.random, "Fred", "Example", v))
   }
 
   "DeveloperStatusFilter parsing" should {

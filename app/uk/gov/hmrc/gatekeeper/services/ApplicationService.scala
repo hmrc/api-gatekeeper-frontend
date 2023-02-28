@@ -33,7 +33,6 @@ import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
@@ -198,7 +197,7 @@ class ApplicationService @Inject() (
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
 
-  def updateApplicationName(application: ApplicationResponse, adminEmail: String, gatekeeperUser: String, name: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateApplicationName(application: ApplicationResponse, adminEmail: LaxEmailAddress, gatekeeperUser: String, name: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     if (application.name.equalsIgnoreCase(name)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {

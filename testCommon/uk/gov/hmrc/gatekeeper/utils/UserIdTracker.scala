@@ -16,11 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import scala.collection.mutable
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
+import scala.collection.mutable
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.Collaborator
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[String, UserId]()
@@ -30,11 +32,9 @@ trait UserIdTracker {
 
 trait CollaboratorTracker extends UserIdTracker {
 
-  def collaboratorOf(email: String, role: CollaboratorRole): Collaborator = Collaborator(email, role, idOf(email))
-
-  implicit class CollaboratorSyntax(value: String) {
-    def asAdministratorCollaborator = collaboratorOf(value, ADMINISTRATOR)
-    def asDeveloperCollaborator     = collaboratorOf(value, DEVELOPER)
+  implicit class CollaboratorSyntax(email: LaxEmailAddress) {
+    def asAdministratorCollaborator: Collaborator = Collaborators.Administrator(idOf(email), email)
+    def asDeveloperCollaborator: Collaborator    = Collaborators.Developer(idOf(email), email)
 
   }
 }

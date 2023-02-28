@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 @Singleton
 class UpdateApplicationNameController @Inject() (
@@ -114,7 +115,7 @@ class UpdateApplicationNameController @Inject() (
         val newApplicationName = request.session.get(newAppNameSessionKey).get
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
-        applicationService.updateApplicationName(app.application, adminEmail, gatekeeperUser, newApplicationName).map(_ match {
+        applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {

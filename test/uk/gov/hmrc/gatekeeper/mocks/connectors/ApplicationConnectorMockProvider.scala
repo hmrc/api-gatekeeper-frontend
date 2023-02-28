@@ -45,11 +45,11 @@ trait ApplicationConnectorMockProvider {
     }
 
     object SearchCollaborators {
-      def returns(emails: String*) = when(mock.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)).thenReturn(successful(emails.toList))
+      def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)).thenReturn(successful(emails.toList))
 
-      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(collaborators: String*) =
-        when(mock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(partialEmailMatch))(*))
-          .thenReturn(successful(collaborators.toList))
+      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(collaboratorEmails: LaxEmailAddress*) =
+        when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(partialEmailMatch))(*))
+          .thenReturn(successful(collaboratorEmails.toList))
     }
 
     object FetchAllApplications {
@@ -90,19 +90,42 @@ trait ApplicationConnectorMockProvider {
     object FetchApplicationsExcludingDeletedByUserId {
       def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
+//
+//    object RemoveCollaborator {
+//      def succeeds() = when(mock.removeCollaborator(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+//
+//      def succeedsFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
+//        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
+//          .thenReturn(successful(ApplicationUpdateSuccessResult))
+//
+//      def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
+//        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
+//          .thenReturn(failed(TeamMemberLastAdmin))
+//    }
 
-    object RemoveCollaborator {
-      def succeeds() = when(mock.removeCollaborator(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+    object IssueCommand {
+      import cats.syntax.either._
+      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
-      def succeedsFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
-        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
-          .thenReturn(successful(ApplicationUpdateSuccessResult))
+      def verifyCommand() = {
+        val cmdCaptor = ArgCaptor[ApplicationCommand]
+        when(aMock.dispatch(*[ApplicationId], cmdCaptor.capture, *)(*))
+        cmdCaptor.value
+      }
 
-      def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
-        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
-          .thenReturn(failed(TeamMemberLastAdmin))
+      object ToRemoveCollaborator {
+
+        def succeeds() = {
+          val mockResult = mock[DispatchSuccessResult]
+          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[List[CommandFailure]]))
+        }
+
+        def failsWithLastAdmin() = {
+          val mockResult = List(CommandFailures.CannotRemoveLastAdmin)
+          when(aMock.dispatch(*[ApplicationId], *[RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
+        }
+      }
     }
-
     object UpdateScopes {
       def succeeds() = when(mock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
     }

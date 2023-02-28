@@ -31,6 +31,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiViewNew
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailPreferencesSpecificApiNewViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 
@@ -46,8 +47,8 @@ class EmailPreferencesSpecificApiNewViewSpec extends CommonViewSpec with EmailPr
     val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
-    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = List(user1, user2)
 
     "show correct title and elements on initial load" in new Setup {

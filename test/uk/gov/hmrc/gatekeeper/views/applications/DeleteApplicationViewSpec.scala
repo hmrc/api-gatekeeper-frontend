@@ -17,14 +17,12 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
-
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
-
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -52,8 +50,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         "PRODUCTION",
         None,
         Set(
-          Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
-          Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+          Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
+          Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
         DateTime.now(),
         Some(DateTime.now()),

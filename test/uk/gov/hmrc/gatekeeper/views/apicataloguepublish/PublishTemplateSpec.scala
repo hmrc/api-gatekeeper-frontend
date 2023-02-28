@@ -17,11 +17,10 @@
 package uk.gov.hmrc.gatekeeper.views.developers
 
 import org.jsoup.Jsoup
-
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
-
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -41,7 +40,7 @@ class PublishTemplateSpec extends CommonViewSpec {
       deployedTo: String = "PRODUCTION"
     ) extends Application
 
-  def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
+  def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
   "Publish Template" should {
     implicit val request  = FakeRequest().withCSRFToken

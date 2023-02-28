@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailApiSubscriptionsView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper {
 
@@ -41,8 +42,8 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
 
   "email api subscriptions view" must {
 
-    val user1         = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2         = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users         = Seq(user1, user2)
     val api1          = simpleAPIDefinition("api", "Magical API", "magical", None, "1")
     val api2          = simpleAPIDefinition("api", "Magical API", "magical", None, "2")
@@ -53,7 +54,7 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailApiSubscriptionsView.render(dropdowns, users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(dropdowns, users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", queryParams, request, LoggedInUser(None), messagesProvider)
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview1.value, users)
     }

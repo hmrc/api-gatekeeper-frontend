@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesTopicView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
@@ -41,8 +42,8 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
   "email preferences topic view" must {
 
-    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
@@ -57,7 +58,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
         emailPreferencesTopicView.render(
           users,
           emailRecipientsAsJson,
-          s"${user1.email}; ${user2.email}",
+          s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           request,
           LoggedInUser(None),

@@ -149,7 +149,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
     "display multiple admin page if there is > 1 admin for the app" in new Setup {
       val appWithMultipleAdmins = basicApplication.copy(collaborators =
-        Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
       )
 
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(appWithMultipleAdmins, List.empty))

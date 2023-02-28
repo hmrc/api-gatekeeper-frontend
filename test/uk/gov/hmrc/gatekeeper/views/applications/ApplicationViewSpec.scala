@@ -17,16 +17,14 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
-
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import org.jsoup.Jsoup
-
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
@@ -44,7 +42,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     val applicationView  = app.injector.instanceOf[ApplicationView]
 
     val developers = List[RegisteredUser] {
-      new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
+      new RegisteredUser(LaxEmailAddress("joe.bloggs@example.co.uk"), UserId.random, "joe", "bloggs", false)
     }
 
     val clientId            = ClientId("clientid")
@@ -329,7 +327,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information and click on associated developer" in new Setup {
-      val user   = RegisteredUser("sample@example.com", UserId.random, "joe", "bloggs", true)
+      val user   = RegisteredUser(LaxEmailAddress("sample@example.com"), UserId.random, "joe", "bloggs", true)
       val result = applicationView.render(
         DefaultApplicationViewModel.withDeveloper(user),
         strideUserRequest,

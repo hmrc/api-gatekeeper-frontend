@@ -19,9 +19,8 @@ package mocks.services
 import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.Future.{failed, successful}
-
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
@@ -89,7 +88,7 @@ trait DeveloperServiceMockProvider {
 
     object SeekRegisteredUser {
 
-      def returnsFor(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) = {
+      def returnsFor(email: LaxEmailAddress, verified: Boolean = true, mfaEnabled: Boolean = true) = {
 
         when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(
           email,
@@ -105,13 +104,13 @@ trait DeveloperServiceMockProvider {
 
     object SeekUnregisteredUser {
 
-      def returnsFor(email: String) =
+      def returnsFor(email: LaxEmailAddress) =
         when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(UnregisteredUser(email, idOf(email)))))
     }
 
     object FetchOrCreateUser {
 
-      def handles(email: String, verified: Boolean = true, mfaEnabled: Boolean = true) =
+      def handles(email: LaxEmailAddress, verified: Boolean = true, mfaEnabled: Boolean = true) =
         when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(
           email,
           idOf(email),
@@ -137,11 +136,11 @@ trait DeveloperServiceMockProvider {
         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[APICategory])(*)).thenReturn(successful(users.toList))
     }
 
-    def userExists(email: String): Unit = {
+    def userExists(email: LaxEmailAddress): Unit = {
       when(mockDeveloperService.fetchUser(eqTo(email))(*)).thenReturn(successful(aUser(email)))
     }
   }
 
-  def aUser(email: String, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
+  def aUser(email: LaxEmailAddress, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
 
 }

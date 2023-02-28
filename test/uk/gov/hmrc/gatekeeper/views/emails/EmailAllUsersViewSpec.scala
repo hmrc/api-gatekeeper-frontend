@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailAllUsersView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper {
 
@@ -42,8 +43,8 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
   "email all user view" must {
 
     "show correct title and content for 2 verified users" in new Setup {
-      val user1                         = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-      val user2                         = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+      val user1                         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+      val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
       val users                         = Seq(user1, user2)
       val result: HtmlFormat.Appendable = emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
 

@@ -18,14 +18,11 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import org.joda.time.DateTime
-
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -34,6 +31,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -69,13 +67,13 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
     trait Setup extends ControllerSetupBase {
 
-      val emailAddress = "someone@example.com"
+      val emailAddress = "someone@example.com".toLaxEmail
       val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
       val developerId  = UuidIdentifier(user.userId)
 
       val apps      = List(anApplication(Set(
-        Collaborator(emailAddress, CollaboratorRole.ADMINISTRATOR, UserId.random),
-        Collaborator("someoneelse@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
+        Collaborators.Administrator(UserId.random, emailAddress ),
+        Collaborators.Developer(UserId.random, "someoneelse@example.com".toLaxEmail)
       )))
       val developer = Developer(user, apps)
 

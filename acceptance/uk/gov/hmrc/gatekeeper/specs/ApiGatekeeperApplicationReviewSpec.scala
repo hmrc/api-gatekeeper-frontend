@@ -23,6 +23,7 @@ import play.api.http.Status._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApiGatekeeperApplicationReviewSpec
     extends ApiGatekeeperBaseSpec 
@@ -34,7 +35,7 @@ class ApiGatekeeperApplicationReviewSpec
 
 
 
-  val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com", UserId.random, "holly", "golightly", false))
+  val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com".toLaxEmail, UserId.random, "holly", "golightly", false))
 
   val approveRequest =
     s"""

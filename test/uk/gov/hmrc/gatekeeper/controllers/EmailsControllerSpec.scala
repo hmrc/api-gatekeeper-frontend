@@ -618,7 +618,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       responseBody should include("""<th scope="col" class="govuk-table__header">Last name</th>""")
 
       for ((user, index) <- users.zipWithIndex) {
-        responseBody should include(s"""<td id="dev-email-$index" class="govuk-table__cell">${user.email}</td>""")
+        responseBody should include(s"""<td id="dev-email-$index" class="govuk-table__cell">${user.email.text}</td>""")
         responseBody should include(s"""<td id="dev-fn-$index" class="govuk-table__cell">${user.firstName}</td>""")
         responseBody should include(s"""<td id="dev-sn-$index" class="govuk-table__cell">${user.lastName}</td>""")
       }

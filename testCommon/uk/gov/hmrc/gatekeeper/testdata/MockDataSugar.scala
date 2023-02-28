@@ -25,6 +25,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 object MockDataSugar {
   val approvedApp1 = "df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
@@ -617,7 +618,7 @@ object MockDataSugar {
     email      = randomEmail
     verified   = true
     registered = None
-  } yield RegisteredUser(email, UserId(id), forename, surname, verified)
+  } yield RegisteredUser(email.toLaxEmail, UserId(id), forename, surname, verified)
 
   def userListGenerator(number: Int): Gen[List[RegisteredUser]] = Gen.listOfN(number, DeveloperGenerator)
 

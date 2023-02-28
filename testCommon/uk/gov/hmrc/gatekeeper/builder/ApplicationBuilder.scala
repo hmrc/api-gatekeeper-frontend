@@ -17,18 +17,16 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.Period
-
 import org.joda.time.DateTime
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
@@ -133,12 +131,12 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withAdmin(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR, developer.userId))
+      app1.copy(collaborators = app1.collaborators + Administrator(developer.userId, developer.email))
     }
 
     def withDeveloper(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.DEVELOPER, developer.userId))
+      app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

@@ -33,6 +33,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesApiCategoryView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -68,8 +69,8 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences category view" should {
 
-    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
     val category1 = APICategoryDetails("VAT", "Vat")

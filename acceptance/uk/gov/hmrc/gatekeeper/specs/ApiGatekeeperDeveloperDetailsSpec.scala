@@ -26,6 +26,8 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec
     with ApplicationWithSubscriptionDataTestData
@@ -36,7 +38,7 @@ class ApiGatekeeperDeveloperDetailsSpec
     with ApiDefinitionTestData
     with UrlEncoding
     with XmlServicesStub {
-  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
   info("I WANT to be able to view the applications an administrator/developer is on")
@@ -72,7 +74,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       on(DeveloperPage)
 
       When("I select a developer email")
-      DeveloperPage.searchByPartialEmail(unverifiedUser.email)
+      DeveloperPage.searchByPartialEmail(unverifiedUser.email.text)
       DeveloperPage.selectByDeveloperEmail(unverifiedUser.email)
 
       Then("I am successfully navigated to the Developer Details page")

@@ -33,20 +33,18 @@
 package uk.gov.hmrc.gatekeeper.views
 
 import java.time.Period
-
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
-
 import play.twirl.api.HtmlFormat
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
@@ -63,9 +61,9 @@ class ApplicationsViewSpec extends CommonViewSpec {
       displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, ApiIdentifier(ApiContext("dep-api"), ApiVersion.random)))
     )
 
-    val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+    val collaborators: Set[Collaborator] = Set(
+      Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
+      Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
     val grantLength: Period = Period.ofDays(547)

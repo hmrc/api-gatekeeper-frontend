@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 trait ControllerSetupBase
     extends MockitoSugar
@@ -56,7 +57,7 @@ trait ControllerSetupBase
     "application1",
     "PRODUCTION",
     None,
-    Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator),
+    Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
     DateTime.now(),
     Some(DateTime.now()),
     Standard(),
