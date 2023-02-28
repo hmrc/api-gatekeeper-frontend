@@ -20,15 +20,12 @@ import java.time.Period
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
 import org.joda.time.DateTime
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -37,16 +34,19 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     RegisteredUser(email, idOf(email), "Fred", "Example", verified, emailPreferences = emailPreferences)
   }
 
   def aDeveloper(name: String, apps: List[Application] = List.empty, verified: Boolean = true) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     Developer(
       RegisteredUser(email, idOf(email), name, s"${name}son", verified),
       apps
@@ -54,7 +54,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   def anUnregisteredDeveloper(name: String, apps: List[Application] = List.empty) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     Developer(
       UnregisteredUser(email, idOf(email)),
       apps
@@ -139,30 +139,31 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenAnswer((invocationOnMock: InvocationOnMock) => {
-        val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[String]].toSet
+        val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[LaxEmailAddress]].toSet
         successful(commonUsers.filter(user => developersRequested.contains(user.email)))
       })
     }
 
-    def deleteDeveloperWillSucceed = {
-      when(mockDeveloperConnector.deleteDeveloper(*)(*))
-        .thenReturn(successful(DeveloperDeleteSuccessResult))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
-      ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
-    }
-
-    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: String, gatekeeperUserId: String, adminsToEmail: Set[String], environment: String = "PRODUCTION") = {
-      environment match {
-        case "PRODUCTION" =>
-          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
-        case "SANDBOX"    =>
-          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
-      }
-    }
-
-    def removeMfaReturnWillReturn(user: RegisteredUser) = {
-      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
-    }
+    // TODO
+//    def deleteDeveloperWillSucceed = {
+//      when(mockDeveloperConnector.deleteDeveloper(*)(*))
+//        .thenReturn(successful(DeveloperDeleteSuccessResult))
+//      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
+//      ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
+//    }
+//
+//    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: LaxEmailAddress, gatekeeperUserId: String, adminsToEmail: Set[LaxEmailAddress], environment: String = "PRODUCTION") = {
+//      environment match {
+//        case "PRODUCTION" =>
+//          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+//        case "SANDBOX"    =>
+//          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+//      }
+//    }
+//
+//    def removeMfaReturnWillReturn(user: RegisteredUser) = {
+//      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
+//    }
   }
 
   "developerService" should {
@@ -172,8 +173,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -194,15 +195,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -222,15 +223,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -251,15 +252,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
           anApp(
             "application1",
             Set(
-              "Shirley@example.com".asAdministratorCollaborator,
-              "Jacob@example.com".asDeveloperCollaborator
+              "Shirley@example.com".toLaxEmail.asAdministratorCollaborator,
+              "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
             )
           ),
           anApp(
             "application2",
             Set(
-              "Julia@example.com".asAdministratorCollaborator,
-              "Jim@example.com".asDeveloperCollaborator
+              "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+              "Jim@example.com".toLaxEmail.asDeveloperCollaborator
             )
           )
         )
@@ -278,16 +279,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )

@@ -107,7 +107,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
         emailPreferencesApiCategoryView.render(
           users,
           emailRecipientsAsJson,
-          s"${user1.email}; ${user2.email}",
+          s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           categories,
           category2.category,

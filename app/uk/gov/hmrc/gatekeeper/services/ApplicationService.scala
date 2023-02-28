@@ -265,7 +265,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  val unexpectedDispatchErrors = () => { throw new RuntimeException("Unexpected errors") }
+  private val unexpectedDispatchErrors = () => { throw new RuntimeException("Unexpected errors") }
 
   def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     val applicationConnector = applicationConnectorFor(app)
@@ -282,7 +282,7 @@ class ApplicationService @Inject() (
     val applicationConnector = applicationConnectorFor(app)
     val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(teamMemberToRemove)).get  // Safe to do here.
 
-    val fails: PartialFunction[List[CommandFailure], Either[CommandFailures.CannotRemoveLastAdmin.type, Unit]] = (errs) => errs match {
+    val fails: PartialFunction[List[CommandFailure], Either[CommandFailures.CannotRemoveLastAdmin.type, Unit]] = {
       case List(CommandFailures.CannotRemoveLastAdmin) => CommandFailures.CannotRemoveLastAdmin.asLeft[Unit]
     }
 

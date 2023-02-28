@@ -19,18 +19,15 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -39,6 +36,10 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.RemoveCollaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -63,9 +64,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     implicit val hc = HeaderCarrier()
 
-    val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+    val collaborators = Set[Collaborator](
+      Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
+      Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
     val grantLength: Period = Period.ofDays(547)
@@ -213,6 +214,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         .thenReturn(successful(ResendVerificationSuccessful))
 
       await(underTest.resendVerification(stdApp1, userName))
+
       gatekeeperIdCaptor.value shouldBe userName
       appIdCaptor.value shouldBe stdApp1.id
     }
@@ -567,7 +569,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "createPrivOrROPCApp" should {
-    val admin       = List(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
+    val admin       = List(Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail))
     val totpSecrets = Some(TotpSecrets("secret"))
     val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
 
@@ -604,19 +606,24 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "removeTeamMember" should {
-    val requestingUser = "admin.email@example.com"
-    val memberToRemove = "email@testuser.com"
+    val requestingUser = "bob in SDST"
 
     "remove a member from a standard app successfully in the correct environment" in new Setup {
+      val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
       val application = stdApp1
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
 
-      verify(mockProductionApplicationConnector).removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*)
-      verify(underTest).applicationConnectorFor(application)
+      inside(ApplicationConnectorMock.Prod.IssueCommand.verifyCommand()) {
+        case RemoveCollaborator(actor, collaborator, _) => (actor, collaborator) match {
+          case (Actors.GatekeeperUser(foundUser), foundCollaborator) if(foundUser == requestingUser && foundCollaborator == collaboratorToRemove) => succeed
+          case _ => fail("Bad command values")
+        }
+        case _ => fail("Wrong command")
+      }
     }
 
 //    "remove a member from a privileged app in the correct environment" in new Setup {

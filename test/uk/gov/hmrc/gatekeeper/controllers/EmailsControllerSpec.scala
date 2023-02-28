@@ -40,6 +40,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.emails._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -100,10 +101,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .withCSRFToken
       }
 
-      val verifiedUser1             = RegisteredUser("user1@hmrc.com", UserId.random, "verifiedUserA", "1", true)
-      val verifiedUser2             = RegisteredUser("user2@hmrc.com", UserId.random, "verifiedUserB", "2", true)
-      val verifiedUser3             = RegisteredUser("user3@hmrc.com", UserId.random, "verifiedUserC", "3", true)
-      val unVerifiedUser1           = RegisteredUser("user1@somecompany.com", UserId.random, "unVerifiedUserA", "1", false)
+      val verifiedUser1             = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "verifiedUserA", "1", true)
+      val verifiedUser2             = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "verifiedUserB", "2", true)
+      val verifiedUser3             = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "verifiedUserC", "3", true)
+      val unVerifiedUser1           = RegisteredUser("user1@somecompany.com".toLaxEmail, UserId.random, "unVerifiedUserA", "1", false)
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
@@ -306,7 +307,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
         val filteredUsersAsJson = Json.toJson(filteredUsers)
-        val expectedEmailString = filteredUsers.map(_.email).mkString("; ")
+        val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString))(*, *, *)
       }
 
@@ -316,7 +317,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
-        val expectedEmailString = verified2Users.map(_.email).mkString("; ")
+        val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString))(*, *, *)
       }
 
@@ -420,7 +421,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
         DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users: _*)
 
-        val expectedEmailString = verified2Users.map(_.email).mkString("; ")
+        val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
 
         val selectedAPIs  = List(combinedXmlApi)
         val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY

@@ -17,11 +17,15 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.{Collaborator, CollaboratorRole}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.gatekeeper.models.CollaboratorRole
 
 trait CollaboratorsBuilder {
-
+  import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
   def buildCollaborators(collaborators: Seq[(String, CollaboratorRole.Value)]): Set[Collaborator] = {
-    collaborators.map(n => Collaborator(n._1, n._2, UserId.random)).toSet
+    collaborators.map {
+      case (email, CollaboratorRole.ADMINISTRATOR) => Collaborators.Administrator(UserId.random, email.toLaxEmail)
+      case (email, CollaboratorRole.DEVELOPER) => Collaborators.Developer(UserId.random, email.toLaxEmail)
+    }.toSet
   }
 }

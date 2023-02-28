@@ -38,7 +38,7 @@ trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
     buildStateHistory(
       pendingApprovalApplicationId,
       State.PENDING_GATEKEEPER_APPROVAL,
-      Actors.AppCollaborator(administratorEmail.toLaxEmail),
+      Actors.AppCollaborator(administratorEmail),
       DateTime.parse("2019-08-22T11:23:10.644+01:00")
     ),
     buildStateHistory(

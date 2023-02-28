@@ -160,9 +160,9 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        private val email1 = "a@example.com"
-        private val email2 = "b@example.com"
-        private val email3 = "c@example.com"
+        private val email1 = "a@example.com".toLaxEmail
+        private val email2 = "b@example.com".toLaxEmail
+        private val email3 = "c@example.com".toLaxEmail
 
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1, true), aUser(email2, true), aUser(email3))
 

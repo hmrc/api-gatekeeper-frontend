@@ -16,15 +16,16 @@
 
 package mocks.connectors
 
+import org.mockito.captor.ArgCaptor
+
 import scala.concurrent.Future.{failed, successful}
-
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, CommandFailures,  RemoveCollaborator}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
@@ -36,12 +37,12 @@ trait ApplicationConnectorMockProvider {
   val mockSandboxApplicationConnector    = mock[SandboxApplicationConnector]
 
   trait ApplicationConnectorMock {
-    def mock: ApplicationConnector
+    def aMock: ApplicationConnector
 
     import mocks.PaginatedApplicationResponseBuilder._
 
     object SearchApplications {
-      def returns(apps: ApplicationResponse*) = when(mock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+      def returns(apps: ApplicationResponse*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
     }
 
     object SearchCollaborators {
@@ -53,42 +54,42 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchAllApplications {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchAllApplicationsWithStateHistories {
 
-      def returns(applicationStateHistories: ApplicationStateHistory*) = when(mock.fetchAllApplicationsWithStateHistories()(*))
+      def returns(applicationStateHistories: ApplicationStateHistory*) = when(aMock.fetchAllApplicationsWithStateHistories()(*))
         .thenReturn(successful(applicationStateHistories.toList))
     }
 
     object FetchAllApplicationsWithNoSubscriptions {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchAllApplicationsBySubscription {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
     }
 
     object UnsubscribeFromApi {
 
-      def succeeds() = when(mock.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
+      def succeeds() = when(aMock.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
         .thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object FetchApplication {
-      def returns(app: ApplicationWithHistory) = when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
+      def returns(app: ApplicationWithHistory) = when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
 
       def failsNotFound() =
-        when(mock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not Found", NOT_FOUND)))
+        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not Found", NOT_FOUND)))
     }
 
     object FetchApplicationsByUserId {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchApplicationsExcludingDeletedByUserId {
-      def returns(apps: ApplicationResponse*) = when(mock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 //
 //    object RemoveCollaborator {
@@ -127,42 +128,42 @@ trait ApplicationConnectorMockProvider {
       }
     }
     object UpdateScopes {
-      def succeeds() = when(mock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
+      def succeeds() = when(aMock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
     }
 
     object UpdateIpAllowlist {
-      def succeeds()     = when(mock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(successful(UpdateIpAllowlistSuccessResult))
-      def failsWithISE() = when(mock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(failed(UpstreamErrorResponse("Error", 500)))
+      def succeeds()     = when(aMock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(successful(UpdateIpAllowlistSuccessResult))
+      def failsWithISE() = when(aMock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(failed(UpstreamErrorResponse("Error", 500)))
     }
 
     object UnblockApplication {
-      def succeeds() = when(mock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
-      def fails()    = when(mock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockFailureResult))
+      def succeeds() = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
+      def fails()    = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockFailureResult))
     }
 
     object BlockApplication {
-      def succeeds() = when(mock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
-      def fails()    = when(mock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockFailureResult))
+      def succeeds() = when(aMock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
+      def fails()    = when(aMock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockFailureResult))
     }
 
     object DeleteApplication {
-      def succeeds() = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
-      def fails()    = when(mock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateFailureResult))
+      def succeeds() = when(aMock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def fails()    = when(aMock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateFailureResult))
     }
 
     object CreatePrivOrROPCApp {
-      def returns(result: CreatePrivOrROPCAppResult) = when(mock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
+      def returns(result: CreatePrivOrROPCAppResult) = when(aMock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
     }
   }
 
   object ApplicationConnectorMock {
 
     object Prod extends ApplicationConnectorMock {
-      val mock = mockProductionApplicationConnector
+      val aMock = mockProductionApplicationConnector
     }
 
     object Sandbox extends ApplicationConnectorMock {
-      val mock = mockSandboxApplicationConnector
+      val aMock = mockSandboxApplicationConnector
     }
   }
 }

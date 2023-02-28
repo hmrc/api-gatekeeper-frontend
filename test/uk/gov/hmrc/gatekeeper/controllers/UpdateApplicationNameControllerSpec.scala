@@ -17,15 +17,12 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import mocks.services.ApplicationServiceMockProvider
 import org.mockito.captor.ArgCaptor
-
 import play.api.data.Form
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -33,14 +30,10 @@ import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
+import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html._
-import uk.gov.hmrc.gatekeeper.views.html.applications.{
-  ManageApplicationNameAdminListView,
-  ManageApplicationNameSingleAdminView,
-  ManageApplicationNameSuccessView,
-  ManageApplicationNameView
-}
+import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageApplicationNameAdminListView, ManageApplicationNameSingleAdminView, ManageApplicationNameSuccessView, ManageApplicationNameView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
@@ -52,7 +45,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
   val errorHandler         = mock[ErrorHandler]
   val newAppNameSessionKey = "newApplicationName"
 
-  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider {
+  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with CollaboratorTracker {
     val csrfToken                            = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
     val manageApplicationNameView            = app.injector.instanceOf[ManageApplicationNameView]
     val manageApplicationNameAdminListView   = app.injector.instanceOf[ManageApplicationNameAdminListView]

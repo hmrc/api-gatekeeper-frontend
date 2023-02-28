@@ -25,9 +25,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 
 
 trait UserIdTracker {
-  private val idsByEmail = mutable.Map[String, UserId]()
+  private val idsByEmail = mutable.Map[LaxEmailAddress, UserId]()
 
-  def idOf(email: String): UserId = idsByEmail.getOrElseUpdate(email, UserId.random)
+  def idOf(email: Any): UserId = email match {
+    case s: String => idsByEmail.getOrElseUpdate(s.toLaxEmail, UserId.random)
+    case lea: LaxEmailAddress => idsByEmail.getOrElseUpdate(lea, UserId.random)
+  }
 }
 
 trait CollaboratorTracker extends UserIdTracker {

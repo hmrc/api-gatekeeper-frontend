@@ -18,11 +18,11 @@ package mocks.services
 
 import scala.concurrent.Future
 import scala.concurrent.Future.{failed, successful}
-
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
@@ -106,22 +106,23 @@ trait ApplicationServiceMockProvider {
     }
 
     object AddTeamMember {
-      def succeeds() = when(mockApplicationService.addTeamMember(*, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mockApplicationService.addTeamMember(*, *, *)(*)).thenReturn(successful(()))
 
       def failsDueToExistingAlready() =
-        when(mockApplicationService.addTeamMember(*, *)(*))
+        when(mockApplicationService.addTeamMember(*, *, *)(*))
           .thenReturn(failed(TeamMemberAlreadyExists))
     }
 
     object RemoveTeamMember {
+      import cats.syntax.either._
 
       def succeeds() =
-        when(mockApplicationService.removeTeamMember(*, *, *)(*))
-          .thenReturn(successful(ApplicationUpdateSuccessResult))
+        when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
+          .thenReturn(successful(().asRight[CommandFailures.CannotRemoveLastAdmin.type]))
 
       def failsDueToLastAdmin() =
-        when(mockApplicationService.removeTeamMember(*, *, *)(*))
-          .thenReturn(failed(TeamMemberLastAdmin))
+        when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
+          .thenReturn(successful(CommandFailures.CannotRemoveLastAdmin.asLeft[Unit]))
     }
 
     object DoesApplicationHaveSubmissions {
@@ -143,10 +144,10 @@ trait ApplicationServiceMockProvider {
     object UpdateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[String], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+        when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[LaxEmailAddress], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
       def fails() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[String], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateFailureResult))
+        when(mockApplicationService.updateApplicationName(*[ApplicationResponse], *[LaxEmailAddress], *[String], *[String])(*)).thenReturn(successful(ApplicationUpdateFailureResult))
     }
 
     object FetchProdAppStateHistories {
