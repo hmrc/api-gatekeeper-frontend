@@ -28,7 +28,7 @@
 
 @pageUrl() = @{
     val qs = filteredApis.zipWithIndex.map { case (key,index)  =>  s"selectedAPIs=$key" }.mkString("&")
-    val uri = routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url
+    val uri = routes.EmailsController.emailPreferencesSpecificApisNew(List.empty, None).url
     s"$uri?$qs"
 }
 
