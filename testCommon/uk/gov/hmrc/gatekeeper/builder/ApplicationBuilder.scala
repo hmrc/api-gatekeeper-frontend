@@ -28,6 +28,8 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
@@ -119,7 +121,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.copy(id = id)

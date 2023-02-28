@@ -91,7 +91,7 @@
           <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
             @{application.collaborators.filter(_.isAdministrator).map(c =>
               <div class="govuk-radios__item">
-                {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress) {
+                {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress.text) {
                   <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress.text} checked=""></input>
                   <label class="govuk-label govuk-radios__label" for="emailAddress">
                     {c.emailAddress}

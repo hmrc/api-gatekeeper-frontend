@@ -197,7 +197,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
         }
 
         @if(paginatedApplications.applications.nonEmpty) {
-          @defining(paginatedApplications.page, paginatedApplications.pageSize, paginatedApplications.matching, paginatedApplications.applications.size, paginatedApplications.total) { case (page, pageSize, matching, numDocs, total) =>
+          @defining( (paginatedApplications.page, paginatedApplications.pageSize, paginatedApplications.matching, paginatedApplications.applications.size, paginatedApplications.total) ) { case (page, pageSize, matching, numDocs, total) =>
             @pagination(page, pageSize, matching, total, numDocs, routes.ApplicationController.applicationsPage(None).url, params)
           }
         }
