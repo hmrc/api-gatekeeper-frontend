@@ -268,6 +268,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
       }
 
+      "redirect to new select page when SPECIFIC_API passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences-new", validHeaders, "sendEmailPreferences=SPECIFIC_API")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
+      }
+
       "redirect to select page when TAX_REGIME passed in the form" in {
         primeAuthServiceSuccess()
         val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
@@ -386,7 +392,17 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis)
+        validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api")
+      }
+
+      "respond with 200 and render the new page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api-new", validHeaders)
+        result.status shouldBe OK
+
+        validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
       }
 
       "respond with 200 and render the page correctly when selectedAPis provided" in {
@@ -398,7 +414,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
-        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)
+        validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api")
       }
 
       "respond with 403 when not authorised" in {
@@ -422,6 +438,23 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), selectedApis)
       }
 
+      "respond with 200 and render the page correctly on initial load with selectedApis New" in {
+        primeAuthServiceSuccess()
+
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
+        result.status shouldBe OK
+
+        validateEmailPreferencesSpecificApiPageNew(Jsoup.parse(result.body), selectedApis)
+      }
+
+      "redirect to select api new page when no selectedApis in query params" in {
+        primeAuthServiceSuccess()
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new", validHeaders)
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
+      }
+
       "redirect to select api page when no selectedApis in query params" in {
         primeAuthServiceSuccess()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
@@ -429,7 +462,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       }
 
-      "respond with 200 and render the page with users table with selectedApis" in {
+      "respond with 200 and render the page with selectedApis" in {
         primeAuthServiceSuccess()
 
         primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
@@ -441,22 +474,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
             validHeaders
           )
 
-        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis, verifiedUsers, usersToEmailCopyText(verifiedUsers))
-      }
-
-      "respond with 200 and render the page with selectedApis but no users" in {
-        primeAuthServiceSuccess()
-
-        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
-        primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(Seq.empty, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
-
-        val result =
-          callGetEndpoint(
-            s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs=" + _.serviceName).mkString}",
-            validHeaders
-          )
-
-        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis, Seq.empty, "")
+        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis)
       }
 
       "respond with 403 when not authorised" in {
@@ -464,6 +482,14 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
         result.status shouldBe FORBIDDEN
       }
+
+      "respond with 403 when specific api new page is not authorised" in {
+        primeAuthServiceFail()
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
+        result.status shouldBe FORBIDDEN
+      }
+
     }
 
     def validateRedirect(response: WSResponse, expectedLocation: String) {

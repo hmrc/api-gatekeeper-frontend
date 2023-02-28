@@ -17,12 +17,14 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
 import org.joda.time.DateTime
+
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.gatekeeper.builder.StateHistoryBuilder
 import uk.gov.hmrc.gatekeeper.models.{State, StateHistory}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
 
@@ -34,8 +36,18 @@ trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
   )
 
   val pendingApprovalStateHistory = List(
-    buildStateHistory(pendingApprovalApplicationId, State.PENDING_GATEKEEPER_APPROVAL, Actors.AppCollaborator(administratorEmail.toLaxEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
-    buildStateHistory(pendingApprovalApplicationId, State.PENDING_REQUESTER_VERIFICATION, Actors.GatekeeperUser("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00"))
+    buildStateHistory(
+      pendingApprovalApplicationId,
+      State.PENDING_GATEKEEPER_APPROVAL,
+      Actors.AppCollaborator(administratorEmail.toLaxEmail),
+      DateTime.parse("2019-08-22T11:23:10.644+01:00")
+    ),
+    buildStateHistory(
+      pendingApprovalApplicationId,
+      State.PENDING_REQUESTER_VERIFICATION,
+      Actors.GatekeeperUser("gatekeeper.username"),
+      DateTime.parse("2020-07-22T15:12:38.686+01:00")
+    )
   )
 
   implicit class StateHistoryExtension(stateHistories: List[StateHistory]) {

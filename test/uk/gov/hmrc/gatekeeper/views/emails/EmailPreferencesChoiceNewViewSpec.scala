@@ -19,33 +19,29 @@ package uk.gov.hmrc.gatekeeper.views.emails
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
 
-import play.api.libs.json.JsArray
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.twirl.api.HtmlFormat
+import play.twirl.api.Html
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectTopicView
+import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailPreferencesChoiceNewView, EmailPreferencesChoiceView}
 
-class EmailPreferencesSelectTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
+class EmailPreferencesChoiceNewViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                   = new JsArray()
-    val emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView = app.injector.instanceOf[EmailPreferencesSelectTopicView]
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+
+    val preferencesChoiceNewView: EmailPreferencesChoiceNewView = app.injector.instanceOf[EmailPreferencesChoiceNewView]
   }
 
-  "email preferences select topic view" must {
+  "email preferences choice view" must {
+    "show correct title and options" in new Setup {
+      val result: Html = preferencesChoiceNewView.render(request, LoggedInUser(None), messagesProvider)
 
-    "show correct title and options while selecting topic" in new Setup {
-      val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTopicView.render(List.empty, None, request, LoggedInUser(None), messagesProvider)
-
-      validateEmailPreferencesSelectTopicPage(Jsoup.parse(result.body))
+      validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
     }
-
   }
 
 }

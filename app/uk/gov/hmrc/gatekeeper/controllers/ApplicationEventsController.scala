@@ -46,7 +46,12 @@ object ApplicationEventsController {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
     def apply(event: ApplicationEvent): EventModel = {
-      EventModel(event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter), SimpleEventDetails.typeOfChange(event), SimpleEventDetails.details(event), SimpleEventDetails.who(event))
+      EventModel(
+        event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
+        SimpleEventDetails.typeOfChange(event),
+        SimpleEventDetails.details(event),
+        SimpleEventDetails.who(event)
+      )
     }
   }
 

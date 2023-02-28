@@ -25,6 +25,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
 @import _root_.controllers.routes.Assets
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(
   govukLayout: GovukLayout,
@@ -34,7 +35,17 @@
   applicationConfig: AppConfig
 )
 
-@(title: String, mainContentHeader: Html = HtmlFormat.empty)(mainContent: Html)(implicit loggedInUser: LoggedInUser = LoggedInUser(None), messages: Messages, messagesProvider: MessagesProvider)
+@(
+  title: String,
+  breadcrumbs: Seq[Crumb] = Seq.empty,
+  mainContentHeader: Html = HtmlFormat.empty
+)(
+  mainContent: Html
+)(
+  implicit loggedInUser: LoggedInUser = LoggedInUser(None),
+  messages: Messages,
+  messagesProvider: MessagesProvider
+)
 
 @scriptElem = {
   <script src='@Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
@@ -49,22 +60,25 @@
 }
 
 @userBanner = {
-  <div id="user-nav-links">
-    <ul class="govuk-list">
+  <div id="user-nav-links" class="subnav-auth">
+    <ul class="govuk-list subnav-auth-links">
       @headerNavLinks2(UserNavLinks(loggedInUser.userFullName), anchorClass=Some("link-style"))
     </ul>
   </div>
 }
 
 @beforeContent = {
-  @userBanner
+  <div class="before-content-banner">
+    @include.breadcrumbs(breadcrumbs: _*)
+    @userBanner
+  </div>
 }
 
 @navigation = @{
   Seq(
     NavigationItem(content = Text("Applications"), href = Some(routes.ApplicationController.applicationsPage(None).url)),
     NavigationItem(content = Text("Developers"), href = Some(routes.DevelopersController.blankDevelopersPage.url)),
-    NavigationItem(content = Text("Emails"), href = Some(routes.EmailsController.emailPreferencesChoice.url)),
+    NavigationItem(content = Text("Email"), href = Some(routes.EmailsController.landing().url)),
     NavigationItem(content = Text("API Approvals"), href = Some(routes.DeploymentApprovalController.pendingPage.url)),
     NavigationItem(content = Text("XML"), href = Some(routes.XmlServicesController.organisationsSearchPage.url))
   )

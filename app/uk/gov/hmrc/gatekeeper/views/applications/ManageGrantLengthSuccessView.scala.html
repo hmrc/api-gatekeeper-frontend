@@ -18,24 +18,27 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, grantLength: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Manage application grant length success") {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
-      </li>
-    </ol>
-  </div>
-  <br />
+@main(
+  title = s"${applicationConfig.title} - Manage application grant length success",
+  breadcrumbs = Seq(
+    Crumb(
+      s"${application.name}",
+      s"${routes.ApplicationController.applicationPage(application.id)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
   <div class="govuk-panel govuk-panel--confirmation">
     <h1 class="govuk-panel__title">
       Grant length changed

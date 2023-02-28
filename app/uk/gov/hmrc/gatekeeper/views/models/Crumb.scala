@@ -14,19 +14,6 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.services
+package uk.gov.hmrc.gatekeeper.views.models
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxEmailAddress}
-
-object ActorSyntax {
-
-  implicit class ActorSyntaxImp(actor: Actor) {
-
-    def id = actor match {
-      case Actors.AppCollaborator(LaxEmailAddress(emailText)) => emailText
-      case Actors.GatekeeperUser(user)                        => user
-      case Actors.ScheduledJob(jobId)                         => jobId
-      case Actors.Unknown                                     => "Unknown"
-    }
-  }
-}
+final case class Crumb(name: String, url: String = "", dataAttribute: Option[String] = None)

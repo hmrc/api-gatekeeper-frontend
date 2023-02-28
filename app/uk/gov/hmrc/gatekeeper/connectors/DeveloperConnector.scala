@@ -150,7 +150,8 @@ class HttpDeveloperConnector @Inject() (
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
     logger.info(s"fetchByEmailPreferences topic is $topic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
-    val regimes: Seq[(String, String)] = maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.flatMap(regime => Seq("regime" -> regime.value)))
+    val regimes: Seq[(String, String)] =
+      maybeApiCategories.filter(_.nonEmpty).fold(Seq.empty[(String, String)])(regimes => regimes.filter(_.value.nonEmpty).flatMap(regime => Seq("regime" -> regime.value)))
     val privateapimatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams                    =
       Seq("topic" -> topic.toString) ++ regimes ++

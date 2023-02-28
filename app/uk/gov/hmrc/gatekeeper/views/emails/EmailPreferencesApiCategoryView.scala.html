@@ -21,6 +21,7 @@
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
+
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
@@ -30,7 +31,7 @@
 
   <div class="govuk-template__body">
 
-    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesAPICategory(None, None).url" method="get">
+    <form name="topic-filters" action="@routes.EmailsController.emailPreferencesApiCategory(None, None).url" method="get">
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">

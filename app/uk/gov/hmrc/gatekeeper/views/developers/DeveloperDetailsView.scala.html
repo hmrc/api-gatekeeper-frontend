@@ -23,22 +23,22 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 
-@main(title = s"${applicationConfig.title} - Developer Details") {
-    <div class="govuk-breadcrumbs">
-        <ol class="govuk-breadcrumbs__list">
-            <li class="govuk-breadcrumbs__list-item">
-                <a class="govuk-breadcrumbs__link" href="@{routes.DevelopersController.blankDevelopersPage}">Developers</a>
-            </li>
-        </ol>
-    </div>
-
-    <br />
-
+@main(
+  title = s"${applicationConfig.title} - Developer Details",
+  breadcrumbs = Seq(
+    Crumb(
+      "Developers",
+      s"${routes.DevelopersController.blankDevelopersPage}",
+      Some("data-breadcrumb-view-developers")
+    )
+  )
+) {
     <h1 class="govuk-heading-l">@developer.email</h1>
 
     <dl class="govuk-summary-list" id="developer-information">

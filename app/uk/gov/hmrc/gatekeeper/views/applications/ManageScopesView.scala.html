@@ -18,24 +18,27 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(application: ApplicationResponse, form: Form[Set[String]])(implicit request: LoggedInRequest[_])
 
-@main(title = s"${applicationConfig.title} - Manage scopes") {
-
-  <div class="govuk-breadcrumbs">
-    <ol class="govuk-breadcrumbs__list">
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationsPage(None)}">Applications</a>
-      </li>
-      <li class="govuk-breadcrumbs__list-item">
-        <a class="govuk-breadcrumbs__link" href="@{routes.ApplicationController.applicationPage(application.id)}">@application.name</a>
-      </li>
-    </ol>
-  </div>
-
+@main(
+  title = s"${applicationConfig.title} - Manage scopes",
+  breadcrumbs = Seq(
+    Crumb(
+      s"${application.name}",
+      s"${routes.ApplicationController.applicationPage(application.id)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
   @errorSummary2(form)
 
   <h1 class="govuk-heading-l">Manage scopes</h1>
