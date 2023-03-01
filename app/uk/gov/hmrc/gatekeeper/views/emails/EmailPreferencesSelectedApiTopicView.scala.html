@@ -30,13 +30,13 @@
     new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
 }
 @userSelection() = @{
-    Map("Tax regime" -> selectedCategoryName,
+    Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
 }
     @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
         <a href="@routes.EmailsController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
-            <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
+
                 <div class="govuk-form-group">
                     <fieldset class="govuk-fieldset">
                         <legend >
@@ -46,7 +46,7 @@
                         @if(users.nonEmpty) {
                             <div class="govuk-button-group govuk-!-margin-bottom-4">
                                 <div style="visibility: visible">
-                                    <form method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
+                                    <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
                                         @helper.CSRF.formField
                                         <input type="hidden" name="user-selection" value="@{
                                             Json.stringify(Json.toJson(userSelection))
@@ -73,6 +73,7 @@
                                 </div>
                             </div>
                         }
+                        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
                         <dl class="govuk-summary-list govuk-!-width-three-quarters">
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key" style="width: 15%;">
