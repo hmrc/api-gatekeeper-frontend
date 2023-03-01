@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor}
 
 sealed trait ApplicationCommand {
+  def actor: Actor
   def timestamp: LocalDateTime
 }
 

@@ -34,6 +34,9 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.RemoveCollaborator
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -41,13 +44,36 @@ class ApplicationConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding {
 
+  def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
+    ApplicationResponse(
+      ApplicationId.random,
+      ClientId("clientid"),
+      "gatewayId",
+      "appName",
+      "deployedTo",
+      None,
+      Set.empty,
+      createdOn,
+      Some(lastAccess),
+      Privileged(),
+      ApplicationState(),
+      Period.ofDays(547),
+      RateLimitTier.BRONZE,
+      Some("termsUrl"),
+      Some("privacyPolicyUrl"),
+      None
+    )
+  }
+
   val apiVersion1   = ApiVersion.random
   val applicationId = ApplicationId.random
   val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
+  
+  val authToken   = "Bearer Token"
+  implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+
   class Setup(proxyEnabled: Boolean = false) {
-    val authToken   = "Bearer Token"
-    implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
     val httpClient               = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
@@ -583,54 +609,28 @@ class ApplicationConnectorSpec
     }
   }
 
-//  "removeCollaborator" should {
-//    val emailAddress     = "toRemove@example.com"
-//    val gatekeeperUserId = "maxpower"
-//    val adminsToEmail    = Set("admin1@example.com", "admin2@example.com")
-//
-//    val url = s"/application/${applicationId.value.toString()}/collaborator/delete"
-//
-//    "send a DELETE request to the service with the correct params" in new Setup {
-//      stubFor(
-//        post(urlPathEqualTo(url))
-//          .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress, adminsToEmail, true))
-//          .willReturn(
-//            aResponse()
-//              .withStatus(OK)
-//          )
-//      )
-//      await(connector.removeCollaborator(applicationId, emailAddress, gatekeeperUserId, adminsToEmail)) shouldBe ApplicationUpdateSuccessResult
-//    }
-//
-//    "throw TeamMemberLastAdmin when the service responds with 403" in new Setup {
-//      stubFor(
-//        post(urlPathEqualTo(url))
-//          .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress, adminsToEmail, true))
-//          .willReturn(
-//            aResponse()
-//              .withStatus(FORBIDDEN)
-//          )
-//      )
-//      intercept[TeamMemberLastAdmin.type] {
-//        await(connector.removeCollaborator(applicationId, emailAddress, gatekeeperUserId, adminsToEmail))
-//      }
-//    }
-//
-//    "throw the error when the service returns any other error" in new Setup {
-//      stubFor(
-//        post(urlPathEqualTo(url))
-//          .withJsonRequestBody(DeleteCollaboratorRequest(emailAddress, adminsToEmail, true))
-//          .willReturn(
-//            aResponse()
-//              .withStatus(INTERNAL_SERVER_ERROR)
-//          )
-//      )
-//
-//      intercept[UpstreamErrorResponse] {
-//        await(connector.removeCollaborator(applicationId, emailAddress, gatekeeperUserId, adminsToEmail))
-//      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-//    }
-//  }
+ "dispatch" should {
+   val emailAddressToRemove     = "toRemove@example.com".toLaxEmail
+   val gatekeeperUserName = "maxpower"
+   val collaborator = Collaborators.Administrator(UserId.random, emailAddressToRemove)
+   val command = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+
+   val adminsToEmail    = Set("admin1@example.com", "admin2@example.com").map(_.toLaxEmail)
+   val url = s"/application/${applicationId.value.toString()}/dispatch"
+
+   "send a correct command" in new Setup {
+     stubFor(
+       patch(urlPathEqualTo(url))
+         .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
+         .willReturn(
+           aResponse()
+            .withJsonBody(DispatchSuccessResult(anApplicationResponse(), List.empty))
+            .withStatus(OK)
+         )
+     )
+     await(connector.dispatch(applicationId, command, adminsToEmail))
+    }
+ }
 
   "searchApplications" should {
     val url              = s"/applications"
@@ -692,9 +692,10 @@ class ApplicationConnectorSpec
     }
 
     "return emails with emailFilter" in new Setup {
-      val email    = "user@example.com"
+      val partialEmailMatch    = "user@example"
+      val email    = "user@example.com".toLaxEmail
       val response = Json.toJson(List(email)).toString
-      val request  = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(email))
+      val request  = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(partialEmailMatch))
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -706,7 +707,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.searchCollaborators(apiContext, apiVersion1, Some(email))) shouldBe List(email)
+      await(connector.searchCollaborators(apiContext, apiVersion1, Some(partialEmailMatch))) shouldBe List(email)
     }
   }
 

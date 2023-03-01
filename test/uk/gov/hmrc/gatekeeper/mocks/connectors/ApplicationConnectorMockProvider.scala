@@ -91,34 +91,30 @@ trait ApplicationConnectorMockProvider {
     object FetchApplicationsExcludingDeletedByUserId {
       def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
-//
-//    object RemoveCollaborator {
-//      def succeeds() = when(mock.removeCollaborator(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
-//
-//      def succeedsFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
-//        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
-//          .thenReturn(successful(ApplicationUpdateSuccessResult))
-//
-//      def failsWithLastAdminFor(id: ApplicationId, memberToRemove: String, requestingUser: String) =
-//        when(mock.removeCollaborator(eqTo(id), eqTo(memberToRemove), eqTo(requestingUser), *)(*))
-//          .thenReturn(failed(TeamMemberLastAdmin))
-//    }
 
     object IssueCommand {
       import cats.syntax.either._
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
-      def verifyCommand() = {
+      def verifyCommand(id: ApplicationId) = {
         val cmdCaptor = ArgCaptor[ApplicationCommand]
-        when(aMock.dispatch(*[ApplicationId], cmdCaptor.capture, *)(*))
+        verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)
         cmdCaptor.value
       }
 
+      def verifyNoCommandsIssued() = {
+        verify(aMock, never).dispatch(*[ApplicationId], *, *)(*)
+      }
+
       object ToRemoveCollaborator {
+        val mockResult = mock[DispatchSuccessResult]
 
         def succeeds() = {
-          val mockResult = mock[DispatchSuccessResult]
           when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[List[CommandFailure]]))
+        }
+        
+        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
+          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[List[CommandFailure]]))
         }
 
         def failsWithLastAdmin() = {

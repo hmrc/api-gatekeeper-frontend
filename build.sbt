@@ -133,5 +133,6 @@ coverageExcludedPackages := Seq(
   """.*\.Routes""" ,
   """.*\.RoutesPrefix""" ,
   """.*\.Reverse[^.]*""",
-  """uk\.gov\.hmrc\.apiplatform\.modules\.common\..*"""
+  """uk\.gov\.hmrc\.apiplatform\.modules\.common\..*""",
+  """uk\.gov\.hmrc\.apiplatform\.modules\.commands\.applications\.domain\.models\..*"""
 ).mkString(";")

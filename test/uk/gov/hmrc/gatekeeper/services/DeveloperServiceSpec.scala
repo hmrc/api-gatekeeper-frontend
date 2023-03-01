@@ -37,6 +37,10 @@ import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.RemoveCollaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
@@ -145,25 +149,41 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
 
     // TODO
-//    def deleteDeveloperWillSucceed = {
-//      when(mockDeveloperConnector.deleteDeveloper(*)(*))
-//        .thenReturn(successful(DeveloperDeleteSuccessResult))
-//      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
-//      ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
-//    }
-//
-//    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: LaxEmailAddress, gatekeeperUserId: String, adminsToEmail: Set[LaxEmailAddress], environment: String = "PRODUCTION") = {
-//      environment match {
-//        case "PRODUCTION" =>
-//          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
-//        case "SANDBOX"    =>
-//          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
-//      }
-//    }
-//
-//    def removeMfaReturnWillReturn(user: RegisteredUser) = {
-//      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
-//    }
+    def deleteDeveloperWillSucceed = {
+      when(mockDeveloperConnector.deleteDeveloper(*)(*))
+        .thenReturn(successful(DeveloperDeleteSuccessResult))
+      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
+      ApplicationConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
+    }
+
+    def verifyTheActor(actor: Actor)(cmd: ApplicationCommand) = cmd.actor shouldBe actor
+    def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommand) = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
+    def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommand) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
+    
+    def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: RemoveCollaborator) = cmd.collaborator.emailAddress == email
+
+    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: LaxEmailAddress, gatekeeperUserName: String, adminsToEmail: Set[LaxEmailAddress], environment: String = "PRODUCTION") = {
+     environment match {
+       case "PRODUCTION" =>
+          inside(ApplicationConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
+            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) => 
+              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+            case _ => fail("Wrong command")
+          }
+       case "SANDBOX"    =>
+          inside(ApplicationConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
+            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) => 
+              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+            case _ => fail("Wrong command")
+          }
+     }
+    }
+
+    def removeMfaReturnWillReturn(user: RegisteredUser) = {
+      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
+    }
   }
 
   "developerService" should {
@@ -355,7 +375,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val developer            = aUser("Fred")
       val developerId          = UuidIdentifier(developer.userId)
       val loggedInUser: String = "admin-user"
-      // TODO removeMfaReturnWillReturn(developer)
+      removeMfaReturnWillReturn(developer)
 
       val result = await(underTest.removeMfa(developerId, loggedInUser))
 
@@ -428,95 +448,94 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
   }
 
-//  "developerService.deleteDeveloper" should {
-//    val gatekeeperUserId = "gate.keeper"
-//    val user             = aUser("Fred")
-//    val developerId      = UuidIdentifier(user.userId)
-//
-//    "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
-//
-//      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
-//      deleteDeveloperWillSucceed
-//
-//      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-//      result shouldBe DeveloperDeleteSuccessResult
-//
-//      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
-//      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
-//      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
-//    }
-//
-//    "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
-//      val app1 = aProdApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//      val app2 = aProdApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//      val app3 = aProdApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//
-//      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List(app1, app2, app3))
-//      fetchDevelopersWillReturnTheRequestedUsers
-//      deleteDeveloperWillSucceed
-//
-//      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-//      result shouldBe DeveloperDeleteSuccessResult
-//
-//      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
-//      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
-//      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
-//
-//      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
-//    }
-//
-//    "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
-//      val app1 = aSandboxApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//      val app2 = aSandboxApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//      val app3 = aSandboxApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
-//
-//      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List.empty, List(app1, app2, app3))
-//      deleteDeveloperWillSucceed
-//
-//      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-//      result shouldBe DeveloperDeleteSuccessResult
-//
-//      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
-//      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
-//      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
-//
-//      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
-//    }
-//
-//    "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
-//
-//      val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
-//      val sandboxApps    = List(anApp(
-//        name = "sandboxApplication",
-//        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
-//      ))
-//      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
-//
-//      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-//      result shouldBe DeveloperDeleteFailureResult
-//
-//      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-//      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-//      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-//    }
-//
-//    "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
-//      val productionApps = List(anApp(
-//        name = "productionApplication",
-//        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
-//      ))
-//      val sandboxApps    = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
-//
-//      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
-//
-//      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-//      result shouldBe DeveloperDeleteFailureResult
-//
-//      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-//      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-//      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-//    }
-//  }
+ "developerService.deleteDeveloper" should {
+   val gatekeeperUserId = "gate.keeper"
+   val user             = aUser("Fred")
+   val developerId      = UuidIdentifier(user.userId)
+
+   "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
+
+     fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
+     deleteDeveloperWillSucceed
+
+     val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+     result shouldBe DeveloperDeleteSuccessResult
+
+     verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+     ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+     ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+   }
+
+   "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
+     val app1 = aProdApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+     val app2 = aProdApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+     val app3 = aProdApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+
+     fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List(app1, app2, app3))
+     fetchDevelopersWillReturnTheRequestedUsers
+     deleteDeveloperWillSucceed
+
+     val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+     result shouldBe DeveloperDeleteSuccessResult
+
+     verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
+     verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
+     verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
+
+     verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+   }
+
+   "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
+     val app1 = aSandboxApp("application1", Set(verifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+     val app2 = aSandboxApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+     val app3 = aSandboxApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
+
+     fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List.empty, List(app1, app2, app3))
+     deleteDeveloperWillSucceed
+
+     val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+     result shouldBe DeveloperDeleteSuccessResult
+
+     verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+     verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+     verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+
+     verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+   }
+
+   "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
+
+     val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
+     val sandboxApps    = List(anApp(
+       name = "sandboxApplication",
+       collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
+     ))
+     fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
+
+     val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+     result shouldBe DeveloperDeleteFailureResult
+
+     verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+     ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+     ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+   }
+
+   "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
+     val productionApps = List(anApp(
+       name = "productionApplication",
+       collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
+     ))
+     val sandboxApps    = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
+
+     fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
+
+     val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+     result shouldBe DeveloperDeleteFailureResult
+
+     verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+     ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+     ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()   }
+ }
 
   "developerService searchDevelopers" should {
     "find users" in new Setup {

@@ -36,7 +36,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag, EventTags, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApiGatekeeperBaseSpec
     extends BaseSpec

@@ -46,7 +46,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val user1                         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
       val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
       val users                         = Seq(user1, user2)
-      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
 
       validateEmailAllUsersPage(Jsoup.parse(result.body), users)
     }

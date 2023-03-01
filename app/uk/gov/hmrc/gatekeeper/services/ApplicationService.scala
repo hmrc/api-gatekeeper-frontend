@@ -265,32 +265,25 @@ class ApplicationService @Inject() (
     }
   }
 
-  private val unexpectedDispatchErrors = () => { throw new RuntimeException("Unexpected errors") }
-
-  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[List[CommandFailure],Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
       cmd            = AddCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
       response      <- applicationConnector.dispatch(app.id, cmd, adminsToEmail)
-    } yield response
+    } yield response.map(_ => ())
   }
 
-  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[CommandFailures.CannotRemoveLastAdmin.type,Unit]] = {
-    import cats.syntax.either._
+  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[List[CommandFailure],Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
     val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(teamMemberToRemove)).get  // Safe to do here.
-
-    val fails: PartialFunction[List[CommandFailure], Either[CommandFailures.CannotRemoveLastAdmin.type, Unit]] = {
-      case List(CommandFailures.CannotRemoveLastAdmin) => CommandFailures.CannotRemoveLastAdmin.asLeft[Unit]
-    }
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
       cmd            = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
       response      <- applicationConnector.dispatch(app.id, cmd, adminsToEmail)
-    } yield response.fold(fails(_) orElse unexpectedDispatchErrors(), _ => ().asRight)
+    } yield response.map(_ => ())
   }
 
   private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Set[LaxEmailAddress]] = {

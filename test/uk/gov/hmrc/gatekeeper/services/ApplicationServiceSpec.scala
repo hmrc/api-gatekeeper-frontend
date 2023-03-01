@@ -38,8 +38,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.RemoveCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -608,81 +607,52 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "removeTeamMember" should {
     val requestingUser = "bob in SDST"
 
-    "remove a member from a standard app successfully in the correct environment" in new Setup {
-      val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
+    "issue command to remove a member from an app successfully" in new Setup {
       val application = stdApp1
+      val collaboratorToRemove = application.collaborators.filter(_.isDeveloper).head
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
 
       await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
-
-      inside(ApplicationConnectorMock.Prod.IssueCommand.verifyCommand()) {
-        case RemoveCollaborator(actor, collaborator, _) => (actor, collaborator) match {
-          case (Actors.GatekeeperUser(foundUser), foundCollaborator) if(foundUser == requestingUser && foundCollaborator == collaboratorToRemove) => succeed
-          case _ => fail("Bad command values")
-        }
-        case _ => fail("Wrong command")
-      }
     }
 
-//    "remove a member from a privileged app in the correct environment" in new Setup {
-//      val application = privilegedApp
-//
-//      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-//      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-//
-//      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
-//
-//      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.verifyBasics(application.id, memberToRemove, requestingUser)
-//      verify(underTest).applicationConnectorFor(application)
-//    }
-//
-//    "remove a member from an ROPC app in the correct environment" in new Setup {
-//      val application = ropcApp
-//
-//      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-//      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-//
-//      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
-//
-//      verify(mockProductionApplicationConnector).removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*)
-//      verify(underTest).applicationConnectorFor(application)
-//    }
-//
-//    "propagate TeamMemberLastAdmin error from application connector" in new Setup {
-//
-//      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-//      ApplicationConnectorMock.Prod.RemoveCollaborator.failsWithLastAdminFor(stdApp1.id, memberToRemove, requestingUser)
-//
-//      intercept[TeamMemberLastAdmin.type] {
-//        await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
-//      }
-//    }
-//
-//    "include correct set of admins to email" in new Setup {
-//      val verifiedAdmin         = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
-//      val unverifiedAdmin       = Collaborators.Administrator(UserId.random, "unverified@example.com".toLaxEmail)
-//      val adminToRemove         = Collaborators.Administrator(UserId.random, memberToRemove)
-//      val adderAdmin            = Collaborators.Administrator(UserId.random, requestingUser.toLaxEmail)
-//      val verifiedDeveloper     = Collaborators.Developer(UserId.random, "developer@example.com".toLaxEmail)
-//      val application           = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
-//      val nonAdderAdmins        = List(
-//        RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
-//        RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false)
-//      )
-//      val response              = ApplicationUpdateSuccessResult
-//      val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress)
-//
-//      when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
-//        .thenReturn(successful(nonAdderAdmins))
-//      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-//
-//      await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response
-//
-//      verify(mockProductionApplicationConnector)
-//        .removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), eqTo(expectedAdminsToEmail))(*)
-//    }
+   "propagate TeamMemberLastAdmin error from application connector" in new Setup {
+     val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
+   
+     when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
+      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
+
+      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(List(CommandFailures.CannotRemoveLastAdmin))
+    }
+
+    "include correct set of admins to email" in new Setup {
+   
+      val memberToRemove = "removeMe@example.com".toLaxEmail
+      val gatekeeperUserName = "bob in SDST"
+
+      val verifiedAdmin         = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
+      val verifiedOtherAdmin    = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)
+      val unverifiedAdmin       = Collaborators.Administrator(UserId.random, "unverified@example.com".toLaxEmail)
+      val adminToRemove         = Collaborators.Administrator(UserId.random, memberToRemove)
+      val verifiedDeveloper     = Collaborators.Developer(UserId.random, "developer@example.com".toLaxEmail)
+
+      val application           = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, verifiedDeveloper))
+      val nonAdderAdmins        = List(
+        RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
+        RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false),
+        RegisteredUser(verifiedOtherAdmin.emailAddress, UserId.random, "verified", "user", true)
+        )
+        when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
+          .thenReturn(successful(nonAdderAdmins))
+
+      val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress, verifiedOtherAdmin.emailAddress)
+
+      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeedsFor(application.id, expectedAdminsToEmail)
+
+      await(underTest.removeTeamMember(application, memberToRemove, gatekeeperUserName)) shouldBe Right(())
+
+    }
   }
 
   "approveUplift" should {

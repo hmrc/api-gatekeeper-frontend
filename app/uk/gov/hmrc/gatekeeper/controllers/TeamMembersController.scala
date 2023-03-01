@@ -37,6 +37,7 @@ import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
@@ -84,23 +85,39 @@ class TeamMembersController @Inject() (
     }
   }
 
+  // def worked(successResult: Result): PartialFunction[Either[List[CommandFailure],T], Unit] = {
+  //   case Right(()) => successResult
+  // }
+
+  // val otherwiseThrow: PartialFunction[Either[List[CommandFailure],_], Result] = {
+  //   case _ => throw new RuntimeException("Bang")
+  // }
+
+  // def failOnCollaborAlreadyExists(failureResult: Result): PartialFunction[Either[List[CommandFailure],_], Result] = {
+  //   case Left(List(CommandFailures.CollaboratorAlreadyExistsOnApp)) => failureResult
+  // }
+  // e => worked(successResult) orElse failOnCollaborAlreadyExists(failureResult) orElse otherwiseThrow }
+
   def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction ( implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
         val emailAddress = LaxEmailAddress(form.email)
-
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val failureResult = BadRequest(addTeamMemberView(
+          app.application,
+          AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
+          ))
+          
         for {
           user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
           collaborator = if(role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
           result      <- applicationService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
-                           .map(_ => Redirect(uk.gov.hmrc.gatekeeper.controllers.routes.TeamMembersController.manageTeamMembers(appId)))
-                           .recover {
-                             case _ @TeamMemberAlreadyExists => BadRequest(addTeamMemberView(
-                                 app.application,
-                                 AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
-                               ))
-                           }
+                          .map { 
+                            case Right(()) => successResult
+                            case Left(List(CommandFailures.CollaboratorAlreadyExistsOnApp)) => failureResult
+                            case _ => InternalServerError("Action failed")
+                          }
         } yield result
       }
 
@@ -129,16 +146,20 @@ class TeamMembersController @Inject() (
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         val emailAddress = LaxEmailAddress(form.email)
-        lazy val success = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
-        lazy val failure = BadRequest(removeTeamMemberView(
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val failureResult = BadRequest(removeTeamMemberView(
                   app.application,
                   RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),
                   form.email
                 ))
 
         form.confirm match {
-          case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map { _.fold(_ => failure, _ => success) }
-          case _           => successful(Redirect(routes.TeamMembersController.manageTeamMembers(appId)))
+          case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
+            case Right(()) => successResult
+            case Left(List(CommandFailures.CannotRemoveLastAdmin)) => failureResult
+            case _ => throw new RuntimeException("Bang")
+          }
+          case _           => successful(successResult)
         }
       }
 

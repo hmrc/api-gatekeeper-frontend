@@ -35,7 +35,7 @@ trait UserIdTracker {
 
 trait CollaboratorTracker extends UserIdTracker {
 
-  implicit class CollaboratorSyntax(email: LaxEmailAddress) {
+  implicit class CollaboratorEmailSyntax(email: LaxEmailAddress) {
     def asAdministratorCollaborator: Collaborator = Collaborators.Administrator(idOf(email), email)
     def asDeveloperCollaborator: Collaborator    = Collaborators.Developer(idOf(email), email)
 

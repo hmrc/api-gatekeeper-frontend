@@ -23,6 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
@@ -106,11 +107,13 @@ trait ApplicationServiceMockProvider {
     }
 
     object AddTeamMember {
-      def succeeds() = when(mockApplicationService.addTeamMember(*, *, *)(*)).thenReturn(successful(()))
+      import cats.syntax.either._
+
+      def succeeds() = when(mockApplicationService.addTeamMember(*, *, *)(*)).thenReturn(successful(().asRight[List[CommandFailure]]))
 
       def failsDueToExistingAlready() =
         when(mockApplicationService.addTeamMember(*, *, *)(*))
-          .thenReturn(failed(TeamMemberAlreadyExists))
+          .thenReturn(successful(List(CommandFailures.CollaboratorAlreadyExistsOnApp).asLeft[Unit]))
     }
 
     object RemoveTeamMember {
@@ -118,11 +121,11 @@ trait ApplicationServiceMockProvider {
 
       def succeeds() =
         when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
-          .thenReturn(successful(().asRight[CommandFailures.CannotRemoveLastAdmin.type]))
+          .thenReturn(successful(().asRight[List[CommandFailure]]))
 
       def failsDueToLastAdmin() =
         when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
-          .thenReturn(successful(CommandFailures.CannotRemoveLastAdmin.asLeft[Unit]))
+          .thenReturn(successful(List(CommandFailures.CannotRemoveLastAdmin).asLeft[Unit]))
     }
 
     object DoesApplicationHaveSubmissions {
