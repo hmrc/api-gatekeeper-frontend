@@ -19,12 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -59,6 +57,8 @@ class EmailsController @Inject() (
     emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
     emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
+    emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
+    emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
@@ -116,7 +116,7 @@ class EmailsController @Inject() (
     def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(None, None)))
-        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
+        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(None, None)))
         case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
@@ -151,6 +151,9 @@ class EmailsController @Inject() (
       case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(selectedAPIs, selectedTopic)))
     }
   }
+
+  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
@@ -194,6 +197,14 @@ class EmailsController @Inject() (
     }
   }
 
+  def emailPreferencesSpecificTaxRegime(selectedCategories: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
+    for {
+      categories        <- apiDefinitionService.apiCategories
+      filteredCategories = filterSelectedCategories(Some(selectedCategories), categories).sortBy(_.name)
+    } yield Ok(emailPreferencesSpecificTaxRegimeView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredCategories, selectedTopic))
+  }
+
   def emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     if (selectedAPIs.forall(_.isEmpty)) {
@@ -210,7 +221,7 @@ class EmailsController @Inject() (
     }
   }
 
-  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent]                                       = anyStrideUserAction { implicit request =>
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
     val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
@@ -250,6 +261,27 @@ class EmailsController @Inject() (
         filteredApis
       ))
     }
+
+  def selectTaxRegime(selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    for {
+      categories          <- apiDefinitionService.apiCategories
+      users               <- topicAndCategory.map(tup =>
+                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
+                             )
+                               .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+      usersAsJson          = Json.toJson(users)
+      selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
+      selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
+    } yield Ok(emailPreferencesSelectTaxRegimeView(
+      users,
+      usersAsJson,
+      usersToEmailCopyText(users),
+      topicAndCategory.map(_._1),
+      categories,
+      selectedCategory.getOrElse(""),
+      selectedCategoryName
+    ))
+  }
 
   def emailPreferencesApiCategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val topicAndCategory: Option[(TopicOptionChoice, String)] =
