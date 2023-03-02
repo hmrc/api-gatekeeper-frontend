@@ -262,25 +262,15 @@ class EmailsController @Inject() (
       ))
     }
 
-  def selectTaxRegime(selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectTaxRegime(mayBeCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val selectedCategory: String = mayBeCategory.getOrElse("")
+
     for {
       categories          <- apiDefinitionService.apiCategories
-      users               <- topicAndCategory.map(tup =>
-                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
-                             )
-                               .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
-      usersAsJson          = Json.toJson(users)
-      selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
+      selectedCategories   = categories.filter(c => c.category == selectedCategory)
       selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
-    } yield Ok(emailPreferencesSelectTaxRegimeView(
-      users,
-      usersAsJson,
-      usersToEmailCopyText(users),
-      topicAndCategory.map(_._1),
-      categories,
-      selectedCategory.getOrElse(""),
-      selectedCategoryName
-    ))
+    } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategory,selectedCategoryName))
+
   }
 
   def emailPreferencesApiCategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
