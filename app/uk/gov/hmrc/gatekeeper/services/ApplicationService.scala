@@ -25,19 +25,17 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
-
     sandboxApiScopeConnector: SandboxApiScopeConnector,
     productionApiScopeConnector: ProductionApiScopeConnector,
     apmConnector: ApmConnector,
@@ -270,7 +268,6 @@ class ApplicationService @Inject() (
     }
   }
 
- 
   def applicationConnectorFor(application: Application): ApplicationConnector =
     if (application.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
 

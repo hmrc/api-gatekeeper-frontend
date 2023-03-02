@@ -16,23 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommand
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.NonEmptyList
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.http.InternalServerException
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import scala.concurrent.ExecutionContext
+import com.google.inject.{Inject, Singleton}
+
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, InternalServerException}
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, DispatchRequest, DispatchSuccessResult}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.http.HttpClient
-import uk.gov.hmrc.http.HttpResponse
-import com.google.inject.{Singleton, Inject}
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 
 abstract class CommandConnector(implicit val ec: ExecutionContext) {
 
@@ -45,7 +41,7 @@ abstract class CommandConnector(implicit val ec: ExecutionContext) {
       command: ApplicationCommand,
       adminsToEmail: Set[LaxEmailAddress]
     )(implicit hc: HeaderCarrier
-  ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
+    ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
 
     import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailureJsonFormatters._
     import uk.gov.hmrc.apiplatform.modules.common.services.NonEmptyListFormatters._
@@ -58,22 +54,22 @@ abstract class CommandConnector(implicit val ec: ExecutionContext) {
     def parseSuccessResponse(responseBody: String): DispatchSuccessResult =
       Json.parse(responseBody).asOpt[DispatchSuccessResult]
         .fold(throw new InternalServerException("Failed parsing success response to dispatch"))(identity)
-    
+
     def parseErrorResponse(responseBody: String): NonEmptyList[CommandFailure] =
       Json.parse(responseBody).asOpt[NonEmptyList[CommandFailure]]
         .fold(throw new InternalServerException("Failed parsing error response to dispatch"))(identity)
 
-    val url     = s"${baseApplicationUrl(applicationId)}/dispatch"
-    val request = DispatchRequest(command, adminsToEmail)
+    val url          = s"${baseApplicationUrl(applicationId)}/dispatch"
+    val request      = DispatchRequest(command, adminsToEmail)
     val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
 
     http.PATCH[DispatchRequest, HttpResponse](url, request, extraHeaders)
       .map(response =>
         response.status match {
-          case OK           => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
-          case BAD_REQUEST  => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
-          case status       => throw new InternalServerException("Failed calling dispatch")
+          case OK          => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
+          case BAD_REQUEST => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
+          case status      => throw new InternalServerException("Failed calling dispatch")
         }
       )
   }

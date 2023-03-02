@@ -16,33 +16,30 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import java.time.LocalDateTime
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.NonEmptyList
+import com.google.inject.{Inject, Singleton}
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
-import uk.gov.hmrc.gatekeeper.models.Application
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.Future
-import java.time.LocalDateTime
-import uk.gov.hmrc.gatekeeper.connectors.SandboxCommandConnector
-import uk.gov.hmrc.gatekeeper.connectors.ProductionCommandConnector
-import com.google.inject.{Singleton, Inject}
-import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.connectors.CommandConnector
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
+import uk.gov.hmrc.gatekeeper.connectors.{CommandConnector, DeveloperConnector, ProductionCommandConnector, SandboxCommandConnector}
+import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
-class TeamMemberService @Inject()(
+class TeamMemberService @Inject() (
     sandboxCommandConnector: SandboxCommandConnector,
     productionCommandConnector: ProductionCommandConnector,
     developerConnector: DeveloperConnector
-)( 
-  implicit ec: ExecutionContext
-) extends ApplicationLogger {
+  )(implicit ec: ExecutionContext
+  ) extends ApplicationLogger {
 
-   def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
     val commandConnector = commandConnectorFor(app)
 
     for {
@@ -60,7 +57,7 @@ class TeamMemberService @Inject()(
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     val commandConnector = commandConnectorFor(app)
-    val collaborator         = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
+    val collaborator     = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
@@ -79,9 +76,8 @@ class TeamMemberService @Inject()(
           .toSet
       )
   }
-  
+
   def commandConnectorFor(application: Application): CommandConnector =
     if (application.deployedTo == "PRODUCTION") productionCommandConnector else sandboxCommandConnector
-
 
 }

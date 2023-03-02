@@ -57,7 +57,7 @@ trait WithRestrictedApp {
 
 @Singleton
 class TeamMembersController @Inject() (
-    teamMemberService: TeamMemberService, 
+    teamMemberService: TeamMemberService,
     developerService: DeveloperService,
     mcc: MessagesControllerComponents,
     manageTeamMembersView: ManageTeamMembersView,
