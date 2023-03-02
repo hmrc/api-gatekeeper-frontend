@@ -87,7 +87,10 @@ class ApplicationControllerSpec
 
   running(app) {
 
-    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule
+    trait Setup extends ControllerSetupBase
+        with ApplicationServiceMockProvider
+        with ApplicationConnectorMockProvider
+        with StrideAuthorisationServiceMockModule
         with LdapAuthorisationServiceMockModule {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken

@@ -20,7 +20,6 @@ import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
-import cats.data.NonEmptyList
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
@@ -32,7 +31,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -604,57 +602,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
       verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
-    }
-  }
-
-  "removeTeamMember" should {
-    val requestingUser = "bob in SDST"
-
-    "issue command to remove a member from an app successfully" in new Setup {
-      val application          = stdApp1
-      val collaboratorToRemove = application.collaborators.filter(_.isDeveloper).head
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
-    }
-
-    "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
-      val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
-
-      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin))
-    }
-
-    "include correct set of admins to email" in new Setup {
-
-      val memberToRemove     = "removeMe@example.com".toLaxEmail
-      val gatekeeperUserName = "bob in SDST"
-
-      val verifiedAdmin      = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
-      val verifiedOtherAdmin = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)
-      val unverifiedAdmin    = Collaborators.Administrator(UserId.random, "unverified@example.com".toLaxEmail)
-      val adminToRemove      = Collaborators.Administrator(UserId.random, memberToRemove)
-      val verifiedDeveloper  = Collaborators.Developer(UserId.random, "developer@example.com".toLaxEmail)
-
-      val application    = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, verifiedDeveloper))
-      val nonAdderAdmins = List(
-        RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
-        RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false),
-        RegisteredUser(verifiedOtherAdmin.emailAddress, UserId.random, "verified", "user", true)
-      )
-      when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
-        .thenReturn(successful(nonAdderAdmins))
-
-      val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress, verifiedOtherAdmin.emailAddress)
-
-      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeedsFor(application.id, expectedAdminsToEmail)
-
-      await(underTest.removeTeamMember(application, memberToRemove, gatekeeperUserName)) shouldBe Right(())
-
     }
   }
 

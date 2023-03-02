@@ -18,8 +18,6 @@ package mocks.connectors
 
 import scala.concurrent.Future.{failed, successful}
 
-import cats.data.NonEmptyList
-import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import play.api.http.Status._
@@ -27,7 +25,6 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, CommandFailures, RemoveCollaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
@@ -93,38 +90,6 @@ trait ApplicationConnectorMockProvider {
 
     object FetchApplicationsExcludingDeletedByUserId {
       def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
-    }
-
-    object IssueCommand {
-      import cats.syntax.either._
-      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-
-      def verifyCommand(id: ApplicationId) = {
-        val cmdCaptor = ArgCaptor[ApplicationCommand]
-        verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)
-        cmdCaptor.value
-      }
-
-      def verifyNoCommandsIssued() = {
-        verify(aMock, never).dispatch(*[ApplicationId], *, *)(*)
-      }
-
-      object ToRemoveCollaborator {
-        val mockResult = mock[DispatchSuccessResult]
-
-        def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
-        }
-
-        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
-          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
-        }
-
-        def failsWithLastAdmin() = {
-          val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
-          when(aMock.dispatch(*[ApplicationId], *[RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
-        }
-      }
     }
 
     object UpdateScopes {

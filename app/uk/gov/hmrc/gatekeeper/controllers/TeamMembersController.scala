@@ -36,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -57,6 +57,7 @@ trait WithRestrictedApp {
 
 @Singleton
 class TeamMembersController @Inject() (
+    teamMemberService: TeamMemberService, 
     developerService: DeveloperService,
     mcc: MessagesControllerComponents,
     manageTeamMembersView: ManageTeamMembersView,
@@ -114,7 +115,7 @@ class TeamMembersController @Inject() (
           user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
           collaborator = if (role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
-          result      <- applicationService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
+          result      <- teamMemberService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
                            .map {
                              case Right(())                                                               => successResult
                              case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
@@ -156,7 +157,7 @@ class TeamMembersController @Inject() (
         ))
 
         form.confirm match {
-          case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
+          case Some("Yes") => teamMemberService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
               case Right(())                                                      => successResult
               case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
               case _                                                              => throw new RuntimeException("Bang")

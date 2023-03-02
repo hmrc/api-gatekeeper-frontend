@@ -19,12 +19,10 @@ package mocks.services
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
@@ -106,28 +104,6 @@ trait ApplicationServiceMockProvider {
 
       def verifyParams(applicationId: ApplicationId, env: Environment.Environment) =
         verify(mockApplicationService).fetchStateHistory(eqTo(applicationId), eqTo(env))(*)
-    }
-
-    object AddTeamMember {
-      import cats.syntax.either._
-
-      def succeeds() = when(mockApplicationService.addTeamMember(*, *, *)(*)).thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
-
-      def failsDueToExistingAlready() =
-        when(mockApplicationService.addTeamMember(*, *, *)(*))
-          .thenReturn(successful(NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp).asLeft[Unit]))
-    }
-
-    object RemoveTeamMember {
-      import cats.syntax.either._
-
-      def succeeds() =
-        when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
-          .thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
-
-      def failsDueToLastAdmin() =
-        when(mockApplicationService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
-          .thenReturn(successful(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin).asLeft[Unit]))
     }
 
     object DoesApplicationHaveSubmissions {

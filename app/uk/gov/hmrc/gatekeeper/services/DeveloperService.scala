@@ -36,6 +36,8 @@ class DeveloperService @Inject() (
     developerConnector: DeveloperConnector,
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
+    sandboxCommandConnector: SandboxCommandConnector,
+    productionCommandConnector: ProductionCommandConnector,
     xmlService: XmlService
   )(implicit ec: ExecutionContext
   ) {
@@ -213,7 +215,7 @@ class DeveloperService @Inject() (
     }
 
     def removeTeamMemberFromApp(developer: Developer)(app: Application): Future[Unit] = {
-      val connector    = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+      val connector    = if (app.deployedTo == "PRODUCTION") productionCommandConnector else sandboxCommandConnector
       val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (developer.email)).get // Safe as we know we're a dev on this app
 
       for {

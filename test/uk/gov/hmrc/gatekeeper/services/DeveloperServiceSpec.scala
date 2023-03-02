@@ -88,8 +88,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   val prodAppId = ApplicationId.random
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider
-      with DeveloperConnectorMockProvider with XmlServiceMockProvider {
+  trait Setup extends MockitoSugar
+      with ArgumentMatchersSugar
+      with ApplicationConnectorMockProvider
+      with CommandConnectorMockProvider
+      with DeveloperConnectorMockProvider
+      with XmlServiceMockProvider {
     val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(
@@ -97,6 +101,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
+      mockSandboxCommandConnector,
+      mockProductionCommandConnector,
       mockXmlService
     )
 
@@ -151,8 +157,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
-      ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-      ApplicationConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
+      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
+      CommandConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
     def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
@@ -170,14 +176,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       ) = {
       environment match {
         case "PRODUCTION" =>
-          inside(ApplicationConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
+          inside(CommandConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
             case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
               verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
               verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
             case _                                                                           => fail("Wrong command")
           }
         case "SANDBOX"    =>
-          inside(ApplicationConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
+          inside(CommandConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
             case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
               verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
               verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
@@ -467,8 +473,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteSuccessResult
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
-      ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
@@ -521,8 +527,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
@@ -538,8 +544,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      ApplicationConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      ApplicationConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
   }
 

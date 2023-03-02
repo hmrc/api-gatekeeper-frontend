@@ -45,7 +45,8 @@ trait ControllerSetupBase
     with ApiCataloguePublishConnectorMockProvider
     with ApmServiceMockProvider
     with DeploymentApprovalServiceMockProvider
-    with CollaboratorTracker {
+    with CollaboratorTracker
+    with CommandConnectorMockProvider {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
   val grantLength: Period    = Period.ofDays(547)
