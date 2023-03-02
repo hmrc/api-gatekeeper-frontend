@@ -210,7 +210,7 @@ class EmailsController @Inject() (
     }
   }
 
-  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent]                                       = anyStrideUserAction { implicit request =>
+  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
     val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))

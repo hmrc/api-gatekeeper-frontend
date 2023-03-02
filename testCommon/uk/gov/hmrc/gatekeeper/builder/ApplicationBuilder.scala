@@ -17,17 +17,19 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.Period
+
 import org.joda.time.DateTime
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 

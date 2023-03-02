@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
 sealed trait Role extends EnumEntry

@@ -20,19 +20,23 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.ApplicationServiceMockProvider
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
+
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -49,7 +53,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec
@@ -970,7 +973,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
-          val collaborators= Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
+          val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
           val existingApp   = ApplicationResponse(
             ApplicationId.random,
             ClientId.random,
@@ -1045,8 +1048,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
-          val collaborators: Set[Collaborator]  = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp   = ApplicationResponse(
+          val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
+          val existingApp                      = ApplicationResponse(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",

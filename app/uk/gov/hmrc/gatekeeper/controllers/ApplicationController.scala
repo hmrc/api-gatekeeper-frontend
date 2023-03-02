@@ -30,7 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -53,10 +55,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 @Singleton
 class ApplicationController @Inject() (
@@ -556,11 +554,11 @@ class ApplicationController @Inject() (
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
     submission.actor match {
-      case AppCollaborator(email) => 
+      case AppCollaborator(email) =>
         developerService.fetchUser(email).map(s =>
           SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email.text, submission.changedAt)
         )
-      case _ => throw new InconsistentDataState("last submission has no collaborator actor")
+      case _                      => throw new InconsistentDataState("last submission has no collaborator actor")
     }
   }
 

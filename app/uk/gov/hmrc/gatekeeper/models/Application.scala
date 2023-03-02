@@ -27,13 +27,11 @@ import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 
 case class ClientId(value: String) extends AnyVal
 
@@ -415,8 +413,8 @@ object CollaboratorRole extends Enumeration {
   val DEVELOPER, ADMINISTRATOR = Value
 
   def displayedRole: Collaborator => String = _ match {
-    case _ : Collaborators.Administrator => "Administrator"
-    case _ => "Developer"
+    case _: Collaborators.Administrator => "Administrator"
+    case _                              => "Developer"
   }
 
   def from(role: Option[String]) = role match {

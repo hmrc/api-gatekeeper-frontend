@@ -20,22 +20,21 @@ import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.NonEmptyList
+
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import cats.data.NonEmptyList
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -198,7 +197,13 @@ class ApplicationService @Inject() (
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
 
-  def updateApplicationName(application: ApplicationResponse, adminEmail: LaxEmailAddress, gatekeeperUser: String, name: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateApplicationName(
+      application: ApplicationResponse,
+      adminEmail: LaxEmailAddress,
+      gatekeeperUser: String,
+      name: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
     if (application.name.equalsIgnoreCase(name)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
@@ -266,7 +271,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure],Unit]] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
 
     for {
@@ -276,9 +281,14 @@ class ApplicationService @Inject() (
     } yield response.map(_ => ())
   }
 
-  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure],Unit]] = {
+  def removeTeamMember(
+      app: Application,
+      teamMemberToRemove: LaxEmailAddress,
+      gatekeeperUserName: String
+    )(implicit hc: HeaderCarrier
+    ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
-    val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(teamMemberToRemove)).get  // Safe to do here.
+    val collaborator         = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))

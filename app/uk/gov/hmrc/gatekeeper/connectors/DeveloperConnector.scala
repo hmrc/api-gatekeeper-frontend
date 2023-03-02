@@ -28,13 +28,13 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
@@ -201,7 +201,8 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredUser(email, UserId.random))
 
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] =
+    Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
 
   def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email, UserId.random))
 

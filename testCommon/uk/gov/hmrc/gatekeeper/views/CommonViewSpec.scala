@@ -17,10 +17,13 @@
 package uk.gov.hmrc.gatekeeper.views
 
 import java.util.Locale
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.{MessagesControllerComponents, MessagesRequest}
 import play.api.test.FakeRequest
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId

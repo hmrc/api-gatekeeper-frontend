@@ -22,25 +22,25 @@ import uk.gov.hmrc.play.json.Union
 sealed trait CommandFailure
 
 object CommandFailures {
-  case object ApplicationNotFound extends CommandFailure
-  case object CannotRemoveLastAdmin extends CommandFailure
-  case object ActorIsNotACollaboratorOnApp extends CommandFailure
-  case object CollaboratorDoesNotExistOnApp extends CommandFailure
-  case object CollaboratorHasMismatchOnApp extends CommandFailure
-  case object CollaboratorAlreadyExistsOnApp extends CommandFailure
+  case object ApplicationNotFound             extends CommandFailure
+  case object CannotRemoveLastAdmin           extends CommandFailure
+  case object ActorIsNotACollaboratorOnApp    extends CommandFailure
+  case object CollaboratorDoesNotExistOnApp   extends CommandFailure
+  case object CollaboratorHasMismatchOnApp    extends CommandFailure
+  case object CollaboratorAlreadyExistsOnApp  extends CommandFailure
   case class GenericFailure(describe: String) extends CommandFailure
 }
 
 trait CommandFailureJsonFormatters {
   import CommandFailures._
-  
-  implicit val formatApplicationNotFound = Json.format[ApplicationNotFound.type]
-  implicit val formatCannotRemoveLastAdmin = Json.format[CannotRemoveLastAdmin.type]
-  implicit val formatActorIsNotACollaboratorOnApp = Json.format[ActorIsNotACollaboratorOnApp.type]
-  implicit val formatCollaboratorDoesNotExistOnApp = Json.format[CollaboratorDoesNotExistOnApp.type]
-  implicit val formatCollaboratorHasMismatchOnApp = Json.format[CollaboratorHasMismatchOnApp.type]
+
+  implicit val formatApplicationNotFound            = Json.format[ApplicationNotFound.type]
+  implicit val formatCannotRemoveLastAdmin          = Json.format[CannotRemoveLastAdmin.type]
+  implicit val formatActorIsNotACollaboratorOnApp   = Json.format[ActorIsNotACollaboratorOnApp.type]
+  implicit val formatCollaboratorDoesNotExistOnApp  = Json.format[CollaboratorDoesNotExistOnApp.type]
+  implicit val formatCollaboratorHasMismatchOnApp   = Json.format[CollaboratorHasMismatchOnApp.type]
   implicit val formatCollaboratorAlreadyExistsOnApp = Json.format[CollaboratorAlreadyExistsOnApp.type]
-  implicit val formatGenericFailure = Json.format[GenericFailure]
+  implicit val formatGenericFailure                 = Json.format[GenericFailure]
 
   implicit val formatCommandFailures = Union.from[CommandFailure]("failureType")
     .and[ApplicationNotFound.type]("ApplicationNotFound")

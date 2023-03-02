@@ -17,8 +17,10 @@
 package uk.gov.hmrc.gatekeeper.views.developers
 
 import org.jsoup.Jsoup
+
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId

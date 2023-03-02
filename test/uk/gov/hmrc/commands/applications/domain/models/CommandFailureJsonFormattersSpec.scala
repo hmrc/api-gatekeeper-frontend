@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.commands.applications.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailure
+
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures}
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 class CommandFailureJsonFormattersSpec extends HmrcSpec {
 
@@ -32,11 +32,10 @@ class CommandFailureJsonFormattersSpec extends HmrcSpec {
       Json.parse(jsonText).as[List[CommandFailure]] shouldBe List(CommandFailures.CannotRemoveLastAdmin)
     }
 
-        
     "read a list of failures from Json" in {
       val jsonText = """[{"failureType":"ApplicationNotFound"},{"failureType":"ActorIsNotACollaboratorOnApp"}]"""
 
       Json.parse(jsonText).as[List[CommandFailure]] shouldBe List(CommandFailures.ApplicationNotFound, CommandFailures.ActorIsNotACollaboratorOnApp)
     }
-  }  
+  }
 }

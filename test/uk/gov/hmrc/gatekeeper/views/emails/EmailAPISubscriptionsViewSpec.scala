@@ -24,13 +24,13 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailApiSubscriptionsView
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper {
 
@@ -54,7 +54,16 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
 
     "show correct title and select correct option when filter and users lists present" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailApiSubscriptionsView.render(dropdowns, users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(
+          dropdowns,
+          users,
+          emailRecipientsAsJson,
+          s"${user1.email.text}; ${user2.email.text}",
+          queryParams,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview1.value, users)
     }

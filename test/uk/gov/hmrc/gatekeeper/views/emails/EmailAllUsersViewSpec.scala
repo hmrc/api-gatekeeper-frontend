@@ -24,13 +24,13 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailAllUsersView
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper {
 
@@ -46,7 +46,8 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val user1                         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
       val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
       val users                         = Seq(user1, user2)
-      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable =
+        emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
 
       validateEmailAllUsersPage(Jsoup.parse(result.body), users)
     }

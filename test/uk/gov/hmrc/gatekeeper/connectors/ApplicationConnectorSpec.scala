@@ -18,15 +18,19 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.joda.time.DateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, DispatchSuccessResult, RemoveCollaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -34,9 +38,6 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.RemoveCollaborator
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -68,8 +69,8 @@ class ApplicationConnectorSpec
   val apiVersion1   = ApiVersion.random
   val applicationId = ApplicationId.random
   val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
-  val developer = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-  
+  val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
+
   val authToken   = "Bearer Token"
   implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
@@ -80,7 +81,6 @@ class ApplicationConnectorSpec
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
 
     val connector = new ProductionApplicationConnector(mockAppConfig, httpClient) {}
-
 
   }
 
@@ -292,9 +292,9 @@ class ApplicationConnectorSpec
   }
 
   "fetchAllApplications" should {
-    val url           = "/application"
-    val collaborators: Set[Collaborator]= Set(
-     administrator,
+    val url                              = "/application"
+    val collaborators: Set[Collaborator] = Set(
+      administrator,
       developer
     )
 
@@ -383,9 +383,9 @@ class ApplicationConnectorSpec
       administrator,
       developer
     )
-    val stateHistory     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, DateTime.now)
-    val applicationState = ApplicationState(State.TESTING, None, None, DateTime.now)
-    val application      = ApplicationResponse(
+    val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, DateTime.now)
+    val applicationState                 = ApplicationState(State.TESTING, None, None, DateTime.now)
+    val application                      = ApplicationResponse(
       applicationId,
       ClientId("clientid1"),
       "gatewayId1",
@@ -399,8 +399,8 @@ class ApplicationConnectorSpec
       applicationState,
       grantLength
     )
-    val appWithHistory   = ApplicationWithHistory(application, List(stateHistory))
-    val response         = Json.toJson(appWithHistory).toString
+    val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
+    val response                         = Json.toJson(appWithHistory).toString
 
     "retrieve an application" in new Setup {
       stubFor(
@@ -609,28 +609,28 @@ class ApplicationConnectorSpec
     }
   }
 
- "dispatch" should {
-   val emailAddressToRemove     = "toRemove@example.com".toLaxEmail
-   val gatekeeperUserName = "maxpower"
-   val collaborator = Collaborators.Administrator(UserId.random, emailAddressToRemove)
-   val command = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+  "dispatch" should {
+    val emailAddressToRemove = "toRemove@example.com".toLaxEmail
+    val gatekeeperUserName   = "maxpower"
+    val collaborator         = Collaborators.Administrator(UserId.random, emailAddressToRemove)
+    val command              = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
 
-   val adminsToEmail    = Set("admin1@example.com", "admin2@example.com").map(_.toLaxEmail)
-   val url = s"/application/${applicationId.value.toString()}/dispatch"
+    val adminsToEmail = Set("admin1@example.com", "admin2@example.com").map(_.toLaxEmail)
+    val url           = s"/application/${applicationId.value.toString()}/dispatch"
 
-   "send a correct command" in new Setup {
-     stubFor(
-       patch(urlPathEqualTo(url))
-         .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
-         .willReturn(
-           aResponse()
-            .withJsonBody(DispatchSuccessResult(anApplicationResponse(), List.empty))
-            .withStatus(OK)
-         )
-     )
-     await(connector.dispatch(applicationId, command, adminsToEmail))
+    "send a correct command" in new Setup {
+      stubFor(
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
+          .willReturn(
+            aResponse()
+              .withJsonBody(DispatchSuccessResult(anApplicationResponse(), List.empty))
+              .withStatus(OK)
+          )
+      )
+      await(connector.dispatch(applicationId, command, adminsToEmail))
     }
- }
+  }
 
   "searchApplications" should {
     val url              = s"/applications"
@@ -692,10 +692,10 @@ class ApplicationConnectorSpec
     }
 
     "return emails with emailFilter" in new Setup {
-      val partialEmailMatch    = "user@example"
-      val email    = "user@example.com".toLaxEmail
-      val response = Json.toJson(List(email)).toString
-      val request  = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(partialEmailMatch))
+      val partialEmailMatch = "user@example"
+      val email             = "user@example.com".toLaxEmail
+      val response          = Json.toJson(List(email)).toString
+      val request           = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(partialEmailMatch))
 
       stubFor(
         post(urlPathEqualTo(url))

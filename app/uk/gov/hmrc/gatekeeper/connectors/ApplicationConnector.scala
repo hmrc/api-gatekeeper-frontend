@@ -20,22 +20,21 @@ import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.NonEmptyList
+
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{DispatchRequest, DispatchSuccessResult, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchRequest
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import cats.data.NonEmptyList
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -252,11 +251,11 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def dispatch(
-        applicationId: ApplicationId,
-        command: ApplicationCommand,
-        adminsToEmail: Set[LaxEmailAddress]
-      )(implicit hc: HeaderCarrier
-      ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
+      applicationId: ApplicationId,
+      command: ApplicationCommand,
+      adminsToEmail: Set[LaxEmailAddress]
+    )(implicit hc: HeaderCarrier
+    ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
     import CommandFailureJsonFormatters._
     import uk.gov.hmrc.apiplatform.modules.common.services.NonEmptyListFormatters._
     import play.api.libs.json._
@@ -264,22 +263,22 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     def parseSuccessResponse(responseBody: String): DispatchSuccessResult =
       Json.parse(responseBody).asOpt[DispatchSuccessResult]
         .fold(throw new InternalServerException("Failed parsing success response to dispatch"))(identity)
-    
+
     def parseErrorResponse(responseBody: String): NonEmptyList[CommandFailure] =
       Json.parse(responseBody).asOpt[NonEmptyList[CommandFailure]]
         .fold(throw new InternalServerException("Failed parsing error response to dispatch"))(identity)
 
-    val url     = s"${baseApplicationUrl(applicationId)}/dispatch"
-    val request = DispatchRequest(command, adminsToEmail)
+    val url          = s"${baseApplicationUrl(applicationId)}/dispatch"
+    val request      = DispatchRequest(command, adminsToEmail)
     val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
 
     http.PATCH[DispatchRequest, HttpResponse](url, request, extraHeaders)
       .map(response =>
         response.status match {
-          case OK           => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
-          case BAD_REQUEST  => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
-          case status       => throw new InternalServerException("Failed calling dispatch")
+          case OK          => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
+          case BAD_REQUEST => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
+          case status      => throw new InternalServerException("Failed calling dispatch")
         }
       )
   }

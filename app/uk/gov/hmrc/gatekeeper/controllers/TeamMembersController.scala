@@ -20,11 +20,15 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
+import cats.data.NonEmptyList
+
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -36,9 +40,6 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, Develope
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
-import cats.data.NonEmptyList
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
@@ -99,26 +100,26 @@ class TeamMembersController @Inject() (
   // }
   // e => worked(successResult) orElse failOnCollaborAlreadyExists(failureResult) orElse otherwiseThrow }
 
-  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction ( implicit request =>
+  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction(implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
-        val emailAddress = LaxEmailAddress(form.email)
+        val emailAddress       = LaxEmailAddress(form.email)
         lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
         lazy val failureResult = BadRequest(addTeamMemberView(
           app.application,
           AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
-          ))
-          
+        ))
+
         for {
           user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
-          collaborator = if(role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
+          collaborator = if (role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
           result      <- applicationService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
-                          .map { 
-                            case Right(()) => successResult
-                            case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
-                            case _ => InternalServerError("Action failed")
-                          }
+                           .map {
+                             case Right(())                                                               => successResult
+                             case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
+                             case _                                                                       => InternalServerError("Action failed")
+                           }
         } yield result
       }
 
@@ -146,20 +147,20 @@ class TeamMembersController @Inject() (
   def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
-        val emailAddress = LaxEmailAddress(form.email)
+        val emailAddress       = LaxEmailAddress(form.email)
         lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
         lazy val failureResult = BadRequest(removeTeamMemberView(
-                  app.application,
-                  RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),
-                  form.email
-                ))
+          app.application,
+          RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),
+          form.email
+        ))
 
         form.confirm match {
           case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
-            case Right(()) => successResult
-            case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
-            case _ => throw new RuntimeException("Bang")
-          }
+              case Right(())                                                      => successResult
+              case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
+              case _                                                              => throw new RuntimeException("Bang")
+            }
           case _           => successful(successResult)
         }
       }

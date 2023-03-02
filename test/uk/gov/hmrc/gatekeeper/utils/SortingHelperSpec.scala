@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
 class SortingHelperSpec extends HmrcSpec {
-  
+
   "SortingHelper" when {
     "calling descendingVersionWithoutFields" should {
       "put version 1.0 and 2.0 in order regardless of parameter order" in {
@@ -38,7 +38,7 @@ class SortingHelperSpec extends HmrcSpec {
       "put versions in descending order" in {
         val list = List("1.0", "2.0", "1.1", "2.1")
         list.sortWith(SortingHelper.versionSorter) shouldBe List("2.1", "2.0", "1.1", "1.0")
-      }  
+      }
       "cope with non numerics mixed in" in {
         val list = List("P1.1", "2.x", "1.0", "2.0")
         list.sortWith(SortingHelper.versionSorter) shouldBe List("2.x", "2.0", "P1.1", "1.0")

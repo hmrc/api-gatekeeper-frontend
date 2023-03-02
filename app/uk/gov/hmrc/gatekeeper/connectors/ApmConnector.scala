@@ -19,19 +19,18 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
@@ -80,7 +79,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
     import ApplicationCommandFormatters._
     val url = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
-    http.PATCH[ApplicationCommand,Either[UpstreamErrorResponse, Unit]](url,cmd)
+    http.PATCH[ApplicationCommand, Either[UpstreamErrorResponse, Unit]](url, cmd)
   }
 }
 

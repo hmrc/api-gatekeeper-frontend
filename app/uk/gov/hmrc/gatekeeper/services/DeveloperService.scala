@@ -16,21 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import java.time.LocalDateTime
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 
 class DeveloperService @Inject() (
     appConfig: AppConfig,
@@ -44,7 +43,7 @@ class DeveloperService @Inject() (
   def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
     val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
-      case (emailFilter, None)                 => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
+      case (emailFilter, None)                        => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybePartialEmailFilter, Some(apiFilter)) => {
         for {
           collaboratorEmails             <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybePartialEmailFilter, apiFilter)
@@ -214,21 +213,21 @@ class DeveloperService @Inject() (
     }
 
     def removeTeamMemberFromApp(developer: Developer)(app: Application): Future[Unit] = {
-      val connector = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
-      val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(developer.email)).get   // Safe as we know we're a dev on this app
+      val connector    = if (app.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+      val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (developer.email)).get // Safe as we know we're a dev on this app
 
       for {
         adminsToEmail <- fetchAdminsToEmail(developer.email)(app)
         cmd            = RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
         result        <- connector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
-          case Left(_) => throw new RuntimeException("Failed to remove team member from app")
-          case Right(_) => ()
-        })
+                           case Left(_)  => throw new RuntimeException("Failed to remove team member from app")
+                           case Right(_) => ()
+                         })
       } yield result
     }
 
     fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
-      val email = developer.email
+      val email                               = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {

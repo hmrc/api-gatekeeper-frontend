@@ -16,20 +16,22 @@
 
 package mocks.connectors
 
-import org.mockito.captor.ArgCaptor
-
 import scala.concurrent.Future.{failed, successful}
+
+import cats.data.NonEmptyList
+import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, CommandFailures,  RemoveCollaborator}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, CommandFailures, RemoveCollaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
-import cats.data.NonEmptyList
 
 trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -113,7 +115,7 @@ trait ApplicationConnectorMockProvider {
         def succeeds() = {
           when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
-        
+
         def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
           when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
@@ -124,6 +126,7 @@ trait ApplicationConnectorMockProvider {
         }
       }
     }
+
     object UpdateScopes {
       def succeeds() = when(aMock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
     }

@@ -21,20 +21,20 @@ import java.time.LocalDateTime
 import play.api.libs.json.Json
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 
 sealed trait ApplicationCommand {
   def actor: Actor
   def timestamp: LocalDateTime
 }
 
-case class AddCollaborator(actor: Actor, collaborator: Collaborator, timestamp: LocalDateTime)                                                          extends ApplicationCommand
-case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, timestamp: LocalDateTime)                                                       extends ApplicationCommand
+case class AddCollaborator(actor: Actor, collaborator: Collaborator, timestamp: LocalDateTime)    extends ApplicationCommand
+case class RemoveCollaborator(actor: Actor, collaborator: Collaborator, timestamp: LocalDateTime) extends ApplicationCommand
 
 trait ApplicationCommandFormatters {
-  implicit val addCollaboratorFormatter                        = Json.format[AddCollaborator]
-  implicit val removeCollaboratorFormatter                     = Json.format[RemoveCollaborator]
+  implicit val addCollaboratorFormatter    = Json.format[AddCollaborator]
+  implicit val removeCollaboratorFormatter = Json.format[RemoveCollaborator]
 
   implicit val applicationCommandsFormatter = Union.from[ApplicationCommand]("updateType")
     .and[AddCollaborator]("addCollaborator")

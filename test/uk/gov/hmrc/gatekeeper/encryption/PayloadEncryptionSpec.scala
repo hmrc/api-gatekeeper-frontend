@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.encryption
 
-import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
+
 class PayloadEncryptionSpec extends HmrcSpec {
-  
+
   case class EncryptMe(word: String = "demo", number: Int = 5)
+
   object EncryptMe {
     implicit val formatter = Json.format[EncryptMe]
   }
@@ -32,7 +34,7 @@ class PayloadEncryptionSpec extends HmrcSpec {
 
     "encrypt and decrypt a json payload" in {
       val encrypted = encryption1.encrypt[EncryptMe](EncryptMe())
-      val decrypt = encryption1.decrypt[EncryptMe](encrypted)
+      val decrypt   = encryption1.decrypt[EncryptMe](encrypted)
 
       decrypt shouldBe EncryptMe()
     }
@@ -42,7 +44,7 @@ class PayloadEncryptionSpec extends HmrcSpec {
       val encrypted2 = encryption2.encrypt[EncryptMe](EncryptMe())
 
       encrypted1 should not be encrypted2
-      
+
       // thisShouldWork
       encryption2.decrypt[EncryptMe](encrypted2)
 

@@ -19,15 +19,21 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
+
+import cats.data.NonEmptyList
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
 import org.joda.time.DateTime
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -36,10 +42,6 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import cats.data.NonEmptyList
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -609,7 +611,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val requestingUser = "bob in SDST"
 
     "issue command to remove a member from an app successfully" in new Setup {
-      val application = stdApp1
+      val application          = stdApp1
       val collaboratorToRemove = application.collaborators.filter(_.isDeveloper).head
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
@@ -618,34 +620,34 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
     }
 
-   "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
-     val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
-   
-     when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
+    "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
+      val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
+
+      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
 
       await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin))
     }
 
     "include correct set of admins to email" in new Setup {
-   
-      val memberToRemove = "removeMe@example.com".toLaxEmail
+
+      val memberToRemove     = "removeMe@example.com".toLaxEmail
       val gatekeeperUserName = "bob in SDST"
 
-      val verifiedAdmin         = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
-      val verifiedOtherAdmin    = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)
-      val unverifiedAdmin       = Collaborators.Administrator(UserId.random, "unverified@example.com".toLaxEmail)
-      val adminToRemove         = Collaborators.Administrator(UserId.random, memberToRemove)
-      val verifiedDeveloper     = Collaborators.Developer(UserId.random, "developer@example.com".toLaxEmail)
+      val verifiedAdmin      = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
+      val verifiedOtherAdmin = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)
+      val unverifiedAdmin    = Collaborators.Administrator(UserId.random, "unverified@example.com".toLaxEmail)
+      val adminToRemove      = Collaborators.Administrator(UserId.random, memberToRemove)
+      val verifiedDeveloper  = Collaborators.Developer(UserId.random, "developer@example.com".toLaxEmail)
 
-      val application           = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, verifiedDeveloper))
-      val nonAdderAdmins        = List(
+      val application    = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, verifiedDeveloper))
+      val nonAdderAdmins = List(
         RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
         RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false),
         RegisteredUser(verifiedOtherAdmin.emailAddress, UserId.random, "verified", "user", true)
-        )
-        when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
-          .thenReturn(successful(nonAdderAdmins))
+      )
+      when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
+        .thenReturn(successful(nonAdderAdmins))
 
       val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress, verifiedOtherAdmin.emailAddress)
 
