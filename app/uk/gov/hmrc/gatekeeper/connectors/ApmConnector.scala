@@ -45,17 +45,6 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
   }
 
-  def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
-
-    http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value.toString}/collaborators", addTeamMember)
-      .map(_ match {
-        case Right(())                                       => ()
-        case Left(UpstreamErrorResponse(_, CONFLICT, _, _))  => throw TeamMemberAlreadyExists
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
-        case Left(err)                                       => throw err
-      })
-  }
-
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
     http.GET[Map[ApiContext, ApiData]](
       url = s"${config.serviceBaseUrl}/api-definitions",

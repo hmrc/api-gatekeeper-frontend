@@ -42,7 +42,9 @@ class PayloadEncryptionSpec extends HmrcSpec {
       val encrypted2 = encryption2.encrypt[EncryptMe](EncryptMe())
 
       encrypted1 should not be encrypted2
-      val thisShouldWork = encryption2.decrypt[EncryptMe](encrypted2)
+      
+      // thisShouldWork
+      encryption2.decrypt[EncryptMe](encrypted2)
 
       intercept[SecurityException] {
         encryption2.decrypt[EncryptMe](encrypted1)

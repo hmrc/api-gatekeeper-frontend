@@ -38,6 +38,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
+import cats.data.NonEmptyList
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
@@ -115,7 +116,7 @@ class TeamMembersController @Inject() (
           result      <- applicationService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
                           .map { 
                             case Right(()) => successResult
-                            case Left(List(CommandFailures.CollaboratorAlreadyExistsOnApp)) => failureResult
+                            case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
                             case _ => InternalServerError("Action failed")
                           }
         } yield result
@@ -156,7 +157,7 @@ class TeamMembersController @Inject() (
         form.confirm match {
           case Some("Yes") => applicationService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
             case Right(()) => successResult
-            case Left(List(CommandFailures.CannotRemoveLastAdmin)) => failureResult
+            case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
             case _ => throw new RuntimeException("Bang")
           }
           case _           => successful(successResult)

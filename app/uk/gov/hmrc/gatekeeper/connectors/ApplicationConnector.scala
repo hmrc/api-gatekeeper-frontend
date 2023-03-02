@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.Dispa
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import cats.data.NonEmptyList
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -251,31 +252,36 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def dispatch(
-      applicationId: ApplicationId,
-      command: ApplicationCommand,
-      adminsToEmail: Set[LaxEmailAddress]
-    )(implicit hc: HeaderCarrier
-    ): Future[Either[List[CommandFailure], DispatchSuccessResult]] = {
-    
+        applicationId: ApplicationId,
+        command: ApplicationCommand,
+        adminsToEmail: Set[LaxEmailAddress]
+      )(implicit hc: HeaderCarrier
+      ): Future[Either[NonEmptyList[CommandFailure], DispatchSuccessResult]] = {
+    import CommandFailureJsonFormatters._
+    import uk.gov.hmrc.apiplatform.modules.common.services.NonEmptyListFormatters._
     import play.api.libs.json._
-    def parseMsgAsCommandFailuresOrThrow(uer: UpstreamErrorResponse): List[CommandFailure] = {
-      import CommandFailureJsonFormatters._
-      val extractedErrs = uer.getMessage().split("""Response body: '""")(1).split("""[']""")(0)
-      Json.parse(extractedErrs).asOpt[List[CommandFailure]]
-      .fold(throw uer)(identity)
-    }
+
+    def parseSuccessResponse(responseBody: String): DispatchSuccessResult =
+      Json.parse(responseBody).asOpt[DispatchSuccessResult]
+        .fold(throw new InternalServerException("Failed parsing success response to dispatch"))(identity)
+    
+    def parseErrorResponse(responseBody: String): NonEmptyList[CommandFailure] =
+      Json.parse(responseBody).asOpt[NonEmptyList[CommandFailure]]
+        .fold(throw new InternalServerException("Failed parsing error response to dispatch"))(identity)
 
     val url     = s"${baseApplicationUrl(applicationId)}/dispatch"
     val request = DispatchRequest(command, adminsToEmail)
     val extraHeaders = Seq.empty[(String, String)]
     import cats.syntax.either._
 
-    http.PATCH[DispatchRequest, Either[UpstreamErrorResponse, DispatchSuccessResult]](url, request, extraHeaders)
-      .map(_ match {
-        case Right(result) => Right(result)
-        case Left(uer @ UpstreamErrorResponse(msg, BAD_REQUEST, _, _)) => parseMsgAsCommandFailuresOrThrow(uer).asLeft[DispatchSuccessResult]
-        case Left(uer : UpstreamErrorResponse) => throw uer
-      })
+    http.PATCH[DispatchRequest, HttpResponse](url, request, extraHeaders)
+      .map(response =>
+        response.status match {
+          case OK           => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
+          case BAD_REQUEST  => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
+          case status       => throw new InternalServerException("Failed calling dispatch")
+        }
+      )
   }
 
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {

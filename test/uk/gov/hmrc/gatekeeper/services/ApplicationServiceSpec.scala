@@ -39,6 +39,7 @@ import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByAp
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import cats.data.NonEmptyList
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -617,13 +618,13 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
     }
 
-   "propagate TeamMemberLastAdmin error from application connector" in new Setup {
+   "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
      val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
    
      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       ApplicationConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
 
-      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(List(CommandFailures.CannotRemoveLastAdmin))
+      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin))
     }
 
     "include correct set of admins to email" in new Setup {

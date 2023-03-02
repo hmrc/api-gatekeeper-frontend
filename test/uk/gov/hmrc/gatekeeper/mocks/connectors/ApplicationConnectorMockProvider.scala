@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
+import cats.data.NonEmptyList
 
 trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -110,15 +111,15 @@ trait ApplicationConnectorMockProvider {
         val mockResult = mock[DispatchSuccessResult]
 
         def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[List[CommandFailure]]))
+          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
         
         def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
-          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[List[CommandFailure]]))
+          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
 
         def failsWithLastAdmin() = {
-          val mockResult = List(CommandFailures.CannotRemoveLastAdmin)
+          val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
           when(aMock.dispatch(*[ApplicationId], *[RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
         }
       }

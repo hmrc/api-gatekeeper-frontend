@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import cats.data.NonEmptyList
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -265,7 +266,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[List[CommandFailure],Unit]] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure],Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
 
     for {
@@ -275,7 +276,7 @@ class ApplicationService @Inject() (
     } yield response.map(_ => ())
   }
 
-  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[List[CommandFailure],Unit]] = {
+  def removeTeamMember(app: Application, teamMemberToRemove: LaxEmailAddress, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure],Unit]] = {
     val applicationConnector = applicationConnectorFor(app)
     val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase(teamMemberToRemove)).get  // Safe to do here.
 
