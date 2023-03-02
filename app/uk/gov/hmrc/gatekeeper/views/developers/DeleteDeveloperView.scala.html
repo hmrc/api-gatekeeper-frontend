@@ -37,7 +37,7 @@
 ) {
   @defining(developer.applications.filter(_.isSoleAdmin(developer.user.email))) { applications =>
     @if(applications.isEmpty) {
-      <h1 class="govuk-heading-l">@developer.user.email</h1>
+      <h1 class="govuk-heading-l">@developer.user.email.text</h1>
 
       @helper.form(action = routes.DeveloperController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
         @helper.CSRF.formField
@@ -49,7 +49,7 @@
       }
     } else {
       <h1 class="govuk-heading-l">You cannot delete this developer</h1>
-      <p class="govuk-body"><span class="govuk-body govuk-!-font-weight-bold">@developer.user.email</span> is the only administrator for one or more applications.</p>
+      <p class="govuk-body"><span class="govuk-body govuk-!-font-weight-bold">@developer.user.email.text</span> is the only administrator for one or more applications.</p>
       <p class="govuk-body">Applications cannot exist without an administrator.</p>
       <p class="govuk-body">Delete the following applications or 
         <a class="govuk-link" href="mailto:@{developer.user.email}">ask the administrator</a> 

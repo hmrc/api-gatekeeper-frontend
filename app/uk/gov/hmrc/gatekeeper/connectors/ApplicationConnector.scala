@@ -260,7 +260,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     import play.api.libs.json._
     def parseMsgAsCommandFailuresOrThrow(uer: UpstreamErrorResponse): List[CommandFailure] = {
       import CommandFailureJsonFormatters._
-      Json.parse(uer.getMessage).asOpt[List[CommandFailure]]
+      val extractedErrs = uer.getMessage().split("""Response body: '""")(1).split("""[']""")(0)
+      Json.parse(extractedErrs).asOpt[List[CommandFailure]]
       .fold(throw uer)(identity)
     }
 
