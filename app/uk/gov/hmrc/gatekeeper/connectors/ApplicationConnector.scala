@@ -259,6 +259,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
   }
 
+  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptionsResponse]] = {
+    http.GET[List[ApplicationWithSubscriptionsResponse]](s"$serviceBaseUrl/gatekeeper/applications/subscriptions")
+  }
+
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 

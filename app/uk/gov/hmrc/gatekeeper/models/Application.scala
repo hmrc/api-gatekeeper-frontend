@@ -29,6 +29,7 @@ import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
@@ -331,6 +332,12 @@ case class PaginatedApplicationResponse(applications: List[ApplicationResponse],
 
 object PaginatedApplicationResponse {
   implicit val format = Json.format[PaginatedApplicationResponse]
+}
+
+case class ApplicationWithSubscriptionsResponse(id: ApplicationId, name: String, lastAccess: Option[LocalDateTime], apiIdentifiers: Set[ApiIdentifier])
+
+object ApplicationWithSubscriptionsResponse {
+  implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
 }
 
 object AccessType extends Enumeration {

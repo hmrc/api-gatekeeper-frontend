@@ -55,6 +55,10 @@ trait ApplicationServiceMockProvider {
       def returns(apps: ApplicationResponse*) = when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
     }
 
+    object FetchApplicationsWithSubscriptions {
+      def returns(apps: ApplicationWithSubscriptionsResponse*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
+    }
+
     object UpdateScopes {
       def succeeds()               = when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
       def failsWithInvalidScopes() = when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesInvalidScopesResult))

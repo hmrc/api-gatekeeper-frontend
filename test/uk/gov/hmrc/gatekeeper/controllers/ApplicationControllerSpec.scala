@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -288,6 +289,49 @@ class ApplicationControllerSpec
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
 App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z
+"""
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody shouldBe expectedCsvContent
+
+      }
+    }
+
+    "applicationsWithSubscriptionsCsv" should {
+      "return csv data" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val response  =
+          ApplicationWithSubscriptionsResponse(
+            ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
+            "My App",
+            Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+            Set(
+              ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
+              ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
+              ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+            )
+          )
+        val response2 = ApplicationWithSubscriptionsResponse(
+          ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f2f")),
+          "My Other App",
+          None,
+          Set(
+            ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
+            ApiIdentifier(ApiContext("individual-tax"), ApiVersion("1.0"))
+          )
+        )
+
+        ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response, response2)
+
+        val eventualResult: Future[Result] = underTest.applicationWithSubscriptionsCsv()(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+
+        val expectedCsvContent =
+          """Name,App ID,Environment,Last API call,api-documentation-test-service.1.5,hello.1.0,hello.2.0,individual-tax.1.0
+My App,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,SANDBOX,2002-02-03T12:01:02,true,true,true,false
+My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)

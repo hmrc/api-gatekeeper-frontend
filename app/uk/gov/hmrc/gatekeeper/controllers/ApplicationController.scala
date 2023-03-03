@@ -40,13 +40,15 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
+import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
+import uk.gov.hmrc.gatekeeper.models.{Environment, _}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
@@ -146,6 +148,34 @@ class ApplicationController @Inject() (
     val csvRows = toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
 
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
+  }
+
+  private def toCsvContent(response: List[ApplicationWithSubscriptionsResponse], env: Option[Environment]): String = {
+
+    val identifiers: Seq[ApiIdentifier]                                         = response.map(_.apiIdentifiers).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
+    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]] =
+      identifiers.map(apiIdentity =>
+        ColumnDefinition(
+          apiIdentity.asText("."),
+          (app: ApplicationWithSubscriptionsResponse) => app.apiIdentifiers.contains(apiIdentity).toString
+        )
+      )
+
+    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]](
+      ColumnDefinition("Name", app => app.name),
+      ColumnDefinition("App ID", app => app.id.value.toString),
+      ColumnDefinition("Environment", _ => env.getOrElse("SANDBOX").toString),
+      ColumnDefinition("Last API call", app => app.lastAccess.fold("")(_.toString))
+    ) ++ apiColumns
+
+    toCsvString(csvColumnDefinitions, response)
+  }
+
+  def applicationWithSubscriptionsCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val env: Option[models.Environment.Value] = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+
+    applicationService.fetchApplicationsWithSubscriptions(env)
+      .map(applicationResponse => Ok(toCsvContent(applicationResponse, env)))
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
@@ -661,7 +691,7 @@ class ApplicationController @Inject() (
     type FieldValidationResult[A] = ValidatedNec[ErrorCode, A]
 
     implicit class WithFieldSyntax[T](v: FieldValidationResult[T]) {
-      def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => ((fn, err))))
+      def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 
     def validateApplicationName(environment: Environment.Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
@@ -673,11 +703,11 @@ class ApplicationController @Inject() (
     }
 
     def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {
-      case None                                                                            => "admin.email.is.not.registered".invalidNec
-      case Some(UnregisteredUser(_, _))                                                    => "admin.email.is.not.registered".invalidNec
-      case Some(user: RegisteredUser) if (!user.verified)                                  => "admin.email.is.not.verified".invalidNec
-      case Some(user: RegisteredUser) if (!MfaDetailHelper.isMfaVerified(user.mfaDetails)) => "admin.email.is.not.mfa.enabled".invalidNec
-      case Some(user: RegisteredUser)                                                      => user.validNec
+      case None                                                                          => "admin.email.is.not.registered".invalidNec
+      case Some(UnregisteredUser(_, _))                                                  => "admin.email.is.not.registered".invalidNec
+      case Some(user: RegisteredUser) if !user.verified                                  => "admin.email.is.not.verified".invalidNec
+      case Some(user: RegisteredUser) if !MfaDetailHelper.isMfaVerified(user.mfaDetails) => "admin.email.is.not.mfa.enabled".invalidNec
+      case Some(user: RegisteredUser)                                                    => user.validNec
     }
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
@@ -697,7 +727,7 @@ class ApplicationController @Inject() (
           validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
           validateUserSuitability(user).withField("adminEmail")
         )
-          .mapN((n, u) => ((n, u)))
+          .mapN((n, u) => (n, u))
 
       def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] =
         validateValues(apps, user)

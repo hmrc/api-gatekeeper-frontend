@@ -18,6 +18,7 @@ GET         /applications                                                     uk
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
 
 GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv
+GET         /applications/subscriptions/csv                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationWithSubscriptionsCsv(environment: Option[String] ?= None)
 
 GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
