@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 
   import MockDataSugar._
@@ -45,14 +46,14 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
       val developers = List(
         RegisteredUser(
-          email = developer4,
+          email = developer4.toLaxEmail,
           userId = UserId.random,
           firstName = dev4FirstName,
           lastName = dev4LastName,
           verified = true
           ),
         RegisteredUser(
-          email = developer5,
+          email = developer5.toLaxEmail,
           userId = UserId.random,
           firstName = dev5FirstName,
           lastName = dev5LastName,

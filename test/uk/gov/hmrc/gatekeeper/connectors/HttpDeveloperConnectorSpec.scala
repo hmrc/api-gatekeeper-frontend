@@ -27,6 +27,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -54,7 +56,7 @@ class HttpDeveloperConnectorSpec
     val connector = new HttpDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
   }
 
-  def mockFetchUserId(email: String, userId: UserId) = {
+  def mockFetchUserId(email: LaxEmailAddress, userId: UserId) = {
     import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector._
     implicit val writer = Json.writes[FindUserIdResponse]
 
@@ -82,12 +84,12 @@ class HttpDeveloperConnectorSpec
   }
 
   "Developer connector" should {
-    val developerEmail                     = "developer1@example.com"
-    val developerEmailWithSpecialCharacter = "developer2+test@example.com"
+    val developerEmail                     = "developer1@example.com".toLaxEmail
+    val developerEmailWithSpecialCharacter = "developer2+test@example.com".toLaxEmail
 
-    def aUserResponse(email: String, id: UserId = UserId.random) = RegisteredUser(email, id, "first", "last", verified = false)
+    def aUserResponse(email: LaxEmailAddress, id: UserId = UserId.random) = RegisteredUser(email, id, "first", "last", verified = false)
 
-    def verifyUserResponse(userResponse: User, expectedEmail: String, expectedFirstName: String, expectedLastName: String) = {
+    def verifyUserResponse(userResponse: User, expectedEmail: LaxEmailAddress, expectedFirstName: String, expectedLastName: String) = {
       userResponse.email shouldBe expectedEmail
       userResponse.firstName shouldBe expectedFirstName
       userResponse.lastName shouldBe expectedLastName
@@ -176,7 +178,7 @@ class HttpDeveloperConnectorSpec
 
     "remove MFA for a developer" in new Setup {
       val emailAddress = "someone@example.com"
-      val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
+      val user         = RegisteredUser(emailAddress.toLaxEmail, UserId.random, "Firstname", "Lastname", true)
       val developerId  = UuidIdentifier(user.userId)
 
       mockSeekRegisteredUser(user)
@@ -207,7 +209,7 @@ class HttpDeveloperConnectorSpec
         )
       ))
 
-      val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.AllStatus))
+      val result = await(connector.searchDevelopers(Some(developerEmail.text), DeveloperStatusFilter.AllStatus))
 
       wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 
@@ -241,7 +243,7 @@ class HttpDeveloperConnectorSpec
         )
       ))
 
-      val result = await(connector.searchDevelopers(Some(developerEmail), DeveloperStatusFilter.VerifiedStatus))
+      val result = await(connector.searchDevelopers(Some(developerEmail.text), DeveloperStatusFilter.VerifiedStatus))
 
       wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 

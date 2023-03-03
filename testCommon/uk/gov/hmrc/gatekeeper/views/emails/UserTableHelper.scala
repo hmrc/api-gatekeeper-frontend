@@ -26,7 +26,7 @@ trait UserTableHelper {
   self: Matchers =>
 
   def verifyUserRow(document: Document, user: RegisteredUser): Unit = {
-    elementExistsByText(document, "td", user.email) shouldBe true
+    elementExistsByText(document, "td", user.email.text) shouldBe true
     elementExistsByText(document, "td", user.firstName) shouldBe true
     elementExistsByText(document, "td", user.lastName) shouldBe true
   }

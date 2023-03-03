@@ -35,7 +35,8 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -86,7 +87,10 @@ class ApplicationControllerSpec
 
   running(app) {
 
-    trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with ApplicationConnectorMockProvider with StrideAuthorisationServiceMockModule
+    trait Setup extends ControllerSetupBase
+        with ApplicationServiceMockProvider
+        with ApplicationConnectorMockProvider
+        with StrideAuthorisationServiceMockModule
         with LdapAuthorisationServiceMockModule {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
@@ -111,7 +115,7 @@ class ApplicationControllerSpec
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
       val developers = List[RegisteredUser] {
-        new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
+        new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
@@ -872,7 +876,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       val privilegedAccessType = AccessType.PRIVILEGED
       val ropcAccessType       = AccessType.ROPC
       val description          = "An application description"
-      val adminEmail           = "emailAddress@example.com"
+      val adminEmail           = "emailAddress@example.com".toLaxEmail
       val clientId             = ClientId.random
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
@@ -889,7 +893,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -907,7 +911,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", ""),
               ("applicationName", appName),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -925,7 +929,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -936,7 +940,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
-          val collaborators = Set("sample@example.com".asAdministratorCollaborator)
+          val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
           val existingApp   = ApplicationResponse(
             ApplicationId.random,
             ClientId.random,
@@ -962,7 +966,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -972,7 +976,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
-          val collaborators = Set("sample@example.com".asAdministratorCollaborator)
+          val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
           val existingApp   = ApplicationResponse(
             ApplicationId.random,
             ClientId.random,
@@ -999,7 +1003,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -1009,7 +1013,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
-          val collaborators = Set("sample@example.com".asAdministratorCollaborator)
+          val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
 
           val existingApp = ApplicationResponse(
             ApplicationId.random,
@@ -1037,7 +1041,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -1047,8 +1051,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
-          val collaborators = Set("sample@example.com".asAdministratorCollaborator)
-          val existingApp   = ApplicationResponse(
+          val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
+          val existingApp                      = ApplicationResponse(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",
@@ -1074,7 +1078,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -1084,7 +1088,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when app description is left empty" in new Setup {
-          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1093,7 +1097,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
               ("accessType", privilegedAccessType.toString),
               ("applicationName", appName),
               ("applicationDescription", ""),
-              ("adminEmail", adminEmail)
+              ("adminEmail", adminEmail.text)
             )
           )
 
@@ -1103,7 +1107,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         }
 
         "show the correct error message when admin email is left empty" in new Setup {
-          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1144,7 +1148,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         "but the user is not a superuser" should {
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor(email)
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor(email.toLaxEmail)
             StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1163,7 +1167,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         "and the user is a superuser" should {
           "show the success page for a priv app in production" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess))
@@ -1192,7 +1196,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           }
 
           "show the success page for a priv app in sandbox" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess))
@@ -1220,7 +1224,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           }
 
           "show the success page for an ROPC app in production" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess))
@@ -1246,7 +1250,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           }
 
           "show the success page for an ROPC app in sandbox" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com")
+            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess))

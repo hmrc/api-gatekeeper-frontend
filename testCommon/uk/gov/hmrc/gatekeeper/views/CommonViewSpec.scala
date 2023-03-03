@@ -24,6 +24,7 @@ import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.{MessagesControllerComponents, MessagesRequest}
 import play.api.test.FakeRequest
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
@@ -35,7 +36,7 @@ trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val messagesApi                                 = mcc.messagesApi
   implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
 
-  val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
+  val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", true), List.empty)
 
   val msgRequest        = new MessagesRequest(FakeRequest().withCSRFToken, messagesApi)
   val strideUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)

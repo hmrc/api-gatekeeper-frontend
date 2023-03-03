@@ -18,10 +18,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import mocks.services.TeamMemberServiceMockProvider
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -48,7 +51,7 @@ class TeamMembersControllerSpec
 
   running(app) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with TeamMemberServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -71,10 +74,11 @@ class TeamMembersControllerSpec
       )
 
       val developers = List[RegisteredUser] {
-        new RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false)
+        new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
       val underTest = new TeamMembersController(
+        mockTeamMemberService,
         mockDeveloperService,
         mcc,
         manageTeamMembersView,
@@ -266,7 +270,7 @@ class TeamMembersControllerSpec
     }
 
     "addTeamMemberAction" when {
-      val email = "email@example.com"
+      val email = "email@example.com".toLaxEmail
 
       "the user is a superuser" when {
         "the form is valid" should {
@@ -277,13 +281,12 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             givenTheAppWillBeReturned()
 
-            ApplicationServiceMock.AddTeamMember.succeeds()
+            TeamMemberServiceMock.AddTeamMember.succeeds()
 
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            verify(mockApplicationService)
-              .addTeamMember(eqTo(application.application), eqTo(email.asDeveloperCollaborator))(*)
+            TeamMemberServiceMock.AddTeamMember.verifyCalledWith(application.application, email.asDeveloperCollaborator)
           }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
@@ -291,9 +294,9 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             givenTheAppWillBeReturned()
 
-            ApplicationServiceMock.AddTeamMember.succeeds()
+            TeamMemberServiceMock.AddTeamMember.succeeds()
 
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text), ("role", role))
             val result  = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER
@@ -304,9 +307,9 @@ class TeamMembersControllerSpec
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             givenTheAppWillBeReturned()
-            ApplicationServiceMock.AddTeamMember.failsDueToExistingAlready()
+            TeamMemberServiceMock.AddTeamMember.failsDueToExistingAlready()
 
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email), ("role", role))
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text), ("role", role))
             val result  = addToken(underTest.addTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe BAD_REQUEST
@@ -335,7 +338,7 @@ class TeamMembersControllerSpec
             givenTheAppWillBeReturned()
 
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
+              ("email", email.text),
               ("role", "")
             )
 
@@ -354,7 +357,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
+              ("email", email.text),
               ("role", "DEVELOPER")
             )
 
@@ -371,7 +374,7 @@ class TeamMembersControllerSpec
             ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
+              ("email", email.text),
               ("role", "DEVELOPER")
             )
 
@@ -387,10 +390,10 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             givenTheAppWillBeReturned()
 
-            ApplicationServiceMock.AddTeamMember.succeeds()
+            TeamMemberServiceMock.AddTeamMember.succeeds()
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
-              ("email", email),
+              ("email", email.text),
               ("role", "DEVELOPER")
             )
 
@@ -403,7 +406,7 @@ class TeamMembersControllerSpec
     }
 
     "removeTeamMember" when {
-      val email = "email@example.com"
+      val email = "email@example.com".toLaxEmail
 
       "the user is a superuser" when {
         "the form is valid" should {
@@ -411,11 +414,11 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             givenTheAppWillBeReturned()
 
-            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
-            contentAsString(result) should include(email)
+            contentAsString(result) should include(email.text)
           }
         }
 
@@ -438,7 +441,7 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
@@ -450,7 +453,7 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             ApplicationServiceMock.FetchApplication.returns(ropcApplication)
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
@@ -462,7 +465,7 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             givenTheAppWillBeReturned()
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
 
             status(result) shouldBe OK
@@ -472,7 +475,7 @@ class TeamMembersControllerSpec
     }
 
     "removeTeamMemberAction" when {
-      val emailToRemove = "email@example.com"
+      val emailToRemove = "email@example.com".toLaxEmail
 
       "the user is a superuser" when {
         "the form is valid" when {
@@ -483,7 +486,7 @@ class TeamMembersControllerSpec
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
               givenTheAppWillBeReturned()
 
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", confirm))
               val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
@@ -497,22 +500,22 @@ class TeamMembersControllerSpec
             "call the service with the correct params" in new Setup {
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
               givenTheAppWillBeReturned()
-              ApplicationServiceMock.RemoveTeamMember.succeeds()
+              TeamMemberServiceMock.RemoveTeamMember.succeeds()
 
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", confirm))
               val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
 
-              verify(mockApplicationService).removeTeamMember(eqTo(application.application), eqTo(emailToRemove), eqTo("Bobby Example"))(*)
+              TeamMemberServiceMock.RemoveTeamMember.verifyCalledWith(application.application, emailToRemove, "Bobby Example")
             }
 
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
               givenTheAppWillBeReturned()
-              ApplicationServiceMock.RemoveTeamMember.failsDueToLastAdmin()
+              TeamMemberServiceMock.RemoveTeamMember.failsDueToLastAdmin()
 
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", confirm))
               val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe BAD_REQUEST
@@ -521,9 +524,9 @@ class TeamMembersControllerSpec
             "redirect to the manageTeamMembers page when the service call is successful" in new Setup {
               StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
               givenTheAppWillBeReturned()
-              ApplicationServiceMock.RemoveTeamMember.succeeds()
+              TeamMemberServiceMock.RemoveTeamMember.succeeds()
 
-              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", confirm))
+              val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", confirm))
               val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
               status(result) shouldBe SEE_OTHER
@@ -552,7 +555,7 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", "Yes"))
             val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
@@ -564,7 +567,7 @@ class TeamMembersControllerSpec
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", "Yes"))
             val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe FORBIDDEN
@@ -575,9 +578,9 @@ class TeamMembersControllerSpec
           "show 303 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
             givenTheAppWillBeReturned()
-            ApplicationServiceMock.RemoveTeamMember.succeeds()
+            TeamMemberServiceMock.RemoveTeamMember.succeeds()
 
-            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove), ("confirm", "Yes"))
+            val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", "Yes"))
             val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
 
             status(result) shouldBe SEE_OTHER

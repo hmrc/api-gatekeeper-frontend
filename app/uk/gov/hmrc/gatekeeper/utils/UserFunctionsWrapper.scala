@@ -33,7 +33,7 @@ trait UserFunctionsWrapper {
   }
 
   def usersToEmailCopyText(users: Seq[RegisteredUser]): String = {
-    users.map(_.email).sorted.mkString("; ")
+    users.map(_.email.text).sorted.mkString("; ")
   }
 
   def getApiVersionsDropDownValues(apiDefinitions: List[ApiDefinition]) = {

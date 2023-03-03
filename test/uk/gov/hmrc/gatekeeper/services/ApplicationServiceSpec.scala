@@ -30,7 +30,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -63,9 +64,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     implicit val hc = HeaderCarrier()
 
-    val collaborators = Set(
-      Collaborator("sample@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random),
-      Collaborator("someone@example.com", CollaboratorRole.DEVELOPER, UserId.random)
+    val collaborators = Set[Collaborator](
+      Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
+      Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
     val grantLength: Period = Period.ofDays(547)
@@ -213,6 +214,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         .thenReturn(successful(ResendVerificationSuccessful))
 
       await(underTest.resendVerification(stdApp1, userName))
+
       gatekeeperIdCaptor.value shouldBe userName
       appIdCaptor.value shouldBe stdApp1.id
     }
@@ -567,7 +569,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "createPrivOrROPCApp" should {
-    val admin       = List(Collaborator("admin@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random))
+    val admin       = List(Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail))
     val totpSecrets = Some(TotpSecrets("secret"))
     val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
 
@@ -600,81 +602,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment.toString, name, description, admin, appAccess)))(*)
       verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
-    }
-  }
-
-  "removeTeamMember" should {
-    val requestingUser = "admin.email@example.com"
-    val memberToRemove = "email@testuser.com"
-
-    "remove a member from a standard app successfully in the correct environment" in new Setup {
-      val application = stdApp1
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
-
-      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockProductionApplicationConnector).removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*)
-      verify(underTest).applicationConnectorFor(application)
-    }
-
-    "remove a member from a privileged app in the correct environment" in new Setup {
-      val application = privilegedApp
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
-
-      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockProductionApplicationConnector).removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*)
-      verify(underTest).applicationConnectorFor(application)
-    }
-
-    "remove a member from an ROPC app in the correct environment" in new Setup {
-      val application = ropcApp
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeedsFor(application.id, memberToRemove, requestingUser)
-
-      await(underTest.removeTeamMember(application, memberToRemove, requestingUser)) shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockProductionApplicationConnector).removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), *)(*)
-      verify(underTest).applicationConnectorFor(application)
-    }
-
-    "propagate TeamMemberLastAdmin error from application connector" in new Setup {
-
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.failsWithLastAdminFor(stdApp1.id, memberToRemove, requestingUser)
-
-      intercept[TeamMemberLastAdmin.type] {
-        await(underTest.removeTeamMember(stdApp1, memberToRemove, requestingUser))
-      }
-    }
-
-    "include correct set of admins to email" in new Setup {
-      val verifiedAdmin         = Collaborator("verified@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
-      val unverifiedAdmin       = Collaborator("unverified@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)
-      val adminToRemove         = Collaborator(memberToRemove, CollaboratorRole.ADMINISTRATOR, UserId.random)
-      val adderAdmin            = Collaborator(requestingUser, CollaboratorRole.ADMINISTRATOR, UserId.random)
-      val verifiedDeveloper     = Collaborator("developer@example.com", CollaboratorRole.DEVELOPER, UserId.random)
-      val application           = stdApp1.copy(collaborators = Set(verifiedAdmin, unverifiedAdmin, adminToRemove, adderAdmin, verifiedDeveloper))
-      val nonAdderAdmins        = List(
-        RegisteredUser(verifiedAdmin.emailAddress, UserId.random, "verified", "user", true),
-        RegisteredUser(unverifiedAdmin.emailAddress, UserId.random, "unverified", "user", false)
-      )
-      val response              = ApplicationUpdateSuccessResult
-      val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress)
-
-      when(mockDeveloperConnector.fetchByEmails(eqTo(Set(verifiedAdmin.emailAddress, unverifiedAdmin.emailAddress)))(*))
-        .thenReturn(successful(nonAdderAdmins))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
-
-      await(underTest.removeTeamMember(application, memberToRemove, adderAdmin.emailAddress)) shouldBe response
-
-      verify(mockProductionApplicationConnector)
-        .removeCollaborator(eqTo(application.id), eqTo(memberToRemove), eqTo(requestingUser), eqTo(expectedAdminsToEmail))(*)
     }
   }
 

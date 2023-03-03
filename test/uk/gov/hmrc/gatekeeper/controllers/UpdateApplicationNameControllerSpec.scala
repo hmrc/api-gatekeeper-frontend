@@ -27,13 +27,14 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
+import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html._
 import uk.gov.hmrc.gatekeeper.views.html.applications.{
   ManageApplicationNameAdminListView,
@@ -52,7 +53,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
   val errorHandler         = mock[ErrorHandler]
   val newAppNameSessionKey = "newApplicationName"
 
-  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider {
+  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with CollaboratorTracker {
     val csrfToken                            = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
     val manageApplicationNameView            = app.injector.instanceOf[ManageApplicationNameView]
     val manageApplicationNameAdminListView   = app.injector.instanceOf[ManageApplicationNameAdminListView]
@@ -149,7 +150,11 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
     "display multiple admin page if there is > 1 admin for the app" in new Setup {
       val appWithMultipleAdmins = basicApplication.copy(collaborators =
-        Set("sample@example.com".asAdministratorCollaborator, "someone@example.com".asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        Set(
+          "sample@example.com".toLaxEmail.asAdministratorCollaborator,
+          "someone@example.com".toLaxEmail.asDeveloperCollaborator,
+          "another@example.com".toLaxEmail.asAdministratorCollaborator
+        )
       )
 
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(appWithMultipleAdmins, List.empty))

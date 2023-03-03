@@ -22,6 +22,7 @@ import java.util.UUID
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -35,14 +36,14 @@ trait CommonTestData {
   val blockedApplicationName         = "Automated Test Application - Blocked"
   val pendingApprovalApplicationName = "Application requiring approval"
 
-  val administratorEmail = "admin@example.com"
+  val administratorEmail = "admin@example.com".toLaxEmail
 
-  val developerEmail     = "purnima.fakename@example.com"
+  val developerEmail     = "purnima.fakename@example.com".toLaxEmail
   val developerFirstName = "Purnima"
   val developerLastName  = "Fakename"
 
   val unverifiedUser = RegisteredUser(
-    email = MockDataSugar.developer8,
+    email = MockDataSugar.developer8.toLaxEmail,
     userId = UserId(MockDataSugar.developer8Id),
     firstName = MockDataSugar.dev8FirstName,
     lastName = MockDataSugar.dev8LastName,

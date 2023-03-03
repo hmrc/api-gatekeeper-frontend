@@ -22,19 +22,20 @@ import scala.util.matching.Regex
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 
 trait DeveloperIdentifier {
   def asText: String = DeveloperIdentifier.asText(this)
 }
-case class EmailIdentifier(val email: String) extends DeveloperIdentifier
+case class EmailIdentifier(val email: LaxEmailAddress) extends DeveloperIdentifier
 case class UuidIdentifier(val userId: UserId) extends DeveloperIdentifier
 
 object EmailIdentifier {
   private[this] val simplestEmailRegex: Regex = """^.+@.+\..+$""".r
 
   def parse(text: String): Option[EmailIdentifier] =
-    simplestEmailRegex.findFirstIn(text).map(EmailIdentifier(_))
+    simplestEmailRegex.findFirstIn(text).map(t => EmailIdentifier(LaxEmailAddress(t)))
 
   implicit val format = Json.format[EmailIdentifier]
 }
@@ -49,7 +50,7 @@ object DeveloperIdentifier {
   def apply(text: String): Option[DeveloperIdentifier] = EmailIdentifier.parse(text) orElse UuidIdentifier.parse(text)
 
   def asText(id: DeveloperIdentifier) = id match {
-    case EmailIdentifier(email) => email
+    case EmailIdentifier(email) => email.text
     case UuidIdentifier(id)     => id.value.toString
   }
 }

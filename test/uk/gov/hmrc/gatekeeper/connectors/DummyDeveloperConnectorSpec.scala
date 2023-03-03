@@ -21,6 +21,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,13 +38,13 @@ class DummyDeveloperConnectorSpec
 
   "fetchByEmail" should {
     "return an UnregisteredCollaborator" in {
-      await(underTest.fetchByEmail(email)) shouldBe a[UnregisteredUser]
+      await(underTest.fetchByEmail(email.toLaxEmail)) shouldBe a[UnregisteredUser]
     }
   }
 
   "fetchByEmails" should {
     "return an empty sequence" in {
-      await(underTest.fetchByEmails(Seq(email))) shouldBe Seq.empty
+      await(underTest.fetchByEmails(Seq(email.toLaxEmail))) shouldBe Seq.empty
     }
   }
 

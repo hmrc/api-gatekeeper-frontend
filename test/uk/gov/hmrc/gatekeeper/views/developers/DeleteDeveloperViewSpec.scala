@@ -21,7 +21,8 @@ import org.jsoup.Jsoup
 import play.api.mvc.MessagesControllerComponents
 import play.api.test.FakeRequest
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -41,7 +42,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
       deployedTo: String = "PRODUCTION"
     ) extends Application
 
-  def admin(email: String) = Collaborator(email, CollaboratorRole.ADMINISTRATOR, UserId.random)
+  def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
   "delete developer view" should {
     implicit val request  = FakeRequest().withCSRFToken
@@ -51,8 +52,8 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = TestApplication("appName1", Set(admin("email@example.com"), admin("other@example.com")))
-      val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
+      val app       = TestApplication("appName1", Set(admin(LaxEmailAddress("email@example.com")), admin(LaxEmailAddress("other@example.com"))))
+      val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
       elementExistsById(document, "submit") shouldBe true
@@ -61,8 +62,8 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = TestApplication("appName1", Set(admin("email@example.com")))
-      val developer = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List(app))
+      val app       = TestApplication("appName1", Set(admin(LaxEmailAddress("email@example.com"))))
+      val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)
       elementExistsById(document, "submit") shouldBe false

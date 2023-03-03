@@ -18,28 +18,28 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import scala.util.Try
 
-import uk.gov.hmrc.gatekeeper.models.{ApiVersionDefinition, VersionSubscription, VersionSubscriptionWithoutFields}
+import uk.gov.hmrc.gatekeeper.models.{VersionSubscription, VersionSubscriptionWithoutFields}
 
 object SortingHelper {
 
   private val nonNumericOrPeriodRegex = "[^\\d^.]*"
   private val fallback                = Array(1, 0, 0)
 
-  private def versionSorter(v1: ApiVersionDefinition, v2: ApiVersionDefinition) = {
-    val v1Parts = Try(v1.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
-    val v2Parts = Try(v2.version.value.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
+  def versionSorter(v1: String, v2: String) = {
+    val v1Parts = Try(v1.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
+    val v2Parts = Try(v2.replaceAll(nonNumericOrPeriodRegex, "").split("\\.").map(_.toInt)).getOrElse(fallback)
     val pairs   = v1Parts.zip(v2Parts)
 
     val firstUnequalPair = pairs.find { case (one, two) => one != two }
-    firstUnequalPair.fold(v1.version.value.length > v2.version.value.length) { case (a, b) => a > b }
+    firstUnequalPair.fold(v1.length > v2.length) { case (a, b) => a > b }
   }
 
   def descendingVersionWithoutFields(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
-    versionSorter(v1.version, v2.version)
+    versionSorter(v1.version.version.value, v2.version.version.value)
   }
 
   def descendingVersionWithFields(v1: VersionSubscription, v2: VersionSubscription) = {
-    versionSorter(v1.version, v2.version)
+    versionSorter(v1.version.version.value, v2.version.version.value)
   }
 
 }

@@ -22,6 +22,7 @@ import org.scalacheck.Gen
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
@@ -617,7 +618,7 @@ object MockDataSugar {
     email      = randomEmail
     verified   = true
     registered = None
-  } yield RegisteredUser(email, UserId(id), forename, surname, verified)
+  } yield RegisteredUser(email.toLaxEmail, UserId(id), forename, surname, verified)
 
   def userListGenerator(number: Int): Gen[List[RegisteredUser]] = Gen.listOfN(number, DeveloperGenerator)
 

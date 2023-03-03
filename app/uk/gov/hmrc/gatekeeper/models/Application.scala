@@ -27,9 +27,8 @@ import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole.CollaboratorRole
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
@@ -52,9 +51,9 @@ trait Application {
   val clientId: ClientId
   val deployedTo: String
 
-  def admins = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR)
+  def admins = collaborators.filter(_.isAdministrator)
 
-  def isSoleAdmin(emailAddress: String) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
+  def isSoleAdmin(emailAddress: LaxEmailAddress) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
 
   def isApproved                     = state.isApproved
   def isPendingGatekeeperApproval    = state.isPendingGatekeeperApproval
@@ -294,7 +293,6 @@ object ApplicationResponse {
     .and[Ropc](AccessType.ROPC.toString)
     .format
   implicit val formatRole          = Json.formatEnum(CollaboratorRole)
-  implicit val format2             = Json.format[Collaborator]
   implicit val format3             = Json.formatEnum(State)
   implicit val format4             = Json.format[ApplicationState]
   implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
@@ -414,7 +412,10 @@ object CollaboratorRole extends Enumeration {
   type CollaboratorRole = Value
   val DEVELOPER, ADMINISTRATOR = Value
 
-  def displayedRole: CollaboratorRole => String = _.toString.toLowerCase.capitalize
+  def displayedRole: Collaborator => String = _ match {
+    case _: Collaborators.Administrator => "Administrator"
+    case _                              => "Developer"
+  }
 
   def from(role: Option[String]) = role match {
     case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
@@ -423,8 +424,6 @@ object CollaboratorRole extends Enumeration {
 
   implicit val format = Json.formatEnum(CollaboratorRole)
 }
-
-case class Collaborator(emailAddress: String, role: CollaboratorRole, userId: UserId)
 
 case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now()) {
   def isApproved                     = name.isApproved

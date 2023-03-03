@@ -76,7 +76,7 @@ class DeveloperController @Inject() (
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleRemoveMfa() = {
       developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
-        Ok(removeMfaSuccessView(user.email, developerIdentifier))
+        Ok(removeMfaSuccessView(user.email.text, developerIdentifier))
       } recover {
         case e: Exception =>
           logger.error(s"Failed to remove MFA for user: $developerIdentifier", e)
@@ -104,7 +104,7 @@ class DeveloperController @Inject() (
 
   def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
     developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
-      case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email))
+      case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email.text))
       case _                                         => technicalDifficulties
     }
   }

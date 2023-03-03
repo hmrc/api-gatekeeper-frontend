@@ -21,7 +21,9 @@ import java.time.Period
 import org.joda.time.DateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
@@ -119,7 +121,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
-    def withoutCollaborator(email: String)                  = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.copy(id = id)
@@ -131,12 +133,12 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withAdmin(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.ADMINISTRATOR, developer.userId))
+      app1.copy(collaborators = app1.collaborators + Administrator(developer.userId, developer.email))
     }
 
     def withDeveloper(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
-      app1.copy(collaborators = app1.collaborators + Collaborator(developer.email, CollaboratorRole.DEVELOPER, developer.userId))
+      app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
 
     def withAccess(access: Access) = app.copy(access = access)

@@ -24,7 +24,8 @@ import org.jsoup.nodes.Document
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
@@ -77,7 +78,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
 
-      elementExistsByText(document, "h1", developer.email) shouldBe true
+      elementExistsByText(document, "h1", developer.email.text) shouldBe true
       document.getElementById("first-name").text shouldBe developer.firstName
       document.getElementById("last-name").text shouldBe developer.lastName
       document.getElementById("organisation").text shouldBe (developer.organisation match {
@@ -107,24 +108,24 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
   "developer details view" should {
     "show unregistered developer details when logged in as superuser" in new Setup {
-      val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com", UserId.random), List.empty)
+      val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com".toLaxEmail, UserId.random), List.empty)
       testDeveloperDetails(unregisteredDeveloper)
     }
 
     "show unverified developer details when logged in as superuser" in new Setup {
-      val unverifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", false), List.empty)
+      val unverifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", false), List.empty)
       testDeveloperDetails(unverifiedDeveloper)
     }
 
     "show verified developer details when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true), List.empty)
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), List.empty)
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
       val verifiedDeveloper =
         Developer(
-          RegisteredUser("email@example.com", UserId.random, "firstname", "lastName", true, Some("test organisation")),
+          RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true, Some("test organisation")),
           List.empty,
           xmlServiceNames,
           xmlOrganisations
@@ -150,9 +151,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
 
     "show developer with applications when logged in as superuser" in new Setup {
       val testApplication1: TestApplication =
-        TestApplication(ApplicationId.random, "appName1", ApplicationState(State.TESTING), Set(Collaborator("email@example.com", CollaboratorRole.ADMINISTRATOR, UserId.random)))
+        TestApplication(ApplicationId.random, "appName1", ApplicationState(State.TESTING), Set(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail)))
       val testApplication2: TestApplication =
-        TestApplication(ApplicationId.random, "appName2", ApplicationState(State.PRODUCTION), Set(Collaborator("email@example.com", CollaboratorRole.DEVELOPER, UserId.random)))
+        TestApplication(ApplicationId.random, "appName2", ApplicationState(State.PRODUCTION), Set(Collaborators.Developer(UserId.random, "email@example.com".toLaxEmail)))
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
@@ -196,7 +197,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     "show developer with mfa details and no applications when logged in as superuser" in new Setup {
       val developerWithMfaDetails: Developer = Developer(
         RegisteredUser(
-          email = "email@example.com",
+          email = "email@example.com".toLaxEmail,
           userId = UserId.random,
           firstName = "firstname",
           lastName = "lastName",
@@ -224,7 +225,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
     "show developer with no mfa details if all unverified and no applications when logged in as superuser" in new Setup {
       val developerWithMfaDetailsUnverified: Developer = Developer(
         RegisteredUser(
-          email = "email@example.com",
+          email = "email@example.com".toLaxEmail,
           userId = UserId.random,
           firstName = "firstname",
           lastName = "lastName",

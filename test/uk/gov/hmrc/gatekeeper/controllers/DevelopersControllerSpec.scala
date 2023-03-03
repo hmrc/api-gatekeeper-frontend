@@ -22,6 +22,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models._
@@ -127,7 +128,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         private val emailAddress        = "developer@example.com"
         private val partialEmailAddress = "example"
-        private val user                = aUser(emailAddress)
+        private val user                = aUser(emailAddress.toLaxEmail)
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
@@ -159,16 +160,16 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenNoDataSuppliedDelegateServices()
 
-        private val email1 = "a@example.com"
-        private val email2 = "b@example.com"
-        private val email3 = "c@example.com"
+        private val email1 = "a@example.com".toLaxEmail
+        private val email2 = "b@example.com".toLaxEmail
+        private val email3 = "c@example.com".toLaxEmail
 
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1, true), aUser(email2, true), aUser(email3))
 
         implicit val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
         val result           = developersController.developersPage()(request)
 
-        contentAsString(result) should include(s"$email1; $email2")
+        contentAsString(result) should include(s"${email1.text}; ${email2.text}")
       }
 
       "search by api version" in new Setup {
@@ -176,7 +177,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress                   = "developer@example.com"
-        private val user                           = aUser(emailAddress)
+        private val user                           = aUser(emailAddress.toLaxEmail)
         private val apiDefinitionValueFromDropDown = "api-definition__1.0"
 
         // Note: Developers is both users and collaborators
@@ -251,7 +252,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         private val email1 = "a@example.com"
         private val email2 = "b@example.com"
 
-        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1), aUser(email2))
+        DeveloperServiceMock.SearchDevelopers.returns(aUser(email1.toLaxEmail), aUser(email2.toLaxEmail))
 
         implicit val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
         val result           = developersController.developersPage()(request)
@@ -265,7 +266,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         private val emailAddress = "developer@example.com"
         private val statusFilter = "VERIFIED"
-        private val user         = aUser(emailAddress)
+        private val user         = aUser(emailAddress.toLaxEmail)
 
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
@@ -284,7 +285,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         private val emailAddress      = "developer@example.com"
-        private val user              = aUser(emailAddress)
+        private val user              = aUser(emailAddress.toLaxEmail)
         private val environmentFilter = "PRODUCTION"
 
         // Note: Developers is both users and collaborators

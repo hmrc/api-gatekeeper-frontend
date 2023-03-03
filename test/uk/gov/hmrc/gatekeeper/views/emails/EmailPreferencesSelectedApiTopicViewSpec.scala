@@ -24,6 +24,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
@@ -38,8 +39,8 @@ class EmailPreferencesSelectedApiTopicViewSpec extends CommonViewSpec with Email
     implicit val request: FakeRequest[AnyContentAsEmpty.type]                      = FakeRequest().withCSRFToken
     val emailRecipientsAsJson: JsArray                                             = new JsArray()
     val emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView = app.injector.instanceOf[EmailPreferencesSelectedApiTopicView]
-    val user1                                                                      = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2                                                                      = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1                                                                      = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2                                                                      = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                      = Seq(user1, user2)
     val categories                                                                 = List()
     val expectedTitle                                                              = "Email users interested in a specific API"

@@ -24,6 +24,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
@@ -40,7 +41,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
     def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
       val email  = s"$name@example.com"
       val userId = UserId.random
-      RegisteredUser(email, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
+      RegisteredUser(email.toLaxEmail, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
     }
 
     val xmlApiOne = XmlApi(

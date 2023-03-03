@@ -30,7 +30,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, RemoveCollaborator}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -41,12 +44,12 @@ import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     RegisteredUser(email, idOf(email), "Fred", "Example", verified, emailPreferences = emailPreferences)
   }
 
   def aDeveloper(name: String, apps: List[Application] = List.empty, verified: Boolean = true) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     Developer(
       RegisteredUser(email, idOf(email), name, s"${name}son", verified),
       apps
@@ -54,7 +57,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   def anUnregisteredDeveloper(name: String, apps: List[Application] = List.empty) = {
-    val email = s"$name@example.com"
+    val email = s"$name@example.com".toLaxEmail
     Developer(
       UnregisteredUser(email, idOf(email)),
       apps
@@ -85,8 +88,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   val prodAppId = ApplicationId.random
 
-  trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApplicationConnectorMockProvider
-      with DeveloperConnectorMockProvider with XmlServiceMockProvider {
+  trait Setup extends MockitoSugar
+      with ArgumentMatchersSugar
+      with ApplicationConnectorMockProvider
+      with CommandConnectorMockProvider
+      with DeveloperConnectorMockProvider
+      with XmlServiceMockProvider {
     val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(
@@ -94,6 +101,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
+      mockSandboxCommandConnector,
+      mockProductionCommandConnector,
       mockXmlService
     )
 
@@ -139,24 +148,47 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenAnswer((invocationOnMock: InvocationOnMock) => {
-        val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[String]].toSet
+        val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[LaxEmailAddress]].toSet
         successful(commonUsers.filter(user => developersRequested.contains(user.email)))
       })
     }
 
+    // TODO
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
-      ApplicationConnectorMock.Prod.RemoveCollaborator.succeeds()
-      ApplicationConnectorMock.Sandbox.RemoveCollaborator.succeeds()
+      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
+      CommandConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
-    def verifyCollaboratorRemovedFromApp(app: Application, userToRemove: String, gatekeeperUserId: String, adminsToEmail: Set[String], environment: String = "PRODUCTION") = {
+    def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
+    def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommand)     = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
+    def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommand) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
+
+    def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: RemoveCollaborator) = cmd.collaborator.emailAddress == email
+
+    def verifyCollaboratorRemovedFromApp(
+        app: Application,
+        userToRemove: LaxEmailAddress,
+        gatekeeperUserName: String,
+        adminsToEmail: Set[LaxEmailAddress],
+        environment: String = "PRODUCTION"
+      ) = {
       environment match {
         case "PRODUCTION" =>
-          verify(mockProductionApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+          inside(CommandConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
+            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+            case _                                                                           => fail("Wrong command")
+          }
         case "SANDBOX"    =>
-          verify(mockSandboxApplicationConnector).removeCollaborator(eqTo(app.id), eqTo(userToRemove), eqTo(gatekeeperUserId), eqTo(adminsToEmail))(*)
+          inside(CommandConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
+            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+            case _                                                                           => fail("Wrong command")
+          }
       }
     }
 
@@ -172,8 +204,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -194,15 +226,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -222,15 +254,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -251,15 +283,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
           anApp(
             "application1",
             Set(
-              "Shirley@example.com".asAdministratorCollaborator,
-              "Jacob@example.com".asDeveloperCollaborator
+              "Shirley@example.com".toLaxEmail.asAdministratorCollaborator,
+              "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
             )
           ),
           anApp(
             "application2",
             Set(
-              "Julia@example.com".asAdministratorCollaborator,
-              "Jim@example.com".asDeveloperCollaborator
+              "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+              "Jim@example.com".toLaxEmail.asDeveloperCollaborator
             )
           )
         )
@@ -278,16 +310,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         anApp(
           "application1",
           Set(
-            "Bob@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator,
-            "Jacob@example.com".asDeveloperCollaborator
+            "Bob@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator,
+            "Jacob@example.com".toLaxEmail.asDeveloperCollaborator
           )
         ),
         anApp(
           "application2",
           Set(
-            "Julia@example.com".asAdministratorCollaborator,
-            "Jim@example.com".asDeveloperCollaborator
+            "Julia@example.com".toLaxEmail.asAdministratorCollaborator,
+            "Jim@example.com".toLaxEmail.asDeveloperCollaborator
           )
         )
       )
@@ -440,9 +472,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(*[ApplicationId], *, *, *)(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
@@ -461,7 +493,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
       verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
     }
 
     "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
@@ -479,7 +511,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
       verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
     }
 
     "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
@@ -487,7 +519,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
       val sandboxApps    = List(anApp(
         name = "sandboxApplication",
-        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
       ))
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
 
@@ -495,14 +527,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
 
     "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
       val productionApps = List(anApp(
         name = "productionApplication",
-        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".asAdministratorCollaborator)
+        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
       ))
       val sandboxApps    = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
 
@@ -512,8 +544,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      verify(mockProductionApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
-      verify(mockSandboxApplicationConnector, never).removeCollaborator(eqTo(prodAppId), *, *, *)(*)
+      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
     }
   }
 
@@ -637,9 +669,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
     "find by developer status should sort users by email" in new Setup {
 
-      val firstInTheListUser  = RegisteredUser("101@example.com", UserId.random, "alphaFirstName", "alphaLastName", true)
-      val secondInTheListUser = RegisteredUser("lalala@example.com", UserId.random, "betaFirstName", "betaLastName", false)
-      val thirdInTheListUser  = RegisteredUser("zigzag@example.com", UserId.random, "thetaFirstName", "thetaLastName", false)
+      val firstInTheListUser  = RegisteredUser("101@example.com".toLaxEmail, UserId.random, "alphaFirstName", "alphaLastName", true)
+      val secondInTheListUser = RegisteredUser("lalala@example.com".toLaxEmail, UserId.random, "betaFirstName", "betaLastName", false)
+      val thirdInTheListUser  = RegisteredUser("zigzag@example.com".toLaxEmail, UserId.random, "thetaFirstName", "thetaLastName", false)
       DeveloperConnectorMock.SearchDevelopers.returnsFor(None, DeveloperStatusFilter.AllStatus)(thirdInTheListUser, firstInTheListUser, secondInTheListUser)
 
       val filter = DevelopersSearchFilter(None, None, developerStatusFilter = DeveloperStatusFilter.AllStatus)

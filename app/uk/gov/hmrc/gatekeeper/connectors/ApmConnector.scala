@@ -19,12 +19,12 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.Status._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications._
@@ -42,17 +42,6 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
     http.GET[Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
-  }
-
-  def addTeamMember(applicationId: ApplicationId, addTeamMember: AddTeamMemberRequest)(implicit hc: HeaderCarrier): Future[Unit] = {
-
-    http.POST[AddTeamMemberRequest, Either[UpstreamErrorResponse, Unit]](s"${config.serviceBaseUrl}/applications/${applicationId.value.toString}/collaborators", addTeamMember)
-      .map(_ match {
-        case Right(())                                       => ()
-        case Left(UpstreamErrorResponse(_, CONFLICT, _, _))  => throw TeamMemberAlreadyExists
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => throw ApplicationNotFound
-        case Left(err)                                       => throw err
-      })
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
@@ -83,6 +72,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
+  }
+
+  // TODO - better return type
+  // TODO - better error handling for expected errors
+  def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
+    import ApplicationCommandFormatters._
+    val url = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
+    http.PATCH[ApplicationCommand, Either[UpstreamErrorResponse, Unit]](url, cmd)
   }
 }
 

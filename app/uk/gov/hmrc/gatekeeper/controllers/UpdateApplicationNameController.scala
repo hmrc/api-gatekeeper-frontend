@@ -23,6 +23,7 @@ import play.api.data.Form
 import play.api.mvc._
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -100,10 +101,10 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNameAdminEmailPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val adminEmails = app.application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress)
+      val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
       Future.successful(adminEmails.size match {
-        case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head))
-        case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails, UpdateApplicationNameAdminEmailForm.form))
+        case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
+        case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), UpdateApplicationNameAdminEmailForm.form))
       })
     }
   }
@@ -114,7 +115,7 @@ class UpdateApplicationNameController @Inject() (
         val newApplicationName = request.session.get(newAppNameSessionKey).get
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
-        applicationService.updateApplicationName(app.application, adminEmail, gatekeeperUser, newApplicationName).map(_ match {
+        applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
@@ -126,10 +127,10 @@ class UpdateApplicationNameController @Inject() (
       }
 
       def handleFormError(form: Form[UpdateApplicationNameAdminEmailForm]) = {
-        val adminEmails = app.application.collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress)
+        val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
         Future.successful(adminEmails.size match {
-          case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head))
-          case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails, form))
+          case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
+          case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), form))
         })
       }
 

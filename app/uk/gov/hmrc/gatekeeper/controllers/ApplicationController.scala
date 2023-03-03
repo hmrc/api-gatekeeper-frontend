@@ -30,7 +30,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -523,7 +525,7 @@ class ApplicationController @Inject() (
       }
 
       def administrators(app: ApplicationWithHistory): Future[List[RegisteredUser]] = {
-        val emails: Set[String] = app.application.admins.map(_.emailAddress)
+        val emails: Set[LaxEmailAddress] = app.application.admins.map(_.emailAddress)
         developerService.fetchDevelopersByEmails(emails)
       }
 
@@ -551,9 +553,13 @@ class ApplicationController @Inject() (
       .sortWith(StateHistory.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
-    developerService.fetchUser(submission.actor.id).map(s =>
-      SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email, submission.changedAt)
-    )
+    submission.actor match {
+      case AppCollaborator(email) =>
+        developerService.fetchUser(email).map(s =>
+          SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email.text, submission.changedAt)
+        )
+      case _                      => throw new InconsistentDataState("last submission has no collaborator actor")
+    }
   }
 
   private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
@@ -676,7 +682,7 @@ class ApplicationController @Inject() (
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
       def createApp(user: User, accessType: AccessType.AccessType) = {
-        val collaborators = List(Collaborator(form.adminEmail, CollaboratorRole.ADMINISTRATOR, user.userId))
+        val collaborators = List(Collaborators.Administrator(user.userId, LaxEmailAddress(form.adminEmail)))
 
         applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
           .map {
@@ -710,7 +716,7 @@ class ApplicationController @Inject() (
         form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
       val fApps = applicationService.fetchApplications
-      val fUser = developerService.seekUser(form.adminEmail)
+      val fUser = developerService.seekUser(LaxEmailAddress(form.adminEmail))
 
       for {
         apps   <- fApps

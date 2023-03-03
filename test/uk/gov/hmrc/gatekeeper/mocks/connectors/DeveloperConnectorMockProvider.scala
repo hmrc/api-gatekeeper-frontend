@@ -20,6 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
@@ -64,7 +65,7 @@ trait DeveloperConnectorMockProvider {
     object FetchByEmails {
       def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
 
-      def returnsFor(emails: Set[String])(users: RegisteredUser*) =
+      def returnsFor(emails: Set[LaxEmailAddress])(users: RegisteredUser*) =
         when(mockDeveloperConnector.fetchByEmails(eqTo(emails))(*)).thenReturn(successful(users.toList))
     }
 

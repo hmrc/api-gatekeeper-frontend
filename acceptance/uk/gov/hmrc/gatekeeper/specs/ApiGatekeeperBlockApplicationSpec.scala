@@ -24,10 +24,11 @@ import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData}
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithStateHistoryTestData {
 
-  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk", UserId.random, "joe", "bloggs", false))
+  val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Block an application") {
     Scenario("I can block an application") {

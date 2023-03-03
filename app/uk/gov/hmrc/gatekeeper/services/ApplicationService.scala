@@ -24,7 +24,8 @@ import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
@@ -193,7 +194,13 @@ class ApplicationService @Inject() (
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
 
-  def updateApplicationName(application: ApplicationResponse, adminEmail: String, gatekeeperUser: String, name: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateApplicationName(
+      application: ApplicationResponse,
+      adminEmail: LaxEmailAddress,
+      gatekeeperUser: String,
+      name: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
     if (application.name.equalsIgnoreCase(name)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
@@ -259,32 +266,6 @@ class ApplicationService @Inject() (
       case PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
       case SANDBOX    => sandboxApplicationConnector.createPrivOrROPCApp(req)
     }
-  }
-
-  def addTeamMember(app: Application, teamMember: Collaborator)(implicit hc: HeaderCarrier): Future[Unit] = {
-    for {
-      response <- apmConnector.addTeamMember(app.id, AddTeamMemberRequest(teamMember.emailAddress, teamMember.role, None))
-    } yield response
-
-  }
-
-  def removeTeamMember(app: Application, teamMemberToRemove: String, requestingEmail: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    val applicationConnector = applicationConnectorFor(app)
-    for {
-      adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove, requestingEmail))
-      response      <- applicationConnector.removeCollaborator(app.id, teamMemberToRemove, requestingEmail, adminsToEmail)
-    } yield response
-  }
-
-  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[String])(implicit hc: HeaderCarrier): Future[Set[String]] = {
-    val adminEmails = collaborators.filter(_.role == CollaboratorRole.ADMINISTRATOR).map(_.emailAddress).filterNot(excludes.contains(_))
-
-    developerConnector.fetchByEmails(adminEmails)
-      .map(registeredUsers =>
-        registeredUsers.filter(_.verified)
-          .map(_.email)
-          .toSet
-      )
   }
 
   def applicationConnectorFor(application: Application): ApplicationConnector =

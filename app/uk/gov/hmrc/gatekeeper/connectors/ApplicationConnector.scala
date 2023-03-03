@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.Future.{failed, successful}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status._
@@ -26,6 +25,7 @@ import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
@@ -247,25 +247,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def removeCollaborator(
-      applicationId: ApplicationId,
-      teamMemberToDelete: String,
-      gatekeeperUserId: String,
-      adminsToEmail: Set[String]
-    )(implicit hc: HeaderCarrier
-    ): Future[ApplicationUpdateResult] = {
-    val url     = s"${baseApplicationUrl(applicationId)}/collaborator/delete"
-    val request = DeleteCollaboratorRequest(teamMemberToDelete, adminsToEmail, true)
-
-    http.POST[DeleteCollaboratorRequest, Either[UpstreamErrorResponse, Unit]](url, request)
-      .flatMap(_ match {
-        case Right(_)                                        => successful(ApplicationUpdateSuccessResult)
-        case Left(UpstreamErrorResponse(_, FORBIDDEN, _, _)) => failed(TeamMemberLastAdmin)
-        case Left(UpstreamErrorResponse(_, NOT_FOUND, _, _)) => failed(ApplicationNotFound)
-        case Left(err)                                       => failed(err)
-      })
-  }
-
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     http.POST[CreatePrivOrROPCAppRequest, Either[UpstreamErrorResponse, CreatePrivOrROPCAppSuccessResult]](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest)
       .map(_ match {
@@ -278,10 +259,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[String]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
-    http.POST[SearchCollaboratorsRequest, List[String]](s"$serviceBaseUrl/collaborators", request)
+    http.POST[SearchCollaboratorsRequest, List[LaxEmailAddress]](s"$serviceBaseUrl/collaborators", request)
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {

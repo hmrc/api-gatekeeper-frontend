@@ -24,6 +24,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -42,10 +43,11 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
   "email all user view" must {
 
     "show correct title and content for 2 verified users" in new Setup {
-      val user1                         = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-      val user2                         = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+      val user1                         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+      val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
       val users                         = Seq(user1, user2)
-      val result: HtmlFormat.Appendable = emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email}; ${user2.email}", request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable =
+        emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
 
       validateEmailAllUsersPage(Jsoup.parse(result.body), users)
     }

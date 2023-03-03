@@ -24,6 +24,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
@@ -46,8 +47,8 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
-    val user1 = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-    val user2 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = true)
+    val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = List(user1, user2)
 
     "show correct title and elements on initial load" in new Setup {
@@ -71,7 +72,7 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     }
 
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
-      val emails                        = users.map(_.email).sorted.mkString("; ")
+      val emails                        = users.map(_.email.text).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
         emailPreferencesSpecificApiView.render(users, new JsArray(), emails, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 

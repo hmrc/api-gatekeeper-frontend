@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.utils
+package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
-import uk.gov.hmrc.gatekeeper.models._
+import play.api.libs.json.Json
 
-object ApplicationHelper {
+import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
+import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 
-  def applicationsWithTeamMemberAsOnlyAdmin(applications: List[Application], emailAddress: String): List[Application] = {
-    applications.filter(application => isTheOnlyAdmin(application, emailAddress))
-  }
+case class DispatchSuccessResult(applicationResponse: ApplicationResponse, events: List[ApplicationEvent])
 
-  def isTheOnlyAdmin(application: Application, emailAddress: String) = {
-    application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
-  }
+object DispatchSuccessResult {
+  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
+
+  implicit val format = Json.format[DispatchSuccessResult]
 }

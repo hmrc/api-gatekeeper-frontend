@@ -32,10 +32,10 @@ import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag, EventTags, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
-
 
 class ApiGatekeeperBaseSpec
     extends BaseSpec
@@ -115,7 +115,7 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }
 
-  protected def stubGetDeveloper(email: String, userJsonText: String, userId: UserId = UserId.random) = {
+  protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
     val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
     implicit val format = Json.writes[FindUserIdResponse]
     val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
@@ -136,7 +136,7 @@ class ApiGatekeeperBaseSpec
     // TODO - remove this on completion of APIS-4925
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(email))
+      .withQueryParam("developerId", equalTo(email.text))
       .willReturn(
         aResponse().withStatus(OK).withBody(userJsonText)
       )

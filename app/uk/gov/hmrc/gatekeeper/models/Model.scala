@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
@@ -88,7 +88,6 @@ object ApplicationWithHistory {
     .and[Ropc](AccessType.ROPC.toString)
     .format
   implicit val formatRole   = Json.formatEnum(CollaboratorRole)
-  implicit val format2      = Json.format[Collaborator]
   implicit val format3      = Json.format[ApplicationState]
   implicit val format4      = Json.formatEnum(State)
   implicit val format5      = Json.format[SubmissionDetails]
@@ -412,7 +411,6 @@ final case class CreatePrivOrROPCAppRequest(environment: String, name: String, d
 object CreatePrivOrROPCAppRequest {
   implicit val format1 = Json.formatEnum(AccessType)
   implicit val format2 = Json.formatEnum(CollaboratorRole)
-  implicit val format3 = Json.format[Collaborator]
   implicit val format4 = Json.format[TotpSecrets]
   implicit val format6 = Json.format[AppAccess]
   implicit val format7 = Json.format[CreatePrivOrROPCAppRequest]
@@ -424,7 +422,6 @@ final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.Coll
 
 object AddTeamMemberRequest {
   implicit val format1 = Json.formatEnum(CollaboratorRole)
-  implicit val format2 = Json.format[Collaborator]
   implicit val format3 = Json.format[AddTeamMemberRequest]
 }
 

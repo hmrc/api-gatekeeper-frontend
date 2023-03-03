@@ -18,23 +18,25 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import scala.collection.mutable
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.Collaborator
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole._
 
 trait UserIdTracker {
-  private val idsByEmail = mutable.Map[String, UserId]()
+  private val idsByEmail = mutable.Map[LaxEmailAddress, UserId]()
 
-  def idOf(email: String): UserId = idsByEmail.getOrElseUpdate(email, UserId.random)
+  def idOf(email: Any): UserId = email match {
+    case s: String            => idsByEmail.getOrElseUpdate(s.toLaxEmail, UserId.random)
+    case lea: LaxEmailAddress => idsByEmail.getOrElseUpdate(lea, UserId.random)
+  }
 }
 
 trait CollaboratorTracker extends UserIdTracker {
 
-  def collaboratorOf(email: String, role: CollaboratorRole): Collaborator = Collaborator(email, role, idOf(email))
-
-  implicit class CollaboratorSyntax(value: String) {
-    def asAdministratorCollaborator = collaboratorOf(value, ADMINISTRATOR)
-    def asDeveloperCollaborator     = collaboratorOf(value, DEVELOPER)
+  implicit class CollaboratorEmailSyntax(email: LaxEmailAddress) {
+    def asAdministratorCollaborator: Collaborator = Collaborators.Administrator(idOf(email), email)
+    def asDeveloperCollaborator: Collaborator     = Collaborators.Developer(idOf(email), email)
 
   }
 }

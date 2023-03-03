@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.support._
 import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
     with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
@@ -62,9 +63,9 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val wsClient: WSClient = app.injector.instanceOf[WSClient]
   val validHeaders       = List(CONTENT_TYPE -> "application/x-www-form-urlencoded", "Csrf-Token" -> "nocheck")
 
-  val verifiedUser1   = RegisteredUser("user1@hmrc.com", UserId.random, "userA", "1", verified = true)
-  val unverifiedUser1 = RegisteredUser("user2@hmrc.com", UserId.random, "userB", "2", verified = false)
-  val verifiedUser2   = RegisteredUser("user3@hmrc.com", UserId.random, "userC", "3", verified = true)
+  val verifiedUser1   = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+  val unverifiedUser1 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = false)
+  val verifiedUser2   = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "userC", "3", verified = true)
 
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers      = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
