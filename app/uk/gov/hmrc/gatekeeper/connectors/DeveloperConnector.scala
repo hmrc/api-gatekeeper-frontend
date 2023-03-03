@@ -227,6 +227,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ) = Future.successful(List.empty)
 
+  def fetchByEmailPreferencesByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
 

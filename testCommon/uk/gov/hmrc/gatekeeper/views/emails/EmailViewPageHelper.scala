@@ -192,6 +192,11 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
   }
 
+  private def validateStaticPageElementsInTaxRegime(document: Document, categories: List[APICategoryDetails], expectedDestination: String) = {
+    validatePageHeader(document, "Email users interested in a tax regime")
+    validateCategoryDropDown(document, categories)
+    validateFormDestination(document, "taxRegimeForm", expectedDestination)
+  }
   def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategoryDetails]) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
@@ -201,6 +206,12 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
+  def validateEmailPreferencesSpecificCategoryPage(document: Document, selectedCategories: List[APICategoryDetails]) = {
+    val sizeOfSelectedCategories = selectedCategories.size
+    val headerTitle = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
+    validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
+  }
   def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a specific API")
 
@@ -240,6 +251,20 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     isElementChecked(document, selectedTopic.toString)
+  }
+
+  def validateEmailPreferencesSelectTaxRegimeResultsPage(
+                                                      document: Document,
+                                                      categories: List[APICategoryDetails],
+                                                      expectedDestination: String
+                                                    ) = {
+    validateStaticPageElementsInTaxRegime(document, categories, expectedDestination)
+    validateButtonText(document, "continue", "Continue")
+  }
+
+  def validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(document: Document, categories: List[APICategoryDetails], selectedCategories: List[APICategoryDetails], expectedDestination: String) = {
+    validateStaticPageElementsInTaxRegime(document, categories, expectedDestination)
+    validateHiddenSelectedTaxRegimeValues(document, selectedCategories)
   }
 }
 

@@ -280,6 +280,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-api-category")
       }
 
+      "redirect to select tax regime page when TAX_REGIME passed in the form" in {
+        primeAuthServiceSuccess()
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences-new", validHeaders, "sendEmailPreferences=TAX_REGIME")
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-tax-regime")
+      }
+
       "redirect to select page when TOPIC passed in the form" in {
         primeAuthServiceSuccess()
         val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
@@ -339,6 +345,17 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
+      }
+
+      "respond with 200 and render the tax regime page correctly on initial load with selected categories New" in {
+        primeAuthServiceSuccess()
+
+        primeGetAllCategories(categories)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-tax-regime?${categories.map("selectedCategories=" + _.category).mkString("&")}", validHeaders)
+        result.status shouldBe OK
+
+        validateEmailPreferencesSpecificCategoryPage(Jsoup.parse(result.body), categories)
       }
 
       "respond with 200 and render the page correctly when only category filter is provided" in {

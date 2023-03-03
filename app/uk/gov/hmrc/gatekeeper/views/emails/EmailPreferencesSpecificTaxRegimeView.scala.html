@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredCategories: List[APICategoryDetails], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -34,10 +34,10 @@
 @main(title = s"${applicationConfig.title} - Email users interested in a specific tax regime") {
   <div class="govuk-template__body">
     <div>
-        <a href="@routes.EmailsController.selectTaxRegime(None, None).url" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.selectTaxRegime(None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None, None).url" method="get">
+    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -52,39 +52,42 @@
                   @for(filteredCategory <- filteredCategories) {
                       <div class="govuk-summary-list__row">
                           <dt class="govuk-summary-list__key hmrc-summary-list__key govuk-!-font-weight-regular govuk-!-width-one-half">
-                            @filteredCategory
+                            @filteredCategory.name
                           </dt>
                           <dd class="govuk-summary-list__actions hmrc-summary-list__actions">
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsController.selectTaxRegime(Some(filteredCategories.filterNot(_.equals(filteredCategory)).map(_.category)), maybeTopicFilter.map(_.toString)).url">
+                                         href="@routes.EmailsController.selectTaxRegime(Some(filteredCategories.filterNot(_.equals(filteredCategory)).map(_.category)))">
                                           <span aria-hidden="true">Change</span>
-                                          <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredCategory)</span>
+                                          <span class="govuk-visually-hidden">Change @filteredCategory</span>
+
                                           @if(maybeTopicFilter.isDefined) {
                                             <span><input type="hidden" name="selectedTopic" value="@maybeTopicFilter.get.toString"/></span>
                                           }
+
                                       </a>
                                   </li>
-                                  @if(filteredApis.size > 1) {
+                                  @if(filteredCategories.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApisNew(filteredApis.filterNot(_.equals(filteredCategory)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state"
+                                          href="@routes.EmailsController.emailPreferencesSpecificTaxRegime(filteredCategories.filterNot(_.equals(filteredCategory)).map(_.category), maybeTopicFilter.map(_.toString)).url">
                                           <span aria-hidden="true">Remove</span>
-                                          <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredCategory) from the list</span>
+                                          <span class="govuk-visually-hidden">Remove @filteredCategory from the list</span>
                                           </a>
                                           </li>
                                   }
                               </ul>
                           </dd>
                       </div>
-                      <span><input type="hidden" name="selectedAPIs" value="@filteredCategory.serviceName"/></span>
+                      <span><input type="hidden" name="selectedCategories" value="@filteredCategory"/></span>
                   }
                   </dl>
               </div>
           </fieldset>
       </div>
     </form>
-    <form id="add-another-api-choice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherApiOption("", None, None).url" method="get">
+    <form id="add-another-category-choice" name="add-another-category-choice" action="@routes.EmailsController.addAnotherTaxRegimeOption("", None, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -101,12 +104,15 @@
                       <label class="govuk-label govuk-radios__label" for="no-option">No</label>
                   </div>
               </div>
-              @for(filteredApi <- filteredApis) {
-                  <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+
+              @for(filteredCategory <- filteredCategories) {
+                  <span><input type="hidden" name="selectedCategories" value="@filteredCategory.category"/></span>
               }
+
               @if(maybeTopicFilter.nonEmpty) {
                   <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
               }
+
           </fieldset>
       </div>
       <button id="select" class="govuk-button govuk-!-margin-top-static-6" data-module="govuk-button" type="submit">Continue</button>

@@ -61,6 +61,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailPreferencesSelectedApiTopicView = mock[EmailPreferencesSelectedApiTopicView]
   private lazy val mockEmailPreferencesChoiceNewView        = mock[EmailPreferencesChoiceNewView]
   private lazy val mockEmailPreferencesSelectApiNewView     = mock[EmailPreferencesSelectApiNewView]
+  private lazy val mockEmailPreferencesSelectTaxRegimeView  = mock[EmailPreferencesSelectTaxRegimeView]
+  private lazy val mockEmailPreferencesSpecificTaxRegimeView = mock[EmailPreferencesSpecificTaxRegimeView]
 
   running(app) {
 
@@ -110,7 +112,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val category1                 = APICategoryDetails("EXAMPLE", "Example")
       val category2                 = APICategoryDetails("VAT", "Vat")
       val category3                 = APICategoryDetails("AGENTS", "Agents")
-
+      val categoryList = List(category1, category2, category3)
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
       def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
@@ -173,6 +175,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectApiNewView,
         mockEmailPreferencesSelectTopicView,
         mockEmailPreferencesSelectedApiTopicView,
+        mockEmailPreferencesSelectTaxRegimeView,
+        mockEmailPreferencesSpecificTaxRegimeView,
         mockApplicationService,
         forbiddenView,
         mcc,
@@ -245,20 +249,19 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")
       }
 
+      "redirect to new Tax Regime page when TAX_REGIME option chosen" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        val result = underTest.chooseEmailPreferencesNew()(selectedEmailPreferencesRequest(TAX_REGIME))
+        status(result) shouldBe SEE_OTHER
+        headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-tax-regime")
+      }
+
       "redirect to new Topic page when TOPIC option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         val result = underTest.chooseEmailPreferencesNew()(selectedEmailPreferencesRequest(TOPIC))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-topic")
-      }
-
-      "redirect to new Tax Regime page when TOPIC option chosen" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferencesNew()(selectedEmailPreferencesRequest(TAX_REGIME))
-
-        status(result) shouldBe SEE_OTHER
-        headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")
       }
 
       "redirect to Selected API Topic page when SPECIFIC_API option chosen" in new Setup {
@@ -269,7 +272,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api-new")
       }
     }
-
     "email information page" should {
       "on request with 'all-users' in uri path should render correctly" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
@@ -495,6 +497,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
     "Email preferences API Category page" should {
+
       "render the view correctly when no filters selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
@@ -532,6 +535,26 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         verifyUserTable(responseBody, users)
       }
+
+      "return select tax regime page when selected option yes" in new Setup {
+
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("1", Some(categoryList.map(_.category)), None)(FakeRequest())
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-tax-regime?selectedCategories=${category1.category}&selectedCategories=${category2.category}&selectedCategories=${category3.category}")
+      }
+
+      "return select api page when selected option no" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("0", Some(categoryList.map(_.category)), None)(FakeRequest())
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-topic")
+      }
+
     }
 
     "Select topic page" should {
