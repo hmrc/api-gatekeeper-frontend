@@ -18,9 +18,11 @@ package uk.gov.hmrc.gatekeeper.views.emails
 
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
+
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
+
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -37,14 +39,14 @@ class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailP
 
   "email preferences category view" should {
 
-    val category1 = APICategoryDetails("VAT", "Vat")
-    val category2 = APICategoryDetails("AGENT", "Agents")
-    val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
-    val categories = List(category1, category2, category3)
-    val category4 = APICategoryDetails("CUSTOMS", "Customs")
-    val category5 = APICategoryDetails("EXAMPLE", "Example")
+    val category1          = APICategoryDetails("VAT", "Vat")
+    val category2          = APICategoryDetails("AGENT", "Agents")
+    val category3          = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
+    val categories         = List(category1, category2, category3)
+    val category4          = APICategoryDetails("CUSTOMS", "Customs")
+    val category5          = APICategoryDetails("EXAMPLE", "Example")
     val categoriesSelected = List(category4, category5)
-    val allCategories = categoriesSelected ++ categories
+    val allCategories      = categoriesSelected ++ categories
 
     "show correct title and options when no filter provided " in new Setup {
       val result: HtmlFormat.Appendable =
@@ -56,7 +58,12 @@ class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailP
     "show correct title and options when selectedAPis are provided" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectTaxRegimeView.render(allCategories, categoriesSelected, request, LoggedInUser(None), messagesProvider)
-      validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(Jsoup.parse(result.body), allCategories, categoriesSelected, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
+      validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(
+        Jsoup.parse(result.body),
+        allCategories,
+        categoriesSelected,
+        "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime"
+      )
     }
   }
 }

@@ -164,8 +164,10 @@ class HttpDeveloperConnector @Inject() (
   def fetchByEmailPreferencesByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     logger.info(s"fetchByEmailPreferencesByRegimes Categories $maybeApiCategories")
     val queryParams: Seq[(String, String)] = maybeApiCategories.filter(_.nonEmpty)
-      .fold(Seq.empty[(String, String)])(regimes => regimes.filter(_.value.nonEmpty)
-        .flatMap(regime => Seq("regime" -> regime.value)))
+      .fold(Seq.empty[(String, String)])(regimes =>
+        regimes.filter(_.value.nonEmpty)
+          .flatMap(regime => Seq("regime" -> regime.value))
+      )
 
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
@@ -228,7 +230,8 @@ class DummyDeveloperConnector extends DeveloperConnector {
     ) = Future.successful(List.empty)
 
   def fetchByEmailPreferencesByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
+
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier)                                                     =
     Future.successful(DeveloperDeleteSuccessResult)
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =
