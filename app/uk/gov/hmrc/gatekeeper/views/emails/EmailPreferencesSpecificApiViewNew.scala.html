@@ -90,15 +90,15 @@
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
                   Do you need to add another API?
               </legend>
-              <div id="add-another-hint" class="govuk-hint">Add all the APIs you need to email about</div>
+              <div id="addAnotherHint" class="govuk-hint">Add all the APIs you need to email about</div>
               <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="yes-option" name="selectOption" value="1" type="radio">
-                      <label class="govuk-label govuk-radios__label" for="yes-option">Yes</label>
+                      <input class="govuk-radios__input" id="yesOption" name="selectOption" value="1" type="radio">
+                      <label class="govuk-label govuk-radios__label" for="yesOption">Yes</label>
                   </div>
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="no-option"  name="selectOption" value="0" type="radio" checked>
-                      <label class="govuk-label govuk-radios__label" for="no-option">No</label>
+                      <input class="govuk-radios__input" id="noOption"  name="selectOption" value="0" type="radio" checked>
+                      <label class="govuk-label govuk-radios__label" for="noOption">No</label>
                   </div>
               </div>
               @for(filteredApi <- filteredApis) {
