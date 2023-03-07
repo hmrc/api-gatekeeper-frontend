@@ -63,7 +63,7 @@ trait DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]]
 
-  def fetchByEmailPreferencesByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+  def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
@@ -161,8 +161,8 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
-  def fetchByEmailPreferencesByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    logger.info(s"fetchByEmailPreferencesByRegimes Categories $maybeApiCategories")
+  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    logger.info(s"fetchEmailUsersByRegimes Categories $maybeApiCategories")
     val queryParams: Seq[(String, String)] = maybeApiCategories.filter(_.nonEmpty)
       .fold(Seq.empty[(String, String)])(regimes =>
         regimes.filter(_.value.nonEmpty)
@@ -229,7 +229,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ) = Future.successful(List.empty)
 
-  def fetchByEmailPreferencesByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
+  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier)                                                     =
     Future.successful(DeveloperDeleteSuccessResult)

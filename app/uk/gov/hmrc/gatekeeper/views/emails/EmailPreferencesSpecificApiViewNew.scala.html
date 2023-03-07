@@ -37,7 +37,7 @@
         <a href="@routes.EmailsController.selectSpecificApiNew(None, None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApiNew(None, None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectSpecificApiNew(None, None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -84,7 +84,7 @@
           </fieldset>
       </div>
     </form>
-    <form id="add-another-api-choice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherApiOption("", None, None).url" method="get">
+    <form id="addAnotherApiChoice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherApiOption("", None, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">

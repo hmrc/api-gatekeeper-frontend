@@ -48,7 +48,7 @@
                 <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
             </legend>
             <div class="govuk-form-group">
-                <label class="govuk-label" for="selectedCategory">Select a tax regime from the list </label>
+                <label class="govuk-label" for="selectedCategories">Select a tax regime from the list </label>
                 @if(filteredCategories.nonEmpty) {
                     @for(filteredCategory <- filteredCategories){
                         <input class="govuk-visually-hidden" type="hidden" name="selectedCategories" value="@filteredCategory.category"/>

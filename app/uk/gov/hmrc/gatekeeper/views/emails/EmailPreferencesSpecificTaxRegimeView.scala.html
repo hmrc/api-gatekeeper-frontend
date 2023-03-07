@@ -37,7 +37,7 @@
         <a href="@routes.EmailsController.selectTaxRegime(None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -96,11 +96,11 @@
               <div id="add-another-hint" class="govuk-hint">Add all the tax regimes you need to email about</div>
               <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="yes-option" name="selectOption" value="1" type="radio">
+                      <input class="govuk-radios__input" id="yes-option" name="selectOption" value="Yes" type="radio">
                       <label class="govuk-label govuk-radios__label" for="yes-option">Yes</label>
                   </div>
                   <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="no-option"  name="selectOption" value="0" type="radio" checked>
+                      <input class="govuk-radios__input" id="no-option"  name="selectOption" value="No" type="radio" checked>
                       <label class="govuk-label govuk-radios__label" for="no-option">No</label>
                   </div>
               </div>

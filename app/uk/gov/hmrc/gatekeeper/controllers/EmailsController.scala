@@ -158,8 +158,8 @@ class EmailsController @Inject() (
 
   def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
-      selectOption match {
-        case "1" => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(selectedCategories)))
+      selectOption.toUpperCase match {
+        case "YES" => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(selectedCategories)))
         case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(None, selectedTopic)))
       }
     }
