@@ -279,7 +279,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
   self: HmrcSpec =>
 
   private def validateStaticPageElementsNew(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
-    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api-new")
+    validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api-new")
   }
 
   def validateEmailPreferencesSpecificApiPageNew(document: Document, selectedApis: Seq[CombinedApi]) = {
@@ -293,8 +293,8 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 
   private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
     validatePageHeader(document, "Email users interested in a specific API")
-    validateFormDestination(document, "api-filters", "/api-gatekeeper/emails/email-preferences/select-api")
-    validateFormDestination(document, "topic-filter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
+    validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api")
+    validateFormDestination(document, "topicFilter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
     validateButtonText(document, "filter", filterButtonText)
     validateTopicGrid(document, selectedTopic)
   }

@@ -540,7 +540,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("1", Some(categoryList.map(_.category)), None)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("Yes", Some(categoryList.map(_.category)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(
@@ -551,7 +551,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "return select api page when selected option no" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("0", Some(categoryList.map(_.category)), None)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("No", Some(categoryList.map(_.category)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-topic")
@@ -617,7 +617,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "return select api page when selected option yes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherApiOption("1", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherApiOption("Yes", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api-new?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
@@ -626,7 +626,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "return select api page when selected option no" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherApiOption("0", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherApiOption("No", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-topic?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
