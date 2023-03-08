@@ -202,6 +202,66 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
+  "fetchApplicationsWithSubscriptions" should {
+    val resp1 = ApplicationWithSubscriptionsResponse(
+      ApplicationId.random,
+      "My App 1",
+      Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+      )
+    )
+    val resp2 = ApplicationWithSubscriptionsResponse(
+      ApplicationId.random,
+      "My App 2",
+      Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+      )
+    )
+    val resp3 = ApplicationWithSubscriptionsResponse(
+      ApplicationId.random,
+      "My App 3",
+      Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+      )
+    )
+
+    "list all applications from production when PRODUCTION environment is specified" in new Setup {
+      ApplicationConnectorMock.Prod.FetchApplicationsWithSubscriptions.returns(resp1, resp2)
+
+      val result: List[ApplicationWithSubscriptionsResponse] = await(underTest.fetchApplicationsWithSubscriptions(Some(PRODUCTION)))
+
+      val app1 = result.find(sa => sa.name == "My App 1").get
+      val app2 = result.find(sa => sa.name == "My App 2").get
+
+      app1 shouldBe resp1
+      app2 shouldBe resp2
+    }
+
+    "list all applications from sandbox when SANDBOX environment is specified" in new Setup {
+      ApplicationConnectorMock.Sandbox.FetchApplicationsWithSubscriptions.returns(resp3)
+
+      val result = await(underTest.fetchApplicationsWithSubscriptions(Some(SANDBOX)))
+
+      result.head shouldBe resp3
+    }
+
+    "list all applications from sandbox when no environment is specified" in new Setup {
+      ApplicationConnectorMock.Sandbox.FetchApplicationsWithSubscriptions.returns(resp3)
+
+      val result = await(underTest.fetchApplicationsWithSubscriptions(None))
+
+      result.head shouldBe resp3
+    }
+  }
+
   "resendVerification" should {
 
     "call applicationConnector with appropriate parameters" in new Setup {

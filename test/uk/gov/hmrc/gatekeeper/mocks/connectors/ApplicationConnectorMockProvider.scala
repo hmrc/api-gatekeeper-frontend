@@ -67,6 +67,10 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
     }
 
+    object FetchApplicationsWithSubscriptions {
+      def returns(apps: ApplicationWithSubscriptionsResponse*) = when(aMock.fetchApplicationsWithSubscriptions()(*)).thenReturn(successful(apps.toList))
+    }
+
     object FetchAllApplicationsBySubscription {
       def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
     }
