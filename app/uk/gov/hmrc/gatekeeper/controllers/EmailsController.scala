@@ -19,12 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -62,6 +60,7 @@ class EmailsController @Inject() (
     emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
     emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
     emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
+    emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
@@ -158,11 +157,28 @@ class EmailsController @Inject() (
 
   def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
+
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(selectedCategories)))
-        case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(None, selectedTopic)))
+        case _   =>
+          for {
+            categories <- apiDefinitionService.apiCategories
+            selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
+            users <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
+            selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
+            usersAsJson = Json.toJson(users)
+          } yield Ok(emailPreferencesSelectedTaxRegimeView(
+            users,
+            usersAsJson,
+            usersToEmailCopyText(users),
+            selectedApiCategoryDetails
+          ))
       }
     }
+
+  private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[APICategory])(selectedCategories =>
+      categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory))
 
   private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
     maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
