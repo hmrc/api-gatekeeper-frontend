@@ -168,7 +168,6 @@ class HttpDeveloperConnector @Inject() (
         regimes.filter(_.value.nonEmpty)
           .flatMap(regime => Seq("regime" -> regime.value))
       )
-
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
