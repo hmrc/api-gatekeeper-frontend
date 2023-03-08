@@ -64,6 +64,8 @@ trait DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]]
 
+  def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
@@ -160,6 +162,17 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
+  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    logger.info(s"fetchEmailUsersByRegimes Categories $maybeApiCategories")
+    val queryParams: Seq[(String, String)] = maybeApiCategories.filter(_.nonEmpty)
+      .fold(Seq.empty[(String, String)])(regimes =>
+        regimes.filter(_.value.nonEmpty)
+          .flatMap(regime => Seq("regime" -> regime.value))
+      )
+
+    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
+  }
+
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/all")
   }
@@ -218,7 +231,9 @@ class DummyDeveloperConnector extends DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ) = Future.successful(List.empty)
 
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
+  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
+
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier)                                                     =
     Future.successful(DeveloperDeleteSuccessResult)
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =

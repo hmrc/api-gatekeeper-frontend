@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: List[RegisteredUser], composeEmailRecipients: JsValue, emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredCategories: List[APICategoryDetails], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -31,66 +31,69 @@
   } else { api.displayName }
 }
 
-@main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
+@main(title = s"${applicationConfig.title} - Email users interested in a specific tax regime") {
   <div class="govuk-template__body">
     <div>
-        <a href="@routes.EmailsController.selectSpecificApiNew(None, None).url" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.selectTaxRegime(None).url" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectSpecificApiNew(None, None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
                   @{
-                      val filteredApisSize: Int = filteredApis.size
-                      val apiCaption: String = if(filteredApisSize < 2) "API" else "APIs"
-                      <h1 class="govuk-heading-l" id="pageTitle">You have selected {filteredApisSize} {apiCaption}</h1>
+                      val filteredCategoriesSize: Int = filteredCategories.size
+                      val categoryCaption: String = if(filteredCategoriesSize < 2) "regime" else "regimes"
+                      <h1 class="govuk-heading-l" id="pageTitle">You have selected {filteredCategoriesSize} tax {categoryCaption}</h1>
                   }
               </legend>
               <div class="govuk-form-group govuk-grid-column-two-thirds govuk-!-margin-bottom-static-0 govuk-!-padding-left-0">
                   <dl class="govuk-summary-list hmrc-list-with-actions hmrc-list-with-actions--short">
-                  @for(filteredApi <- filteredApis) {
+                  @for(filteredCategory <- filteredCategories) {
                       <div class="govuk-summary-list__row">
                           <dt class="govuk-summary-list__key hmrc-summary-list__key govuk-!-font-weight-regular govuk-!-width-one-half">
-                            @handleAppendXmlTag(filteredApi)
+                            @filteredCategory.name
                           </dt>
                           <dd class="govuk-summary-list__actions hmrc-summary-list__actions">
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsController.selectSpecificApiNew(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
+                                         href="@routes.EmailsController.selectTaxRegime(Some(filteredCategories.filterNot(_.equals(filteredCategory)).map(_.category)))">
                                           <span aria-hidden="true">Change</span>
-                                          <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
+                                          <span class="govuk-visually-hidden">Change @filteredCategory</span>
+
                                           @if(maybeTopicFilter.isDefined) {
                                             <span><input type="hidden" name="selectedTopic" value="@maybeTopicFilter.get.toString"/></span>
                                           }
+
                                       </a>
                                   </li>
-                                  @if(filteredApis.size > 1) {
+                                  @if(filteredCategories.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApisNew(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state"
+                                          href="@routes.EmailsController.emailPreferencesSpecificTaxRegime(filteredCategories.filterNot(_.equals(filteredCategory)).map(_.category), maybeTopicFilter.map(_.toString)).url">
                                           <span aria-hidden="true">Remove</span>
-                                          <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
+                                          <span class="govuk-visually-hidden">Remove @filteredCategory from the list</span>
                                           </a>
                                           </li>
                                   }
                               </ul>
                           </dd>
                       </div>
-                      <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+                      <span><input type="hidden" name="selectedCategories" value="@filteredCategory"/></span>
                   }
                   </dl>
               </div>
           </fieldset>
       </div>
     </form>
-    <form id="addAnotherApiChoice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherApiOption("", None, None).url" method="get">
+    <form id="addAnotherCategoryChoice" name="add-another-category-choice" action="@routes.EmailsController.addAnotherTaxRegimeOption("", None, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
-                  Do you need to add another API?
+                  Do you need to add another tax regime?
               </legend>
-              <div id="addAnotherHint" class="govuk-hint">Add all the APIs you need to email about</div>
+              <div id="add-another-hint" class="govuk-hint">Add all the tax regimes you need to email about</div>
               <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
                   <div class="govuk-radios__item">
                       <input class="govuk-radios__input" id="yesOption" name="selectOption" value="Yes" type="radio">
@@ -101,12 +104,15 @@
                       <label class="govuk-label govuk-radios__label" for="noOption">No</label>
                   </div>
               </div>
-              @for(filteredApi <- filteredApis) {
-                  <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+
+              @for(filteredCategory <- filteredCategories) {
+                  <span><input type="hidden" name="selectedCategories" value="@filteredCategory.category"/></span>
               }
+
               @if(maybeTopicFilter.nonEmpty) {
                   <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
               }
+
           </fieldset>
       </div>
       <button id="select" class="govuk-button govuk-!-margin-top-static-6" data-module="govuk-button" type="submit">Continue</button>

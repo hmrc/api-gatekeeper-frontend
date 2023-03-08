@@ -37,7 +37,7 @@
         <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
     </div>
 
-    <form id="api-filters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -62,12 +62,12 @@
                 </ul>
               </div>
               <div class="form-field">
-                  <a href="#" onclick='document.getElementById("api-filters").submit();'>Add Another Api</a>
+                  <a href="#" onclick='document.getElementById("apiFilters").submit();'>Add Another Api</a>
               </div>
           </fieldset>
       </div>
     </form>
-    <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
+    <form id="topicFilter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               @for(filteredApi <- filteredApis) {
