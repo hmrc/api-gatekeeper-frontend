@@ -115,5 +115,4 @@ GET         /emails/email-preferences/select-topic                            uk
 GET         /emails/email-preferences/add-another-api-option                  uk.gov.hmrc.gatekeeper.controllers.EmailsController.addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String])
 GET         /emails/email-preferences/add-another-tax-regime-option           uk.gov.hmrc.gatekeeper.controllers.EmailsController.addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String])
 GET         /emails/email-preferences/selected-api-topic                      uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSelectedApiTopic(selectedTopic: Option[String], selectedCategory:Option[String], selectedAPIs: List[String])
-
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()

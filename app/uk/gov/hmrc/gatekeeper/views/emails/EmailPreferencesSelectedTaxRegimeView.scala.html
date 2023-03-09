@@ -32,7 +32,7 @@
     Map("Tax Regime" -> selectedCategories.map(_.name).mkString("<br>"))
 }
     @main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
-        <a href="@routes.EmailsController.selectTaxRegime(None).url" class="govuk-back-link" data-back-link>Back</a>
+        <a href="@routes.EmailsController.emailPreferencesSpecificTaxRegime(selectedCategories.map(_.category), None).url" class="govuk-back-link" data-back-link>Back</a>
         <div class="govuk-width-container">
 
                 <div class="govuk-form-group">
@@ -63,7 +63,7 @@
                                     </form>
                                 </div>
                                 <div class="compose-email-clipboard">
-                                    <button id="copy-users-to-clip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
+                                    <button id="copyUsersToClip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
                                         users.length
                                     } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
                                         Copy emails to clipboard

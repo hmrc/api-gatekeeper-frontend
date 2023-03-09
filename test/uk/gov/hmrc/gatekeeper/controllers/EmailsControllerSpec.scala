@@ -64,7 +64,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailPreferencesSelectApiNewView      = mock[EmailPreferencesSelectApiNewView]
   private lazy val mockEmailPreferencesSelectTaxRegimeView   = mock[EmailPreferencesSelectTaxRegimeView]
   private lazy val mockEmailPreferencesSpecificTaxRegimeView = mock[EmailPreferencesSpecificTaxRegimeView]
-
+  private lazy val mockEmailPreferencesSelectedTaxRegimeView = mock[EmailPreferencesSelectedTaxRegimeView]
   running(app) {
 
     trait Setup extends ControllerSetupBase {
@@ -78,6 +78,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       when(mockEmailPreferencesSelectedApiTopicView.apply(*, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesChoiceNewView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSpecificTaxRegimeView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedTaxRegimeView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -178,6 +180,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectedApiTopicView,
         mockEmailPreferencesSelectTaxRegimeView,
         mockEmailPreferencesSpecificTaxRegimeView,
+        mockEmailPreferencesSelectedTaxRegimeView,
         mockApplicationService,
         forbiddenView,
         mcc,
@@ -551,11 +554,14 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "return select api page when selected option no" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenApiDefinition3Categories()
+        DeveloperServiceMock.FetchDevelopersBySpecificTaxRegimesEmailPreferences.returns()
 
         val result: Future[Result] = underTest.addAnotherTaxRegimeOption("No", Some(categoryList.map(_.category)), None)(FakeRequest())
+        status(result) shouldBe OK
 
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-topic")
+        val responseBody = Helpers.contentAsString(result)
+        verifyUserTable(responseBody, List.empty)
       }
 
     }
