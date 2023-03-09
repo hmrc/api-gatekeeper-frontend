@@ -262,6 +262,7 @@ class EmailsController @Inject() (
 
   def emailPreferencesSelectedApiTopic(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
+      logger.info(s"In emailPreferencesSelectedApiTopic  selectedAPIs:$selectedAPIs")
       val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
         for {
           topic    <- selectedTopic.map(TopicOptionChoice.withName)
@@ -272,7 +273,7 @@ class EmailsController @Inject() (
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         categories          <- apiDefinitionService.apiCategories
         users               <- topicAndCategory.map(tup =>
-                                 developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
+                                 developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false)
                                )
                                  .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
         usersAsJson          = Json.toJson(users)
