@@ -478,7 +478,6 @@ class ApplicationController @Inject() (
             case ApplicationBlockFailureResult => technicalDifficulties
           }
         } else {
-          messagesApi.preferred(request)("invalid.scope")
           val formWithErrors = blockApplicationForm.fill(form).withError(FormFields.applicationNameConfirmation, messagesApi.preferred(request)("application.confirmation.error"))
 
           Future.successful(BadRequest(blockApplicationView(app, formWithErrors)))
