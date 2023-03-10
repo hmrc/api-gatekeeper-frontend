@@ -8,7 +8,6 @@ ipAllowlist.invalid.range= {0} is out of range
 ipAllowlist.invalid.network= {0} is invalid
 ipAllowlist.invalid.required= The IP allow list is mandatory for this application. Enter at least 1 CIDR block in the correct format, for example, 1.1.1.1/24
 invalid.scope=You have used a scope we don''t recognise - use commas to separate multiple scopes
-scope.hint=If multiple scopes are required, use commas to separate them
 application.administrator.missing=Choose an administrator
 application.confirmation.missing=Provide the application name
 application.confirmation.error=The application name doesn''t match

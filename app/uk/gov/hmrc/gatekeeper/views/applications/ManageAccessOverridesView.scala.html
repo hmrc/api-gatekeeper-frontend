@@ -22,8 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean
-)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[Set[OverrideFlag]], isSuperUser: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @scopes(fieldName: String) = {
   <div class="govuk-form-group @if(form.errors(fieldName).nonEmpty) {govuk-form-group--error}">
@@ -31,13 +30,7 @@
       Override Scopes
     </label>
     @fieldError2(form.errors, fieldName)
-    <textarea
-      name=@fieldName
-      id=@fieldName
-      rows="5"
-      class="govuk-textarea @if(form.errors(fieldName).nonEmpty) {govuk-input--error}"
-      placeholder="@messages("scope.hint")"
-    >@form.data.get(fieldName)</textarea>
+    <textarea name=@fieldName id=@fieldName rows="5" class="govuk-textarea @if(form.errors(fieldName).nonEmpty) {govuk-input--error}">@form.data.get(fieldName)</textarea>
   </div>
 }
 
