@@ -63,6 +63,8 @@ class EmailsController @Inject() (
     emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
     emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
     emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
+    emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
+    emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
@@ -122,7 +124,7 @@ class EmailsController @Inject() (
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(None, None)))
         case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(None)))
-        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
+        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesSelectUserTopic(None)))
       }
     }
 
@@ -150,6 +152,9 @@ class EmailsController @Inject() (
     Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic.map(TopicOptionChoice.withName))))
   }
 
+  def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
+  }
   def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     selectOption.toUpperCase match {
       case "YES" => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(selectedAPIs, selectedTopic)))
@@ -178,6 +183,21 @@ class EmailsController @Inject() (
       }
     }
 
+  def emailPreferencesSelectUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+    anyStrideUserAction { implicit request =>
+      val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
+      Future.successful(Ok(emailPreferencesSelectUserTopicView(maybeTopic)))
+    }
+  def emailPreferencesSelectedUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+    anyStrideUserAction { implicit request =>
+      val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
+      maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
+        .map(users => {
+          val filteredUsers = users.filter(_.verified)
+          val filteredUsersAsJson = Json.toJson(filteredUsers)
+          Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
+        })
+    }
   private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
     maybeSelectedCategories.fold(List.empty[APICategory])(selectedCategories =>
       categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory))
@@ -250,6 +270,7 @@ class EmailsController @Inject() (
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
+
 
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
