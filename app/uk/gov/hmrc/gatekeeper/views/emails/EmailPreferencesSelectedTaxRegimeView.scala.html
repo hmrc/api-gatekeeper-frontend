@@ -1,0 +1,118 @@
+@*
+* Copyright 2023 HM Revenue & Customs
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import play.api.libs.json.JsValue
+@import play.api.libs.json.Json
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@tpdQuery() = @{
+    new DevelopersEmailQuery(None, None, Some(selectedCategories.map(cat => APICategory(cat.name))), false, None, false)
+}
+@userSelection() = @{
+    Map("Tax Regime" -> selectedCategories.map(_.name).mkString("<br>"))
+}
+@main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
+    <a href="@routes.EmailsController.emailPreferencesSpecificTaxRegime(selectedCategories.map(_.category), None).url" class="govuk-back-link" data-back-link>Back</a>
+    <div class="govuk-width-container">
+
+        <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+                <legend >
+                    <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
+                </legend>
+
+                @if(users.nonEmpty) {
+                    <div class="govuk-button-group govuk-!-margin-bottom-4">
+                        <div style="visibility: visible">
+                            <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
+                                @helper.CSRF.formField
+                                <input type="hidden" name="user-selection" value="@{
+                                    Json.stringify(Json.toJson(userSelection))
+                                }"/>
+                                <input type="hidden" name="user-selection-query" value="@{
+                                    Json.toJson(tpdQuery)
+                                }"/>
+
+                                <div class="compose-email-send">
+                                    <button id="composeEmail" type="submit" class="govuk-button" data-module="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{
+                                        users.length
+                                    } displayed email addresses.">
+                                        Compose email
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="compose-email-clipboard">
+                            <button id="copyUsersToClip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
+                                users.length
+                            } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
+                                Copy emails to clipboard
+                            </button>
+                        </div>
+                    </div>
+                }
+                <dl class="govuk-summary-list govuk-!-width-three-quarters">
+                    <div class="govuk-summary-list__row">
+                        <dt class="govuk-summary-list__key" style="width: 15%;">
+                            Tax Regime
+                        </dt>
+                        <dd class="govuk-summary-list__value">
+                        @for(selectedCategory <- selectedCategories) {
+                            @selectedCategory.name<br/>
+                        }
+                        </dd>
+                        <dd class="govuk-summary-list__actions">
+                            <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificTaxRegime(selectedCategories.map(_.category), None).url">
+                                Change<span class="govuk-visually-hidden">Tax Regimes</span>
+                            </a>
+                        </dd>
+                    </div>
+                </dl>
+                <div class="govuk-summary-list govuk-!-width-three-quarters">
+                @if(users.nonEmpty) {
+                    <div class="govuk-body">@users.size results</div>
+                    <table id="developer-table" class="govuk-table">
+                        <thead class="govuk-table__head">
+                            <tr class="govuk-table__row">
+                                <th scope="col" class="govuk-table__header">Email</th>
+                                <th scope="col" class="govuk-table__header">First name</th>
+                                <th scope="col" class="govuk-table__header">Last name</th>
+                            </tr>
+                        </thead>
+                        <tbody class="govuk-table__body">
+                        @for((user, index) <- users.zipWithIndex) {
+                            <tr class="govuk-table__row">
+                                <td id="dev-email-@index" class="govuk-table__cell">@user.email</td>
+                                <td id="dev-fn-@index" class="govuk-table__cell">@user.firstName</td>
+                                <td id="dev-sn-@index" class="govuk-table__cell">@user.lastName</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                } else { <div class="govuk-body">0 results</div> }
+                </div>
+            </fieldset>
+        </div>
+    </div>
+
+}

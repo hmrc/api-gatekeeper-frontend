@@ -225,6 +225,16 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document)
   }
 
+  def validateEmailPreferencesSelectedTaxRegimePage(document: Document, users: Seq[RegisteredUser]) = {
+    validatePageHeader(document, "Email users interested in a tax regime")
+
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copyUsersToClip") shouldBe users.nonEmpty
+      elementExistsById(document, "composeEmail") shouldBe users.nonEmpty
+    }
+
+    verifyTableHeader(document)
+  }
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
