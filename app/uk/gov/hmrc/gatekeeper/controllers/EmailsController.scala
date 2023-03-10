@@ -62,6 +62,7 @@ class EmailsController @Inject() (
     emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
     emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
     emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
+    emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
@@ -158,11 +159,28 @@ class EmailsController @Inject() (
 
   def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
+
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(selectedCategories)))
-        case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(None, selectedTopic)))
+        case _ =>
+          for {
+            categories <- apiDefinitionService.apiCategories
+            selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
+            users <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
+            selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
+            usersAsJson = Json.toJson(users)
+          } yield Ok(emailPreferencesSelectedTaxRegimeView(
+            users,
+            usersAsJson,
+            usersToEmailCopyText(users),
+            selectedApiCategoryDetails
+          ))
       }
     }
+
+  private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[APICategory])(selectedCategories =>
+      categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory))
 
   private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
     maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
@@ -256,8 +274,7 @@ class EmailsController @Inject() (
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         categories          <- apiDefinitionService.apiCategories
         users               <- topicAndCategory.map(tup =>
-                                 developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
-                               )
+                                  developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false))
                                  .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
         usersAsJson          = Json.toJson(users)
         selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
