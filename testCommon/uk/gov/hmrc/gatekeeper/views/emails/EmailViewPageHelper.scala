@@ -225,6 +225,11 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document)
   }
 
+  def validateEmailPreferencesSelectedUserTopicPage(document: Document, users: Seq[RegisteredUser]) = {
+    validatePageHeader(document, "Email users interested in a topic")
+    verifyTableHeader(document)
+  }
+
   def validateEmailPreferencesSelectedTaxRegimePage(document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
 

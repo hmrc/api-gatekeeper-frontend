@@ -650,9 +650,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "Select user topic page" should {
       "render the view correctly with topics to choose from" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
         givenApiDefinition3Categories()
-        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
 
         val request = createGetRequest("/emails/email-preferences/select-user-topic")
         val result: Future[Result] = underTest.selectUserTopicPage(

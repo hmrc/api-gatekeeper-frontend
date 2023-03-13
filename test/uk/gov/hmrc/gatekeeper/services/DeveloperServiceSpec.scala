@@ -411,7 +411,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
-    "fetch the developer not inclucing deleted applications when requested by userId" in new Setup {
+    "fetch the developer not including deleted applications when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude)
 
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
@@ -743,7 +743,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *, *)(*)
     }
 
-    "call the connector correctly when only passed a topic and a category" in new Setup {
+    "call the connector correctly when passed a topic and a category" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)), false)(sandboxUser)
 
       val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
@@ -751,6 +751,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe List(sandboxUser)
 
       verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))), *)(*)
+    }
+
+    "call the connector correctly when only passed a category" in new Setup {
+      DeveloperConnectorMock.FetchEmailPreferencesByRegimes.returnsFor(Some(Seq(category1)))(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferences(List(category1)))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(List(category1))))(*)
     }
 
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {

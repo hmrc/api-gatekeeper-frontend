@@ -62,6 +62,13 @@ trait DeveloperConnectorMockProvider {
           .thenReturn(successful(users.toList))
     }
 
+    object FetchEmailPreferencesByRegimes {
+
+      def returnsFor(maybeApiCategory: Option[Seq[APICategory]])(users: RegisteredUser*) =
+        when(mockDeveloperConnector.fetchEmailUsersByRegimes(eqTo(maybeApiCategory))(*))
+          .thenReturn(successful(users.toList))
+    }
+
     object FetchByEmails {
       def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
 
