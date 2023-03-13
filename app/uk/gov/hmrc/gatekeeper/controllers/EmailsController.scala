@@ -44,33 +44,33 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class EmailsController @Inject() (
-    developerService: DeveloperService,
-    apiDefinitionService: ApiDefinitionService,
-    emailLandingView: EmailLandingView,
-    emailInformationView: EmailInformationView,
-    emailsAllUsersView: EmailAllUsersView,
-    emailApiSubscriptionsView: EmailApiSubscriptionsView,
-    emailPreferencesChoiceView: EmailPreferencesChoiceView,
-    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
-    emailPreferencesTopicView: EmailPreferencesTopicView,
-    emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
-    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
-    emailPreferencesSpecificApiViewNew: EmailPreferencesSpecificApiViewNew,
-    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
-    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
-    emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
-    emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
-    emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
-    emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
-    emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
-    emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
-    emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
-    val applicationService: ApplicationService,
-    val forbiddenView: ForbiddenView,
-    mcc: MessagesControllerComponents,
-    override val errorTemplate: ErrorTemplate,
-    val apmService: ApmService,
-    strideAuthorisationService: StrideAuthorisationService
+                                   developerService: DeveloperService,
+                                   apiDefinitionService: ApiDefinitionService,
+                                   emailLandingView: EmailLandingView,
+                                   emailInformationView: EmailInformationView,
+                                   emailsAllUsersView: EmailAllUsersView,
+                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
+                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
+                                   emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
+                                   emailPreferencesTopicView: EmailPreferencesTopicView,
+                                   emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
+                                   emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+                                   emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
+                                   emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+                                   emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
+                                   emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
+                                   emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
+                                   emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
+                                   emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
+                                   emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
+                                   emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
+                                   emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
+                                   val applicationService: ApplicationService,
+                                   val forbiddenView: ForbiddenView,
+                                   mcc: MessagesControllerComponents,
+                                   override val errorTemplate: ErrorTemplate,
+                                   val apmService: ApmService,
+                                   strideAuthorisationService: StrideAuthorisationService
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
@@ -243,7 +243,7 @@ class EmailsController @Inject() (
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
         combinedUsers = publicUsers ++ privateUsers
         usersAsJson   = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSpecificApiViewNew(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 
