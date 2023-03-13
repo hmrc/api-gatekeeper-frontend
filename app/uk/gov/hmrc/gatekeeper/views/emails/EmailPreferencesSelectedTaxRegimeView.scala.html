@@ -102,7 +102,7 @@
                         <tbody class="govuk-table__body">
                         @for((user, index) <- users.zipWithIndex) {
                             <tr class="govuk-table__row">
-                                <td id="dev-email-@index" class="govuk-table__cell">@user.email</td>
+                                <td id="dev-email-@index" class="govuk-table__cell">@user.email.text</td>
                                 <td id="dev-fn-@index" class="govuk-table__cell">@user.firstName</td>
                                 <td id="dev-sn-@index" class="govuk-table__cell">@user.lastName</td>
                             </tr>
