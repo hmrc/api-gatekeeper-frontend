@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -44,9 +45,16 @@
 }
 
 
-@main(title = s"${applicationConfig.title} - Check you can send your email") {
-  <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link"  data-back-link>Back</a>
-
+@main(
+    title = s"${applicationConfig.title} - Check you can send your email",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.emailPreferencesChoice()}",
+            Some("data-back-link")
+        )
+    )
+) {
   @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
     @helper.CSRF.formField
     @drawEmailAllUsersInformation()

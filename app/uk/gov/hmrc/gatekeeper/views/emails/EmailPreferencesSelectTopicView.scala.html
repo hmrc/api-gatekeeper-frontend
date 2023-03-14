@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -32,13 +33,19 @@
     s"$uri?$qs"
 }
 
-@main(title = s"${applicationConfig.title} - Email users interested in a topic") {
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a topic",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${pageUrl()}",
+            Some("data-back-link")
+        )
+    )
+) {
     <div class="govuk-template__body">
 
         <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
-            <div>
-                <a href="@pageUrl()" class="govuk-back-link" data-back-link>Back</a>
-            </div>
             <div class="govuk-form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">

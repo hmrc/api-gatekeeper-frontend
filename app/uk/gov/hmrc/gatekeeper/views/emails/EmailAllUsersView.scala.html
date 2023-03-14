@@ -20,16 +20,23 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Emails all users") {
+@main(
+    title = s"${applicationConfig.title} - Emails all users",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.showEmailInformation("all-users")}",
+            Some("data-back-link")
+        )
+    )
+){
     <div class="content__body full-width">
-        <div>
-            <a data-back-link href="@routes.EmailsController.showEmailInformation("all-users")">Back</a>
-        </div>
         <div><h1 class="govuk-heading-l"  id="pageTitle">Email all users</h1></div>
         @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
     </div>

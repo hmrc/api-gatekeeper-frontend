@@ -21,6 +21,7 @@
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.Json
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -29,12 +30,22 @@
 @tpdQuery() = @{
     new DevelopersEmailQuery(Some(selectedTopic.get.toString))
 }
+
 @userSelection() = @{
     Map("Topic" -> TopicOptionChoice.optionLabel(selectedTopic.get))
-
 }
-@main(title = s"${applicationConfig.title} - Email users interested in a topic") {
-    <a href="@routes.EmailsController.emailPreferencesSelectUserTopic(Some(selectedTopic.get.toString)).url" class="govuk-back-link" data-back-link>Back</a>
+
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a topic",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.emailPreferencesSelectUserTopic(Some(selectedTopic.get.toString)).url}",
+            Some("data-back-link")
+        )
+    )
+) {
+
     <div class="govuk-width-container">
 
         <div class="govuk-form-group">

@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -39,9 +40,16 @@
   </select>
 }
 
-
-@main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
-  <a href="@routes.EmailsController.emailPreferencesChoiceNew()" class="govuk-back-link"  data-back-link>Back</a>
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a specific API",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.emailPreferencesChoiceNew()}",
+            Some("data-back-link")
+        )
+    )
+) {
 
   <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 

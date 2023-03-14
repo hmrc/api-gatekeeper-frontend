@@ -20,17 +20,24 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
-@main(title = s"${applicationConfig.title} - Email users interested in a topic") {
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a topic",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.emailPreferencesChoice()}",
+            Some("data-back-link")
+        )
+    )
+) {
   <div class="content__body full-width">
-    <div>
-      <a href="@routes.EmailsController.emailPreferencesChoice()" class="govuk-back-link" data-back-link>Back</a>
-    </div>
     <form name="topic-filters" action="@routes.EmailsController.emailPreferencesTopic(None).url" method="get">
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
