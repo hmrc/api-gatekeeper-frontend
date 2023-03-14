@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -31,12 +32,17 @@
   } else { api.displayName }
 }
 
-@main(title = s"${applicationConfig.title} - Email users interested in a specific tax regime") {
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a specific tax regime",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.selectTaxRegime(None).url}",
+            Some("data-back-link")
+        )
+    )
+) {
   <div class="govuk-template__body">
-    <div>
-        <a href="@routes.EmailsController.selectTaxRegime(None).url" class="govuk-back-link" data-back-link>Back</a>
-    </div>
-
     <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectTaxRegime(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">

@@ -61,6 +61,7 @@ trait Env {
   private def createChromeDriver(): WebDriver = {
     val options = new ChromeOptions()
     options.addArguments("--headless")
+    options.addArguments("--remote-allow-origins=*")
     options.addArguments("--proxy-server='direct://'")
     options.addArguments("--proxy-bypass-list=*")
     new ChromeDriver(options)
@@ -74,6 +75,7 @@ trait Env {
 
     new RemoteWebDriver(new URL("http://localhost:4444/wd/hub"), browserOptions)
   }
+
   def shutdown = Try(driver.quit())
 
   sys addShutdownHook {

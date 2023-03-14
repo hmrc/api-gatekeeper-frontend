@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -30,11 +31,17 @@
   params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
 )
 
-@main(title = s"${applicationConfig.title} - Email all users subscribed to an API") {
+@main(
+    title = s"${applicationConfig.title} - Email all users subscribed to an API",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.showEmailInformation("api-subscription")}",
+            Some("data-back-link")
+        )
+    )
+){
   <div class="content__body full-width">
-    <div>
-      <a href="@routes.EmailsController.showEmailInformation("api-subscription")" class="govuk-back-link"  data-back-link>Back</a>
-    </div>
     <div><h1 class="govuk-heading-l" id="pageTitle">Email all users subscribed to an API</h1></div>
       @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
       <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">

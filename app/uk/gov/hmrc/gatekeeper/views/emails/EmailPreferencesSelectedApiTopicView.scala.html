@@ -21,6 +21,7 @@
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.Json
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -33,8 +34,15 @@
     Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
 }
-    @main(title = s"${applicationConfig.title} - Email users interested in a specific API") {
-        <a href="@routes.EmailsController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))" class="govuk-back-link" data-back-link>Back</a>
+    @main(
+        title = s"${applicationConfig.title} - Email users interested in a specific API",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))}",
+            Some("data-back-link")
+        )
+    )) {
         <div class="govuk-width-container">
 
                 <div class="govuk-form-group">

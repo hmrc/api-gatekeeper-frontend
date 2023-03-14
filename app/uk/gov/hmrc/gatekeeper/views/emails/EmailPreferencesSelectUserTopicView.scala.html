@@ -24,28 +24,22 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredApis: List[String], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(selectedTopic: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
-
-@pageUrl() = @{
-    val qs = filteredApis.zipWithIndex.map { case (key,index)  =>  s"selectedAPIs=$key" }.mkString("&")
-    val uri = routes.EmailsController.emailPreferencesSpecificApisNew(List.empty, None).url
-    s"$uri?$qs"
-}
 
 @main(
     title = s"${applicationConfig.title} - Email users interested in a topic",
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${pageUrl()}",
+            s"${routes.EmailsController.chooseEmailPreferencesNew()}",
             Some("data-back-link")
         )
     )
 ) {
     <div class="govuk-template__body">
 
-        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
+        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSelectedUserTopic(None).url" method="get">
             <div class="govuk-form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">
@@ -53,14 +47,12 @@
                             Select the topic of the email
                         </h1>
                     </legend>
-                    @for(filteredApi <- filteredApis) {
-                        <span><input type="hidden" name="selectedAPIs" value="@filteredApi"/></span>
-                    }
+
                     <div class="govuk-radios" data-module="govuk-radios">
-                        @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
-                        @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
-                        @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
-                        @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
+                        @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, selectedTopic)
+                        @topicRadioOption(TopicOptionChoice.TECHNICAL, selectedTopic)
+                        @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, selectedTopic)
+                        @topicRadioOption(TopicOptionChoice.EVENT_INVITES, selectedTopic)
                     </div>
                 </fieldset>
             </div>
