@@ -18,13 +18,16 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import akka.stream.Materializer
+
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -62,10 +65,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailPreferencesSelectTaxRegimeView   = mock[EmailPreferencesSelectTaxRegimeView]
   private lazy val mockEmailPreferencesSpecificTaxRegimeView = mock[EmailPreferencesSpecificTaxRegimeView]
   private lazy val mockEmailPreferencesSelectedTaxRegimeView = mock[EmailPreferencesSelectedTaxRegimeView]
-  private lazy val mockEmailPreferencesSelectUserTopicView = mock[EmailPreferencesSelectUserTopicView]
+  private lazy val mockEmailPreferencesSelectUserTopicView   = mock[EmailPreferencesSelectUserTopicView]
   private lazy val mockEmailPreferencesSelectedUserTopicView = mock[EmailPreferencesSelectedUserTopicView]
-  private lazy val mockEmailAllUsersNewView = mock[EmailAllUsersNewView]
-  private lazy val mockEmailInformationNewView = mock[EmailInformationNewView]
+  private lazy val mockEmailAllUsersNewView                  = mock[EmailAllUsersNewView]
+  private lazy val mockEmailInformationNewView               = mock[EmailInformationNewView]
 
   running(app) {
 
@@ -653,7 +656,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
 
-        val request = createGetRequest("/emails/email-preferences/select-user-topic")
+        val request                = createGetRequest("/emails/email-preferences/select-user-topic")
         val result: Future[Result] = underTest.selectUserTopicPage(
           Some(TopicOptionChoice.TECHNICAL.toString)
         )(request)

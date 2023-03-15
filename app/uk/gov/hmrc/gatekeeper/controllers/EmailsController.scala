@@ -19,10 +19,12 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -42,35 +44,35 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class EmailsController @Inject() (
-                                   developerService: DeveloperService,
-                                   apiDefinitionService: ApiDefinitionService,
-                                   emailLandingView: EmailLandingView,
-                                   emailInformationView: EmailInformationView,
-                                   emailsAllUsersView: EmailAllUsersView,
-                                   emailApiSubscriptionsView: EmailApiSubscriptionsView,
-                                   emailPreferencesChoiceView: EmailPreferencesChoiceView,
-                                   emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
-                                   emailPreferencesTopicView: EmailPreferencesTopicView,
-                                   emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
-                                   emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
-                                   emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
-                                   emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
-                                   emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
-                                   emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
-                                   emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
-                                   emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
-                                   emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
-                                   emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
-                                   emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
-                                   emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
-                                   emailsAllUsersNewView: EmailAllUsersNewView,
-                                   emailInformationNewView: EmailInformationNewView,
-                                   val applicationService: ApplicationService,
-                                   val forbiddenView: ForbiddenView,
-                                   mcc: MessagesControllerComponents,
-                                   override val errorTemplate: ErrorTemplate,
-                                   val apmService: ApmService,
-                                   strideAuthorisationService: StrideAuthorisationService
+    developerService: DeveloperService,
+    apiDefinitionService: ApiDefinitionService,
+    emailLandingView: EmailLandingView,
+    emailInformationView: EmailInformationView,
+    emailsAllUsersView: EmailAllUsersView,
+    emailApiSubscriptionsView: EmailApiSubscriptionsView,
+    emailPreferencesChoiceView: EmailPreferencesChoiceView,
+    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
+    emailPreferencesTopicView: EmailPreferencesTopicView,
+    emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
+    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+    emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
+    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
+    emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
+    emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView,
+    emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
+    emailPreferencesSpecificTaxRegimeView: EmailPreferencesSpecificTaxRegimeView,
+    emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
+    emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
+    emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
+    emailsAllUsersNewView: EmailAllUsersNewView,
+    emailInformationNewView: EmailInformationNewView,
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    mcc: MessagesControllerComponents,
+    override val errorTemplate: ErrorTemplate,
+    val apmService: ApmService,
+    strideAuthorisationService: StrideAuthorisationService
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
@@ -152,28 +154,28 @@ class EmailsController @Inject() (
     Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent]                                                           = anyStrideUserAction { implicit request =>
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
   }
+
   def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     selectOption.toUpperCase match {
       case "YES" => Future.successful(Redirect(routes.EmailsController.selectSpecificApiNew(selectedAPIs, selectedTopic)))
-      case _   => Future.successful(Redirect(routes.EmailsController.selectTopicPage(selectedAPIs, selectedTopic)))
+      case _     => Future.successful(Redirect(routes.EmailsController.selectTopicPage(selectedAPIs, selectedTopic)))
     }
   }
 
   def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
-
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsController.selectTaxRegime(selectedCategories)))
-        case _ =>
+        case _     =>
           for {
-            categories <- apiDefinitionService.apiCategories
-            selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
-            users <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
+            categories                <- apiDefinitionService.apiCategories
+            selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
+            users                     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
             selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
-            usersAsJson = Json.toJson(users)
+            usersAsJson                = Json.toJson(users)
           } yield Ok(emailPreferencesSelectedTaxRegimeView(
             users,
             usersAsJson,
@@ -183,24 +185,27 @@ class EmailsController @Inject() (
       }
     }
 
-  def emailPreferencesSelectUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+  def emailPreferencesSelectUserTopic(selectedTopic: Option[String]): Action[AnyContent]                                       =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       Future.successful(Ok(emailPreferencesSelectUserTopicView(maybeTopic)))
     }
-  def emailPreferencesSelectedUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+
+  def emailPreferencesSelectedUserTopic(selectedTopic: Option[String]): Action[AnyContent]                                     =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
         .map(users => {
-          val filteredUsers = users.filter(_.verified)
+          val filteredUsers       = users.filter(_.verified)
           val filteredUsersAsJson = Json.toJson(filteredUsers)
           Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
         })
     }
+
   private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
     maybeSelectedCategories.fold(List.empty[APICategory])(selectedCategories =>
-      categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory))
+      categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory)
+    )
 
   private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
     maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
@@ -271,7 +276,6 @@ class EmailsController @Inject() (
     }
   }
 
-
   def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
     val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
@@ -295,7 +299,8 @@ class EmailsController @Inject() (
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         categories          <- apiDefinitionService.apiCategories
         users               <- topicAndCategory.map(tup =>
-                                  developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false))
+                                 developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false)
+                               )
                                  .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
         usersAsJson          = Json.toJson(users)
         selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
@@ -314,8 +319,8 @@ class EmailsController @Inject() (
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
-      categories          <- apiDefinitionService.apiCategories
-      selectedCategories   = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
+      categories        <- apiDefinitionService.apiCategories
+      selectedCategories = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
     } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategories))
   }
 
@@ -356,9 +361,9 @@ class EmailsController @Inject() (
 
   def showEmailInformationNew(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {
-      case "all-users" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.EMAIL_ALL_USERS)))
+      case "all-users"        => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.EMAIL_ALL_USERS)))
       case "api-subscription" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.API_SUBSCRIPTION)))
-      case _ => Future.failed(new NotFoundException("Page Not Found"))
+      case _                  => Future.failed(new NotFoundException("Page Not Found"))
     }
   }
 
@@ -375,7 +380,7 @@ class EmailsController @Inject() (
     developerService.fetchUsers
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
-        val usersAsJson = Json.toJson(filteredUsers)
+        val usersAsJson   = Json.toJson(filteredUsers)
         Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
       })
   }
