@@ -18,16 +18,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import akka.stream.Materializer
-
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -67,6 +64,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailPreferencesSelectedTaxRegimeView = mock[EmailPreferencesSelectedTaxRegimeView]
   private lazy val mockEmailPreferencesSelectUserTopicView = mock[EmailPreferencesSelectUserTopicView]
   private lazy val mockEmailPreferencesSelectedUserTopicView = mock[EmailPreferencesSelectedUserTopicView]
+  private lazy val mockEmailAllUsersNewView = mock[EmailAllUsersNewView]
+  private lazy val mockEmailInformationNewView = mock[EmailInformationNewView]
 
   running(app) {
 
@@ -188,6 +187,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectedTaxRegimeView,
         mockEmailPreferencesSelectUserTopicView,
         mockEmailPreferencesSelectedUserTopicView,
+        mockEmailAllUsersNewView,
+        mockEmailInformationNewView,
         mockApplicationService,
         forbiddenView,
         mcc,

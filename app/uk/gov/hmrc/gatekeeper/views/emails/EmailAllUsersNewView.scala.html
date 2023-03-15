@@ -31,13 +31,13 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.showEmailInformation("all-users")}",
+            s"${routes.EmailsController.showEmailInformationNew("all-users")}",
             Some("data-back-link")
         )
     )
 ){
     <div class="content__body full-width">
-        <div><h1 class="govuk-heading-l"  id="pageTitle">Email all users</h1></div>
-        @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+        <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5"  id="pageTitle">Email all users</h1></div>
+        @recipientTableNew(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
     </div>
 }

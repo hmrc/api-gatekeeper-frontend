@@ -19,12 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -32,8 +30,8 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EMAIL_ALL_USERS, _}
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
+import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
@@ -363,11 +361,21 @@ class EmailsController @Inject() (
       case _ => Future.failed(new NotFoundException("Page Not Found"))
     }
   }
+
   def emailAllUsersPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     developerService.fetchUsers
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
         val usersAsJson   = Json.toJson(filteredUsers)
+        Ok(emailsAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
+      })
+  }
+
+  def emailAllUsersNewPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    developerService.fetchUsers
+      .map((users: List[RegisteredUser]) => {
+        val filteredUsers = users.filter(_.verified)
+        val usersAsJson = Json.toJson(filteredUsers)
         Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
       })
   }
