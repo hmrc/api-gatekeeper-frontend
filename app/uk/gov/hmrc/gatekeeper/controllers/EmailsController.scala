@@ -65,6 +65,8 @@ class EmailsController @Inject() (
                                    emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView,
                                    emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
                                    emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
+                                   emailsAllUsersNewView: EmailAllUsersNewView,
+                                   emailInformationNewView: EmailInformationNewView,
                                    val applicationService: ApplicationService,
                                    val forbiddenView: ForbiddenView,
                                    mcc: MessagesControllerComponents,
@@ -313,12 +315,9 @@ class EmailsController @Inject() (
     }
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-//    val selectedCategory: String = mayBeCategory.getOrElse("")
-
     for {
       categories          <- apiDefinitionService.apiCategories
-      selectedCategories   = categories.filter(c => previouslySelectedCategories.map(categories => categories.contains(c.category)).getOrElse(false))
-      selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
+      selectedCategories   = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
     } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategories))
   }
 
@@ -357,12 +356,19 @@ class EmailsController @Inject() (
     }
   }
 
+  def showEmailInformationNew(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    emailChoice match {
+      case "all-users" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.EMAIL_ALL_USERS)))
+      case "api-subscription" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.API_SUBSCRIPTION)))
+      case _ => Future.failed(new NotFoundException("Page Not Found"))
+    }
+  }
   def emailAllUsersPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     developerService.fetchUsers
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
         val usersAsJson   = Json.toJson(filteredUsers)
-        Ok(emailsAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
+        Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
       })
   }
 

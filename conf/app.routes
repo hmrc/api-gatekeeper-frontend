@@ -95,6 +95,7 @@ GET         /emails                                                           uk
 POST        /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailOption()
 
 GET         /emails/:emailChoice/information                                  uk.gov.hmrc.gatekeeper.controllers.EmailsController.showEmailInformation(emailChoice: String)
+GET         /emails/:emailChoice/information-new                              uk.gov.hmrc.gatekeeper.controllers.EmailsController.showEmailInformationNew(emailChoice: String)
 
 GET         /emails/all-users                                                 uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailAllUsersPage()
 GET         /emails/api-subscribers                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailApiSubscribersPage(apiVersionFilter: Option[String])
