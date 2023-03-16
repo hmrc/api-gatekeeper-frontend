@@ -29,11 +29,10 @@
               @helper.CSRF.formField
               <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
               <input type="hidden" name="user-selection-query" value="@{Json.toJson(tpdQuery)}"/>
-
               <div class="compose-email-send">
                   <button type="submit" class="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{users.length} displayed email addresses.">
-            Compose email
-          </button>
+                    Compose email
+                  </button>
               </div>
           </form>
       </div>
