@@ -31,14 +31,14 @@ import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiViewNew
+import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiNewView
 
 class EmailPreferencesSpecificApiNewViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val emailPreferencesSpecificApiViewNew: EmailPreferencesSpecificApiViewNew = app.injector.instanceOf[EmailPreferencesSpecificApiViewNew]
+    val emailPreferencesSpecificApiViewNew: EmailPreferencesSpecificApiNewView = app.injector.instanceOf[EmailPreferencesSpecificApiNewView]
   }
 
   "email preferences specific api view" must {

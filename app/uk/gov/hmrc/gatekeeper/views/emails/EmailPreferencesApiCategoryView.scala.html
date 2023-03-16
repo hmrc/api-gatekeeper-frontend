@@ -19,18 +19,25 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - Email users interested in a tax regime") {
-  <a href="@routes.EmailsController.emailPreferencesChoice" class="govuk-back-link" data-back-link>Back</a>
+@main(
+    title = s"${applicationConfig.title} - Email users interested in a tax regime",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.emailPreferencesChoice()}",
+            Some("data-back-link")
+        )
+    )
+) {
 
-  <div class="govuk-template__body">
-
+    <div class="govuk-template__body">
     <form name="topic-filters" action="@routes.EmailsController.emailPreferencesApiCategory(None, None).url" method="get">
 
       <div class="govuk-form-group">
