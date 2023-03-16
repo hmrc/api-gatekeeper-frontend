@@ -233,7 +233,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier)                                                     =
+  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =

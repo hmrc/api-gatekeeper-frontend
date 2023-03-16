@@ -1,0 +1,43 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import play.api.libs.json.JsValue
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+    title = s"${applicationConfig.title} - Emails all users",
+    breadcrumbs = Seq(
+        Crumb(
+            "Back",
+            s"${routes.EmailsController.showEmailInformationNew("all-users")}",
+            Some("data-back-link")
+        )
+    )
+){
+    <div class="content__body full-width">
+        <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5"  id="pageTitle">Email all users</h1></div>
+        @recipientTableNew(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+    </div>
+}

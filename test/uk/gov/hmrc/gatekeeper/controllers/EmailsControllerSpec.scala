@@ -65,8 +65,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val mockEmailPreferencesSelectTaxRegimeView   = mock[EmailPreferencesSelectTaxRegimeView]
   private lazy val mockEmailPreferencesSpecificTaxRegimeView = mock[EmailPreferencesSpecificTaxRegimeView]
   private lazy val mockEmailPreferencesSelectedTaxRegimeView = mock[EmailPreferencesSelectedTaxRegimeView]
-  private lazy val mockEmailPreferencesSelectUserTopicView = mock[EmailPreferencesSelectUserTopicView]
+  private lazy val mockEmailPreferencesSelectUserTopicView   = mock[EmailPreferencesSelectUserTopicView]
   private lazy val mockEmailPreferencesSelectedUserTopicView = mock[EmailPreferencesSelectedUserTopicView]
+  private lazy val mockEmailAllUsersNewView                  = mock[EmailAllUsersNewView]
+  private lazy val mockEmailInformationNewView               = mock[EmailInformationNewView]
 
   running(app) {
 
@@ -188,6 +190,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectedTaxRegimeView,
         mockEmailPreferencesSelectUserTopicView,
         mockEmailPreferencesSelectedUserTopicView,
+        mockEmailAllUsersNewView,
+        mockEmailInformationNewView,
         mockApplicationService,
         forbiddenView,
         mcc,
@@ -652,7 +656,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
 
-        val request = createGetRequest("/emails/email-preferences/select-user-topic")
+        val request                = createGetRequest("/emails/email-preferences/select-user-topic")
         val result: Future[Result] = underTest.selectUserTopicPage(
           Some(TopicOptionChoice.TECHNICAL.toString)
         )(request)
