@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
@@ -108,6 +109,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       val newAppWithDev = this.applicationViewModel.application.withAdmin(developer)
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
+
+    def withMaybeLatestTOUAgreement(maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]) = applicationViewModel.copy(maybeLatestTOUAgreement = maybeLatestTOUAgreement)
   }
 
   implicit class ApplicationStateExtension(applicationState: ApplicationState) {

@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 @import uk.gov.hmrc.gatekeeper.models.State._
 @import uk.gov.hmrc.gatekeeper.models.view._
+@import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 @import uk.gov.hmrc.gatekeeper.views.helper.application._
 @import org.joda.time.format.DateTimeFormat
 @import uk.gov.hmrc.gatekeeper.views.helper.EmailsFormatter
@@ -124,8 +125,8 @@
   <a href="@url" class="govuk-link" target="_blank">@url</a> (opens in a new window)
 }
 
-@renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreement) = {
-  v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @{DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)}
+@renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreementDisplayDetails) = {
+  v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @termsOfUseAgreement.date
 }
 
 @renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
