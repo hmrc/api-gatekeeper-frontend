@@ -100,6 +100,7 @@ class EmailsController @Inject() (
         case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
+
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
       Future.successful(BadRequest(emailPreferencesChoiceView()))
 

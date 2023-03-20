@@ -93,13 +93,6 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
 
   def validateEmailPreferencesSelectSubscribedApiPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email users interested in a specific API") shouldBe true
-//
-//    for (api: ApiDefinition <- apis) {
-//      for (version: ApiVersionDefinition <- api.versions) {
-//        val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
-//        versionOption.isDefined shouldBe true
-//      }
-//    }
   }
 
   def validateSubscribedAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi]) = {
