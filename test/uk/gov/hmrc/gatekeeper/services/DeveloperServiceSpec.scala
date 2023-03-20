@@ -763,6 +763,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(List(category1))))(*)
     }
 
+    "call the connector correctly when only passed a service" in new Setup {
+      DeveloperConnectorMock.FetchEmailPreferencesByServices.returnsFor(Some(apis))(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(apis))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(apis)))(*)
+    }
+
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories), false)(sandboxUser)
 

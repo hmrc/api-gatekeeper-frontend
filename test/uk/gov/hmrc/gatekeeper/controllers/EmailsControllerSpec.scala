@@ -46,29 +46,32 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView                         = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView                             = app.injector.instanceOf[ForbiddenView]
-  private lazy val mockSendEmailChoiceView                   = mock[EmailLandingView]
-  private lazy val mockEmailInformationView                  = mock[EmailInformationView]
-  private lazy val mockEmailAllUsersView                     = mock[EmailAllUsersView]
-  private lazy val mockEmailApiSubscriptionsView             = mock[EmailApiSubscriptionsView]
-  private lazy val emailPreferencesChoiceView                = app.injector.instanceOf[EmailPreferencesChoiceView]
-  private lazy val emailPreferencesTopicView                 = app.injector.instanceOf[EmailPreferencesTopicView]
-  private lazy val emailPreferencesApiCategoryView           = app.injector.instanceOf[EmailPreferencesApiCategoryView]
-  private lazy val mockEmailPreferencesSpecificApiView       = mock[EmailPreferencesSpecificApiView]
-  private lazy val mockEmailPreferencesSpecificApiViewNew    = mock[EmailPreferencesSpecificApiNewView]
-  private lazy val mockEmailPreferencesSelectApiView         = mock[EmailPreferencesSelectApiView]
-  private lazy val mockEmailPreferencesSelectTopicView       = mock[EmailPreferencesSelectTopicView]
-  private lazy val mockEmailPreferencesSelectedApiTopicView  = mock[EmailPreferencesSelectedApiTopicView]
-  private lazy val mockEmailPreferencesChoiceNewView         = mock[EmailPreferencesChoiceNewView]
-  private lazy val mockEmailPreferencesSelectApiNewView      = mock[EmailPreferencesSelectApiNewView]
-  private lazy val mockEmailPreferencesSelectTaxRegimeView   = mock[EmailPreferencesSelectTaxRegimeView]
-  private lazy val mockEmailPreferencesSpecificTaxRegimeView = mock[EmailPreferencesSpecificTaxRegimeView]
-  private lazy val mockEmailPreferencesSelectedTaxRegimeView = mock[EmailPreferencesSelectedTaxRegimeView]
-  private lazy val mockEmailPreferencesSelectUserTopicView   = mock[EmailPreferencesSelectUserTopicView]
-  private lazy val mockEmailPreferencesSelectedUserTopicView = mock[EmailPreferencesSelectedUserTopicView]
-  private lazy val mockEmailAllUsersNewView                  = mock[EmailAllUsersNewView]
-  private lazy val mockEmailInformationNewView               = mock[EmailInformationNewView]
+  private lazy val errorTemplateView                             = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView                                 = app.injector.instanceOf[ForbiddenView]
+  private lazy val mockSendEmailChoiceView                       = mock[EmailLandingView]
+  private lazy val mockEmailInformationView                      = mock[EmailInformationView]
+  private lazy val mockEmailAllUsersView                         = mock[EmailAllUsersView]
+  private lazy val mockEmailApiSubscriptionsView                 = mock[EmailApiSubscriptionsView]
+  private lazy val emailPreferencesChoiceView                    = app.injector.instanceOf[EmailPreferencesChoiceView]
+  private lazy val emailPreferencesTopicView                     = app.injector.instanceOf[EmailPreferencesTopicView]
+  private lazy val emailPreferencesApiCategoryView               = app.injector.instanceOf[EmailPreferencesApiCategoryView]
+  private lazy val mockEmailPreferencesSpecificApiView           = mock[EmailPreferencesSpecificApiView]
+  private lazy val mockEmailPreferencesSpecificApiViewNew        = mock[EmailPreferencesSpecificApiNewView]
+  private lazy val mockEmailPreferencesSelectApiView             = mock[EmailPreferencesSelectApiView]
+  private lazy val mockEmailPreferencesSelectTopicView           = mock[EmailPreferencesSelectTopicView]
+  private lazy val mockEmailPreferencesSelectedApiTopicView      = mock[EmailPreferencesSelectedApiTopicView]
+  private lazy val mockEmailPreferencesChoiceNewView             = mock[EmailPreferencesChoiceNewView]
+  private lazy val mockEmailPreferencesSelectApiNewView          = mock[EmailPreferencesSelectApiNewView]
+  private lazy val mockEmailPreferencesSelectTaxRegimeView       = mock[EmailPreferencesSelectTaxRegimeView]
+  private lazy val mockEmailPreferencesSpecificTaxRegimeView     = mock[EmailPreferencesSpecificTaxRegimeView]
+  private lazy val mockEmailPreferencesSelectedTaxRegimeView     = mock[EmailPreferencesSelectedTaxRegimeView]
+  private lazy val mockEmailPreferencesSelectUserTopicView       = mock[EmailPreferencesSelectUserTopicView]
+  private lazy val mockEmailPreferencesSelectedUserTopicView     = mock[EmailPreferencesSelectedUserTopicView]
+  private lazy val mockEmailAllUsersNewView                      = mock[EmailAllUsersNewView]
+  private lazy val mockEmailInformationNewView                   = mock[EmailInformationNewView]
+  private lazy val mockEmailPreferencesSelectSubscribedApiView   = mock[EmailPreferencesSelectSubscribedApiView]
+  private lazy val mockEmailPreferencesSubscribedApiView         = mock[EmailPreferencesSubscibedApiView]
+  private lazy val mockEmailPreferencesSelectedSubscribedApiView = mock[EmailPreferencesSelectedSubscribedApiView]
 
   running(app) {
 
@@ -192,6 +195,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockEmailPreferencesSelectedUserTopicView,
         mockEmailAllUsersNewView,
         mockEmailInformationNewView,
+        mockEmailPreferencesSelectSubscribedApiView,
+        mockEmailPreferencesSubscribedApiView,
+        mockEmailPreferencesSelectedSubscribedApiView,
         mockApplicationService,
         forbiddenView,
         mcc,
@@ -199,7 +205,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockApmService,
         StrideAuthorisationServiceMock.aMock
       )
-
     }
 
     "email landing page" should {
@@ -287,6 +292,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api-new")
       }
     }
+
     "email information page" should {
       "on request with 'all-users' in uri path should render correctly" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)

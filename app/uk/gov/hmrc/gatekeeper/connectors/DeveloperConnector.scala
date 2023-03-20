@@ -66,6 +66,8 @@ trait DeveloperConnector {
 
   def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
+  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
@@ -173,6 +175,17 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
+  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    logger.info(s"fetchEmailUsersByApis $maybeApis")
+    val queryParams: Seq[(String, String)] = maybeApis.filter(_.nonEmpty)
+      .fold(Seq.empty[(String, String)])(apis =>
+        apis.filter(_.nonEmpty)
+          .flatMap(api => Seq("service" -> api))
+      )
+
+    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
+  }
+
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/all")
   }
@@ -240,4 +253,6 @@ class DummyDeveloperConnector extends DeveloperConnector {
     Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), UserId.random, "Bob", "Smith", true))
 
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
+
+  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 }
