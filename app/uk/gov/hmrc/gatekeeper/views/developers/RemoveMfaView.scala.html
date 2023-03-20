@@ -32,7 +32,7 @@
     @helper.form(action = routes.DeveloperController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
         @helper.CSRF.formField
         <div id="confirm-removal-hint" class="govuk-hint"></div>
-        <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-6">@developer.user.email will no longer get access codes.</p>
+        <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-6">@developer.user.email.text will no longer get access codes.</p>
 
         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
             <div class="govuk-radios__item">
