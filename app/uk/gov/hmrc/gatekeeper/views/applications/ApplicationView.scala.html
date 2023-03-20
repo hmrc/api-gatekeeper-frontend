@@ -177,6 +177,21 @@
   <dl class="govuk-summary-list">
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
+        Terms of Use
+      </dt>
+      <dd class="govuk-summary-list__value" data-terms>
+        @{
+          model.maybeLatestTOUAgreement match {
+            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
+            case _ =>  <p class="govuk-body">Not agreed</p>
+          }
+        }
+      </dd>
+      <dd class="govuk-summary-list__actions">
+      </dd>
+    </div>
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
         Environment
       </dt>
       <dd class="govuk-summary-list__value" data-environment>
@@ -284,21 +299,6 @@
           </a>
         </dd>
       }
-    </div>
-    <div class="govuk-summary-list__row">
-      <dt class="govuk-summary-list__key">
-        Terms of Use
-      </dt>
-      <dd class="govuk-summary-list__value" data-terms>
-        @{
-          model.maybeLatestTOUAgreement match {
-            case Some(termsOfUseAgreement) => renderTermsOfUseInfo(termsOfUseAgreement)
-            case _ =>  <p class="govuk-body">Not agreed</p>
-          }
-        }
-      </dd>
-      <dd class="govuk-summary-list__actions">
-      </dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
