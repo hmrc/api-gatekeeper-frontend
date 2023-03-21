@@ -38,7 +38,7 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.selectSubscribedApiPage(Some(selectedAPIs.map(_.serviceName)))}",
+            s"${routes.EmailsPreferencesController.selectSubscribedApiPage(Some(selectedAPIs.map(_.serviceName)))}",
             Some("data-back-link")
         )
     )) {
@@ -80,7 +80,7 @@
                                 </div>
                             </div>
                         }
-                        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
+                        <form name="topic-filters" action="@routes.EmailsPreferencesController.selectedApiTopic(None, None, List.empty).url" method="get">
                         <dl class="govuk-summary-list govuk-!-width-three-quarters">
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key" style="width: 15%;">
@@ -93,7 +93,7 @@
 
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSubscribedApis(selectedAPIs.map(_.serviceName)).url">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.subscribedApis(selectedAPIs.map(_.serviceName)).url">
                                         Change<span class="govuk-visually-hidden"> APIs</span>
                                     </a>
                                 </dd>
@@ -126,5 +126,4 @@
                 </div>
             </form>
         </div>
-
     }

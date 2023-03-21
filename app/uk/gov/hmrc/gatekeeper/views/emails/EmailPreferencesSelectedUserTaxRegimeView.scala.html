@@ -16,7 +16,6 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.Json
@@ -25,33 +24,30 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedTopic: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @tpdQuery() = @{
-    new DevelopersEmailQuery(Some(selectedTopic.get.toString))
+    new DevelopersEmailQuery(None, None, Some(selectedCategories.map(cat => APICategory(cat.name))), false, None, false)
 }
-
 @userSelection() = @{
-    Map("Topic" -> TopicOptionChoice.optionLabel(selectedTopic.get))
+    Map("Tax Regime" -> selectedCategories.map(_.name).mkString("<br>"))
 }
-
 @main(
-    title = s"${applicationConfig.title} - Email users interested in a topic",
+    title = s"${applicationConfig.title} - Email users interested in a tax regime",
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url}",
+            s"${routes.EmailsPreferencesController.selectedTaxRegime(selectedCategories.map(_.category), None).url}",
             Some("data-back-link")
         )
     )
 ) {
-
     <div class="govuk-width-container">
 
         <div class="govuk-form-group">
             <fieldset class="govuk-fieldset">
                 <legend >
-                    <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a topic</h1>
+                    <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a tax regime</h1>
                 </legend>
 
                 @if(users.nonEmpty) {
@@ -86,14 +82,16 @@
                 }
                 <dl class="govuk-summary-list govuk-!-width-three-quarters">
                     <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key app-summary-list__15">
-                            Topic
+                        <dt class="govuk-summary-list__key" style="width: 15%;">
+                            Tax Regime
                         </dt>
                         <dd class="govuk-summary-list__value">
-                            @userSelection().get("Topic")
+                        @for(selectedCategory <- selectedCategories) {
+                            @selectedCategory.name<br/>
+                        }
                         </dd>
                         <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url">
+                            <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.selectedTaxRegime(selectedCategories.map(_.category), None).url">
                                 Change<span class="govuk-visually-hidden">Tax Regimes</span>
                             </a>
                         </dd>
@@ -125,5 +123,4 @@
             </fieldset>
         </div>
     </div>
-
 }

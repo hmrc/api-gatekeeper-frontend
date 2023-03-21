@@ -36,13 +36,13 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.selectSubscribedApiPage(None).url}",
+            s"${routes.EmailsPreferencesController.selectSubscribedApiPage(None).url}",
             Some("data-back-link")
         )
     )
 ) {
   <div class="govuk-template__body">
-    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.emailPreferencesSelectedSubscribedApi(List.empty).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsPreferencesController.selectedSubscribedApi(List.empty).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -63,14 +63,14 @@
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsController.selectSubscribedApiPage(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName))).url">
+                                         href="@routes.EmailsPreferencesController.selectSubscribedApiPage(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName))).url">
                                           <span aria-hidden="true">Change</span>
                                           <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
                                       </a>
                                   </li>
                                   @if(filteredApis.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSubscribedApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.subscribedApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
                                           </a>
@@ -86,7 +86,7 @@
           </fieldset>
       </div>
     </form>
-    <form id="addAnotherSubscribedApiChoice" name="add-another-api-choice" action="@routes.EmailsController.addAnotherSubscribedApiOption("", None, None).url" method="get">
+    <form id="addAnotherSubscribedApiChoice" name="add-another-api-choice" action="@routes.EmailsPreferencesController.addAnotherSubscribedApiOption("", None, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">

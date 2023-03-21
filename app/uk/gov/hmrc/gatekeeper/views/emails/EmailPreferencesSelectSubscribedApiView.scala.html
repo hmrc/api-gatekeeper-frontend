@@ -44,7 +44,7 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.emailPreferencesChoiceNew()}",
+            s"${routes.EmailsPreferencesController.emailPreferencesChoice()}",
             Some("data-back-link")
         )
     )
@@ -52,7 +52,7 @@
 
   <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 
-  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSubscribedApis(List.empty).url" method="get">
+  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsPreferencesController.subscribedApis(List.empty).url" method="get">
 
     <div class="govuk-form-group">
       <label class="govuk-label" for="selectedAPIs">
