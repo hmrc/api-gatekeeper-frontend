@@ -53,7 +53,7 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))) 
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK)))
   }
 
   def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
@@ -95,6 +95,14 @@ class ApiGatekeeperBaseSpec
     )
   }
 
+  def stubSubmissionLatestIsNotCompleted(appId: ApplicationId) = {
+    stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withBody("false").withStatus(OK)))
+  }
+
+  def stubSubmissionLatestIsNotFound(appId: ApplicationId) = {
+    stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withStatus(NOT_FOUND)))
+  }
+
   def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[ApplicationEvent] = Nil) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
@@ -102,7 +110,7 @@ class ApiGatekeeperBaseSpec
     stubDevelopers(developers)
     
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
-
+    stubSubmissionLatestIsNotFound(appId)
   }
 
   def stubApplicationsList() = {
@@ -125,22 +133,12 @@ class ApiGatekeeperBaseSpec
 
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withRequestBody(equalToJson(requestJson))
       .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
       .willReturn(
         aResponse().withStatus(OK).withBody(userJsonText)
       )
     )
 
-    // Where we still need the old email route
-    // TODO - remove this on completion of APIS-4925
-    stubFor(
-      get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(email.text))
-      .willReturn(
-        aResponse().withStatus(OK).withBody(userJsonText)
-      )
-    )
   }
   
   def stubApiDefinition() = {
