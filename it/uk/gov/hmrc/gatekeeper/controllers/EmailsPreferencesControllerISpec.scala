@@ -243,6 +243,37 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
 
+    "GET /emails/email-preferences/select-subscribed-api " should {
+
+      "respond with 200 and render the page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-subscribed-api", validHeaders)
+        result.status shouldBe OK
+
+        validateEmailPreferencesSelectSubscribedApiPage(Jsoup.parse(result.body), apis)
+      }
+
+      "respond with 200 and render the page correctly when selected api provided" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis)
+
+        val selectedApis = List(combinedApi2, combinedApi3)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-subscribed-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
+        result.status shouldBe OK
+
+        validateSubscribedAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)
+      }
+
+      "respond with 403 when not authorised" in {
+        primeAuthServiceFail()
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-subscribed-api", validHeaders)
+        result.status shouldBe FORBIDDEN
+      }
+    }
+
     "GET /emails/email-preferences/select-tax-regime" should {
       val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
 

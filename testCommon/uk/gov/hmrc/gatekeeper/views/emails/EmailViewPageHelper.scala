@@ -91,7 +91,34 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateEmailPreferencesSelectSubscribedApiPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+    elementExistsByText(document, "h1", "Email users interested in a specific API") shouldBe true
+//
+//    for (api: ApiDefinition <- apis) {
+//      for (version: ApiVersionDefinition <- api.versions) {
+//        val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
+//        versionOption.isDefined shouldBe true
+//      }
+//    }
+  }
+
+  def validateSubscribedAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi]) = {
+    validateStaticPageElements(document, dropDownAPIs)
+    validateEmailPreferencesSubscribedApiPage(document, selectedAPIs)
+  }
+
+  def validateEmailPreferencesSubscribedApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+    val sizeOfSelectedApis = selectedApis.size
+    val headerTitle = if (sizeOfSelectedApis < 2) "API" else "APIs"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
+    validateHiddenSelectedApiValues(document, selectedApis, 2)
+    verifyTableHeader(document, tableIsVisible = false)
+  }
+  private def validateStaticPageElements(document: Document, selectedAPIs: Seq[CombinedApi]) {
+    validatePageHeader(document, "You have selected 2 APIs")
+  }
+
+    def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
     for (api: ApiDefinition <- apis) {
@@ -321,15 +348,6 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
     validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
     validateStaticPageElementsNew(document, "/api-gatekeeper/emails/email-preferences/select-api-new")
-    validateHiddenSelectedApiValues(document, selectedApis, 2)
-    verifyTableHeader(document, tableIsVisible = false)
-  }
-
-  def validateEmailPreferencesSubscribedApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
-    val sizeOfSelectedApis = selectedApis.size
-    val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
-    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
-    validateStaticPageElementsNew(document, "/api-gatekeeper/emails/email-preferences/selected-subscribed-api")
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
   }

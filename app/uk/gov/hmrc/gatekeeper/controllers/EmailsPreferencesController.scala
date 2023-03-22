@@ -58,7 +58,7 @@ class EmailsPreferencesController @Inject()(
    emailPreferencesSelectUserTopicView: EmailPreferencesSelectUserTopicView,
    emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView,
    emailPreferencesSelectSubscribedApiView: EmailPreferencesSelectSubscribedApiView,
-   emailPreferencesSubscribedApiView: EmailPreferencesSubscibedApiView,
+   emailPreferencesSubscribedApiView: EmailPreferencesSubscribedApiView,
    emailPreferencesSelectedSubscribedApiView: EmailPreferencesSelectedSubscribedApiView,
    val applicationService: ApplicationService,
    val forbiddenView: ForbiddenView,
@@ -216,11 +216,7 @@ class EmailsPreferencesController @Inject()(
       for {
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers <- handleGettingApiUsers(filteredApis, None, PUBLIC)
-        privateUsers <- handleGettingApiUsers(filteredApis, None, PRIVATE)
-        combinedUsers = publicUsers ++ privateUsers
-        usersAsJson = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSubscribedApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis))
+      } yield Ok(emailPreferencesSubscribedApiView(filteredApis))
     }
   }
 
