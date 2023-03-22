@@ -19,7 +19,8 @@ package uk.gov.hmrc.gatekeeper.models.view
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, StateHistory, TermsOfUseAgreement}
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, StateHistory}
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 case class ResponsibleIndividualHistoryItem(name: String, email: String, fromDate: String, toDate: String)
 
@@ -31,7 +32,6 @@ case class ApplicationViewModel(
     stateHistory: List[StateHistory],
     hasSubmissions: Boolean,
     gatekeeperApprovalsUrl: String,
-    history: List[ResponsibleIndividualHistoryItem]
-  ) {
-  val maybeLatestTOUAgreement: Option[TermsOfUseAgreement] = application.checkInformation.flatMap(_.latestTOUAgreement)
-}
+    history: List[ResponsibleIndividualHistoryItem],
+    maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]
+  )
