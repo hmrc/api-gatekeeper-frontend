@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
@@ -79,7 +80,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       stateHistory = List.empty,
       hasSubmissions = false,
       gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}",
-      List(ResponsibleIndividualHistoryItem("Mr Responsible Individual", "ri@example.com", "22 June 2022", "Present"))
+      List(ResponsibleIndividualHistoryItem("Mr Responsible Individual", "ri@example.com", "22 June 2022", "Present")),
+      None //Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2"))
     )
   }
 
@@ -132,13 +134,10 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application with check information and terms of use agreed" in new Setup {
-      val termsOfUseVersion         = "1.0"
-      val termsOfUseAgreement       = TermsOfUseAgreement("test", DateTime.now(), termsOfUseVersion)
-      val checkInformation          = CheckInformation(termsOfUseAgreements = List(termsOfUseAgreement))
-      val applicationWithTermsOfUse = application.withCheckInformation(checkInformation)
+      val termsOfUseAgreement       = TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2")
 
       val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
+        DefaultApplicationViewModel.withMaybeLatestTOUAgreement(Some(termsOfUseAgreement)),
         strideUserRequest,
         Flash.emptyCookie
       )
@@ -149,33 +148,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       elementExistsByAttr(document, "dd", "data-terms") shouldBe true
       elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe false
       val agreedText =
-        s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(termsOfUseAgreement)}"
+        s"v${termsOfUseAgreement.version} agreed by ${termsOfUseAgreement.emailAddress} on ${termsOfUseAgreement.date}"
       elementIdentifiedByAttrContainsText(document, "dd", "data-terms", agreedText) shouldBe true
-    }
-
-    "show application with check information and multiple terms of use agreed" in new Setup {
-      val oldVersion                = "1.0"
-      val oldTOUAgreement           = TermsOfUseAgreement("test", DateTime.now().minusDays(1), oldVersion)
-      val newVersion                = "1.1"
-      val newTOUAgreement           = TermsOfUseAgreement("test", DateTime.now(), newVersion)
-      val checkInformation          = CheckInformation(termsOfUseAgreements = List(oldTOUAgreement, newTOUAgreement))
-      val applicationWithTermsOfUse = application.copy(checkInformation = Some(checkInformation))
-
-      val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(applicationWithTermsOfUse),
-        strideUserRequest,
-        Flash.emptyCookie
-      )
-
-      val document = Jsoup.parse(result.body)
-
-      result.contentType should include("text/html")
-      elementExistsByAttr(document, "dd", "data-terms") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", "Not agreed") shouldBe false
-      val agreedText = s"v${newTOUAgreement.version} agreed by ${newTOUAgreement.emailAddress} on ${formatTermsOfUseAgreedDateTime(newTOUAgreement)}"
-      elementIdentifiedByAttrContainsText(document, "dd", "data-terms", agreedText) shouldBe true
-      result.body.contains(s"v$oldTOUAgreement.version") shouldBe false
-      result.body.contains(DateTimeFormat.longDate.print(oldTOUAgreement.timeStamp)) shouldBe false
     }
 
     "show application information, including responsible individual table" in new Setup {

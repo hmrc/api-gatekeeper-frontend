@@ -50,7 +50,7 @@ import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.models.{Environment, _}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -65,6 +65,7 @@ class ApplicationController @Inject() (
     val forbiddenView: ForbiddenView,
     apiDefinitionService: ApiDefinitionService,
     developerService: DeveloperService,
+    termsOfUseService: TermsOfUseService,
     mcc: MessagesControllerComponents,
     applicationsView: ApplicationsView,
     applicationView: ApplicationView,
@@ -240,6 +241,7 @@ class ApplicationController @Inject() (
         seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
+        maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
       } yield Ok(applicationView(ApplicationViewModel(
         collaborators,
         app,
@@ -248,7 +250,8 @@ class ApplicationController @Inject() (
         stateHistory,
         doesApplicationHaveSubmissions,
         gatekeeperApprovalsUrl,
-        responsibleIndividualHistory
+        responsibleIndividualHistory,
+        maybeTermsOfUseAcceptance
       )))
     }
   }
