@@ -47,7 +47,6 @@ class EmailsPreferencesController @Inject()(
    apiDefinitionService: ApiDefinitionService,
    emailsAllUsersNewView: EmailAllUsersNewView,
    emailInformationNewView: EmailInformationNewView,
-   emailApiSubscriptionsView: EmailApiSubscriptionsView,
    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
    emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,

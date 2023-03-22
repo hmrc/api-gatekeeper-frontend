@@ -214,6 +214,13 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }
 
+  def validateEmailPreferencesSpecificTaxRegime(document: Document, selectedCategories: List[APICategoryDetails]) = {
+    val sizeOfSelectedCategories = selectedCategories.size
+    val headerTitle = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
+    validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
+  }
+
   def validateEmailPreferencesSelectedSubscribedApiPage(document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a specific API")
 
