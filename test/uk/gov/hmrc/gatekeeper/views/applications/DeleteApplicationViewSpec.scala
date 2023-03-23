@@ -17,13 +17,11 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
-
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -44,6 +42,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
     val grantLength: Period       = Period.ofDays(547)
 
+    val adminEmail = "sample@example.com"
+
     val application =
       ApplicationResponse(
         ApplicationId.random,
@@ -53,7 +53,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         "PRODUCTION",
         None,
         Set(
-          Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
+          Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
         DateTime.now(),
@@ -67,7 +67,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
   }
 
   "delete application view" should {
-    "show application information, including superuser only actions, when logged in as superuser" in new Setup {
+    "show application information, including superuser only actions, when logged in as superuser but not team admin" in new Setup {
       val result = deleteApplicationView.apply(
         applicationWithHistory,
         isSuperUser = true,
@@ -78,7 +78,22 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
       elementExistsByText(document, "button", "Delete application") shouldBe true
-      elementExistsByText(document, "td", "PRODUCTION")
+      elementExistsByText(document, "dd", "Production") shouldBe true
+      elementExistsByIdWithAttr(document, "emailAddress-0", "checked") shouldBe false
+      labelIdentifiedByForAttrContainsText(document, "emailAddress-0", adminEmail) shouldBe true
+    }
+
+    "show application information, including superuser only actions, when logged in as both superuser and team admin" in new Setup {
+      val result = deleteApplicationView.apply(
+        applicationWithHistory,
+        isSuperUser = true,
+        deleteApplicationForm.fill(DeleteApplicationForm("", Some(adminEmail)))
+      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+
+      val document = Jsoup.parse(result.body)
+
+      elementExistsByIdWithAttr(document, "emailAddress-0", "checked") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "emailAddress-0", adminEmail) shouldBe true
     }
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
