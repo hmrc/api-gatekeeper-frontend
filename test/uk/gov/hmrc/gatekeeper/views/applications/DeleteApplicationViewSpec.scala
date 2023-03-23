@@ -17,11 +17,13 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
+
 import org.joda.time.DateTime
 import org.jsoup.Jsoup
 
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId

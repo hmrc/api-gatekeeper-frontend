@@ -36,10 +36,10 @@ abstract class BaseISpec
     givenCleanMetricRegistry()
   }
 
-  protected implicit def materializer: Materializer = app.materializer
+  implicit protected def materializer: Materializer = app.materializer
 
   private lazy val messagesApi            = app.injector.instanceOf[MessagesApi]
-  private implicit def messages: Messages = messagesApi.preferred(Seq.empty[Lang])
+  implicit private def messages: Messages = messagesApi.preferred(Seq.empty[Lang])
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
 

@@ -81,7 +81,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       hasSubmissions = false,
       gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}",
       List(ResponsibleIndividualHistoryItem("Mr Responsible Individual", "ri@example.com", "22 June 2022", "Present")),
-      None //Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2"))
+      None // Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2"))
     )
   }
 
@@ -134,7 +134,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application with check information and terms of use agreed" in new Setup {
-      val termsOfUseAgreement       = TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2")
+      val termsOfUseAgreement = TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2")
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withMaybeLatestTOUAgreement(Some(termsOfUseAgreement)),

@@ -78,9 +78,9 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
 object ApplicationWithHistory {
   implicit val formatTotpIds = Json.format[TotpIds]
 
-  private implicit val formatStandard   = Json.format[Standard]
-  private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc       = Json.format[Ropc]
+  implicit private val formatStandard   = Json.format[Standard]
+  implicit private val formatPrivileged = Json.format[Privileged]
+  implicit private val formatRopc       = Json.format[Ropc]
 
   implicit val formatAccess = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)

@@ -88,7 +88,7 @@ trait DeveloperServiceMockProvider {
       def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(*)(*)).thenReturn(successful(developers.toList))
     }
 
-    object SearchDevelopers                                    {
+    object SearchDevelopers {
       def returns(users: User*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
     }
 

@@ -154,7 +154,7 @@ class EmailsController @Inject() (
     Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent]                                                           = anyStrideUserAction { implicit request =>
+  def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
   }
 
@@ -185,13 +185,13 @@ class EmailsController @Inject() (
       }
     }
 
-  def emailPreferencesSelectUserTopic(selectedTopic: Option[String]): Action[AnyContent]                                       =
+  def emailPreferencesSelectUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       Future.successful(Ok(emailPreferencesSelectUserTopicView(maybeTopic)))
     }
 
-  def emailPreferencesSelectedUserTopic(selectedTopic: Option[String]): Action[AnyContent]                                     =
+  def emailPreferencesSelectedUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))

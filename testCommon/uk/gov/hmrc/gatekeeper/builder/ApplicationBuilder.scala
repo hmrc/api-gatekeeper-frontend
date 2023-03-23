@@ -110,7 +110,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
     }
 
-    def withMaybeLatestTOUAgreement(maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]) = applicationViewModel.copy(maybeLatestTOUAgreement = maybeLatestTOUAgreement)
+    def withMaybeLatestTOUAgreement(maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]) =
+      applicationViewModel.copy(maybeLatestTOUAgreement = maybeLatestTOUAgreement)
   }
 
   implicit class ApplicationStateExtension(applicationState: ApplicationState) {

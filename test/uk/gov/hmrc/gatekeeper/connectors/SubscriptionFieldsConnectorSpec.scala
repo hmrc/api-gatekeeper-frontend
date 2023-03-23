@@ -38,7 +38,7 @@ class SubscriptionFieldsConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite {
 
-  private implicit val hc: HeaderCarrier = HeaderCarrier()
+  implicit private val hc: HeaderCarrier = HeaderCarrier()
 
   private val clientId                       = ClientId.random
   private val apiContext                     = ApiContext.random

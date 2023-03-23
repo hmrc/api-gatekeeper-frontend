@@ -198,16 +198,16 @@ sealed trait OverrideFlag {
 }
 
 object OverrideFlag {
-  private implicit val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
+  implicit private val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
 
-  private implicit val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
+  implicit private val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
     Reads { _ => JsSuccess(PersistLogin) },
     OWrites[PersistLogin.type] { _ => Json.obj() }
   )
 
-  private implicit val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
-  private implicit val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
-  private implicit val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
+  implicit private val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
+  implicit private val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
+  implicit private val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
 
   implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
@@ -284,9 +284,9 @@ object ApplicationResponse {
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
-  private implicit val formatStandard   = Json.format[Standard]
-  private implicit val formatPrivileged = Json.format[Privileged]
-  private implicit val formatRopc       = Json.format[Ropc]
+  implicit private val formatStandard   = Json.format[Standard]
+  implicit private val formatPrivileged = Json.format[Privileged]
+  implicit private val formatRopc       = Json.format[Ropc]
 
   implicit val formatAccess        = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
