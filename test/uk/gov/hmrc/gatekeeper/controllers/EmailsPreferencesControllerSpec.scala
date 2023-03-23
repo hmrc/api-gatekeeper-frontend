@@ -16,30 +16,31 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import akka.stream.Materializer
 import org.scalatest.Assertion
+
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
+import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.http.NotFoundException
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.emails._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.http.NotFoundException
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
@@ -60,7 +61,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
   private lazy val mockEmailAllUsersNewView                      = mock[EmailAllUsersNewView]
   private lazy val mockEmailInformationNewView                   = mock[EmailInformationNewView]
   private lazy val mockEmailPreferencesSelectSubscribedApiView   = mock[EmailPreferencesSelectSubscribedApiView]
-  private lazy val mockEmailPreferencesSubscribedApiView         = mock[EmailPreferencesSubscibedApiView]
+  private lazy val mockEmailPreferencesSubscribedApiView         = mock[EmailPreferencesSubscribedApiView]
   private lazy val mockEmailPreferencesSelectedSubscribedApiView = mock[EmailPreferencesSelectedSubscribedApiView]
 
   running(app) {
@@ -76,6 +77,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectUserTopicView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -229,8 +231,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
       "return NOT FOUND on request with invalid or empty path" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result: NotFoundException = intercept[NotFoundException]
-          { await(underTest.showEmailInformation("")(aLoggedInRequest)) }
+        val result: NotFoundException = intercept[NotFoundException] { await(underTest.showEmailInformation("")(aLoggedInRequest)) }
 
         result.message shouldBe "Page Not Found"
       }
@@ -394,6 +395,22 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.selectedUserTopic(
           Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString)
         )(request)
+
+        status(result) shouldBe OK
+      }
+    }
+
+    "Email Preferences selected subscribed api page" should {
+
+      "render the view correctly with selected subscribed api" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        DeveloperServiceMock.FetchDevelopersBySpecificApisEmailPreferences.returns(users: _*)
+        givenApiDefinition3Categories()
+
+        val request = createGetRequest("/emails/email-preferences/selected-subscribed-api")
+
+        val result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName))(request)
 
         status(result) shouldBe OK
       }

@@ -107,18 +107,11 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateEmailPreferencesSubscribedApiPage(document, selectedAPIs)
   }
 
-  def validateEmailPreferencesSubscribedApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
-    val sizeOfSelectedApis = selectedApis.size
-    val headerTitle = if (sizeOfSelectedApis < 2) "API" else "APIs"
-    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
-    validateHiddenSelectedApiValues(document, selectedApis, 2)
-    verifyTableHeader(document, tableIsVisible = false)
-  }
   private def validateStaticPageElements(document: Document, selectedAPIs: Seq[CombinedApi]) {
     validatePageHeader(document, "You have selected 2 APIs")
   }
 
-    def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
     for (api: ApiDefinition <- apis) {
@@ -150,6 +143,14 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
+  }
+
+  def validateEmailPreferencesSubscribedApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+    val sizeOfSelectedApis = selectedApis.size
+    val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
+    validateHiddenSelectedApiValues(document, selectedApis, 2)
+    verifyTableHeader(document, tableIsVisible = false)
   }
 }
 
@@ -243,7 +244,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesSpecificTaxRegime(document: Document, selectedCategories: List[APICategoryDetails]) = {
     val sizeOfSelectedCategories = selectedCategories.size
-    val headerTitle = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
+    val headerTitle              = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
     validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }

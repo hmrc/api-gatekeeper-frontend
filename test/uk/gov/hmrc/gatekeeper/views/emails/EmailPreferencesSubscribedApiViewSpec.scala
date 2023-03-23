@@ -31,13 +31,13 @@ import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSubscibedApiView
+import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSubscribedApiView
 
-class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
+class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]               = FakeRequest().withCSRFToken
-    val emailPreferencesSubscribedApiView: EmailPreferencesSubscibedApiView = app.injector.instanceOf[EmailPreferencesSubscibedApiView]
+    implicit val request: FakeRequest[AnyContentAsEmpty.type]                = FakeRequest().withCSRFToken
+    val emailPreferencesSubscribedApiView: EmailPreferencesSubscribedApiView = app.injector.instanceOf[EmailPreferencesSubscribedApiView]
   }
 
   "email preferences subscribed api view" must {
@@ -52,7 +52,7 @@ class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailPre
 
     "render as expected and show correct title and elements" in new Setup {
       val result: HtmlFormat.Appendable = {
-        emailPreferencesSubscribedApiView.render(users, new JsArray(), "", combinedList, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSubscribedApiView.render(combinedList, request, LoggedInUser(None), messagesProvider)
       }
       validateEmailPreferencesSubscribedApiPage(Jsoup.parse(result.body), combinedList)
     }

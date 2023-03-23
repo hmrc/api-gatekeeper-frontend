@@ -218,13 +218,13 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
         validateEmailPreferencesSelectTopicPage(Jsoup.parse(result.body))
       }
 
-     "respond with 200 and render the page correctly when selected topic provided" in {
+      "respond with 200 and render the page correctly when selected topic provided" in {
         primeAuthServiceSuccess()
         primeDeveloperServiceEmailPreferencesByTopic(allUsers, TopicOptionChoice.BUSINESS_AND_POLICY)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-user-topic?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}", validHeaders)
         result.status shouldBe OK
 
-       validateEmailPreferencesSelectTopicPage(Jsoup.parse(result.body))
+        validateEmailPreferencesSelectTopicPage(Jsoup.parse(result.body))
       }
 
       "respond with 200 and render the page correctly when selected topic provided but no users returned" in {
@@ -261,7 +261,8 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
 
         val selectedApis = List(combinedApi2, combinedApi3)
 
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-subscribed-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-subscribed-api?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
         result.status shouldBe OK
 
         validateSubscribedAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), combinedApis, selectedApis)

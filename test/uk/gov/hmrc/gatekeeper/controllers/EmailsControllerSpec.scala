@@ -46,18 +46,18 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView                         = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView                             = app.injector.instanceOf[ForbiddenView]
-  private lazy val mockEmailLandingView                      = mock[EmailLandingView]
-  private lazy val mockEmailInformationView                  = mock[EmailInformationView]
-  private lazy val mockEmailAllUsersView                     = mock[EmailAllUsersView]
-  private lazy val mockEmailApiSubscriptionsView             = mock[EmailApiSubscriptionsView]
-  private lazy val emailPreferencesChoiceView                = app.injector.instanceOf[EmailPreferencesChoiceView]
-  private lazy val emailPreferencesTopicView                 = app.injector.instanceOf[EmailPreferencesTopicView]
-  private lazy val emailPreferencesApiCategoryView           = app.injector.instanceOf[EmailPreferencesApiCategoryView]
-  private lazy val mockEmailPreferencesSpecificApiView       = mock[EmailPreferencesSpecificApiView]
-  private lazy val mockEmailPreferencesSelectApiView         = mock[EmailPreferencesSelectApiView]
-  private lazy val mockEmailPreferencesSelectTopicView       = mock[EmailPreferencesSelectTopicView]
+  private lazy val errorTemplateView                   = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView                       = app.injector.instanceOf[ForbiddenView]
+  private lazy val mockEmailLandingView                = mock[EmailLandingView]
+  private lazy val mockEmailInformationView            = mock[EmailInformationView]
+  private lazy val mockEmailAllUsersView               = mock[EmailAllUsersView]
+  private lazy val mockEmailApiSubscriptionsView       = mock[EmailApiSubscriptionsView]
+  private lazy val emailPreferencesChoiceView          = app.injector.instanceOf[EmailPreferencesChoiceView]
+  private lazy val emailPreferencesTopicView           = app.injector.instanceOf[EmailPreferencesTopicView]
+  private lazy val emailPreferencesApiCategoryView     = app.injector.instanceOf[EmailPreferencesApiCategoryView]
+  private lazy val mockEmailPreferencesSpecificApiView = mock[EmailPreferencesSpecificApiView]
+  private lazy val mockEmailPreferencesSelectApiView   = mock[EmailPreferencesSelectApiView]
+  private lazy val mockEmailPreferencesSelectTopicView = mock[EmailPreferencesSelectTopicView]
 
   running(app) {
 

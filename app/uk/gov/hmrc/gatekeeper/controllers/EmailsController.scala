@@ -121,9 +121,9 @@ class EmailsController @Inject() (
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
   private def handleGettingApiUsers(
-     apis: List[CombinedApi],
-     selectedTopic: Option[TopicOptionChoice.Value],
-     apiAccessType: APIAccessType
+      apis: List[CombinedApi],
+      selectedTopic: Option[TopicOptionChoice.Value],
+      apiAccessType: APIAccessType
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
