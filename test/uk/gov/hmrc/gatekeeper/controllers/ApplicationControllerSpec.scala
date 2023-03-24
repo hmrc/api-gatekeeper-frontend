@@ -47,8 +47,8 @@ import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
+import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -115,7 +115,7 @@ class ApplicationControllerSpec
         List.empty
       )
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-      val mockTermsOfUseService = mock[TermsOfUseService]
+      val mockTermsOfUseService         = mock[TermsOfUseService]
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
@@ -1344,7 +1344,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
 
         DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
-        when(mockTermsOfUseService.getAgreementDetails(applicationWithSubscriptionData.application)).thenReturn(Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2")))
+        when(mockTermsOfUseService.getAgreementDetails(applicationWithSubscriptionData.application)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
+          "ri@example.com",
+          "12 March 2023",
+          "2"
+        )))
 
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 

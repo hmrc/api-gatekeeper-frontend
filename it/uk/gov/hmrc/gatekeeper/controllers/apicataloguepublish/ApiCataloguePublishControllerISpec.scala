@@ -35,7 +35,7 @@ class ApiCataloguePublishControllerISpec extends ServerBaseISpec with BeforeAndA
     with AuthServiceStub with ApiCataloguePublishStub {
   this: Suite with ServerProvider =>
 
-  protected override def appBuilder: GuiceApplicationBuilder =
+  override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.auth.host"                               -> wireMockHost,
