@@ -91,6 +91,19 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
+  def validateEmailPreferencesSelectSubscribedApiPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+    elementExistsByText(document, "h1", "Email users interested in a specific API") shouldBe true
+  }
+
+  def validateSubscribedAPIPageWithPreviouslySelectedAPIs(document: Document, dropDownAPIs: Seq[CombinedApi], selectedAPIs: Seq[CombinedApi]) = {
+    validateStaticPageElements(document, dropDownAPIs)
+    validateEmailPreferencesSubscribedApiPage(document, selectedAPIs)
+  }
+
+  private def validateStaticPageElements(document: Document, selectedAPIs: Seq[CombinedApi]) {
+    validatePageHeader(document, "You have selected 2 APIs")
+  }
+
   def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
@@ -123,6 +136,14 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(verifyUserRow(document, _))
+  }
+
+  def validateEmailPreferencesSubscribedApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {
+    val sizeOfSelectedApis = selectedApis.size
+    val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
+    validateHiddenSelectedApiValues(document, selectedApis, 2)
+    verifyTableHeader(document, tableIsVisible = false)
   }
 }
 
@@ -214,6 +235,24 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }
 
+  def validateEmailPreferencesSpecificTaxRegime(document: Document, selectedCategories: List[APICategoryDetails]) = {
+    val sizeOfSelectedCategories = selectedCategories.size
+    val headerTitle              = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
+    validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
+    validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
+  }
+
+  def validateEmailPreferencesSelectedSubscribedApiPage(document: Document, users: Seq[RegisteredUser]) = {
+    validatePageHeader(document, "Email users interested in a specific API")
+
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
+      elementExistsById(document, "compose-email") shouldBe users.nonEmpty
+    }
+
+    verifyTableHeader(document)
+  }
+
   def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a specific API")
 
@@ -294,15 +333,15 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElementsNew(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
-    validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api-new")
+  private def validateStaticPageElementsNew(document: Document, expectedDestination: String) {
+    validateFormDestination(document, "apiFilters", expectedDestination)
   }
 
   def validateEmailPreferencesSpecificApiPageNew(document: Document, selectedApis: Seq[CombinedApi]) = {
     val sizeOfSelectedApis = selectedApis.size
     val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
     validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
-    validateStaticPageElementsNew(document, "Filter", None)
+    validateStaticPageElementsNew(document, "/api-gatekeeper/emails/email-preferences/select-api-new")
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
   }

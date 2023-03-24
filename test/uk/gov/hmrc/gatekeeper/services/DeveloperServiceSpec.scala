@@ -722,6 +722,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }
+
   "developerService fetchDevelopersByEmailPreferences" should {
     val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
@@ -763,6 +764,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(List(category1))))(*)
     }
 
+    "call the connector correctly when only passed a service" in new Setup {
+      DeveloperConnectorMock.FetchEmailPreferencesByServices.returnsFor(Some(apis))(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(apis))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(apis)))(*)
+    }
+
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, Some(apis), Some(categories), false)(sandboxUser)
 
@@ -784,4 +795,33 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     }
   }
 
+  "developerService fetchDevelopersBySpecificTaxRegimesEmailPreferences" should {
+    val sandboxUser = aUser("sandbox")
+    val category1   = APICategory("category1")
+
+    "call the connector correctly when only passed a tax regime" in new Setup {
+      DeveloperConnectorMock.FetchEmailPreferencesByRegimes.returnsFor(Some(Seq(category1)))(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferences(List(category1)))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(Seq(category1))))(*)
+    }
+  }
+
+  "developerService fetchDevelopersBySpecificApisEmailPreferences" should {
+    val sandboxUser = aUser("sandbox")
+    val apiName1    = "apiName1"
+
+    "call the connector correctly when only passed apis" in new Setup {
+      DeveloperConnectorMock.FetchEmailPreferencesByServices.returnsFor(Some(Seq(apiName1)))(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(List(apiName1)))
+
+      result shouldBe List(sandboxUser)
+
+      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(Seq(apiName1))))(*)
+    }
+  }
 }

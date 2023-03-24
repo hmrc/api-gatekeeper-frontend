@@ -29,7 +29,7 @@
 
 @pageUrl() = @{
     val qs = filteredApis.zipWithIndex.map { case (key,index)  =>  s"selectedAPIs=$key" }.mkString("&")
-    val uri = routes.EmailsController.emailPreferencesSpecificApisNew(List.empty, None).url
+    val uri = routes.EmailsPreferencesController.specificApis(List.empty, None).url
     s"$uri?$qs"
 }
 
@@ -45,7 +45,7 @@
 ) {
     <div class="govuk-template__body">
 
-        <form id="topic-filter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
+        <form id="topic-filter" name="topic-filter" action="@routes.EmailsPreferencesController.selectedApiTopic(None, None, List.empty).url" method="get">
             <div class="govuk-form-group">
                 <fieldset class=" govuk-fieldset">
                     <legend class="govuk-fieldset__legend govuk-fieldset__legend--l govuk-!-margin-bottom-6">

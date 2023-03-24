@@ -40,14 +40,14 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.emailPreferencesChoiceNew()}",
+            s"${routes.EmailsPreferencesController.emailPreferencesChoice()}",
             Some("data-back-link")
         )
     )
 ) {
 
     <div class="govuk-template__body">
-    <form id="taxRegimeForm" name="tax-regime-form" action="@routes.EmailsController.emailPreferencesSpecificTaxRegime(List.empty, None).url" method="get">
+    <form id="taxRegimeForm" name="tax-regime-form" action="@routes.EmailsPreferencesController.selectedTaxRegime(List.empty, None).url" method="get">
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">

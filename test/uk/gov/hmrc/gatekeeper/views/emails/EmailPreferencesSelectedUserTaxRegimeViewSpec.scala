@@ -30,18 +30,17 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectedTaxRegimeView
+import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailPreferencesSelectedTaxRegimeView, EmailPreferencesSelectedUserTaxRegimeView}
 
-class EmailPreferencesSelectedTaxRegimeViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
+class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]                        = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                               = new JsArray()
-    val emailPreferencesSelectedTaxRegimeView: EmailPreferencesSelectedTaxRegimeView = app.injector.instanceOf[EmailPreferencesSelectedTaxRegimeView]
-    val user1                                                                        = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
-    val user2                                                                        = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
-    val users                                                                        = Seq(user1, user2)
-
+    implicit val request: FakeRequest[AnyContentAsEmpty.type]                                = FakeRequest().withCSRFToken
+    val emailRecipientsAsJson: JsArray                                                       = new JsArray()
+    val emailPreferencesSelectedUserTaxRegimeView: EmailPreferencesSelectedUserTaxRegimeView = app.injector.instanceOf[EmailPreferencesSelectedUserTaxRegimeView]
+    val user1                                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2                                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
+    val users                                                                                = Seq(user1, user2)
   }
 
   "email preferences selected category view" should {
@@ -57,7 +56,7 @@ class EmailPreferencesSelectedTaxRegimeViewSpec extends CommonViewSpec with Emai
 
     "show correct title and options" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSelectedTaxRegimePage(Jsoup.parse(result.body), users)
     }

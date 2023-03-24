@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -24,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: List[RegisteredUser], composeEmailRecipients: JsValue, emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredApis: List[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -37,13 +36,13 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsPreferencesController.selectSpecificApi(None, None).url}",
+            s"${routes.EmailsPreferencesController.selectSubscribedApiPage(None).url}",
             Some("data-back-link")
         )
     )
 ) {
   <div class="govuk-template__body">
-    <form id="apiFilters" name="api-filters" action="@routes.EmailsPreferencesController.selectSpecificApi(None, None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsPreferencesController.selectedSubscribedApi(List.empty).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
@@ -64,17 +63,14 @@
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsPreferencesController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
+                                         href="@routes.EmailsPreferencesController.selectSubscribedApiPage(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName))).url">
                                           <span aria-hidden="true">Change</span>
                                           <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
-                                          @if(maybeTopicFilter.isDefined) {
-                                            <span><input type="hidden" name="selectedTopic" value="@maybeTopicFilter.get.toString"/></span>
-                                          }
                                       </a>
                                   </li>
                                   @if(filteredApis.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.subscribedApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
                                           </a>
@@ -90,7 +86,7 @@
           </fieldset>
       </div>
     </form>
-    <form id="addAnotherApiChoice" name="add-another-api-choice" action="@routes.EmailsPreferencesController.addAnotherApiOption("", None, None).url" method="get">
+    <form id="addAnotherSubscribedApiChoice" name="add-another-api-choice" action="@routes.EmailsPreferencesController.addAnotherSubscribedApiOption("", None, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
               <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
@@ -109,9 +105,6 @@
               </div>
               @for(filteredApi <- filteredApis) {
                   <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
-              }
-              @if(maybeTopicFilter.nonEmpty) {
-                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
               }
           </fieldset>
       </div>

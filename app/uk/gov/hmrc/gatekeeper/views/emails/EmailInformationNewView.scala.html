@@ -50,7 +50,7 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.emailPreferencesChoiceNew()}",
+            s"${routes.EmailsPreferencesController.emailPreferencesChoice()}",
             Some("data-back-link")
         )
     )
@@ -59,12 +59,12 @@
     @helper.CSRF.formField
     @drawEmailAllUsersInformation()
 
-    <a id="continue-link" href="@routes.EmailsController.emailAllUsersNewPage()" class="govuk-button">Continue</a>
+    <a id="continue-link" href="@routes.EmailsPreferencesController.emailAllUsersPage()" class="govuk-button">Continue</a>
   }
   @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
     @helper.CSRF.formField
     @drawEmailApiSubscribersInformation()
 
-    <a id="continue-link" href="@routes.EmailsController.emailApiSubscribersPage(None)" class="govuk-button">Continue</a>
+    <a id="continue-link" href="@routes.EmailsPreferencesController.selectSubscribedApiPage(None)" class="govuk-button">Continue</a>
   }
 }

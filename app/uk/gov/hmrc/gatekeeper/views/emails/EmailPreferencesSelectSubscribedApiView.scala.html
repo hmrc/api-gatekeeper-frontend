@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -23,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi], selectedTopic: Option[String] = None)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -53,7 +52,7 @@
 
   <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 
-  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsPreferencesController.specificApis(List.empty, None).url" method="get">
+  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsPreferencesController.subscribedApis(List.empty).url" method="get">
 
     <div class="govuk-form-group">
       <label class="govuk-label" for="selectedAPIs">
@@ -63,9 +62,6 @@
         @for(filteredApi <- filteredApis){
           <input class="govuk-visually-hidden" type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
         }
-      }
-      @if(selectedTopic.nonEmpty) {
-          <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@selectedTopic"/>
       }
         @drawAPIDropDown
     </div>

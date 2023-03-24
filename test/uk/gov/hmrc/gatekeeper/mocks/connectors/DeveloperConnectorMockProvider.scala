@@ -69,6 +69,13 @@ trait DeveloperConnectorMockProvider {
           .thenReturn(successful(users.toList))
     }
 
+    object FetchEmailPreferencesByServices {
+
+      def returnsFor(maybeServices: Option[Seq[String]])(users: RegisteredUser*) =
+        when(mockDeveloperConnector.fetchEmailUsersByApis(eqTo(maybeServices))(*))
+          .thenReturn(successful(users.toList))
+    }
+
     object FetchByEmails {
       def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
 

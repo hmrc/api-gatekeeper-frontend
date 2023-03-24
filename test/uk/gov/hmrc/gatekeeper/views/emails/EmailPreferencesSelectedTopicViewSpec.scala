@@ -31,26 +31,26 @@ import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectedApiTopicView
+import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectedTopicView
 
-class EmailPreferencesSelectedApiTopicViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
+class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]                      = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                             = new JsArray()
-    val emailPreferencesSelectedApiTopicView: EmailPreferencesSelectedApiTopicView = app.injector.instanceOf[EmailPreferencesSelectedApiTopicView]
-    val user1                                                                      = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
-    val user2                                                                      = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
-    val users                                                                      = Seq(user1, user2)
-    val categories                                                                 = List()
-    val expectedTitle                                                              = "Email users interested in a specific API"
+    implicit val request: FakeRequest[AnyContentAsEmpty.type]                = FakeRequest().withCSRFToken
+    val emailRecipientsAsJson: JsArray                                       = new JsArray()
+    val emailPreferencesSelectedTopicView: EmailPreferencesSelectedTopicView = app.injector.instanceOf[EmailPreferencesSelectedTopicView]
+    val user1                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+    val user2                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
+    val users                                                                = Seq(user1, user2)
+    val categories                                                           = List()
+    val expectedTitle                                                        = "Email users interested in a specific API"
   }
 
   "email preferences selected api topic view" should {
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedApiTopicView.render(
+        emailPreferencesSelectedTopicView.render(
           users,
           emailRecipientsAsJson,
           "",

@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -25,21 +24,21 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String, selectedAPIs: List[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedAPIs: List[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @tpdQuery() = @{
-    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
+    new DevelopersEmailQuery(None, Some(selectedAPIs.map(api => api.serviceName)), None, false, None, false)
 }
+
 @userSelection() = @{
-    Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),
-        "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
+    Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"))
 }
     @main(
         title = s"${applicationConfig.title} - Email users interested in a specific API",
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))}",
+            s"${routes.EmailsPreferencesController.selectSubscribedApiPage(Some(selectedAPIs.map(_.serviceName)))}",
             Some("data-back-link")
         )
     )) {
@@ -81,7 +80,7 @@
                                 </div>
                             </div>
                         }
-                        <form name="topic-filters" action="@routes.EmailsController.emailPreferencesSelectedApiTopic(None, None, List.empty).url" method="get">
+                        <form name="topic-filters" action="@routes.EmailsPreferencesController.selectedApiTopic(None, None, List.empty).url" method="get">
                         <dl class="govuk-summary-list govuk-!-width-three-quarters">
                             <div class="govuk-summary-list__row">
                                 <dt class="govuk-summary-list__key" style="width: 15%;">
@@ -94,21 +93,8 @@
 
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.emailPreferencesSpecificApisNew(selectedAPIs.map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.subscribedApis(selectedAPIs.map(_.serviceName)).url">
                                         Change<span class="govuk-visually-hidden"> APIs</span>
-                                    </a>
-                                </dd>
-                            </div>
-                            <div class="govuk-summary-list__row">
-                                <dt class="govuk-summary-list__key app-summary-list__15">
-                                    Topic
-                                </dt>
-                                <dd class="govuk-summary-list__value">
-                                    @userSelection().get("Topic")
-                                </dd>
-                                <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsController.addAnotherApiOption("0", Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
-                                        Change<span class="govuk-visually-hidden"> topic</span>
                                     </a>
                                 </dd>
                             </div>
@@ -140,5 +126,4 @@
                 </div>
             </form>
         </div>
-
     }

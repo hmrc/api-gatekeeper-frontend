@@ -199,6 +199,10 @@ class DeveloperService @Inject() (
     developerConnector.fetchEmailUsersByRegimes(Some(apiCategories.distinct))
   }
 
+  def fetchDevelopersBySpecificApisEmailPreferences(apis: List[String])(implicit hc: HeaderCarrier) = {
+    developerConnector.fetchEmailUsersByApis(Some(apis.distinct))
+  }
+
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(developerId, loggedInUser)
   }

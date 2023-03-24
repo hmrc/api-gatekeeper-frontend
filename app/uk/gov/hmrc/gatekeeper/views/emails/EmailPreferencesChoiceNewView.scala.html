@@ -40,7 +40,7 @@
 
 @main(title = s"${applicationConfig.title} - Who do you want to email?") {
     <div class="govuk-main-wrapper" >
-        @helper.form(action = routes.EmailsController.chooseEmailPreferencesNew()) {
+        @helper.form(action = routes.EmailsPreferencesController.chooseEmailPreferences()) {
         @helper.CSRF.formField
 
         <div class="govuk-form-group">
