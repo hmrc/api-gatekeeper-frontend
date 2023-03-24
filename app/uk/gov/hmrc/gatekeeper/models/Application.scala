@@ -19,11 +19,9 @@ package uk.gov.hmrc.gatekeeper.models
 import java.time.{LocalDateTime, Period}
 import java.util.UUID
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.libs.functional.syntax._
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
@@ -67,7 +65,7 @@ object ContactDetails {
   implicit val formatContactDetails = Json.format[ContactDetails]
 }
 
-case class TermsOfUseAgreement(emailAddress: String, timeStamp: DateTime, version: String)
+case class TermsOfUseAgreement(emailAddress: String, timeStamp: LocalDateTime, version: String)
 
 case class CheckInformation(
     contactDetails: Option[ContactDetails] = None,
@@ -79,7 +77,7 @@ case class CheckInformation(
   ) {
 
   def latestTOUAgreement: Option[TermsOfUseAgreement] = {
-    implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+    implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
     termsOfUseAgreements match {
       case Nil        => None
@@ -130,14 +128,10 @@ object TermsAndConditionsLocation {
     .format
 }
 
-trait LocalDateTimeFormatters extends EnvReads with EnvWrites {
-
-  implicit val dateFormat: Format[LocalDateTime] = Format(DefaultLocalDateTimeReads, DefaultLocalDateTimeWrites)
-}
-
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
 
-object TermsOfUseAcceptance extends LocalDateTimeFormatters {
+object TermsOfUseAcceptance {
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
   implicit val format = Json.format[TermsOfUseAcceptance]
 }
 
@@ -265,8 +259,8 @@ case class ApplicationResponse(
     deployedTo: String,
     description: Option[String] = None,
     collaborators: Set[Collaborator],
-    createdOn: DateTime,
-    lastAccess: Option[DateTime],
+    createdOn: LocalDateTime,
+    lastAccess: Option[LocalDateTime],
     access: Access,
     state: ApplicationState,
     grantLength: Period,
@@ -279,8 +273,7 @@ case class ApplicationResponse(
   ) extends Application
 
 object ApplicationResponse {
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
@@ -307,8 +300,8 @@ object ApplicationResponse {
       (JsPath \ "deployedTo").read[String] and
       (JsPath \ "description").readNullable[String] and
       (JsPath \ "collaborators").read[Set[Collaborator]] and
-      (JsPath \ "createdOn").read[DateTime] and
-      (JsPath \ "lastAccess").readNullable[DateTime] and
+      (JsPath \ "createdOn").read[LocalDateTime] and
+      (JsPath \ "lastAccess").readNullable[LocalDateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
       (JsPath \ "grantLength").read[Period] and
@@ -432,7 +425,7 @@ object CollaboratorRole extends Enumeration {
   implicit val format = Json.formatEnum(CollaboratorRole)
 }
 
-case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: DateTime = DateTime.now()) {
+case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: LocalDateTime = LocalDateTime.now()) {
   def isApproved                     = name.isApproved
   def isPendingGatekeeperApproval    = name.isPendingGatekeeperApproval
   def isPendingRequesterVerification = name.isPendingRequesterVerification

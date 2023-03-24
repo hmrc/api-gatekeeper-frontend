@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
@@ -36,8 +36,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
   def buildApplication(
       appId: ApplicationId = ApplicationId.random,
-      createdOn: DateTime = DateTime.now(),
-      lastAccess: DateTime = DateTime.now(),
+      createdOn: LocalDateTime = LocalDateTime.now(),
+      lastAccess: LocalDateTime = LocalDateTime.now(),
       checkInformation: Option[CheckInformation] = None
     ): NewApplication = {
     val clientId            = ClientId.random
@@ -166,8 +166,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
-    def withCreatedOn(createdOnDate: DateTime)   = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
+    def withCreatedOn(createdOnDate: LocalDateTime)   = app.copy(createdOn = createdOnDate)
+    def withLastAccess(lastAccessDate: LocalDateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 

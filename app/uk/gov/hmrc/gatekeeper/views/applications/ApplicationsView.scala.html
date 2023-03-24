@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 @import uk.gov.hmrc.gatekeeper.models.{PaginatedApplicationResponse, VersionSummary}
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import org.joda.time.format.DateTimeFormat
+@import java.time.format.DateTimeFormatter
 @import include.pagination
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -45,7 +45,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 }
 
 @main(title = s"${applicationConfig.title} - Applications") {
-  @defining(DateTimeFormat.forPattern("dd.MM.yyyy")) { dateFormatter =>
+  @defining(DateTimeFormatter.ofPattern("dd.MM.yyyy")) { dateFormatter =>
 
     <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
 
@@ -171,7 +171,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
                   <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
                 </td>
                 <td class="govuk-table__cell" id="app-created-@index">
-                  @{dateFormatter.print(application.createdOn)}
+                  @{dateFormatter.format(application.createdOn)}
                 </td>
                 <td class="govuk-table__cell" id="app-env-@index">
                   @application.deployedTo.toLowerCase.capitalize

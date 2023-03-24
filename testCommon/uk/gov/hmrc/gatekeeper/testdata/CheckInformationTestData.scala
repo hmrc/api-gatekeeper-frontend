@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.gatekeeper.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import java.time.ZoneOffset
 
 trait CheckInformationTestData {
 
@@ -38,7 +39,7 @@ trait CheckInformationTestData {
       termsOfUseAgreements = List(
         TermsOfUseAgreement(
           emailAddress = "test@example.com",
-          timeStamp = new DateTime(1459868573962L),
+          timeStamp = LocalDateTime.ofEpochSecond(1459868573962L, 0, ZoneOffset.UTC),
           version = "1.0"
         )
       )

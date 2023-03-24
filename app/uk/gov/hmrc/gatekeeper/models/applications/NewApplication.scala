@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models.applications
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.play.json.Union
 
@@ -32,9 +32,9 @@ case class NewApplication(
     clientId: ClientId,
     gatewayId: String,
     name: String,
-    createdOn: DateTime,
-    lastAccess: Option[DateTime],
-    lastAccessTokenUsage: Option[DateTime] = None,
+    createdOn: LocalDateTime,
+    lastAccess: Option[LocalDateTime],
+    lastAccessTokenUsage: Option[LocalDateTime] = None,
     deployedTo: Environment,
     description: Option[String] = None,
     collaborators: Set[Collaborator] = Set.empty,
@@ -62,8 +62,7 @@ case class NewApplication(
 
 object NewApplication {
   import play.api.libs.json.Json
-  import play.api.libs.json.JodaReads._
-  import play.api.libs.json.JodaWrites._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 

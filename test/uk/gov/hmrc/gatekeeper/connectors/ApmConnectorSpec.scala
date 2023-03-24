@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
@@ -62,7 +62,7 @@ class ApmConnectorSpec
     val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
-    val boxSubscriber = BoxSubscriber("callbackUrl", DateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
+    val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03"), SubscriptionType.API_PUSH_SUBSCRIBER)
     val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
   }
 
@@ -214,7 +214,7 @@ class ApmConnectorSpec
   }
 
   "fetchAllBoxes" should {
-    import play.api.libs.json.JodaWrites._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
     implicit val writesBoxId         = Json.valueFormat[BoxId]
     implicit val writesBoxCreator    = Json.writes[BoxCreator]
     implicit val writesBoxSubscriber = Json.writes[BoxSubscriber]

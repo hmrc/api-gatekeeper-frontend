@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models.applications
 
 import java.time.Period
 
-import com.github.nscala_time.time.Imports.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -39,8 +39,8 @@ class NewApplicationSpec extends HmrcSpec {
     ClientId.random,
     "gatewayId",
     "name",
-    DateTime.now(),
-    Some(DateTime.now()),
+    LocalDateTime.now(),
+    Some(LocalDateTime.now()),
     None,
     Environment.PRODUCTION,
     access = standardAccess,

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
@@ -28,10 +28,10 @@ import uk.gov.hmrc.gatekeeper.models.{State, StateHistory}
 trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
 
   val stateHistories = List(
-    buildStateHistory(applicationId, State.TESTING, Actors.AppCollaborator(administratorEmail), DateTime.parse("2019-08-22T11:21:50.160+01:00")),
-    buildStateHistory(applicationId, State.PENDING_GATEKEEPER_APPROVAL, Actors.AppCollaborator(administratorEmail), DateTime.parse("2019-08-22T11:23:10.644+01:00")),
-    buildStateHistory(applicationId, State.PENDING_REQUESTER_VERIFICATION, Actors.GatekeeperUser("gatekeeper.username"), DateTime.parse("2020-07-22T15:12:38.686+01:00")),
-    buildStateHistory(applicationId, State.PRODUCTION, Actors.GatekeeperUser("gatekeeper.username"), DateTime.parse("2020-07-22T16:12:38.686+01:00"))
+    buildStateHistory(applicationId, State.TESTING, Actors.AppCollaborator(administratorEmail), LocalDateTime.parse("2019-08-22T10:21:50.160")),
+    buildStateHistory(applicationId, State.PENDING_GATEKEEPER_APPROVAL, Actors.AppCollaborator(administratorEmail), LocalDateTime.parse("2019-08-22T10:23:10.644")),
+    buildStateHistory(applicationId, State.PENDING_REQUESTER_VERIFICATION, Actors.GatekeeperUser("gatekeeper.username"), LocalDateTime.parse("2020-07-22T14:12:38.686")),
+    buildStateHistory(applicationId, State.PRODUCTION, Actors.GatekeeperUser("gatekeeper.username"), LocalDateTime.parse("2020-07-22T15:12:38.686"))
   )
 
   val pendingApprovalStateHistory = List(
@@ -39,13 +39,13 @@ trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
       pendingApprovalApplicationId,
       State.PENDING_GATEKEEPER_APPROVAL,
       Actors.AppCollaborator(administratorEmail),
-      DateTime.parse("2019-08-22T11:23:10.644+01:00")
+      LocalDateTime.parse("2019-08-22T10:23:10.644")
     ),
     buildStateHistory(
       pendingApprovalApplicationId,
       State.PENDING_REQUESTER_VERIFICATION,
       Actors.GatekeeperUser("gatekeeper.username"),
-      DateTime.parse("2020-07-22T15:12:38.686+01:00")
+      LocalDateTime.parse("2020-07-22T14:12:38.686")
     )
   )
 

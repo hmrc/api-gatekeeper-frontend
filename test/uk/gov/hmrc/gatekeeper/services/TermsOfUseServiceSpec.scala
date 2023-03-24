@@ -19,9 +19,6 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneOffset}
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
-
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
@@ -30,7 +27,7 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   val timestamp                  = LocalDateTime.now(ZoneOffset.UTC)
-  val dateTime                   = DateTime.now
+  val dateTime                   = LocalDateTime.now
   val email1_2                   = "bob1.2@example.com"
   val email2                     = "bob2@example.com"
   val name                       = "Bob Example"
@@ -48,7 +45,6 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val underTest                  = new TermsOfUseService()
 
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-  def formatJodaDateTime(dateTime: DateTime)       = DateTimeFormat.forPattern("d MMMM yyyy").print(dateTime)
 
   "getAgreementDetails" should {
     "return None if no agreements found" in {
@@ -57,7 +53,7 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
     }
     "return correctly populated agreement if details found in CheckInformation" in {
       val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements)
-      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email1_2, formatJodaDateTime(dateTime), version1_2))
+      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email1_2, formatDateTime(dateTime), version1_2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData" in {
       val maybeAgreement = underTest.getAgreementDetails(appWithStdAppAgreements)

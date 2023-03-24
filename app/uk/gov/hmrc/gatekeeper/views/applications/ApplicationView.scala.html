@@ -23,13 +23,14 @@
 @import uk.gov.hmrc.gatekeeper.models.view._
 @import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 @import uk.gov.hmrc.gatekeeper.views.helper.application._
-@import org.joda.time.format.DateTimeFormat
+@import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.views.helper.EmailsFormatter
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import java.time.LocalDateTime
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -280,7 +281,7 @@
         Last API call
       </dt>
       <dd class="govuk-summary-list__value" data-last-access>
-        @ApplicationFormatter.getLastAccess(application)
+        @ApplicationFormatter.getLastAccess(application)(LocalDateTime.now)
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>

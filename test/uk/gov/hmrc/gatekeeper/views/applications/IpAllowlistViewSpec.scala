@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 
@@ -53,8 +53,8 @@ class IpAllowlistViewSpec extends CommonViewSpec {
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength,

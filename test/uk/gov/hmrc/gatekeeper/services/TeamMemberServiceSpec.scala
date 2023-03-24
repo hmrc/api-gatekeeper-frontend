@@ -22,7 +22,7 @@ import scala.concurrent.Future.successful
 
 import cats.data.NonEmptyList
 import mocks.connectors._
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -68,8 +68,8 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
       grantLength

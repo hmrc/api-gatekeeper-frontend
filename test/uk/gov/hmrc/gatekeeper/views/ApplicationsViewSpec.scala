@@ -34,7 +34,7 @@ package uk.gov.hmrc.gatekeeper.views
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.jsoup.Jsoup
 
 import play.twirl.api.HtmlFormat
@@ -80,8 +80,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         "PRODUCTION",
         Some("Testing App"),
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength
@@ -94,8 +94,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         "PRODUCTION",
         Some("Pending Gatekeeper Approval App"),
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength
@@ -108,8 +108,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         "PRODUCTION",
         Some("Pending Requester Verification App"),
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength
@@ -122,8 +122,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         "PRODUCTION",
         Some("Production App"),
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength

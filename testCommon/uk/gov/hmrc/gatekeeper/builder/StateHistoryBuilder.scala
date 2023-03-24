@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
@@ -25,7 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.StateHistory
 
 trait StateHistoryBuilder {
 
-  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: DateTime = DateTime.now()): StateHistory = {
+  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
     StateHistory(applicationId, state, actor, None, changedAt)
   }
 }

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.review
 
 import mocks.config.AppConfigMock
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.jsoup.Jsoup
 
 import play.api.test.FakeRequest
@@ -44,7 +44,7 @@ class ReviewViewSpec extends CommonViewSpec {
         "Test Application",
         "Test Application",
         None,
-        SubmissionDetails("Test Name", "test@example.com", DateTime.now()),
+        SubmissionDetails("Test Name", "test@example.com", LocalDateTime.now()),
         None,
         None,
         None,

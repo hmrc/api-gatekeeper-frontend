@@ -19,11 +19,9 @@ package uk.gov.hmrc.gatekeeper.models
 import java.time.LocalDateTime
 import java.util.UUID
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.data.Form
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
 import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
@@ -42,7 +40,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinit
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 
-case class BearerToken(authToken: String, expiry: DateTime) {
+case class BearerToken(authToken: String, expiry: LocalDateTime) {
   override val toString = authToken
 }
 
@@ -109,7 +107,7 @@ object UpdateGrantLengthRequest {
   implicit val format = Json.format[UpdateGrantLengthRequest]
 }
 
-case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: DateTime, state: State)
+case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: LocalDateTime, state: State)
 
 object ApplicationWithUpliftRequest {
 
@@ -172,9 +170,9 @@ object UpliftAction extends Enumeration {
   implicit val format = Json.formatEnum(UpliftAction)
 }
 
-case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: DateTime)
+case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: LocalDateTime)
 
-case class ApprovalDetails(submittedOn: DateTime, approvedBy: String, approvedOn: DateTime)
+case class ApprovalDetails(submittedOn: LocalDateTime, approvedBy: String, approvedOn: LocalDateTime)
 
 object SubmissionDetails {
   implicit val format = Json.format[SubmissionDetails]
@@ -199,7 +197,7 @@ object ApplicationReviewDetails {
   implicit val format2 = Json.format[ApplicationReviewDetails]
 }
 
-case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: DateTime, verified: Boolean)
+case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: LocalDateTime, verified: Boolean)
 
 object ApprovedApplication {
   implicit val format1 = Json.format[ApplicationReviewDetails]

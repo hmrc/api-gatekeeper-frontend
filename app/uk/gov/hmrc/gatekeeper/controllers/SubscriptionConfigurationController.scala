@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.data
 import play.api.data.Form
@@ -54,7 +54,7 @@ class SubscriptionConfigurationController @Inject() (
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper with ActionBuilders {
 
-  implicit val dateTimeOrdering: Ordering[DateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def listConfigurations(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
