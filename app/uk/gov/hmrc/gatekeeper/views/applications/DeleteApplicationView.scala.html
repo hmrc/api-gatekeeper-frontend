@@ -89,22 +89,21 @@
           </legend>
           @fieldError2(form.errors, "collaboratorEmail")
           <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-            @{application.collaborators.filter(_.isAdministrator).map(c =>
+            @{application.collaborators.filter(_.isAdministrator).zipWithIndex.map { case (c, index) =>
+              val emailAddress = c.emailAddress.text
+              val id = s"emailAddress-$index"
               <div class="govuk-radios__item">
-                {if(form.data.getOrElse("collaboratorEmail", "") == c.emailAddress.text) {
-                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress.text} checked=""></input>
-                  <label class="govuk-label govuk-radios__label" for="emailAddress">
-                    {c.emailAddress}
-                  </label>
+                {if (form.data.getOrElse("collaboratorEmail", "") == emailAddress) {
+                  <input class="govuk-radios__input" id={id} name="collaboratorEmail" type="radio" value={emailAddress} checked=""></input>
                 }
                 else {
-                  <input class="govuk-radios__input" id="emailAddress" name="collaboratorEmail" type="radio" value={c.emailAddress.text}></input>
-                  <label class="govuk-label govuk-radios__label" for="emailAddress">
-                    {c.emailAddress}
-                  </label>
+                  <input class="govuk-radios__input" id={id} name="collaboratorEmail" type="radio" value={emailAddress}></input>
                 }}
+                <label class="govuk-label govuk-radios__label" for={id}>
+                  {emailAddress}
+                </label>
               </div>
-            )}
+            }}
           </div>
         </fieldset>
       </div>

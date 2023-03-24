@@ -35,7 +35,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
   this: Suite with ServerProvider =>
 
-  protected override def appBuilder: GuiceApplicationBuilder =
+  override protected def appBuilder: GuiceApplicationBuilder =
     new GuiceApplicationBuilder()
       .configure(
         "microservice.services.auth.host"                               -> wireMockHost,

@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, ZoneOffset}
-import org.joda.time.DateTime
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneOffset}
+
+import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 
-import uk.gov.hmrc.gatekeeper.models.{CheckInformation, ImportantSubmissionData, Privileged, ResponsibleIndividual, Standard, TermsOfUseAcceptance, TermsOfUseAgreement, TermsAndConditionsLocation, PrivacyPolicyLocation}
-import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.PrivacyPolicyLocation
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
-
   val timestamp                  = LocalDateTime.now(ZoneOffset.UTC)
   val dateTime                   = DateTime.now
-  val email1_2                    = "bob1.2@example.com"
+  val email1_2                   = "bob1.2@example.com"
   val email2                     = "bob2@example.com"
   val name                       = "Bob Example"
   val responsibleIndividual      = ResponsibleIndividual(ResponsibleIndividual.Name(name), ResponsibleIndividual.EmailAddress(email2))
@@ -49,7 +48,7 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val underTest                  = new TermsOfUseService()
 
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
-  def formatJodaDateTime(dateTime: DateTime) = DateTimeFormat.forPattern("d MMMM yyyy").print(dateTime)
+  def formatJodaDateTime(dateTime: DateTime)       = DateTimeFormat.forPattern("d MMMM yyyy").print(dateTime)
 
   "getAgreementDetails" should {
     "return None if no agreements found" in {
