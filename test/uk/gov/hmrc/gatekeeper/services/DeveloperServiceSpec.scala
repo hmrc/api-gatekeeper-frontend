@@ -23,7 +23,7 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -74,8 +74,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       deployedTo,
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
       grantLength

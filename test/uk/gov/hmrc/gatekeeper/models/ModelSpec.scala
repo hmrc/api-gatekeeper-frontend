@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -84,8 +84,8 @@ class ModelSpec extends AsyncHmrcSpec {
         "PRODUCTION",
         None,
         teamMembers,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength

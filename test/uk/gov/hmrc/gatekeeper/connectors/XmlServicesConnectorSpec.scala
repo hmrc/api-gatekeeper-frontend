@@ -24,7 +24,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{BadRequestException, HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
@@ -152,7 +152,7 @@ class XmlServicesConnectorSpec
       await(connector.getApisForCategories(List(payeCategory))) shouldBe List.empty
     }
 
-    "throw BadRequestException when a bad category is requested" in new Setup {
+    "throw UpstreamErrorResponse when a bad category is requested" in new Setup {
       val badCategory = "bad"
       stubFor(
         get(urlPathEqualTo(url))
@@ -163,7 +163,7 @@ class XmlServicesConnectorSpec
               .withBody(s"""{"errors":[{"message":"Unable to bind category $badCategory"}]}""")
           )
       )
-      intercept[BadRequestException] {
+      intercept[UpstreamErrorResponse] {
         await(connector.getApisForCategories(List(badCategory)))
       }.getMessage contains badCategory
     }
@@ -212,7 +212,7 @@ class XmlServicesConnectorSpec
       await(connector.findOrganisationsByUserId(userId)) shouldBe List.empty
     }
 
-    "return BadRequestException when backend returns 400" in new Setup {
+    "return UpstreamErrorResponse when backend returns 400" in new Setup {
       stubFor(
         get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
           .willReturn(
@@ -220,8 +220,8 @@ class XmlServicesConnectorSpec
               .withStatus(BAD_REQUEST)
           )
       )
-      intercept[BadRequestException](await(connector.findOrganisationsByUserId(userId))) match {
-        case (e: BadRequestException) => succeed
+      intercept[UpstreamErrorResponse](await(connector.findOrganisationsByUserId(userId))) match {
+        case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => succeed
         case _                        => fail
       }
     }

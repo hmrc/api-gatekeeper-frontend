@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
@@ -37,8 +37,8 @@ trait ApplicationResponseTestData extends ApplicationResponseBuilder with Collab
     .withAccess(standardAccess)
     .unblocked
     .withRateLimitTier(RateLimitTier.BRONZE)
-    .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))
-    .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
+    .withCreatedOn(LocalDateTime.parse("2016-04-08T10:24:40.651"))
+    .withLastAccess(LocalDateTime.parse("2019-07-01T00:00:00.000"))
 
   val blockedApplicationResponse = defaultApplicationResponse
     .withId(blockedApplicationId)

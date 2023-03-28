@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.time.Period
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
@@ -60,8 +60,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         "PRODUCTION",
         None,
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength

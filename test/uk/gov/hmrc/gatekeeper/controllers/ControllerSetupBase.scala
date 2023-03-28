@@ -21,7 +21,7 @@ import scala.concurrent.Future
 
 import mocks.connectors._
 import mocks.services._
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.mockito.stubbing.ScalaOngoingStubbing
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -59,8 +59,8 @@ trait ControllerSetupBase
     "PRODUCTION",
     None,
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
-    DateTime.now(),
-    Some(DateTime.now()),
+    LocalDateTime.now(),
+    Some(LocalDateTime.now()),
     Standard(),
     ApplicationState(),
     grantLength

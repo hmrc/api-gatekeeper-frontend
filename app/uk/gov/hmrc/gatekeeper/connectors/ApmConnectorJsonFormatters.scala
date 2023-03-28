@@ -22,10 +22,9 @@ import uk.gov.hmrc.gatekeeper.models.{APIDefinitionFormatters, ApiStatusJson}
 
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
   import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
   import play.api.libs.json._
-
-  import play.api.libs.json.JodaReads._
 
   implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
   implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]

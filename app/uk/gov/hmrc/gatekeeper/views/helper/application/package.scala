@@ -16,12 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import org.joda.time.DateTime
-import org.joda.time.Days.daysBetween
-import org.joda.time.Months.monthsBetween
-import org.joda.time.Seconds.secondsBetween
-import org.joda.time.format.DateTimeFormat
-
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
@@ -37,22 +34,22 @@ object ApplicationPublicDescription {
 }
 
 object ApplicationFormatter {
-  val dateFormatter         = DateTimeFormat.forPattern("dd MMMM yyyy")
-  val initialLastAccessDate = new DateTime(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
+  val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+  val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
   def getCreatedOn(app: NewApplication): String = {
-    dateFormatter.print(app.createdOn)
+    dateFormatter.format(app.createdOn)
   }
 
-  def getLastAccess(app: NewApplication): String = {
+  def getLastAccess(app: NewApplication)(now: LocalDateTime = LocalDateTime.now()): String = {
     app.lastAccess match {
       case Some(lastAccess) =>
-        if (secondsBetween(app.createdOn, lastAccess).getSeconds == 0) {
+        if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {
           "No API called"
-        } else if (daysBetween(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate).getDays > 0) {
-          dateFormatter.print(lastAccess)
+        } else if (ChronoUnit.DAYS.between(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate) > 0) {
+          dateFormatter.format(lastAccess)
         } else {
-          s"More than ${monthsBetween(lastAccess, DateTime.now()).getMonths} months ago"
+          s"More than ${ChronoUnit.MONTHS.between(lastAccess, now)} months ago"
         }
       case None             => "No API called"
     }
@@ -61,7 +58,7 @@ object ApplicationFormatter {
 }
 
 object ApplicationSubmission {
-  val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
   private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
     stateHistory.filter(_.state.isPendingGatekeeperApproval)
@@ -78,13 +75,13 @@ object ApplicationSubmission {
   def getSubmittedOn(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
       submission  <- getLastSubmission(stateHistory)
-      submittedOn <- Some(dateFormatter.print(submission.changedAt))
+      submittedOn <- Some(dateFormatter.format(submission.changedAt))
     } yield submittedOn
   }
 }
 
 object ApplicationReview {
-  val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+  val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
   private def getLastApproval(history: Seq[StateHistory]) =
     history.filter(_.state.isPendingRequesterVerification)
@@ -92,7 +89,7 @@ object ApplicationReview {
       .lastOption
 
   def getApprovedOn(history: Seq[StateHistory]): Option[String] =
-    getLastApproval(history).map(approval => dateFormatter.print(approval.changedAt))
+    getLastApproval(history).map(approval => dateFormatter.format(approval.changedAt))
 
   def getApprovedBy(history: Seq[StateHistory]): Option[String] = getLastApproval(history).map(_.actor.id)
 

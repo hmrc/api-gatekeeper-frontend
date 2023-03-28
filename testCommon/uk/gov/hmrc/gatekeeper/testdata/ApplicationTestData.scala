@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.{ClientId, IpAllowlist, RateLimitTier}
@@ -38,8 +38,8 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
     .withIpAllowlist(IpAllowlist())
     .unblocked
     .withRateLimitTier(RateLimitTier.BRONZE)
-    .withCreatedOn(DateTime.parse("2016-04-08T10:24:40.651Z"))
-    .withLastAccess(DateTime.parse("2019-07-01T00:00:00.000Z"))
+    .withCreatedOn(LocalDateTime.parse("2016-04-08T10:24:40.651"))
+    .withLastAccess(LocalDateTime.parse("2019-07-01T00:00:00.000"))
 
   val blockedApplication = defaultApplication.withId(blockedApplicationId).withBlocked(true)
 

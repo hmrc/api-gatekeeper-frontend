@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamE
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 @Singleton
 class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
@@ -48,7 +49,7 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit
   }
 
   def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
-    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("categoryFilter" -> _))
+    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("categoryFilter" -> _), Seq.empty)
       .recover(handleUpstream404s[List[XmlApi]](List.empty[XmlApi]))
   }
 
@@ -58,7 +59,7 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit
 
     val params = userIdParams ++ sortByParams
 
-    http.GET[List[XmlOrganisation]](url = s"$baseUrl/organisations", queryParams = params)
+    http.GET[List[XmlOrganisation]](url = s"$baseUrl/organisations", queryParams = params, Seq.empty)
   }
 
 }

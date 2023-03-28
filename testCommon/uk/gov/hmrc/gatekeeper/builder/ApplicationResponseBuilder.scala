@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.Period
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
@@ -31,8 +31,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   def buildApplicationResponse(
       appId: ApplicationId = ApplicationId.random,
-      createdOn: DateTime = DateTime.now(),
-      lastAccess: DateTime = DateTime.now(),
+      createdOn: LocalDateTime = LocalDateTime.now(),
+      lastAccess: LocalDateTime = LocalDateTime.now(),
       checkInformation: Option[CheckInformation] = None
     ): ApplicationResponse = {
 
@@ -70,7 +70,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
-  def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
+  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
     ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid"),
@@ -105,7 +105,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     )
   }
 
-  def aStateHistory(state: State, changedAt: DateTime = DateTime.now()): StateHistory = {
+  def aStateHistory(state: State, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
     StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
   }
 
@@ -141,8 +141,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
     def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
 
-    def withCreatedOn(createdOnDate: DateTime)   = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: DateTime) = app.copy(lastAccess = Some(lastAccessDate))
+    def withCreatedOn(createdOnDate: LocalDateTime)   = app.copy(createdOn = createdOnDate)
+    def withLastAccess(lastAccessDate: LocalDateTime) = app.copy(lastAccess = Some(lastAccessDate))
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 

@@ -22,7 +22,7 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
@@ -79,8 +79,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
       grantLength
@@ -94,8 +94,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
       grantLength
@@ -109,8 +109,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Privileged(),
       ApplicationState(),
       grantLength
@@ -124,8 +124,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now(),
+      Some(LocalDateTime.now()),
       Ropc(),
       ApplicationState(),
       grantLength

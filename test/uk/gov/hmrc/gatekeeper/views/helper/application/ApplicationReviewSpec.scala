@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
@@ -26,8 +26,8 @@ import uk.gov.hmrc.gatekeeper.models.State._
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
-      val now           = DateTime.now()
-      val dateFormatter = DateTimeFormat.forPattern("dd MMMM yyyy")
+      val now           = LocalDateTime.now()
+      val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
       val app           = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
       val appResponse   = anApplicationResponseWith(aCheckInformation())
 
@@ -35,7 +35,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilde
         ApplicationReview.getApprovedBy(app.history) shouldBe Some("Unknown")
       }
       "approved on return Some" in {
-        ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.print(now))
+        ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.format(now))
       }
       "review contact name return Some" in {
         ApplicationReview.getReviewContactName(appResponse.checkInformation) shouldBe Some("contactFullName")

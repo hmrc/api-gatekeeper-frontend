@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import org.joda.time.DateTime
-
-import play.api.libs.json.JodaReads._
-import play.api.libs.json.JodaWrites._
+import java.time.LocalDateTime
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import uk.gov.hmrc.gatekeeper.models.State.State
 
-case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: DateTime = DateTime.now())
+case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime = LocalDateTime.now())
 
 object StateHistory {
-
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  
   def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
     s1.applicationId match {
       case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)

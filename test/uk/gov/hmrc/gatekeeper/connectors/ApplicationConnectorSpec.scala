@@ -20,7 +20,7 @@ import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
@@ -37,6 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import java.time.temporal.ChronoUnit
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -44,7 +45,7 @@ class ApplicationConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding {
 
-  def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
+  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
     ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid"),
@@ -83,7 +84,7 @@ class ApplicationConnectorSpec
 
   }
 
-  // To solve issue with DateTime serialisation without a timezone id.
+  // To solve issue with LocalDateTime serialisation without a timezone id.
   private def compareByString[A](a1: A, a2: A) = a1.toString shouldBe a2.toString
 
   "updateGrantLength" should {
@@ -308,8 +309,8 @@ class ApplicationConnectorSpec
         "PRODUCTION",
         None,
         collaborators,
-        DateTime.now(),
-        Some(DateTime.now()),
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
         grantLength
@@ -411,8 +412,8 @@ class ApplicationConnectorSpec
       administrator,
       developer
     )
-    val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, DateTime.now)
-    val applicationState                 = ApplicationState(State.TESTING, None, None, DateTime.now)
+    val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS))
+    val applicationState                 = ApplicationState(State.TESTING, None, None, LocalDateTime.now)
     val application                      = ApplicationResponse(
       applicationId,
       ClientId("clientid1"),
@@ -421,8 +422,8 @@ class ApplicationConnectorSpec
       "PRODUCTION",
       None,
       collaborators,
-      DateTime.now(),
-      Some(DateTime.now()),
+      LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
+      Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
       Standard(),
       applicationState,
       grantLength
@@ -463,7 +464,7 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url          = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
-      val stateHistory = StateHistory(ApplicationId.random, State(2), Actors.Unknown, None, DateTime.now)
+      val stateHistory = StateHistory(ApplicationId.random, State(2), Actors.Unknown, None, LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
       val response     = Json.toJson(List(stateHistory)).toString
 
       stubFor(

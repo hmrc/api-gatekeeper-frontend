@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 
 import play.api.test.Helpers._
 
@@ -51,7 +51,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
     "BoxesController" should {
       val boxSubscriber = BoxSubscriber(
         "callbackUrl",
-        DateTime.parse("2001-01-01T01:02:03"),
+        LocalDateTime.parse("2001-01-01T01:02:03"),
         SubscriptionType.API_PUSH_SUBSCRIBER
       )
 

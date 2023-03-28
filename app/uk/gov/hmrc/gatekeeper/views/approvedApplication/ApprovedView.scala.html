@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.models.ApprovedApplication
 @import uk.gov.hmrc.gatekeeper.models.RateLimitTier
-@import org.joda.time.format.DateTimeFormat
+@import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -36,7 +36,7 @@
     )
   )
 ) {
-  @defining(DateTimeFormat.forPattern("dd MMMM yyyy")) { dateFormatter =>
+  @defining(DateTimeFormatter.ofPattern("dd MMMM yyyy")) { dateFormatter =>
     @if(flash.get("success").isDefined) {
       <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
         <div class="govuk-notification-banner__content">
@@ -134,8 +134,8 @@
       </tbody>
     </table>
 
-    <p data-submitted-on class="govuk-body">Submitted: @{dateFormatter.print(application.details.submission.submittedOn)}</p>
-    <p data-approved-on class="govuk-body">Approved: @{dateFormatter.print(application.approvedOn)}</p>
+    <p data-submitted-on class="govuk-body">Submitted: @{dateFormatter.format(application.details.submission.submittedOn)}</p>
+    <p data-approved-on class="govuk-body">Approved: @{dateFormatter.format(application.approvedOn)}</p>
     <p data-approved-by class="govuk-body">Approved by: @application.approvedBy</p>
     <br/>
     <a data-back-link class="govuk-link" href="dashboard">Go back to the applications list</a>

@@ -24,7 +24,7 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.ApplicationServiceMockProvider
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
@@ -276,8 +276,8 @@ class ApplicationControllerSpec
           deployedTo = "SANDBOX",
           description = None,
           collaborators = Set.empty,
-          createdOn = DateTime.parse("2001-02-03T12:01:02Z"),
-          lastAccess = Some(DateTime.parse("2002-02-03T12:01:02Z")),
+          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
+          lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           Standard(),
           ApplicationState(),
           grantLength
@@ -291,7 +291,7 @@ class ApplicationControllerSpec
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02.000Z,2002-02-03T12:01:02.000Z
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -996,8 +996,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             "PRODUCTION",
             None,
             collaborators,
-            DateTime.now(),
-            Some(DateTime.now()),
+            LocalDateTime.now(),
+            Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
             grantLength
@@ -1032,8 +1032,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             "PRODUCTION",
             None,
             collaborators,
-            DateTime.now(),
-            Some(DateTime.now()),
+            LocalDateTime.now(),
+            Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
             grantLength
@@ -1070,8 +1070,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             "SANDBOX",
             None,
             collaborators,
-            DateTime.now(),
-            Some(DateTime.now()),
+            LocalDateTime.now(),
+            Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
             grantLength
@@ -1107,8 +1107,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             "SANDBOX",
             None,
             collaborators,
-            DateTime.now(),
-            Some(DateTime.now()),
+            LocalDateTime.now(),
+            Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
             grantLength

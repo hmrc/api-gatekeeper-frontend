@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.Period
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import org.jsoup.Jsoup
 
 import play.api.mvc.Flash
@@ -57,8 +57,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       clientId = clientId,
       gatewayId = "gateway",
       name = "AnApplicationName",
-      createdOn = DateTime.now(),
-      lastAccess = Some(DateTime.now()),
+      createdOn = LocalDateTime.now(),
+      lastAccess = Some(LocalDateTime.now()),
       lastAccessTokenUsage = None,
       deployedTo = Environment.PRODUCTION,
       description = None,
@@ -418,6 +418,6 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
   }
 
   private def formatTermsOfUseAgreedDateTime(termsOfUseAgreement: TermsOfUseAgreement) = {
-    DateTimeFormat.forPattern("dd MMMM yyyy").print(termsOfUseAgreement.timeStamp)
+    DateTimeFormatter.ofPattern("dd MMMM yyyy").format(termsOfUseAgreement.timeStamp)
   }
 }

@@ -20,7 +20,7 @@ import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.joda.time.DateTime
+import java.time.LocalDateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
@@ -44,7 +44,7 @@ class CommandConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding {
 
-  def anApplicationResponse(createdOn: DateTime = DateTime.now(), lastAccess: DateTime = DateTime.now()): ApplicationResponse = {
+  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
     ApplicationResponse(
       ApplicationId.random,
       ClientId("clientid"),

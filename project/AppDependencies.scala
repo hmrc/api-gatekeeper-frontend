@@ -16,7 +16,6 @@ object AppDependencies {
   lazy val dependencies = Seq(
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-28"        % bootstrapVersion,
     "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "5.3.0-play-28",
-    "uk.gov.hmrc"                 %% "time"                              % "3.25.0",
     "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.12.0-play-28",
     "uk.gov.hmrc"                 %% "json-encryption"                   % "5.1.0-play-28",
     "uk.gov.hmrc"                 %% "emailaddress"                      % "3.7.0",
@@ -28,12 +27,11 @@ object AppDependencies {
     "ch.qos.logback"              %  "logback-classic"                   % logbackVersion,
     "ch.qos.logback"              %  "logback-core"                      % logbackVersion,
     "com.typesafe.play"           %% "play-json"                         % "2.9.2",
-    "com.typesafe.play"           %% "play-json-joda"                    % "2.9.2",
     "org.typelevel"               %% "cats-core"                         % "2.3.1",
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-application-events"   % "0.12.0"
+    "uk.gov.hmrc"                 %% "api-platform-application-events"   % "0.14.0"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
