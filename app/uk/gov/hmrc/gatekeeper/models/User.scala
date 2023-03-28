@@ -145,3 +145,13 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
 
   lazy val id: String = user.userId.value.toString
 }
+
+case class UserPaginatedResult(totalCount: Int, users: List[RegisteredUser])
+
+object UserPaginatedResult {
+  implicit val smsMfaDetailFormat: Format[SmsMfaDetail] = Json.format[SmsMfaDetail]
+  implicit val authMfaDetailFormat: Format[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
+  implicit val mfaDetailFormat: Format[MfaDetail] = Json.format[MfaDetail]
+  implicit val userFormat: Format[RegisteredUser] = Json.format[RegisteredUser]
+  implicit val format: Format[UserPaginatedResult] = Json.format[UserPaginatedResult]
+}

@@ -204,7 +204,8 @@ class EmailsController @Inject() (
   }
 
   def emailAllUsersPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchUsers
+    developerService.fetchUsersPaginated(1, 10)
+      .map(_.users)
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
         val usersAsJson   = Json.toJson(filteredUsers)

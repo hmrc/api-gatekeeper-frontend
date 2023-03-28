@@ -55,6 +55,7 @@ trait DeveloperConnector {
   def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+  def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResult]
 
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
@@ -190,6 +191,10 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/all")
   }
 
+  def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResult] = {
+    http.GET[UserPaginatedResult](s"${appConfig.developerBaseUrl}/developers/getAllDevelopers")
+  }
+
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
     http.POST[DeleteDeveloperRequest, HttpResponse](s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest)
       .map(response =>
@@ -219,6 +224,7 @@ class HttpDeveloperConnector @Inject() (
       http.POST[SecretRequest, List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/search", request)
     }
   }
+
 }
 
 @Singleton
@@ -236,6 +242,9 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(List.empty)
 
+  def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResult] = {
+    Future.successful(UserPaginatedResult(0, List.empty))
+  }
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
       maybeApis: Option[Seq[String]] = None,
