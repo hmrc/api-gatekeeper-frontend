@@ -290,6 +290,6 @@ class EmailsPreferencesController @Inject() (
       filteredUsers = result.users.filter(_.verified)
       usersAsJson = Json.toJson(filteredUsers)
       totalCount = result.totalCount
-    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
+    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), limit, offset, totalCount))
   }
 }

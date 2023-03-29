@@ -51,11 +51,11 @@
     ) {
         <div class="content__body full-width">
             <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5" id="pageTitle">Email all users</h1></div>
-            @recipientTableNew(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+            @recipientTableNew(users, composeEmailRecipients, emails, totalCount, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
 
             <nav class="govuk-pagination" role="navigation" aria-label="results">
 
-                @if(offset > 0) {
+                @if(offset >= limit) {
                     <div class="govuk-pagination__prev">
                         <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(offset - limit)" rel="prev">
                             <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">

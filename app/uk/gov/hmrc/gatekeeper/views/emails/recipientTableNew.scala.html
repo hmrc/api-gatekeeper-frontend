@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import play.api.libs.json.Json
 
-@(users: Seq[User], composeEmailRecipients: JsValue, emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
+@(users: Seq[User], composeEmailRecipients: JsValue, emails: String, totalCount: Int, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
   <div class="govuk-button-group govuk-!-margin-bottom-5">
@@ -43,7 +43,7 @@
       </div>
   </div>
 
-  <div class="govuk-body govuk-!-font-weight-regular govuk-!-margin-top-2 govuk-!-margin-bottom-2">@users.size results</div>
+  <div class="govuk-body govuk-!-font-weight-regular govuk-!-margin-top-2 govuk-!-margin-bottom-2">@totalCount results</div>
   <table id="developer-table" class="govuk-table govuk-!-width-two-thirds">
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
