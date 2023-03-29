@@ -23,7 +23,7 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, CommandFailures, RemoveCollaborator}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors.{CommandConnector, ProductionCommandConnector, SandboxCommandConnector}
 
@@ -63,7 +63,7 @@ trait CommandConnectorMockProvider {
 
         def failsWithLastAdmin() = {
           val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
-          when(aMock.dispatch(*[ApplicationId], *[RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
         }
       }
     }

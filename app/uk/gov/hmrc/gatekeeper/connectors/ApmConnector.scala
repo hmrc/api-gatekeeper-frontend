@@ -77,7 +77,6 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   // TODO - better return type
   // TODO - better error handling for expected errors
   def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
-    import ApplicationCommandFormatters._
     val url = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
     http.PATCH[ApplicationCommand, Either[UpstreamErrorResponse, Unit]](url, cmd)
   }
