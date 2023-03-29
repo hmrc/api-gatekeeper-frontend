@@ -106,7 +106,7 @@ GET         /emails/email-preferences/select-api                              uk
 GET         /emails/email-preferences/by-api-category                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesApiCategory(selectedTopic: Option[String], selectedCategory:Option[String])
 GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
 
-GET         /emails/all-users-new                                             uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailAllUsersPage()
+GET         /emails/all-users-new                                             uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailAllUsersPage(offset: Int ?=1, limit: Int ?=15)
 GET         /emails/:emailChoice/information-new                              uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.showEmailInformation(emailChoice: String)
 GET         /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailPreferencesChoice()
 POST        /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.chooseEmailPreferences()

@@ -24,20 +24,91 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser],
+        composeEmailRecipients: JsValue,
+        emails: String,
+        limit: Int,
+        offset: Int,
+        totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messages: Messages)
 
-@main(
-    title = s"${applicationConfig.title} - Emails all users",
-    breadcrumbs = Seq(
-        Crumb(
-            "Back",
-            s"${routes.EmailsPreferencesController.showEmailInformation("all-users")}",
-            Some("data-back-link")
+    @currentPage = @{
+        offset / limit + 1
+    }
+
+    @lastPage = @{
+        totalCount / limit
+    }
+
+    @main(
+        title = s"${applicationConfig.title} - Emails all users",
+        breadcrumbs = Seq(
+            Crumb(
+                "Back",
+                s"${routes.EmailsPreferencesController.showEmailInformation("all-users")}",
+                Some("data-back-link")
+            )
         )
-    )
-){
-    <div class="content__body full-width">
-        <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5"  id="pageTitle">Email all users</h1></div>
-        @recipientTableNew(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
-    </div>
-}
+    ) {
+        <div class="content__body full-width">
+            <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5" id="pageTitle">Email all users</h1></div>
+            @recipientTableNew(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+
+            <nav class="govuk-pagination" role="navigation" aria-label="results">
+
+                @if(offset > 0) {
+                    <div class="govuk-pagination__prev">
+                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(offset - limit)" rel="prev">
+                            <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                            </svg>
+                            <span class="govuk-pagination__link-title">@messages("pagination.previous")</span></a>
+                    </div>
+                }
+                <ul class="govuk-pagination__list">
+
+                    @if(currentPage > 2) {
+                        <li class="govuk-pagination__item">
+                            <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage()" aria-label="Page 1">
+                                1
+                            </a>
+                        </li>
+                    }
+                    @if(currentPage > 3) {
+                        <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                    }
+
+                    @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(totalCount / limit)) {
+                        <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                            <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage((i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                            @i
+                            </a>
+                        </li>
+                    }
+
+                    @if(currentPage < lastPage - 2) {
+                        <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                    }
+
+                    @if(currentPage < lastPage - 1) {
+                        <li class="govuk-pagination__item">
+                            <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(totalCount - limit)" aria-label="Page @{
+                                totalCount / limit
+                            }">
+                            @{
+                                totalCount / limit
+                            }
+                            </a>
+                        </li>
+                    }
+                </ul>
+
+                @if(offset < totalCount - limit) {
+                    <div class="govuk-pagination__next">
+                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(offset + limit)" rel="next"> <span class="govuk-pagination__link-title">@messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                            <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                        </svg></a>
+                    </div>
+                }
+            </nav>
+        </div>
+    }

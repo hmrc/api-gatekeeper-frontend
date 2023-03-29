@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.MfaId.format
@@ -146,12 +145,9 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
   lazy val id: String = user.userId.value.toString
 }
 
-case class UserPaginatedResult(totalCount: Int, users: List[RegisteredUser])
+case class UserPaginatedResponse(totalCount: Int, users: List[RegisteredUser])
 
-object UserPaginatedResult {
-  implicit val smsMfaDetailFormat: Format[SmsMfaDetail] = Json.format[SmsMfaDetail]
-  implicit val authMfaDetailFormat: Format[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
-  implicit val mfaDetailFormat: Format[MfaDetail] = Json.format[MfaDetail]
-  implicit val userFormat: Format[RegisteredUser] = Json.format[RegisteredUser]
-  implicit val format: Format[UserPaginatedResult] = Json.format[UserPaginatedResult]
+object UserPaginatedResponse {
+  implicit val userFormat: Format[RegisteredUser]    = RegisteredUser.registeredUserFormat
+  implicit val format: Format[UserPaginatedResponse] = Json.format
 }

@@ -139,9 +139,10 @@ class DeveloperService @Inject() (
     developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
-  def fetchUsersPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResult] = {
+  def fetchUsersPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
     developerConnector.fetchAllPaginated(offset, limit)
   }
+
   def seekUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]] = {
     developerConnector.seekUserByEmail(email)
   }
