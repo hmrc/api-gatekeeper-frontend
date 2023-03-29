@@ -68,7 +68,7 @@ abstract class CommandConnector(implicit val ec: ExecutionContext) {
         response.status match {
           case OK          => parseSuccessResponse(response.body).asRight[NonEmptyList[CommandFailure]]
           case BAD_REQUEST => parseErrorResponse(response.body).asLeft[DispatchSuccessResult]
-          case status      => throw new InternalServerException("Failed calling dispatch")
+          case status      => throw new InternalServerException(s"Failed calling dispatch: $status")
         }
       )
   }
