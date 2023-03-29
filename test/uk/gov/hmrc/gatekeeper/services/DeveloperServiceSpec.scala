@@ -31,9 +31,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, RemoveCollaborator}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -161,11 +161,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       CommandConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
-    def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
-    def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommand)     = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
-    def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommand) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
+    // def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
+    def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommands.RemoveCollaborator)     = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
+    def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
 
-    def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: RemoveCollaborator) = cmd.collaborator.emailAddress == email
+    def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.collaborator.emailAddress == email
 
     def verifyCollaboratorRemovedFromApp(
         app: Application,
@@ -177,14 +177,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       environment match {
         case "PRODUCTION" =>
           inside(CommandConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
-            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+            case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
               verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
               verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
             case _                                                                           => fail("Wrong command")
           }
         case "SANDBOX"    =>
           inside(CommandConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
-            case cmd @ RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+            case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
               verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
               verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
             case _                                                                           => fail("Wrong command")
