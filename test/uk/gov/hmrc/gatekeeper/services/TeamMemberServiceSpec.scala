@@ -39,14 +39,15 @@ import uk.gov.hmrc.gatekeeper.models._
 class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
   trait Setup
-      extends MockitoSugar with ArgumentMatchersSugar
+      extends MockitoSugar 
+      with ArgumentMatchersSugar
       with CommandConnectorMockProvider {
+
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
     val teamMemberService = new TeamMemberService(
-      mockSandboxCommandConnector,
-      mockProductionCommandConnector,
+      CommandConnectorMock.aMock,
       mockDeveloperConnector
     )
     val underTest         = spy(teamMemberService)
@@ -86,7 +87,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       val collaboratorToRemove = application.collaborators.filter(_.isDeveloper).head
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
+      CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
       await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
     }
@@ -95,7 +96,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       val collaboratorToRemove = stdApp1.collaborators.filter(_.isDeveloper).head
 
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
-      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
+      CommandConnectorMock.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
 
       await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin))
     }
@@ -122,28 +123,10 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
       val expectedAdminsToEmail = Set(verifiedAdmin.emailAddress, verifiedOtherAdmin.emailAddress)
 
-      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeedsFor(application.id, expectedAdminsToEmail)
+      CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeedsFor(application.id, expectedAdminsToEmail)
 
       await(underTest.removeTeamMember(application, memberToRemove, gatekeeperUserName)) shouldBe Right(())
 
-    }
-  }
-
-  "commandConnectorFor" should {
-    "return the production command connector for an application deployed to production" in new Setup {
-      val application = stdApp1.copy(deployedTo = "PRODUCTION")
-
-      val result = underTest.commandConnectorFor(application)
-
-      result shouldBe mockProductionCommandConnector
-    }
-
-    "return the sandbox command connector for an application deployed to sandbox" in new Setup {
-      val application = stdApp1.copy(deployedTo = "SANDBOX")
-
-      val result = underTest.commandConnectorFor(application)
-
-      result shouldBe mockSandboxCommandConnector
     }
   }
 }

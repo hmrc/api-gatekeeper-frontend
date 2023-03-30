@@ -26,17 +26,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, InternalServer
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommand, CommandFailure, DispatchRequest, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.http.UpstreamErrorResponse
 
-abstract class CommandConnector(implicit val ec: ExecutionContext) extends ApplicationLogger {
-
-  val environment: Environment
-  val serviceBaseUrl: String
-  val http: HttpClient
+@Singleton
+class CommandConnector @Inject()(http: HttpClient, config: ApmConnector.Config)(implicit val ec: ExecutionContext) extends ApplicationLogger {
 
   def dispatch(
       applicationId: ApplicationId,
@@ -50,7 +43,7 @@ abstract class CommandConnector(implicit val ec: ExecutionContext) extends Appli
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._
 
-    def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.value.toString()}"
+    def baseApplicationUrl(applicationId: ApplicationId) = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
 
     def parseSuccessResponse(responseBody: String): DispatchSuccessResult =
       Json.parse(responseBody).validate[DispatchSuccessResult] match {
@@ -85,32 +78,4 @@ abstract class CommandConnector(implicit val ec: ExecutionContext) extends Appli
         }
       )
   }
-}
-
-@Singleton
-class SandboxCommandConnector @Inject() (
-    val appConfig: AppConfig,
-    val httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient
-  )(implicit override val ec: ExecutionContext
-  ) extends CommandConnector {
-
-  val environment    = Environment.SANDBOX
-  val serviceBaseUrl = appConfig.applicationSandboxBaseUrl
-  val useProxy       = appConfig.applicationSandboxUseProxy
-  val bearerToken    = appConfig.applicationSandboxBearerToken
-  val apiKey         = appConfig.applicationSandboxApiKey
-
-  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-
-}
-
-@Singleton
-class ProductionCommandConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit override val ec: ExecutionContext)
-    extends CommandConnector {
-
-  val environment    = Environment.PRODUCTION
-  val serviceBaseUrl = appConfig.applicationProductionBaseUrl
-
-  val http = httpClient
 }

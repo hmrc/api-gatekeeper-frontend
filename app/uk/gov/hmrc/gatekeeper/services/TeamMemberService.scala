@@ -28,19 +28,17 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.connectors.{CommandConnector, DeveloperConnector, ProductionCommandConnector, SandboxCommandConnector}
+import uk.gov.hmrc.gatekeeper.connectors.{CommandConnector, DeveloperConnector}
 import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
 class TeamMemberService @Inject() (
-    sandboxCommandConnector: SandboxCommandConnector,
-    productionCommandConnector: ProductionCommandConnector,
+  commandConnector: CommandConnector,
     developerConnector: DeveloperConnector
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger {
 
   def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
-    val commandConnector = commandConnectorFor(app)
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
@@ -56,7 +54,6 @@ class TeamMemberService @Inject() (
     )(implicit hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
-    val commandConnector = commandConnectorFor(app)
     val collaborator     = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
 
     for {
@@ -77,7 +74,5 @@ class TeamMemberService @Inject() (
       )
   }
 
-  def commandConnectorFor(application: Application): CommandConnector =
-    if (application.deployedTo == "PRODUCTION") productionCommandConnector else sandboxCommandConnector
 
 }

@@ -101,8 +101,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
-      mockSandboxCommandConnector,
-      mockProductionCommandConnector,
+      CommandConnectorMock.aMock,
       mockXmlService
     )
 
@@ -157,8 +156,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     def deleteDeveloperWillSucceed = {
       when(mockDeveloperConnector.deleteDeveloper(*)(*))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
-      CommandConnectorMock.Prod.IssueCommand.ToRemoveCollaborator.succeeds()
-      CommandConnectorMock.Sandbox.IssueCommand.ToRemoveCollaborator.succeeds()
+      CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
     // def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
@@ -171,25 +169,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         app: Application,
         userToRemove: LaxEmailAddress,
         gatekeeperUserName: String,
-        adminsToEmail: Set[LaxEmailAddress],
-        environment: String = "PRODUCTION"
+        adminsToEmail: Set[LaxEmailAddress]
       ) = {
-      environment match {
-        case "PRODUCTION" =>
-          inside(CommandConnectorMock.Prod.IssueCommand.verifyCommand(app.id)) {
-            case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
-              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
-              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
-            case _                                                                           => fail("Wrong command")
-          }
-        case "SANDBOX"    =>
-          inside(CommandConnectorMock.Sandbox.IssueCommand.verifyCommand(app.id)) {
-            case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
-              verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
-              verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
-            case _                                                                           => fail("Wrong command")
-          }
-      }
+        inside(CommandConnectorMock.IssueCommand.verifyCommand(app.id)) {
+          case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+            verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+            verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+          case _                                                                           => fail("Wrong command")
+        }
     }
 
     def removeMfaReturnWillReturn(user: RegisteredUser) = {
@@ -473,8 +460,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteSuccessResult
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
-      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
@@ -507,14 +493,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty, environment = "SANDBOX")
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set.empty)
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty)
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
     }
 
-    "fail if the developer is the sole admin on any of their associated apps in production" in new Setup {
+    "fail if the developer is the sole admin on any of their associated apps" in new Setup {
 
       val productionApps = List(anApp("productionApplication", Set(user.email.asAdministratorCollaborator)))
       val sandboxApps    = List(anApp(
@@ -527,25 +513,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
-    }
-
-    "fail if the developer is the sole admin on any of their associated apps in sandbox" in new Setup {
-      val productionApps = List(anApp(
-        name = "productionApplication",
-        collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
-      ))
-      val sandboxApps    = List(anApp("sandboxApplication", Set(user.email.asAdministratorCollaborator)))
-
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
-
-      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
-      result shouldBe DeveloperDeleteFailureResult
-
-      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
-      CommandConnectorMock.Prod.IssueCommand.verifyNoCommandsIssued()
-      CommandConnectorMock.Sandbox.IssueCommand.verifyNoCommandsIssued()
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
   }
 
