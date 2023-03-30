@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 
 trait DeveloperServiceStub {
   val emailPreferencesUrl = "/developers/email-preferences"
-  val allUrl              = "/developers/all"
+  val allUrl              = "/developers/all-paginated?offset=1&limit=15"
   val byEmails            = "/developers/get-by-emails"
 
   def primeDeveloperServiceAllSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {
@@ -37,6 +37,15 @@ trait DeveloperServiceStub {
       ))
   }
 
+  def primeDeveloperServiceAllSuccessWithUsersPaginated(totalCount: Int, users: Seq[RegisteredUser]): Unit = {
+
+    stubFor(get(urlEqualTo(allUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(totalCount, users.toList)).toString())
+      ))
+  }
   def primeDeveloperServiceGetByEmails(users: Seq[RegisteredUser]): Unit = {
 
     stubFor(post(urlEqualTo(byEmails))

@@ -64,6 +64,13 @@ trait DeveloperServiceMockProvider {
           .thenReturn(successful(users.toList))
     }
 
+    object FetchUsersPaginated {
+
+      def returns(totalCount: Int, users: RegisteredUser*) =
+        when(mockDeveloperService.fetchUsersPaginated(*, *)(*))
+          .thenReturn(successful(UserPaginatedResponse(totalCount, users.toList)))
+    }
+
     object FetchDeveloper {
       def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful(developer))
     }

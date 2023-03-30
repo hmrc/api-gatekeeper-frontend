@@ -68,7 +68,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
     trait Setup extends ControllerSetupBase {
       when(mockEmailInformationNewView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersNewView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersNewView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiNewView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
@@ -117,9 +117,13 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       def givenVerifiedDeveloper()  = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
       def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
+      def given3PaginatedUsersAreFetched(totalCount: Int) = DeveloperServiceMock.FetchUsersPaginated.returns(totalCount, users3Verified1Unverified: _*)
+
+      def given2PaginatedUsersAreFetched(totalCount: Int) = DeveloperServiceMock.FetchUsersPaginated.returns(totalCount, verified2Users: _*)
 
       def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
 
+      def givenNoPaginatedDevelopersAreFetched() = DeveloperServiceMock.FetchUsersPaginated.returns(0, List(): _*)
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
       val api1                      = ApiDefinition(
@@ -240,33 +244,34 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     "Email all Users page" should {
       "render as expected when 3 verified users are retrieved from developer service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        given3VerifiedDevelopers1Unverified()
-        val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
+        given3PaginatedUsersAreFetched(4)
+        val result: Future[Result] = underTest.emailAllUsersPage(1, 3)(aLoggedInRequest)
 
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
         val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersNewView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString))(*, *, *)
+
+        verify(mockEmailAllUsersNewView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString), eqTo(1), eqTo(3), eqTo(4))(*, *, *)
       }
 
       "render as expected when 2 users are retrieved from the developer service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenVerifiedDeveloper()
-        val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
+        given2PaginatedUsersAreFetched(4)
+        val result: Future[Result] = underTest.emailAllUsersPage(1, 2)(aLoggedInRequest)
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersNewView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString), eqTo(1), eqTo(2), eqTo(4))(*, *, *)
       }
 
       "render as expected when no verified users are retrieved from the developer service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenNoVerifiedDevelopers()
-        val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
+        givenNoPaginatedDevelopersAreFetched()
+        val result: Future[Result] = underTest.emailAllUsersPage(0, 0)(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
       }
     }
 

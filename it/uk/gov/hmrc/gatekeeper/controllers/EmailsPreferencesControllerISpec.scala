@@ -140,20 +140,20 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
 
       "respond with 200 and render the all users page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceAllSuccessWithUsers(Seq.empty)
+        primeDeveloperServiceAllSuccessWithUsersPaginated(4, Seq.empty)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users-new", validHeaders)
         result.status shouldBe OK
 
-        validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)
+        validateEmailAllUsersPaginatedPage(Jsoup.parse(result.body), 0, Seq.empty)
       }
 
       "respond with 200 and render the all users page correctly when authorised and users returned from developer connector" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceAllSuccessWithUsers(allUsers)
+        primeDeveloperServiceAllSuccessWithUsersPaginated(4, allUsers)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users-new", validHeaders)
         result.status shouldBe OK
 
-        validateEmailAllUsersPage(Jsoup.parse(result.body), verifiedUsers)
+        validateEmailAllUsersPaginatedPage(Jsoup.parse(result.body), 4, verifiedUsers)
       }
 
       "respond with 403 when not authorised" in {

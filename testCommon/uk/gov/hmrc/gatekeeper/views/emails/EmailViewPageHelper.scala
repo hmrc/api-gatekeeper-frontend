@@ -86,6 +86,14 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
   }
+
+  def validateEmailAllUsersPaginatedPage(document: Document, totalCount: Int = 0, users: Seq[RegisteredUser]): Unit = {
+    elementExistsByText(document, "h1", "Email all users") shouldBe true
+    elementExistsContainsText(document, "div", s"${totalCount} results") shouldBe true
+    validateCopyToClipboardLink(document, users)
+    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
+    users.foreach(user => verifyUserRow(document, user))
+  }
 }
 
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {

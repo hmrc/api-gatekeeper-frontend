@@ -36,7 +36,7 @@
     }
 
     @lastPage = @{
-        totalCount / limit
+        (totalCount / limit) + (totalCount % limit)
     }
 
     @main(
