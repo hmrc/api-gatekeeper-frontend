@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.time.LocalDateTime
+
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
@@ -27,7 +28,7 @@ case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor
 
 object StateHistory {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-  
+
   def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
     s1.applicationId match {
       case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)

@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.gatekeeper.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
-import java.time.ZoneOffset
 
 trait CheckInformationTestData {
 

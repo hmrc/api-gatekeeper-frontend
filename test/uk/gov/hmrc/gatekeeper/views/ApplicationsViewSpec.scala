@@ -32,9 +32,8 @@
 
 package uk.gov.hmrc.gatekeeper.views
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 
-import java.time.LocalDateTime
 import org.jsoup.Jsoup
 
 import play.twirl.api.HtmlFormat

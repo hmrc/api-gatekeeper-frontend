@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 
-import java.time.LocalDateTime
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 

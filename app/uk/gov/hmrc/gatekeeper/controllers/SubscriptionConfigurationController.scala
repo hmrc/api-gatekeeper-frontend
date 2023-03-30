@@ -16,10 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
-
-import java.time.LocalDateTime
 
 import play.api.data
 import play.api.data.Form

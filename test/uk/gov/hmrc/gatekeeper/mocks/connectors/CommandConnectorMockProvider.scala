@@ -29,41 +29,41 @@ import uk.gov.hmrc.gatekeeper.connectors.CommandConnector
 
 trait CommandConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
-    
-    object CommandConnectorMock {
 
-      val aMock: CommandConnector = mock[CommandConnector]
-      
-      object IssueCommand {
-        import cats.syntax.either._
-        import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
+  object CommandConnectorMock {
 
-        def verifyCommand(id: ApplicationId) = {
-          val cmdCaptor = ArgCaptor[ApplicationCommand]
-          verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)
-          cmdCaptor.value
+    val aMock: CommandConnector = mock[CommandConnector]
+
+    object IssueCommand {
+      import cats.syntax.either._
+      import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
+
+      def verifyCommand(id: ApplicationId) = {
+        val cmdCaptor = ArgCaptor[ApplicationCommand]
+        verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)
+        cmdCaptor.value
+      }
+
+      def verifyNoCommandsIssued() = {
+        verify(aMock, never).dispatch(*[ApplicationId], *, *)(*)
+      }
+
+      object ToRemoveCollaborator {
+        val mockResult = mock[DispatchSuccessResult]
+
+        def succeeds() = {
+          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
 
-        def verifyNoCommandsIssued() = {
-          verify(aMock, never).dispatch(*[ApplicationId], *, *)(*)
+        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
+          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
         }
 
-        object ToRemoveCollaborator {
-          val mockResult = mock[DispatchSuccessResult]
-
-          def succeeds() = {
-            when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
-          }
-
-          def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
-            when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
-          }
-
-          def failsWithLastAdmin() = {
-            val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
-            when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
-          }
+        def failsWithLastAdmin() = {
+          val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
+          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
         }
       }
+    }
   }
 }

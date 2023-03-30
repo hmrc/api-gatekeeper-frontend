@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.views.review
 
-import mocks.config.AppConfigMock
 import java.time.LocalDateTime
+
+import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
 
 import play.api.test.FakeRequest

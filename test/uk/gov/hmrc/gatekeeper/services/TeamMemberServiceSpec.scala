@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
 import cats.data.NonEmptyList
 import mocks.connectors._
-import java.time.LocalDateTime
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -39,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.models._
 class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
   trait Setup
-      extends MockitoSugar 
+      extends MockitoSugar
       with ArgumentMatchersSugar
       with CommandConnectorMockProvider {
 

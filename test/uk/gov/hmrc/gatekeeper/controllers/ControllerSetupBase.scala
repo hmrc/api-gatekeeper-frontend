@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 import scala.concurrent.Future
 
 import mocks.connectors._
 import mocks.services._
-import java.time.LocalDateTime
 import org.mockito.stubbing.ScalaOngoingStubbing
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 

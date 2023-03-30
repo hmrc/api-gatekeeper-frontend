@@ -33,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
 class TeamMemberService @Inject() (
-  commandConnector: CommandConnector,
+    commandConnector: CommandConnector,
     developerConnector: DeveloperConnector
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger {
@@ -54,7 +54,7 @@ class TeamMemberService @Inject() (
     )(implicit hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
-    val collaborator     = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
+    val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
@@ -73,6 +73,5 @@ class TeamMemberService @Inject() (
           .toSet
       )
   }
-
 
 }

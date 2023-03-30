@@ -93,7 +93,7 @@ class EmailsController @Inject() (
   }
 
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result] = {
+    def handleValidForm(form: SendEmailPreferencesChoice): Future[Result]   = {
       form.sendEmailPreferences match {
         case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
         case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))

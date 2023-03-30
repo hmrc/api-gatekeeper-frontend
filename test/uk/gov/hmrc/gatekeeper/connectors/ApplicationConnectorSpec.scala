@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.temporal.ChronoUnit
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import java.time.LocalDateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
@@ -37,7 +37,6 @@ import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import java.time.temporal.ChronoUnit
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec

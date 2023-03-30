@@ -222,7 +222,7 @@ class XmlServicesConnectorSpec
       )
       intercept[UpstreamErrorResponse](await(connector.findOrganisationsByUserId(userId))) match {
         case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => succeed
-        case _                        => fail
+        case _                                           => fail
       }
     }
   }

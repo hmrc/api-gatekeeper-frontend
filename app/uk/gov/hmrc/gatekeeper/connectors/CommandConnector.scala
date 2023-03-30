@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 @Singleton
-class CommandConnector @Inject()(http: HttpClient, config: ApmConnector.Config)(implicit val ec: ExecutionContext) extends ApplicationLogger {
+class CommandConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit val ec: ExecutionContext) extends ApplicationLogger {
 
   def dispatch(
       applicationId: ApplicationId,
@@ -48,7 +48,7 @@ class CommandConnector @Inject()(http: HttpClient, config: ApmConnector.Config)(
     def parseSuccessResponse(responseBody: String): DispatchSuccessResult =
       Json.parse(responseBody).validate[DispatchSuccessResult] match {
         case JsSuccess(result, _) => result
-        case JsError(errs) => 
+        case JsError(errs)        =>
           logger.info(responseBody)
           logger.error(s"Failed parsing DispatchSuccessResult due to $errs")
           throw new InternalServerException("Failed parsing success response to dispatch")
@@ -57,7 +57,7 @@ class CommandConnector @Inject()(http: HttpClient, config: ApmConnector.Config)(
     def parseErrorResponse(responseBody: String): NonEmptyList[CommandFailure] =
       Json.parse(responseBody).validate[NonEmptyList[CommandFailure]] match {
         case JsSuccess(result, _) => result
-        case JsError(errs) => 
+        case JsError(errs)        =>
           logger.info(responseBody)
 
           logger.error(s"Failed parsing NonEmptyList[CommandFailure] due to $errs")
@@ -71,11 +71,11 @@ class CommandConnector @Inject()(http: HttpClient, config: ApmConnector.Config)(
 
     http.PATCH[DispatchRequest, HttpResponse](url, request, extraHeaders)
       .map(_ match {
-        case HttpResponse(BAD_REQUEST, body, _)             => parseErrorResponse(body).asLeft[DispatchSuccessResult]
-        case HttpResponse(status, body, _) if status > 299  => logger.warn(s"Failed calling dispatch ($status) due to $body")
-                                                               throw new InternalServerException("Failed calling dispatch")
-        case HttpResponse(_, body, _)                       => parseSuccessResponse(body).asRight[NonEmptyList[CommandFailure]]
-        }
-      )
+        case HttpResponse(BAD_REQUEST, body, _)            => parseErrorResponse(body).asLeft[DispatchSuccessResult]
+        case HttpResponse(status, body, _) if status > 299 =>
+          logger.warn(s"Failed calling dispatch ($status) due to $body")
+          throw new InternalServerException("Failed calling dispatch")
+        case HttpResponse(_, body, _)                      => parseSuccessResponse(body).asRight[NonEmptyList[CommandFailure]]
+      })
   }
 }

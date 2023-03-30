@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
-import java.time.LocalDateTime
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -171,12 +170,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         gatekeeperUserName: String,
         adminsToEmail: Set[LaxEmailAddress]
       ) = {
-        inside(CommandConnectorMock.IssueCommand.verifyCommand(app.id)) {
-          case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
-            verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
-            verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
-          case _                                                                           => fail("Wrong command")
-        }
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(app.id)) {
+        case cmd @ ApplicationCommands.RemoveCollaborator(foundActor, foundCollaborator, foundAdminsToEmail) =>
+          verifyIsGatekeeperUser(gatekeeperUserName)(cmd)
+          verifyCollaboratorRemovedEmailIs(userToRemove)(cmd)
+        case _                                                                                               => fail("Wrong command")
+      }
     }
 
     def removeMfaReturnWillReturn(user: RegisteredUser) = {
