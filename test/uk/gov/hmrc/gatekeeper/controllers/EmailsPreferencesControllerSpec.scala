@@ -273,6 +273,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         status(result) shouldBe OK
         verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
       }
+
     }
 
     "Email preferences select api page" should {
