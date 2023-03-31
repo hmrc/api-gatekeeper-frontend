@@ -20,7 +20,6 @@ import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import java.time.LocalDateTime
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
@@ -29,15 +28,13 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 
 class CommandConnectorSpec
     extends AsyncHmrcSpec
@@ -76,12 +73,9 @@ class CommandConnectorSpec
 
   class Setup(proxyEnabled: Boolean = false) {
 
-    val httpClient               = app.injector.instanceOf[HttpClient]
-    val mockAppConfig: AppConfig = mock[AppConfig]
-    when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
-
-    val connector = new ProductionCommandConnector(mockAppConfig, httpClient) {}
-
+    val httpClient = app.injector.instanceOf[HttpClient]
+    val config     = ApmConnector.Config(wireMockUrl)
+    val connector  = new CommandConnector(httpClient, config) {}
   }
 
   "dispatch" should {
@@ -91,7 +85,7 @@ class CommandConnectorSpec
     val command              = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
 
     val adminsToEmail = Set("admin1@example.com", "admin2@example.com").map(_.toLaxEmail)
-    val url           = s"/application/${applicationId.value.toString()}/dispatch"
+    val url           = s"/applications/${applicationId.value.toString()}/dispatch"
 
     "send a correct command" in new Setup {
       stubFor(

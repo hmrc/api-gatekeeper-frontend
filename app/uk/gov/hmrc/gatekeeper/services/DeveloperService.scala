@@ -36,8 +36,7 @@ class DeveloperService @Inject() (
     developerConnector: DeveloperConnector,
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
-    sandboxCommandConnector: SandboxCommandConnector,
-    productionCommandConnector: ProductionCommandConnector,
+    commandConnector: CommandConnector,
     xmlService: XmlService
   )(implicit ec: ExecutionContext
   ) {
@@ -223,13 +222,12 @@ class DeveloperService @Inject() (
     }
 
     def removeTeamMemberFromApp(developer: Developer)(app: Application): Future[Unit] = {
-      val connector    = if (app.deployedTo == "PRODUCTION") productionCommandConnector else sandboxCommandConnector
       val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (developer.email)).get // Safe as we know we're a dev on this app
 
       for {
         adminsToEmail <- fetchAdminsToEmail(developer.email)(app)
         cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
-        result        <- connector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
+        result        <- commandConnector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
                            case Left(_)  => throw new RuntimeException("Failed to remove team member from app")
                            case Right(_) => ()
                          })

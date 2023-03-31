@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.Period
-
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._

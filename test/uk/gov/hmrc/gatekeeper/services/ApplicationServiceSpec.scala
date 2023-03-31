@@ -22,7 +22,6 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
-import java.time.LocalDateTime
 import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}

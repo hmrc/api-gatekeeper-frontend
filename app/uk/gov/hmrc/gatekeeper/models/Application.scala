@@ -19,8 +19,6 @@ package uk.gov.hmrc.gatekeeper.models
 import java.time.{LocalDateTime, Period}
 import java.util.UUID
 
-import java.time.LocalDateTime
-
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
@@ -425,7 +423,12 @@ object CollaboratorRole extends Enumeration {
   implicit val format = Json.formatEnum(CollaboratorRole)
 }
 
-case class ApplicationState(name: State = State.TESTING, requestedByEmailAddress: Option[String] = None, verificationCode: Option[String] = None, updatedOn: LocalDateTime = LocalDateTime.now()) {
+case class ApplicationState(
+    name: State = State.TESTING,
+    requestedByEmailAddress: Option[String] = None,
+    verificationCode: Option[String] = None,
+    updatedOn: LocalDateTime = LocalDateTime.now()
+  ) {
   def isApproved                     = name.isApproved
   def isPendingGatekeeperApproval    = name.isPendingGatekeeperApproval
   def isPendingRequesterVerification = name.isPendingRequesterVerification

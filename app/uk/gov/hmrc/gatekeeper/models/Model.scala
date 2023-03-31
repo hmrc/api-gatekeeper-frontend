@@ -19,8 +19,6 @@ package uk.gov.hmrc.gatekeeper.models
 import java.time.LocalDateTime
 import java.util.UUID
 
-import java.time.LocalDateTime
-
 import play.api.data.Form
 import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel

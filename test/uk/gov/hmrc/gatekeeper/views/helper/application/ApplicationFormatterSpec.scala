@@ -17,16 +17,17 @@
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
+
 import org.scalatest.BeforeAndAfterAll
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.views.helper.application.ApplicationFormatter.{getCreatedOn, getLastAccess, initialLastAccessDate}
-import java.time.temporal.ChronoUnit
 
 class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApplicationBuilder {
-  val FixedTimeNow: LocalDateTime = LocalDateTime.of(2019,9,1,0,30,0,0)
+  val FixedTimeNow: LocalDateTime = LocalDateTime.of(2019, 9, 1, 0, 30, 0, 0)
 
   val applicationId = ApplicationId.random
 

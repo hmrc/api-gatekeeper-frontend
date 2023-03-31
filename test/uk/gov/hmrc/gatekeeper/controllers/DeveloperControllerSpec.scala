@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.Period
+import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
-
-import java.time.LocalDateTime
 
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}

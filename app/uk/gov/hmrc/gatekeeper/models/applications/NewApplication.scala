@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import java.time.Period
-
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.play.json.Union
 

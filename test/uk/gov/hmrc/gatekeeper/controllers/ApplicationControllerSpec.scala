@@ -24,7 +24,6 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.ApplicationServiceMockProvider
-import java.time.LocalDateTime
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor

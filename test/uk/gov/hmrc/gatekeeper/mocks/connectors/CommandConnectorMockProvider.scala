@@ -25,16 +25,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.connectors.{CommandConnector, ProductionCommandConnector, SandboxCommandConnector}
+import uk.gov.hmrc.gatekeeper.connectors.CommandConnector
 
 trait CommandConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val mockProductionCommandConnector = mock[ProductionCommandConnector]
-  val mockSandboxCommandConnector    = mock[SandboxCommandConnector]
+  object CommandConnectorMock {
 
-  trait CommandConnectorMock {
-    def aMock: CommandConnector
+    val aMock: CommandConnector = mock[CommandConnector]
 
     object IssueCommand {
       import cats.syntax.either._
@@ -66,17 +64,6 @@ trait CommandConnectorMockProvider {
           when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
         }
       }
-    }
-  }
-
-  object CommandConnectorMock {
-
-    object Prod extends CommandConnectorMock {
-      val aMock = mockProductionCommandConnector
-    }
-
-    object Sandbox extends CommandConnectorMock {
-      val aMock = mockSandboxCommandConnector
     }
   }
 }
