@@ -18,13 +18,10 @@ package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
 import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 
-case class DispatchSuccessResult(applicationResponse: ApplicationResponse, events: List[ApplicationEvent])
+case class DispatchSuccessResult(applicationResponse: ApplicationResponse)
 
 object DispatchSuccessResult {
-  import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
-
   implicit val format = Json.format[DispatchSuccessResult]
 }

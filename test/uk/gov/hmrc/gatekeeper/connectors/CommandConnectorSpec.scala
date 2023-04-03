@@ -35,6 +35,8 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import cats.data.NonEmptyList
+import uk.gov.hmrc.http.InternalServerException
 
 class CommandConnectorSpec
     extends AsyncHmrcSpec
@@ -93,11 +95,44 @@ class CommandConnectorSpec
           .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
           .willReturn(
             aResponse()
-              .withJsonBody(DispatchSuccessResult(anApplicationResponse(), List.empty))
+              .withJsonBody(DispatchSuccessResult(anApplicationResponse()))
               .withStatus(OK)
           )
       )
       await(connector.dispatch(applicationId, command, adminsToEmail))
+    }
+
+    "handle getting a failure response" in new Setup {
+      import uk.gov.hmrc.apiplatform.modules.common.services.NonEmptyListFormatters._
+      val failures: NonEmptyList[CommandFailure] = NonEmptyList.one(CommandFailures.ApplicationNotFound)
+
+      stubFor(
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
+          .willReturn(
+            aResponse()
+              .withJsonBody(failures)
+              .withStatus(BAD_REQUEST)
+          )
+      )
+      val result = await(connector.dispatch(applicationId, command, adminsToEmail)) 
+
+      result.left.value shouldBe failures
+    }
+    "handle getting a response I'm not expecting" in new Setup {
+      stubFor(
+        patch(urlPathEqualTo(url))
+          .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
+          .willReturn(
+            aResponse()
+              .withBody("""{ "garbage json": "yes" }""")
+              .withStatus(OK)
+          )
+      )
+
+      intercept[InternalServerException] {
+        await(connector.dispatch(applicationId, command, adminsToEmail)) 
+      }
     }
   }
 }
