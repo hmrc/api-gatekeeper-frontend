@@ -250,15 +250,15 @@ class EmailsPreferencesController @Inject() (
       ))
     }
 
-  def selectedSubscribedApi(selectedAPIs: List[String] = List.empty): Action[AnyContent] =
+  def selectedSubscribedApi(selectedAPIs: List[String] = List.empty, offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       for {
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        users <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs)
-          .map(_.filter(_.verified))
+        users <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
+          .map(r => r.users.filter(_.verified))
         usersAsJson = Json.toJson(users)
-      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis))
+      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, users.size))
     }
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>

@@ -67,7 +67,7 @@ trait DeveloperConnector {
 
   def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
-  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse]
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
@@ -176,15 +176,19 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
-  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
     logger.info(s"fetchEmailUsersByApis $maybeApis")
     val queryParams: Seq[(String, String)] = maybeApis.filter(_.nonEmpty)
       .fold(Seq.empty[(String, String)])(apis =>
         apis.filter(_.nonEmpty)
-          .flatMap(api => Seq("service" -> api))
+          .flatMap(api => Seq(
+            "service" -> api,
+            "offset" -> s"$offset",
+            "limit" -> s"$limit"
+          ))
       )
 
-    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
+    http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/email-preferences-paginated", queryParams)
   }
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
@@ -263,5 +267,5 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 
-  def fetchEmailUsersByApis(maybeApis: Option[Seq[String]])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
+  override def fetchEmailUsersByApis(maybeApis: Option[Seq[String]], offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = Future.successful(UserPaginatedResponse(0, List.empty))
 }
