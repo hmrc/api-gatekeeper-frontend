@@ -32,7 +32,7 @@ trait UserFunctionsWrapper {
     request.queryString.map { case (k, v) => k -> v.mkString }
   }
 
-  def usersToEmailCopyText(users: Seq[RegisteredUser]): String = {
+  def usersToEmailCopyText(users: List[RegisteredUser]): String = {
     users.map(_.email.text).sorted.mkString("; ")
   }
 

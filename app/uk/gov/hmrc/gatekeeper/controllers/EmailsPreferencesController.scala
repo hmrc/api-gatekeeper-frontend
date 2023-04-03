@@ -19,17 +19,16 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import play.api.data.Form
 import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.gatekeeper.models.ApiStatusJson.apiStatusFormat
 import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -255,10 +254,12 @@ class EmailsPreferencesController @Inject() (
       for {
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        users <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
-          .map(r => r.users.filter(_.verified))
+        userPaginatedResponse <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
+        users = userPaginatedResponse.users.filter(_.verified)
+        totalCount = userPaginatedResponse.totalCount
         usersAsJson = Json.toJson(users)
-      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, users.size))
+        _ = logger.info(s"***OFFSET:$offset, LIMIT:$limit, TOTALCOUNT:$totalCount")
+      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
