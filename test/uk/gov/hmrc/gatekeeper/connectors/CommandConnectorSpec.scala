@@ -95,7 +95,7 @@ class CommandConnectorSpec
           .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
           .willReturn(
             aResponse()
-              .withJsonBody(DispatchSuccessResult(anApplicationResponse(), List.empty))
+              .withJsonBody(DispatchSuccessResult(anApplicationResponse()))
               .withStatus(OK)
           )
       )
