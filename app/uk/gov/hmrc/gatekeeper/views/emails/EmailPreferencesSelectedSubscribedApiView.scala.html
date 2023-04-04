@@ -27,11 +27,11 @@
 @(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedAPIs: List[CombinedApi], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @currentPage = @{
-    (offset / limit)
+    (offset / limit) + 1
 }
 
 @lastPage = @{
-    (totalCount / limit)
+    (totalCount / limit) + (totalCount % limit)
 }
 
 @tpdQuery() = @{
@@ -109,7 +109,8 @@
                         </dl>
                         <div class="govuk-summary-list govuk-!-width-three-quarters">
                             @if(users.nonEmpty) {
-                                <div class="govuk-body">@users.size results</div>
+                                <div class="govuk-body">@totalCount results</div>
+                                <div class="govuk-body">Total Users @totalCount</div>
                                 <table id="developer-table" class="govuk-table">
                                     <thead class="govuk-table__head">
                                         <tr class="govuk-table__row">
@@ -152,12 +153,20 @@
                                             <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                         }
 
-                                        @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min((totalCount / limit))) {
-                                            <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                                                <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(List.empty, offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
-                                                @i
-                                                </a>
-                                            </li>
+                                        @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min((totalCount / limit) + (totalCount % limit))) {
+                                            @if(i <= 1) {
+                                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName))" aria-label="Page 1" aria-current="page">
+                                                        1
+                                                        </a>
+                                                    </li>
+                                            } else {
+                                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(List.empty, offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                                                        @i
+                                                        </a>
+                                                    </li>
+                                            }
                                         }
 
                                         @if(currentPage < lastPage - 2) {

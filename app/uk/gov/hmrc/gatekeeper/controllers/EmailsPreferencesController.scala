@@ -28,7 +28,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
-import uk.gov.hmrc.gatekeeper.models.ApiStatusJson.apiStatusFormat
 import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -254,11 +253,10 @@ class EmailsPreferencesController @Inject() (
       for {
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        userPaginatedResponse <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
-        users = userPaginatedResponse.users.filter(_.verified)
-        totalCount = userPaginatedResponse.totalCount
+        userPaginatedResult <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
+        totalCount = userPaginatedResult.totalCount
+        users = userPaginatedResult.users.filter(_.verified)
         usersAsJson = Json.toJson(users)
-        _ = logger.info(s"***OFFSET:$offset, LIMIT:$limit, TOTALCOUNT:$totalCount")
       } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
