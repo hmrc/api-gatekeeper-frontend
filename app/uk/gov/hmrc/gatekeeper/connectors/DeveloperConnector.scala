@@ -177,7 +177,7 @@ class HttpDeveloperConnector @Inject() (
   }
 
   def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
-    logger.info(s"fetchEmailUsersByApis $maybeApis")
+    logger.info(s"fetchEmailUsersByApis $maybeApis offset $offset  limit $limit")
     val queryParams: Seq[(String, String)] = maybeApis.filter(_.nonEmpty)
       .fold(Seq.empty[(String, String)])(apis =>
         apis.filter(_.nonEmpty)

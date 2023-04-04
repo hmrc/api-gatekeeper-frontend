@@ -257,6 +257,7 @@ class EmailsPreferencesController @Inject() (
         totalCount = userPaginatedResult.totalCount
         users = userPaginatedResult.users.filter(_.verified)
         usersAsJson = Json.toJson(users)
+        _ = logger.info(s"****offset $offset  limit  $limit")
       } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
