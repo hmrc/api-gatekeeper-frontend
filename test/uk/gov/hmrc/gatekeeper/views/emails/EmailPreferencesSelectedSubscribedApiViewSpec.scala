@@ -57,6 +57,9 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
           emailRecipientsAsJson,
           "",
           apis,
+          0,
+          4,
+          10,
           request,
           LoggedInUser(None),
           messagesProvider

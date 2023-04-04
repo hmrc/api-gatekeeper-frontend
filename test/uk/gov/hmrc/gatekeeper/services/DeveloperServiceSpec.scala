@@ -734,11 +734,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "call the connector correctly when only passed a service" in new Setup {
       DeveloperConnectorMock.FetchEmailPreferencesByServices.returnsFor(Some(apis))(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(apis))
+      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(apis, 0, 4))
 
-      result shouldBe List(sandboxUser)
+      result shouldBe UserPaginatedResponse(10, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(apis)))(*)
+      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(apis)), eqTo(0), eqTo(4))(*)
     }
 
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
@@ -784,11 +784,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "call the connector correctly when only passed apis" in new Setup {
       DeveloperConnectorMock.FetchEmailPreferencesByServices.returnsFor(Some(Seq(apiName1)))(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(List(apiName1)))
+      val result = await(underTest.fetchDevelopersBySpecificApisEmailPreferences(List(apiName1), 0, 4))
 
-      result shouldBe List(sandboxUser)
+      result shouldBe UserPaginatedResponse(10, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(Seq(apiName1))))(*)
+      verify(mockDeveloperConnector).fetchEmailUsersByApis(eqTo(Some(Seq(apiName1))), eqTo(0), eqTo(4))(*)
     }
   }
 }

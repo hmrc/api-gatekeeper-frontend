@@ -77,7 +77,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectUserTopicView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -416,7 +416,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request = createGetRequest("/emails/email-preferences/selected-subscribed-api")
 
-        val result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName))(request)
+        val result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName), 0, 4)(request)
 
         status(result) shouldBe OK
       }
