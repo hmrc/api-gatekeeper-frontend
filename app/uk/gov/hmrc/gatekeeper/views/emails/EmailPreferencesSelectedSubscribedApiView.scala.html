@@ -31,11 +31,9 @@
 }
 
 @lastPage = @{
-    val lpage = (totalCount / limit)
-    val extra =  (totalCount % limit)
-    if(extra > 0) lpage + 1
-    else
-    lpage
+    val lp = (totalCount / limit)
+    val remainder =  (totalCount % limit)
+    if(remainder < limit) lp + 1 else remainder / limit
 }
 
 @tpdQuery() = @{
@@ -114,7 +112,6 @@
                         <div class="govuk-summary-list govuk-!-width-three-quarters">
                             @if(users.nonEmpty) {
                                 <div class="govuk-body">@totalCount results</div>
-                                <div class="govuk-body">Total Users @totalCount</div>
                                 <table id="developer-table" class="govuk-table">
                                     <thead class="govuk-table__head">
                                         <tr class="govuk-table__row">
@@ -157,20 +154,12 @@
                                             <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                         }
 
-                                        @for(i <- (currentPage - 1).max(1) until (currentPage + 1).min((totalCount / limit) + lastPage)) {
-                                            @if(i <= 1) {
-                                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName))" aria-label="Page 1" aria-current="page">
-                                                        1
-                                                        </a>
-                                                    </li>
-                                            } else {
-                                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
-                                                        @i
-                                                        </a>
-                                                    </li>
-                                            }
+                                        @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
+                                            <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                                                <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                                                @i
+                                                </a>
+                                            </li>
                                         }
 
                                         @if(currentPage < lastPage - 2) {
@@ -180,17 +169,17 @@
                                         @if(currentPage < lastPage - 1) {
                                             <li class="govuk-pagination__item">
                                                 <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName), offset = totalCount - limit)" aria-label="Page @{
-                                                    lastPage - 1
+                                                    lastPage
                                                 }">
                                                 @{
-                                                    lastPage - 1
+                                                    lastPage
                                                 }
                                                 </a>
                                             </li>
                                         }
                                     </ul>
 
-                                    @if(offset < ((totalCount - limit) + (totalCount % limit)) && (totalCount > limit)) {
+                                    @if(offset < (totalCount - limit) && (totalCount > limit)) {
                                         <div class="govuk-pagination__next">
                                         @if((offset + limit) == totalCount) {
                                             <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.map(_.serviceName), offset + limit - 1)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">

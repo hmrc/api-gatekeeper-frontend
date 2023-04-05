@@ -60,6 +60,12 @@ class DummyDeveloperConnectorSpec
     }
   }
 
+  "fetchEmailUsersByApis" should {
+    "return an empty sequence" in {
+      await(underTest.fetchEmailUsersByApis(Some(Seq("xxx")), 0, 15)) shouldBe UserPaginatedResponse(0, List.empty)
+    }
+  }
+
   "deleteDeveloper" should {
     "return a success result" in {
       await(underTest.deleteDeveloper(DeleteDeveloperRequest("gate.keeper", email))) shouldBe DeveloperDeleteSuccessResult

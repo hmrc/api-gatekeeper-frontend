@@ -36,10 +36,9 @@
     }
 
     @lastPage = @{
-        val lpage = (totalCount / limit)
-        val extra =  (totalCount % limit)
-        if(totalCount > limit) lpage + extra
-        else lpage
+        val lp = (totalCount / limit)
+        val remainder =  (totalCount % limit)
+        if(remainder < limit) lp + 1 else remainder / limit
     }
 
     @main(
@@ -95,17 +94,17 @@
                     @if(currentPage < lastPage - 1) {
                         <li class="govuk-pagination__item">
                             <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(totalCount - limit)" aria-label="Page @{
-                                (totalCount / limit) + (totalCount % limit)
+                                lastPage
                             }">
                             @{
-                                (totalCount / limit) + (totalCount % limit)
+                                lastPage
                             }
                             </a>
                         </li>
                     }
                 </ul>
 
-                @if(offset < ((totalCount - limit) + (totalCount % limit)) && (totalCount > limit)) {
+                @if(offset < (totalCount - limit)  && (totalCount > limit)) {
                     <div class="govuk-pagination__next">
                         @if((offset + limit) == totalCount) {
                             <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage(offset + limit - 1)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
