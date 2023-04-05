@@ -113,7 +113,7 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
+  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]]): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs)))
@@ -218,7 +218,7 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def selectedApiTopic(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty): Action[AnyContent] =
+  def selectedApiTopic(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty, offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
         for {
@@ -229,10 +229,11 @@ class EmailsPreferencesController @Inject() (
         apis <- apmService.fetchAllCombinedApis()
         filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         categories <- apiDefinitionService.apiCategories
-        users <- topicAndCategory.map(tup =>
-          developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false)
-        )
-          .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+        userPaginatedResult <- topicAndCategory.map(tup =>
+          developerService.fetchDevelopersBySpecificAPIEmailPreferencesPaginated(tup._1, List(), selectedAPIs, privateApiMatch = false, offset, limit))
+          .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
+        totalCount = userPaginatedResult.totalCount
+        users = userPaginatedResult.users.filter(_.verified)
         usersAsJson = Json.toJson(users)
         selectedCategories = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
         selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
@@ -244,7 +245,10 @@ class EmailsPreferencesController @Inject() (
         categories,
         selectedCategory.getOrElse(""),
         selectedCategoryName,
-        filteredApis
+        filteredApis,
+        offset,
+        limit,
+        totalCount
       ))
     }
 

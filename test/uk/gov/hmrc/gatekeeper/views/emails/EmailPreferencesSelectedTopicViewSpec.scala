@@ -59,6 +59,9 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
           "",
           "",
           List(),
+          0,
+          1,
+          2,
           request,
           LoggedInUser(None),
           messagesProvider

@@ -65,6 +65,15 @@ trait DeveloperConnector {
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]]
 
+  def fetchByEmailPreferencesPaginated(
+                               topic: TopicOptionChoice,
+                               maybeApis: Option[Seq[String]] = None,
+                               maybeApiCategory: Option[Seq[APICategory]] = None,
+                               privateapimatch: Boolean = false,
+                               offset: Int, limit: Int
+                             )(implicit hc: HeaderCarrier
+                             ): Future[UserPaginatedResponse]
+
   def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
   def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse]
@@ -165,6 +174,25 @@ class HttpDeveloperConnector @Inject() (
     http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
   }
 
+  def fetchByEmailPreferencesPaginated(
+                               topic: TopicOptionChoice,
+                               maybeApis: Option[Seq[String]] = None,
+                               maybeApiCategories: Option[Seq[APICategory]] = None,
+                               privateapimatch: Boolean = false,
+                               offset: Int, limit: Int
+                             )(implicit hc: HeaderCarrier
+                             ): Future[UserPaginatedResponse] = {
+    logger.info(s"fetchByEmailPreferences topic is $topic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
+    val regimes: Seq[(String, String)] =
+      maybeApiCategories.filter(_.nonEmpty).fold(Seq.empty[(String, String)])(regimes => regimes.filter(_.value.nonEmpty).flatMap(regime => Seq("regime" -> regime.value)))
+    val privateapimatchParams = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
+    val pageParams = Seq("offset" -> s"$offset", "limit" -> s"$limit")
+    val queryParams =
+      Seq("topic" -> topic.toString) ++ regimes ++
+        maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams ++ pageParams
+
+    http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/email-preferences-paginated", queryParams)
+  }
   def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     logger.info(s"fetchEmailUsersByRegimes Categories $maybeApiCategories")
     val queryParams: Seq[(String, String)] = maybeApiCategories.filter(_.nonEmpty)
@@ -256,6 +284,15 @@ class DummyDeveloperConnector extends DeveloperConnector {
       privateapimatch: Boolean = false
     )(implicit hc: HeaderCarrier
     ) = Future.successful(List.empty)
+
+  def fetchByEmailPreferencesPaginated(
+                               topic: TopicOptionChoice,
+                               maybeApis: Option[Seq[String]] = None,
+                               maybeApiCategories: Option[Seq[APICategory]] = None,
+                               privateapimatch: Boolean = false,
+                               offset: Int, limit: Int
+                             )(implicit hc: HeaderCarrier
+                             ) = Future.successful(UserPaginatedResponse(0, List.empty))
 
   def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 

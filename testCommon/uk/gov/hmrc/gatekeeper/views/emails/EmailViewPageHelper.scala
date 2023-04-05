@@ -259,6 +259,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
+    elementExistsById(document, "pageNumber-1") shouldBe true
   }
 
   def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
@@ -268,8 +269,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
       elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
       elementExistsById(document, "compose-email") shouldBe users.nonEmpty
     }
-
     verifyTableHeader(document)
+    elementExistsById(document, "pageNumber-1") shouldBe true
   }
 
   def validateEmailPreferencesSelectedUserTopicPage(document: Document, users: Seq[RegisteredUser]) = {
