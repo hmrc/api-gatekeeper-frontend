@@ -81,7 +81,7 @@
 
                     @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
                         <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                            <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.emailAllUsersPage((i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                            <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.emailAllUsersPage((i - 1) * limit)" aria-label="Page @i" aria-current="page">
                             @i
                             </a>
                         </li>

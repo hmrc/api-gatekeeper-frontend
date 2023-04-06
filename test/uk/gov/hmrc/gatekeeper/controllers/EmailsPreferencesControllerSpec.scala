@@ -383,6 +383,27 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       }
     }
 
+    "Email preferences select another tax regime" should {
+
+      "return select tax regime page when selected option yes" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("Yes", Some(List(category1.name)), None)(FakeRequest())
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-tax-regime?selectedCategories=${category1.name}")
+      }
+
+      "return select topic page when selected option no" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenApiDefinition3Categories()
+        DeveloperServiceMock.FetchDevelopersBySpecificTaxRegimesEmailPreferences.returns(users: _*)
+
+        val result: Future[Result] = underTest.addAnotherTaxRegimeOption("No", Some(List(category1.name)), None)(FakeRequest())
+        status(result) shouldBe OK
+      }
+    }
+
     "Select user topic page" should {
       "render the view correctly with topics to choose from" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
