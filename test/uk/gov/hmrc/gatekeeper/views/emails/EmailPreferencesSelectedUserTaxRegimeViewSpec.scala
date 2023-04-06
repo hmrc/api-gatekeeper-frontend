@@ -56,7 +56,7 @@ class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with 
 
     "show correct title and options" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 0, 2, users.length, request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSelectedTaxRegimePage(Jsoup.parse(result.body), users)
     }

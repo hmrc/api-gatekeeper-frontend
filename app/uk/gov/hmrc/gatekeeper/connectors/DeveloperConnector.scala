@@ -74,7 +74,7 @@ trait DeveloperConnector {
                              )(implicit hc: HeaderCarrier
                              ): Future[UserPaginatedResponse]
 
-  def fetchEmailUsersByRegimes(maybeApiCategory: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
+  def fetchEmailUsersByRegimesPaginated(maybeApiCategory: Option[Seq[APICategory]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse]
 
   def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse]
 
@@ -193,15 +193,21 @@ class HttpDeveloperConnector @Inject() (
 
     http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/email-preferences-paginated", queryParams)
   }
-  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchEmailUsersByRegimesPaginated(maybeApiCategories: Option[Seq[APICategory]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
     logger.info(s"fetchEmailUsersByRegimes Categories $maybeApiCategories")
     val queryParams: Seq[(String, String)] = maybeApiCategories.filter(_.nonEmpty)
       .fold(Seq.empty[(String, String)])(regimes =>
         regimes.filter(_.value.nonEmpty)
-          .flatMap(regime => Seq("regime" -> regime.value))
+          .flatMap(regime =>
+            Seq(
+              "regime" -> regime.value,
+              "offset" -> s"$offset",
+              "limit" -> s"$limit"
+            )
+          )
       )
-
-    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
+    logger.info(s"*** QUERY PARAMS *** $queryParams")
+    http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/email-preferences-paginated", queryParams)
   }
 
   def fetchEmailUsersByApis(maybeApis: Option[Seq[String]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
@@ -294,7 +300,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
                              )(implicit hc: HeaderCarrier
                              ) = Future.successful(UserPaginatedResponse(0, List.empty))
 
-  def fetchEmailUsersByRegimes(maybeApiCategories: Option[Seq[APICategory]] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
+  def fetchEmailUsersByRegimesPaginated(maybeApiCategories: Option[Seq[APICategory]] = None, offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = Future.successful(UserPaginatedResponse(0, List.empty))
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)

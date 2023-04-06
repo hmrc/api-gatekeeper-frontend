@@ -121,23 +121,28 @@ class EmailsPreferencesController @Inject() (
       }
     }
 
-  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
+  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int = 0, limit: Int = 15): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
         case _ =>
           for {
-            categories <- apiDefinitionService.apiCategories
-            selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
-            users <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
-            selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
-            usersAsJson = Json.toJson(users)
-          } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
-            users,
-            usersAsJson,
-            usersToEmailCopyText(users),
-            selectedApiCategoryDetails
-          ))
+          categories <- apiDefinitionService.apiCategories
+          selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
+          userPaginatedResponse <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
+          totalCount = userPaginatedResponse.totalCount
+          users = userPaginatedResponse.users.filter(_.verified)
+          selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
+          usersAsJson = Json.toJson(users)
+        } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
+          users,
+          usersAsJson,
+          usersToEmailCopyText(users),
+          selectedApiCategoryDetails,
+          offset,
+          limit,
+          totalCount
+        ))
       }
     }
 

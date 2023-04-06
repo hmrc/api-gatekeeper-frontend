@@ -724,11 +724,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "call the connector correctly when only passed a category" in new Setup {
       DeveloperConnectorMock.FetchEmailPreferencesByRegimes.returnsFor(Some(Seq(category1)))(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferences(List(category1)))
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(List(category1), 0, 4))
 
-      result shouldBe List(sandboxUser)
+      result shouldBe UserPaginatedResponse(10, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(List(category1))))(*)
+      verify(mockDeveloperConnector).fetchEmailUsersByRegimesPaginated(eqTo(Some(List(category1))), eqTo(0), eqTo(4))(*)
     }
 
     "call the connector correctly when only passed a service" in new Setup {
@@ -769,11 +769,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     "call the connector correctly when only passed a tax regime" in new Setup {
       DeveloperConnectorMock.FetchEmailPreferencesByRegimes.returnsFor(Some(Seq(category1)))(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferences(List(category1)))
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(List(category1), 0, 4))
 
-      result shouldBe List(sandboxUser)
+      result shouldBe UserPaginatedResponse(10, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchEmailUsersByRegimes(eqTo(Some(Seq(category1))))(*)
+      verify(mockDeveloperConnector).fetchEmailUsersByRegimesPaginated(eqTo(Some(Seq(category1))), eqTo(0), eqTo(4))(*)
     }
   }
 
