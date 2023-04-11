@@ -42,8 +42,6 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
     val user2                                                                        = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                        = Seq(user1, user2)
     val expectedTitle                                                                = "Email users interested in a topic"
-    val offset                                                                       = 0
-    val limit                                                                        = 4
   }
 
   "email preferences selected user topic view" should {
@@ -55,15 +53,51 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
           emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.TECHNICAL),
-          offset,
-          limit,
-          users.size,
+          0,
+          2,
+          6,
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesSelectedUserTopicPage(Jsoup.parse(result.body), users)
+      validateEmailPreferencesSelectedUserTopicPage(1, Jsoup.parse(result.body), users)
+    }
+
+    "show correct title and second page list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedUserTopicView.render(
+          users,
+          emailRecipientsAsJson,
+          "",
+          Some(TopicOptionChoice.TECHNICAL),
+          2,
+          2,
+          6,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
+
+      validateEmailPreferencesSelectedUserTopicPage(2, Jsoup.parse(result.body), users)
+    }
+
+    "show correct title and last page list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedUserTopicView.render(
+          users,
+          emailRecipientsAsJson,
+          "",
+          Some(TopicOptionChoice.TECHNICAL),
+          4,
+          2,
+          6,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
+
+      validateEmailPreferencesSelectedUserTopicPage(3, Jsoup.parse(result.body), users)
     }
   }
 }

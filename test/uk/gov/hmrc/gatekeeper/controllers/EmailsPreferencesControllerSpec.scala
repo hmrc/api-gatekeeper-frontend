@@ -465,9 +465,12 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request = createGetRequest("/emails/email-preferences/selected-subscribed-api")
 
-        val result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName), 0, 4)(request)
-
-        status(result) shouldBe OK
+        val page1Result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName), 0, 1)(request)
+        status(page1Result) shouldBe OK
+        val page2Result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName), 1, 2)(request)
+        status(page2Result) shouldBe OK
+        val page3Result: Future[Result] = underTest.selectedSubscribedApi(combinedApisList.map(api => api.serviceName), 2, 3)(request)
+        status(page3Result) shouldBe OK
       }
     }
 

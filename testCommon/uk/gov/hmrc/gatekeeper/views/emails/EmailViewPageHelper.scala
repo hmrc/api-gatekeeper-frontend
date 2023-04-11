@@ -251,7 +251,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }
 
-  def validateEmailPreferencesSelectedSubscribedApiPage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedSubscribedApiPage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a specific API")
 
     withClue(s"Copy to clipboard link validation failed") {
@@ -260,7 +260,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
-    elementExistsById(document, "pageNumber-1") shouldBe true
+    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
   }
 
   def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
@@ -274,14 +274,18 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     elementExistsById(document, "pageNumber-1") shouldBe true
   }
 
-  def validateEmailPreferencesSelectedUserTopicPage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedUserTopicPage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a topic")
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copyUsersToClip") shouldBe users.nonEmpty
+      elementExistsById(document, "composeEmail") shouldBe users.nonEmpty
+    }
     verifyTableHeader(document)
 
-    elementExistsById(document, "pageNumber-1") shouldBe true
+    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
   }
 
-  def validateEmailPreferencesSelectedTaxRegimePage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedTaxRegimePage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
 
     withClue(s"Copy to clipboard link validation failed") {
@@ -290,6 +294,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
+    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
+
   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {

@@ -54,11 +54,25 @@ class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with 
     val categoriesSelected = List(category4, category5)
     val allCategories      = categoriesSelected ++ categories
 
-    "show correct title and options" in new Setup {
+    "show correct title and options with page1 results" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 0, 2, users.length, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 0, 2, 6, request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesSelectedTaxRegimePage(Jsoup.parse(result.body), users)
+      validateEmailPreferencesSelectedTaxRegimePage(1, Jsoup.parse(result.body), users)
+    }
+
+    "show correct title and options with page2 results" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 2, 2, 6, request, LoggedInUser(None), messagesProvider)
+
+      validateEmailPreferencesSelectedTaxRegimePage(2, Jsoup.parse(result.body), users)
+    }
+
+    "show correct title and options with last page results" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 4, 2, 6, request, LoggedInUser(None), messagesProvider)
+
+      validateEmailPreferencesSelectedTaxRegimePage(3, Jsoup.parse(result.body), users)
     }
   }
 }
