@@ -287,6 +287,14 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
         validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), categories, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
       }
 
+      "respond with 303 and render the page with selected user tax regime" in {
+        primeAuthServiceSuccess()
+        primeGetAllCategories(categories)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/add-another-tax-regime-option?selectOption=", validHeaders)
+
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/selected-user-tax-regime")
+      }
+
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-tax-regime", validHeaders)

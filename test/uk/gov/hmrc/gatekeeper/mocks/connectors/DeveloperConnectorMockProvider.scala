@@ -62,6 +62,22 @@ trait DeveloperConnectorMockProvider {
           .thenReturn(successful(users.toList))
     }
 
+    object FetchByEmailPreferencesPaginated {
+
+      def returnsFor(
+          topic: TopicOptionChoice,
+          maybeApis: Option[Seq[String]],
+          maybeApiCategory: Option[Seq[APICategory]],
+          privateapimatch: Boolean,
+          offset: Int,
+          limit: Int
+        )(
+          users: RegisteredUser*
+        ) =
+        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch), eqTo(offset), eqTo(limit))(*))
+          .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
+    }
+
     object FetchEmailPreferencesByRegimes {
 
       def returnsFor(maybeApiCategory: Option[Seq[APICategory]])(users: RegisteredUser*) =

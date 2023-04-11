@@ -125,26 +125,31 @@ class EmailsPreferencesController @Inject() (
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
-        case _ =>
-          for {
-          categories <- apiDefinitionService.apiCategories
-          selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
-          userPaginatedResponse <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
-          totalCount = userPaginatedResponse.totalCount
-          users = userPaginatedResponse.users.filter(_.verified)
-          selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
-          usersAsJson = Json.toJson(users)
-        } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
-          users,
-          usersAsJson,
-          usersToEmailCopyText(users),
-          selectedApiCategoryDetails,
-          offset,
-          limit,
-          totalCount
-        ))
+        case _ => Future.successful(Redirect(routes.EmailsPreferencesController.selectedUserTaxRegime(selectedCategories, offset, limit)))
       }
     }
+
+  def selectedUserTaxRegime(selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] = {
+    anyStrideUserAction { implicit request =>
+      for {
+        categories <- apiDefinitionService.apiCategories
+        selectedApiCategories = filterSelectedApiCategories(selectedCategories, categories)
+        userPaginatedResponse <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
+        totalCount = userPaginatedResponse.totalCount
+        users = userPaginatedResponse.users.filter(_.verified)
+        selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
+        usersAsJson = Json.toJson(users)
+      } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
+        users,
+        usersAsJson,
+        usersToEmailCopyText(users),
+        selectedApiCategoryDetails,
+        offset,
+        limit,
+        totalCount
+      ))
+    }
+  }
 
   def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))

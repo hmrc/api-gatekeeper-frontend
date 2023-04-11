@@ -400,8 +400,18 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         DeveloperServiceMock.FetchDevelopersBySpecificTaxRegimesEmailPreferences.returns(users: _*)
 
         val result: Future[Result] = underTest.addAnotherTaxRegimeOption("No", Some(List(category1.name)))(FakeRequest())
+        status(result) shouldBe SEE_OTHER
+      }
+
+      "return selected user tax regime" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        givenApiDefinition3Categories()
+        DeveloperServiceMock.FetchDevelopersBySpecificTaxRegimesEmailPreferences.returns(users: _*)
+
+        val result: Future[Result] = underTest.selectedUserTaxRegime(Some(List(category1.name)), 0, 4)(FakeRequest())
         status(result) shouldBe OK
       }
+
     }
 
     "Select user topic page" should {
