@@ -71,9 +71,7 @@ trait DeveloperConnectorMockProvider {
           privateapimatch: Boolean,
           offset: Int,
           limit: Int
-        )(
-          users: RegisteredUser*
-        ) =
+        )(users: RegisteredUser*) =
         when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch), eqTo(offset), eqTo(limit))(*))
           .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }

@@ -184,6 +184,13 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
+  def fetchDevelopersByEmailPreferencesPaginated(topic: TopicOptionChoice,
+                                                 maybeApiCategory: Option[APICategory] = None,
+                                                 offset: Int,
+                                                 limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
+    developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis = None, maybeApiCategory = maybeApiCategory.map(List(_)), privateapimatch = false, offset, limit)
+  }
+
   def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: APICategory)(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }

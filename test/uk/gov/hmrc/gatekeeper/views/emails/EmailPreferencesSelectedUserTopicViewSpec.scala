@@ -42,6 +42,8 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
     val user2                                                                        = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                        = Seq(user1, user2)
     val expectedTitle                                                                = "Email users interested in a topic"
+    val offset                                                                       = 0
+    val limit                                                                        = 4
   }
 
   "email preferences selected user topic view" should {
@@ -53,6 +55,9 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
           emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.TECHNICAL),
+          offset,
+          limit,
+          users.size,
           request,
           LoggedInUser(None),
           messagesProvider

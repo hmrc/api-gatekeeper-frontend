@@ -25,105 +25,179 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedTopic: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedTopic: Option[TopicOptionChoice], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@tpdQuery() = @{
-    new DevelopersEmailQuery(Some(selectedTopic.get.toString))
-}
+    @currentPage = @{
+        (offset / limit) + 1
+    }
 
-@userSelection() = @{
-    Map("Topic" -> TopicOptionChoice.optionLabel(selectedTopic.get))
-}
+    @lastPage = @{
+        val lp = (totalCount / limit)
+        val remainder = (totalCount % limit)
+        if(remainder < limit) lp + 1 else remainder / limit
+    }
 
-@main(
-    title = s"${applicationConfig.title} - Email users interested in a topic",
-    breadcrumbs = Seq(
-        Crumb(
-            "Back",
-            s"${routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url}",
-            Some("data-back-link")
+    @tpdQuery() = @{
+        new DevelopersEmailQuery(Some(selectedTopic.get.toString))
+    }
+
+    @userSelection() = @{
+        Map("Topic" -> TopicOptionChoice.optionLabel(selectedTopic.get))
+    }
+
+    @main(
+        title = s"${applicationConfig.title} - Email users interested in a topic",
+        breadcrumbs = Seq(
+            Crumb(
+                "Back",
+                s"${routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url}",
+                Some("data-back-link")
+            )
         )
-    )
-) {
+    ) {
 
-    <div class="govuk-width-container">
+        <div class="govuk-width-container">
 
-        <div class="govuk-form-group">
-            <fieldset class="govuk-fieldset">
-                <legend >
-                    <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a topic</h1>
-                </legend>
+            <div class="govuk-form-group">
+                <fieldset class="govuk-fieldset">
+                    <legend >
+                        <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a topic</h1>
+                    </legend>
 
-                @if(users.nonEmpty) {
-                    <div class="govuk-button-group govuk-!-margin-bottom-4">
-                        <div style="visibility: visible">
-                            <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
-                                @helper.CSRF.formField
-                                <input type="hidden" name="user-selection" value="@{
-                                    Json.stringify(Json.toJson(userSelection))
-                                }"/>
-                                <input type="hidden" name="user-selection-query" value="@{
-                                    Json.toJson(tpdQuery)
-                                }"/>
+                    @if(users.nonEmpty) {
+                        <div class="govuk-button-group govuk-!-margin-bottom-4">
+                            <div style="visibility: visible">
+                                <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
+                                    @helper.CSRF.formField
+                                    <input type="hidden" name="user-selection" value="@{
+                                        Json.stringify(Json.toJson(userSelection))
+                                    }"/>
+                                    <input type="hidden" name="user-selection-query" value="@{
+                                        Json.toJson(tpdQuery)
+                                    }"/>
 
-                                <div class="compose-email-send">
-                                    <button id="composeEmail" type="submit" class="govuk-button" data-module="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{
-                                        users.length
-                                    } displayed email addresses.">
-                                        Compose email
-                                    </button>
-                                </div>
-                            </form>
+                                    <div class="compose-email-send">
+                                        <button id="composeEmail" type="submit" class="govuk-button" data-module="govuk-button" name="compose-email-send" value="" title="Compose an email to send to all @{
+                                            users.length
+                                        } displayed email addresses.">
+                                            Compose email
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="compose-email-clipboard">
+                                <button id="copyUsersToClip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
+                                    users.length
+                                } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
+                                    Copy emails to clipboard
+                                </button>
+                            </div>
                         </div>
-                        <div class="compose-email-clipboard">
-                            <button id="copyUsersToClip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
-                                users.length
-                            } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
-                                Copy emails to clipboard
-                            </button>
-                        </div>
-                    </div>
-                }
-                <dl class="govuk-summary-list govuk-!-width-three-quarters">
-                    <div class="govuk-summary-list__row">
-                        <dt class="govuk-summary-list__key app-summary-list__15">
-                            Topic
-                        </dt>
-                        <dd class="govuk-summary-list__value">
+                    }
+                    <dl class="govuk-summary-list govuk-!-width-three-quarters">
+                        <div class="govuk-summary-list__row">
+                            <dt class="govuk-summary-list__key app-summary-list__15">
+                                Topic
+                            </dt>
+                            <dd class="govuk-summary-list__value">
                             @userSelection().get("Topic")
-                        </dd>
-                        <dd class="govuk-summary-list__actions">
-                            <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url">
-                                Change<span class="govuk-visually-hidden">Tax Regimes</span>
-                            </a>
-                        </dd>
-                    </div>
-                </dl>
-                <div class="govuk-summary-list govuk-!-width-three-quarters">
-                @if(users.nonEmpty) {
-                    <div class="govuk-body">@users.size results</div>
-                    <table id="developer-table" class="govuk-table">
-                        <thead class="govuk-table__head">
-                            <tr class="govuk-table__row">
-                                <th scope="col" class="govuk-table__header">Email</th>
-                                <th scope="col" class="govuk-table__header">First name</th>
-                                <th scope="col" class="govuk-table__header">Last name</th>
-                            </tr>
-                        </thead>
-                        <tbody class="govuk-table__body">
-                        @for((user, index) <- users.zipWithIndex) {
-                            <tr class="govuk-table__row">
-                                <td id="dev-email-@index" class="govuk-table__cell">@user.email.text</td>
-                                <td id="dev-fn-@index" class="govuk-table__cell">@user.firstName</td>
-                                <td id="dev-sn-@index" class="govuk-table__cell">@user.lastName</td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                } else { <div class="govuk-body">0 results</div> }
-                </div>
-            </fieldset>
-        </div>
-    </div>
+                            </dd>
+                            <dd class="govuk-summary-list__actions">
+                                <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url">
+                                    Change<span class="govuk-visually-hidden">Tax Regimes</span>
+                                </a>
+                            </dd>
+                        </div>
+                    </dl>
+                    <div class="govuk-summary-list govuk-!-width-three-quarters">
+                    @if(users.nonEmpty) {
+                        <div class="govuk-body">@totalCount results</div>
+                        <table id="developer-table" class="govuk-table">
+                            <thead class="govuk-table__head">
+                                <tr class="govuk-table__row">
+                                    <th scope="col" class="govuk-table__header">Email</th>
+                                    <th scope="col" class="govuk-table__header">First name</th>
+                                    <th scope="col" class="govuk-table__header">Last name</th>
+                                </tr>
+                            </thead>
+                            <tbody class="govuk-table__body">
+                            @for((user, index) <- users.zipWithIndex) {
+                                <tr class="govuk-table__row">
+                                    <td id="dev-email-@index" class="govuk-table__cell">@user.email.text</td>
+                                    <td id="dev-fn-@index" class="govuk-table__cell">@user.firstName</td>
+                                    <td id="dev-sn-@index" class="govuk-table__cell">@user.lastName</td>
+                                </tr>
+                            }
+                            </tbody>
+                        </table>
+                        <nav class="govuk-pagination" role="navigation" aria-label="results">
 
-}
+                            @if(offset >= limit) {
+                                <div class="govuk-pagination__prev">
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset= (offset - limit))" rel="prev">
+                                        <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                            <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
+                                        </svg>
+                                        <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.previous")</span></a>
+                                </div>
+                            }
+                            <ul class="govuk-pagination__list">
+
+                                @if(currentPage > 2) {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString))" aria-label="Page 1">
+                                            1
+                                        </a>
+                                    </li>
+                                }
+                                @if(currentPage > 3) {
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                }
+
+                                @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
+                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                                        <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                                        @i
+                                        </a>
+                                    </li>
+                                }
+
+                                @if(currentPage < lastPage - 2) {
+                                    <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
+                                }
+
+                                @if(currentPage < lastPage - 1) {
+                                    <li class="govuk-pagination__item">
+                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = totalCount - limit)" aria-label="Page @{
+                                            lastPage
+                                        }">
+                                        @{
+                                            lastPage
+                                        }
+                                        </a>
+                                    </li>
+                                }
+                            </ul>
+
+                            @if(offset < (totalCount - limit) && (totalCount > limit)) {
+                                <div class="govuk-pagination__next">
+                                @if((offset + limit) == totalCount) {
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit - 1)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                        <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                                    </svg></a>
+                                } else {
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                        <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
+                                    </svg></a>
+                                }
+                                </div>
+                            }
+                        </nav>
+                    } else {
+                        <div class="govuk-body">0 results</div>
+                    }
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    }

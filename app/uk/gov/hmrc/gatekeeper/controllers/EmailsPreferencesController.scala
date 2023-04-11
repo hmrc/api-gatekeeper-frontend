@@ -155,14 +155,16 @@ class EmailsPreferencesController @Inject() (
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def selectedUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+  def selectedUserTopic(selectedTopic: Option[String], offset: Int = 0, limit: Int = 15): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
-      maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
-        .map(users => {
-          val filteredUsers = users.filter(_.verified)
+      maybeTopic.map(topic => developerService.fetchDevelopersByEmailPreferencesPaginated(topic, offset = offset, limit = limit))
+        .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
+        .map(upr => {
+          val totalCount = upr.totalCount
+          val filteredUsers = upr.users.filter(_.verified)
           val filteredUsersAsJson = Json.toJson(filteredUsers)
-          Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
+          Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
         })
     }
 
@@ -271,7 +273,6 @@ class EmailsPreferencesController @Inject() (
         totalCount = userPaginatedResult.totalCount
         users = userPaginatedResult.users.filter(_.verified)
         usersAsJson = Json.toJson(users)
-        _ = logger.info(s"****offset $offset  limit  $limit")
       } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 

@@ -76,7 +76,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       when(mockEmailPreferencesSelectedTaxRegimeView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectUserTopicView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String) = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
@@ -432,14 +432,24 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
       "render the view correctly with selected topic" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
         givenApiDefinition3Categories()
 
         val request = createGetRequest("/emails/email-preferences/selected-user-topic")
 
-        val result: Future[Result] = underTest.selectedUserTopic(
-          Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString)
-        )(request)
+        val result: Future[Result] = underTest.selectedUserTopic(Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString))(request)
+
+        status(result) shouldBe OK
+      }
+
+      "render the view correctly with no topic" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
+        givenApiDefinition3Categories()
+
+        val request = createGetRequest("/emails/email-preferences/selected-user-topic")
+
+        val result: Future[Result] = underTest.selectedUserTopic(None)(request)
 
         status(result) shouldBe OK
       }

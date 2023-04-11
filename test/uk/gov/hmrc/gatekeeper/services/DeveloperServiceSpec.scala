@@ -703,16 +703,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val apiName3    = "apiName3"
     val apis        = List(apiName1, apiName2, apiName3)
 
-    "call the connector correctly when only passed a topic" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, None, false)(sandboxUser)
-
-      val result = await(underTest.fetchDevelopersByEmailPreferences(topic))
-
-      result shouldBe List(sandboxUser)
-
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, *, *)(*)
-    }
-
     "call the connector correctly when passed a topic and a category" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)), false)(sandboxUser)
 
@@ -774,6 +764,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val apiName2 = "apiName2"
     val apiName3 = "apiName3"
     val apis = List(apiName1, apiName2, apiName3)
+
+    "call the connector correctly when only passed a topic" in new Setup {
+      DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(topic, None, None, privateapimatch = false, offset, limit)(sandboxUser)
+
+      val result = await(underTest.fetchDevelopersByEmailPreferencesPaginated(topic, None, offset, limit))
+
+      result shouldBe UserPaginatedResponse(1, List(sandboxUser))
+
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(eqTo(topic), *, *, eqTo(false), eqTo(offset), eqTo(limit))(*)
+    }
 
     "call the connector correctly when only passed a service" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(topic, Some(apis), Some(categories), privateapimatch = false, offset, limit)(sandboxUser)
