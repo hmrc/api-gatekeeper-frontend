@@ -329,7 +329,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "render the view correctly with selected APIs and topic" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
-        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferencesPaginated.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
         givenApiDefinition3Categories()
 
         val request = createGetRequest("/emails/email-preferences/selected-api-topic")
@@ -348,7 +348,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
         givenApiDefinition3Categories()
-        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferencesPaginated.returns()
+        DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns()
 
         val request = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.selectedApiTopic(

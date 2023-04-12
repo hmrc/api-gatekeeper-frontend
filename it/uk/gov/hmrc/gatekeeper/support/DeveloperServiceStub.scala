@@ -24,6 +24,7 @@ import play.api.libs.json.Json
 
 trait DeveloperServiceStub {
   val emailPreferencesUrl = "/developers/email-preferences"
+  val emailPreferencesPaginatedUrl = "/developers/email-preferences-paginated"
   val allUrl              = "/developers/all"
   val allUrlPaginated     = "/developers/all-paginated?offset=0&limit=15"
   val byEmails            = "/developers/get-by-emails"
@@ -90,6 +91,19 @@ trait DeveloperServiceStub {
         aResponse()
           .withStatus(Status.OK)
           .withBody(Json.toJson(users).toString())
+      ))
+  }
+
+  def primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(users: Seq[RegisteredUser], topic: TopicOptionChoice, offset: Int = 0, limit: Int = 15): Unit = {
+    val topicParam = s"topic=${topic.toString}"
+    val paginationParams = s"offset=$offset&limit=$limit"
+
+    val emailPreferencesByTopicUrl = s"$emailPreferencesPaginatedUrl?$topicParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesByTopicUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(users.size, users.toList)).toString())
       ))
   }
 }

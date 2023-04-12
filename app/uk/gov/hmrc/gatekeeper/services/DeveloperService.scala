@@ -184,11 +184,13 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
-  def fetchDevelopersByEmailPreferencesPaginated(topic: TopicOptionChoice,
-                                                 maybeApiCategory: Option[APICategory] = None,
+  def fetchDevelopersByEmailPreferencesPaginated(topic: Option[TopicOptionChoice],
+                                                 maybeApis : Option[Seq[String]] = None,
+                                                 maybeApiCategory: Option[Seq[APICategory]] = None,
+                                                 privateApiMatch: Boolean = false,
                                                  offset: Int,
                                                  limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
-    developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis = None, maybeApiCategory = maybeApiCategory.map(List(_)), privateapimatch = false, offset, limit)
+    developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis, maybeApiCategory = maybeApiCategory.map(_.distinct), privateApiMatch, offset, limit)
   }
 
   def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: APICategory)(implicit hc: HeaderCarrier) = {
@@ -205,22 +207,12 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct), privateApiMatch)
   }
 
-  def fetchDevelopersBySpecificAPIEmailPreferencesPaginated(
-                                                    topic: TopicOptionChoice,
-                                                    apiCategories: List[APICategory],
-                                                    apiNames: List[String],
-                                                    privateApiMatch: Boolean,
-                                                    offset: Int, limit: Int
-                                                  )(implicit hc: HeaderCarrier
-                                                  ) = {
-    developerConnector.fetchByEmailPreferencesPaginated(topic, Some(apiNames), Some(apiCategories.distinct), privateApiMatch, offset, limit)
-  }
   def fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(apiCategories: List[APICategory], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchEmailUsersByRegimesPaginated(Some(apiCategories.distinct), offset, limit)
+    developerConnector.fetchByEmailPreferencesPaginated(None, None, Some(apiCategories.distinct), privateapimatch = false, offset, limit)
   }
 
   def fetchDevelopersBySpecificApisEmailPreferences(apis: List[String], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchEmailUsersByApis(Some(apis.distinct), offset, limit)
+    developerConnector.fetchByEmailPreferencesPaginated(None, Some(apis.distinct), None, privateapimatch = false, offset, limit)
   }
 
   def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {

@@ -382,6 +382,23 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
 
+    "GET /emails/email-preferences/selected-user-topic" should {
+      val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
+      val offset = 0
+      val limit = 15
+
+      "respond with 200 and render the page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(allUsers, TopicOptionChoice.TECHNICAL, offset, limit)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-topic?selectedTopic=TECHNICAL&offset=$offset&limit=$limit", validHeaders)
+
+        result.status shouldBe OK
+        validateEmailPreferencesSelectedUserTopicPage(1, Jsoup.parse(result.body), allUsers)
+      }
+    }
+
     def validateRedirect(response: WSResponse, expectedLocation: String) {
       response.status shouldBe SEE_OTHER
       val mayBeLocationHeader: Option[Seq[String]] = response.headers.get(LOCATION)
