@@ -231,8 +231,12 @@ class ApplicationController @Inject() (
 
       def checkEligibleForTermsOfUseInvite(app: NewApplication, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
-          case std: Standard if (app.state.name == State.PRODUCTION && app.deployedTo == Environment.PRODUCTION && !hasSubmissions && !hasTermsOfUseInvite) => true
-          case _                                                                                                                                            => false
+          case std: Standard
+              if (app.state.name == State.PRODUCTION &&
+                app.deployedTo == Environment.PRODUCTION &&
+                !hasSubmissions &&
+                !hasTermsOfUseInvite) => true
+          case _ => false
         }
       }
 
