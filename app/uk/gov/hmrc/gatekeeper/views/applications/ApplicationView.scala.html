@@ -190,7 +190,7 @@
       </dd>
       <dd class="govuk-summary-list__actions">
         @if(request.role.isUser && model.isEligibleForTermsOfUseInvite){
-          Send V2 terms of use
+          <a href="@{model.termsOfUseInvitationUrl}" class="govuk-link govuk-link--no-visited-state" role="button" id="invite">Send V2 terms of use</a>
         }
       </dd>
     </div>
