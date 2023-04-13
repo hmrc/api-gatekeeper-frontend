@@ -45,6 +45,7 @@ import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
+import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.models.{Environment, _}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
@@ -228,18 +229,27 @@ class ApplicationController @Inject() (
         }
       }
 
-      for {
-        collaborators                  <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
-        allPossibleSubs                <- apmService.fetchAllPossibleSubscriptions(appId)
-        subscribedContexts              = allPossibleSubs.filter(isSubscribed)
-        subscribedVersions              = subscribedContexts.map(filterOutVersions)
-        subscribedWithFields            = subscribedVersions.map(filterForFields)
-        doesApplicationHaveSubmissions <- applicationService.doesApplicationHaveSubmissions(appId)
+      def checkEligibleForTermsOfUseInvite(app: NewApplication, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
+        app.access match {
+          case std: Standard if (app.state.name == State.PRODUCTION && app.deployedTo == Environment.PRODUCTION && !hasSubmissions && !hasTermsOfUseInvite) => true
+          case _  => false
+        }
+      }
 
-        seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
-        maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
+      for {
+        collaborators                       <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
+        allPossibleSubs                     <- apmService.fetchAllPossibleSubscriptions(appId)
+        subscribedContexts                   = allPossibleSubs.filter(isSubscribed)
+        subscribedVersions                   = subscribedContexts.map(filterOutVersions)
+        subscribedWithFields                 = subscribedVersions.map(filterForFields)
+        doesApplicationHaveSubmissions      <- applicationService.doesApplicationHaveSubmissions(appId)
+        doesApplicationHaveTermsOfUseInvite <- applicationService.doesApplicationHaveTermsOfUseInvitation(appId)
+
+        seqOfSubscriptions                   = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        subscriptionsThatHaveFieldDefns      = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        responsibleIndividualHistory         = getResponsibleIndividualHistory(app.access)
+        maybeTermsOfUseAcceptance            = termsOfUseService.getAgreementDetails(app)
+        isEligibleForTermsOfUseInvite        = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
       } yield Ok(applicationView(ApplicationViewModel(
         collaborators,
         app,
@@ -249,7 +259,8 @@ class ApplicationController @Inject() (
         doesApplicationHaveSubmissions,
         gatekeeperApprovalsUrl,
         responsibleIndividualHistory,
-        maybeTermsOfUseAcceptance
+        maybeTermsOfUseAcceptance,
+        isEligibleForTermsOfUseInvite
       )))
     }
   }

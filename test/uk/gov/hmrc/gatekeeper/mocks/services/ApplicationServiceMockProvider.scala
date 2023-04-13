@@ -117,6 +117,13 @@ trait ApplicationServiceMockProvider {
           .thenReturn(successful(false))
     }
 
+    object DoesApplicationHaveTermsOfUseInvitation {
+
+      def succeedsFalse() =
+        when(mockApplicationService.doesApplicationHaveTermsOfUseInvitation(*[ApplicationId])(*))
+          .thenReturn(successful(false))
+    }
+
     object ValidateApplicationName {
       def succeeds() = when(mockApplicationService.validateApplicationName(*[ApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
 

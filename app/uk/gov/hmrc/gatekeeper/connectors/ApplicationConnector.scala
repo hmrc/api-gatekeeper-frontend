@@ -45,6 +45,10 @@ object ApplicationConnector {
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
 
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
+
+  case class TermsOfUseInvitationResponse(applicationId: ApplicationId)
+
+  implicit val termsOfUseInvitationResponseReads = Json.reads[TermsOfUseInvitationResponse]
 }
 
 abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with ApplicationUpdateFormatters {
@@ -271,6 +275,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.value.toString()}")
+      .map(_ match {
+        case Some(_) => true
+        case None    => false
+      })
+  }
+
+  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId.value.toString()}")
       .map(_ match {
         case Some(_) => true
         case None    => false

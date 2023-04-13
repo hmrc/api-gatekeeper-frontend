@@ -189,6 +189,9 @@
         }
       </dd>
       <dd class="govuk-summary-list__actions">
+        @if(request.role.isUser && model.isEligibleForTermsOfUseInvite){
+          Send V2 terms of use
+        }
       </dd>
     </div>
     <div class="govuk-summary-list__row">

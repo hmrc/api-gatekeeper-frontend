@@ -80,7 +80,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       hasSubmissions = false,
       gatekeeperApprovalsUrl = s"http://localhost:1234/api-gatekeeper-approvals-frontend/applications/${application.id}",
       List(ResponsibleIndividualHistoryItem("Mr Responsible Individual", "ri@example.com", "22 June 2022", "Present")),
-      None // Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2"))
+      None, // Some(TermsOfUseAgreementDisplayDetails("ri@example.com", "12 March 2023", "2"))
+      false
     )
   }
 
