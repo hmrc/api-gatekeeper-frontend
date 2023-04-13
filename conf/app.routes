@@ -68,6 +68,7 @@ GET         /assets/*file                                                     @c
 
 GET         /nav-links                                                        uk.gov.hmrc.gatekeeper.controllers.NavigationController.navLinks
 GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage
+GET         /terms-of-use                                                     uk.gov.hmrc.gatekeeper.controllers.TermsOfUseController.page
 
 GET         /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationPage(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 POST        /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationAction(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)

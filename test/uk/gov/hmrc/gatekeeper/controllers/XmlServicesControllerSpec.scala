@@ -20,6 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.test.Helpers._
 
+import uk.gov.hmrc.gatekeeper.controllers.XmlServicesController
 class XmlServicesControllerSpec extends ControllerBaseSpec {
   implicit val materializer = app.materializer
 
