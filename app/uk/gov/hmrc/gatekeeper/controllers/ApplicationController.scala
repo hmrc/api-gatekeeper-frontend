@@ -232,7 +232,7 @@ class ApplicationController @Inject() (
       def checkEligibleForTermsOfUseInvite(app: NewApplication, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
           case std: Standard if (app.state.name == State.PRODUCTION && app.deployedTo == Environment.PRODUCTION && !hasSubmissions && !hasTermsOfUseInvite) => true
-          case _  => false
+          case _                                                                                                                                            => false
         }
       }
 
@@ -245,11 +245,11 @@ class ApplicationController @Inject() (
         doesApplicationHaveSubmissions      <- applicationService.doesApplicationHaveSubmissions(appId)
         doesApplicationHaveTermsOfUseInvite <- applicationService.doesApplicationHaveTermsOfUseInvitation(appId)
 
-        seqOfSubscriptions                   = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        subscriptionsThatHaveFieldDefns      = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        responsibleIndividualHistory         = getResponsibleIndividualHistory(app.access)
-        maybeTermsOfUseAcceptance            = termsOfUseService.getAgreementDetails(app)
-        isEligibleForTermsOfUseInvite        = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
+        seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
+        maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
+        isEligibleForTermsOfUseInvite   = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
       } yield Ok(applicationView(ApplicationViewModel(
         collaborators,
         app,
