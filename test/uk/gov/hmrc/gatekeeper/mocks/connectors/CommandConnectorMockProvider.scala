@@ -16,8 +16,6 @@
 
 package mocks.connectors
 
-import scala.concurrent.Future.successful
-
 import cats.data.NonEmptyList
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
