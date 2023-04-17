@@ -25,14 +25,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.connectors.CommandConnector
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 
 trait CommandConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   object CommandConnectorMock {
 
-    val aMock: CommandConnector = mock[CommandConnector]
+    val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
 
     object IssueCommand {
       import cats.syntax.either._

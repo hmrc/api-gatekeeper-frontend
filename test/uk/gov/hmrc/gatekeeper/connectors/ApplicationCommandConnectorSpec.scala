@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import cats.data.NonEmptyList
 import uk.gov.hmrc.http.InternalServerException
 
-class CommandConnectorSpec
+class ApplciationCommandConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
@@ -77,7 +77,7 @@ class CommandConnectorSpec
 
     val httpClient = app.injector.instanceOf[HttpClient]
     val config     = ApmConnector.Config(wireMockUrl)
-    val connector  = new CommandConnector(httpClient, config) {}
+    val connector  = new ApplicationCommandConnector(httpClient, config) {}
   }
 
   "dispatch" should {
