@@ -16,12 +16,10 @@
 
 package mocks.services
 
-import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models._
@@ -82,14 +80,6 @@ trait ApplicationServiceMockProvider {
 
     object UnblockApplication {
       def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
-    }
-
-    object SubscribeToApi {
-      def succeeds() = when(mockApplicationService.subscribeToApi(*, *)(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
-    }
-
-    object UnsubscribeFromApi {
-      def succeeds() = when(mockApplicationService.unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)).thenReturn(Future.successful(ApplicationUpdateSuccessResult))
     }
 
     object FetchApplication {

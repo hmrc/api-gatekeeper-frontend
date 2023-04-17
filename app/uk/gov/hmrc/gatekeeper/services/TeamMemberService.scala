@@ -38,11 +38,11 @@ class TeamMemberService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger {
 
-  def addTeamMember(app: Application, collaborator: Collaborator, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
+  def addTeamMember(app: Application, collaborator: Collaborator, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
-      cmd            = ApplicationCommands.AddCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+      cmd            = ApplicationCommands.AddCollaborator(user, collaborator, LocalDateTime.now())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }
@@ -50,7 +50,7 @@ class TeamMemberService @Inject() (
   def removeTeamMember(
       app: Application,
       teamMemberToRemove: LaxEmailAddress,
-      gatekeeperUserName: String
+      user: Actors.GatekeeperUser
     )(implicit hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
@@ -58,7 +58,7 @@ class TeamMemberService @Inject() (
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
-      cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+      cmd            = ApplicationCommands.RemoveCollaborator(user, collaborator, LocalDateTime.now())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }

@@ -39,6 +39,7 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -131,6 +132,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
+    val gatekeeperUser = Actors.GatekeeperUser("Bob Smith")
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
 
@@ -590,30 +592,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       }
     }
   }
-
-  "subscribeToApi" should {
-    "calls APM connector only now" in new Setup {
-      ApmConnectorMock.SubscribeToApi.succeeds()
-
-      val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier))
-
-      result shouldBe ApplicationUpdateSuccessResult
-    }
-  }
-
-  "unsubscribeFromApi" should {
-    "call the service to unsubscribe from the API and delete the field values" in new Setup {
-
-      ApplicationConnectorMock.Prod.UnsubscribeFromApi.succeeds()
-
-      val result = await(underTest.unsubscribeFromApi(stdApp1, context, version))
-
-      result shouldBe ApplicationUpdateSuccessResult
-
-      verify(mockProductionApplicationConnector).unsubscribeFromApi(eqTo(stdApp1.id), eqTo(context), eqTo(version))(*)
-    }
-  }
-
   "updateRateLimitTier" should {
     "call the service to update the rate limit tier" in new Setup {
       when(mockProductionApplicationConnector.updateRateLimitTier(*[ApplicationId], *)(*))

@@ -33,6 +33,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class TeamMembersControllerSpec
     extends ControllerBaseSpec
@@ -286,7 +287,7 @@ class TeamMembersControllerSpec
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            TeamMemberServiceMock.AddTeamMember.verifyCalledWith(application.application, email.asDeveloperCollaborator)
+            TeamMemberServiceMock.AddTeamMember.verifyCalledWith(application.application, email.asDeveloperCollaborator, Actors.GatekeeperUser("Bobby Example"))
           }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
@@ -507,7 +508,7 @@ class TeamMembersControllerSpec
 
               status(result) shouldBe SEE_OTHER
 
-              TeamMemberServiceMock.RemoveTeamMember.verifyCalledWith(application.application, emailToRemove, "Bobby Example")
+              TeamMemberServiceMock.RemoveTeamMember.verifyCalledWith(application.application, emailToRemove, Actors.GatekeeperUser("Bobby Example"))
             }
 
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {

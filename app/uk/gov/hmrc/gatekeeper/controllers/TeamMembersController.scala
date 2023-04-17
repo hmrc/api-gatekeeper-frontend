@@ -115,7 +115,7 @@ class TeamMembersController @Inject() (
           user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = CollaboratorRole.from(form.role).getOrElse(CollaboratorRole.DEVELOPER)
           collaborator = if (role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
-          result      <- teamMemberService.addTeamMember(app.application, collaborator, loggedIn.userFullName.get)
+          result      <- teamMemberService.addTeamMember(app.application, collaborator, gatekeeperUser.get)
                            .map {
                              case Right(())                                                               => successResult
                              case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
@@ -157,7 +157,7 @@ class TeamMembersController @Inject() (
         ))
 
         form.confirm match {
-          case Some("Yes") => teamMemberService.removeTeamMember(app.application, emailAddress, loggedIn.userFullName.get).map {
+          case Some("Yes") => teamMemberService.removeTeamMember(app.application, emailAddress, gatekeeperUser.get).map {
               case Right(())                                                      => successResult
               case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
               case _                                                              => throw new RuntimeException("Bang")

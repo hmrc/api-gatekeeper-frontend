@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
@@ -53,17 +53,6 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
       ),
       headers = Seq.empty[(String, String)]
     )
-  }
-
-  def subscribeToApi(applicationId: ApplicationId, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.POST[ApiIdentifier, Either[UpstreamErrorResponse, Unit]](
-      s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}/subscriptions?restricted=false",
-      apiIdentifier
-    )
-      .map(_ match {
-        case Right(_)  => ApplicationUpdateSuccessResult
-        case Left(err) => throw err
-      })
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
