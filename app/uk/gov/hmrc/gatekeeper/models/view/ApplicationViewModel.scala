@@ -33,5 +33,7 @@ case class ApplicationViewModel(
     hasSubmissions: Boolean,
     gatekeeperApprovalsUrl: String,
     history: List[ResponsibleIndividualHistoryItem],
-    maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]
+    maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails],
+    isEligibleForTermsOfUseInvite: Boolean,
+    termsOfUseInvitationUrl: String
   )

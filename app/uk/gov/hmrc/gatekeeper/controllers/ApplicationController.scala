@@ -44,6 +44,7 @@ import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
+import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.models.{Environment, _}
@@ -104,7 +105,7 @@ class ApplicationController @Inject() (
     val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
-        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}"
       } else {
         routes.ApplicationController.applicationPage(appId).url
       }
@@ -127,7 +128,7 @@ class ApplicationController @Inject() (
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
-      ColumnDefinition("App ID", (app => app.id.value.toString())),
+      ColumnDefinition("App ID", (app => app.id.text)),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo)),
@@ -183,7 +184,8 @@ class ApplicationController @Inject() (
       val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.value.toString()}"
+      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}"
+      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}/send-new-terms-of-use"
 
       def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)
@@ -228,18 +230,31 @@ class ApplicationController @Inject() (
         }
       }
 
+      def checkEligibleForTermsOfUseInvite(app: NewApplication, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
+        app.access match {
+          case std: Standard
+              if (app.state.name == State.PRODUCTION &&
+                app.deployedTo == Environment.PRODUCTION &&
+                !hasSubmissions &&
+                !hasTermsOfUseInvite) => true
+          case _ => false
+        }
+      }
+
       for {
-        collaborators                  <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
-        allPossibleSubs                <- apmService.fetchAllPossibleSubscriptions(appId)
-        subscribedContexts              = allPossibleSubs.filter(isSubscribed)
-        subscribedVersions              = subscribedContexts.map(filterOutVersions)
-        subscribedWithFields            = subscribedVersions.map(filterForFields)
-        doesApplicationHaveSubmissions <- applicationService.doesApplicationHaveSubmissions(appId)
+        collaborators                       <- developerService.fetchDevelopersByEmails(app.collaborators.map(colab => colab.emailAddress))
+        allPossibleSubs                     <- apmService.fetchAllPossibleSubscriptions(appId)
+        subscribedContexts                   = allPossibleSubs.filter(isSubscribed)
+        subscribedVersions                   = subscribedContexts.map(filterOutVersions)
+        subscribedWithFields                 = subscribedVersions.map(filterForFields)
+        doesApplicationHaveSubmissions      <- applicationService.doesApplicationHaveSubmissions(appId)
+        doesApplicationHaveTermsOfUseInvite <- applicationService.doesApplicationHaveTermsOfUseInvitation(appId)
 
         seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
         responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
         maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
+        isEligibleForTermsOfUseInvite   = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
       } yield Ok(applicationView(ApplicationViewModel(
         collaborators,
         app,
@@ -249,7 +264,9 @@ class ApplicationController @Inject() (
         doesApplicationHaveSubmissions,
         gatekeeperApprovalsUrl,
         responsibleIndividualHistory,
-        maybeTermsOfUseAcceptance
+        maybeTermsOfUseAcceptance,
+        isEligibleForTermsOfUseInvite,
+        termsOfUseInvitationUrl
       )))
     }
   }
