@@ -121,46 +121,6 @@ class ApmConnectorSpec
     }
   }
 
-  "subscribeToApi" should {
-    val apiContext    = ApiContext.random
-    val apiVersion    = ApiVersion.random
-    val apiIdentifier = ApiIdentifier(apiContext, apiVersion)
-
-    "send authorisation and return CREATED if the request was successful on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
-
-      stubFor(
-        post(urlPathEqualTo(url))
-          .withQueryParam("restricted", equalTo("false"))
-          .willReturn(
-            aResponse()
-              .withStatus(CREATED)
-          )
-      )
-
-      val result = await(underTest.subscribeToApi(applicationId, apiIdentifier))
-
-      result shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      val url = s"/applications/${applicationId.value.toString()}/subscriptions"
-
-      stubFor(
-        post(urlPathEqualTo(url))
-          .withQueryParam("restricted", equalTo("false"))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(underTest.subscribeToApi(applicationId, apiIdentifier))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
   "getAllFieldDefinitions" should {
     "returns empty field definitions" in new Setup {
       val url = "/subscription-fields\\?environment=PRODUCTION"

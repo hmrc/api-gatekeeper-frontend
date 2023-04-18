@@ -23,7 +23,6 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -216,14 +215,6 @@ class ApplicationService @Inject() (
         case None             => Future.successful(ApplicationUpdateFailureResult)
       }
     }
-  }
-
-  def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    apmConnector.subscribeToApi(application.id, apiIdentifier)
-  }
-
-  def unsubscribeFromApi(application: Application, context: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnectorFor(application).unsubscribeFromApi(application.id, context, version)
   }
 
   def updateGrantLength(application: Application, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {

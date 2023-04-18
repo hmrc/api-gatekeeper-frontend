@@ -66,14 +66,4 @@ trait ApmConnectorMockProvider {
         when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(url)
     }
   }
-
-  object ApmConnectorMock {
-
-    object SubscribeToApi {
-
-      def succeeds() = when(
-        mockApmConnector.subscribeToApi(*[ApplicationId], *)(*)
-      ).thenReturn(successful(ApplicationUpdateSuccessResult))
-    }
-  }
 }

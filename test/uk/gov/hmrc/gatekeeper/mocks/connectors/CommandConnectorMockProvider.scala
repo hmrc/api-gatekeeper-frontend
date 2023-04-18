@@ -16,7 +16,7 @@
 
 package mocks.connectors
 
-import scala.concurrent.Future.successful
+import scala.concurrent.ExecutionContext
 
 import cats.data.NonEmptyList
 import org.mockito.captor.ArgCaptor
@@ -25,18 +25,34 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.connectors.CommandConnector
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
+import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 
 trait CommandConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
   object CommandConnectorMock {
+    val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
 
-    val aMock: CommandConnector = mock[CommandConnector]
+    import CHT.Implicits._
+
+    val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
 
     object IssueCommand {
-      import cats.syntax.either._
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
+
+      def succeeds()(implicit ec: ExecutionContext) = {
+        val mockResult = mock[DispatchSuccessResult]
+        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(mockResult.asSuccess)
+      }
+
+      def succeedsReturning(app: ApplicationResponse)(implicit ec: ExecutionContext) = {
+        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(DispatchSuccessResult(app).asSuccess)
+      }
+
+      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext)          = {
+        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(failure.asFailure)
+      }
 
       def verifyCommand(id: ApplicationId) = {
         val cmdCaptor = ArgCaptor[ApplicationCommand]
@@ -51,17 +67,17 @@ trait CommandConnectorMockProvider {
       object ToRemoveCollaborator {
         val mockResult = mock[DispatchSuccessResult]
 
-        def succeeds() = {
-          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
+        def succeeds()(implicit ec: ExecutionContext) = {
+          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(mockResult.asSuccess)
         }
 
-        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress]) = {
-          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(successful(mockResult.asRight[NonEmptyList[CommandFailure]]))
+        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress])(implicit ec: ExecutionContext) = {
+          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(mockResult.asSuccess)
         }
 
-        def failsWithLastAdmin() = {
+        def failsWithLastAdmin()(implicit ec: ExecutionContext) = {
           val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
-          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(successful(mockResult.asLeft[DispatchSuccessResult]))
+          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(mockResult.asFailure)
         }
       }
     }

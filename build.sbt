@@ -124,7 +124,7 @@ lazy val microservice = Project(appName, file("."))
     )
   )
 
-coverageMinimumStmtTotal := 85
+coverageMinimumStmtTotal := 85.5
 coverageFailOnMinimum := true
 coverageExcludedPackages := Seq(
   "<empty>",

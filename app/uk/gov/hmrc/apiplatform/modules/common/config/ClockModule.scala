@@ -14,13 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.gkauth.utils
+package uk.gov.hmrc.apiplatform.modules.common.config
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+import java.time.Clock
 
-trait GatekeeperAuthorisationHelper {
-  implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
+import com.google.inject.AbstractModule
 
-  implicit def gatekeeperUser(implicit request: LoggedInRequest[_]): Option[Actors.GatekeeperUser] = request.name.map(Actors.GatekeeperUser)
+class ClockModule extends AbstractModule {
+
+  override def configure(): Unit = {
+    bind(classOf[Clock]).toInstance(Clock.systemUTC())
+  }
 }

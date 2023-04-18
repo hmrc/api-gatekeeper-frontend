@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.gkauth.utils
+package uk.gov.hmrc.apiplatform.modules.common.utils
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+import java.time.temporal.ChronoUnit
+import java.time.{Clock, LocalDateTime, ZoneOffset}
 
-trait GatekeeperAuthorisationHelper {
-  implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 
-  implicit def gatekeeperUser(implicit request: LoggedInRequest[_]): Option[Actors.GatekeeperUser] = request.name.map(Actors.GatekeeperUser)
+trait FixedClock extends ClockNow {
+
+  private val utc: ZoneOffset = ZoneOffset.UTC
+
+  private val pointInTime: LocalDateTime = LocalDateTime.of(2020, 1, 2, 3, 4, 5, 6 * 1000 * 1000).truncatedTo(ChronoUnit.MILLIS)
+
+  val clock: Clock = Clock.fixed(pointInTime.toInstant(utc), utc)
+
+  val nowAsText: String = "2020-01-02T03:04:05.006Z"
 }
+
+object FixedClock extends FixedClock

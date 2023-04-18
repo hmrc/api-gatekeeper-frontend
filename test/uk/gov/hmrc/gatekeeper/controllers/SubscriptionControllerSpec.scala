@@ -18,11 +18,14 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import mocks.services._
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -45,9 +48,11 @@ class SubscriptionControllerSpec
   private lazy val manageSubscriptionsView = app.injector.instanceOf[ManageSubscriptionsView]
   private lazy val errorHandler            = app.injector.instanceOf[ErrorHandler]
 
+  val gatekeeperUser = Actors.GatekeeperUser("Bobby Example")
+
   running(app) {
 
-    trait Setup extends ControllerSetupBase {
+    trait Setup extends ControllerSetupBase with SubscriptionsServiceMockModule {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -81,6 +86,7 @@ class SubscriptionControllerSpec
         forbiddenView,
         errorTemplateView,
         mockApplicationService,
+        SubscriptionsServiceMock.aMock,
         mockApmService,
         errorHandler,
         StrideAuthorisationServiceMock.aMock
@@ -99,14 +105,14 @@ class SubscriptionControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.SubscribeToApi.succeeds()
+        SubscriptionsServiceMock.SubscribeToApi.succeeds()
 
         val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApplicationService).subscribeToApi(eqTo(basicApplication), eqTo(ApiIdentifier(apiContext, ApiVersion("1.0"))))(*)
+        SubscriptionsServiceMock.SubscribeToApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersion("1.0")), gatekeeperUser)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -118,7 +124,7 @@ class SubscriptionControllerSpec
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).subscribeToApi(eqTo(basicApplication), *)(*)
+        SubscriptionsServiceMock.SubscribeToApi.verifyNotCalled()
       }
     }
 
@@ -129,14 +135,14 @@ class SubscriptionControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.UnsubscribeFromApi.succeeds()
+        SubscriptionsServiceMock.UnsubscribeFromApi.succeeds()
 
         val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        verify(mockApplicationService).unsubscribeFromApi(eqTo(basicApplication), eqTo(apiContext), eqTo(ApiVersion("1.0")))(*)
+        SubscriptionsServiceMock.UnsubscribeFromApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersion("1.0")), gatekeeperUser)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -148,7 +154,7 @@ class SubscriptionControllerSpec
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unsubscribeFromApi(*, *[ApiContext], *[ApiVersion])(*)
+        SubscriptionsServiceMock.UnsubscribeFromApi.verifyNotCalled()
       }
     }
 

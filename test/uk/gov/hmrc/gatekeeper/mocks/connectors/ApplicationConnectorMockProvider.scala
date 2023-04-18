@@ -75,12 +75,6 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
     }
 
-    object UnsubscribeFromApi {
-
-      def succeeds() = when(aMock.unsubscribeFromApi(*[ApplicationId], *[ApiContext], *[ApiVersion])(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
-    }
-
     object FetchApplication {
       def returns(app: ApplicationWithHistory) = when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
 

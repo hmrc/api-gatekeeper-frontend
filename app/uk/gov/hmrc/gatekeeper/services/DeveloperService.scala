@@ -36,7 +36,7 @@ class DeveloperService @Inject() (
     developerConnector: DeveloperConnector,
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
-    commandConnector: CommandConnector,
+    commandConnector: ApplicationCommandConnector,
     xmlService: XmlService
   )(implicit ec: ExecutionContext
   ) {

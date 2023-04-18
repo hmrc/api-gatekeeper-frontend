@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -76,11 +77,30 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
     )
 
     val gatekeeperUserId = "loggedin.gatekeeper"
+    val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
   }
 
-  "removeTeamMember" should {
-    val requestingUser = "bob in SDST"
+  "addTeamMember" should {
+    "issue command to add a collaborator to an app successfully" in new Setup {
+      val application       = stdApp1
+      val collaboratorToAdd = Collaborators.Administrator(UserId.random, "newuser@example.com".toLaxEmail)
 
+      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
+      CommandConnectorMock.IssueCommand.succeeds()
+
+      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe (())
+    }
+
+    "propagate a failure error from application connector" in new Setup {
+      val collaboratorToAdd = Collaborators.Administrator(UserId.random, "newuser@example.com".toLaxEmail)
+
+      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
+      CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
+
+      await(underTest.addTeamMember(stdApp1, collaboratorToAdd, gatekeeperUser)).left.value shouldBe NonEmptyList.one(CommandFailures.GenericFailure("Bang"))
+    }
+  }
+  "removeTeamMember" should {
     "issue command to remove a member from an app successfully" in new Setup {
       val application          = stdApp1
       val collaboratorToRemove = application.collaborators.filter(_.isDeveloper).head
@@ -88,7 +108,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Right(())
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe (())
     }
 
     "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
@@ -97,13 +117,12 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.failsWithLastAdmin()
 
-      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, requestingUser)) shouldBe Left(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin))
+      await(underTest.removeTeamMember(stdApp1, collaboratorToRemove.emailAddress, gatekeeperUser)).left.value shouldBe NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
     }
 
     "include correct set of admins to email" in new Setup {
 
-      val memberToRemove     = "removeMe@example.com".toLaxEmail
-      val gatekeeperUserName = "bob in SDST"
+      val memberToRemove = "removeMe@example.com".toLaxEmail
 
       val verifiedAdmin      = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
       val verifiedOtherAdmin = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)
@@ -124,7 +143,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeedsFor(application.id, expectedAdminsToEmail)
 
-      await(underTest.removeTeamMember(application, memberToRemove, gatekeeperUserName)) shouldBe Right(())
+      await(underTest.removeTeamMember(application, memberToRemove, gatekeeperUser)) shouldBe Right(())
 
     }
   }
