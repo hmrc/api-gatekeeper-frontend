@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -39,7 +40,6 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -132,7 +132,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
-    val gatekeeperUser = Actors.GatekeeperUser("Bob Smith")
+    val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
 

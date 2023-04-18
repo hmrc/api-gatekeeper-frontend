@@ -23,10 +23,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.models.Application
 import uk.gov.hmrc.gatekeeper.services.TeamMemberService
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 trait TeamMemberServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

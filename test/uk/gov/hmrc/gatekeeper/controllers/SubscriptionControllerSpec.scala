@@ -18,11 +18,14 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import mocks.services._
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -32,8 +35,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
-import mocks.services._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class SubscriptionControllerSpec
     extends ControllerBaseSpec

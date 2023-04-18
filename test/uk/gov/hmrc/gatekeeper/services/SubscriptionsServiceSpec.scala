@@ -19,30 +19,30 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import mocks.connectors.CommandConnectorMockProvider
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.http.HeaderCarrier
-import mocks.connectors.CommandConnectorMockProvider
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
 class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
   trait Setup
       extends MockitoSugar with ArgumentMatchersSugar
       with CommandConnectorMockProvider {
-        
+
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
@@ -50,7 +50,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       CommandConnectorMock.aMock,
       FixedClock.clock
     )
-    val underTest          = spy(subscriptionService)
+    val underTest           = spy(subscriptionService)
 
     implicit val hc = HeaderCarrier()
 
@@ -122,7 +122,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
-    val gatekeeperUser = Actors.GatekeeperUser("Bob Smith")
+    val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
 

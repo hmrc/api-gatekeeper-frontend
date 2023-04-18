@@ -22,9 +22,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
-import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
 
 trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersSugar {
 
@@ -46,7 +46,7 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
         verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
 
       def verifyNotCalled() =
-        verify(aMock, never).subscribeToApi(*,*,*)(*)
+        verify(aMock, never).subscribeToApi(*, *, *)(*)
     }
 
     object UnsubscribeFromApi {
@@ -60,7 +60,7 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
         verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
 
       def verifyNotCalled() =
-        verify(aMock, never).unsubscribeFromApi(*,*,*)(*)
+        verify(aMock, never).unsubscribeFromApi(*, *, *)(*)
     }
   }
 

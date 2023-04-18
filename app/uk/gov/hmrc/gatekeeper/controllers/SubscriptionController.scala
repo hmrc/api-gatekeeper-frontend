@@ -26,17 +26,16 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
+import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
-import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
 
 @Singleton
 class SubscriptionController @Inject() (
@@ -87,13 +86,17 @@ class SubscriptionController @Inject() (
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+        Redirect(routes.SubscriptionController.manageSubscription(appId))
+      )
     }
   }
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ => Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+        Redirect(routes.SubscriptionController.manageSubscription(appId))
+      )
     }
   }
 }

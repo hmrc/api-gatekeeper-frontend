@@ -16,6 +16,8 @@
 
 package mocks.connectors
 
+import scala.concurrent.ExecutionContext
+
 import cats.data.NonEmptyList
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
@@ -25,7 +27,6 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
-import scala.concurrent.ExecutionContext
 
 trait CommandConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -48,10 +49,11 @@ trait CommandConnectorMockProvider {
       def succeedsReturning(app: ApplicationResponse)(implicit ec: ExecutionContext) = {
         when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(DispatchSuccessResult(app).asSuccess)
       }
-      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext) = {
-          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(failure.asFailure)
+
+      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext)          = {
+        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(failure.asFailure)
       }
-      
+
       def verifyCommand(id: ApplicationId) = {
         val cmdCaptor = ArgCaptor[ApplicationCommand]
         verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)

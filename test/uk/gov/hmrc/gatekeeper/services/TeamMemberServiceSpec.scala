@@ -29,12 +29,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -77,20 +77,20 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
     )
 
     val gatekeeperUserId = "loggedin.gatekeeper"
-    val gatekeeperUser = Actors.GatekeeperUser("Bob Smith")
+    val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
   }
 
   "addTeamMember" should {
     "issue command to add a collaborator to an app successfully" in new Setup {
-      val application          = stdApp1
+      val application       = stdApp1
       val collaboratorToAdd = Collaborators.Administrator(UserId.random, "newuser@example.com".toLaxEmail)
-      
+
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.succeeds()
-      
-      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe(())
+
+      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe (())
     }
-    
+
     "propagate a failure error from application connector" in new Setup {
       val collaboratorToAdd = Collaborators.Administrator(UserId.random, "newuser@example.com".toLaxEmail)
 
@@ -108,7 +108,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe(())
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe (())
     }
 
     "propagate CannotRemoveLastAdmin error from application connector" in new Setup {
@@ -122,7 +122,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
     "include correct set of admins to email" in new Setup {
 
-      val memberToRemove     = "removeMe@example.com".toLaxEmail
+      val memberToRemove = "removeMe@example.com".toLaxEmail
 
       val verifiedAdmin      = Collaborators.Administrator(UserId.random, "verified@example.com".toLaxEmail)
       val verifiedOtherAdmin = Collaborators.Administrator(UserId.random, "verifiedother@example.com".toLaxEmail)

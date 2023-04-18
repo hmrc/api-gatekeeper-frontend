@@ -21,12 +21,12 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypes, DispatchSuccessResult}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 import uk.gov.hmrc.gatekeeper.models.Application
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
 
 @Singleton
 class SubscriptionsService @Inject() (
