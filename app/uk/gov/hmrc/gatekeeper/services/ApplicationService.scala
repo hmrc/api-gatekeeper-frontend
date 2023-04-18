@@ -277,4 +277,8 @@ class ApplicationService @Inject() (
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     productionApplicationConnector.doesApplicationHaveSubmissions(applicationId)
   }
+
+  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    productionApplicationConnector.doesApplicationHaveTermsOfUseInvitation(applicationId)
+  }
 }
