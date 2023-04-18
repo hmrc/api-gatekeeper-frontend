@@ -19,11 +19,12 @@ package uk.gov.hmrc.gatekeeper.connectors
 import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import cats.data.NonEmptyList
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
@@ -35,8 +36,6 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import cats.data.NonEmptyList
-import uk.gov.hmrc.http.InternalServerException
 
 class CommandConnectorSpec
     extends AsyncHmrcSpec
@@ -115,7 +114,7 @@ class CommandConnectorSpec
               .withStatus(BAD_REQUEST)
           )
       )
-      val result = await(connector.dispatch(applicationId, command, adminsToEmail)) 
+      val result = await(connector.dispatch(applicationId, command, adminsToEmail))
 
       result.left.value shouldBe failures
     }
@@ -131,7 +130,7 @@ class CommandConnectorSpec
       )
 
       intercept[InternalServerException] {
-        await(connector.dispatch(applicationId, command, adminsToEmail)) 
+        await(connector.dispatch(applicationId, command, adminsToEmail))
       }
     }
   }
