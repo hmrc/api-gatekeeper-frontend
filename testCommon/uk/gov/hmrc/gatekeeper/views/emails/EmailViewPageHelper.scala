@@ -93,7 +93,6 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
     validateCopyToClipboardLink(document, users)
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
-    elementExistsById(document, "pageNumber-1") shouldBe true
   }
 }
 

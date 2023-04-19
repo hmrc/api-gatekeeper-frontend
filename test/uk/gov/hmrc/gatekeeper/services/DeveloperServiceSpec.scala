@@ -117,8 +117,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
 
     val xmlServiceNames = Set("XML API one", "XML API two")
-    val offset = 0
-    val limit = 4
+    val offset          = 0
+    val limit           = 4
 
     implicit val hc = HeaderCarrier()
 
@@ -735,15 +735,15 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   "developerService fetchDevelopersByEmailPreferencesPaginated" should {
-    val topic = TopicOptionChoice.BUSINESS_AND_POLICY
+    val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1 = APICategory("category1")
-    val category2 = APICategory("category2")
-    val categories = List(category1, category2)
-    val apiName1 = "apiName1"
-    val apiName2 = "apiName2"
-    val apiName3 = "apiName3"
-    val apis = List(apiName1, apiName2, apiName3)
+    val category1   = APICategory("category1")
+    val category2   = APICategory("category2")
+    val categories  = List(category1, category2)
+    val apiName1    = "apiName1"
+    val apiName2    = "apiName2"
+    val apiName3    = "apiName3"
+    val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when only passed a category" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Seq(category1)), privateApiMatch = false, offset, limit)(sandboxUser)

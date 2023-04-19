@@ -153,15 +153,15 @@
                                 @if(currentPage > 3) {
                                     <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                 }
-
-                                @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
-                                    <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                                        <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
-                                        @i
-                                        </a>
-                                    </li>
+                                @if((currentPage + 1).min(lastPage) > 1) {
+                                    @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
+                                        <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
+                                            <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                                            @i
+                                            </a>
+                                        </li>
+                                    }
                                 }
-
                                 @if(currentPage < lastPage - 2) {
                                     <li class="govuk-pagination__item govuk-pagination__item--ellipses">&ctdot;</li>
                                 }

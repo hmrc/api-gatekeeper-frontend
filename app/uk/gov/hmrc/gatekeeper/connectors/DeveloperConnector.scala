@@ -182,8 +182,8 @@ class HttpDeveloperConnector @Inject() (
     )(implicit hc: HeaderCarrier
     ): Future[UserPaginatedResponse] = {
     logger.info(s"fetchByEmailPreferencesPaginated topic is $maybeTopic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
-    val regimes               = maybeApiCategories.filter(_.nonEmpty).fold(Seq.empty[(String, String)])(
-                                  regimes => regimes.filter(_.value.nonEmpty).flatMap(regime => Seq("regime" -> regime.value)))
+    val regimes               =
+      maybeApiCategories.filter(_.nonEmpty).fold(Seq.empty[(String, String)])(regimes => regimes.filter(_.value.nonEmpty).flatMap(regime => Seq("regime" -> regime.value)))
     val apis                  = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
     val topic                 = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
     val privateApiMatchParams = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty

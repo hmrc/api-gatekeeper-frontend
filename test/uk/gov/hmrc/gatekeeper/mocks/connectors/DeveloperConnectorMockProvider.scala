@@ -31,6 +31,7 @@ trait DeveloperConnectorMockProvider {
   val mockDeveloperConnector = mock[DeveloperConnector]
 
   object DeveloperConnectorMock {
+
     object FetchByEmail {
       def handles(user: User) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*)).thenReturn(successful(user))
     }
@@ -40,6 +41,7 @@ trait DeveloperConnectorMockProvider {
     }
 
     object FetchById {
+
       def handles(user: User) = {
         when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*)).thenReturn(successful(user))
         when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*)).thenReturn(successful(user))
@@ -47,17 +49,21 @@ trait DeveloperConnectorMockProvider {
     }
 
     object FetchByEmailPreferences {
+
       def returnsFor(
           topic: TopicOptionChoice,
           maybeApis: Option[Seq[String]],
           maybeApiCategory: Option[Seq[APICategory]],
           privateapimatch: Boolean
-        )(users: RegisteredUser*) =
+        )(
+          users: RegisteredUser*
+        ) =
         when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch))(*))
           .thenReturn(successful(users.toList))
     }
 
     object FetchByEmailPreferencesPaginated {
+
       def returnsFor(
           topic: Option[TopicOptionChoice],
           maybeApis: Option[Seq[String]],
@@ -65,7 +71,9 @@ trait DeveloperConnectorMockProvider {
           privateApiMatch: Boolean,
           offset: Int,
           limit: Int
-        )(users: RegisteredUser*) =
+        )(
+          users: RegisteredUser*
+        ) =
         when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(*))
           .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
@@ -78,6 +86,7 @@ trait DeveloperConnectorMockProvider {
     }
 
     object SearchDevelopers {
+
       def returns(users: RegisteredUser*) =
         when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(successful(users.toList))
 

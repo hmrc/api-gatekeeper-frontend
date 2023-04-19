@@ -92,7 +92,9 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersBySpecificTaxRegimesEmailPreferences {
-      def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, developers.toList)))
+
+      def returns(developers: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, developers.toList)))
     }
 
     object SearchDevelopers {
@@ -140,6 +142,7 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersByEmailPreferencesPaginated {
+
       def returns(users: RegisteredUser*) =
         when(mockDeveloperService.fetchDevelopersByEmailPreferencesPaginated(*, *, *, *, *, *)(*)).thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
@@ -149,7 +152,9 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersBySpecificApisEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, users.toList)))
+
+      def returns(users: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, users.toList)))
     }
 
     object FetchDevelopersByAPICategoryEmailPreferences {

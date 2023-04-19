@@ -59,12 +59,22 @@ class EmailAllUsersNewViewSpec extends CommonViewSpec with EmailAllUsersViewHelp
     }
 
     "show correct paginated verified users" in new Setup {
-      val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
-      val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
-      val user3 = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "userC", "3", verified = true)
-      val users = Seq(user1, user2, user3)
+      val user1                         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
+      val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
+      val user3                         = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "userC", "3", verified = true)
+      val users                         = Seq(user1, user2, user3)
       val result: HtmlFormat.Appendable =
-        emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}; ${user3.email.text}", 0, 1, users.size, request, LoggedInUser(None), messagesProvider)
+        emailAllUsersView.render(
+          users,
+          emailRecipientsAsJson,
+          s"${user1.email.text}; ${user2.email.text}; ${user3.email.text}",
+          0,
+          1,
+          users.size,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
 
       validateEmailAllUsersPaginatedPage(Jsoup.parse(result.body), 3, users)
     }
