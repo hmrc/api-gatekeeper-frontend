@@ -115,15 +115,15 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]]): Action[AnyContent] =
+  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs)))
-        case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.getOrElse(List.empty))))
+        case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.getOrElse(List.empty), offset, limit)))
       }
     }
 
-  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int = 0, limit: Int = 15): Action[AnyContent] =
+  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
@@ -157,13 +157,13 @@ class EmailsPreferencesController @Inject() (
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def selectedUserTopic(selectedTopic: Option[String], offset: Int = 0, limit: Int = 15): Action[AnyContent] =
+  def selectedUserTopic(selectedTopic: Option[String], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       for {
-        upr                <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
-        totalCount          = upr.totalCount
-        filteredUsers       = upr.users.filter(_.verified)
+        userPaginatedResult                <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
+        totalCount          = userPaginatedResult.totalCount
+        filteredUsers       = userPaginatedResult.users.filter(_.verified)
         filteredUsersAsJson = Json.toJson(filteredUsers)
       } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }

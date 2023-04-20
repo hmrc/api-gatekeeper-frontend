@@ -382,22 +382,6 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
 
-    "GET /emails/email-preferences/all-users-new" should {
-      val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
-      val offset       = 0
-      val limit        = 15
-
-      "respond with 200 and render the page correctly on initial load when authorised" in {
-        primeAuthServiceSuccess()
-        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
-        primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(allUsers, TopicOptionChoice.TECHNICAL, offset, limit)
-
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-topic?selectedTopic=TECHNICAL&offset=$offset&limit=$limit", validHeaders)
-
-        result.status shouldBe OK
-      }
-    }
-
     "GET /emails/email-preferences/selected-user-topic" should {
       val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
       val offset       = 0
@@ -456,5 +440,4 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
   }
-
 }

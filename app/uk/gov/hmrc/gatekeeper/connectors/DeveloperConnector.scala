@@ -188,16 +188,17 @@ class HttpDeveloperConnector @Inject() (
     val topic                 = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
     val privateApiMatchParams = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams            = Seq("offset" -> s"$offset", "limit" -> s"$limit")
+    val params = privateApiMatchParams ++ pageParams
 
     def prepareQueryParams = {
       (maybeTopic, maybeApis, maybeApiCategories) match {
-        case (Some(_), None, None)       => topic ++ privateApiMatchParams ++ pageParams
-        case (None, Some(_), None)       => apis ++ privateApiMatchParams ++ pageParams
-        case (None, None, Some(_))       => regimes ++ privateApiMatchParams ++ pageParams
-        case (None, Some(_), Some(_))    => apis ++ regimes ++ privateApiMatchParams ++ pageParams
-        case (Some(_), None, Some(_))    => topic ++ regimes ++ privateApiMatchParams ++ pageParams
-        case (Some(_), Some(_), Some(_)) => topic ++ apis ++ regimes ++ privateApiMatchParams ++ pageParams
-        case (Some(_), Some(_), None)    => topic ++ apis ++ privateApiMatchParams ++ pageParams
+        case (Some(_), None, None)       => topic ++ params
+        case (None, Some(_), None)       => apis ++ params
+        case (None, None, Some(_))       => regimes ++ params
+        case (None, Some(_), Some(_))    => apis ++ regimes ++ params
+        case (Some(_), None, Some(_))    => topic ++ regimes ++ params
+        case (Some(_), Some(_), Some(_)) => topic ++ apis ++ regimes ++ params
+        case (Some(_), Some(_), None)    => topic ++ apis ++ params
       }
     }
 

@@ -22,6 +22,7 @@
 @import play.api.libs.json.Json
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import scala.math.ceil
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -32,9 +33,7 @@
     }
 
     @lastPage = @{
-        val lp = (totalCount / limit)
-        val remainder = (totalCount % limit)
-        if(remainder < limit) lp + 1 else remainder / limit
+        ceil(totalCount.toDouble / limit).toInt
     }
 
     @tpdQuery() = @{
@@ -134,7 +133,7 @@
 
                             @if(offset >= limit) {
                                 <div class="govuk-pagination__prev">
-                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset= (offset - limit))" rel="prev">
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset - limit, limit)" rel="prev">
                                         <svg class="govuk-pagination__icon govuk-pagination__icon--prev" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                             <path d="m6.5938-0.0078125-6.7266 6.7266 6.7441 6.4062 1.377-1.449-4.1856-3.9768h12.896v-2h-12.984l4.2931-4.293-1.414-1.414z"></path>
                                         </svg>
@@ -145,7 +144,7 @@
 
                                 @if(currentPage > 2) {
                                     <li class="govuk-pagination__item">
-                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString))" aria-label="Page 1">
+                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset, limit)" aria-label="Page 1">
                                             1
                                         </a>
                                     </li>
@@ -156,7 +155,7 @@
                                 @if((currentPage + 1).min(lastPage) > 1) {
                                     @for(i <- (currentPage - 1).max(1) to (currentPage + 1).min(lastPage)) {
                                         <li class="govuk-pagination__item @if(i == currentPage) {govuk-pagination__item--current}">
-                                            <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = (i - 1) * limit)" aria-label="Page @i" aria-current="page">
+                                            <a class="govuk-link govuk-pagination__link" id="pageNumber-@i" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), (i - 1) * limit, limit)" aria-label="Page @i" aria-current="page">
                                             @i
                                             </a>
                                         </li>
@@ -168,7 +167,7 @@
 
                                 @if(currentPage < lastPage - 1) {
                                     <li class="govuk-pagination__item">
-                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset = totalCount - limit)" aria-label="Page @{
+                                        <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), totalCount - limit, limit)" aria-label="Page @{
                                             lastPage
                                         }">
                                         @{
@@ -182,11 +181,11 @@
                             @if(offset < (totalCount - limit) && (totalCount > limit)) {
                                 <div class="govuk-pagination__next">
                                 @if((offset + limit) == totalCount) {
-                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit - 1)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit - 1, limit)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                         <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
                                     </svg></a>
                                 } else {
-                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
+                                    <a class="govuk-link govuk-pagination__link" href="@routes.EmailsPreferencesController.selectedUserTopic(Some(selectedTopic.get.toString), offset + limit, limit)" rel="next"> <span class="govuk-pagination__link-title">@messagesProvider.messages("pagination.next")</span> <svg class="govuk-pagination__icon govuk-pagination__icon--next" xmlns="http://www.w3.org/2000/svg" height="13" width="15" aria-hidden="true" focusable="false" viewBox="0 0 15 13">
                                         <path d="m8.107-0.0078125-1.4136 1.414 4.2926 4.293h-12.986v2h12.896l-4.1855 3.9766 1.377 1.4492 6.7441-6.4062-6.7246-6.7266z"></path>
                                     </svg></a>
                                 }

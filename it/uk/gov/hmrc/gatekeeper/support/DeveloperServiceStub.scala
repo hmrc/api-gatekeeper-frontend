@@ -95,7 +95,7 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(users: Seq[RegisteredUser], topic: TopicOptionChoice, offset: Int = 0, limit: Int = 15): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(users: Seq[RegisteredUser], topic: TopicOptionChoice, offset: Int, limit: Int): Unit = {
     val topicParam       = s"topic=${topic.toString}"
     val paginationParams = s"offset=$offset&limit=$limit"
 
@@ -108,12 +108,12 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(users: Seq[RegisteredUser], service: Seq[String], offset: Int = 0, limit: Int = 15): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(users: Seq[RegisteredUser], service: Seq[String], offset: Int, limit: Int): Unit = {
     val serviceParam     = s"service=${service.head}"
     val paginationParams = s"offset=$offset&limit=$limit"
 
-    val emailPreferencesByTopicUrl = s"$emailPreferencesPaginatedUrl?$serviceParam&$paginationParams"
-    stubFor(get(urlEqualTo(emailPreferencesByTopicUrl))
+    val emailPreferencesBySelectedSubscribedApiUrl = s"$emailPreferencesPaginatedUrl?$serviceParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesBySelectedSubscribedApiUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
@@ -121,12 +121,12 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Seq[String], offset: Int = 0, limit: Int = 15): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Seq[String], offset: Int, limit: Int): Unit = {
     val regimeParam      = s"regime=${regimes.head}"
     val paginationParams = s"offset=$offset&limit=$limit"
 
-    val emailPreferencesByTopicUrl = s"$emailPreferencesPaginatedUrl?$regimeParam&$paginationParams"
-    stubFor(get(urlEqualTo(emailPreferencesByTopicUrl))
+    val emailPreferencesBySelectedUserTaxRegimeUrl = s"$emailPreferencesPaginatedUrl?$regimeParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesBySelectedUserTaxRegimeUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
