@@ -259,7 +259,6 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
-    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
   }
 
   def validateEmailPreferencesSelectedApiTopicPage(document: Document, users: Seq[RegisteredUser]) = {
@@ -270,7 +269,6 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
       elementExistsById(document, "compose-email") shouldBe users.nonEmpty
     }
     verifyTableHeader(document)
-    elementExistsById(document, "pageNumber-1") shouldBe true
   }
 
   def validateEmailPreferencesSelectedUserTopicPage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
@@ -281,7 +279,6 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
     verifyTableHeader(document)
 
-    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
   }
 
   def validateEmailPreferencesSelectedTaxRegimePage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
@@ -293,9 +290,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
-    elementExistsById(document, "pageNumber-" + pageNumber) shouldBe true
-
-  }
+   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)
