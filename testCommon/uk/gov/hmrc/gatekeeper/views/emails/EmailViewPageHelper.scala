@@ -86,6 +86,14 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
     verifyTableHeader(document, tableIsVisible = users.nonEmpty)
     users.foreach(user => verifyUserRow(document, user))
   }
+
+  def validateEmailAllUsersPaginatedPage(document: Document, totalCount: Int = 0, users: Seq[RegisteredUser]): Unit = {
+    elementExistsByText(document, "h1", "Email all users") shouldBe true
+    elementExistsContainsText(document, "div", s"${totalCount} results") shouldBe true
+    validateCopyToClipboardLink(document, users)
+    verifyTableHeader(document, tableIsVisible = users.nonEmpty)
+    users.foreach(user => verifyUserRow(document, user))
+  }
 }
 
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
@@ -242,7 +250,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }
 
-  def validateEmailPreferencesSelectedSubscribedApiPage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedSubscribedApiPage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a specific API")
 
     withClue(s"Copy to clipboard link validation failed") {
@@ -260,16 +268,20 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
       elementExistsById(document, "copy-users-to-clip") shouldBe users.nonEmpty
       elementExistsById(document, "compose-email") shouldBe users.nonEmpty
     }
-
     verifyTableHeader(document)
   }
 
-  def validateEmailPreferencesSelectedUserTopicPage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedUserTopicPage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a topic")
+    withClue(s"Copy to clipboard link validation failed") {
+      elementExistsById(document, "copyUsersToClip") shouldBe users.nonEmpty
+      elementExistsById(document, "composeEmail") shouldBe users.nonEmpty
+    }
     verifyTableHeader(document)
+
   }
 
-  def validateEmailPreferencesSelectedTaxRegimePage(document: Document, users: Seq[RegisteredUser]) = {
+  def validateEmailPreferencesSelectedTaxRegimePage(pageNumber: Int, document: Document, users: Seq[RegisteredUser]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
 
     withClue(s"Copy to clipboard link validation failed") {
@@ -278,7 +290,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
 
     verifyTableHeader(document)
-  }
+   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
     validateStaticPageElements(document, categories)

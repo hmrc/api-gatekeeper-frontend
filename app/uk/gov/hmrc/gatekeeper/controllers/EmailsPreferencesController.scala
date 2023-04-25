@@ -115,47 +115,57 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
+  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs)))
-        case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.getOrElse(List.empty))))
+        case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.getOrElse(List.empty), offset, limit)))
       }
     }
 
-  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] =
+  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
-        case _     =>
-          for {
-            categories                <- apiDefinitionService.apiCategories
-            selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
-            users                     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(selectedApiCategories)
-            selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
-            usersAsJson                = Json.toJson(users)
-          } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
-            users,
-            usersAsJson,
-            usersToEmailCopyText(users),
-            selectedApiCategoryDetails
-          ))
+        case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedUserTaxRegime(selectedCategories, offset, limit)))
       }
     }
+
+  def selectedUserTaxRegime(selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] = {
+    anyStrideUserAction { implicit request =>
+      for {
+        categories                <- apiDefinitionService.apiCategories
+        selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
+        userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
+        totalCount                 = userPaginatedResponse.totalCount
+        users                      = userPaginatedResponse.users.filter(_.verified)
+        selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
+        usersAsJson                = Json.toJson(users)
+      } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
+        users,
+        usersAsJson,
+        usersToEmailCopyText(users),
+        selectedApiCategoryDetails,
+        offset,
+        limit,
+        totalCount
+      ))
+    }
+  }
 
   def selectUserTopicPage(selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     Future.successful(Ok(emailPreferencesSelectUserTopicView(selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def selectedUserTopic(selectedTopic: Option[String]): Action[AnyContent] =
+  def selectedUserTopic(selectedTopic: Option[String], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
-      maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
-        .map(users => {
-          val filteredUsers       = users.filter(_.verified)
-          val filteredUsersAsJson = Json.toJson(filteredUsers)
-          Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
-        })
+      for {
+        userPaginatedResult                <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
+        totalCount          = userPaginatedResult.totalCount
+        filteredUsers       = userPaginatedResult.users.filter(_.verified)
+        filteredUsersAsJson = Json.toJson(filteredUsers)
+      } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 
   private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
@@ -220,7 +230,13 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def selectedApiTopic(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None, selectedAPIs: List[String] = List.empty): Action[AnyContent] =
+  def selectedApiTopic(
+      selectedTopic: Option[String] = None,
+      selectedCategory: Option[String] = None,
+      selectedAPIs: List[String] = List.empty,
+      offset: Int,
+      limit: Int
+    ): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
         for {
@@ -231,10 +247,12 @@ class EmailsPreferencesController @Inject() (
         apis                <- apmService.fetchAllCombinedApis()
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         categories          <- apiDefinitionService.apiCategories
-        users               <- topicAndCategory.map(tup =>
-                                 developerService.fetchDevelopersBySpecificAPIEmailPreferences(tup._1, List(), selectedAPIs, privateApiMatch = false)
+        userPaginatedResult <- topicAndCategory.map(tup =>
+                                 developerService.fetchDevelopersByEmailPreferencesPaginated(Some(tup._1), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
                                )
-                                 .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+                                 .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
+        totalCount           = userPaginatedResult.totalCount
+        users                = userPaginatedResult.users.filter(_.verified)
         usersAsJson          = Json.toJson(users)
         selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
         selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
@@ -246,19 +264,23 @@ class EmailsPreferencesController @Inject() (
         categories,
         selectedCategory.getOrElse(""),
         selectedCategoryName,
-        filteredApis
+        filteredApis,
+        offset,
+        limit,
+        totalCount
       ))
     }
 
-  def selectedSubscribedApi(selectedAPIs: List[String] = List.empty): Action[AnyContent] =
+  def selectedSubscribedApi(selectedAPIs: List[String] = List.empty, offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       for {
-        apis        <- apmService.fetchAllCombinedApis()
-        filteredApis = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        users       <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs)
-                         .map(_.filter(_.verified))
-        usersAsJson  = Json.toJson(users)
-      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis))
+        apis                <- apmService.fetchAllCombinedApis()
+        filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+        userPaginatedResult <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
+        totalCount           = userPaginatedResult.totalCount
+        users                = userPaginatedResult.users.filter(_.verified)
+        usersAsJson          = Json.toJson(users)
+      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -284,12 +306,12 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def emailAllUsersPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchUsers
-      .map((users: List[RegisteredUser]) => {
-        val filteredUsers = users.filter(_.verified)
-        val usersAsJson   = Json.toJson(filteredUsers)
-        Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
-      })
+  def emailAllUsersPage(offset: Int, limit: Int): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    for {
+      result       <- developerService.fetchUsersPaginated(offset, limit)
+      filteredUsers = result.users.filter(_.verified)
+      usersAsJson   = Json.toJson(filteredUsers)
+      totalCount    = result.totalCount
+    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
   }
 }

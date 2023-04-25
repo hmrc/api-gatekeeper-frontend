@@ -62,18 +62,20 @@ trait DeveloperConnectorMockProvider {
           .thenReturn(successful(users.toList))
     }
 
-    object FetchEmailPreferencesByRegimes {
+    object FetchByEmailPreferencesPaginated {
 
-      def returnsFor(maybeApiCategory: Option[Seq[APICategory]])(users: RegisteredUser*) =
-        when(mockDeveloperConnector.fetchEmailUsersByRegimes(eqTo(maybeApiCategory))(*))
-          .thenReturn(successful(users.toList))
-    }
-
-    object FetchEmailPreferencesByServices {
-
-      def returnsFor(maybeServices: Option[Seq[String]])(users: RegisteredUser*) =
-        when(mockDeveloperConnector.fetchEmailUsersByApis(eqTo(maybeServices))(*))
-          .thenReturn(successful(users.toList))
+      def returnsFor(
+          topic: Option[TopicOptionChoice],
+          maybeApis: Option[Seq[String]],
+          maybeApiCategory: Option[Seq[APICategory]],
+          privateApiMatch: Boolean,
+          offset: Int,
+          limit: Int
+        )(
+          users: RegisteredUser*
+        ) =
+        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(*))
+          .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
 
     object FetchByEmails {
@@ -90,8 +92,6 @@ trait DeveloperConnectorMockProvider {
 
       def returnsFor(maybeEmail: Option[String], status: DeveloperStatusFilter.DeveloperStatusFilter)(users: RegisteredUser*) =
         when(mockDeveloperConnector.searchDevelopers(eqTo(maybeEmail), eqTo(status))(*)).thenReturn(successful(users.toList))
-
     }
-
   }
 }

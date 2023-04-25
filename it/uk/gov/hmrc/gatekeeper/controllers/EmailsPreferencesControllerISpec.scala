@@ -140,20 +140,20 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
 
       "respond with 200 and render the all users page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceAllSuccessWithUsers(Seq.empty)
+        primeDeveloperServiceAllSuccessWithUsersPaginated(0, Seq.empty)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users-new", validHeaders)
         result.status shouldBe OK
 
-        validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)
+        validateEmailAllUsersPaginatedPage(Jsoup.parse(result.body), 0, Seq.empty)
       }
 
       "respond with 200 and render the all users page correctly when authorised and users returned from developer connector" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceAllSuccessWithUsers(allUsers)
+        primeDeveloperServiceAllSuccessWithUsersPaginated(15, allUsers)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/all-users-new", validHeaders)
         result.status shouldBe OK
 
-        validateEmailAllUsersPage(Jsoup.parse(result.body), verifiedUsers)
+        validateEmailAllUsersPaginatedPage(Jsoup.parse(result.body), 15, verifiedUsers)
       }
 
       "respond with 403 when not authorised" in {
@@ -287,6 +287,14 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
         validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), categories, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
       }
 
+      "respond with 303 and render the page with selected user tax regime" in {
+        primeAuthServiceSuccess()
+        primeGetAllCategories(categories)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/add-another-tax-regime-option?selectOption=", validHeaders)
+
+        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/selected-user-tax-regime")
+      }
+
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-tax-regime", validHeaders)
@@ -374,6 +382,56 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
 
+    "GET /emails/email-preferences/selected-user-topic" should {
+      val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
+      val offset       = 0
+      val limit        = 15
+
+      "respond with 200 and render the page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(allUsers, TopicOptionChoice.TECHNICAL, offset, limit)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-topic?selectedTopic=TECHNICAL&offset=$offset&limit=$limit", validHeaders)
+
+        result.status shouldBe OK
+      }
+    }
+
+    "GET /emails/email-preferences/selected-subscribed-api" should {
+      val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
+      val offset       = 0
+      val limit        = 15
+
+      "respond with 200 and render the page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(allUsers, selectedApis.map(_.serviceName), offset, limit)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-subscribed-api?selectedAPIs=api-4&offset=$offset&limit=$limit", validHeaders)
+
+        result.status shouldBe OK
+      }
+    }
+
+    "GET /emails/email-preferences/selected-user-tax-regime" should {
+      val categories   = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
+      val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
+      val offset       = 0
+      val limit        = 15
+
+      "respond with 200 and render the page correctly on initial load when authorised" in {
+        primeAuthServiceSuccess()
+        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
+        primeGetAllCategories(categories)
+        primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(allUsers, categories.map(_.category), offset, limit)
+
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-tax-regime?selectedCategories=category1&offset=$offset&limit=$limit", validHeaders)
+
+        result.status shouldBe OK
+      }
+    }
+
     def validateRedirect(response: WSResponse, expectedLocation: String) {
       response.status shouldBe SEE_OTHER
       val mayBeLocationHeader: Option[Seq[String]] = response.headers.get(LOCATION)
@@ -382,5 +440,4 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
   }
-
 }

@@ -145,3 +145,9 @@ case class Developer(user: User, applications: List[Application], xmlServiceName
 
   lazy val id: String = user.userId.value.toString
 }
+
+case class UserPaginatedResponse(totalCount: Int, users: List[RegisteredUser])
+
+object UserPaginatedResponse {
+  implicit val format: Format[UserPaginatedResponse] = Json.format
+}

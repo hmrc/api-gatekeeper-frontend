@@ -50,19 +50,58 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
 
   "email preferences selected subscribed api view" should {
 
-    "show correct title and options when no filter provided and empty list of users" in new Setup {
+    "show correct title and options when no filter provided and list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedSubscribedApiView.render(
           users,
           emailRecipientsAsJson,
           "",
           apis,
+          0,
+          4,
+          10,
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesSelectedSubscribedApiPage(Jsoup.parse(result.body), users)
+      validateEmailPreferencesSelectedSubscribedApiPage(1, Jsoup.parse(result.body), users)
+    }
+
+    "show correct page title and options and list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedSubscribedApiView.render(
+          users,
+          emailRecipientsAsJson,
+          "",
+          apis,
+          4,
+          8,
+          10,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
+
+      validateEmailPreferencesSelectedSubscribedApiPage(2, Jsoup.parse(result.body), users)
+    }
+
+    "show correct last page and list of users" in new Setup {
+      val result: HtmlFormat.Appendable =
+        emailPreferencesSelectedSubscribedApiView.render(
+          users,
+          emailRecipientsAsJson,
+          "",
+          apis,
+          8,
+          4,
+          10,
+          request,
+          LoggedInUser(None),
+          messagesProvider
+        )
+
+      validateEmailPreferencesSelectedSubscribedApiPage(3, Jsoup.parse(result.body), users)
     }
   }
 }

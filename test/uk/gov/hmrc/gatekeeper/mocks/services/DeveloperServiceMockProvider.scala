@@ -64,6 +64,13 @@ trait DeveloperServiceMockProvider {
           .thenReturn(successful(users.toList))
     }
 
+    object FetchUsersPaginated {
+
+      def returns(totalCount: Int, users: RegisteredUser*) =
+        when(mockDeveloperService.fetchUsersPaginated(*, *)(*))
+          .thenReturn(successful(UserPaginatedResponse(totalCount, users.toList)))
+    }
+
     object FetchDeveloper {
       def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful(developer))
     }
@@ -85,7 +92,9 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersBySpecificTaxRegimesEmailPreferences {
-      def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferences(*)(*)).thenReturn(successful(developers.toList))
+
+      def returns(developers: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, developers.toList)))
     }
 
     object SearchDevelopers {
@@ -132,12 +141,20 @@ trait DeveloperServiceMockProvider {
       def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(successful(users.toList))
     }
 
+    object FetchDevelopersByEmailPreferencesPaginated {
+
+      def returns(users: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersByEmailPreferencesPaginated(*, *, *, *, *, *)(*)).thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
+    }
+
     object FetchDevelopersBySpecificAPIEmailPreferences {
       def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*, *, *, *)(*)).thenReturn(successful(users.toList))
     }
 
     object FetchDevelopersBySpecificApisEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*)(*)).thenReturn(successful(users.toList))
+
+      def returns(users: RegisteredUser*) =
+        when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, users.toList)))
     }
 
     object FetchDevelopersByAPICategoryEmailPreferences {

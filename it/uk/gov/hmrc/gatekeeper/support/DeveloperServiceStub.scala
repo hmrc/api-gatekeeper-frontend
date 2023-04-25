@@ -23,9 +23,11 @@ import play.api.http.Status
 import play.api.libs.json.Json
 
 trait DeveloperServiceStub {
-  val emailPreferencesUrl = "/developers/email-preferences"
-  val allUrl              = "/developers/all"
-  val byEmails            = "/developers/get-by-emails"
+  val emailPreferencesUrl          = "/developers/email-preferences"
+  val emailPreferencesPaginatedUrl = "/developers/email-preferences-paginated"
+  val allUrl                       = "/developers/all"
+  val allUrlPaginated              = "/developers/all-paginated?offset=0&limit=15"
+  val byEmails                     = "/developers/get-by-emails"
 
   def primeDeveloperServiceAllSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {
 
@@ -34,6 +36,16 @@ trait DeveloperServiceStub {
         aResponse()
           .withStatus(Status.OK)
           .withBody(Json.toJson(users).toString())
+      ))
+  }
+
+  def primeDeveloperServiceAllSuccessWithUsersPaginated(totalCount: Int, users: Seq[RegisteredUser]): Unit = {
+
+    stubFor(get(urlEqualTo(allUrlPaginated))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(totalCount, users.toList)).toString())
       ))
   }
 
@@ -80,6 +92,45 @@ trait DeveloperServiceStub {
         aResponse()
           .withStatus(Status.OK)
           .withBody(Json.toJson(users).toString())
+      ))
+  }
+
+  def primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(users: Seq[RegisteredUser], topic: TopicOptionChoice, offset: Int, limit: Int): Unit = {
+    val topicParam       = s"topic=${topic.toString}"
+    val paginationParams = s"offset=$offset&limit=$limit"
+
+    val emailPreferencesByTopicUrl = s"$emailPreferencesPaginatedUrl?$topicParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesByTopicUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(users.size, users.toList)).toString())
+      ))
+  }
+
+  def primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(users: Seq[RegisteredUser], service: Seq[String], offset: Int, limit: Int): Unit = {
+    val serviceParam     = s"service=${service.head}"
+    val paginationParams = s"offset=$offset&limit=$limit"
+
+    val emailPreferencesBySelectedSubscribedApiUrl = s"$emailPreferencesPaginatedUrl?$serviceParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesBySelectedSubscribedApiUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(users.size, users.toList)).toString())
+      ))
+  }
+
+  def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Seq[String], offset: Int, limit: Int): Unit = {
+    val regimeParam      = s"regime=${regimes.head}"
+    val paginationParams = s"offset=$offset&limit=$limit"
+
+    val emailPreferencesBySelectedUserTaxRegimeUrl = s"$emailPreferencesPaginatedUrl?$regimeParam&$paginationParams"
+    stubFor(get(urlEqualTo(emailPreferencesBySelectedUserTaxRegimeUrl))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody(Json.toJson(UserPaginatedResponse(users.size, users.toList)).toString())
       ))
   }
 }

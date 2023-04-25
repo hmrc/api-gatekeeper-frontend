@@ -21,10 +21,21 @@
 @import play.api.libs.json.Json
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import scala.math.ceil
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPagination
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.pagination._
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, govukPagination: GovukPagination, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, selectedCategories: List[APICategoryDetails], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@currentPage = @{
+    (offset / limit) + 1
+}
+
+@lastPage = @{
+    ceil(totalCount.toDouble / limit).toInt
+}
 
 @tpdQuery() = @{
     new DevelopersEmailQuery(None, None, Some(selectedCategories.map(cat => APICategory(cat.name))), false, None, false)
@@ -99,7 +110,7 @@
                 </dl>
                 <div class="govuk-summary-list govuk-!-width-three-quarters">
                 @if(users.nonEmpty) {
-                    <div class="govuk-body">@users.size results</div>
+                    <div class="govuk-body">@totalCount results</div>
                     <table id="developer-table" class="govuk-table">
                         <thead class="govuk-table__head">
                             <tr class="govuk-table__row">
@@ -118,6 +129,34 @@
                         }
                         </tbody>
                     </table>
+
+                    @{
+                        val pages = (currentPage.max(1) to lastPage.min(lastPage - 1)).map { page =>
+                            if(lastPage > 1) {
+                                PaginationItem(
+                                    href = s"${routes.EmailsPreferencesController.addAnotherTaxRegimeOption("", Some(selectedCategories.map(_.category)), (page - 1) * limit, limit)}",
+                                    number = Some(page.toString),
+                                    current = Some(page == currentPage)
+                                )
+                            } else { PaginationItem() }
+                        }
+
+                        val startFrom = pages.slice(0, 5)
+                        val ellipsisAtTheEnd = if(lastPage > 5 && currentPage + 5 < lastPage ) PaginationItem(ellipsis = Some(true)) else PaginationItem()
+                        val ellipsisAtTheBeginning = if(currentPage > 1) PaginationItem(ellipsis = Some(true)) else PaginationItem()
+                        val last = if(lastPage > 1) {
+                            PaginationItem(
+                                href = s"${routes.EmailsPreferencesController.addAnotherTaxRegimeOption("", Some(selectedCategories.map(_.category)), (lastPage -1) * limit)}",
+                                number = Some(lastPage.toString),
+                                current = Some(lastPage == currentPage))
+                        } else { PaginationItem() }
+
+                        val prev = if(offset >= limit) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.addAnotherTaxRegimeOption("", Some(selectedCategories.map(_.category)), offset - limit)}")) else None
+                        val next = if(offset < (totalCount - limit)  && (totalCount > limit)) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.addAnotherTaxRegimeOption("", Some(selectedCategories.map(_.category)), offset + limit)}")) else None
+                        val paginationItems = Some(Seq(ellipsisAtTheBeginning) ++ startFrom ++ Seq(ellipsisAtTheEnd) ++ Seq(last))
+
+                        govukPagination(Pagination(items = paginationItems, previous = prev, next = next))
+                    }
                 } else { <div class="govuk-body">0 results</div> }
                 </div>
             </fieldset>
