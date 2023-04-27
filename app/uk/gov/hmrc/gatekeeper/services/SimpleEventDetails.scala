@@ -82,6 +82,9 @@ object SimpleEventDetails {
     case e: ApplicationDeleted                                => "Application deleted"
     case e: ApplicationDeletedByGatekeeper                    => "Application deleted by Gatekeeper user"
     case e: ProductionCredentialsApplicationDeleted           => "Production credentials request deleted"
+    case e: RedirectUriAdded                                  => "Redirect URI added"
+    case e: RedirectUriDeleted                                => "Redirect URI deleted"
+    case e: RedirectUriChanged                                => "Redirect URI changed"
   }
 
  def details(evt: ApplicationEvent): String = evt match {
@@ -98,8 +101,8 @@ object SimpleEventDetails {
     case e: ClientSecretAddedEvent                            => s"Client secret ${e.clientSecretId}"
     case e: ClientSecretRemovedEvent                          => s"Client secret ${e.clientSecretId}"
     case e: PpnsCallBackUriUpdatedEvent                       => s"${e.boxName}: ${e.newCallbackUrl}"
-    case e: RedirectUrisUpdatedV2                             => s"Redirect URIs: ${e.newRedirectUris.mkString}"
-    case e: RedirectUrisUpdatedEvent                          => s"Redirect URIs: ${e.newRedirectUris.mkString}"
+    case e: RedirectUrisUpdatedV2                             => s"Redirect URIs: ${e.newRedirectUris.mkString(", ")}"
+    case e: RedirectUrisUpdatedEvent                          => s"Redirect URIs: ${e.newRedirectUris.mkString(", ")}"
     case e: ResponsibleIndividualChanged                      => s"Responsible individual: ${e.newResponsibleIndividualName} (${e.newResponsibleIndividualEmail.text})"
     case e: ResponsibleIndividualChangedToSelf                => s"Responsible individual: ${e.requestingAdminName} (${e.requestingAdminEmail.text})"
     case e: ResponsibleIndividualDeclined                     => s"Responsible individual declined ${e.responsibleIndividualName} (${e.responsibleIndividualEmail.text})"
@@ -119,6 +122,9 @@ object SimpleEventDetails {
     case e: ApplicationDeleted                                => s"Application deleted - ${e.reasons}"
     case e: ApplicationDeletedByGatekeeper                    => s"Application deleted - ${e.reasons}"
     case e: ProductionCredentialsApplicationDeleted           => s"Production credentials request deleted - ${e.reasons}"
+    case e: RedirectUriAdded                                  => s"Redirect URI ${e.newRedirectUri.uri} added"
+    case e: RedirectUriDeleted                                => s"Redirect URI ${e.deletedRedirectUri.uri} deleted"
+    case e: RedirectUriChanged                                => s"Redirect URI ${e.oldRedirectUri.uri} replaced with ${e.newRedirectUri.uri}"
   }
   // format: on
 
