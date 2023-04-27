@@ -108,7 +108,7 @@ class EmailsPreferencesController @Inject() (
     Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic.map(TopicOptionChoice.withName))))
   }
 
-  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[String]): Action[AnyContent] = anyStrideUserAction { _ =>
     selectOption.toUpperCase match {
       case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSpecificApi(selectedAPIs, selectedTopic)))
       case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectTopicPage(selectedAPIs, selectedTopic)))
@@ -116,7 +116,7 @@ class EmailsPreferencesController @Inject() (
   }
 
   def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
-    anyStrideUserAction { implicit request =>
+    anyStrideUserAction { _ =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs)))
         case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedSubscribedApi(selectedAPIs.getOrElse(List.empty), offset, limit)))
@@ -124,7 +124,7 @@ class EmailsPreferencesController @Inject() (
     }
 
   def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
-    anyStrideUserAction { implicit request =>
+    anyStrideUserAction { _ =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
         case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectedUserTaxRegime(selectedCategories, offset, limit)))
@@ -161,10 +161,10 @@ class EmailsPreferencesController @Inject() (
     anyStrideUserAction { implicit request =>
       val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
       for {
-        userPaginatedResult                <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
-        totalCount          = userPaginatedResult.totalCount
-        filteredUsers       = userPaginatedResult.users.filter(_.verified)
-        filteredUsersAsJson = Json.toJson(filteredUsers)
+        userPaginatedResult <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
+        totalCount           = userPaginatedResult.totalCount
+        filteredUsers        = userPaginatedResult.users.filter(_.verified)
+        filteredUsersAsJson  = Json.toJson(filteredUsers)
       } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 

@@ -188,7 +188,7 @@ class HttpDeveloperConnector @Inject() (
     val topic                 = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
     val privateApiMatchParams = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams            = Seq("offset" -> s"$offset", "limit" -> s"$limit")
-    val params = privateApiMatchParams ++ pageParams
+    val params                = privateApiMatchParams ++ pageParams
 
     def prepareQueryParams = {
       (maybeTopic, maybeApis, maybeApiCategories) match {

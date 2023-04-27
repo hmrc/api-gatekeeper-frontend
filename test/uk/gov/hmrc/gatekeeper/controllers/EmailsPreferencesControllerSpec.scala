@@ -114,8 +114,8 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val category2                 = APICategoryDetails("VAT", "Vat")
       val category3                 = APICategoryDetails("AGENTS", "Agents")
       val categoryList              = List(category1, category2, category3)
-      val offset = 0
-      val limit = 4
+      val offset                    = 0
+      val limit                     = 4
 
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
@@ -483,7 +483,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "return select api page when selected option yes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherSubscribedApiOption("Yes", Some(combinedApisList.map(_.serviceName)),offset, limit)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherSubscribedApiOption("Yes", Some(combinedApisList.map(_.serviceName)), offset, limit)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-subscribed-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
@@ -492,10 +492,12 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "return select api page when selected option no" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result: Future[Result] = underTest.addAnotherSubscribedApiOption("no", Some(combinedApisList.map(_.serviceName)),offset, limit)(FakeRequest())
+        val result: Future[Result] = underTest.addAnotherSubscribedApiOption("no", Some(combinedApisList.map(_.serviceName)), offset, limit)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/selected-subscribed-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo&limit=$limit")
+        redirectLocation(result) shouldBe Some(
+          s"/api-gatekeeper/emails/email-preferences/selected-subscribed-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo&limit=$limit"
+        )
       }
     }
   }
