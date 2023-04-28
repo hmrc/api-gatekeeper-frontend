@@ -50,7 +50,7 @@ trait CommandConnectorMockProvider {
         when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(DispatchSuccessResult(app).asSuccess)
       }
 
-      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext)          = {
+      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext) = {
         when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(failure.asFailure)
       }
 
