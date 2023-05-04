@@ -16,10 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.models.pushpullnotifications
 
-import java.time.LocalDateTime
-
+import java.time.{Instant, LocalDateTime}
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models._
@@ -39,7 +37,7 @@ case class BoxCreator(clientId: ClientId)
 
 case class BoxSubscriber(
     callBackUrl: String,
-    subscribedDateTime: LocalDateTime,
+    subscribedDateTime: Instant,
     subscriptionType: SubscriptionType
   )
 
@@ -53,6 +51,6 @@ object SubscriptionType extends Enum[SubscriptionType] with PlayJsonEnum[Subscri
 }
 
 sealed trait Subscriber {
-  val subscribedDateTime: LocalDateTime
+  val subscribedDateTime: Instant
   val subscriptionType: SubscriptionType
 }

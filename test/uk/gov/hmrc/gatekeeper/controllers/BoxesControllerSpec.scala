@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
-
 import play.api.test.Helpers._
-
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
@@ -50,7 +48,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
     "BoxesController" should {
       val boxSubscriber = BoxSubscriber(
         "callbackUrl",
-        LocalDateTime.parse("2001-01-01T01:02:03"),
+        LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC),
         SubscriptionType.API_PUSH_SUBSCRIBER
       )
 
