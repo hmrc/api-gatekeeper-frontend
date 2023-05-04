@@ -39,7 +39,8 @@ class ApmConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
+    with UrlEncoding
+    with FixedClock {
 
   trait Setup extends ApplicationBuilder with ApiBuilder {
     implicit val hc = HeaderCarrier()
@@ -171,28 +172,37 @@ class ApmConnectorSpec
   }
 
   "fetchAllBoxes" should {
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-    implicit val writesBoxId         = Json.valueFormat[BoxId]
-    implicit val writesBoxCreator    = Json.writes[BoxCreator]
-    implicit val writesBoxSubscriber = Json.writes[BoxSubscriber]
-    implicit val writesBox           = Json.writes[Box]
-
     "returns all boxes" in new Setup {
       val url = "/push-pull-notifications/boxes"
 
-      val boxes = List(box)
+      val expectedBox = Box(
+        BoxId("07787f13-dcae-4168-8685-c00a33b86134"),
+        "someBoxName6",
+        BoxCreator(ClientId("myClientIs6")),
+        None,
+        Some(BoxSubscriber("testurl.co.uk", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)),
+        Environment.PRODUCTION
+      )
 
+      val text = """[{
+                  |"boxId":"07787f13-dcae-4168-8685-c00a33b86134",
+                  |"boxName":"someBoxName6",
+                  |"boxCreator":{"clientId":"myClientIs6"},
+                  |"subscriber":{"callBackUrl":"testurl.co.uk","subscribedDateTime":"2001-01-01T01:02:03.000+0000","subscriptionType":"API_PUSH_SUBSCRIBER"},
+                  |"clientManaged":false,
+                  |"environment": "PRODUCTION"
+                  |}]""".stripMargin
       stubFor(
         get(urlPathEqualTo(url))
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(boxes).toString)
+              .withBody(text)
           )
       )
 
       val result = await(underTest.fetchAllBoxes())
-      result shouldBe boxes
+      result shouldBe List(expectedBox)
     }
   }
 }
