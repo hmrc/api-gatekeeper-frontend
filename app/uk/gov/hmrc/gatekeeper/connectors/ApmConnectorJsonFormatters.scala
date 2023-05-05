@@ -23,6 +23,8 @@ import uk.gov.hmrc.gatekeeper.models.{APIDefinitionFormatters, ApiStatusJson}
 private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
 
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantFormatter.WithTimeZone._
+
   import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
   import play.api.libs.json._
 
