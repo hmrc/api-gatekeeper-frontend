@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.pages
 
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTag
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 
 case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
@@ -34,8 +33,8 @@ case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
 
   def submit() = clickOn(submitButton)
 
-  def selectTypeOfChange(tag: EventTag) = {
-    eventTagFilter.value = tag.description
+  def selectTypeOfChange(tag: String) = {
+    eventTagFilter.value = tag
   }
 
   def getTypeOfChange = eventTagFilter.value

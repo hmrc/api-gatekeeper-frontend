@@ -34,6 +34,8 @@ class ApiGatekeeperApplicationEventsSpec
     with ApplicationResponseTestData
     with ApplicationWithStateHistoryTestData
     with XmlServicesStub
+    with DisplayEventsTestData
+    with DisplayEventTestDataBuilder
     with UrlEncoding {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
@@ -73,15 +75,15 @@ class ApiGatekeeperApplicationEventsSpec
       And("I can the events")
       verifyCountOfElementsByAttribute("data-event-time",4)
 
-      verifyEvent(0, event1.eventDateTime, "Team member added", "AppAdmin-1 with the role ADMIN", "(GK) iam@admin.com")
-      verifyEvent(1, event2.eventDateTime, "Team member added", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
-      verifyEvent(2, event3.eventDateTime, "Team member removed", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
-      verifyEvent(3, event4.eventDateTime, "Subscribed to API", "apicontext 1.0", "iam@admin.com")
+      verifyEvent(0, event1.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(2, event3.eventDateTime, "Collaborator Removed", "(GK) iam@admin.com")
+      verifyEvent(3, event4.eventDateTime, "Subscribed to API", "(GK) iam@admin.com")
 
       When("I choose the Team members filter")
-      stubFilteredEvents(applicationId, EventTags.TEAM_MEMBER, List(event1, event2, event3))
-      ApplicationEventsPage(applicationId).selectTypeOfChange(EventTags.TEAM_MEMBER)
-      ApplicationEventsPage(applicationId).getTypeOfChange shouldBe "Team member"
+      stubFilteredEvents(applicationId, "TEAM_MEMBER", List(event1, event2, event3))
+      ApplicationEventsPage(applicationId).selectTypeOfChange("TEAM_MEMBER")
+      ApplicationEventsPage(applicationId).getTypeOfChange shouldBe "TEAM_MEMBER"
 
       And("I submit the filter")
       ApplicationEventsPage(applicationId).submit()
@@ -90,18 +92,17 @@ class ApiGatekeeperApplicationEventsSpec
       Then("I can only see the 3 events")
       verifyCountOfElementsByAttribute("data-event-time",3)
 
-      verifyEvent(0, event1.eventDateTime, "Team member added", "AppAdmin-1 with the role ADMIN", "(GK) iam@admin.com")
-      verifyEvent(1, event2.eventDateTime, "Team member added", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
-      verifyEvent(2, event3.eventDateTime, "Team member removed", "AppAdmin-2 with the role ADMIN", "(GK) iam@admin.com")
+      verifyEvent(0, event1.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(2, event3.eventDateTime, "Collaborator Removed", "(GK) iam@admin.com")
     }
   }
 
-  def verifyEvent(counter: Int, expectedDateTime: Instant, expectedTag: String, expectedDetails: String, expectedActor: String) = {
+  def verifyEvent(counter: Int, expectedDateTime: Instant, expectedTag: String, expectedActor: String) = {
     val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
     verifyText("data-event-time", dateTimeFormatter.format(expectedDateTime.atZone(ZoneOffset.UTC)), counter)
     verifyText("data-event-tag", expectedTag, counter)
-    verifyText("data-event-details", expectedDetails, counter)
     verifyText("data-event-actor", expectedActor, counter) 
   }
 

@@ -35,6 +35,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
+import uk.gov.hmrc.apiplatform.modules.events.connectors.QueryableValues
 
 class ApiGatekeeperBaseSpec
     extends BaseSpec
@@ -69,7 +71,7 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubEvents(applicationId: ApplicationId, events: List[DisplayEvent]) = {
-    val tags = events.map(e => EventTags.tag(e)).toSet
+    val tags = Set("TEAM_MEMBER", "SUBSCIPTION")
     val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
     stubFor(
       get(urlMatching(s"/application-event/${applicationId.value.toString}/values"))
@@ -102,7 +104,7 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withStatus(NOT_FOUND)))
   }
 
-  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[ApplicationEvent] = Nil) = {
+  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[DisplayEvent] = Nil) = {
     stubNewApplication(application, appId)
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)

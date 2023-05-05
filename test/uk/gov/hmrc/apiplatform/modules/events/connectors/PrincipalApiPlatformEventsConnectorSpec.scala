@@ -26,22 +26,18 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.gatekeeper.testdata.DisplayEventsTestData
+import uk.gov.hmrc.gatekeeper.testdata.DisplayEventTestDataBuilder
 
 class PrincipalApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
+    with DisplayEventsTestData
+    with DisplayEventTestDataBuilder
     with FixedClock {
-      
-  val applicationId = ApplicationId.random
-
-  val event1 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 1", "Type 1", List("Line 1", "Line2"))
-  val event2 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 2", "Type 2", List("Line 1", "Line2"))
-  val event3 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 3", "Type 3", List("Line 1", "Line2"))
-
+    
   trait Setup {
     val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))

@@ -78,7 +78,7 @@
           <tr role="row" class="govuk-table__row">
             <td role="cell" class="govuk-table__cell" data-event-time>@{event.eventDateTime}</td>
             <td role="cell" class="govuk-table__cell" data-event-tag>@{event.eventTag}</td>
-            <td role="cell" class="govuk-table__cell word-break-all" data-event-details>@{event.eventDetails.map(d => <p>{d}</p>)}</td>
+            <td role="cell" class="govuk-table__cell word-break-all" data-event-details>@Html({event.eventDetails.mkString("</br>")})</td>
             <td role="cell" class="govuk-table__cell" data-event-actor>@{event.actor}</td>
           </tr>
         }
