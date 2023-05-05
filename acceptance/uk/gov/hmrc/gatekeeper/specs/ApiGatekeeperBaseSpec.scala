@@ -34,7 +34,6 @@ import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{ApplicationEvent, EventTag, EventTags, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
 
 class ApiGatekeeperBaseSpec
@@ -69,7 +68,7 @@ class ApiGatekeeperBaseSpec
     stubFor(post(urlMatching(s"/developers/get-by-emails")).willReturn(aResponse().withBody(Json.toJson(developers).toString())))
   }
 
-  def stubEvents(applicationId: ApplicationId, events: List[ApplicationEvent]) = {
+  def stubEvents(applicationId: ApplicationId, events: List[DisplayEvent]) = {
     val tags = events.map(e => EventTags.tag(e)).toSet
     val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
     stubFor(
@@ -84,7 +83,7 @@ class ApiGatekeeperBaseSpec
     )
   }
 
-  def stubFilteredEvents(applicationId: ApplicationId, tag: EventTag, events: List[ApplicationEvent]) = {
+  def stubFilteredEvents(applicationId: ApplicationId, tag: String, events: List[DisplayEvent]) = {
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
     stubFor(
       get(urlPathEqualTo(s"/application-event/${applicationId.value.toString}"))

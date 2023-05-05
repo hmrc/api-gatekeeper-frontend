@@ -24,13 +24,15 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
+import java.time.format.DateTimeFormatter
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 class EnvironmentAwareApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with ApplicationEventsTestData {
+    with FixedClock {
 
   trait Setup {
     val subordinate: SubordinateApiPlatformEventsConnector = mock[SubordinateApiPlatformEventsConnector]
@@ -60,5 +62,11 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
     verify(subordinate, never).fetchQueryableEventTags(eqTo(appId))(*)
     verify(principal, times(1)).fetchQueryableEventTags(*[ApplicationId])(*)
+  }
+
+  "XXX" in {
+    
+      val dtf: DateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
+      dtf.format(instant.atZone(ZoneOffset.UTC))
   }
 }

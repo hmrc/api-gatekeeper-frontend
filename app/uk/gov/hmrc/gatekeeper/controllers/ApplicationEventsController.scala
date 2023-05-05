@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.inject.{Inject, Singleton}
@@ -27,36 +25,45 @@ import play.api.mvc._
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SimpleEventDetails}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
+import java.time.format.DateTimeFormatter
+import java.time.ZoneOffset
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 object ApplicationEventsController {
-  case class EventModel(eventDateTime: String, eventTag: String, eventDetails: String, actor: String)
+  case class EventModel(eventDateTime: String, eventTag: String, eventDetails: List[String], actor: String)
 
   object EventModel {
     private val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm")
 
-    def apply(event: ApplicationEvent): EventModel = {
+    def apply(event: DisplayEvent): EventModel = {
+      def applicationEventWho(actor: Actor): String = actor match {
+        case Actors.AppCollaborator(email) => email.text
+        case Actors.GatekeeperUser(user)   => s"(GK) $user"
+        case Actors.ScheduledJob(jobId)    => s"Job($jobId)"
+        case Actors.Unknown                => "Unknown"
+      }
       EventModel(
         event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
-        SimpleEventDetails.typeOfChange(event),
-        SimpleEventDetails.details(event),
-        SimpleEventDetails.who(event)
+        event.eventType,
+        event.metaData,
+        applicationEventWho(event.actor)
       )
     }
   }
 
   case class SearchFilterValues(eventTags: List[String])
-
   case class QueryModel(applicationId: ApplicationId, applicationName: String, searchFilterValues: SearchFilterValues, events: Seq[EventModel])
 
   case class QueryForm(eventTag: Option[String])
@@ -97,14 +104,15 @@ class ApplicationEventsController @Inject() (
     withApp(appId) { applicationWithHistory =>
       import applicationWithHistory._
 
+
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
           tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
           events     <- eventsConnector.query(appId, application.deployedTo, None)
-          eventModels = events.map(EventModel(_))
+          models      = events.map(EventModel.apply(_))
         } yield {
-          Ok(applicationEventsView(QueryModel(applicationWithHistory.application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
+          Ok(applicationEventsView(QueryModel(applicationWithHistory.application.id, application.name, SearchFilterValues(tags), models), queryForm))
         }
       }
 
@@ -112,10 +120,10 @@ class ApplicationEventsController @Inject() (
         for {
           tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
           queryForm   = QueryForm.form.fill(form)
-          events     <- eventsConnector.query(appId, application.deployedTo, form.eventTag.flatMap(EventTags.fromDescription))
-          eventModels = events.map(EventModel(_))
+          events     <- eventsConnector.query(appId, application.deployedTo, form.eventTag)
+          models      = events.map(EventModel.apply(_))
         } yield {
-          Ok(applicationEventsView(QueryModel(application.id, application.name, SearchFilterValues(tags.map(_.description)), eventModels), queryForm))
+          Ok(applicationEventsView(QueryModel(application.id, application.name, SearchFilterValues(tags), models), queryForm))
         }
       }
 

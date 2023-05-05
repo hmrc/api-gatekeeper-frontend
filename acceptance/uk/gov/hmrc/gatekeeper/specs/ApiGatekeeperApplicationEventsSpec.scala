@@ -25,7 +25,6 @@ import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.EventTags
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 
 class ApiGatekeeperApplicationEventsSpec
@@ -34,7 +33,6 @@ class ApiGatekeeperApplicationEventsSpec
     with ApplicationWithSubscriptionDataTestData
     with ApplicationResponseTestData
     with ApplicationWithStateHistoryTestData
-    with ApplicationEventsTestData
     with XmlServicesStub
     with UrlEncoding {
 

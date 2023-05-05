@@ -25,16 +25,23 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTags, QueryableValues}
-import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with ApplicationEventsTestData
-    with UrlEncoding {
+    with UrlEncoding
+    with FixedClock {
+      
+      
+  val applicationId = ApplicationId.random
+  
+  val event1 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 1", "Type 1", List("Line 1", "Line2"))
+  val event2 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 2", "Type 2", List("Line 1", "Line2"))
+  val event3 = DisplayEvent(applicationId, instant(), Actors.GatekeeperUser("Bob"), "Tag 3", "Type 3", List("Line 1", "Line2"))
 
   trait Setup {
     val authToken   = "Bearer Token"
@@ -68,12 +75,12 @@ class SubordinateApiPlatformEventsConnectorSpec
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(QueryableValues(List(EventTags.TEAM_MEMBER)))
+              .withJsonBody(QueryableValues(List("TEAM_MEMBER")))
               .withStatus(OK)
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List(EventTags.TEAM_MEMBER)
+      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List("TEAM_MEMBER")
     }
   }
 
@@ -90,7 +97,7 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER))) shouldBe List.empty
+      await(connector.query(applicationId, Some("TEAM_MEMBER"))) shouldBe List.empty
     }
 
     "return list when OK" in new Setup {
@@ -109,7 +116,7 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      val results = await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
+      val results = await(connector.query(applicationId, Some("TEAM_MEMBER")))
 
       results.length shouldBe 3
     }

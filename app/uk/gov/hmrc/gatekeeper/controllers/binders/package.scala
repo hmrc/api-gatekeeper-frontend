@@ -25,7 +25,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
 
 package object binders extends ApplicationLogger {
@@ -56,22 +55,6 @@ package object binders extends ApplicationLogger {
 
     override def unbind(key: String, applicationId: ApplicationId): String = {
       textBinder.unbind(key, applicationId.value.toString())
-    }
-  }
-
-  private def eventTagFromString(text: String): Either[String, EventTag] = {
-    EventTags.fromString(text)
-      .toRight(s"Cannot accept $text as EventTag")
-  }
-
-  implicit def eventTagQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[EventTag] {
-
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, EventTag]] = {
-      textBinder.bind(key, params).map(_.flatMap(eventTagFromString))
-    }
-
-    override def unbind(key: String, tag: EventTag): String = {
-      textBinder.unbind(key, tag.toString())
     }
   }
 
