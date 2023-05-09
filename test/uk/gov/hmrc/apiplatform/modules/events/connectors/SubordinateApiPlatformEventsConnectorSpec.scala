@@ -25,9 +25,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.gatekeeper.testdata.DisplayEventTestDataBuilder
-import uk.gov.hmrc.gatekeeper.testdata.DisplayEventsTestData
 
 class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
@@ -37,7 +36,7 @@ class SubordinateApiPlatformEventsConnectorSpec
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
     with FixedClock {
-      
+
   trait Setup {
     val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))

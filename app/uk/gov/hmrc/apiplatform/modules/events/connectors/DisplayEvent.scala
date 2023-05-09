@@ -16,9 +16,11 @@
 
 package uk.gov.hmrc.apiplatform.modules.events.connectors
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import java.time.Instant
+
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 
 case class DisplayEvent(

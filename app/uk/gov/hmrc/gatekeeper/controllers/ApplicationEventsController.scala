@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.inject.{Inject, Singleton}
@@ -24,8 +26,9 @@ import play.api.data.Form
 import play.api.mvc._
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
+import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
@@ -35,11 +38,6 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
-import java.time.format.DateTimeFormatter
-import java.time.ZoneOffset
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: List[String], actor: String)
@@ -104,13 +102,12 @@ class ApplicationEventsController @Inject() (
     withApp(appId) { applicationWithHistory =>
       import applicationWithHistory._
 
-
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
         for {
-          tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
-          events     <- eventsConnector.query(appId, application.deployedTo, None)
-          models      = events.map(EventModel.apply(_))
+          tags   <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
+          events <- eventsConnector.query(appId, application.deployedTo, None)
+          models  = events.map(EventModel.apply(_))
         } yield {
           Ok(applicationEventsView(QueryModel(applicationWithHistory.application.id, application.name, SearchFilterValues(tags), models), queryForm))
         }
@@ -118,10 +115,10 @@ class ApplicationEventsController @Inject() (
 
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
-          tags       <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
-          queryForm   = QueryForm.form.fill(form)
-          events     <- eventsConnector.query(appId, application.deployedTo, form.eventTag)
-          models      = events.map(EventModel.apply(_))
+          tags     <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
+          queryForm = QueryForm.form.fill(form)
+          events   <- eventsConnector.query(appId, application.deployedTo, form.eventTag)
+          models    = events.map(EventModel.apply(_))
         } yield {
           Ok(applicationEventsView(QueryModel(application.id, application.name, SearchFilterValues(tags), models), queryForm))
         }

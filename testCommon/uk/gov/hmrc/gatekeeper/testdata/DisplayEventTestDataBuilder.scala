@@ -22,7 +22,6 @@ import java.util.UUID
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.submissions.domain.models.SubmissionId
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 
 trait DisplayEventTestDataBuilder {
@@ -49,7 +48,7 @@ trait DisplayEventTestDataBuilder {
   def makeTeamMemberAddedEvent(appId: ApplicationId, counter: Int): DisplayEvent = {
     teamMemberAddedExample.copy(applicationId = appId, metaData = s"Flag $counter" :: teamMemberAddedExample.metaData)
   }
-  
+
   val teamMemberRemovedExample: DisplayEvent = DisplayEvent(
     applicationId = ApplicationId.random,
     eventDateTime = nowInstant,

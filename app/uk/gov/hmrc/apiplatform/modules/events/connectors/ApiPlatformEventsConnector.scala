@@ -40,6 +40,7 @@ object ApiPlatformEventsConnector {
 
 @Singleton
 class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
+
   protected def connectorFor(deployedTo: String): ApiPlatformEventsConnector = deployedTo match {
     case "PRODUCTION" => principal
     case "SANDBOX"    => subordinate

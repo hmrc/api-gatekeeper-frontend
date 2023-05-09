@@ -25,9 +25,8 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.gatekeeper.testdata.DisplayEventsTestData
-import uk.gov.hmrc.gatekeeper.testdata.DisplayEventTestDataBuilder
 
 class PrincipalApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
@@ -37,7 +36,7 @@ class PrincipalApiPlatformEventsConnectorSpec
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
     with FixedClock {
-    
+
   trait Setup {
     val authToken   = "Bearer Token"
     implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
@@ -96,7 +95,6 @@ class PrincipalApiPlatformEventsConnectorSpec
     }
 
     "return list when OK" in new Setup {
-
 
       val sampleResponse = ApiPlatformEventsConnector.QueryResponse(
         List(event1, event2, event3)

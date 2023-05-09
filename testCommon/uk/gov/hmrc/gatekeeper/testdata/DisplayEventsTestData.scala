@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.temporal.ChronoUnit
+
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 
 trait DisplayEventsTestData extends DisplayEventTestDataBuilder with CommonTestData {
