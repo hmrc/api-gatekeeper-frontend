@@ -25,7 +25,7 @@ case class DisplayEvent(
     applicationId: ApplicationId,
     eventDateTime: Instant,
     actor: Actor,
-    eventTag: String,
+    eventTagDescription: String,
     eventType: String,
     metaData: List[String]
   )

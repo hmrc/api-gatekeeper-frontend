@@ -41,7 +41,7 @@ trait DisplayEventTestDataBuilder {
     applicationId = ApplicationId.random,
     eventDateTime = nowInstant,
     gkActor,
-    eventTag = "Team member",
+    eventTagDescription = "Team member",
     eventType = "Collaborator Added",
     metaData = List("Added", "Blah")
   )
@@ -54,7 +54,7 @@ trait DisplayEventTestDataBuilder {
     applicationId = ApplicationId.random,
     eventDateTime = nowInstant,
     gkActor,
-    eventTag = "Team member",
+    eventTagDescription = "Team member",
     eventType = "Collaborator Removed",
     metaData = List("Removed", "Blah")
   )
@@ -67,7 +67,7 @@ trait DisplayEventTestDataBuilder {
     applicationId = ApplicationId.random,
     eventDateTime = nowInstant,
     gkActor,
-    eventTag = "Subscriptions",
+    eventTagDescription = "Subscriptions",
     eventType = "Subscribed to API",
     metaData = List("API xxxx-v1.0", "Blah")
   )
