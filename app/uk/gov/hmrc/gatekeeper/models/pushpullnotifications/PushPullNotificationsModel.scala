@@ -17,7 +17,9 @@
 package uk.gov.hmrc.gatekeeper.models.pushpullnotifications
 
 import java.time.Instant
+
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models._

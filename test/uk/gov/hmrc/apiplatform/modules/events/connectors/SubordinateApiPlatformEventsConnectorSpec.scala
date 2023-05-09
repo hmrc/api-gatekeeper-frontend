@@ -25,16 +25,17 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.{EventTags, QueryableValues}
-import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
+import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class SubordinateApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with ApplicationEventsTestData
-    with UrlEncoding {
+    with UrlEncoding
+    with DisplayEventsTestData
+    with DisplayEventTestDataBuilder
+    with FixedClock {
 
   trait Setup {
     val authToken   = "Bearer Token"
@@ -68,12 +69,12 @@ class SubordinateApiPlatformEventsConnectorSpec
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(QueryableValues(List(EventTags.TEAM_MEMBER)))
+              .withJsonBody(QueryableValues(List("TEAM_MEMBER")))
               .withStatus(OK)
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List(EventTags.TEAM_MEMBER)
+      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List("TEAM_MEMBER")
     }
   }
 
@@ -90,7 +91,7 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER))) shouldBe List.empty
+      await(connector.query(applicationId, Some("TEAM_MEMBER"))) shouldBe List.empty
     }
 
     "return list when OK" in new Setup {
@@ -109,7 +110,7 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      val results = await(connector.query(applicationId, Some(EventTags.TEAM_MEMBER)))
+      val results = await(connector.query(applicationId, Some("TEAM_MEMBER")))
 
       results.length shouldBe 3
     }

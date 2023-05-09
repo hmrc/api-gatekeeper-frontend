@@ -24,13 +24,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.testdata.ApplicationEventsTestData
 
 class EnvironmentAwareApiPlatformEventsConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with ApplicationEventsTestData {
+    with FixedClock {
 
   trait Setup {
     val subordinate: SubordinateApiPlatformEventsConnector = mock[SubordinateApiPlatformEventsConnector]

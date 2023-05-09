@@ -25,16 +25,14 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ProxiedHttpClient
 import uk.gov.hmrc.gatekeeper.models.Environment
 
 object ApiPlatformEventsConnector {
 
-  case class QueryResponse(events: List[ApplicationEvent])
+  case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
-    import uk.gov.hmrc.apiplatform.modules.events.applications.domain.services.EventsInterServiceCallJsonFormatters._
     implicit val format = Json.format[QueryResponse]
   }
 
@@ -48,9 +46,9 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
     case "SANDBOX"    => subordinate
   }
 
-  def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[EventTag]] = connectorFor(deployedTo).fetchQueryableEventTags(appId)
+  def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[String]] = connectorFor(deployedTo).fetchQueryableEventTags(appId)
 
-  def query(appId: ApplicationId, deployedTo: String, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[ApplicationEvent]] =
+  def query(appId: ApplicationId, deployedTo: String, tag: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
     connectorFor(deployedTo).query(appId, tag)
 }
 
@@ -65,7 +63,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
   private lazy val applicationEventsUri = s"$serviceBaseUrl/application-event"
 
-  def fetchQueryableEventTags(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[EventTag]] = {
+  def fetchQueryableEventTags(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[String]] = {
     http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value.toString()}/values")
       .map {
         case None     => List.empty
@@ -73,7 +71,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
       }
   }
 
-  def query(appId: ApplicationId, tag: Option[EventTag])(implicit hc: HeaderCarrier): Future[List[ApplicationEvent]] = {
+  def query(appId: ApplicationId, tag: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] = {
     val queryParams =
       Seq(
         tag.map(et => "eventTag" -> et.toString)

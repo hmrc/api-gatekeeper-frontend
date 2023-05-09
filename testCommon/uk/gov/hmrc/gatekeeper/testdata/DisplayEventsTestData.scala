@@ -18,16 +18,16 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.temporal.ChronoUnit
 
-import uk.gov.hmrc.apiplatform.modules.events.applications.domain.models.ApplicationEvent
+import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 
-trait ApplicationEventsTestData extends ApplicationEventTestDataBuilder with CommonTestData {
+trait DisplayEventsTestData extends DisplayEventTestDataBuilder with CommonTestData {
 
   val event1 = makeTeamMemberAddedEvent(applicationId, 1)
   val event2 = makeTeamMemberAddedEvent(applicationId, 2).copy(eventDateTime = event1.eventDateTime.minus(1, ChronoUnit.MINUTES))
   val event3 = makeTeamMemberRemovedEvent(applicationId, 2).copy(eventDateTime = event2.eventDateTime.minus(1, ChronoUnit.MINUTES))
-  val event4 = makeApiSubscribedV2(applicationId).copy(eventDateTime = event3.eventDateTime.minus(1, ChronoUnit.MINUTES))
+  val event4 = makeApiSubscribedV2Event(applicationId, 1).copy(eventDateTime = event3.eventDateTime.minus(1, ChronoUnit.MINUTES))
 
   def makeSomeEvents() = {
-    List[ApplicationEvent](event1, event2, event3, event4)
+    List[DisplayEvent](event1, event2, event3, event4)
   }
 }
