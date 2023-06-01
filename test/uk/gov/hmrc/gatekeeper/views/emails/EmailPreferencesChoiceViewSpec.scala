@@ -33,12 +33,12 @@ class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreference
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val preferencesChoiceView: EmailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
+    val preferencesChoiceNewView: EmailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
   }
 
   "email preferences choice view" must {
     "show correct title and options" in new Setup {
-      val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
+      val result: Html = preferencesChoiceNewView.render(request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
     }

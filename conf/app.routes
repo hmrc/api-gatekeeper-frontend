@@ -92,24 +92,11 @@ GET         /apis                                                             uk
 
 GET         /subscriptionFieldValues                                          uk.gov.hmrc.gatekeeper.controllers.SubscriptionFieldsController.subscriptionFieldValues
 
-GET         /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.landing()
-POST        /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailOption()
-
-GET         /emails/:emailChoice/information                                  uk.gov.hmrc.gatekeeper.controllers.EmailsController.showEmailInformation(emailChoice: String)
-GET         /emails/all-users                                                 uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailAllUsersPage()
-GET         /emails/api-subscribers                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailApiSubscribersPage(apiVersionFilter: Option[String])
-
-GET         /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesChoice()
-POST        /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailPreferences()
-GET         /emails/email-preferences/by-topic                                uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesTopic(selectedTopic: Option[String])
-GET         /emails/email-preferences/select-api                              uk.gov.hmrc.gatekeeper.controllers.EmailsController.selectSpecificApi(selectedAPIs: Option[List[String]])
-GET         /emails/email-preferences/by-api-category                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesApiCategory(selectedTopic: Option[String], selectedCategory:Option[String])
-GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
+GET         /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailPreferencesChoice()
+POST        /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.chooseEmailPreferences()
 
 GET         /emails/all-users-new                                             uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailAllUsersPage(offset: Int ?=0, limit: Int ?=15)
 GET         /emails/:emailChoice/information-new                              uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.showEmailInformation(emailChoice: String)
-GET         /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailPreferencesChoice()
-POST        /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.chooseEmailPreferences()
 GET         /emails/email-preferences/select-tax-regime                       uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectTaxRegime(selectedCategories: Option[List[String]])
 GET         /emails/email-preferences/select-api-new                          uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String])
 GET         /emails/email-preferences/select-subscribed-api                   uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs: Option[List[String]])

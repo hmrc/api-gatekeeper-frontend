@@ -43,11 +43,11 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 class EmailsPreferencesController @Inject() (
     developerService: DeveloperService,
     apiDefinitionService: ApiDefinitionService,
-    emailsAllUsersNewView: EmailAllUsersNewView,
-    emailInformationNewView: EmailInformationNewView,
-    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
-    emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
-    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
+    emailAllUsersView: EmailAllUsersView,
+    emailInformationView: EmailInformationView,
+    emailPreferencesChoiceView: EmailPreferencesChoiceView,
+    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
     emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     emailPreferencesSelectedTopicView: EmailPreferencesSelectedTopicView,
     emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
@@ -72,7 +72,7 @@ class EmailsPreferencesController @Inject() (
     with ApplicationLogger {
 
   def emailPreferencesChoice(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    Future.successful(Ok(emailPreferencesChoiceNewView()))
+    Future.successful(Ok(emailPreferencesChoiceView()))
   }
 
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -85,7 +85,7 @@ class EmailsPreferencesController @Inject() (
     }
 
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
-      Future.successful(BadRequest(emailPreferencesChoiceNewView()))
+      Future.successful(BadRequest(emailPreferencesChoiceView()))
 
     SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
@@ -94,7 +94,7 @@ class EmailsPreferencesController @Inject() (
     for {
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
-    } yield Ok(emailPreferencesSelectApiNewView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
+    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
   }
 
   def selectSubscribedApiPage(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -215,7 +215,7 @@ class EmailsPreferencesController @Inject() (
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
         combinedUsers = publicUsers ++ privateUsers
         usersAsJson   = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 
@@ -300,8 +300,8 @@ class EmailsPreferencesController @Inject() (
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {
-      case "all-users"        => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.EMAIL_ALL_USERS)))
-      case "api-subscription" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.API_SUBSCRIPTION)))
+      case "all-users"        => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))
+      case "api-subscription" => Future.successful(Ok(emailInformationView(EmailOptionChoice.API_SUBSCRIPTION)))
       case _                  => Future.failed(new NotFoundException("Page Not Found"))
     }
   }
@@ -312,6 +312,6 @@ class EmailsPreferencesController @Inject() (
       filteredUsers = result.users.filter(_.verified)
       usersAsJson   = Json.toJson(filteredUsers)
       totalCount    = result.totalCount
-    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
+    } yield Ok(emailAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
   }
 }
