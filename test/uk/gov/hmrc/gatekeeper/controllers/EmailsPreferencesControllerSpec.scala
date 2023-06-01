@@ -217,7 +217,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API))
 
         status(result) shouldBe SEE_OTHER
-        verifyLocation(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
+        verifyLocation(result, "/api-gatekeeper/emails/email-preferences/select-api")
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
@@ -315,7 +315,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "render the view as expected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
-        val request                = createGetRequest("/emails/email-preferences-new")
+        val request                = createGetRequest("/emails/email-preferences")
         val result: Future[Result] = underTest.emailPreferencesChoice()(request)
         status(result) shouldBe OK
 
@@ -397,7 +397,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.addAnotherApiOption("Yes", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api-new?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
       }
 
       "return select api page when selected option no" in new Setup {
