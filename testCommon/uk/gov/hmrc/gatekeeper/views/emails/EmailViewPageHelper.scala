@@ -353,7 +353,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     val sizeOfSelectedApis = selectedApis.size
     val headerTitle        = if (sizeOfSelectedApis < 2) "API" else "APIs"
     validatePageHeader(document, s"You have selected $sizeOfSelectedApis $headerTitle")
-    validateStaticPageElementsNew(document, "/api-gatekeeper/emails/email-preferences/select-api-new")
+    validateStaticPageElementsNew(document, "/api-gatekeeper/emails/email-preferences/select-api")
     validateHiddenSelectedApiValues(document, selectedApis, 2)
     verifyTableHeader(document, tableIsVisible = false)
   }
