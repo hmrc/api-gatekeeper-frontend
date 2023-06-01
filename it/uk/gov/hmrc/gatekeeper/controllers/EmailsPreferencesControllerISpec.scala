@@ -353,13 +353,6 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
       }
 
-      // "redirect to select api page when no selectedApis in query params" in {
-      //   primeAuthServiceSuccess()
-      //   val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
-      //   validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
-
-      // }
-
       "respond with 200 and render the page with selectedApis" in {
         primeAuthServiceSuccess()
 
