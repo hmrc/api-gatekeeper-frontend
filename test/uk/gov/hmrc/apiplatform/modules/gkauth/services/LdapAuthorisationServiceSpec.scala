@@ -26,7 +26,6 @@ import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBeh
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-// import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComponentsFactory {
   val fakeRequest = FakeRequest()
