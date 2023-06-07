@@ -52,12 +52,12 @@
 ) {
   <h1 class="govuk-heading-l">@pageTitle</h1>
 
-  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), 'class -> "fields-subscription") {
+  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), Symbol("class") -> "fields-subscription") {
     @helper.CSRF.formField
     @helper.repeatWithIndex(form("fields")) { (field, index) =>
       @defining(field("name").value.getOrElse("")) { formFieldId =>
 
-        @helper.input(field("name"), '_label -> "") { (id, name, value, args) =>
+        @helper.input(field("name"), Symbol("_label") -> "") { (id, name, value, args) =>
           <input class="govuk-visually-hidden" type="hidden" name="@name" id="@id" value="@value">
         }
 
@@ -69,7 +69,7 @@
             @{subscriptionViewModel.fields(index).hint}
           </div>
           @fieldError2(form.errors, formFieldId)
-          @helper.input(field("value"), '_label -> "") { (id, name, value, args) =>
+          @helper.input(field("value"), Symbol("_label") -> "") { (id, name, value, args) =>
             <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="govuk-input @if(form.errors(formFieldId).nonEmpty) {govuk-input--error}" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
           }
         </div>

@@ -50,7 +50,7 @@
     </strong>
   </div>
 
-  @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
     @for(t <- RateLimitTier.asOrderedList) {

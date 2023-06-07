@@ -28,6 +28,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
 
+import scala.collection.immutable.ArraySeq.unsafeWrapArray
+
 class ApplicationStatesControllerSpec extends ControllerBaseSpec with ApplicationServiceMockProvider
     with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
   implicit val materializer = app.materializer
@@ -52,7 +54,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       "return csv data for ldap authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -60,7 +62,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
 
       "return csv data for stride authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -69,7 +71,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       "return csv data with correct headers" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentType(result) shouldBe Some("text/csv")

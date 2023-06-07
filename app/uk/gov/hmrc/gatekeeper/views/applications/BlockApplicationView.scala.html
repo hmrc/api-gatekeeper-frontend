@@ -74,7 +74,7 @@
     </tbody>
   </table>
 
-  @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), Symbol("class") -> "form") {
     <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
       <h2 class="govuk-label-wrapper">
         <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">

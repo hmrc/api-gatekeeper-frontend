@@ -73,7 +73,7 @@
 ) {
   <h1 class="govuk-heading-l">Manage access overrides</h1>
 
-  @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
     <table class="govuk-table">

@@ -103,7 +103,7 @@ class ApplicationEventsController @Inject() (
       import applicationWithHistory._
 
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
-        val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest.get)
+        val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
           tags   <- eventsConnector.fetchQueryableEventTags(appId, application.deployedTo)
           events <- eventsConnector.query(appId, application.deployedTo, None)
@@ -124,7 +124,7 @@ class ApplicationEventsController @Inject() (
         }
       }
 
-      QueryForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      QueryForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 }

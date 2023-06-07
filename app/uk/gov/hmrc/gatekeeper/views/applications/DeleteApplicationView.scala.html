@@ -78,7 +78,7 @@
   <p class="govuk-body">You must check with all administrators before deleting this application.</p>
 
   @if(isSuperUser) {
-    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), 'class -> "form") {
+    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), Symbol("class") -> "form") {
 
       <div class="govuk-form-group @if(form.errors("collaboratorEmail").nonEmpty) {govuk-form-group--error}">
         <fieldset class="govuk-fieldset">

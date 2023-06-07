@@ -44,7 +44,7 @@
 
     <h1 class="govuk-heading-l">Which admin requested the application name change?</h1>
 
-    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(application.id), 'class -> "form") {
+    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(application.id), Symbol("class") -> "form") {
       @helper.CSRF.formField
       @fieldError2(form.errors, "adminEmail")
       <div class="govuk-form-group @if(form.hasErrors) {govuk-form-group--error}" data-module="govuk-radios">

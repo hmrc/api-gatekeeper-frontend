@@ -29,7 +29,7 @@ class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
     val appConfig = app.injector.instanceOf[AppConfig]
   }
 
-  override def fakeApplication: Application = {
+  override def fakeApplication(): Application = {
     new GuiceApplicationBuilder()
       .build()
   }

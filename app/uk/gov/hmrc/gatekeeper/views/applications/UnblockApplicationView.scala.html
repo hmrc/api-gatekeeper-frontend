@@ -65,7 +65,7 @@
     </div>
   </dl>
 
-  @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id), Symbol("class") -> "form") {
     <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
       <h1 class="govuk-label-wrapper">
         <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">

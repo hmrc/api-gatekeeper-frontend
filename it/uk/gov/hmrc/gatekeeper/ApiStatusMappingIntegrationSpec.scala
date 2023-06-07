@@ -33,7 +33,7 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
     "microservice.services.api-definition-production.port" -> stubPort
   )
 
-  override def fakeApplication = GuiceApplicationBuilder()
+  override def fakeApplication() = GuiceApplicationBuilder()
     .configure(config)
     .in(Mode.Test)
     .build()
