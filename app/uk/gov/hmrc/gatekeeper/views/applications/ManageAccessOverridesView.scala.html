@@ -29,7 +29,7 @@
     <label class="govuk-visually-hidden" for=@fieldName>
       Override Scopes
     </label>
-    @fieldError2(form.errors, fieldName)
+    @fieldError(form.errors, fieldName)
     <textarea name=@fieldName id=@fieldName rows="5" class="govuk-textarea @if(form.errors(fieldName).nonEmpty) {govuk-input--error}">@form.data.get(fieldName)</textarea>
   </div>
 }

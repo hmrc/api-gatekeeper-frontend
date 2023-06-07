@@ -187,6 +187,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       elementExistsByAttr(document, "span", "data-status") shouldBe true
       elementExistsByAttr(document, "span", "data-status-info") shouldBe true
       elementIdentifiedByAttrContainsText(document, "span", "data-status", "Created") shouldBe true
+
       val checkingText = "A production application that its admin has created but not submitted for checking"
       elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
       elementExistsById(document, "review") shouldBe false
@@ -207,6 +208,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       elementExistsByAttr(document, "span", "data-status") shouldBe true
       elementExistsByAttr(document, "span", "data-status-info") shouldBe true
       elementIdentifiedByAttrContainsText(document, "span", "data-status", "Pending gatekeeper check") shouldBe true
+
       val checkingText = "A production application that one of its admins has submitted for checking"
       elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
       elementIdentifiedByIdContainsText(document, "a", "review", "Check application") shouldBe true

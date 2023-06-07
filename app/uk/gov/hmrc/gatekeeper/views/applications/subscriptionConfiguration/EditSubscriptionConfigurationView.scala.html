@@ -68,7 +68,7 @@
           <div class="govuk-hint">
             @{subscriptionViewModel.fields(index).hint}
           </div>
-          @fieldError2(form.errors, formFieldId)
+          @fieldError(form.errors, formFieldId)
           @helper.input(field("value"), Symbol("_label") -> "") { (id, name, value, args) =>
             <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="govuk-input @if(form.errors(formFieldId).nonEmpty) {govuk-input--error}" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
           }

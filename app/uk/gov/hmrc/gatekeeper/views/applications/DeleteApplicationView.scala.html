@@ -87,7 +87,7 @@
               Which administrator requested the deletion of this application?
             </h2>
           </legend>
-          @fieldError2(form.errors, "collaboratorEmail")
+          @fieldError(form.errors, "collaboratorEmail")
           <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
             @{application.collaborators.filter(_.isAdministrator).zipWithIndex.map { case (c, index) =>
               val emailAddress = c.emailAddress.text
@@ -115,7 +115,7 @@
           </label>
         </h2>
         <p class="govuk-body">Enter the application name to confirm deletion</p>
-        @fieldError2(form.errors, "applicationNameConfirmation")
+        @fieldError(form.errors, "applicationNameConfirmation")
         <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
       </div>
 

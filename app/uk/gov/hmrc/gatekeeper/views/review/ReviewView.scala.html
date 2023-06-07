@@ -84,7 +84,7 @@
       <p class="govuk-hint">
         Tell the submitter why the application failed the check. This text will appear in the email to them.
       </p>
-      @fieldError2(form.errors, "reason", true)
+      @fieldError(form.errors, "reason", true)
       <textarea class="govuk-textarea @if(form.errors("reason").nonEmpty) {error-field}" id="reason" name="reason" rows="5"></textarea>
     </div>
 

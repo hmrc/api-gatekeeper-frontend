@@ -73,7 +73,7 @@
         </label>
       </h1>
       <p class="govuk-body">Enter the application name to confirm unblocking</p>
-      @fieldError2(form.errors, "applicationNameConfirmation")
+      @fieldError(form.errors, "applicationNameConfirmation")
       <input class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" id="applicationNameConfirmation" name="applicationNameConfirmation" type="text">
     </div>
 

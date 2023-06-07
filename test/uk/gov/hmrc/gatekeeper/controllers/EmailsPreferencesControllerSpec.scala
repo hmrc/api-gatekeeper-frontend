@@ -97,7 +97,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
-
       def emptyEmailPreferencesRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)

@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.collection.immutable.ArraySeq.unsafeWrapArray
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.services.ApplicationServiceMockProvider
@@ -27,8 +28,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
-
-import scala.collection.immutable.ArraySeq.unsafeWrapArray
 
 class ApplicationStatesControllerSpec extends ControllerBaseSpec with ApplicationServiceMockProvider
     with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
