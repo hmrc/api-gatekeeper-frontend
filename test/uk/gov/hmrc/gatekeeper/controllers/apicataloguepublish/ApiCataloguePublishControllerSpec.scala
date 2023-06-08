@@ -90,7 +90,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
 
       "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApiCataloguePublishConnectorMock.PublishAll.returnRight
+        ApiCataloguePublishConnectorMock.PublishAll.returnRight()
         val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe OK
 
@@ -102,7 +102,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
       "return publish template with failure message when logged in as Admin and connector returns a Left" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
-        ApiCataloguePublishConnectorMock.PublishAll.returnLeft
+        ApiCataloguePublishConnectorMock.PublishAll.returnLeft()
         val result = controller.publishAll()(fakeRequest)
         status(result) shouldBe OK
 
@@ -128,7 +128,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
       "return publish template with success message when logged in as Admin and connector returns a Right" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
-        ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight
+        ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
         val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe OK
 
@@ -144,7 +144,7 @@ class ApiCataloguePublishControllerSpec extends ControllerBaseSpec with WithCSRF
       "return publish template with failure message when logged in as Admin and connector returns a Left" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
-        ApiCataloguePublishConnectorMock.PublishByServiceName.returnLeft
+        ApiCataloguePublishConnectorMock.PublishByServiceName.returnLeft()
         val result = controller.publishByServiceName("serviceName")(fakeRequest)
         status(result) shouldBe OK
 

@@ -105,7 +105,7 @@ class ApplicationController @Inject() (
     val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
-        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}"
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}"
       } else {
         routes.ApplicationController.applicationPage(appId).url
       }
@@ -128,7 +128,7 @@ class ApplicationController @Inject() (
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
-      ColumnDefinition("App ID", (app => app.id.text)),
+      ColumnDefinition("App ID", (app => app.id.text())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo)),
@@ -184,8 +184,8 @@ class ApplicationController @Inject() (
       val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}"
-      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text}/send-new-terms-of-use"
+      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}"
+      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}/send-new-terms-of-use"
 
       def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)
@@ -334,7 +334,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(manageAccessOverridesView(app.application, form, request.role.isSuperUser)))
       }
 
-      accessOverridesForm.bindFromRequest.fold(handleFormError, handleValidForm)
+      accessOverridesForm.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -366,7 +366,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(manageScopesView(app.application, form)))
       }
 
-      scopesForm.bindFromRequest.fold(handleFormError, handleValidForm)
+      scopesForm.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -402,7 +402,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(manageIpAllowlistView(app.application, form)))
       }
 
-      IpAllowlistForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      IpAllowlistForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -425,7 +425,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(manageRateLimitView(app.application, form)))
       }
 
-      UpdateRateLimitForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      UpdateRateLimitForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -448,7 +448,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(manageGrantLengthView(app.application, form)))
       }
 
-      UpdateGrantLengthForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -477,7 +477,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(deleteApplicationView(app, request.role.isSuperUser, form)))
       }
 
-      deleteApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+      deleteApplicationForm.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -506,7 +506,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(blockApplicationView(app, form)))
       }
 
-      blockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+      blockApplicationForm.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -535,7 +535,7 @@ class ApplicationController @Inject() (
         Future.successful(BadRequest(unblockApplicationView(app, form)))
       }
 
-      unblockApplicationForm.bindFromRequest.fold(handleFormError, handleValidForm)
+      unblockApplicationForm.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -640,7 +640,7 @@ class ApplicationController @Inject() (
   def handleUplift(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       redirectIfIsSandboxApp(app) {
-        val requestForm = HandleUpliftForm.form.bindFromRequest
+        val requestForm = HandleUpliftForm.form.bindFromRequest()
 
         def errors(errors: Form[HandleUpliftForm]) =
           fetchApplicationReviewDetails(appId) map (details => BadRequest(reviewView(errors, details)))
@@ -772,6 +772,6 @@ class ApplicationController @Inject() (
       } yield result
     }
 
-    createPrivOrROPCAppForm.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    createPrivOrROPCAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 }

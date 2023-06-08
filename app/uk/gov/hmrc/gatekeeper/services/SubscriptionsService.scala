@@ -36,12 +36,12 @@ class SubscriptionsService @Inject() (
     with ClockNow {
 
   def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
-    val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, now)
+    val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, now())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 
   def unsubscribeFromApi(application: Application, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
-    val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, now)
+    val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, now())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 }

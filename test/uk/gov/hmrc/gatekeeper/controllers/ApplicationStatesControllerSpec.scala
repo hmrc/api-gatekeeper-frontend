@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.collection.immutable.ArraySeq.unsafeWrapArray
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.services.ApplicationServiceMockProvider
@@ -52,7 +53,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       "return csv data for ldap authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -60,7 +61,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
 
       "return csv data for stride authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -69,7 +70,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec with Applicatio
       "return csv data with correct headers" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(appStateHistoryChanges: _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentType(result) shouldBe Some("text/csv")

@@ -236,7 +236,7 @@ object Forms {
       accessType             -> optional(text).verifying("access.type.required", s => s.isDefined),
       applicationName        -> text.verifying("application.name.required", _.nonEmpty),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
-      adminEmail             -> emailValidator
+      adminEmail             -> emailValidator()
     )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply)
   )
 
@@ -262,7 +262,7 @@ object Forms {
 
     def form: Form[AddTeamMemberForm] = Form(
       mapping(
-        "email" -> emailValidator,
+        "email" -> emailValidator(),
         "role"  -> optional(text).verifying("team.member.error.role.invalid", _.isDefined)
       )(AddTeamMemberForm.apply)(AddTeamMemberForm.unapply)
     )
@@ -274,7 +274,7 @@ object Forms {
 
     val form: Form[RemoveTeamMemberForm] = Form(
       mapping(
-        "email" -> emailValidator
+        "email" -> emailValidator()
       )(RemoveTeamMemberForm.apply)(RemoveTeamMemberForm.unapply)
     )
   }
@@ -285,7 +285,7 @@ object Forms {
 
     val form: Form[RemoveTeamMemberConfirmationForm] = Form(
       mapping(
-        "email"   -> emailValidator,
+        "email"   -> emailValidator(),
         "confirm" -> optional(text).verifying("team.member.error.confirmation.no.choice.field", _.isDefined)
       )(RemoveTeamMemberConfirmationForm.apply)(RemoveTeamMemberConfirmationForm.unapply)
     )

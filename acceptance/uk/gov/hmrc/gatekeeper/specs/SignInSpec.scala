@@ -47,7 +47,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       go(ApplicationsPage)
       goOn(ApplicationsPage)
 
-      ApplicationsPage.isForbidden shouldBe true
+      ApplicationsPage.isForbidden() shouldBe true
     }
 
     Scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {

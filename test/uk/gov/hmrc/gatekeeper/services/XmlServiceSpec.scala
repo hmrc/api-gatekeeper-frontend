@@ -106,7 +106,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
 
         intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
           case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail
+          case _                          => fail()
         }
       }
 
@@ -116,7 +116,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
 
         intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
           case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail
+          case _                          => fail()
         }
       }
     }
@@ -133,11 +133,11 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       }
 
       "Return UpstreamErrorResponse when call to connector fails" in new Setup {
-        XmlServicesConnectorMock.GetOrganisations.returnsError
+        XmlServicesConnectorMock.GetOrganisations.returnsError()
 
         intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId))) match {
           case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail
+          case _                          => fail()
         }
       }
     }

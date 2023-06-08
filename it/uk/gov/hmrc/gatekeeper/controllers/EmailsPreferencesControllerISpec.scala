@@ -425,9 +425,9 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       }
     }
 
-    def validateRedirect(response: WSResponse, expectedLocation: String) {
+    def validateRedirect(response: WSResponse, expectedLocation: String): Unit = {
       response.status shouldBe SEE_OTHER
-      val mayBeLocationHeader: Option[Seq[String]] = response.headers.get(LOCATION)
+      val mayBeLocationHeader: Option[Seq[String]] = response.headers.get(LOCATION).map(_.toSeq)
       mayBeLocationHeader.fold(fail("redirect Location header missing")) { locationHeader =>
         locationHeader.head shouldBe expectedLocation
       }

@@ -61,7 +61,7 @@ class SubscriptionFieldsController @Inject() (
 
     def flattendFieldValues(subscriptionFieldValues: List[ApplicationApiFieldValues]): List[FlattenedSubscriptionFieldValue] = {
       subscriptionFieldValues.flatMap(allsubscriptionFieldValues => {
-        allsubscriptionFieldValues.fields.seq.map { fieldValue: (FieldName, FieldValue) =>
+        allsubscriptionFieldValues.fields.map { fieldValue: (FieldName, FieldValue) =>
           {
             val fieldName = fieldValue._1
             FlattenedSubscriptionFieldValue(allsubscriptionFieldValues.clientId, allsubscriptionFieldValues.apiContext, allsubscriptionFieldValues.apiVersion, fieldName)

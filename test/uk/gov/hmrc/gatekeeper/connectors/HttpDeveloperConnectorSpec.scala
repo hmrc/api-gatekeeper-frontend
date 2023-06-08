@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequestWrite, RemoveMfaRequest}
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._

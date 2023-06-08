@@ -171,7 +171,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
     "redirect to the success page if app name update succeeds" in new Setup {
       val appNameRequest = aLoggedInRequest.withSession(newAppNameSessionKey -> "New app name")
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
-      ApplicationServiceMock.UpdateApplicationName.succeeds
+      ApplicationServiceMock.UpdateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
@@ -183,7 +183,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
     "display app name entry page with an error if app name update fails" in new Setup {
       val appNameRequest = aLoggedInRequest.withSession(newAppNameSessionKey -> "New app name")
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
-      ApplicationServiceMock.UpdateApplicationName.fails
+      ApplicationServiceMock.UpdateApplicationName.fails()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))

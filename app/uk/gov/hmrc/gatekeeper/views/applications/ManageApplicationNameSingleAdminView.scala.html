@@ -46,7 +46,7 @@
 
     <p class="govuk-body">Confirm they requested the application name change.</p>
 
-    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(application.id), 'class -> "form") {
+    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(application.id), Symbol("class") -> "form") {
       @helper.CSRF.formField
       <input class="govuk-radios__input" name="adminEmail" type="hidden" value="@adminEmail">
       <div class="govuk-button-group">

@@ -49,7 +49,7 @@
   <span class="govuk-caption-l">@application.name</span>
   <h1 class="govuk-heading-l">Application unblocked</h1>
 
-  @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.applicationsPage(None), Symbol("class") -> "form") {
     @helper.CSRF.formField
     <button id="submit" class="govuk-button" type="submit">Finish</button>
   }

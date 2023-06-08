@@ -108,7 +108,7 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateEmailPreferencesSubscribedApiPage(document, selectedAPIs)
   }
 
-  private def validateStaticPageElements(document: Document, selectedAPIs: Seq[CombinedApi]) {
+  private def validateStaticPageElements(document: Document, selectedAPIs: Seq[CombinedApi]): Unit = {
     validatePageHeader(document, "You have selected 2 APIs")
   }
 
@@ -345,7 +345,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElementsNew(document: Document, expectedDestination: String) {
+  private def validateStaticPageElementsNew(document: Document, expectedDestination: String): Unit = {
     validateFormDestination(document, "apiFilters", expectedDestination)
   }
 
@@ -358,7 +358,7 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]) {
+  private def validateStaticPageElements(document: Document, filterButtonText: String, selectedTopic: Option[TopicOptionChoice]): Unit = {
     validatePageHeader(document, "Email users interested in a specific API")
     validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api")
     validateFormDestination(document, "topicFilter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
@@ -406,19 +406,19 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
 trait EmailPreferencesSelectAPIViewHelper extends EmailUsersHelper {
   self: HmrcSpec =>
 
-  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
+  private def validateStaticPageElements(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String): Unit = {
     validatePageHeader(document, "Email users interested in a specific API")
     validateNonSelectedApiDropDown(document, dropDownAPIs, "Select an API")
 
     validateFormDestination(document, "apiSelectionForm", expectedDestination)
   }
 
-  private def validateStaticPageElementsCurrent(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
+  private def validateStaticPageElementsCurrent(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String): Unit = {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateButtonText(document, "submit", "Select API")
   }
 
-  private def validateStaticPageElementsNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String) {
+  private def validateStaticPageElementsNew(document: Document, dropDownAPIs: Seq[CombinedApi], expectedDestination: String): Unit = {
     validateStaticPageElements(document, dropDownAPIs, expectedDestination)
     validateButtonText(document, "submit", "Continue")
   }
