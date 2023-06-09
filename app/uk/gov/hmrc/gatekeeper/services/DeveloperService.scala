@@ -180,8 +180,8 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    developerConnector.fetchByEmailPreferences(topic, maybeApis, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
   def fetchDevelopersByEmailPreferencesPaginated(
