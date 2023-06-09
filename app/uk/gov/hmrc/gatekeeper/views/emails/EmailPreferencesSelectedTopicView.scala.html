@@ -28,7 +28,7 @@
 
 @this(main: MainView, govukPagination: GovukPagination, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String, selectedAPIs: List[CombinedApi], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[APICategoryDetails], selectedCategory: String, selectedCategoryName: String, selectedAPIs: List[CombinedApi], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @currentPage = @{
     (offset / limit) + 1

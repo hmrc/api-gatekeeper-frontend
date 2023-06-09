@@ -253,13 +253,14 @@ class EmailsPreferencesController @Inject() (
                                  .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
-        usersAsJson          = Json.toJson(users)
+        usersToEmail         <- topicAndCategory.map(tup =>
+                                  developerService.fetchDevelopersByEmailPreferences(tup._1, Some(selectedAPIs), Some(APICategory(tup._2)))
+                                ).getOrElse(Future.successful(List.empty[RegisteredUser]))
         selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
         selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
       } yield Ok(emailPreferencesSelectedTopicView(
         users,
-        usersAsJson,
-        usersToEmailCopyText(users),
+        usersToEmailCopyText(usersToEmail.filter(_.verified)),
         topicAndCategory.map(_._1),
         categories,
         selectedCategory.getOrElse(""),
