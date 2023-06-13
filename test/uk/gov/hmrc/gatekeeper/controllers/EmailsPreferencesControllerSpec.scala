@@ -350,7 +350,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.selectedApiTopic(
           Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString),
-          Some(category1.category), /* ? */
+          None,
           combinedApisList.map(_.serviceName),
           0,
           4
@@ -370,7 +370,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.selectedApiTopic(
           Some(TopicOptionChoice.TECHNICAL.toString),
-          Some(category1.category), /* ? */
+          None,
           combinedApisList.map(_.serviceName),
           0,
           4
