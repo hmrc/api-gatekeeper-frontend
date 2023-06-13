@@ -41,7 +41,6 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
     val user1                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                = Seq(user1, user2)
-    val categories                                                           = List()
     val expectedTitle                                                        = "Email users interested in a specific API"
   }
 
@@ -53,9 +52,6 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
           users,
           "",
           Some(BUSINESS_AND_POLICY),
-          categories,
-          "",
-          "",
           List(),
           0,
           1,

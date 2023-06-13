@@ -238,33 +238,26 @@ class EmailsPreferencesController @Inject() (
       limit: Int
     ): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
-      val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
+      val topic: Option[TopicOptionChoice.Value] =
         for {
           topic    <- selectedTopic.map(TopicOptionChoice.withName)
-          category <- selectedCategory.filter(_.nonEmpty).orElse(Some(""))
-        } yield (topic, category)
+        } yield topic
       for {
         apis                <- apmService.fetchAllCombinedApis()
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        categories          <- apiDefinitionService.apiCategories()
-        userPaginatedResult <- topicAndCategory.map(tup =>
-                                 developerService.fetchDevelopersByEmailPreferencesPaginated(Some(tup._1), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
-                               )
-                                 .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
+        categories           = filteredApis.flatMap(_.categories.map(toAPICategory)).distinct
+        userPaginatedResult <- topic.map(topic => developerService.fetchDevelopersByEmailPreferencesPaginated(Some(topic), Some(selectedAPIs), Some(categories), privateApiMatch = false, offset, limit)
+          )
+            .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
-        usersToEmail         <- topicAndCategory.map(tup =>
-                                  developerService.fetchDevelopersByEmailPreferences(tup._1, Some(selectedAPIs), Some(APICategory(tup._2)))
-                                ).getOrElse(Future.successful(List.empty[RegisteredUser]))
-        selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
-        selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
+        usersToEmail        <- topic.map(topic =>
+                                 developerService.fetchDevelopersByEmailPreferences(topic, Some(selectedAPIs), Some(categories))
+                               ).getOrElse(Future.successful(List.empty[RegisteredUser]))
       } yield Ok(emailPreferencesSelectedTopicView(
         users,
         usersToEmailCopyText(usersToEmail.filter(_.verified)),
-        topicAndCategory.map(_._1),
-        categories,
-        selectedCategory.getOrElse(""),
-        selectedCategoryName,
+        topic,
         filteredApis,
         offset,
         limit,
