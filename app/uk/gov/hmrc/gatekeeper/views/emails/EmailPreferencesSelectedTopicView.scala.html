@@ -39,7 +39,7 @@
 }
 
 @tpdQuery = @{
-    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(selectedAPIs.map(_.serviceName)), None, false, None, false)
+    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
 }
 
 @userSelection = @{
