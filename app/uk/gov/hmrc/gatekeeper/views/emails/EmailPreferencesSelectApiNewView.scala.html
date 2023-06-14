@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi], selectedTopic: Option[String] = None)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -45,17 +45,18 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsController.emailPreferencesChoice()}",
+            s"${routes.EmailsPreferencesController.emailPreferencesChoice()}",
             Some("data-back-link")
         )
     )
 ) {
+
   <h1 id="pageTitle" class="govuk-heading-l">Email users interested in a specific API</h1>
 
-  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
+  <form id="apiSelectionForm" name="api-filters" action="@routes.EmailsPreferencesController.specificApis(List.empty, None).url" method="get">
 
     <div class="govuk-form-group">
-      <label class="govuk-label govuk-!-font-weight-bold" for="selectedAPIs">
+      <label class="govuk-label" for="selectedAPIs">
         Select an API from the list
       </label>
       @if(filteredApis.nonEmpty) {
@@ -63,9 +64,11 @@
           <input class="govuk-visually-hidden" type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/>
         }
       }
-      @drawAPIDropDown
+      @if(selectedTopic.nonEmpty) {
+          <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@selectedTopic"/>
+      }
+        @drawAPIDropDown
     </div>
-
-    <button id="submit" class="govuk-button" type="submit">Select API</button>
+    <button id="submit" class="govuk-button" type="submit">Continue</button>
   </form>
 }

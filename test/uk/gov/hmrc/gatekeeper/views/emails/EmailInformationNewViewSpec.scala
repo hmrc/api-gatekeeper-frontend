@@ -21,27 +21,33 @@ import org.jsoup.Jsoup
 
 import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
-import play.twirl.api.Html
+import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesChoiceView
+import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailInformationNewView, EmailInformationView}
 
-class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
+class EmailInformationNewViewSpec extends CommonViewSpec with EmailInformationViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val preferencesChoiceView: EmailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
+    val emailInformationPageView: EmailInformationNewView = app.injector.instanceOf[EmailInformationNewView]
   }
 
-  "email preferences choice view" must {
-    "show correct title and options" in new Setup {
-      val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
+  "email information view" must {
+    "show correct title and content for EMAIL_ALL_USERS" in new Setup {
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EMAIL_ALL_USERS, request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
+      validateAllUsersInformationPage(Jsoup.parse(result.body))
+    }
+
+    "show correct title and content for API_SUBSCRIPTION" in new Setup {
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser(None), messagesProvider)
+
+      validateApiSubcriptionInformationPage(Jsoup.parse(result.body))
     }
   }
-
 }

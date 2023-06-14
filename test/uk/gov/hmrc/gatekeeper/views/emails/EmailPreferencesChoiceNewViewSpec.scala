@@ -26,19 +26,19 @@ import play.twirl.api.Html
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesChoiceView
+import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailPreferencesChoiceNewView, EmailPreferencesChoiceView}
 
-class EmailPreferencesChoiceViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
+class EmailPreferencesChoiceNewViewSpec extends CommonViewSpec with EmailPreferencesChoiceViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
-    val preferencesChoiceView: EmailPreferencesChoiceView = app.injector.instanceOf[EmailPreferencesChoiceView]
+    val preferencesChoiceNewView: EmailPreferencesChoiceNewView = app.injector.instanceOf[EmailPreferencesChoiceNewView]
   }
 
   "email preferences choice view" must {
     "show correct title and options" in new Setup {
-      val result: Html = preferencesChoiceView.render(request, LoggedInUser(None), messagesProvider)
+      val result: Html = preferencesChoiceNewView.render(request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
     }
