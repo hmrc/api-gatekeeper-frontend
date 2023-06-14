@@ -81,10 +81,10 @@ class ApiGatekeeperDeveloperDetailsSpec
       on(DeveloperDetailsPage)
 
       And("I can see the developer's details and associated applications")
-      assert(DeveloperDetailsPage.firstName() == unverifiedUser.firstName)
-      assert(DeveloperDetailsPage.lastName() == unverifiedUser.lastName)
-      assert(DeveloperDetailsPage.status() == "not yet verified")
-      assert(DeveloperDetailsPage.mfaHeading() == "Multi-factor authentication")
+      assert(DeveloperDetailsPage.firstName == unverifiedUser.firstName)
+      assert(DeveloperDetailsPage.lastName == unverifiedUser.lastName)
+      assert(DeveloperDetailsPage.status == "not yet verified")
+      assert(DeveloperDetailsPage.mfaHeading == "Multi-factor authentication")
 
       When("I select an associated application")
       DeveloperDetailsPage.selectByApplicationName("My new app")

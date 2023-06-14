@@ -78,7 +78,7 @@
   <p class="govuk-body">You must check with all administrators before deleting this application.</p>
 
   @if(isSuperUser) {
-    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), Symbol("class") -> "form") {
+    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), 'class -> "form") {
 
       <div class="govuk-form-group @if(form.errors("collaboratorEmail").nonEmpty) {govuk-form-group--error}">
         <fieldset class="govuk-fieldset">
@@ -87,7 +87,7 @@
               Which administrator requested the deletion of this application?
             </h2>
           </legend>
-          @fieldError(form.errors, "collaboratorEmail")
+          @fieldError2(form.errors, "collaboratorEmail")
           <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
             @{application.collaborators.filter(_.isAdministrator).zipWithIndex.map { case (c, index) =>
               val emailAddress = c.emailAddress.text
@@ -115,7 +115,7 @@
           </label>
         </h2>
         <p class="govuk-body">Enter the application name to confirm deletion</p>
-        @fieldError(form.errors, "applicationNameConfirmation")
+        @fieldError2(form.errors, "applicationNameConfirmation")
         <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {error-field}" type="text">
       </div>
 

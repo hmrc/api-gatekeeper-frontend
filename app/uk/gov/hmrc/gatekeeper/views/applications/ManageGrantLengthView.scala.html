@@ -62,7 +62,7 @@
         <div id="application-grant-hint" class="govuk-hint">
           Select one option.
         </div>
-        @fieldError(form.errors, "grantLength", form.error("submissionError").isEmpty)
+        @fieldError2(form.errors, "grantLength", form.error("submissionError").isEmpty)
         <div class="govuk-radios" data-module="govuk-radios">
           @for(g <- GrantLength.asOrderedIdList) {
             <div class="govuk-radios__item">

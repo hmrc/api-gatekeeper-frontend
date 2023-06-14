@@ -87,7 +87,7 @@ class EmailsPreferencesController @Inject() (
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
       Future.successful(BadRequest(emailPreferencesChoiceView()))
 
-    SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
   def selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -134,7 +134,7 @@ class EmailsPreferencesController @Inject() (
   def selectedUserTaxRegime(selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] = {
     anyStrideUserAction { implicit request =>
       for {
-        categories                <- apiDefinitionService.apiCategories()
+        categories                <- apiDefinitionService.apiCategories
         selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
         userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
         totalCount                 = userPaginatedResponse.totalCount
@@ -246,7 +246,7 @@ class EmailsPreferencesController @Inject() (
       for {
         apis                <- apmService.fetchAllCombinedApis()
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        categories          <- apiDefinitionService.apiCategories()
+        categories          <- apiDefinitionService.apiCategories
         userPaginatedResult <- topicAndCategory.map(tup =>
                                  developerService.fetchDevelopersByEmailPreferencesPaginated(Some(tup._1), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
                                )
@@ -285,7 +285,7 @@ class EmailsPreferencesController @Inject() (
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
-      categories        <- apiDefinitionService.apiCategories()
+      categories        <- apiDefinitionService.apiCategories
       selectedCategories = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
     } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategories))
   }
@@ -293,7 +293,7 @@ class EmailsPreferencesController @Inject() (
   def selectedTaxRegime(selectedCategories: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     for {
-      categories        <- apiDefinitionService.apiCategories()
+      categories        <- apiDefinitionService.apiCategories
       filteredCategories = filterSelectedCategories(Some(selectedCategories), categories).sortBy(_.name)
     } yield Ok(emailPreferencesSelectedTaxRegimeView(filteredCategories, selectedTopic))
   }

@@ -37,7 +37,7 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
     val emailRecipientsAsJson: JsArray                        = new JsArray()
-    val emailAllUsersView: EmailAllUsersView                  = app.injector.instanceOf[EmailAllUsersView]
+    val emailAllUsersView: EmailAllUsersView               = app.injector.instanceOf[EmailAllUsersView]
   }
 
   "email all user view" must {

@@ -38,11 +38,10 @@
     ceil(totalCount.toDouble / limit).toInt
 }
 
-@tpdQuery = @{
+@tpdQuery() = @{
     new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(APICategory(selectedCategory))), false, None, false)
 }
-
-@userSelection = @{
+@userSelection() = @{
     Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),
         "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get))
 }
@@ -116,7 +115,7 @@
                                     Topic
                                 </dt>
                                 <dd class="govuk-summary-list__value">
-                                    @userSelection.get("Topic")
+                                    @userSelection().get("Topic")
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
                                     <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.addAnotherApiOption("0", Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">

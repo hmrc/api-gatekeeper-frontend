@@ -21,7 +21,7 @@ import com.kenshoo.play.metrics.Metrics
 import org.scalatest.Suite
 import play.api.Application
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters
 import org.scalatest.matchers.should.Matchers
 
 trait MetricsTestSupport {
@@ -33,7 +33,10 @@ trait MetricsTestSupport {
 
   def givenCleanMetricRegistry(): Unit = {
     val registry = app.injector.instanceOf[Metrics].defaultRegistry
-    for (metric <- registry.getMetrics.keySet().iterator().asScala) {
+    for (
+      metric <- JavaConverters
+                  .asScalaIterator[String](registry.getMetrics.keySet().iterator())
+    ) {
       registry.remove(metric)
     }
     metricsRegistry = registry

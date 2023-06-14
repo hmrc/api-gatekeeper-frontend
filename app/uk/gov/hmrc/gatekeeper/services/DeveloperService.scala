@@ -99,7 +99,7 @@ class DeveloperService @Inject() (
     }
 
     lazy val unregisteredCollaborators: Map[KEY, Set[Application]] =
-      linkAppsAndCollaborators(apps).view.filterKeys(k => !registeredEmails.contains(k._1)).toMap
+      linkAppsAndCollaborators(apps).filterKeys(k => !registeredEmails.contains(k._1))
 
     lazy val unregistered: Set[Developer] =
       unregisteredCollaborators.map {
@@ -136,7 +136,7 @@ class DeveloperService @Inject() (
   }
 
   def fetchUsers(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    developerConnector.fetchAll().map(_.sortBy(_.sortField))
+    developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
   def fetchUsersPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {

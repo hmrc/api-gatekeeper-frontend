@@ -97,6 +97,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
+
       def emptyEmailPreferencesRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
@@ -524,7 +525,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     headers(result).get("Location") shouldBe Some(expectedLocation)
   }
 
-  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false): Unit = {
+  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {
     if (users.nonEmpty) {
       responseBody should include(s"""<div class="govuk-body">${users.size} results</div>""")
 

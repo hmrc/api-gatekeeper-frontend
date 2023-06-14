@@ -51,14 +51,14 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
 
     def getDefinitions(): Future[List[SubscriptionFieldDefinition]] = Future.successful(definitionsCache.getOrElse(apiIdentifier, List.empty))
 
-    internalFetchFieldValues(() => getDefinitions())(clientId, apiIdentifier)
+    internalFetchFieldValues(getDefinitions)(clientId, apiIdentifier)
   }
 
   def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
 
     def getDefinitions() = fetchFieldDefinitions(apiContext, version)
 
-    internalFetchFieldValues(() => getDefinitions())(clientId, ApiIdentifier(apiContext, version))
+    internalFetchFieldValues(getDefinitions)(clientId, ApiIdentifier(apiContext, version))
   }
 
   def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {

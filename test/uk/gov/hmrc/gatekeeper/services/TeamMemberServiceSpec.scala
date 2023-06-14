@@ -88,7 +88,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.succeeds()
 
-      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).toOption.get shouldBe (())
+      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe (())
     }
 
     "propagate a failure error from application connector" in new Setup {
@@ -108,7 +108,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).toOption.get shouldBe (())
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe (())
     }
 
     "propagate CannotRemoveLastAdmin error from application connector" in new Setup {

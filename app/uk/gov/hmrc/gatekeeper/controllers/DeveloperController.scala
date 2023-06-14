@@ -95,7 +95,7 @@ class DeveloperController @Inject() (
       successful(BadRequest)
     }
 
-    RemoveMfaConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    RemoveMfaConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
   def deleteDeveloperPage(developerIdentifier: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>

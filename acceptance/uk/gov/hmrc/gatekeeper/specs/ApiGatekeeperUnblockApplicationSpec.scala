@@ -111,7 +111,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
     on(page)
   }
 
-  def stubBlockedApplication(): Unit = {
+  def stubBlockedApplication() {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${blockedApplicationId.value.toString()}")).willReturn(aResponse().withBody(blockedApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 }
