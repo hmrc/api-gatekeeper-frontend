@@ -70,7 +70,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailAllUsersView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesChoiceView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedTaxRegimeView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
@@ -343,7 +343,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "render the view correctly with selected APIs and topic" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
         DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
         givenApiDefinition3Categories()
 
@@ -364,7 +363,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
         givenApiDefinition3Categories()
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
         DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns()
 
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")

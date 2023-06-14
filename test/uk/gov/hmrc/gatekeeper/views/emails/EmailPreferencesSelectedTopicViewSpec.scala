@@ -37,6 +37,7 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]                = FakeRequest().withCSRFToken
+    val emailRecipientsAsJson: JsArray                                       = new JsArray()
     val emailPreferencesSelectedTopicView: EmailPreferencesSelectedTopicView = app.injector.instanceOf[EmailPreferencesSelectedTopicView]
     val user1                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
@@ -51,6 +52,7 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedTopicView.render(
           users,
+          emailRecipientsAsJson,
           "",
           Some(BUSINESS_AND_POLICY),
           categories,
