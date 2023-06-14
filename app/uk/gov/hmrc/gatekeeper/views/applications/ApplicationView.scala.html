@@ -49,7 +49,7 @@
       @if(scopes.isEmpty) {
         No scopes assigned to this application
       } else {
-        @for(scope <- scopes.iterator) {
+        @for(scope <- scopes.toIterator) {
           @scope
         }
       }
@@ -72,7 +72,7 @@
     <td class="govuk-table__cell">
       @if(scopes.isEmpty) {
       } else {
-        @for(scope <- scopes.iterator) {
+        @for(scope <- scopes.toIterator) {
           @scope
         }
       }
@@ -131,7 +131,7 @@
 }
 
 @renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
-  @for(subscription <- subs.iterator) {
+  @for(subscription <- subs.toIterator) {
     <li>
       @subscription._1
       @{
@@ -199,7 +199,7 @@
         Environment
       </dt>
       <dd class="govuk-summary-list__value" data-environment>
-        @application.deployedTo.asDisplayed()
+        @application.deployedTo.asDisplayed
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>

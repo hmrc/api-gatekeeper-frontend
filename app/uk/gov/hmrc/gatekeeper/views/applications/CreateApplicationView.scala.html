@@ -28,14 +28,14 @@
 
   <h1 class="govuk-heading-l">Add privileged or ROPC application</h1>
 
-  @helper.form(action = routes.ApplicationController.createPrivOrROPCApplicationAction()) {
+  @helper.form(action = routes.ApplicationController.createPrivOrROPCApplicationAction) {
     <div class="govuk-form-group @if(form.errors("environment").nonEmpty) {govuk-form-group--error}">
       <fieldset id="environment" class="govuk-fieldset">
         @helper.CSRF.formField
         <legend class="govuk-fieldset__legend">
           Environment
         </legend>
-        @fieldError(form.errors, "environment", true)
+        @fieldError2(form.errors, "environment", true)
         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
           <div class="govuk-radios__item">
             @defining(form.data.get("environment") == Some("PRODUCTION")) { productionChecked =>
@@ -63,7 +63,7 @@
         <legend class="govuk-fieldset__legend">
           Access type
         </legend>
-        @fieldError(form.errors, "accessType", true)
+        @fieldError2(form.errors, "accessType", true)
         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
           <div class="govuk-radios__item">
             @defining(form.data.get("accessType") == Some("privileged")) { privilegedChecked =>
@@ -86,19 +86,19 @@
     </div>
 
     <div class="govuk-form-group @if(form.errors("applicationName").nonEmpty) {govuk-form-group--error}">
-      @fieldError(form.errors, "applicationName", true)
+      @fieldError2(form.errors, "applicationName", true)
       <label class="govuk-label" for="applicationName">Application name</label>
       <input class="govuk-input" id="applicationName" name="applicationName" type="text" value="@form.data.getOrElse("applicationName", "")">
     </div>
 
     <div class="govuk-form-group @if(form.errors("applicationDescription").nonEmpty) {govuk-form-group--error}">
-      @fieldError(form.errors, "applicationDescription", true)
+      @fieldError2(form.errors, "applicationDescription", true)
       <label class="govuk-label" for="applicationDescription">Application description</label>
       <textarea class="govuk-textarea" name="applicationDescription" rows="5" maxlength="3000" id="applicationDescription")">@form.data.getOrElse("applicationDescription", "")</textarea>
     </div>
 
     <div class="govuk-form-group @if(form.errors("adminEmail").nonEmpty) {govuk-form-group--error}">
-      @fieldError(form.errors, "adminEmail", true)
+      @fieldError2(form.errors, "adminEmail", true)
       <label class="govuk-label" for="adminEmail">Administrator email address</label>
       <input class="govuk-input" id="adminEmail" name="adminEmail" type="text" value="@form.data.getOrElse("adminEmail", "")">
     </div>

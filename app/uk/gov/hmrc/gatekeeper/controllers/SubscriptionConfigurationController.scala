@@ -84,7 +84,7 @@ class SubscriptionConfigurationController @Inject() (
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
-          val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest()
+          val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest
 
           def errors(errors: Form[EditApiMetadataForm]) = {
             Future.successful(technicalDifficulties)

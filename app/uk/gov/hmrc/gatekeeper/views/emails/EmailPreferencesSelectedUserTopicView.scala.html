@@ -38,11 +38,11 @@
         ceil(totalCount.toDouble / limit).toInt
     }
 
-    @tpdQuery = @{
+    @tpdQuery() = @{
         new DevelopersEmailQuery(Some(selectedTopic.get.toString))
     }
 
-    @userSelection = @{
+    @userSelection() = @{
         Map("Topic" -> TopicOptionChoice.optionLabel(selectedTopic.get))
     }
 
@@ -101,7 +101,7 @@
                                 Topic
                             </dt>
                             <dd class="govuk-summary-list__value">
-                            @userSelection.get("Topic")
+                            @userSelection().get("Topic")
                             </dd>
                             <dd class="govuk-summary-list__actions">
                                 <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.selectUserTopicPage(Some(selectedTopic.get.toString)).url">

@@ -31,7 +31,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
 @main(title = s"${applicationConfig.title} - Developers") {
   <h1 class="govuk-heading-l">Developers</h1>
 
-  @helper.form(action = controllers.routes.DevelopersController.developersPage()) {
+  @helper.form(action = controllers.routes.DevelopersController.developersPage) {
     @helper.CSRF.formField
     <input class="govuk-visually-hidden" type="hidden" name="page" value="1"/>
     <div class="dev-filter-row">

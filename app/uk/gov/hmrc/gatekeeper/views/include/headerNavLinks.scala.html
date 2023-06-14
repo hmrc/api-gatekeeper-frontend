@@ -18,11 +18,11 @@
 @(navLinks: Seq[NavLink], anchorClass: Option[String] = None)
 
 @for(link <- navLinks) {
-<li @if(link == navLinks.last) {style="float:right;"}>
+<li @if(link == navLinks.last) {class="hard--right"}>
    @if(link.href.isDefined) {
-      <a class="govuk-link @anchorClass.getOrElse("")" href="@{link.href}">@{link.label}</a>
+      <a class="align--middle inline-block @anchorClass.getOrElse("")" href="@{link.href}">@{link.label}</a>
    } else {
-      <span class="govuk-body govuk-!-font-size-16">@{link.label}</span>
+      <span class="align--middle inline-block">@{link.label}</span>
    }
 </li>
 }

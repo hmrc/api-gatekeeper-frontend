@@ -78,7 +78,7 @@ class XmlServicesConnectorSpec
               .withBody("[]")
           )
       )
-      await(connector.getAllApis()) shouldBe Seq.empty
+      await(connector.getAllApis) shouldBe Seq.empty
     }
 
     "return Seq with XmlAPis when APIs are returned" in new Setup {
@@ -90,7 +90,7 @@ class XmlServicesConnectorSpec
               .withBody(Json.toJson(xmlApis).toString)
           )
       )
-      await(connector.getAllApis()) shouldBe xmlApis
+      await(connector.getAllApis) shouldBe xmlApis
     }
 
     "throw UpstreamErrorResponse when backend returns server error" in new Setup {
@@ -101,9 +101,9 @@ class XmlServicesConnectorSpec
               .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
-      intercept[UpstreamErrorResponse](await(connector.getAllApis())) match {
+      intercept[UpstreamErrorResponse](await(connector.getAllApis)) match {
         case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
+        case _                          => fail
       }
     }
   }
@@ -222,7 +222,7 @@ class XmlServicesConnectorSpec
       )
       intercept[UpstreamErrorResponse](await(connector.findOrganisationsByUserId(userId))) match {
         case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => succeed
-        case _                                           => fail()
+        case _                                           => fail
       }
     }
   }

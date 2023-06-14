@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
+@import uk.gov.hmrc.gatekeeper.views.html.include.fieldError
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
@@ -52,10 +53,10 @@
 
     <p class="govuk-body">Any new name must follow our <a class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank" href="https://developer.service.hmrc.gov.uk/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines (opens in new tab)</a>.</p>
 
-    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), Symbol("class") -> "form") {
+    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), 'class -> "form") {
       <div class="govuk-form-group @if(form.hasErrors) {govuk-form-group--error}">
         @helper.CSRF.formField
-        @fieldError(form.errors, "applicationName")
+        @fieldError2(form.errors, "applicationName")
         <input class="govuk-input govuk-input--width-20" id="application-name" name="applicationName" type="text" value="@form.data.get("applicationName")">
       </div>
       <div class="govuk-button-group">

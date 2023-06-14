@@ -26,7 +26,7 @@
 
 @(categories: List[APICategoryDetails], filteredCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@drawAPIDropDown = {
+@drawAPIDropDown() = {
     <select class="govuk-select" id="selectedCategories" name="selectedCategories">
         <option value="">Select tax regime</option>
         @for(category <- categories.sortBy(_.name)) {

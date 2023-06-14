@@ -30,7 +30,7 @@
   breadcrumbs = Seq(
     Crumb(
       "Developers",
-      s"${routes.DevelopersController.blankDevelopersPage()}",
+      s"${routes.DevelopersController.blankDevelopersPage}",
       Some("data-breadcrumb-view-developers")
     )
   )
@@ -39,7 +39,7 @@
     @if(applications.isEmpty) {
       <h1 class="govuk-heading-l">@developer.user.email.text</h1>
 
-      @helper.form(action = routes.DeveloperController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), Symbol("class") -> "form") {
+      @helper.form(action = routes.DeveloperController.deleteDeveloperAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
         @helper.CSRF.formField
         <h2 class="govuk-heading-m">Are you sure you want to delete this developer?</h2>
         <div class="govuk-button-group">

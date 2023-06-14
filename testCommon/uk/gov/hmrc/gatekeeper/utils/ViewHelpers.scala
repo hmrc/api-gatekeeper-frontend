@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import scala.jdk.CollectionConverters._
+import scala.collection.JavaConverters._
 
 import org.jsoup.nodes.{Document, Element}
 

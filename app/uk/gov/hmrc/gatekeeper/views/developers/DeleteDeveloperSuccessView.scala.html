@@ -30,7 +30,7 @@
   breadcrumbs = Seq(
     Crumb(
       "Developers",
-      s"${routes.DevelopersController.blankDevelopersPage()}",
+      s"${routes.DevelopersController.blankDevelopersPage}",
       Some("data-breadcrumb-view-developers")
     )
   )
@@ -46,5 +46,5 @@
     </div>
   </div>
 
-  <a href="@{routes.DevelopersController.blankDevelopersPage()}" class="govuk-button">Finish</a>
+  <a href="@{routes.DevelopersController.blankDevelopersPage}" class="govuk-button">Finish</a>
 }

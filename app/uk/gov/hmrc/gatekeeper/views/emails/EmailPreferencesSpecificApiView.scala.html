@@ -37,85 +37,70 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsPreferencesController.selectSpecificApi(None, None).url}",
+            s"${routes.EmailsController.emailPreferencesChoice()}",
             Some("data-back-link")
         )
     )
 ) {
   <div class="govuk-template__body">
-    <form id="apiFilters" name="api-filters" action="@routes.EmailsPreferencesController.selectSpecificApi(None, None).url" method="get">
+    <form id="apiFilters" name="api-filters" action="@routes.EmailsController.selectSpecificApi(None).url" method="get">
       <div class="form-group">
           <fieldset class="govuk-fieldset">
               <legend class="govuk-heading-m">
-                  @{
-                      val filteredApisSize: Int = filteredApis.size
-                      val apiCaption: String = if(filteredApisSize < 2) "API" else "APIs"
-                      <h1 class="govuk-heading-l" id="pageTitle">You have selected {filteredApisSize} {apiCaption}</h1>
-                  }
+                  <h1 id="pageTitle">Email users interested in a specific API</h1>
               </legend>
-              <div class="govuk-form-group govuk-grid-column-two-thirds govuk-!-margin-bottom-static-0 govuk-!-padding-left-0">
-                  <dl class="govuk-summary-list hmrc-list-with-actions hmrc-list-with-actions--short">
-                  @for(filteredApi <- filteredApis) {
-                      <div class="govuk-summary-list__row">
-                          <dt class="govuk-summary-list__key hmrc-summary-list__key govuk-!-font-weight-regular govuk-!-width-one-half">
+              <div class="govuk-form-group">
+                <label class="govuk-label govuk-!-font-weight-bold" for="selectedApi">Selected API(s)</label>
+                <ul class="hmrc-add-to-a-list hmrc-add-to-a-list--short">
+                @for(filteredApi <- filteredApis) {
+                    <li class="hmrc-add-to-a-list__contents">
+                        <span class="hmrc-add-to-a-list__identifier hmrc-add-to-a-list__identifier--light">
                             @handleAppendXmlTag(filteredApi)
-                          </dt>
-                          <dd class="govuk-summary-list__actions hmrc-summary-list__actions">
-                              <ul class="govuk-summary-list__actions-list">
-                                  <li class="govuk-summary-list__actions-list-item">
-                                      <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsPreferencesController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
-                                          <span aria-hidden="true">Change</span>
-                                          <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
-                                          @if(maybeTopicFilter.isDefined) {
-                                            <span><input type="hidden" name="selectedTopic" value="@maybeTopicFilter.get.toString"/></span>
-                                          }
-                                      </a>
-                                  </li>
-                                  @if(filteredApis.size > 1) {
-                                          <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
-                                          <span aria-hidden="true">Remove</span>
-                                          <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
-                                          </a>
-                                          </li>
-                                  }
-                              </ul>
-                          </dd>
-                      </div>
-                      <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
-                  }
-                  </dl>
+                        </span>
+                        <span class="hmrc-add-to-a-list__remove">
+                            <a class="govuk-link" href="@routes.EmailsController.emailPreferencesSpecificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), None).url">
+                                <span aria-hidden="true">Remove</span>
+                                <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
+                            </a>
+                        </span>
+                        <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
+                        }
+                </ul>
+              </div>
+              <div class="form-field">
+                  <a href="#" onclick='document.getElementById("apiFilters").submit();'>Add Another Api</a>
               </div>
           </fieldset>
       </div>
     </form>
-    <form id="addAnotherApiChoice" name="add-another-api-choice" action="@routes.EmailsPreferencesController.addAnotherApiOption("", None, None).url" method="get">
+    <form id="topicFilter" name="topic-filter" action="@routes.EmailsController.emailPreferencesSpecificApis(List.empty, None).url" method="get">
       <div class="form-group">
           <fieldset class=" govuk-fieldset">
-              <legend class="govuk-fieldset__legend govuk-fieldset__legend govuk-fieldset__legend--s">
-                  Do you need to add another API?
-              </legend>
-              <div id="addAnotherHint" class="govuk-hint">Add all the APIs you need to email about</div>
-              <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
-                  <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="yesOption" name="selectOption" value="Yes" type="radio">
-                      <label class="govuk-label govuk-radios__label" for="yesOption">Yes</label>
-                  </div>
-                  <div class="govuk-radios__item">
-                      <input class="govuk-radios__input" id="noOption"  name="selectOption" value="No" type="radio" checked>
-                      <label class="govuk-label govuk-radios__label" for="noOption">No</label>
-                  </div>
-              </div>
               @for(filteredApi <- filteredApis) {
                   <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
               }
-              @if(maybeTopicFilter.nonEmpty) {
-                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
+              <div class="govuk-form-group">
+              @topicRadioGrid(maybeTopicFilter)
+              </div>
+              @if(maybeTopicFilter.isDefined) {
+                <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter Again</button>
+              } else {
+                <button id="filter" type="submit" name="main-submit" class="govuk-button" data-module="govuk-button">Filter</button>
               }
           </fieldset>
       </div>
-      <button id="select" class="govuk-button govuk-!-margin-top-static-6" data-module="govuk-button" type="submit">Continue</button>
     </form>
+
+    @if(maybeTopicFilter.isDefined) {
+      <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
+
+      @if(filteredApis.nonEmpty) {
+          @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.serviceName)), None, false, None, false), applicationConfig, Map("API" -> filteredApis.head.displayName,
+          "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+      } else {
+          @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), Some(filteredApis.map(api => api.serviceName)), None, false, None, false, None), applicationConfig, Map("API" -> "",
+          "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
+      }
+    }
   </div>
 }

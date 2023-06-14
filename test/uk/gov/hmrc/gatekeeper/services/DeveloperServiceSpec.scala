@@ -427,7 +427,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
         await(underTest.fetchDeveloper(UuidIdentifier(user.userId), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
+        case _                          => fail
       }
     }
 
@@ -436,13 +436,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       DeveloperConnectorMock.FetchByUserId.handles(user)
       DeveloperConnectorMock.FetchById.handles(user)
       XmlServiceMock.GetXmlServicesForUser.returnsApis(user, Set.empty)
-      XmlServiceMock.GetXmlOrganisationsForUser.returnsError()
+      XmlServiceMock.GetXmlOrganisationsForUser.returnsError
 
       intercept[UpstreamErrorResponse](
         await(underTest.fetchDeveloper(UuidIdentifier(user.userId), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
+        case _                          => fail
       }
     }
   }

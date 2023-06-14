@@ -43,11 +43,11 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 class EmailsPreferencesController @Inject() (
     developerService: DeveloperService,
     apiDefinitionService: ApiDefinitionService,
-    emailAllUsersView: EmailAllUsersView,
-    emailInformationView: EmailInformationView,
-    emailPreferencesChoiceView: EmailPreferencesChoiceView,
-    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
-    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+    emailsAllUsersNewView: EmailAllUsersNewView,
+    emailInformationNewView: EmailInformationNewView,
+    emailPreferencesChoiceNewView: EmailPreferencesChoiceNewView,
+    emailPreferencesSpecificApiNewView: EmailPreferencesSpecificApiNewView,
+    emailPreferencesSelectApiNewView: EmailPreferencesSelectApiNewView,
     emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     emailPreferencesSelectedTopicView: EmailPreferencesSelectedTopicView,
     emailPreferencesSelectTaxRegimeView: EmailPreferencesSelectTaxRegimeView,
@@ -72,7 +72,7 @@ class EmailsPreferencesController @Inject() (
     with ApplicationLogger {
 
   def emailPreferencesChoice(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    Future.successful(Ok(emailPreferencesChoiceView()))
+    Future.successful(Ok(emailPreferencesChoiceNewView()))
   }
 
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -85,16 +85,16 @@ class EmailsPreferencesController @Inject() (
     }
 
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
-      Future.successful(BadRequest(emailPreferencesChoiceView()))
+      Future.successful(BadRequest(emailPreferencesChoiceNewView()))
 
-    SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
   }
 
   def selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
-    } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
+    } yield Ok(emailPreferencesSelectApiNewView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
   }
 
   def selectSubscribedApiPage(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -134,7 +134,7 @@ class EmailsPreferencesController @Inject() (
   def selectedUserTaxRegime(selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] = {
     anyStrideUserAction { implicit request =>
       for {
-        categories                <- apiDefinitionService.apiCategories()
+        categories                <- apiDefinitionService.apiCategories
         selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
         userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
         totalCount                 = userPaginatedResponse.totalCount
@@ -215,7 +215,7 @@ class EmailsPreferencesController @Inject() (
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
         combinedUsers = publicUsers ++ privateUsers
         usersAsJson   = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 
@@ -246,21 +246,20 @@ class EmailsPreferencesController @Inject() (
       for {
         apis                <- apmService.fetchAllCombinedApis()
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        categories          <- apiDefinitionService.apiCategories()
+        categories          <- apiDefinitionService.apiCategories
         userPaginatedResult <- topicAndCategory.map(tup =>
                                  developerService.fetchDevelopersByEmailPreferencesPaginated(Some(tup._1), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
                                )
                                  .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
-        usersToEmail         <- topicAndCategory.map(tup =>
-                                  developerService.fetchDevelopersByEmailPreferences(tup._1, Some(selectedAPIs), Some(APICategory(tup._2)))
-                                ).getOrElse(Future.successful(List.empty[RegisteredUser]))
+        usersAsJson          = Json.toJson(users)
         selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
         selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
       } yield Ok(emailPreferencesSelectedTopicView(
         users,
-        usersToEmailCopyText(usersToEmail.filter(_.verified)),
+        usersAsJson,
+        usersToEmailCopyText(users),
         topicAndCategory.map(_._1),
         categories,
         selectedCategory.getOrElse(""),
@@ -286,7 +285,7 @@ class EmailsPreferencesController @Inject() (
 
   def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
-      categories        <- apiDefinitionService.apiCategories()
+      categories        <- apiDefinitionService.apiCategories
       selectedCategories = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
     } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategories))
   }
@@ -294,15 +293,15 @@ class EmailsPreferencesController @Inject() (
   def selectedTaxRegime(selectedCategories: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
     for {
-      categories        <- apiDefinitionService.apiCategories()
+      categories        <- apiDefinitionService.apiCategories
       filteredCategories = filterSelectedCategories(Some(selectedCategories), categories).sortBy(_.name)
     } yield Ok(emailPreferencesSelectedTaxRegimeView(filteredCategories, selectedTopic))
   }
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {
-      case "all-users"        => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))
-      case "api-subscription" => Future.successful(Ok(emailInformationView(EmailOptionChoice.API_SUBSCRIPTION)))
+      case "all-users"        => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.EMAIL_ALL_USERS)))
+      case "api-subscription" => Future.successful(Ok(emailInformationNewView(EmailOptionChoice.API_SUBSCRIPTION)))
       case _                  => Future.failed(new NotFoundException("Page Not Found"))
     }
   }
@@ -313,6 +312,6 @@ class EmailsPreferencesController @Inject() (
       filteredUsers = result.users.filter(_.verified)
       usersAsJson   = Json.toJson(filteredUsers)
       totalCount    = result.totalCount
-    } yield Ok(emailAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
+    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
   }
 }

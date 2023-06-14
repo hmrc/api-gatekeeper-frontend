@@ -88,6 +88,19 @@ class TeamMembersController @Inject() (
     }
   }
 
+  // def worked(successResult: Result): PartialFunction[Either[List[CommandFailure],T], Unit] = {
+  //   case Right(()) => successResult
+  // }
+
+  // val otherwiseThrow: PartialFunction[Either[List[CommandFailure],_], Result] = {
+  //   case _ => throw new RuntimeException("Bang")
+  // }
+
+  // def failOnCollaborAlreadyExists(failureResult: Result): PartialFunction[Either[List[CommandFailure],_], Result] = {
+  //   case Left(List(CommandFailures.CollaboratorAlreadyExistsOnApp)) => failureResult
+  // }
+  // e => worked(successResult) orElse failOnCollaborAlreadyExists(failureResult) orElse otherwiseThrow }
+
   def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction(implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
@@ -114,7 +127,7 @@ class TeamMembersController @Inject() (
       def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
         successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
 
-      AddTeamMemberForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      AddTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }
   )
 
@@ -128,7 +141,7 @@ class TeamMembersController @Inject() (
         successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
       }
 
-      RemoveTeamMemberForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      RemoveTeamMemberForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }
   }
 
@@ -156,7 +169,7 @@ class TeamMembersController @Inject() (
       def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
         successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
 
-      RemoveTeamMemberConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      RemoveTeamMemberConfirmationForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
     }
   }
 }

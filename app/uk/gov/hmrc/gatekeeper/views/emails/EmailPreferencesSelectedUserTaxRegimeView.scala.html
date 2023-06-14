@@ -37,11 +37,10 @@
     ceil(totalCount.toDouble / limit).toInt
 }
 
-@tpdQuery = @{
+@tpdQuery() = @{
     new DevelopersEmailQuery(None, None, Some(selectedCategories.map(cat => APICategory(cat.name))), false, None, false)
 }
-
-@userSelection = @{
+@userSelection() = @{
     Map("Tax Regime" -> selectedCategories.map(_.name).mkString("<br>"))
 }
 @main(

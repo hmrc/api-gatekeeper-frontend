@@ -60,7 +60,7 @@ class DeploymentApprovalController @Inject() (
   }
 
   def handleApproval(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest()
+    val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest
 
     def errors(errors: Form[HandleApprovalForm]) =
       fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
@@ -79,7 +79,7 @@ class DeploymentApprovalController @Inject() (
       validForm.approval_confirmation match {
         case "Yes" =>
           doCalls(serviceName, Environment.withName(environment)) map {
-            _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
+            _ => Redirect(routes.DeploymentApprovalController.pendingPage.url, SEE_OTHER)
           }
         case _     => throw new UnsupportedOperationException("Can't Reject Service Approval")
       }

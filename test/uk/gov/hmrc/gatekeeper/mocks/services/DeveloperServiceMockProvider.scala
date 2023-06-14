@@ -138,7 +138,7 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersByEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *, *)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(successful(users.toList))
     }
 
     object FetchDevelopersByEmailPreferencesPaginated {

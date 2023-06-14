@@ -25,7 +25,7 @@ import uk.gov.hmrc.internalauth.client.Retrieval
 import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBehaviour}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComponentsFactory {
   val fakeRequest = FakeRequest()
@@ -72,9 +72,9 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
   "return a logged in request when the user has ldap session and is authorised for GK" in new Setup with SessionPresent with Authorised {
     val result = await(underTest.refineLdap(msgRequest))
 
-    result.isRight shouldBe true
+    result shouldBe 'Right
 
-    inside(result) { case Right(lir) =>
+    inside(result.right.value) { case lir: LoggedInRequest[_] =>
       lir.name shouldBe Some("Bob")
       lir.role shouldBe GatekeeperRoles.READ_ONLY
     }
@@ -83,7 +83,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
   "return the original request when the user has ldap session but is NOT authorised for GK" in new Setup with SessionPresent with Unauthorised {
     val result = await(underTest.refineLdap(msgRequest))
 
-    result.isLeft shouldBe true
+    result shouldBe 'Left
 
     result.left.value shouldBe msgRequest
   }
@@ -91,7 +91,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
   "return the original request when the user has no session" in new Setup with NoSessionPresent {
     val result = await(underTest.refineLdap(msgRequest))
 
-    result.isLeft shouldBe true
+    result shouldBe 'Left
 
     result.left.value shouldBe msgRequest
   }

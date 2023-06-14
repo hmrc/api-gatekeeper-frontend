@@ -58,7 +58,7 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA heading")
-      assert(DeveloperDetailsPage.mfaHeading() == "Multi-factor authentication")
+      assert(DeveloperDetailsPage.mfaHeading == "Multi-factor authentication")
 
       Then("I can see the Link to remove MFA")
       assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")

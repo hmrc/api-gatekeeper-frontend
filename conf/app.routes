@@ -11,13 +11,13 @@ POST        /developer/delete                                                 uk
 GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
 POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
 
-GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage()
-POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage()
+GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage
+POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage
 
 GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
 
-GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv()
+GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv
 GET         /applications/subscriptions/csv                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationWithSubscriptionsCsv(environment: Option[String] ?= None)
 
 GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
@@ -66,9 +66,9 @@ POST        /applications/:id/team-members/remove                             uk
 
 GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /nav-links                                                        uk.gov.hmrc.gatekeeper.controllers.NavigationController.navLinks()
-GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage()
-GET         /terms-of-use                                                     uk.gov.hmrc.gatekeeper.controllers.TermsOfUseController.page()
+GET         /nav-links                                                        uk.gov.hmrc.gatekeeper.controllers.NavigationController.navLinks
+GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage
+GET         /terms-of-use                                                     uk.gov.hmrc.gatekeeper.controllers.TermsOfUseController.page
 
 GET         /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationPage(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 POST        /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationAction(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
@@ -79,28 +79,41 @@ POST        /applications/:id/block                                           uk
 GET         /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationPage(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 POST        /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationAction(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
-GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationPage()
-POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationAction()
+GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationPage
+POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationAction
 
-GET         /pending                                                          uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.pendingPage()
+GET         /pending                                                          uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.pendingPage
 GET         /pending/:serviceName/review-sandbox                              uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
 GET         /pending/:serviceName/review-production                           uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
 POST        /pending/:serviceName/approve-sandbox                             uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
 POST        /pending/:serviceName/approve-productio                           uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
 
-GET         /apis                                                             uk.gov.hmrc.gatekeeper.controllers.ApiDefinitionController.apis()
+GET         /apis                                                             uk.gov.hmrc.gatekeeper.controllers.ApiDefinitionController.apis
 
-GET         /subscriptionFieldValues                                          uk.gov.hmrc.gatekeeper.controllers.SubscriptionFieldsController.subscriptionFieldValues()
+GET         /subscriptionFieldValues                                          uk.gov.hmrc.gatekeeper.controllers.SubscriptionFieldsController.subscriptionFieldValues
 
-GET         /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailPreferencesChoice()
-POST        /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.chooseEmailPreferences()
+GET         /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.landing()
+POST        /emails                                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailOption()
 
-GET         /emails/all-users                                                 uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailAllUsersPage(offset: Int ?=0, limit: Int ?=15)
-GET         /emails/:emailChoice/information                                  uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.showEmailInformation(emailChoice: String)
+GET         /emails/:emailChoice/information                                  uk.gov.hmrc.gatekeeper.controllers.EmailsController.showEmailInformation(emailChoice: String)
+GET         /emails/all-users                                                 uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailAllUsersPage()
+GET         /emails/api-subscribers                                           uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailApiSubscribersPage(apiVersionFilter: Option[String])
+
+GET         /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesChoice()
+POST        /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailPreferences()
+GET         /emails/email-preferences/by-topic                                uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesTopic(selectedTopic: Option[String])
+GET         /emails/email-preferences/select-api                              uk.gov.hmrc.gatekeeper.controllers.EmailsController.selectSpecificApi(selectedAPIs: Option[List[String]])
+GET         /emails/email-preferences/by-api-category                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesApiCategory(selectedTopic: Option[String], selectedCategory:Option[String])
+GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[String])
+
+GET         /emails/all-users-new                                             uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailAllUsersPage(offset: Int ?=0, limit: Int ?=15)
+GET         /emails/:emailChoice/information-new                              uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.showEmailInformation(emailChoice: String)
+GET         /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.emailPreferencesChoice()
+POST        /emails/email-preferences-new                                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.chooseEmailPreferences()
 GET         /emails/email-preferences/select-tax-regime                       uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectTaxRegime(selectedCategories: Option[List[String]])
-GET         /emails/email-preferences/select-api                              uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String])
+GET         /emails/email-preferences/select-api-new                          uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[String])
 GET         /emails/email-preferences/select-subscribed-api                   uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs: Option[List[String]])
-GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.specificApis(selectedAPIs: List[String], selectedTopic: Option[String])
+GET         /emails/email-preferences/by-specific-api-new                     uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.specificApis(selectedAPIs: List[String], selectedTopic: Option[String])
 GET         /emails/email-preferences/by-subscribed-api                       uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.subscribedApis(selectedAPIs: List[String])
 GET         /emails/email-preferences/by-specific-tax-regime                  uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectedTaxRegime(selectedCategories: List[String], selectedTopic: Option[String])
 GET         /emails/email-preferences/select-topic                            uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectTopicPage(selectedAPIs: Option[List[String]], selectedTopic: Option[String])

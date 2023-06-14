@@ -94,7 +94,7 @@ class ApiCataloguePublishConnectorSpec
         val result: Either[Throwable, PublishResponse] = await(underTest.publishByServiceName(serviceName))
         result match {
           case Left(_: Upstream5xxResponse) => succeed
-          case _                            => fail()
+          case _                            => fail
         }
 
       }
@@ -111,7 +111,7 @@ class ApiCataloguePublishConnectorSpec
 
         primePostWithBody(publishAllUrl, OK, expectedResponseAsString)
 
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
         result match {
           case Right(response: PublishAllResponse) => response shouldBe expectedResponse
           case Left(_: Throwable)                  => fail()
@@ -120,10 +120,10 @@ class ApiCataloguePublishConnectorSpec
 
       "return Left if there is an error in the backend" in new Setup {
         primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
         result match {
           case Left(_: Upstream5xxResponse) => succeed
-          case _                            => fail()
+          case _                            => fail
         }
       }
     }

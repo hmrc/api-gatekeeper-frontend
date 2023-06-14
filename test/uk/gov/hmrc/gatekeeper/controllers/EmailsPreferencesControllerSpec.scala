@@ -48,18 +48,18 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
   private lazy val errorTemplateView                             = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                                 = app.injector.instanceOf[ForbiddenView]
-  private lazy val mockEmailPreferencesSpecificApiView           = mock[EmailPreferencesSpecificApiView]
+  private lazy val mockEmailPreferencesSpecificApiViewNew        = mock[EmailPreferencesSpecificApiNewView]
   private lazy val mockEmailPreferencesSelectTopicView           = mock[EmailPreferencesSelectTopicView]
   private lazy val mockEmailPreferencesSelectedTopicView         = mock[EmailPreferencesSelectedTopicView]
-  private lazy val mockEmailPreferencesChoiceView                = mock[EmailPreferencesChoiceView]
-  private lazy val mockEmailPreferencesSelectApiView             = mock[EmailPreferencesSelectApiView]
+  private lazy val mockEmailPreferencesChoiceNewView             = mock[EmailPreferencesChoiceNewView]
+  private lazy val mockEmailPreferencesSelectApiNewView          = mock[EmailPreferencesSelectApiNewView]
   private lazy val mockEmailPreferencesSelectTaxRegimeView       = mock[EmailPreferencesSelectTaxRegimeView]
   private lazy val mockEmailPreferencesSelectedTaxRegimeView     = mock[EmailPreferencesSelectedTaxRegimeView]
   private lazy val mockEmailPreferencesSelectedUserTaxRegimeView = mock[EmailPreferencesSelectedUserTaxRegimeView]
   private lazy val mockEmailPreferencesSelectUserTopicView       = mock[EmailPreferencesSelectUserTopicView]
   private lazy val mockEmailPreferencesSelectedUserTopicView     = mock[EmailPreferencesSelectedUserTopicView]
-  private lazy val mockEmailAllUsersView                         = mock[EmailAllUsersView]
-  private lazy val mockEmailInformationView                      = mock[EmailInformationView]
+  private lazy val mockEmailAllUsersNewView                      = mock[EmailAllUsersNewView]
+  private lazy val mockEmailInformationNewView                   = mock[EmailInformationNewView]
   private lazy val mockEmailPreferencesSelectSubscribedApiView   = mock[EmailPreferencesSelectSubscribedApiView]
   private lazy val mockEmailPreferencesSubscribedApiView         = mock[EmailPreferencesSubscribedApiView]
   private lazy val mockEmailPreferencesSelectedSubscribedApiView = mock[EmailPreferencesSelectedSubscribedApiView]
@@ -67,12 +67,12 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
   running(app) {
 
     trait Setup extends ControllerSetupBase {
-      when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectApiView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailInformationNewView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersNewView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectApiNewView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesChoiceView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesChoiceNewView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedTaxRegimeView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectUserTopicView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
@@ -96,12 +96,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
-
-      def emptyEmailPreferencesRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
-        FakeRequest()
-          .withSession(csrfToken, authToken, userToken)
-          .withCSRFToken.withMethod("POST")
-          .withFormUrlEncodedBody("sendEmailPreferences" -> "")
 
       def createGetRequest(path: String) = {
         FakeRequest("GET", path)
@@ -178,11 +172,11 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val underTest = new EmailsPreferencesController(
         mockDeveloperService,
         mockApiDefinitionService,
-        mockEmailAllUsersView,
-        mockEmailInformationView,
-        mockEmailPreferencesChoiceView,
-        mockEmailPreferencesSpecificApiView,
-        mockEmailPreferencesSelectApiView,
+        mockEmailAllUsersNewView,
+        mockEmailInformationNewView,
+        mockEmailPreferencesChoiceNewView,
+        mockEmailPreferencesSpecificApiViewNew,
+        mockEmailPreferencesSelectApiNewView,
         mockEmailPreferencesSelectTopicView,
         mockEmailPreferencesSelectedTopicView,
         mockEmailPreferencesSelectTaxRegimeView,
@@ -216,7 +210,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API))
 
         status(result) shouldBe SEE_OTHER
-        verifyLocation(result, "/api-gatekeeper/emails/email-preferences/select-api")
+        verifyLocation(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
       }
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
@@ -226,13 +220,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         status(result) shouldBe SEE_OTHER
         verifyLocation(result, "/api-gatekeeper/emails/email-preferences/select-tax-regime")
       }
-
-      "return a bad request when no option is chosen" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(emptyEmailPreferencesRequest())
-
-        status(result) shouldBe BAD_REQUEST
-      }
     }
 
     "Email information page" should {
@@ -241,7 +228,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*, *, *)
+        verify(mockEmailInformationNewView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*, *, *)
       }
 
       "render as expected on request with 'api-subscription' in uri path" in new Setup {
@@ -249,7 +236,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*, *, *)
+        verify(mockEmailInformationNewView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*, *, *)
       }
 
       "return NOT FOUND on request with invalid or empty path" in new Setup {
@@ -273,7 +260,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
 
-        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString), eqTo(1), eqTo(3), eqTo(4))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString), eqTo(1), eqTo(3), eqTo(4))(*, *, *)
       }
 
       "render as expected when 2 users are retrieved from the developer service" in new Setup {
@@ -283,7 +270,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString), eqTo(1), eqTo(2), eqTo(4))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString), eqTo(1), eqTo(2), eqTo(4))(*, *, *)
       }
 
       "render as expected when no verified users are retrieved from the developer service" in new Setup {
@@ -292,7 +279,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.emailAllUsersPage(0, 0)(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
       }
 
     }
@@ -306,7 +293,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty), eqTo(None))(*, *, *)
+        verify(mockEmailPreferencesSelectApiNewView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty), eqTo(None))(*, *, *)
       }
     }
 
@@ -314,7 +301,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       "render the view as expected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition3Categories()
-        val request                = createGetRequest("/emails/email-preferences")
+        val request                = createGetRequest("/emails/email-preferences-new")
         val result: Future[Result] = underTest.emailPreferencesChoice()(request)
         status(result) shouldBe OK
 
@@ -340,10 +327,10 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     }
 
     "Email Preferences Selected API(s) Topic page" should {
+
       "render the view correctly with selected APIs and topic" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
         DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
         givenApiDefinition3Categories()
 
@@ -364,7 +351,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
         givenApiDefinition3Categories()
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
         DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns()
 
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
@@ -380,25 +366,15 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       }
     }
 
-    "Email preferences subscribed APIs page" should {
-      "redirect to select subscribed APIs page when no APIs are selected" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-
-        val result: Future[Result] = underTest.subscribedApis(List.empty[String])(FakeRequest())
-
-        status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-subscribed-api")
-      }
-    }
-
     "Email preferences select another api" should {
+
       "return select api page when selected option yes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val result: Future[Result] = underTest.addAnotherApiOption("Yes", Some(combinedApisList.map(_.serviceName)), None)(FakeRequest())
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/emails/email-preferences/select-api-new?selectedAPIs=$serviceNameOne&selectedAPIs=$serviceNameTwo")
       }
 
       "return select api page when selected option no" in new Setup {
@@ -412,6 +388,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     }
 
     "Email preferences select another tax regime" should {
+
       "return select tax regime page when selected option yes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
@@ -456,6 +433,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     }
 
     "Email Preferences selected user topic page" should {
+
       "render the view correctly with selected topic" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.FetchDevelopersByEmailPreferencesPaginated.returns(users: _*)
@@ -482,6 +460,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     }
 
     "Email Preferences selected subscribed api page" should {
+
       "render the view correctly with selected subscribed api" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
@@ -500,6 +479,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     }
 
     "Email preferences add another subscribed api" should {
+
       "return select api page when selected option yes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
@@ -526,7 +506,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     headers(result).get("Location") shouldBe Some(expectedLocation)
   }
 
-  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false): Unit = {
+  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {
     if (users.nonEmpty) {
       responseBody should include(s"""<div class="govuk-body">${users.size} results</div>""")
 

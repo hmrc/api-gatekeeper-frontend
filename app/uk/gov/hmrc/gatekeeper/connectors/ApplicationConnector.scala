@@ -60,9 +60,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def http: HttpClient
 
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.text()}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.text}"
 
-  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId.text()}"
+  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId.text}"
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
@@ -274,7 +274,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.text()}")
+    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.text}")
       .map(_ match {
         case Some(_) => true
         case None    => false
@@ -282,7 +282,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId.text()}")
+    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId.text}")
       .map(_ match {
         case Some(_) => true
         case None    => false

@@ -53,7 +53,7 @@
     </div>
   }
 
-  @helper.form(action = routes.ApplicationController.handleUplift(application.id), Symbol("class") -> "form") {
+  @helper.form(action = routes.ApplicationController.handleUplift(application.id), 'class -> "form") {
     @helper.CSRF.formField
     <div class="govuk-form-group @if(form.errors("action").nonEmpty) {form-field--error}" data-journey-dynamic-radios>
       <fieldset id="action" class="govuk-fieldset" data-target="rejection-reason" data-trigger="js-toggle-trigger" data-open="reject-app" data-close="approve-app">
@@ -84,7 +84,7 @@
       <p class="govuk-hint">
         Tell the submitter why the application failed the check. This text will appear in the email to them.
       </p>
-      @fieldError(form.errors, "reason", true)
+      @fieldError2(form.errors, "reason", true)
       <textarea class="govuk-textarea @if(form.errors("reason").nonEmpty) {error-field}" id="reason" name="reason" rows="5"></textarea>
     </div>
 

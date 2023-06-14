@@ -289,7 +289,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(
         buildAppStateHistories()
       )
-      val result = await(underTest.fetchProdAppStateHistories())
+      val result = await(underTest.fetchProdAppStateHistories)
       result shouldEqual List()
     }
 
@@ -297,7 +297,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val appStateHistory = buildAppStateHistories(State.TESTING)
       ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(appStateHistory)
 
-      val result = await(underTest.fetchProdAppStateHistories())
+      val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
         ApplicationStateHistoryChange(
@@ -316,7 +316,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val appStateHistory = buildAppStateHistories(State.TESTING, State.PENDING_GATEKEEPER_APPROVAL, State.PRODUCTION)
       ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(appStateHistory)
 
-      val result = await(underTest.fetchProdAppStateHistories())
+      val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
         ApplicationStateHistoryChange(
@@ -353,7 +353,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val app2StateHistory = buildAppStateHistories(State.TESTING, State.PRODUCTION)
       ApplicationConnectorMock.Prod.FetchAllApplicationsWithStateHistories.returns(app1StateHistory, app2StateHistory)
 
-      val result = await(underTest.fetchProdAppStateHistories())
+      val result = await(underTest.fetchProdAppStateHistories)
 
       result shouldEqual List(
         ApplicationStateHistoryChange(

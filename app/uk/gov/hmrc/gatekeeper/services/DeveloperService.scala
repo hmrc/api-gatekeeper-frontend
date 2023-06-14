@@ -99,7 +99,7 @@ class DeveloperService @Inject() (
     }
 
     lazy val unregisteredCollaborators: Map[KEY, Set[Application]] =
-      linkAppsAndCollaborators(apps).view.filterKeys(k => !registeredEmails.contains(k._1)).toMap
+      linkAppsAndCollaborators(apps).filterKeys(k => !registeredEmails.contains(k._1))
 
     lazy val unregistered: Set[Developer] =
       unregisteredCollaborators.map {
@@ -136,7 +136,7 @@ class DeveloperService @Inject() (
   }
 
   def fetchUsers(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    developerConnector.fetchAll().map(_.sortBy(_.sortField))
+    developerConnector.fetchAll.map(_.sortBy(_.sortField))
   }
 
   def fetchUsersPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
@@ -180,8 +180,8 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApis: Option[Seq[String]] = None, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    developerConnector.fetchByEmailPreferences(topic, maybeApis, maybeApiCategory = maybeApiCategory.map(List(_)))
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
   def fetchDevelopersByEmailPreferencesPaginated(
