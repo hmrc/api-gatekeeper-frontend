@@ -94,8 +94,8 @@ class ApiCataloguePublishConnectorSpec
 
         val result: Either[Throwable, PublishResponse] = await(underTest.publishByServiceName(serviceName))
         result match {
-          case Left(_: UpstreamErrorResponse) => succeed
-          case _                              => fail()
+          case Left(UpstreamErrorResponse(_, status, _, _)) if 500 to 599 contains status => succeed
+          case _                                                                          => fail()
         }
 
       }
@@ -123,8 +123,8 @@ class ApiCataloguePublishConnectorSpec
         primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
         val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
         result match {
-          case Left(_: UpstreamErrorResponse) => succeed
-          case _                              => fail()
+          case Left(UpstreamErrorResponse(_, status, _, _)) if 500 to 599 contains status => succeed
+          case _                                                                          => fail()
         }
       }
     }

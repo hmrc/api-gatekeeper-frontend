@@ -148,7 +148,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.toOption.get shouldBe DispatchSuccessResult(stdApp1)
+      result.right.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 
@@ -159,7 +159,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.toOption.get shouldBe DispatchSuccessResult(stdApp1)
+      result.right.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 }

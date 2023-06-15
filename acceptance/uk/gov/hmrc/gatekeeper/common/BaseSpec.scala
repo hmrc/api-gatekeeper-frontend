@@ -71,15 +71,18 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
   }
 
   override def beforeAll() = {
+    super.beforeAll()
     wireMockServer.start()
     WireMock.configureFor(stubHost, stubPort)
   }
 
   override def afterAll() = {
     wireMockServer.stop()
+    super.afterAll()
   }
 
   override def beforeEach() = {
+    super.beforeEach()
     webDriver.manage().deleteAllCookies()
     WireMock.reset()
   }
