@@ -16,27 +16,25 @@
 
 @(errors: Seq[FormError], fieldName: String, onlyLast: Boolean = true)(implicit messagesProvider: MessagesProvider)
 @if(errors.exists(_.key == fieldName)) {
-    @defining(errors.filter(_.key == fieldName)) { errors =>
-        @if(onlyLast && errors.nonEmpty) {
-        <p class="error-notification hard--bottom" data-field-error-@fieldName>
-
-            @if(errors.last.args.nonEmpty) {
-                @Messages(errors.last.message, errors.last.args.head)
-            } else {
-                @Messages(errors.last.message)
-            }
-        </p>
+  @defining(errors.filter(_.key == fieldName)) { errors =>
+    @if(onlyLast && errors.nonEmpty) {
+      <p class="govuk-error-message" data-field-error-@fieldName>
+        @if(errors.last.args.nonEmpty) {
+          <span class="govuk-visually-hidden">Error:</span> @Messages(errors.last.message, errors.last.args.head)
         } else {
-            @errors.map { err =>
-        <p class="error-notification hard--bottom" data-field-error-@fieldName>
-
-                @if(err.args.nonEmpty) {
-                    @Messages(err.message, err.args.head)
-                } else {
-                    @Messages(err.message)
-                }
-        </p>
-            }
+          <span class="govuk-visually-hidden">Error:</span> @Messages(errors.last.message)
         }
+      </p>
+    } else {
+      @errors.map { err =>
+        <p class="govuk-error-message" data-field-error-@fieldName>
+          @if(err.args.nonEmpty) {
+            <span class="govuk-visually-hidden">Error:</span> @Messages(err.message, err.args.head)
+          } else {
+            <span class="govuk-visually-hidden">Error:</span> @Messages(err.message)
+          }
+        </p>
+      }
     }
+  }
 }

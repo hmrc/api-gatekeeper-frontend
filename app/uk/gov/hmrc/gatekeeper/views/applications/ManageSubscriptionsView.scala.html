@@ -78,7 +78,7 @@
                   <div class="slider">
                     <fieldset id="@IdFormatter.identifier(apiSubscription.context, version.version.version)-toggle">
                       <div class="slider__radios">
-                        @helper.form(action = routes.SubscriptionController.subscribeToApi(model.applicationId, apiSubscription.context, version.version.version), 'class -> "form") {
+                        @helper.form(action = routes.SubscriptionController.subscribeToApi(model.applicationId, apiSubscription.context, version.version.version), Symbol("class") -> "form") {
                           @helper.CSRF.formField
                           <input class="slider__on slider__on-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.version)-on" name="@IdFormatter.identifier(apiSubscription.context, version.version.version)-subscribed" type="radio" value="true" @if(version.subscribed) {checked disabled} else {}>
                           <label class="govuk-label govuk-radios__label slider__on--label" for="@IdFormatter.identifier(apiSubscription.context, version.version.version)-on" aria-label="Subscribed to @{
@@ -89,7 +89,7 @@
                               version.version.displayedStatus
                           }">Yes</label>
                         }
-                        @helper.form(action = routes.SubscriptionController.unsubscribeFromApi(model.applicationId, apiSubscription.context, version.version.version), 'class -> "form") {
+                        @helper.form(action = routes.SubscriptionController.unsubscribeFromApi(model.applicationId, apiSubscription.context, version.version.version), Symbol("class") -> "form") {
                           @helper.CSRF.formField
                           <input class="slider__off slider__off-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.version)-off" name="@IdFormatter.identifier(apiSubscription.context, version.version.version)-subscribed" type="radio" value="false" @if(!version.subscribed) {checked disabled} else {}>
                           <label class="govuk-label govuk-radios__label slider__off--label" for="@IdFormatter.identifier(apiSubscription.context, version.version.version)-off" aria-label="Unsubscribe from @{

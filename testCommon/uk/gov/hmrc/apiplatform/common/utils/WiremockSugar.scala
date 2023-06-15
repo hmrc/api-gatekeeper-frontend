@@ -33,18 +33,18 @@ trait WireMockSugar extends BeforeAndAfterEach with BeforeAndAfterAll with WireM
 
   val wireMockServer = new WireMockServer(wireMockConfiguration)
 
-  override def beforeAll() = {
+  override def beforeAll(): Unit = {
     super.beforeAll()
     wireMockServer.start()
     WireMock.configureFor(stubHost, stubPort)
   }
 
-  override protected def afterAll() {
+  override protected def afterAll(): Unit = {
     wireMockServer.stop()
     super.afterAll()
   }
 
-  override def afterEach() {
+  override def afterEach(): Unit = {
     wireMockServer.resetMappings()
     super.afterEach()
   }

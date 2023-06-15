@@ -50,7 +50,7 @@
 
   <p class="govuk-body">We've sent an email to all team members to let them know.</p>
 
-  @helper.form(action = routes.ApplicationController.applicationsPage(None), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.applicationsPage(None), Symbol("class") -> "form") {
     @helper.CSRF.formField
     <button id="submit" class="govuk-button" type="submit">Finish</button>
   }

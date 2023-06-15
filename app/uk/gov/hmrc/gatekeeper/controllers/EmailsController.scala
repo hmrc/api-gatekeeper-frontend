@@ -85,7 +85,7 @@ class EmailsController @Inject() (
     def handleInvalidForm(formWithErrors: Form[SendEmailChoice]) =
       Future.successful(BadRequest(emailLandingView()))
 
-    SendEmailChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    SendEmailChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
   def emailPreferencesChoice(): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -103,7 +103,7 @@ class EmailsController @Inject() (
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
       Future.successful(BadRequest(emailPreferencesChoiceView()))
 
-    SendEmailPrefencesChoiceForm.form.bindFromRequest.fold(handleInvalidForm, handleValidForm)
+    SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
   def selectSpecificApi(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>

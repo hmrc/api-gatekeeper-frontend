@@ -29,7 +29,7 @@
 
     <h1 class="govuk-heading-l">Are you sure you want to remove multi-factor authentication?</h1>
 
-    @helper.form(action = routes.DeveloperController.removeMfaAction(UuidIdentifier(developer.user.userId)), 'class -> "form") {
+    @helper.form(action = routes.DeveloperController.removeMfaAction(UuidIdentifier(developer.user.userId)), Symbol("class") -> "form") {
         @helper.CSRF.formField
         <div id="confirm-removal-hint" class="govuk-hint"></div>
         <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-6">@developer.user.email.text will no longer get access codes.</p>

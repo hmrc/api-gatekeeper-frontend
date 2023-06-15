@@ -47,7 +47,7 @@
     If multiple scopes are required, use a comma to separate them.
   </p>
 
-  @helper.form(action = routes.ApplicationController.updateScopes(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.updateScopes(application.id), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
     <div class="govuk-form-group @if(form.errors("scopes").nonEmpty) {govuk-form-group--error}">

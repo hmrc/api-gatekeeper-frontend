@@ -74,7 +74,7 @@
     </tbody>
   </table>
 
-  @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), 'class -> "form") {
+  @helper.form(action = routes.ApplicationController.blockApplicationAction(application.id), Symbol("class") -> "form") {
     <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
       <h2 class="govuk-label-wrapper">
         <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
@@ -82,7 +82,7 @@
         </label>
       </h1>
       <p class="govuk-body">Enter the application name to confirm blocking</p>
-      @fieldError2(form.errors, "applicationNameConfirmation")
+      @fieldError(form.errors, "applicationNameConfirmation")
       <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">
     </div>
 

@@ -108,8 +108,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       on(ApplicationPage)
 
       stubDeveloper()
-      stubGetAllXmlApis
-      stubGetXmlApiForCategories
+      stubGetAllXmlApis()
+      stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId)
 

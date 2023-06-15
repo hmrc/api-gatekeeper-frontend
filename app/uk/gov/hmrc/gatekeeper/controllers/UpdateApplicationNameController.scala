@@ -95,7 +95,7 @@ class UpdateApplicationNameController @Inject() (
         Future.successful(BadRequest(manageApplicationNameView(app.application, form)))
       }
 
-      UpdateApplicationNameForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      UpdateApplicationNameForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
@@ -134,7 +134,7 @@ class UpdateApplicationNameController @Inject() (
         })
       }
 
-      UpdateApplicationNameAdminEmailForm.form.bindFromRequest.fold(handleFormError, handleValidForm)
+      UpdateApplicationNameAdminEmailForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 
