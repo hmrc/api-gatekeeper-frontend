@@ -176,7 +176,7 @@ class EmailsController @Inject() (
       } yield (topic, category)
 
     for {
-      categories          <- apiDefinitionService.apiCategories
+      categories          <- apiDefinitionService.apiCategories()
       users               <- topicAndCategory.map(tup =>
                                developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
                              )
