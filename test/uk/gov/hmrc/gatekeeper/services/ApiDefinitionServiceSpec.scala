@@ -196,7 +196,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       ApiDefinitionConnectorMock.Prod.FetchAPICategories.returns(prodCategories: _*)
       ApiDefinitionConnectorMock.Sandbox.FetchAPICategories.returns(sandboxCategories: _*)
 
-      val response: List[APICategoryDetails] = await(definitionService.apiCategories)
+      val response: List[APICategoryDetails] = await(definitionService.apiCategories())
       response should contain only (allCategories: _*)
     }
   }

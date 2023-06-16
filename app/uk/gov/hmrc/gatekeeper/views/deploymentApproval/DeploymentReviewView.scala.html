@@ -72,7 +72,7 @@
   </div>
 
   @helper.form(action = controllers.routes.DeploymentApprovalController.handleApproval(apiDefinition.serviceName, apiDefinition.environment.get.toString),
-  'class -> "form") {
+  Symbol("class") -> "form") {
     @helper.CSRF.formField
     <div class="govuk-form-group">
       <fieldset class="govuk-fieldset">

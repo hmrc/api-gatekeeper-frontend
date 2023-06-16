@@ -172,12 +172,12 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
     )
   }
 
-  private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]) {
+  private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]): Unit = {
     for ((dev, index) <- devList) {
-      webDriver.findElement(By.id(s"dev-fn-$index")).getText shouldBe dev._1
-      webDriver.findElement(By.id(s"dev-sn-$index")).getText shouldBe dev._2
-      webDriver.findElement(By.id(s"dev-email-$index")).getText shouldBe dev._3
-      webDriver.findElement(By.id(s"dev-status-$index")).getText shouldBe dev._4
+      webDriver.findElement(By.id(s"dev-fn-$index")).getText() shouldBe dev._1
+      webDriver.findElement(By.id(s"dev-sn-$index")).getText() shouldBe dev._2
+      webDriver.findElement(By.id(s"dev-email-$index")).getText() shouldBe dev._3
+      webDriver.findElement(By.id(s"dev-status-$index")).getText() shouldBe dev._4
     }
   }
 

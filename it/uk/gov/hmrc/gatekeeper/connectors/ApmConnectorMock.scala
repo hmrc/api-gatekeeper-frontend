@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 trait ApmConnectorMock {
   self: WiremockSugarIt =>
 
-  def mockApplicationWithSubscriptionData(applicationId: ApplicationId) {
+  def mockApplicationWithSubscriptionData(applicationId: ApplicationId): Unit = {
     stubFor(get(urlEqualTo(s"/applications/${applicationId.value.toString()}"))
       .willReturn(
         aResponse()

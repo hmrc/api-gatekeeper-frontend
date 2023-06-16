@@ -37,11 +37,11 @@
     ceil(totalCount.toDouble / limit).toInt
 }
 
-@tpdQuery() = @{
+@tpdQuery = @{
     new DevelopersEmailQuery(None, Some(selectedAPIs.map(api => api.serviceName)), None, false, None, false)
 }
 
-@userSelection() = @{
+@userSelection = @{
     Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"))
 }
     @main(

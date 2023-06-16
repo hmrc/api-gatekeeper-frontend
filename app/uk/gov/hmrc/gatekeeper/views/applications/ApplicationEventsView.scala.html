@@ -31,7 +31,7 @@
 
   <h2 class="govuk-heading-m">Filters</h2> 
 
-  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), 'class -> "form") {
+  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
     <div class="govuk-grid-row">

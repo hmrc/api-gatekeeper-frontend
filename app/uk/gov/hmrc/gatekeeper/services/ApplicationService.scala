@@ -105,7 +105,7 @@ class ApplicationService @Inject() (
 
     apiFilter match {
       case OneOrMoreSubscriptions       =>
-        val allFutures    = connectors.map(_.fetchAllApplications)
+        val allFutures    = connectors.map(_.fetchAllApplications())
         val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
         for {
           all    <- combine(allFutures)
@@ -136,7 +136,7 @@ class ApplicationService @Inject() (
   }
 
   def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptionsResponse]] = {
-    applicationConnectorFor(env).fetchApplicationsWithSubscriptions
+    applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
   def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {

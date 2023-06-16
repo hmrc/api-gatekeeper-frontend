@@ -19,11 +19,12 @@ package uk.gov.hmrc.gatekeeper.connectors
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, Upstream5xxResponse}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
@@ -93,8 +94,8 @@ class ApiCataloguePublishConnectorSpec
 
         val result: Either[Throwable, PublishResponse] = await(underTest.publishByServiceName(serviceName))
         result match {
-          case Left(_: Upstream5xxResponse) => succeed
-          case _                            => fail
+          case Left(UpstreamErrorResponse(_, status, _, _)) if 500 to 599 contains status => succeed
+          case _                                                                          => fail()
         }
 
       }
@@ -111,7 +112,7 @@ class ApiCataloguePublishConnectorSpec
 
         primePostWithBody(publishAllUrl, OK, expectedResponseAsString)
 
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
         result match {
           case Right(response: PublishAllResponse) => response shouldBe expectedResponse
           case Left(_: Throwable)                  => fail()
@@ -120,10 +121,10 @@ class ApiCataloguePublishConnectorSpec
 
       "return Left if there is an error in the backend" in new Setup {
         primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll)
+        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
         result match {
-          case Left(_: Upstream5xxResponse) => succeed
-          case _                            => fail
+          case Left(UpstreamErrorResponse(_, status, _, _)) if 500 to 599 contains status => succeed
+          case _                                                                          => fail()
         }
       }
     }

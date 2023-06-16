@@ -21,13 +21,10 @@ lazy val SandboxTest = config("sandbox") extend Test
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
 ThisBuild / scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.6.0"
 
-inThisBuild(
-  List(
-    scalaVersion := "2.12.15",
-    semanticdbEnabled := true,
-    semanticdbVersion := scalafixSemanticdb.revision
-  )
-)
+ThisBuild / semanticdbEnabled := true
+ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
+
+scalaVersion := "2.13.8"
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
@@ -46,12 +43,10 @@ lazy val microservice = Project(appName, file("."))
     Assets / pipelineStages := Seq(
       concat,
       uglify
-    ),
-    scalacOptions += "-Ypartial-unification",
+    )
   )
   .settings(scalaSettings: _*)
   .settings(
-    scalaVersion := "2.12.15",
     name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,

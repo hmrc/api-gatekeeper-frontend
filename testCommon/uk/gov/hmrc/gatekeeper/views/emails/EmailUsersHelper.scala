@@ -114,7 +114,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     }
   }
 
-  def validateButtonText(document: Document, buttonId: String, expectedButtonText: String) = {
+  def validateButtonText(document: Document, buttonId: String, expectedButtonText: String): Unit = {
     val maybeButtonElement = getElementBySelector(document, s"#$buttonId")
     withClue(s"button with id `$buttonId` was not found") {
       maybeButtonElement.isDefined shouldBe true
@@ -125,24 +125,24 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     }
   }
 
-  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1) = {
+  def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size shouldBe selectedAPIs.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
-  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Seq[APICategoryDetails], numberOfSets: Int = 1) = {
+  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Seq[APICategoryDetails], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedCategories][type=hidden]")
     elements.size shouldBe selectedCategories.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedCategories.map(_.category)
   }
 
-  def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]) {
+  def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]): Unit = {
     TopicOptionChoice.values.foreach(topic => validateTopicEntry(document, topic))
     validateSelectedTopic(document, selectedTopic)
   }
 
-  private def validateTopicEntry(document: Document, topic: TopicOptionChoice) = {
+  private def validateTopicEntry(document: Document, topic: TopicOptionChoice): Unit = {
     val maybeRadioButton = getElementBySelector(document, s"input#$topic")
     maybeRadioButton.fold(fail(s"Topic $topic radio button is missing"))(radioButton => {
       radioButton.attr("value") shouldBe topic.toString

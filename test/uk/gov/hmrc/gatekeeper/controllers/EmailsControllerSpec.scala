@@ -300,7 +300,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "email subscribers page" should {
       "render correctly (not display user table) when no filter provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition2Apis
+        givenApiDefinition2Apis()
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
@@ -309,7 +309,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render correctly and display users when api filter provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition2Apis
+        givenApiDefinition2Apis()
         given3VerifiedDevelopers1UnverifiedSearchDevelopers()
         val result: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(result) shouldBe OK
@@ -480,7 +480,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
   }
 
-  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false) {
+  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false): Unit = {
     if (users.nonEmpty) {
       responseBody should include(s"""<div class="govuk-body">${users.size} results</div>""")
 

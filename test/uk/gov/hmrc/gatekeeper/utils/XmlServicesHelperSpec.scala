@@ -68,7 +68,7 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
 
   "filterXmlEmailPreferences" should {
     "return filtered xml service names" in new Setup {
-      filterXmlEmailPreferences(emailPreferences.interests, xmlApis) should contain only (xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
+      filterXmlEmailPreferences(emailPreferences.interests, xmlApis) should contain.only(xmlApiOne.name, xmlApiTwo.name, xmlApiThree.name)
     }
 
     "return no xml service names when no xmlApis passed in" in new Setup {

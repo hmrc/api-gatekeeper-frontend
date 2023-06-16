@@ -30,7 +30,7 @@
   } else { api.displayName }
 }
 
-@drawAPIDropDown() = {
+@drawAPIDropDown = {
   <select class="govuk-select" id="selectedAPIs" name="selectedAPIs">
     <option value="">Select an API</option>
     @for(api <- apis) {
