@@ -157,8 +157,9 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
               <th tabindex="0" scope="col" class="govuk-table__header @sortClass(sort, "NAME")">
                 <a class="govuk-link govuk-link--no-visited-state" href="@pageUrl("sort" -> (if (sort == Some("NAME_ASC")) "NAME_DESC" else "NAME_ASC"))">Name</a>
               </th>
+              <!-- Bizarrely the labels use SUBMITTED but when this is passed to TPA it sorts on createdData ! -->
               <th tabindex="0" scope="col" class="govuk-table__header @sortClass(sort, "SUBMITTED")">
-                <a class="govuk-link govuk-link--no-visited-state" href="@pageUrl("sort" -> (if (sort == Some("SUBMITTED_ASC")) "SUBMITTED_DESC" else "SUBMITTED_ASC"))">Submitted</a>
+                <a class="govuk-link govuk-link--no-visited-state" href="@pageUrl("sort" -> (if (sort == Some("SUBMITTED_ASC")) "SUBMITTED_DESC" else "SUBMITTED_ASC"))">Created</a>
               </th>
               <th scope="col" class="govuk-table__header" tabindex="0">Environment</th>
               <th scope="col" class="govuk-table__header" tabindex="0">Status</th>
