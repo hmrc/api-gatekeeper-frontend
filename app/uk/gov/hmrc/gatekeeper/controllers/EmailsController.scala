@@ -151,7 +151,7 @@ class EmailsController @Inject() (
         filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
         publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, PUBLIC)
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, PRIVATE)
-        combinedUsers = publicUsers ++ privateUsers
+        combinedUsers = (publicUsers ++ privateUsers).distinct
         usersAsJson   = Json.toJson(combinedUsers)
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }

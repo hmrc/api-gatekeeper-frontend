@@ -32,8 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
+import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models._
@@ -145,12 +144,14 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiCategories.returns(category1, category2, category3)
       }
 
-      val serviceNameOne = "serviceNameOne"
-      val serviceNameTwo = "serviceNameTwo"
+      val serviceNameOne   = "serviceNameOne"
+      val serviceNameTwo   = "serviceNameTwo"
+      val serviceNameThree = "serviceNameThree"
 
-      val combinedRestApi  = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-      val combinedXmlApi   = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
-      val combinedApisList = List(combinedRestApi, combinedXmlApi)
+      val combinedRestApi        = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
+      val combinedXmlApi         = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
+      val combinedPrivateRestApi = CombinedApi("displayName3", serviceNameThree, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PRIVATE))
+      val combinedApisList       = List(combinedRestApi, combinedXmlApi, combinedPrivateRestApi)
 
       val underTest = new EmailsController(
         mockDeveloperService,
@@ -378,17 +379,20 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
 
-        val selectedAPIs  = List(combinedXmlApi)
+        val selectedAPIs  = combinedApisList
         val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
 
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic.toString))(FakeRequest())
         status(result) shouldBe OK
-        val apiNames               = selectedAPIs.map(_.serviceName)
-
-        val categories = selectedAPIs.flatMap(_.categories.map(toAPICategory))
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(categories), eqTo(apiNames), *)(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(APICategory("CUSTOMS"))), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
+          eqTo(selectedTopic),
+          eqTo(List(APICategory("CUSTOMS"), APICategory("VAT"))),
+          eqTo(List(serviceNameOne, serviceNameTwo)),
+          eqTo(false)
+        )(*)
         verify(mockEmailPreferencesSpecificApiView).apply(
           eqTo(verified2Users),
           eqTo(Json.toJson(verified2Users)),
