@@ -18,19 +18,21 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+
 import akka.stream.Materializer
+
 import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models._
@@ -385,7 +387,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         verify(mockApmService).fetchAllCombinedApis()(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(APICategory("CUSTOMS"))), eqTo(List(serviceNameThree)), eqTo(true))(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(APICategory("CUSTOMS"), APICategory("VAT"))), eqTo(List(serviceNameOne, serviceNameTwo)), eqTo(false))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
+          eqTo(selectedTopic),
+          eqTo(List(APICategory("CUSTOMS"), APICategory("VAT"))),
+          eqTo(List(serviceNameOne, serviceNameTwo)),
+          eqTo(false)
+        )(*)
         verify(mockEmailPreferencesSpecificApiView).apply(
           eqTo(verified2Users),
           eqTo(Json.toJson(verified2Users)),
