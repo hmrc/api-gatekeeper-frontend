@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.gkauth.services
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import play.api.mvc.request.RequestAttrKey
 import play.api.mvc.{ControllerComponents, MessagesRequest}
 import play.api.test.{FakeRequest, StubControllerComponentsFactory}
 import uk.gov.hmrc.internalauth.client.Retrieval
@@ -50,7 +51,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
 
   trait SessionPresent {
     self: Setup =>
-    val msgRequest = new MessagesRequest(fakeRequest.withSession("authToken" -> "Token some-token"), stubMessagesApi())
+    val msgRequest = new MessagesRequest(fakeRequest.withSession("authToken" -> "Token some-token").addAttr(RequestAttrKey.CSPNonce, "fake-nonce"), stubMessagesApi())
   }
 
   trait Authorised {
