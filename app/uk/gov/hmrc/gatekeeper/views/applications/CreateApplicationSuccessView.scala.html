@@ -26,7 +26,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
-)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
 

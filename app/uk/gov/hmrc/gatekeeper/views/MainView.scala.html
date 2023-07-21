@@ -26,7 +26,6 @@
 @import _root_.controllers.routes.Assets
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import views.html.helper.CSPNonce
 
 @this(
   govukLayout: GovukLayout,
@@ -45,16 +44,15 @@
 )(
   implicit loggedInUser: LoggedInUser = LoggedInUser(None),
   messages: Messages,
-  messagesProvider: MessagesProvider,
-  requestHeader: RequestHeader
+  messagesProvider: MessagesProvider
 )
 
 @scriptElem = {
-  <script @CSPNonce.attr src='@Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
-  <script @CSPNonce.attr src='@Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-  <script @CSPNonce.attr>window.GOVUKFrontend.initAll();</script>
-  <script @CSPNonce.attr>window.HMRCFrontend.initAll();</script>
-  <script @CSPNonce.attr src='@Assets.versioned("javascripts/apis-app.min.js")' type="text/javascript"></script>
+  <script src='@Assets.versioned("lib/govuk-frontend/govuk/all.js")'></script>
+  <script src='@Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+  <script>window.GOVUKFrontend.initAll();</script>
+  <script>window.HMRCFrontend.initAll();</script>
+  <script src='@Assets.versioned("javascripts/apis-app.min.js")' type="text/javascript"></script>
 }
 
 @head = {
@@ -112,5 +110,6 @@
   mainContentLayout = None,
   scriptsBlock = Some(scriptElem),
   footerBlock = Some(hmrcFooter(new Footer(meta = None, language = En))),
-  assetPath = None
+  assetPath = None,
+  cspNonce = None
 )(mainContentDefault)
