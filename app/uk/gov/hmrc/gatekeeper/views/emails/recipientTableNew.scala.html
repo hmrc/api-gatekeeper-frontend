@@ -37,7 +37,7 @@
           </form>
       </div>
       <div class="compose-email-clipboard">
-          <button id="copy-users-to-clip" type="submit" class="govuk-button govuk-button--secondary copy-to-clip" name="compose-email-clipboard" value="" title="Copies all @{users.length} email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
+          <button id="copy-users-to-clip" type="submit" class="govuk-button govuk-button--secondary copy-to-clip" name="compose-email-clipboard" value="" title="Copies all @{users.length} email addresses into the system clipboard.">
               Copy emails to clipboard
           </button>
       </div>
@@ -64,4 +64,8 @@
   </table>
 }else{
   <div class="govuk-body">0 results</div>
+}
+
+@views.html.helper.script(args = Symbol("type") -> "module") {
+  initCopyTextToClipboardOnClick("copy-users-to-clip", `@emails`)
 }

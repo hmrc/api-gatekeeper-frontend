@@ -24,4 +24,19 @@ function copyTextToClipboard(text) {
   }
 
   document.body.removeChild(textArea);
-};
+}
+
+function initCopyTextToClipboardOnClick(clickedElementId, text) {
+  if (clickedElementId != null) {
+    var clickedElement = document.getElementById(clickedElementId)
+    if (clickedElement != null) {
+      clickedElement.addEventListener(
+        'click',
+        function () {
+          copyTextToClipboard(text)
+        },
+        false
+      )
+    }
+  }
+}

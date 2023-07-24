@@ -513,8 +513,8 @@
         @if(application.collaborators.nonEmpty) {
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
           <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
-          <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" onclick="copyText('all-team')" data-clip-text>Copy all team member email addresses</button>
-          <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" onclick="copyText('all-admin')" data-clip-text>Copy admin email addresses</button> 
+          <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" data-clip-text>Copy all team member email addresses</button>
+          <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button> 
         }
       </dd>
       @if(!application.state.isDeleted && (request.role.isSuperUser || access.accessType == AccessType.STANDARD)) {
@@ -640,5 +640,10 @@
     @if(application.state.isApproved && application.blocked) {
       <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
+  }
+
+  @views.html.helper.script(args = Symbol("type") -> "module") {
+    initCopyTextOnClick("copy-team-emails-to-clip", "all-team")
+    initCopyTextOnClick("copy-admin-emails-to-clip", "all-admin")
   }
 }
