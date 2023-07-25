@@ -62,8 +62,8 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     if (users.nonEmpty) {
       val expectedValue = users.map(_.email.text).sorted.mkString("; ")
 
-      getElementBySelector(document, "#copy-users-to-clip")
-        .fold(fail("Copy to clipboard button not found"))(element => element.attr("onclick").contains(expectedValue) shouldBe true)
+      getElementBySelector(document, "#emails-to-copy")
+        .fold(fail("Copy to clipboard button not found"))(element => element.text.contains(expectedValue) shouldBe true)
     }
   }
 

@@ -25,6 +25,7 @@
 @if(users.nonEmpty) {
   <div class="govuk-button-group">
     <div class="compose-email-clipboard">
+      <span id="emails-to-copy" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
       <button id="copy-users-to-clip" type="submit" class="govuk-button copy-to-clip" name="compose-email-clipboard" value="" title="Copies all @{users.length} email addresses into the system clipboard.">
         Copy emails to clipboard
       </button>
@@ -70,5 +71,5 @@
 }
 
 @views.html.helper.script(args = Symbol("type") -> "module") {
-  initCopyTextToClipboardOnClick("copy-users-to-clip", `@emails`)
+  initCopyTextOnClick("copy-users-to-clip", "emails-to-copy")
 }
