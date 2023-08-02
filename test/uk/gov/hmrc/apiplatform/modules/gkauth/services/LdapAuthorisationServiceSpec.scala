@@ -42,7 +42,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
     protected def stub(
         isAuth: Boolean
       ) = when(mockStubBehaviour.stubAuth(None, expectedRetrieval)).thenReturn(Future.successful(uk.gov.hmrc.internalauth.client.~[Retrieval.Username, Boolean](
-      Retrieval.Username("Bob"),
+      Retrieval.Username("Bobby Example"),
       isAuth
     )))
 
@@ -75,7 +75,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
     result.isRight shouldBe true
 
     inside(result) { case Right(lir) =>
-      lir.name shouldBe Some("Bob")
+      lir.name shouldBe "Bobby Example"
       lir.role shouldBe GatekeeperRoles.READ_ONLY
     }
   }

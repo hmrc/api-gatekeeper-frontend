@@ -46,7 +46,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
 
   "delete developer view" should {
     implicit val request  = FakeRequest().withCSRFToken
-    implicit val userName = LoggedInUser(Some("gate.keeper"))
+    implicit val userName = LoggedInUser("gate.keeper")
     implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]

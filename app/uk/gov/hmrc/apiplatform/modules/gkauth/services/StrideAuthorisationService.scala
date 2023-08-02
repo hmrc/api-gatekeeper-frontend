@@ -56,7 +56,7 @@ class StrideAuthorisationService @Inject() (
     authorise(strideRoleRequired) map {
       case Some(name) ~ authorisedEnrolments =>
         def applyRole(role: GatekeeperRole): Either[Result, LoggedInRequest[A]] = {
-          Right(new LoggedInRequest(name.name, role, request))
+          Right(new LoggedInRequest(name.name.get, role, request))
         }
 
         (

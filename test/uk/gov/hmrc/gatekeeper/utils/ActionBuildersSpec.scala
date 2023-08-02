@@ -48,7 +48,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
     val fakeRequest                   = FakeRequest()
     val msgRequest                    = new MessagesRequest(fakeRequest, stubMessagesApi())
-    implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
+    implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type]("username", GatekeeperRoles.USER, msgRequest)
     implicit val messages             = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)

@@ -41,7 +41,7 @@ class EmailPreferencesSelectTopicViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and options while selecting topic" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTopicView.render(List.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectTopicView.render(List.empty, None, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesSelectTopicPage(Jsoup.parse(result.body))
     }

@@ -50,14 +50,14 @@ class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailP
 
     "show correct title and options when no filter provided " in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTaxRegimeView.render(allCategories, List(), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectTaxRegimeView.render(allCategories, List(), request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), allCategories, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
     }
 
     "show correct title and options when selectedAPis are provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTaxRegimeView.render(allCategories, categoriesSelected, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectTaxRegimeView.render(allCategories, categoriesSelected, request, LoggedInUser("Bobby Example"), messagesProvider)
       validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(
         Jsoup.parse(result.body),
         allCategories,

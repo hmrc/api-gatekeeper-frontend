@@ -86,7 +86,7 @@ class SubscriptionController @Inject() (
 
   def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser).map(_ =>
         Redirect(routes.SubscriptionController.manageSubscription(appId))
       )
     }
@@ -94,7 +94,7 @@ class SubscriptionController @Inject() (
 
   def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser).map(_ =>
         Redirect(routes.SubscriptionController.manageSubscription(appId))
       )
     }

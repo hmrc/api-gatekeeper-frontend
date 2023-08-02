@@ -61,7 +61,7 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
           4,
           10,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 
@@ -79,7 +79,7 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
           8,
           10,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 
@@ -97,7 +97,7 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
           4,
           10,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 

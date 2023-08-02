@@ -40,7 +40,7 @@ trait StrideAuthorisationServiceMockModule {
       }
 
       def succeeds[A](role: GatekeeperStrideRole) = {
-        wrap[A]((msg) => successful(Right(new LoggedInRequest(Some("Bobby Example"), role, msg))))
+        wrap[A]((msg) => successful(Right(new LoggedInRequest("Bobby Example", role, msg))))
       }
 
       def invalidBearerToken[A] = {

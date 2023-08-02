@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -31,6 +30,9 @@ import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
+import java.time.Clock
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -39,9 +41,11 @@ class ApplicationService @Inject() (
     productionApiScopeConnector: ProductionApiScopeConnector,
     apmConnector: ApmConnector,
     developerConnector: DeveloperConnector,
-    subscriptionFieldsService: SubscriptionFieldsService
+    subscriptionFieldsService: SubscriptionFieldsService,
+    commandConnector: ApplicationCommandConnector,
+    val clock: Clock
   )(implicit ec: ExecutionContext
-  ) extends ApplicationLogger {
+  ) extends ApplicationLogger with ClockNow {
 
   def resendVerification(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
@@ -209,7 +213,7 @@ class ApplicationService @Inject() (
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {
         case Some(instigator) => {
-          val timestamp = LocalDateTime.now
+          val timestamp = now()
           applicationConnectorFor(application).updateApplicationName(application.id, instigator, timestamp, gatekeeperUser, name)
         }
         case None             => Future.successful(ApplicationUpdateFailureResult)
@@ -217,8 +221,9 @@ class ApplicationService @Inject() (
     }
   }
 
-  def updateGrantLength(application: Application, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    applicationConnectorFor(application).updateGrantLength(application.id, grantLength)
+  def updateGrantLength(application: Application, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength.id), Set.empty[LaxEmailAddress])
+    .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def updateRateLimitTier(application: Application, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
@@ -227,7 +232,7 @@ class ApplicationService @Inject() (
 
   def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     val reasons       = "Application deleted by Gatekeeper user"
-    val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, LocalDateTime.now)
+    val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, now())
     applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
   }
 

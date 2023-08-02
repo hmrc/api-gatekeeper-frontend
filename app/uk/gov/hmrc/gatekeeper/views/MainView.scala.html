@@ -42,7 +42,7 @@
 )(
   mainContent: Html
 )(
-  implicit loggedInUser: LoggedInUser = LoggedInUser(None),
+  implicit loggedInUser: LoggedInUser = LoggedInUser("Bobby Example"),
   messages: Messages,
   messagesProvider: MessagesProvider
 )
@@ -62,7 +62,7 @@
 @userBanner = {
   <div id="user-nav-links" class="subnav-auth">
     <ul class="govuk-list subnav-auth-links">
-      @headerNavLinks(UserNavLinks(loggedInUser.userFullName), anchorClass=Some("link-style"))
+      @headerNavLinks(UserNavLinks(Some(loggedInUser.userFullName)), anchorClass=Some("link-style"))
     </ul>
   </div>
 }

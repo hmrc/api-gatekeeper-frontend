@@ -47,7 +47,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val accessType = Some(AccessType.PRIVILEGED)
         val totp       = Some(TotpSecrets(totpSecret))
 
-        implicit val loggedInUser = LoggedInUser(Some(""))
+        implicit val loggedInUser = LoggedInUser("Bobby Example")
 
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider)
@@ -75,7 +75,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val accessType = Some(AccessType.ROPC)
 
         val page: () => HtmlFormat.Appendable =
-          () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), messagesProvider)
+          () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser("Bobby Example"), messagesProvider)
 
         page().contentType should include("text/html")
 

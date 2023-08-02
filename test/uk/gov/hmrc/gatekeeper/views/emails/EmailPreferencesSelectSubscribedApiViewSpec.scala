@@ -52,14 +52,14 @@ class EmailPreferencesSelectSubscribedApiViewSpec extends CommonViewSpec with Em
 
     "show correct title and options when no selectedAPIs provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectSubscribedApiView.render(apis, Seq.empty, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectSubscribedApiView.render(apis, Seq.empty, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), apis, expectedDestination)
     }
 
     "show correct title and options when selectedAPIs are provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectSubscribedApiView.render(apis, combinedList, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectSubscribedApiView.render(apis, combinedList, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), apis, combinedList, expectedDestination)
     }

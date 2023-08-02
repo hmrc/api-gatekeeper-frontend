@@ -86,41 +86,41 @@ class ApplicationConnectorSpec
   // To solve issue with LocalDateTime serialisation without a timezone id.
   private def compareByString[A](a1: A, a2: A) = a1.toString shouldBe a2.toString
 
-  "updateGrantLength" should {
-    val url = s"/application/${applicationId.value.toString()}/grantlength"
+  // "updateGrantLength" should {
+  //   val url = s"/application/${applicationId.value.toString()}/grantlength"
 
-    "send Authorisation and return OK if the grant length update was successful on the backend" in new Setup {
-      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
+  //   "send Authorisation and return OK if the grant length update was successful on the backend" in new Setup {
+  //     val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
 
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(NO_CONTENT)
-          )
-      )
+  //     stubFor(
+  //       put(urlEqualTo(url))
+  //         .withRequestBody(equalTo(body))
+  //         .willReturn(
+  //           aResponse()
+  //             .withStatus(NO_CONTENT)
+  //         )
+  //     )
 
-      await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS)) shouldBe ApplicationUpdateSuccessResult
-    }
+  //     await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS)) shouldBe ApplicationUpdateSuccessResult
+  //   }
 
-    "handle 5xx errors" in new Setup {
-      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
+  //   "handle 5xx errors" in new Setup {
+  //     val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
 
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
+  //     stubFor(
+  //       post(urlEqualTo(url))
+  //         .withRequestBody(equalTo(body))
+  //         .willReturn(
+  //           aResponse()
+  //             .withStatus(INTERNAL_SERVER_ERROR)
+  //         )
+  //     )
 
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS))
-      }
-    }
-  }
+  //     intercept[UpstreamErrorResponse] {
+  //       await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS))
+  //     }
+  //   }
+  // }
 
   "updateRateLimitTier" should {
     val url = s"/application/${applicationId.value.toString()}/rate-limit-tier"

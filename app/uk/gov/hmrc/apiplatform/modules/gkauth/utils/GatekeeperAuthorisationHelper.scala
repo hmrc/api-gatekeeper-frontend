@@ -22,5 +22,5 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)
 
-  implicit def gatekeeperUser(implicit request: LoggedInRequest[_]): Option[Actors.GatekeeperUser] = request.name.map(Actors.GatekeeperUser)
+  implicit def gatekeeperUser(implicit request: LoggedInRequest[_]): Actors.GatekeeperUser = Actors.GatekeeperUser(request.name)
 }

@@ -73,7 +73,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         applicationWithHistory,
         isSuperUser = true,
         deleteApplicationForm.fill(DeleteApplicationForm("", None))
-      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      )(request, LoggedInUser("Bobby Example"), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -89,7 +89,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         applicationWithHistory,
         isSuperUser = true,
         deleteApplicationForm.fill(DeleteApplicationForm("", Some(adminEmail)))
-      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      )(request, LoggedInUser("Bobby Example"), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -102,7 +102,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         applicationWithHistory,
         isSuperUser = false,
         deleteApplicationForm.fill(DeleteApplicationForm("", None))
-      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      )(request, LoggedInUser("Bobby Example"), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -117,7 +117,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         applicationWithHistory,
         isSuperUser = true,
         form
-      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      )(request, LoggedInUser("Bobby Example"), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 
@@ -134,7 +134,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         applicationWithHistory,
         isSuperUser = true,
         form
-      )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
+      )(request, LoggedInUser("Bobby Example"), Flash.emptyCookie, messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

@@ -48,7 +48,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", None, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesTopicPage(Jsoup.parse(result.body))
     }
@@ -61,7 +61,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
           s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 
@@ -70,7 +70,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }

@@ -51,14 +51,14 @@ class EmailPreferencesSelectApiNewViewSpec extends CommonViewSpec with EmailPref
 
     "show correct title and options when no selectedAPis provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectApiNewView.render(dropDownApis, Seq.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectApiNewView.render(dropDownApis, Seq.empty, None, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), dropDownApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
     }
 
     "show correct title and options when selectedAPis are provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectApiNewView.render(dropDownApis, combinedList, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectApiNewView.render(dropDownApis, combinedList, None, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateSelectAPIPageWithPreviouslySelectedAPIs(Jsoup.parse(result.body), dropDownApis, combinedList, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
     }

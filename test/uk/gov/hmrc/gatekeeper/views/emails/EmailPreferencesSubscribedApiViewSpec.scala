@@ -52,7 +52,7 @@ class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailAPI
 
     "render as expected and show correct title and elements" in new Setup {
       val result: HtmlFormat.Appendable = {
-        emailPreferencesSubscribedApiView.render(combinedList, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSubscribedApiView.render(combinedList, request, LoggedInUser("Bobby Example"), messagesProvider)
       }
       validateEmailPreferencesSubscribedApiPage(Jsoup.parse(result.body), combinedList)
     }

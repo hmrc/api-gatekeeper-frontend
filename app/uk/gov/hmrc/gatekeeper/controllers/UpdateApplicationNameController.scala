@@ -113,7 +113,7 @@ class UpdateApplicationNameController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameAdminEmailForm) = {
         val newApplicationName = request.session.get(newAppNameSessionKey).get
-        val gatekeeperUser     = loggedIn.userFullName.get
+        val gatekeeperUser     = loggedIn.userFullName
         val adminEmail         = form.adminEmail.get
         applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))

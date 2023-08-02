@@ -63,7 +63,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
 
   "IP allowlist view" should {
     "show IP allowlist information when the allowlist is not required" in new Setup {
-      val result: Appendable = ipAllowlistView(application)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = ipAllowlistView(application)(request, LoggedInUser("Bobby Example"), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -73,7 +73,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
     }
 
     "show IP allowlist information when the allowlist is required" in new Setup {
-      val result: Appendable = ipAllowlistView(application.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24"))))(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = ipAllowlistView(application.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24"))))(request, LoggedInUser("Bobby Example"), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

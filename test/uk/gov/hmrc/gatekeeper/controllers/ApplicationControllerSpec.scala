@@ -514,7 +514,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), eqTo(GrantLength.EIGHTEEN_MONTHS))(*)
+        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), eqTo(GrantLength.EIGHTEEN_MONTHS), *)(*)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -528,7 +528,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateGrantLength(*, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -542,7 +542,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateGrantLength(*, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
       }
     }
 

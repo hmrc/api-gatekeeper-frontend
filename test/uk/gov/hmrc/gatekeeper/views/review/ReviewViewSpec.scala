@@ -56,7 +56,7 @@ class ReviewViewSpec extends CommonViewSpec {
 
   "review view" should {
     "show review information with pass and fail options" in new Setup {
-      val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails, request, LoggedInUser(None), messagesProvider)
+      val result = reviewView.render(HandleUpliftForm.form, applicationReviewDetails, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       val document = Jsoup.parse(result.body)
 

@@ -57,7 +57,7 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
           2,
           6,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 
@@ -75,7 +75,7 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
           2,
           6,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 
@@ -93,7 +93,7 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
           2,
           6,
           request,
-          LoggedInUser(None),
+          LoggedInUser("Bobby Example"),
           messagesProvider
         )
 

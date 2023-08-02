@@ -53,7 +53,7 @@ class EmailPreferencesSpecificApiNewViewSpec extends CommonViewSpec with EmailPr
 
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable = {
-        emailPreferencesSpecificApiViewNew.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiViewNew.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser("Bobby Example"), messagesProvider)
       }
       validateEmailPreferencesSpecificApiPageNew(Jsoup.parse(result.body), List.empty)
     }

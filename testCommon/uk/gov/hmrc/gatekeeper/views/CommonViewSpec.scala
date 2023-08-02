@@ -38,8 +38,10 @@ trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", true), List.empty)
 
+  val gatekeeperUser = "Bobby Example"
+
   val msgRequest        = new MessagesRequest(FakeRequest().withCSRFToken, messagesApi)
-  val strideUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
-  val superUserRequest  = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
-  val adminRequest      = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
+  val strideUserRequest = new LoggedInRequest(gatekeeperUser, GatekeeperRoles.USER, msgRequest)
+  val superUserRequest  = new LoggedInRequest(gatekeeperUser, GatekeeperRoles.SUPERUSER, msgRequest)
+  val adminRequest      = new LoggedInRequest(gatekeeperUser, GatekeeperRoles.ADMIN, msgRequest)
 }

@@ -290,7 +290,7 @@ class ApplicationController @Inject() (
   def resendVerification(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       for {
-        _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
+        _ <- applicationService.resendVerification(app.application, loggedIn.userFullName)
       } yield {
         Redirect(routes.ApplicationController.applicationPage(appId))
           .flashing("success" -> "Verification email has been sent")
@@ -439,7 +439,7 @@ class ApplicationController @Inject() (
   def updateGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateGrantLengthForm) = {
-        applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get)) map { _ =>
+        applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get), loggedIn.userFullName) map { _ =>
           Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
         }
       }
@@ -462,7 +462,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
+          applicationService.deleteApplication(app.application, loggedIn.userFullName, form.collaboratorEmail.get).map {
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
           }
@@ -491,7 +491,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
+          applicationService.blockApplication(app.application, loggedIn.userFullName).map {
             case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
@@ -520,7 +520,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
         if (app.application.name == form.applicationNameConfirmation) {
-          applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
+          applicationService.unblockApplication(app.application, loggedIn.userFullName).map {
             case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
@@ -655,9 +655,9 @@ class ApplicationController @Inject() (
         def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
           UpliftAction.from(validForm.action) match {
             case Some(APPROVE) =>
-              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (_ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
+              applicationService.approveUplift(app.application, loggedIn.userFullName) map (_ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
             case Some(REJECT)  =>
-              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (_ =>
+              applicationService.rejectUplift(app.application, loggedIn.userFullName, validForm.reason.get) map (_ =>
                 Redirect(routes.ApplicationController.applicationPage(appId))
               ) recover recovery
 

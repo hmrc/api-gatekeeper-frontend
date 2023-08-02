@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.gkauth.domain.models
 
-case class LoggedInUser(userFullName: Option[String])
+case class LoggedInUser(userFullName: String)
 
 object LoggedInUser {
   implicit def fromRequest(implicit request: LoggedInRequest[_]): LoggedInUser = LoggedInUser(request.name)

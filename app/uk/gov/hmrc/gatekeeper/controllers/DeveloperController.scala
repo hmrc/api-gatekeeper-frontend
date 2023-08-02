@@ -75,7 +75,7 @@ class DeveloperController @Inject() (
 
   def removeMfaAction(developerIdentifier: DeveloperIdentifier): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleRemoveMfa() = {
-      developerService.removeMfa(developerIdentifier, loggedIn.userFullName.get) map { user =>
+      developerService.removeMfa(developerIdentifier, loggedIn.userFullName) map { user =>
         Ok(removeMfaSuccessView(user.email.text, developerIdentifier))
       } recover {
         case e: Exception =>
@@ -103,7 +103,7 @@ class DeveloperController @Inject() (
   }
 
   def deleteDeveloperAction(developerId: DeveloperIdentifier) = atLeastSuperUserAction { implicit request =>
-    developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
+    developerService.deleteDeveloper(developerId, loggedIn.userFullName).map {
       case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email.text))
       case _                                         => technicalDifficulties
     }

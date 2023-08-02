@@ -38,7 +38,7 @@ class EmailPreferencesChoiceNewViewSpec extends CommonViewSpec with EmailPrefere
 
   "email preferences choice view" must {
     "show correct title and options" in new Setup {
-      val result: Html = preferencesChoiceNewView.render(request, LoggedInUser(None), messagesProvider)
+      val result: Html = preferencesChoiceNewView.render(request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesChoicePage(Jsoup.parse(result.body))
     }

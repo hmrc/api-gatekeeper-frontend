@@ -56,21 +56,21 @@ class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with 
 
     "show correct title and options with page1 results" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 0, 2, 6, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 0, 2, 6, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesSelectedTaxRegimePage(1, Jsoup.parse(result.body), users)
     }
 
     "show correct title and options with page2 results" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 2, 2, 6, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 2, 2, 6, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesSelectedTaxRegimePage(2, Jsoup.parse(result.body), users)
     }
 
     "show correct title and options with last page results" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 4, 2, 6, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectedUserTaxRegimeView.render(users, emailRecipientsAsJson, "", categoriesSelected, 4, 2, 6, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateEmailPreferencesSelectedTaxRegimePage(3, Jsoup.parse(result.body), users)
     }

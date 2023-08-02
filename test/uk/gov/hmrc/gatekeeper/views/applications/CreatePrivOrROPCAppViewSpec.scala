@@ -34,7 +34,7 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
     implicit val request      = FakeRequest().withCSRFToken
 
-    implicit val userFullName             = LoggedInUser(Some("firstName lastName"))
+    implicit val userFullName             = LoggedInUser("firstName lastName")
     val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm)
   }
 

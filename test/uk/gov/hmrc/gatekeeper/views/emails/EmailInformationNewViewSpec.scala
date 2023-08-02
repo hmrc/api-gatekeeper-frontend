@@ -39,13 +39,13 @@ class EmailInformationNewViewSpec extends CommonViewSpec with EmailInformationVi
 
   "email information view" must {
     "show correct title and content for EMAIL_ALL_USERS" in new Setup {
-      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EMAIL_ALL_USERS, request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EMAIL_ALL_USERS, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateAllUsersInformationPage(Jsoup.parse(result.body))
     }
 
     "show correct title and content for API_SUBSCRIPTION" in new Setup {
-      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser("Bobby Example"), messagesProvider)
 
       validateApiSubcriptionInformationPage(Jsoup.parse(result.body))
     }
