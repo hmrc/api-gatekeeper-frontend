@@ -6,4 +6,19 @@ function copyText(id) {
   textArea.select();
   document.execCommand("Copy");
   textArea.remove();
-};
+}
+
+function initCopyTextOnClick(clickedElementId, textSourceId) {
+  if (clickedElementId != null) {
+    var clickedElement = document.getElementById(clickedElementId)
+    if (clickedElement != null) {
+      clickedElement.addEventListener(
+        'click',
+        function () {
+          copyText(textSourceId)
+        },
+        false
+      )
+    }
+  }
+}

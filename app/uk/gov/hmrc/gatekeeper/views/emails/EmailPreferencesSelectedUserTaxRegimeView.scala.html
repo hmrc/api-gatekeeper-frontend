@@ -83,9 +83,10 @@
                             </form>
                         </div>
                         <div class="compose-email-clipboard">
+                            <span id="emails-to-copy" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
                             <button id="copyUsersToClip" type="submit" class="govuk-button govuk-button--secondary" data-module="govuk-button" name="compose-email-clipboard" value="" title="Copies all @{
                                 users.length
-                            } email addresses into the system clipboard." onclick="copyTextToClipboard(`@emails`)">
+                            } email addresses into the system clipboard.">
                                 Copy emails to clipboard
                             </button>
                         </div>
@@ -162,4 +163,8 @@
             </fieldset>
         </div>
     </div>
+
+    @views.html.helper.script(args = Symbol("type") -> "module") {
+      initCopyTextOnClick("copyUsersToClip", "emails-to-copy")
+    }
 }

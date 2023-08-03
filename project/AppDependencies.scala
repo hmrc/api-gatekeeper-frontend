@@ -8,14 +8,14 @@ object AppDependencies {
   lazy val jsoupVersion = "1.12.1"
   lazy val scalaCheckVersion = "1.15.4"
   lazy val enumeratumVersion = "1.6.2"
-  lazy val bootstrapVersion = "7.12.0"
+  lazy val bootstrapVersion = "7.19.0"
   lazy val seleniumVersion = "4.4.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-28"        % bootstrapVersion,
-    "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "6.2.0-play-28",
+    "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "7.14.0-play-28",
     "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.12.0-play-28",
     "uk.gov.hmrc"                 %% "json-encryption"                   % "5.1.0-play-28",
     "uk.gov.hmrc"                 %% "emailaddress"                      % "3.7.0",

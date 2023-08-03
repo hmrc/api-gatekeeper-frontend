@@ -149,7 +149,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
     <span id="copy-email-to-clip" class="govuk-visually-hidden" aria-hidden="true">@emails</span>
 
     <div class="govuk-button-group">
-      <button id="copy-users-to-clip" class="govuk-button" onclick="copyText('copy-email-to-clip')" data-clip-text>Copy all team member email addresses</button>
+      <button id="copy-users-to-clip" class="govuk-button" data-clip-text>Copy all team member email addresses</button>
     
       <a class="govuk-link" href="#">Back to Top</a>
     </div>
@@ -157,5 +157,9 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
     <div class="govuk-button-group">
       <a class="govuk-link" href="#">Back to Top</a>
     </div>
+  }
+
+  @views.html.helper.script(args = Symbol("type") -> "module") {
+    initCopyTextOnClick("copy-users-to-clip", "copy-email-to-clip")
   }
 }
