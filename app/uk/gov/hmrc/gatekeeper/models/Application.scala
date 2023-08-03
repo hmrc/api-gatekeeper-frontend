@@ -457,16 +457,18 @@ object RateLimitTier extends Enumeration {
 
 object GrantLength extends Enumeration {
   type GrantLength = Value
-  val thirtyDays                               = 30
-  val ninetyDays                               = 90
-  val oneHundredAndEightyDays                  = 180
-  val threeSixtyFiveDays                       = 365
-  val fiveHundredAndFortySevenDays             = 547
-  val oneThousandNinetyFiveDays                = 1095
-  val oneThousandEightHundredAndTwentyFiveDays = 1825
-  val threeThousandSixHundredAndFiftyDays      = 3650
-  val thirtySixThousandFiveHundredDays         = 36500
+  private val oneDay                                   = 1
+  private val thirtyDays                               = 30
+  private val ninetyDays                               = 90
+  private val oneHundredAndEightyDays                  = 180
+  private val threeSixtyFiveDays                       = 365
+  private val fiveHundredAndFortySevenDays             = 547
+  private val oneThousandNinetyFiveDays                = 1095
+  private val oneThousandEightHundredAndTwentyFiveDays = 1825
+  private val threeThousandSixHundredAndFiftyDays      = 3650
+  private val thirtySixThousandFiveHundredDays         = 36500
 
+  val ONE_DAY           = Value(oneDay)
   val ONE_MONTH         = Value(thirtyDays)
   val THREE_MONTHS      = Value(ninetyDays)
   val SIX_MONTHS        = Value(oneHundredAndEightyDays)
@@ -478,13 +480,14 @@ object GrantLength extends Enumeration {
   val ONE_HUNDRED_YEARS = Value(thirtySixThousandFiveHundredDays)
 
   def from(grantLength: Int) = {
-    lazy val errorMsg: String = "It should only be one of ('1 month', '3 months', '6 months', '1 year', '18 months', " +
+    lazy val errorMsg: String = "It should only be one of ('1 day', '1 month', '3 months', '6 months', '1 year', '18 months', " +
       "'3 years', '5 years', '10 years', '100 years') represented in days"
     GrantLength.values.find(e => e.id == grantLength).getOrElse(throw new IllegalStateException(s"$grantLength is not an expected value. $errorMsg"))
   }
 
   def displayedGrantLength(grantLength: Int): String = {
     GrantLength.from(grantLength) match {
+      case ONE_DAY           => "1 day"
       case ONE_MONTH         => "1 month"
       case THREE_MONTHS      => "3 months"
       case SIX_MONTHS        => "6 months"
