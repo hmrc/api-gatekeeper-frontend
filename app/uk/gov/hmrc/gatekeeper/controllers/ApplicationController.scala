@@ -439,7 +439,7 @@ class ApplicationController @Inject() (
   def updateGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateGrantLengthForm) = {
-        applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get)) map { _ =>
+        applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get), loggedIn.userFullName.get) map { _ =>
           Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
         }
       }

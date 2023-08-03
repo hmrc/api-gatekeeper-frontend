@@ -33,13 +33,16 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
+import mocks.connectors.CommandConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -47,6 +50,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       extends MockitoSugar with ArgumentMatchersSugar
       with ApplicationConnectorMockProvider
       with ApmConnectorMockProvider
+      with CommandConnectorMockProvider
       with ApiScopeConnectorMockProvider {
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -58,7 +62,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       mockProductionApiScopeConnector,
       mockApmConnector,
       mockDeveloperConnector,
-      mockSubscriptionFieldsService
+      mockSubscriptionFieldsService,
+      CommandConnectorMock.aMock,
+      FixedClock.clock
     )
     val underTest          = spy(applicationService)
 
@@ -150,6 +156,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val subscriptionFieldDefinition                    = SubscriptionFieldDefinition(FieldName.random, "description", "hint", "String", "shortDescription")
     val prefetchedDefinitions: DefinitionsByApiVersion = Map(apiIdentifier -> List(subscriptionFieldDefinition))
     val definitions                                    = List(subscriptionFieldDefinition)
+
+    def updateGrantLengthCommandWillSucceed = {
+      CommandConnectorMock.IssueCommand.succeeds()
+    }
   }
 
   trait SubscriptionFieldsServiceSetup extends Setup {
@@ -592,6 +602,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       }
     }
   }
+  
   "updateRateLimitTier" should {
     "call the service to update the rate limit tier" in new Setup {
       when(mockProductionApplicationConnector.updateRateLimitTier(*[ApplicationId], *)(*))
@@ -814,4 +825,19 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       result shouldBe mockSandboxApiScopeConnector
     }
   }
+
+  "updateGrantLength" should {
+    "update grant length in either sandbox or production app" in new Setup {
+      updateGrantLengthCommandWillSucceed
+
+      val result = await(underTest.updateGrantLength(stdApp1, GrantLength.THREE_MONTHS, gatekeeperUserId))
+      result shouldBe ApplicationUpdateSuccessResult
+
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
+        case ApplicationCommands.ChangeGrantLength(aUser, _, days) =>
+          aUser shouldBe gatekeeperUserId
+          days shouldBe GrantLength.THREE_MONTHS.id
+      }
+    }
+  }  
 }

@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -68,14 +67,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def updateRateLimitTier(applicationId: ApplicationId, tier: RateLimitTier)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     http.POST[UpdateRateLimitTierRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/rate-limit-tier", UpdateRateLimitTierRequest(tier))
-      .map(_ match {
-        case Right(_)  => ApplicationUpdateSuccessResult
-        case Left(err) => throw err
-      })
-  }
-
-  def updateGrantLength(applicationId: ApplicationId, grantLength: GrantLength)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.PUT[UpdateGrantLengthRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/grantlength", UpdateGrantLengthRequest(grantLength.id))
       .map(_ match {
         case Right(_)  => ApplicationUpdateSuccessResult
         case Left(err) => throw err
