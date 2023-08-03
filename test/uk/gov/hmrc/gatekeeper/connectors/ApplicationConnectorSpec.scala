@@ -74,53 +74,15 @@ class ApplicationConnectorSpec
   implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
-
     val httpClient               = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
 
     val connector = new ProductionApplicationConnector(mockAppConfig, httpClient) {}
-
   }
 
   // To solve issue with LocalDateTime serialisation without a timezone id.
   private def compareByString[A](a1: A, a2: A) = a1.toString shouldBe a2.toString
-
-  "updateGrantLength" should {
-    val url = s"/application/${applicationId.value.toString()}/grantlength"
-
-    "send Authorisation and return OK if the grant length update was successful on the backend" in new Setup {
-      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
-
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(NO_CONTENT)
-          )
-      )
-
-      await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS)) shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "handle 5xx errors" in new Setup {
-      val body = Json.toJson(UpdateGrantLengthRequest(547)).toString
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateGrantLength(applicationId, GrantLength.EIGHTEEN_MONTHS))
-      }
-    }
-  }
 
   "updateRateLimitTier" should {
     val url = s"/application/${applicationId.value.toString()}/rate-limit-tier"
