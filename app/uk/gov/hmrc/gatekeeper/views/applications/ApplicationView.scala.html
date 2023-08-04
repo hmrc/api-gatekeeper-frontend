@@ -31,6 +31,7 @@
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.LocalDateTime
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -370,7 +371,7 @@
         Application grant Length
       </dt>
       <dd class="govuk-summary-list__value" grant-length>
-        @GrantLength.displayedGrantLength(application.grantLength.getDays)
+        @{GrantLength.unsafeApply(application.grantLength.getDays).toString}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">

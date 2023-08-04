@@ -56,6 +56,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 @Singleton
 class ApplicationController @Inject() (
@@ -439,8 +440,9 @@ class ApplicationController @Inject() (
   def updateGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateGrantLengthForm) = {
-        applicationService.updateGrantLength(app.application, GrantLength.from(form.grantLength.get), loggedIn.userFullName.get) map { _ =>
-          Ok(manageGrantLengthSuccessView(app.application, GrantLength.displayedGrantLength(form.grantLength.get)))
+        val grantLength = GrantLength.unsafeApply(form.grantLength.get)
+        applicationService.updateGrantLength(app.application, grantLength, loggedIn.userFullName.get) map { _ =>
+          Ok(manageGrantLengthSuccessView(app.application, grantLength.toString))
         }
       }
 

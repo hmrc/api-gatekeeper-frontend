@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -48,7 +49,7 @@
     The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
   </p>
 
-  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@GrantLength.displayedGrantLength(application.grantLength.getDays)</strong>.</p>
+  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{GrantLength.unsafeApply(application.grantLength.getDays)}</strong>.</p>
 
   @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     @helper.CSRF.formField
@@ -64,11 +65,11 @@
         </div>
         @fieldError(form.errors, "grantLength", form.error("submissionError").isEmpty)
         <div class="govuk-radios" data-module="govuk-radios">
-          @for(g <- GrantLength.asOrderedIdList) {
+          @for(g <- GrantLength.values.toList) {
             <div class="govuk-radios__item">
-              <input class="govuk-radios__input" id="@g" name="grantLength" value="@g" type="radio">
+              <input class="govuk-radios__input" id="@g" name="grantLength" value="@{g.days}" type="radio">
               <label class="govuk-label govuk-radios__label" for="@g">
-                @GrantLength.displayedGrantLength(g)
+                @g
               </label>
             </div>
           }
