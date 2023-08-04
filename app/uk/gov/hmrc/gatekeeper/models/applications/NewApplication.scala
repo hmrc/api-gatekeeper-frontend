@@ -77,7 +77,6 @@ object NewApplication {
   implicit val formatRole             = Json.formatEnum(CollaboratorRole)
   implicit val formatApplicationState = Json.format[ApplicationState]
   implicit val formatRateLimitTier    = Json.formatEnum(RateLimitTier)
-  implicit val formatGrantLength      = Json.formatEnum(GrantLength)
   implicit val applicationFormat      = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)

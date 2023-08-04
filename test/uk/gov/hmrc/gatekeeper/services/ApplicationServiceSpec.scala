@@ -43,6 +43,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import mocks.connectors.CommandConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -834,9 +835,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
-        case ApplicationCommands.ChangeGrantLength(aUser, _, days) =>
+        case ApplicationCommands.ChangeGrantLength(aUser, _, length) =>
           aUser shouldBe gatekeeperUserId
-          days shouldBe GrantLength.THREE_MONTHS.id
+          length shouldBe GrantLength.THREE_MONTHS
       }
     }
   }  

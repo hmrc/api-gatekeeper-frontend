@@ -27,12 +27,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.GrantLength.GrantLength
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import java.time.Clock
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -222,7 +222,7 @@ class ApplicationService @Inject() (
   }
 
   def updateGrantLength(application: Application, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength.id), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength), Set.empty[LaxEmailAddress])
     .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
