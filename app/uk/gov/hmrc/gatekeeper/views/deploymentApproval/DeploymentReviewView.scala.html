@@ -81,7 +81,7 @@
         </legend>
         <div class="govuk-checkboxes" data-module="govuk-checkboxes">
           <div class="govuk-checkboxes__item">
-            <input class="govuk-checkboxes__input" type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation" onchange="document.getElementById('submit').disabled = !this.checked;">
+            <input class="govuk-checkboxes__input" type="checkbox" name="approval_confirmation" value="Yes" id="approval_confirmation">
             <label for="approval_confirmation" class="govuk-label govuk-checkboxes__label">
               I confirm the details are correct
             </label>
@@ -94,5 +94,9 @@
       <button id="submit" type="submit" class="govuk-button" role="button" disabled data-journey-target>Submit</button>
       <a href="/api-service-approval/pending" class="govuk-link">Cancel</a>
     </div>
+  }
+
+  @views.html.helper.script(args = Symbol("type") -> "module") {
+    initApiApprovalConfirmationOnChange("approval_confirmation")
   }
 }

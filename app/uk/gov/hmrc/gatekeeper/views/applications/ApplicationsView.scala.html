@@ -27,7 +27,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, String) => String)(
-implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
 
 @pageUrl(extra: (String, String)) = @{
   val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(page: Int, pageSize: Int, matching: Int, total: Int, numDocs: Int, baseUri: String, params: Map[String, String])
+@(page: Int, pageSize: Int, matching: Int, total: Int, numDocs: Int, baseUri: String, params: Map[String, String])(implicit request: Request[_])
 
 @pageUrl(extra: (String, String)) = @{
   val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
@@ -47,7 +47,7 @@
       <label class="govuk-label govuk-!-font-size-16 " for="pageSize">
         Show 
       </label>
-      <select id="pageSize" class="govuk-select" name="pageSize" aria-controls="applications-table" onchange="this.form.submit()">
+      <select id="pageSize" class="govuk-select" name="pageSize" aria-controls="applications-table">
         @for(i <- Seq(10, 50, 100, 200, 300)) {
           <option value="@i" @if(pageSize == i){selected}>@i</option>
         }
@@ -80,4 +80,7 @@
       }
     </div>
   </div>
+  @views.html.helper.script(args = Symbol("type") -> "module") {
+    initPageSizeOnChange("pageSize")
+  }  
 }
