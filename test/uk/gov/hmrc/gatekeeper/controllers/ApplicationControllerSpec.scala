@@ -1428,6 +1428,23 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
       }
 
+      "call the service to block application when a valid form is submitted for an admin even when app name has trailing spaces" in new Setup {
+        val applicationWithSpaces           = basicApplication.copy(name = application.application.name + "  ")
+        val applicationWithSpacesAndHistory = ApplicationWithHistory(applicationWithSpaces, List.empty)
+        ApplicationServiceMock.FetchApplication.returns(applicationWithSpacesAndHistory)
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        ApplicationServiceMock.BlockApplication.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+
+        val result = addToken(underTest.blockApplicationAction(applicationId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).blockApplication(eqTo(applicationWithSpaces), *)(*)
+      }
+
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
