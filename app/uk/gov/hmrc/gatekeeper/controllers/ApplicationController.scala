@@ -455,8 +455,8 @@ class ApplicationController @Inject() (
   }
 
   def manageAutoDelete(appId: ApplicationId) = adminOnlyAction { implicit request =>
-    withApp(appId) { app =>
-      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+    withAppAndSubscriptionsAndStateHistory(appId) { app =>
+      Future.successful(Ok(manageAutoDeleteView(app.applicationWithSubscriptionData.application, AutoDeleteConfirmationForm.form)))
     }
   }
 
