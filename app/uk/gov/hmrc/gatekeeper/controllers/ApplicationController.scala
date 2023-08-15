@@ -22,11 +22,9 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
@@ -87,6 +85,8 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+    manageAutoDeleteView: ManageAutoDeleteView,
+    autoDeleteSuccessView: AutoDeleteSuccessView,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -451,6 +451,37 @@ class ApplicationController @Inject() (
       }
 
       UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
+    }
+  }
+
+  def manageAutoDelete(appId: ApplicationId) = adminOnlyAction { implicit request =>
+    withApp(appId) { app =>
+      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+    }
+  }
+
+  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withApp(appId) { app =>
+
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get) map { _ =>
+          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+        }
+      }
+
+      def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
+        form.confirm match {
+          case "yes" => handleUpdateAutoDelete(true)
+          case "no" => handleUpdateAutoDelete(false)
+          case _ => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+        }
+      }
+
+      def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
+        successful(BadRequest)
+      }
+
+      AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 

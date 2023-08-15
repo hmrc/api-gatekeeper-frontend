@@ -57,6 +57,10 @@ POST        /applications/:id/rate-limit                                      uk
 GET         /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageGrantLength(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 POST        /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateGrantLength(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
+GET         /applications/:id/auto-delete                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageAutoDelete(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+POST        /applications/:id/auto-delete                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAutoDelete(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+
+
 GET         /applications/:id/team-members                                    uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.manageTeamMembers(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 GET         /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMember(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 POST        /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMemberAction(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
