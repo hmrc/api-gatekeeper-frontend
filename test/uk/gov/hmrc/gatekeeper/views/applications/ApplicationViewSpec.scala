@@ -284,8 +284,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       result.contentType should include("text/html")
 
       elementExistsById(document, "manage-application-deleted-if-active") shouldBe true
-      elementExistsById(document, "dd-application-deleted-if-active") shouldBe true
-      elementIdentifiedByIdContainsText(document, "", "dd-application-deleted-if-active", "Yes") shouldBe true
+      elementExistsByAttr(document, "dd", "data-application-deleted-if-active") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-application-deleted-if-active", "Yes") shouldBe true
 
     }
 

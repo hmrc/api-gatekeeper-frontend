@@ -410,7 +410,7 @@
       <dt class="govuk-summary-list__key">
         Application deleted if inactive
       </dt>
-      <dd class="govuk-summary-list__value" application-deleted-if-active id="dd-application-deleted-if-active">
+      <dd class="govuk-summary-list__value" data-application-deleted-if-active>
       @{MoreApplication.displayAutoDelete(application.moreApplication.allowAutoDelete).toString}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
