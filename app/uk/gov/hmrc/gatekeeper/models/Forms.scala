@@ -341,12 +341,12 @@ object Forms {
   }
 
   final case class AutoDeleteConfirmationForm(confirm: String = "")
+
   object AutoDeleteConfirmationForm {
 
     val form: Form[AutoDeleteConfirmationForm] = Form(
       mapping(
         "confirm" -> text
-
       )(AutoDeleteConfirmationForm.apply)(AutoDeleteConfirmationForm.unapply)
     )
   }

@@ -17,7 +17,9 @@
 package uk.gov.hmrc.gatekeeper.models.applications
 
 import java.time.{LocalDateTime, Period}
+
 import uk.gov.hmrc.play.json.Union
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier

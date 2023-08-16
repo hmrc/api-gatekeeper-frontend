@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
+import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
 case class ClientId(value: String) extends AnyVal
@@ -267,7 +268,8 @@ case class ApplicationResponse(
     privacyPolicyUrl: Option[String] = None,
     checkInformation: Option[CheckInformation] = None,
     blocked: Boolean = false,
-    ipAllowlist: IpAllowlist = IpAllowlist()
+    ipAllowlist: IpAllowlist = IpAllowlist(),
+    moreApplication: MoreApplication = MoreApplication()
   ) extends Application
 
 object ApplicationResponse {
@@ -308,7 +310,8 @@ object ApplicationResponse {
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "ipAllowlist").read[IpAllowlist]
+      (JsPath \ "ipAllowlist").read[IpAllowlist] and
+      (JsPath \ "moreApplication").read[MoreApplication]
   )(ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {

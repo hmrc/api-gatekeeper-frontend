@@ -21,13 +21,12 @@ import play.api.libs.json.{Format, Json}
 case class MoreApplication(allowAutoDelete: Boolean = true)
 
 object MoreApplication {
-  implicit val format: Format[MoreApplication] = Json.format[MoreApplication]
+  implicit val formatMoreApplication: Format[MoreApplication] = Json.format[MoreApplication]
 
-  def displayAutoDelete(allowAutoDelete: Boolean) : String = {
+  def displayAutoDelete(allowAutoDelete: Boolean): String = {
     allowAutoDelete match {
-      case true => "Yes"
+      case true  => "Yes"
       case false => "No"
     }
   }
 }
-
