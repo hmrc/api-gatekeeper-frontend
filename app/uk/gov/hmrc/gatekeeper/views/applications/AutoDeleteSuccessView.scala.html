@@ -1,0 +1,49 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(application: ApplicationResponse, allowAutoDelete: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+  title = s"${applicationConfig.title} - Manage application auto delete success",
+  breadcrumbs = Seq(
+    Crumb(
+      s"${application.name}",
+      s"${routes.ApplicationController.applicationPage(application.id)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )
+) {
+  <div class="govuk-panel govuk-panel--confirmation">
+    <h1 class="govuk-panel__title">
+        @{application.name} will @if(!allowAutoDelete){ not } be deleted if it is inactive
+    </h1>
+  </div>
+
+  <a id="back-button" class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Back to application page</a>
+}

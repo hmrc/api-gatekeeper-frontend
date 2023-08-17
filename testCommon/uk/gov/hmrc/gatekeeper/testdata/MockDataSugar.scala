@@ -179,7 +179,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  },
        |    {
        |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
@@ -224,7 +227,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  }]
     """.stripMargin
 
@@ -267,7 +273,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  }]
     """.stripMargin
 
@@ -300,7 +309,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  }]
     """.stripMargin
 
@@ -354,7 +366,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  }]
     """.stripMargin
 
@@ -582,7 +597,10 @@ object MockDataSugar {
        |        "required" : false,
        |        "allowlist" : []
        |    },
-       |    "grantLength": 547
+       |    "grantLength": 547,
+       |    "moreApplication": {
+       |        "allowAutoDelete": true
+       |      }
        |  },
        |  "history": [
        |      {

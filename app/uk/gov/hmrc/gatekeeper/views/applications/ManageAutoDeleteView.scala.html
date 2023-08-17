@@ -1,0 +1,71 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeleteConfirmationForm
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+
+@(application: ApplicationResponse, form: Form[AutoDeleteConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+    title = s"${applicationConfig.title} - Do you want your application to be deleted?",
+    breadcrumbs = Seq(
+        Crumb(
+            s"${application.name}",
+            s"${routes.ApplicationController.applicationPage(application.id)}",
+            Some("data-breadcrumb-view-application")
+        ),
+        Crumb(
+            "Applications",
+            s"${routes.ApplicationController.applicationsPage(None)}",
+            Some("data-breadcrumb-view-applications")
+        )
+    )
+) {
+    @errorSummary2(form)
+
+    <h1 class="govuk-heading-l">Do you want @{application.name} to be deleted if it is inactive?</h1>
+
+    <p class="govuk-hint">
+        Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.
+    </p>
+
+    @helper.form(action = routes.ApplicationController.updateAutoDelete(application.id)) {
+        @helper.CSRF.formField
+        <div class="govuk-radios" data-module="govuk-radios">
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="yes" name="confirm" type="radio" value="yes" @if(application.moreApplication.allowAutoDelete) {checked}>
+                <label class="govuk-label govuk-radios__label" for="yes">
+                    Yes
+                </label>
+            </div>
+            <div class="govuk-radios__item">
+                <input class="govuk-radios__input" id="no" name="confirm" type="radio" value="no" @if(!application.moreApplication.allowAutoDelete) {checked}>
+                <label class="govuk-label govuk-radios__label" for="no">
+                    No
+                </label>
+            </div>
+        </div>
+        <br>
+        <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+    }
+}

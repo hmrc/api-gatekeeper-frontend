@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -56,7 +56,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 
 @Singleton
 class ApplicationController @Inject() (
@@ -87,6 +86,8 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+    manageAutoDeleteView: ManageAutoDeleteView,
+    autoDeleteSuccessView: AutoDeleteSuccessView,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -451,6 +452,36 @@ class ApplicationController @Inject() (
       }
 
       UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
+    }
+  }
+
+  def manageAutoDelete(appId: ApplicationId) = adminOnlyAction { implicit request =>
+    withApp(appId) { app =>
+      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+    }
+  }
+
+  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withApp(appId) { app =>
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get) map { _ =>
+          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+        }
+      }
+
+      def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
+        form.confirm match {
+          case "yes" => handleUpdateAutoDelete(true)
+          case "no"  => handleUpdateAutoDelete(false)
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+        }
+      }
+
+      def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
+        successful(BadRequest)
+      }
+
+      AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 

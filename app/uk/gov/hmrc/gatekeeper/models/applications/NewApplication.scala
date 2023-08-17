@@ -42,7 +42,8 @@ case class NewApplication(
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    grantLength: Period
+    grantLength: Period,
+    moreApplication: MoreApplication = MoreApplication()
   ) {
 
   lazy val privacyPolicyLocation = access match {
