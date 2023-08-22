@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
 @import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 @import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 @import uk.gov.hmrc.gatekeeper.models.State._
@@ -297,7 +297,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @RateLimitTier.displayedTier(application.rateLimitTier)
+        @RateLimitTier.show(application.rateLimitTier)
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">

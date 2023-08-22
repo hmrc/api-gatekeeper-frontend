@@ -29,7 +29,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -161,13 +161,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   trait SubscriptionFieldsServiceSetup extends Setup {
-
     def subscriptionFields: List[SubscriptionFieldValue]
-
   }
 
   "searchApplications" should {
-
     "list all subscribed applications from production when PRODUCTION environment is specified" in new Setup {
       ApplicationConnectorMock.Prod.SearchApplications.returns(allProductionApplications: _*)
 
@@ -272,7 +269,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "resendVerification" should {
-
     "call applicationConnector with appropriate parameters" in new Setup {
       val userName = "userName"
 
@@ -396,7 +392,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "fetchApplications" should {
-
     "list all applications from sandbox and production when filtering not provided" in new Setup {
       ApplicationConnectorMock.Prod.FetchAllApplications.returns(allProductionApplications: _*)
       ApplicationConnectorMock.Sandbox.FetchAllApplications.returns(allProductionApplications: _*)
@@ -603,14 +598,17 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "updateRateLimitTier" should {
     "call the service to update the rate limit tier" in new Setup {
-      when(mockProductionApplicationConnector.updateRateLimitTier(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApplicationUpdateSuccessResult))
+      CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateRateLimitTier(stdApp1, RateLimitTier.GOLD))
+      val result = await(underTest.updateRateLimitTier(stdApp1, RateLimitTier.GOLD, gatekeeperUserId))
 
       result shouldBe ApplicationUpdateSuccessResult
 
-      verify(mockProductionApplicationConnector).updateRateLimitTier(eqTo(stdApp1.id), eqTo(RateLimitTier.GOLD))(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
+        case ApplicationCommands.ChangeRateLimitTier(aUser, _, rateLimitTier) =>
+          aUser shouldBe gatekeeperUserId
+          rateLimitTier shouldBe RateLimitTier.GOLD
+      }
     }
   }
 

@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -53,7 +54,7 @@
   @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
-    @for(t <- RateLimitTier.asOrderedList) {
+    @for(t <- RateLimitTier.orderedForDisplay) {
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-visually-hidden">
@@ -63,7 +64,7 @@
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" type="radio" id="@t" name="tier" value=@t @if(application.rateLimitTier == t) {checked}>
               <label class="govuk-label govuk-radios__label" for="@t">
-                @RateLimitTier.displayedTier(t)
+                @RateLimitTier.show(t)
               </label>
             </div>
           </div>

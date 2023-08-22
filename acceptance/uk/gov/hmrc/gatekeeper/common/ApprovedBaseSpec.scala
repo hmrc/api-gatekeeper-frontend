@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.common
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.BRONZE
 import org.openqa.selenium.{By, NoSuchElementException}
 import play.api.libs.json.Json
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequest
@@ -29,6 +28,7 @@ import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with UrlEncoding {
@@ -91,7 +91,7 @@ trait ApprovedBaseSpec extends BaseSpec
   protected def assertApplicationDetails(isSuperUser: Boolean = false) = {
     verifyText("data-submitter-name", s"$firstName $lastName")
     verifyText("data-submitter-email", adminEmail)
-    assertApplicationRateLimitTier(isSuperUser, rateLimitTier = BRONZE.toString)
+    assertApplicationRateLimitTier(isSuperUser, rateLimitTier = RateLimitTier.BRONZE.toString)
     id("admins").element.text should containInOrder(List(s"$firstName $lastName", adminEmail, "Admin McAdmin", admin2Email))
     verifyText("data-submitted-on", "Submitted: 22 March 2016")
     verifyText("data-approved-on", "Approved: 05 April 2016")

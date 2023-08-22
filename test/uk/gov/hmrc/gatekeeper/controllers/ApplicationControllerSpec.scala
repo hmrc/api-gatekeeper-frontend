@@ -35,7 +35,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -43,7 +43,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -932,7 +931,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD), eqTo("Bobby Example"))(*)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -946,7 +945,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -960,12 +959,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
       }
     }
 
     "handleUplift" should {
-
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
@@ -991,8 +989,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val appCaptor     = ArgumentCaptor.forClass(classOf[Application])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+        val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
-        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(hcCaptor.capture()))
           .thenReturn(successful(ApplicationUpdateSuccessResult))
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
@@ -1000,8 +999,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         appCaptor.getValue shouldBe basicApplication
         newTierCaptor.getValue shouldBe tier
+        userCaptor.getValue() shouldBe "Bobby Example"
 
-        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier)(hcCaptor.getValue)
+        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(hcCaptor.getValue)
 
       }
 
@@ -1012,7 +1012,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
 
       }
     }
@@ -1426,7 +1426,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "applicationPage" should {
-
       "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
         val application2                    = buildApplication()
@@ -1489,7 +1488,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "blockApplicationPage" should {
-
       "return the page for block app if admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
@@ -1559,7 +1557,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "unblockApplicationPage" should {
-
       "return the page for unblock app if admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
