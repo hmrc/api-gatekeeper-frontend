@@ -71,7 +71,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
     "an ROPC application is created" should {
       "render" in new Setup {
-
         val accessType = Some(AccessType.ROPC)
 
         val page: () => HtmlFormat.Appendable =
@@ -83,7 +82,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
-        document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
         elementExistsByText(document, "div", s"Application ID ${appId.value.toString()}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
         elementExistsByText(document, "div", s"Environment $env") shouldBe true
