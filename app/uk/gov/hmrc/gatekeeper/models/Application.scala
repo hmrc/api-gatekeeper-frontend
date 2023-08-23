@@ -24,9 +24,8 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
@@ -289,7 +288,6 @@ object ApplicationResponse {
   implicit val formatRole          = Json.formatEnum(CollaboratorRole)
   implicit val format3             = Json.formatEnum(State)
   implicit val format4             = Json.format[ApplicationState]
-  implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
   implicit val format5             = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
@@ -438,22 +436,3 @@ case class ApplicationState(
   def isDeleted                      = name.isDeleted
 }
 
-object RateLimitTier extends Enumeration {
-  type RateLimitTier = Value
-
-  val BRONZE, SILVER, GOLD, PLATINUM, RHODIUM = Value
-
-  def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
-
-  def displayedTier: RateLimitTier => String = {
-    case BRONZE   => "Bronze"
-    case SILVER   => "Silver"
-    case GOLD     => "Gold"
-    case PLATINUM => "Platinum"
-    case RHODIUM  => "Rhodium"
-  }
-
-  lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
-
-  implicit val format = Json.formatEnum(RateLimitTier)
-}

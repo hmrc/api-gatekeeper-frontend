@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.{LocalDateTime, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -51,18 +51,18 @@ class ModelSpec extends AsyncHmrcSpec {
     }
 
     "convert string value to enum with lowercase" in {
-      RateLimitTier.from("gold") shouldBe Some(RateLimitTier.GOLD)
-      RateLimitTier.from("bronze") shouldBe Some(RateLimitTier.BRONZE)
+      RateLimitTier.apply("gold") shouldBe Some(RateLimitTier.GOLD)
+      RateLimitTier.apply("bronze") shouldBe Some(RateLimitTier.BRONZE)
     }
 
     "convert string value to enum with mixedcase" in {
-      RateLimitTier.from("gOld") shouldBe Some(RateLimitTier.GOLD)
-      RateLimitTier.from("SilVeR") shouldBe Some(RateLimitTier.SILVER)
+      RateLimitTier.apply("gOld") shouldBe Some(RateLimitTier.GOLD)
+      RateLimitTier.apply("SilVeR") shouldBe Some(RateLimitTier.SILVER)
     }
 
     "convert string value to None when undefined or empty" in {
-      RateLimitTier.from("unknown") shouldBe None
-      RateLimitTier.from("") shouldBe None
+      RateLimitTier.apply("unknown") shouldBe None
+      RateLimitTier.apply("") shouldBe None
     }
   }
 

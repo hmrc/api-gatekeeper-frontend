@@ -125,7 +125,6 @@ class ApiGatekeeperBaseSpec
   }
 
   protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
-    val requestJson = Json.stringify(Json.toJson(FindUserIdRequest(email)))
     implicit val format = Json.writes[FindUserIdResponse]
     val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 

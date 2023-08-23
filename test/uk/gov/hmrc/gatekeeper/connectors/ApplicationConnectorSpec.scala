@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, _}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -83,42 +83,6 @@ class ApplicationConnectorSpec
 
   // To solve issue with LocalDateTime serialisation without a timezone id.
   private def compareByString[A](a1: A, a2: A) = a1.toString shouldBe a2.toString
-
-  "updateRateLimitTier" should {
-    val url = s"/application/${applicationId.value.toString()}/rate-limit-tier"
-
-    "send Authorisation and return OK if the rate limit tier update was successful on the backend" in new Setup {
-      val body = Json.toJson(UpdateRateLimitTierRequest(RateLimitTier.GOLD)).toString
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(NO_CONTENT)
-          )
-      )
-
-      await(connector.updateRateLimitTier(applicationId, RateLimitTier.GOLD)) shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "send Authorisation and propagates 5xx errors" in new Setup {
-      val body = Json.toJson(UpdateRateLimitTierRequest(RateLimitTier.SILVER)).toString
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateRateLimitTier(applicationId, RateLimitTier.SILVER))
-      }
-    }
-  }
 
   "approveUplift" should {
     val gatekeeperId = "loggedin.gatekeeper"
