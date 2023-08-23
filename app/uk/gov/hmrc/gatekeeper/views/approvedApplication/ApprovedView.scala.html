@@ -15,12 +15,12 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models.ApprovedApplication
-@import uk.gov.hmrc.gatekeeper.models.RateLimitTier
 @import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -93,7 +93,7 @@
               <caption class="govuk-visually-hidden">Table showing rate limit tier</caption>
               <tbody id="rate-limit-tier-table" class="govuk-table__body">
                 <tr class="govuk-table__row">
-                  @for(t <- RateLimitTier.asOrderedList) {
+                  @for(t <- RateLimitTier.orderedForDisplay) {
                     <td class="govuk-table__cell">
                       <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
                     </td>

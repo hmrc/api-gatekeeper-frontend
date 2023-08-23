@@ -25,7 +25,7 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
@@ -269,6 +269,37 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       result.contentType should include("text/html")
       elementExistsById(document, "manage-rate-limit") shouldBe false
+
+    }
+
+    "show 'Manage' Application deleted if inactive link when logged in as admin" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        adminRequest,
+        Flash.emptyCookie
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+
+      elementExistsById(document, "manage-application-deleted-if-active") shouldBe true
+      elementExistsByAttr(document, "dd", "data-application-deleted-if-active") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-application-deleted-if-active", "Yes") shouldBe true
+
+    }
+
+    "not show 'Manage' Application deleted if inactive link when logged in as non admin" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        superUserRequest,
+        Flash.emptyCookie
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      elementExistsById(document, "manage-application-deleted-if-active") shouldBe false
 
     }
 

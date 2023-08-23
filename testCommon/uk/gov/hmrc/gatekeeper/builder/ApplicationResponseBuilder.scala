@@ -18,9 +18,8 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.{LocalDateTime, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State._
 import uk.gov.hmrc.gatekeeper.models._
 

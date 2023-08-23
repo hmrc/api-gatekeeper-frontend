@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
 @import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 @import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 @import uk.gov.hmrc.gatekeeper.models.State._
@@ -32,8 +32,10 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.LocalDateTime
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
+@import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 
 @this(main: MainView, applicationConfig: AppConfig)
+
 
 @(model: ApplicationViewModel)(implicit request: LoggedInRequest[_], flash: Flash)
 
@@ -295,7 +297,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @RateLimitTier.displayedTier(application.rateLimitTier)
+        @RateLimitTier.show(application.rateLimitTier)
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -404,6 +406,21 @@
         }
       }
     }
+    <div class="govuk-summary-list__row">
+      <dt class="govuk-summary-list__key">
+        Application deleted if inactive
+      </dt>
+      <dd class="govuk-summary-list__value" data-application-deleted-if-active>
+      @{MoreApplication.displayAutoDelete(application.moreApplication.allowAutoDelete).toString}
+      </dd>
+      @if(request.role.isAdmin && !application.state.isDeleted) {
+        <dd class="govuk-summary-list__actions">
+          <a id="manage-application-deleted-if-active" class="govuk-link" href="@{routes.ApplicationController.manageAutoDelete(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> application deleted if inactive</span>
+          </a>
+        </dd>
+      }
+    </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
         IP allow list

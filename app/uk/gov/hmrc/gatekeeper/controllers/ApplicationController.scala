@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -86,6 +86,8 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+    manageAutoDeleteView: ManageAutoDeleteView,
+    autoDeleteSuccessView: AutoDeleteSuccessView,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -416,8 +418,11 @@ class ApplicationController @Inject() (
   def updateRateLimitTier(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateRateLimitForm) = {
-        applicationService.updateRateLimitTier(app.application, RateLimitTier.withName(form.tier)).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+        RateLimitTier.apply(form.tier) match {
+          case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get).map { _ =>
+            Redirect(routes.ApplicationController.applicationPage(appId))
+          }
+          case None => Future.successful(BadRequest(manageRateLimitView(app.application, UpdateRateLimitForm.form.fill(form))))
         }
       }
 
@@ -450,6 +455,36 @@ class ApplicationController @Inject() (
       }
 
       UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
+    }
+  }
+
+  def manageAutoDelete(appId: ApplicationId) = adminOnlyAction { implicit request =>
+    withApp(appId) { app =>
+      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+    }
+  }
+
+  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    withApp(appId) { app =>
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get) map { _ =>
+          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+        }
+      }
+
+      def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
+        form.confirm match {
+          case "yes" => handleUpdateAutoDelete(true)
+          case "no"  => handleUpdateAutoDelete(false)
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+        }
+      }
+
+      def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
+        successful(BadRequest)
+      }
+
+      AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 
@@ -672,13 +707,16 @@ class ApplicationController @Inject() (
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       val result = Redirect(routes.ApplicationController.applicationPage(appId))
+
       if (request.role.isSuperUser) {
-        val newTier = RateLimitTier.withName(UpdateRateLimitForm.form.bindFromRequest().get.tier)
-        applicationService.updateRateLimitTier(app.application, newTier) map {
-          case ApplicationUpdateSuccessResult =>
-            result.flashing("success" -> s"Rate limit tier has been changed to $newTier")
-          case _                              =>
-            result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
+        RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
+          case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get) map {
+            case ApplicationUpdateSuccessResult =>
+              result.flashing("success" -> s"Rate limit tier has been changed to ${RateLimitTier.show(tier)}")
+            case _                              =>
+              result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
+          }
+          case None => Future.successful(result.flashing("failed" -> "Rate limit tier was not changed successfully"))
         }
       } else {
         Future.successful(result)

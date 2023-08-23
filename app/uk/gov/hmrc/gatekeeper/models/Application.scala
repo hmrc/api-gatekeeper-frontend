@@ -24,10 +24,10 @@ import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models.State.State
+import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
 case class ClientId(value: String) extends AnyVal
@@ -267,7 +267,8 @@ case class ApplicationResponse(
     privacyPolicyUrl: Option[String] = None,
     checkInformation: Option[CheckInformation] = None,
     blocked: Boolean = false,
-    ipAllowlist: IpAllowlist = IpAllowlist()
+    ipAllowlist: IpAllowlist = IpAllowlist(),
+    moreApplication: MoreApplication = MoreApplication()
   ) extends Application
 
 object ApplicationResponse {
@@ -287,7 +288,6 @@ object ApplicationResponse {
   implicit val formatRole          = Json.formatEnum(CollaboratorRole)
   implicit val format3             = Json.formatEnum(State)
   implicit val format4             = Json.format[ApplicationState]
-  implicit val formatRateLimitTier = Json.formatEnum(RateLimitTier)
   implicit val format5             = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
@@ -308,7 +308,8 @@ object ApplicationResponse {
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
-      (JsPath \ "ipAllowlist").read[IpAllowlist]
+      (JsPath \ "ipAllowlist").read[IpAllowlist] and
+      ((JsPath \ "moreApplication").read[MoreApplication] or Reads.pure(MoreApplication()))
   )(ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {
@@ -435,22 +436,3 @@ case class ApplicationState(
   def isDeleted                      = name.isDeleted
 }
 
-object RateLimitTier extends Enumeration {
-  type RateLimitTier = Value
-
-  val BRONZE, SILVER, GOLD, PLATINUM, RHODIUM = Value
-
-  def from(tier: String) = RateLimitTier.values.find(e => e.toString == tier.toUpperCase)
-
-  def displayedTier: RateLimitTier => String = {
-    case BRONZE   => "Bronze"
-    case SILVER   => "Silver"
-    case GOLD     => "Gold"
-    case PLATINUM => "Platinum"
-    case RHODIUM  => "Rhodium"
-  }
-
-  lazy val asOrderedList: List[RateLimitTier] = RateLimitTier.values.toList.sorted
-
-  implicit val format = Json.formatEnum(RateLimitTier)
-}

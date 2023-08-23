@@ -35,7 +35,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -43,14 +43,13 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -84,6 +83,8 @@ class ApplicationControllerSpec
   private lazy val createApplicationSuccessView  = app.injector.instanceOf[CreateApplicationSuccessView]
   private lazy val manageGrantLengthView         = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView  = app.injector.instanceOf[ManageGrantLengthSuccessView]
+  private lazy val manageAutoDeleteView          = app.injector.instanceOf[ManageAutoDeleteView]
+  private lazy val autoDeleteSuccessView         = app.injector.instanceOf[AutoDeleteSuccessView]
   private lazy val errorHandler                  = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
@@ -150,6 +151,8 @@ class ApplicationControllerSpec
         createApplicationSuccessView,
         manageGrantLengthView,
         manageGrantLengthSuccessView,
+        manageAutoDeleteView,
+        autoDeleteSuccessView,
         mockApmService,
         errorHandler,
         LdapAuthorisationServiceMock.aMock
@@ -546,6 +549,102 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       }
     }
 
+    "manageAutoDeletePage" should {
+      "return the manage auto delete page for an admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageAutoDelete(applicationId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
+      }
+
+      "return the manage auto delete page for a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageAutoDelete(applicationId)(aSuperUserLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        givenTheAppWillBeReturned()
+
+        val result = underTest.manageAutoDelete(applicationId)(aLoggedInRequest)
+
+        status(result) shouldBe FORBIDDEN
+        contentAsString(result) should include("You do not have permission")
+      }
+    }
+
+    "updateAutoDelete" should {
+      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+
+        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
+
+        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(true), *)(*)
+      }
+
+      "call the service to set the allowAutoDelete flag to false when a valid form is submitted for an admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+
+        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no")
+
+        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(false), *)(*)
+      }
+
+      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+
+        status(result) shouldBe BAD_REQUEST
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *)(*)
+      }
+
+      "return forbidden when a form is submitted for a non-admin user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        givenTheAppWillBeReturned()
+
+        val request = aLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
+
+        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+
+        status(result) shouldBe FORBIDDEN
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *)(*)
+      }
+    }
+
     "manageIpAllowlistPage" should {
       "return the manage IP allowlist page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
@@ -832,7 +931,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD))(*)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD), eqTo("Bobby Example"))(*)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -846,7 +945,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -860,12 +959,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
       }
     }
 
     "handleUplift" should {
-
       "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
@@ -891,8 +989,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val appCaptor     = ArgumentCaptor.forClass(classOf[Application])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
+        val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
-        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture())(hcCaptor.capture()))
+        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(hcCaptor.capture()))
           .thenReturn(successful(ApplicationUpdateSuccessResult))
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
@@ -900,8 +999,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         appCaptor.getValue shouldBe basicApplication
         newTierCaptor.getValue shouldBe tier
+        userCaptor.getValue() shouldBe "Bobby Example"
 
-        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier)(hcCaptor.getValue)
+        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(hcCaptor.getValue)
 
       }
 
@@ -912,7 +1012,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
 
       }
     }
@@ -1326,7 +1426,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "applicationPage" should {
-
       "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
         val application2                    = buildApplication()
@@ -1389,7 +1488,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "blockApplicationPage" should {
-
       "return the page for block app if admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
@@ -1476,7 +1574,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "unblockApplicationPage" should {
-
       "return the page for unblock app if admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 

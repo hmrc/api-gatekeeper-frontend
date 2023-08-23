@@ -20,9 +20,8 @@ import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-import uk.gov.hmrc.gatekeeper.models.RateLimitTier.RateLimitTier
 import uk.gov.hmrc.gatekeeper.models._
 
 case class NewApplication(
@@ -42,7 +41,8 @@ case class NewApplication(
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    grantLength: Period
+    grantLength: Period,
+    moreApplication: MoreApplication = MoreApplication()
   ) {
 
   lazy val privacyPolicyLocation = access match {
@@ -76,7 +76,6 @@ object NewApplication {
 
   implicit val formatRole             = Json.formatEnum(CollaboratorRole)
   implicit val formatApplicationState = Json.format[ApplicationState]
-  implicit val formatRateLimitTier    = Json.formatEnum(RateLimitTier)
   implicit val applicationFormat      = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)
