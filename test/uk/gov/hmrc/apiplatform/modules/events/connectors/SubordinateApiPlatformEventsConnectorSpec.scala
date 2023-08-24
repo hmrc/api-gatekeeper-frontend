@@ -17,13 +17,10 @@
 package uk.gov.hmrc.apiplatform.modules.events.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
-
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
-
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -60,21 +57,22 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List.empty
+      await(connector.fetchQueryableValues(applicationId)) shouldBe QueryableValues(List.empty, List.empty)
     }
 
     "return list of data when call returns OK" in new Setup {
 
+      private val response: QueryableValues = QueryableValues(List(FilterValue("Team Member", "TEAM_MEMBER")), List.empty)
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(QueryableValues(List("TEAM_MEMBER")))
+              .withJsonBody(response)
               .withStatus(OK)
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List("TEAM_MEMBER")
+      await(connector.fetchQueryableValues(applicationId)) shouldBe response
     }
   }
 
@@ -91,7 +89,7 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some("TEAM_MEMBER"))) shouldBe List.empty
+      await(connector.query(applicationId, Some("TEAM_MEMBER"), None)) shouldBe List.empty
     }
 
     "return list when OK" in new Setup {
@@ -110,7 +108,27 @@ class SubordinateApiPlatformEventsConnectorSpec
           )
       )
 
-      val results = await(connector.query(applicationId, Some("TEAM_MEMBER")))
+      val results = await(connector.query(applicationId, Some("TEAM_MEMBER"), None))
+
+      results.length shouldBe 3
+    }
+    "return list when OK with actorType params" in new Setup {
+
+      val sampleResponse = ApiPlatformEventsConnector.QueryResponse(
+        List(event1, event2, event3)
+      )
+
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("actorType", equalTo("COLLABORATOR"))
+          .willReturn(
+            aResponse()
+              .withJsonBody(Some(sampleResponse))
+              .withStatus(OK)
+          )
+      )
+
+      val results = await(connector.query(applicationId, None, Some("COLLABORATOR")))
 
       results.length shouldBe 3
     }

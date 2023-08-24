@@ -60,21 +60,22 @@ class PrincipalApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List.empty
+      await(connector.fetchQueryableValues(applicationId)) shouldBe QueryableValues(List.empty, List.empty)
     }
 
     "return list of data when call returns OK" in new Setup {
 
+      private val response: QueryableValues = QueryableValues(List(FilterValue("Team member", "TEAM_MEMBER")), List.empty)
       stubFor(
         get(urlEqualTo(url))
           .willReturn(
             aResponse()
-              .withJsonBody(QueryableValues(List("TEAM_MEMBER")))
+              .withJsonBody(response)
               .withStatus(OK)
           )
       )
 
-      await(connector.fetchQueryableEventTags(applicationId)) shouldBe List("TEAM_MEMBER")
+      await(connector.fetchQueryableValues(applicationId)) shouldBe response
     }
   }
 
@@ -91,7 +92,7 @@ class PrincipalApiPlatformEventsConnectorSpec
           )
       )
 
-      await(connector.query(applicationId, Some("TEAM_MEMBER"))) shouldBe List.empty
+      await(connector.query(applicationId, Some("TEAM_MEMBER"), None)) shouldBe List.empty
     }
 
     "return list when OK" in new Setup {
@@ -110,7 +111,29 @@ class PrincipalApiPlatformEventsConnectorSpec
           )
       )
 
-      val results = await(connector.query(applicationId, Some("TEAM_MEMBER")))
+      val results = await(connector.query(applicationId, Some("TEAM_MEMBER"), None))
+
+      results.length shouldBe 3
+    }
+
+    "return list when OK with two params" in new Setup {
+
+      val sampleResponse = ApiPlatformEventsConnector.QueryResponse(
+        List(event1, event2, event3)
+      )
+
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam("eventTag", equalTo("TEAM_MEMBER"))
+          .withQueryParam("actorType", equalTo("COLLABORATOR"))
+          .willReturn(
+            aResponse()
+              .withJsonBody(Some(sampleResponse))
+              .withStatus(OK)
+          )
+      )
+
+      val results = await(connector.query(applicationId, Some("TEAM_MEMBER"), Some("COLLABORATOR")))
 
       results.length shouldBe 3
     }

@@ -25,40 +25,55 @@
 @(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
 @main(title = s"${applicationConfig.title} - Application Events") {
-  
+
   <span class="govuk-caption-l">@{queryModel.applicationName}</span>
   <h1 class="govuk-heading-l">Application changes</h1>
 
-  <h2 class="govuk-heading-m">Filters</h2> 
+  <h2 class="govuk-heading-m">Filters</h2>
 
   @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
     <div class="govuk-grid-row">
       @defining(form("eventTag").value) { eventTagValue =>
-        <div class="govuk-grid-column-one-third">          
+        <div class="govuk-grid-column-one-third">
           <div class="govuk-form-group">
-            <label class="govuk-label govuk-!-font-weight-bold" for="eventTag">
+            <label class="govuk-label govuk-!-font-weight-bold" for="eventTagFilter">
               Type of change
             </label>
             <select class="govuk-select" id="eventTagFilter" name="eventTag">
-              <option value="" @if(eventTagValue == None) {selected}>All</option>      
-              @for(eventTag <- queryModel.searchFilterValues.eventTags) {
-                <option value="@eventTag" @if(eventTagValue == Some(eventTag)) {selected}>@eventTag</option>      
+              <option value="" @if(eventTagValue == None) {selected}>All</option>
+              @for(eventTag <- queryModel.queryableValues.eventTags) {
+                <option value="@eventTag.t" @if(eventTagValue.contains(eventTag.t)) {selected}>@eventTag.description</option>
               }
             </select>
           </div>
         </div>
       }
-    
-      <div class="govuk-grid-column-full">          
+        @defining(form("actorType").value) { actorTypeValue =>
+        <div class="govuk-grid-column-one-third">
+          <div class="govuk-form-group">
+            <label class="govuk-label govuk-!-font-weight-bold" for="actorTypeFilter">
+              Change made by
+              </label>
+            <select class="govuk-select" id="actorTypeFilter" name="actorType">
+              <option value="" @if(actorTypeValue == None) {selected}>All</option>
+              @for(actorType <- queryModel.queryableValues.actorTypes) {
+                <option value="@actorType.t" @if(actorTypeValue.contains(actorType.t)) {selected}>@actorType.description</option>
+              }
+            </select>
+          </div>
+        </div>
+      }
+
+      <div class="govuk-grid-column-full">
         <button id="filterResults" class="govuk-button" type="submit">Filter results</button>
       </div>
     </div>
-  }  
+  }
 
   <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible">
-  
+
   @if(queryModel.events.isEmpty) {
     <p class="govuk-body">There are no matching application changes</p>
   } else {
@@ -71,7 +86,7 @@
           <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Changes made by</th>
         </tr>
       </thead>
-      
+
       <tbody class="govuk-table__body">
 
         @for(event <- queryModel.events) {
@@ -83,6 +98,6 @@
           </tr>
         }
       </tbody>
-    </table>   
+    </table>
   }
-}   
+}

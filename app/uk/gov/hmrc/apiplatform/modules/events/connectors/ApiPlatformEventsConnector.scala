@@ -46,10 +46,11 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
     case "SANDBOX"    => subordinate
   }
 
-  def fetchQueryableEventTags(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[List[String]] = connectorFor(deployedTo).fetchQueryableEventTags(appId)
+  def fetchQueryableValues(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[QueryableValues] =
+    connectorFor(deployedTo).fetchQueryableValues(appId)
 
-  def query(appId: ApplicationId, deployedTo: String, tag: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
-    connectorFor(deployedTo).query(appId, tag)
+  def query(appId: ApplicationId, deployedTo: String, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
+    connectorFor(deployedTo).query(appId, tag, actorType)
 }
 
 abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends ApplicationLogger {
@@ -63,18 +64,19 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
   private lazy val applicationEventsUri = s"$serviceBaseUrl/application-event"
 
-  def fetchQueryableEventTags(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[String]] = {
+  def fetchQueryableValues(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[QueryableValues] = {
     http.GET[Option[QueryableValues]](s"$applicationEventsUri/${appId.value.toString()}/values")
       .map {
-        case None     => List.empty
-        case Some(qv) => qv.eventTags
+        case None     => QueryableValues(List.empty, List.empty)
+        case Some(qv) => qv
       }
   }
 
-  def query(appId: ApplicationId, tag: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] = {
+  def query(appId: ApplicationId, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] = {
     val queryParams =
       Seq(
-        tag.map(et => "eventTag" -> et.toString)
+        tag.map(et => "eventTag" -> et),
+        actorType.map(at => "actorType" -> at)
       ).collect {
         case Some((a, b)) => a -> b
       }
