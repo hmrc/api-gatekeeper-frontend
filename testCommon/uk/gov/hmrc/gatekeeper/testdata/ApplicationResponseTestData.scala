@@ -20,9 +20,9 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.models.{ApplicationResponse, ClientId}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 
 trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 

@@ -280,15 +280,15 @@ object ApplicationResponse {
   implicit private val formatPrivileged = Json.format[Privileged]
   implicit private val formatRopc       = Json.format[Ropc]
 
-  implicit val formatAccess        = Union.from[Access]("accessType")
+  implicit val formatAccess = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole          = Json.formatEnum(CollaboratorRole)
-  implicit val format3             = Json.formatEnum(State)
-  implicit val format4             = Json.format[ApplicationState]
-  implicit val format5             = Json.format[ApprovedApplication]
+  implicit val formatRole   = Json.formatEnum(CollaboratorRole)
+  implicit val format3      = Json.formatEnum(State)
+  implicit val format4      = Json.format[ApplicationState]
+  implicit val format5      = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
     (JsPath \ "id").read[ApplicationId] and
@@ -435,4 +435,3 @@ case class ApplicationState(
   def isPendingRequesterVerification = name.isPendingRequesterVerification
   def isDeleted                      = name.isDeleted
 }
-
