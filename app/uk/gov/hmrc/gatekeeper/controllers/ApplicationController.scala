@@ -497,7 +497,7 @@ class ApplicationController @Inject() (
   def deleteApplicationAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
+        if (app.application.name.trim() == form.applicationNameConfirmation) {
           applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
@@ -526,7 +526,7 @@ class ApplicationController @Inject() (
   def blockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
+        if (app.application.name.trim() == form.applicationNameConfirmation) {
           applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
             case ApplicationBlockFailureResult => technicalDifficulties
@@ -555,7 +555,7 @@ class ApplicationController @Inject() (
   def unblockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
-        if (app.application.name == form.applicationNameConfirmation) {
+        if (app.application.name.trim() == form.applicationNameConfirmation) {
           applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
