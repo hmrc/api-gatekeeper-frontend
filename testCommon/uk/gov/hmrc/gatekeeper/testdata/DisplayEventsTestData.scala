@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 trait DisplayEventsTestData extends DisplayEventTestDataBuilder with CommonTestData {
 
   val event1 = makeTeamMemberAddedEvent(applicationId, 1)
-  val event2 = makeTeamMemberAddedEvent(applicationId, 2).copy(eventDateTime = event1.eventDateTime.minus(1, ChronoUnit.MINUTES))
+  val event2 = makeTeamMemberAddedEventByAdmin(applicationId, 2).copy(eventDateTime = event1.eventDateTime.minus(1, ChronoUnit.MINUTES))
   val event3 = makeTeamMemberRemovedEvent(applicationId, 2).copy(eventDateTime = event2.eventDateTime.minus(1, ChronoUnit.MINUTES))
   val event4 = makeApiSubscribedV2Event(applicationId, 1).copy(eventDateTime = event3.eventDateTime.minus(1, ChronoUnit.MINUTES))
 

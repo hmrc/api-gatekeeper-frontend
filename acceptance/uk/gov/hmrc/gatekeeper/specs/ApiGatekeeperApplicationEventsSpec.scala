@@ -73,15 +73,15 @@ class ApiGatekeeperApplicationEventsSpec
       Thread.sleep(2000)
 
       And("I can the events")
-      verifyCountOfElementsByAttribute("data-event-time",4)
+      verifyCountOfElementsByAttribute("data-event-time", 4)
 
       verifyEvent(0, event1.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
-      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "iam@admin.com")
       verifyEvent(2, event3.eventDateTime, "Collaborator Removed", "(GK) iam@admin.com")
       verifyEvent(3, event4.eventDateTime, "Subscribed to API", "(GK) iam@admin.com")
 
       When("I choose the Team members filter")
-      stubFilteredEvents(applicationId, "TEAM_MEMBER", List(event1, event2, event3))
+      stubFilteredEventsByEventTag(applicationId, "TEAM_MEMBER", List(event1, event2, event3))
       ApplicationEventsPage(applicationId).selectTypeOfChange("TEAM_MEMBER")
       ApplicationEventsPage(applicationId).getTypeOfChange shouldBe "TEAM_MEMBER"
 
@@ -90,11 +90,26 @@ class ApiGatekeeperApplicationEventsSpec
       Thread.sleep(2500)
 
       Then("I can only see the 3 events")
-      verifyCountOfElementsByAttribute("data-event-time",3)
+      verifyCountOfElementsByAttribute("data-event-time", 3)
 
       verifyEvent(0, event1.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
-      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "(GK) iam@admin.com")
+      verifyEvent(1, event2.eventDateTime, "Collaborator Added", "iam@admin.com")
       verifyEvent(2, event3.eventDateTime, "Collaborator Removed", "(GK) iam@admin.com")
+
+      When("I choose the Actor Type filter")
+      stubFilteredEventsByBoth(applicationId, "TEAM_MEMBER", "COLLABORATOR", List(event2))
+      ApplicationEventsPage(applicationId).selectActorType("COLLABORATOR")
+      ApplicationEventsPage(applicationId).getActorType shouldBe "COLLABORATOR"
+
+      And("I submit the filter")
+      ApplicationEventsPage(applicationId).submit()
+      Thread.sleep(2500)
+
+      Then("I can only see the 1 events")
+      verifyCountOfElementsByAttribute("data-event-time", 1)
+
+      verifyEvent(0, event2.eventDateTime, "Collaborator Added", "iam@admin.com")
+
     }
   }
 
@@ -103,7 +118,7 @@ class ApiGatekeeperApplicationEventsSpec
 
     verifyText("data-event-time", dateTimeFormatter.format(expectedDateTime.atZone(ZoneOffset.UTC)), counter)
     verifyText("data-event-tag", expectedTag, counter)
-    verifyText("data-event-actor", expectedActor, counter) 
+    verifyText("data-event-actor", expectedActor, counter)
   }
 
 }

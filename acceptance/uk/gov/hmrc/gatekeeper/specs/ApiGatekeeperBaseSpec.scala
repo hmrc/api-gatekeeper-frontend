@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DashboardPage}
@@ -34,9 +33,7 @@ import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.events.connectors.ApiPlatformEventsConnector
-import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
-import uk.gov.hmrc.apiplatform.modules.events.connectors.QueryableValues
+import uk.gov.hmrc.apiplatform.modules.events.connectors.{ApiPlatformEventsConnector, DisplayEvent, FilterValue, QueryableValues}
 
 class ApiGatekeeperBaseSpec
     extends BaseSpec
@@ -71,28 +68,41 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubEvents(applicationId: ApplicationId, events: List[DisplayEvent]) = {
-    val tags = Set("TEAM_MEMBER", "SUBSCIPTION")
-    val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList)))
+    val tags          = Set(FilterValue("Team Member", "TEAM_MEMBER"), FilterValue("Subscription", "SUBSCIPTION"))
+    val actorTypes    = List(FilterValue("Application Collaborator", "COLLABORATOR"), FilterValue("Gatekeeper User", "GATEKEEPER"))
+    val queryResponse = Json.stringify(Json.toJson(QueryableValues(tags.toList, actorTypes)))
     stubFor(
       get(urlMatching(s"/application-event/${applicationId.value.toString}/values"))
-      .willReturn(aResponse().withBody(queryResponse).withStatus(OK))
+        .willReturn(aResponse().withBody(queryResponse).withStatus(OK))
     )
-    
+
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
     stubFor(
       get(urlMatching(s"/application-event/${applicationId.value.toString}"))
-      .willReturn(aResponse().withBody(eventResponse).withStatus(OK))
+        .willReturn(aResponse().withBody(eventResponse).withStatus(OK))
     )
   }
 
-  def stubFilteredEvents(applicationId: ApplicationId, tag: String, events: List[DisplayEvent]) = {
+  def stubFilteredEventsByEventTag(applicationId: ApplicationId, tag: String, events: List[DisplayEvent]) = {
     val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
     stubFor(
       get(urlPathEqualTo(s"/application-event/${applicationId.value.toString}"))
-      .withQueryParam("eventTag", equalTo(tag.toString()))
-      .willReturn(
-        aResponse().withBody(eventResponse).withStatus(OK)
-      )
+        .withQueryParam("eventTag", equalTo(tag))
+        .willReturn(
+          aResponse().withBody(eventResponse).withStatus(OK)
+        )
+    )
+  }
+
+  def stubFilteredEventsByBoth(applicationId: ApplicationId, tag: String, actorType: String, events: List[DisplayEvent]) = {
+    val eventResponse = Json.stringify(Json.toJson(ApiPlatformEventsConnector.QueryResponse(events)))
+    stubFor(
+      get(urlPathEqualTo(s"/application-event/${applicationId.value.toString}"))
+        .withQueryParam("actorType", equalTo(actorType))
+        .withQueryParam("eventTag", equalTo(tag))
+        .willReturn(
+          aResponse().withBody(eventResponse).withStatus(OK)
+        )
     )
   }
 
@@ -109,38 +119,38 @@ class ApiGatekeeperBaseSpec
     stubStateHistory(stateHistory, appId)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
-    
+
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
     stubSubmissionLatestIsNotFound(appId)
   }
 
   def stubApplicationsList() = {
-    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n","")
+    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
   }
 
   def stubPaginatedApplicationList() = {
     val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-    
+
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }
 
   protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
     implicit val format = Json.writes[FindUserIdResponse]
-    val responseJson = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
+    val responseJson    = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
     stubFor(post(urlEqualTo("/developers/find-user-id"))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
 
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
-      .willReturn(
-        aResponse().withStatus(OK).withBody(userJsonText)
-      )
+        .withQueryParam("developerId", equalTo(encode(userId.value.toString)))
+        .willReturn(
+          aResponse().withStatus(OK).withBody(userJsonText)
+        )
     )
 
   }
-  
+
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))

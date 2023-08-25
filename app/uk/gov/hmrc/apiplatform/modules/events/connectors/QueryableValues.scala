@@ -18,7 +18,19 @@ package uk.gov.hmrc.apiplatform.modules.events.connectors
 
 import play.api.libs.json.Json
 
-case class QueryableValues(eventTags: List[String])
+case class FilterValue(description: String, t: String)
+
+object FilterValue {
+
+  import play.api.libs.functional.syntax._
+  import play.api.libs.json.Reads._
+  import play.api.libs.json._
+
+  implicit val format = ((__ \ "description").format[String] and
+    (__ \ "type").format[String])(FilterValue.apply, unlift(FilterValue.unapply))
+}
+
+case class QueryableValues(eventTags: List[FilterValue], actorTypes: List[FilterValue])
 
 object QueryableValues {
   implicit val format = Json.format[QueryableValues]

@@ -29,7 +29,8 @@ case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
 
   private def submitButton = find(id("filterResults")).get
 
-  private def eventTagFilter = singleSel("eventTagFilter")
+  private def eventTagFilter  = singleSel("eventTagFilter")
+  private def actorTypeFilter = singleSel("actorTypeFilter")
 
   def submit() = clickOn(submitButton)
 
@@ -37,5 +38,10 @@ case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
     eventTagFilter.value = tag
   }
 
+  def selectActorType(tag: String) = {
+    actorTypeFilter.value = tag
+  }
+
   def getTypeOfChange = eventTagFilter.value
+  def getActorType    = actorTypeFilter.value
 }

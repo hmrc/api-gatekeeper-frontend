@@ -35,8 +35,9 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
     val subordinate: SubordinateApiPlatformEventsConnector = mock[SubordinateApiPlatformEventsConnector]
     val principal: PrincipalApiPlatformEventsConnector     = mock[PrincipalApiPlatformEventsConnector]
 
-    when(subordinate.fetchQueryableEventTags(*[ApplicationId])(*)).thenReturn(successful(List.empty))
-    when(principal.fetchQueryableEventTags(*[ApplicationId])(*)).thenReturn(successful(List.empty))
+    val emptyValues: QueryableValues = QueryableValues(List.empty, List.empty)
+    when(subordinate.fetchQueryableValues(*[ApplicationId])(*)).thenReturn(successful(emptyValues))
+    when(principal.fetchQueryableValues(*[ApplicationId])(*)).thenReturn(successful(emptyValues))
 
     val connector = new EnvironmentAwareApiPlatformEventsConnector(subordinate, principal)
 
@@ -47,17 +48,17 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
   "Call subordinate when environment is SANDBOX" in new Setup {
 
-    await(connector.fetchQueryableEventTags(appId, "SANDBOX"))
+    await(connector.fetchQueryableValues(appId, "SANDBOX"))
 
-    verify(subordinate, times(1)).fetchQueryableEventTags(eqTo(appId))(*)
-    verify(principal, never).fetchQueryableEventTags(*[ApplicationId])(*)
+    verify(subordinate, times(1)).fetchQueryableValues(eqTo(appId))(*)
+    verify(principal, never).fetchQueryableValues(*[ApplicationId])(*)
   }
 
   "Call principal when environment is PRODUCTION" in new Setup {
 
-    await(connector.fetchQueryableEventTags(appId, "PRODUCTION"))
+    await(connector.fetchQueryableValues(appId, "PRODUCTION"))
 
-    verify(subordinate, never).fetchQueryableEventTags(eqTo(appId))(*)
-    verify(principal, times(1)).fetchQueryableEventTags(*[ApplicationId])(*)
+    verify(subordinate, never).fetchQueryableValues(eqTo(appId))(*)
+    verify(principal, times(1)).fetchQueryableValues(*[ApplicationId])(*)
   }
 }
