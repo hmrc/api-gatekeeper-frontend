@@ -44,7 +44,7 @@ import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Environment._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, MoreApplication}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -282,7 +282,8 @@ class ApplicationControllerSpec
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           Standard(),
           ApplicationState(),
-          grantLength
+          grantLength,
+          moreApplication = MoreApplication(false)
         )
 
         ApplicationServiceMock.SearchApplications.returns(applicationResponse)
@@ -292,8 +293,8 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
-Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)

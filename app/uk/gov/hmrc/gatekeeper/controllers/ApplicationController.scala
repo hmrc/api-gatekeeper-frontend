@@ -50,7 +50,7 @@ import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndi
 import uk.gov.hmrc.gatekeeper.models.{Environment, _}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper.{ColumnDefinition, _}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
@@ -140,7 +140,8 @@ class ApplicationController @Inject() (
       ColumnDefinition("Blocked", (app => app.blocked.toString())),
       ColumnDefinition("Has IP Allow List", (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
-      ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString)))
+      ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
+      ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString()))
     )
 
     val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"
@@ -420,9 +421,9 @@ class ApplicationController @Inject() (
       def handleValidForm(form: UpdateRateLimitForm) = {
         RateLimitTier.apply(form.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get).map { _ =>
-            Redirect(routes.ApplicationController.applicationPage(appId))
-          }
-          case None => Future.successful(BadRequest(manageRateLimitView(app.application, UpdateRateLimitForm.form.fill(form))))
+              Redirect(routes.ApplicationController.applicationPage(appId))
+            }
+          case None       => Future.successful(BadRequest(manageRateLimitView(app.application, UpdateRateLimitForm.form.fill(form))))
         }
       }
 
@@ -711,12 +712,12 @@ class ApplicationController @Inject() (
       if (request.role.isSuperUser) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get) map {
-            case ApplicationUpdateSuccessResult =>
-              result.flashing("success" -> s"Rate limit tier has been changed to ${RateLimitTier.show(tier)}")
-            case _                              =>
-              result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
-          }
-          case None => Future.successful(result.flashing("failed" -> "Rate limit tier was not changed successfully"))
+              case ApplicationUpdateSuccessResult =>
+                result.flashing("success" -> s"Rate limit tier has been changed to ${RateLimitTier.show(tier)}")
+              case _                              =>
+                result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
+            }
+          case None       => Future.successful(result.flashing("failed" -> "Rate limit tier was not changed successfully"))
         }
       } else {
         Future.successful(result)
