@@ -48,8 +48,9 @@ trait DisplayEventTestDataBuilder {
   def makeTeamMemberAddedEvent(appId: ApplicationId, counter: Int): DisplayEvent = {
     teamMemberAddedExample.copy(applicationId = appId, metaData = s"Flag $counter" :: teamMemberAddedExample.metaData)
   }
+
   def makeTeamMemberAddedEventByAdmin(appId: ApplicationId, counter: Int): DisplayEvent = {
-    teamMemberAddedExample.copy(applicationId = appId, metaData = s"Flag $counter" :: teamMemberAddedExample.metaData,actor = appCollaboratorActor)
+    teamMemberAddedExample.copy(applicationId = appId, metaData = s"Flag $counter" :: teamMemberAddedExample.metaData, actor = appCollaboratorActor)
   }
 
   val teamMemberRemovedExample: DisplayEvent = DisplayEvent(

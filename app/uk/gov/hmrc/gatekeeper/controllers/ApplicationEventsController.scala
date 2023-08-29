@@ -16,9 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
+import scala.concurrent.{ExecutionContext, Future}
+
 import com.google.inject.{Inject, Singleton}
+
 import play.api.data.Form
 import play.api.mvc._
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -32,10 +38,6 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import scala.concurrent.{ExecutionContext, Future}
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: List[String], actor: String)

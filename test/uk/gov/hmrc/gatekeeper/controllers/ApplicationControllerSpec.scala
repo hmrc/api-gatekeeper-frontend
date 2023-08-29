@@ -23,7 +23,7 @@ import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
 import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.ApplicationServiceMockProvider
+import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
@@ -53,7 +53,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import mocks.services.ApmServiceMockProvider
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec
