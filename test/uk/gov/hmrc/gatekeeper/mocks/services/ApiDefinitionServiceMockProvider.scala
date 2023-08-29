@@ -28,6 +28,7 @@ trait ApiDefinitionServiceMockProvider {
 
   val mockApiDefinitionService = mock[ApiDefinitionService]
 
+  
   object FetchAllApiDefinitions {
 
     def inProd    = Calling(Some(Environment.PRODUCTION))

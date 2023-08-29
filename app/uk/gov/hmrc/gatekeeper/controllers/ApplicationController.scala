@@ -114,7 +114,7 @@ class ApplicationController @Inject() (
 
     for {
       paginatedApplicationResponse <- applicationService.searchApplications(env, params)
-      apis                         <- apiDefinitionService.fetchAllApiDefinitions(env)
+      apis                         <- apmService.fetchNonOpenApis(env.get)
     } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
   }
 

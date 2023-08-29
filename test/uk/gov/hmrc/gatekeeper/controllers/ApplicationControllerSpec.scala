@@ -53,6 +53,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import mocks.services.ApmServiceMockProvider
 
 class ApplicationControllerSpec
     extends ControllerBaseSpec
@@ -92,6 +93,7 @@ class ApplicationControllerSpec
     trait Setup extends ControllerSetupBase
         with ApplicationServiceMockProvider
         with ApplicationConnectorMockProvider
+        with ApmServiceMockProvider
         with StrideAuthorisationServiceMockModule
         with LdapAuthorisationServiceMockModule {
 
@@ -161,6 +163,7 @@ class ApplicationControllerSpec
       def givenThePaginatedApplicationsWillBeReturned = {
         ApplicationServiceMock.SearchApplications.returns()
         FetchAllApiDefinitions.inAny.returns()
+        ApmServiceMock.FetchNonOpenApiDefinitions.returns()
       }
 
     }
@@ -178,7 +181,7 @@ class ApplicationControllerSpec
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
         verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
       "on request for production all production applications supplied" in new Setup {
@@ -190,7 +193,7 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         verify(mockApplicationService).searchApplications(eqTo(Some(PRODUCTION)), *)(*)
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(PRODUCTION)))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
@@ -202,7 +205,7 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
-        verify(mockApiDefinitionService).fetchAllApiDefinitions(eqTo(Some(SANDBOX)))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
