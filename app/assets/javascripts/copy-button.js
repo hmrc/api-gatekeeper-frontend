@@ -1,11 +1,6 @@
-function copyText(id) {
-  var copyText = document.getElementById(id);
-  var textArea = document.createElement("textarea");
-  textArea.value = copyText.textContent;
-  document.body.appendChild(textArea);
-  textArea.select();
-  document.execCommand("Copy");
-  textArea.remove();
+function copyText(id) { 
+  var elem = document.getElementById(id);
+  navigator.clipboard.writeText(elem.textContent);
 }
 
 function initCopyTextOnClick(clickedElementId, textSourceId) {
