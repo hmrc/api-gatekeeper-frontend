@@ -26,7 +26,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 
 import scala.io.Source
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -154,6 +154,7 @@ class ApiGatekeeperBaseSpec
   def stubApiDefinition() = {
     stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
     stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
+    stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {
