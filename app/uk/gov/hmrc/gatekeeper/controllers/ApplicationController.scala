@@ -482,7 +482,7 @@ class ApplicationController @Inject() (
       }
 
       def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
-        successful(BadRequest)
+        successful(BadRequest(manageAutoDeleteView(app.application, form)))
       }
 
       AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
