@@ -92,18 +92,6 @@ object ApplicationWithHistory {
   implicit val format9      = Json.format[ApplicationWithHistory]
 }
 
-case class UpdateRateLimitTierRequest(rateLimitTier: RateLimitTier)
-
-object UpdateRateLimitTierRequest {
-  implicit val format = Json.format[UpdateRateLimitTierRequest]
-}
-
-case class UpdateGrantLengthRequest(grantLengthInDays: Int)
-
-object UpdateGrantLengthRequest {
-  implicit val format = Json.format[UpdateGrantLengthRequest]
-}
-
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: LocalDateTime, state: State)
 
 object ApplicationWithUpliftRequest {
