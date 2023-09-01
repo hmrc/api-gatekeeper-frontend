@@ -43,29 +43,6 @@ class ModelSpec extends AsyncHmrcSpec {
     }
   }
 
-  "RateLimitTier" should {
-
-    "have all rate limit tiers" in {
-      import RateLimitTier._
-      RateLimitTier.values shouldBe Set(RHODIUM, PLATINUM, GOLD, SILVER, BRONZE)
-    }
-
-    "convert string value to enum with lowercase" in {
-      RateLimitTier.apply("gold") shouldBe Some(RateLimitTier.GOLD)
-      RateLimitTier.apply("bronze") shouldBe Some(RateLimitTier.BRONZE)
-    }
-
-    "convert string value to enum with mixedcase" in {
-      RateLimitTier.apply("gOld") shouldBe Some(RateLimitTier.GOLD)
-      RateLimitTier.apply("SilVeR") shouldBe Some(RateLimitTier.SILVER)
-    }
-
-    "convert string value to None when undefined or empty" in {
-      RateLimitTier.apply("unknown") shouldBe None
-      RateLimitTier.apply("") shouldBe None
-    }
-  }
-
   "Application.isSoleAdmin" should {
     val emailAddress                                = "admin@example.com".toLaxEmail
     val admin                                       = Collaborators.Administrator(UserId.random, emailAddress)
