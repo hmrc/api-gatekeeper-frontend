@@ -354,7 +354,7 @@ object Forms {
           fields =>
             fields match {
               case data: AutoDeleteConfirmationForm =>
-                if (data.confirm.equalsIgnoreCase("no") && (data.reason.isEmpty || (!data.reason.isEmpty && data.reason.length > 100))) false else true
+                if (data.confirm.equalsIgnoreCase("no") && data.reason.isEmpty) false else true
             }
         )
     )
