@@ -66,10 +66,11 @@
                     </label>
 
                 </div>
-                @fieldError(form.errors, "reason", form.error("submissionError").isEmpty)
+
                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-reason">
                     <label class="govuk-label" for="reason">Give the reasons for excluding this application from being deleted if it is inactive
                     </label>
+                    @fieldError(form.errors, "reason", form.error("submissionError").isEmpty)
                     <textarea class="govuk-textarea" id="reason" name="reason" type="text" spellcheck="false" rows="2" maxlength="100"></textarea>
                 </div>
             </div>

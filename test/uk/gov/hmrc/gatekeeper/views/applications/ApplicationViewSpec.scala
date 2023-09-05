@@ -289,10 +289,27 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     }
 
-    "not show 'Manage' Application deleted if inactive link when logged in as non admin" in new Setup {
+    "show 'Manage' Application deleted if inactive link when logged in as super user" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
         superUserRequest,
+        Flash.emptyCookie
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+
+      elementExistsById(document, "manage-application-deleted-if-active") shouldBe true
+      elementExistsByAttr(document, "dd", "data-application-deleted-if-active") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-application-deleted-if-active", "Yes") shouldBe true
+
+    }
+
+    "not show 'Manage' Application deleted if inactive link when logged in as user" in new Setup {
+      val result = applicationView.render(
+        DefaultApplicationViewModel,
+        strideUserRequest,
         Flash.emptyCookie
       )
 

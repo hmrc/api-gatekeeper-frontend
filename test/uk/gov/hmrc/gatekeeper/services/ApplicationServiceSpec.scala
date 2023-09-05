@@ -838,27 +838,33 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "updateAutoDelete" should {
+    val noReason = "No reasons given"
+    val reason = "Some reason"
+
+
     "issue AllowApplicationAutoDelete command when auto delete is true in either sandbox or production app" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateAutoDelete(stdApp1.id, true, gatekeeperUserId))
+      val result = await(underTest.updateAutoDelete(stdApp1.id, true, gatekeeperUserId, noReason))
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
-        case ApplicationCommands.AllowApplicationAutoDelete(aUser, _) =>
+        case ApplicationCommands.AllowApplicationAutoDelete(aUser, aReason, _) =>
           aUser shouldBe gatekeeperUserId
+          aReason shouldBe noReason
       }
     }
 
     "issue BlockApplicationAutoDelete command when auto delete is false in either sandbox or production app" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateAutoDelete(stdApp1.id, false, gatekeeperUserId))
+      val result = await(underTest.updateAutoDelete(stdApp1.id, false, gatekeeperUserId, reason))
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
-        case ApplicationCommands.BlockApplicationAutoDelete(aUser, _) =>
+        case ApplicationCommands.BlockApplicationAutoDelete(aUser, aReason, _) =>
           aUser shouldBe gatekeeperUserId
+          aReason shouldBe reason
       }
     }
   }
