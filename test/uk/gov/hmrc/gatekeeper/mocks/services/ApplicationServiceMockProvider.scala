@@ -79,7 +79,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object UpdateAutoDelete {
-      def succeeds() = when(mockApplicationService.updateAutoDelete(*[ApplicationId], *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.updateAutoDelete(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UnblockApplication {

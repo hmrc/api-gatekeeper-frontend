@@ -413,7 +413,7 @@
       <dd class="govuk-summary-list__value" data-application-deleted-if-active>
       @{MoreApplication.displayAutoDelete(application.moreApplication.allowAutoDelete).toString}
       </dd>
-      @if(request.role.isAdmin && !application.state.isDeleted) {
+      @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-application-deleted-if-active" class="govuk-link" href="@{routes.ApplicationController.manageAutoDelete(applicationId)}">
             Manage<span class="govuk-visually-hidden"> application deleted if inactive</span>

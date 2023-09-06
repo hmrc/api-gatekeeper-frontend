@@ -459,30 +459,30 @@ class ApplicationController @Inject() (
     }
   }
 
-  def manageAutoDelete(appId: ApplicationId) = adminOnlyAction { implicit request =>
+  def manageAutoDelete(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
     }
   }
 
-  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def handleUpdateAutoDelete(allowAutoDelete: Boolean) = {
-        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get) map { _ =>
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
           Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
         }
       }
 
       def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
         form.confirm match {
-          case "yes" => handleUpdateAutoDelete(true)
-          case "no"  => handleUpdateAutoDelete(false)
+          case "yes" => handleUpdateAutoDelete(true, "No reasons given")
+          case "no"  => handleUpdateAutoDelete(false, form.reason)
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
       def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
-        successful(BadRequest)
+        successful(BadRequest(manageAutoDeleteView(app.application, form)))
       }
 
       AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)

@@ -340,14 +340,23 @@ object Forms {
     )
   }
 
-  final case class AutoDeleteConfirmationForm(confirm: String = "")
+  final case class AutoDeleteConfirmationForm(confirm: String = "", reason: String)
 
   object AutoDeleteConfirmationForm {
 
     val form: Form[AutoDeleteConfirmationForm] = Form(
       mapping(
-        "confirm" -> text
+        "confirm" -> text,
+        "reason" -> text
       )(AutoDeleteConfirmationForm.apply)(AutoDeleteConfirmationForm.unapply)
+        .verifying(
+          "auto.delete.reason.required",
+          fields =>
+            fields match {
+              case data: AutoDeleteConfirmationForm =>
+                if (data.confirm.equalsIgnoreCase("no") && data.reason.isEmpty) false else true
+            }
+        )
     )
   }
 

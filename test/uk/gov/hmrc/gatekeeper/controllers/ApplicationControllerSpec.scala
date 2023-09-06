@@ -587,40 +587,43 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "updateAutoDelete" should {
-      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an admin" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+      val noReason = "No reasons given"
+      val reason = "Some reason"
+
+      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateAutoDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
 
         val result = addToken(underTest.updateAutoDelete(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(true), *)(*)
+        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "call the service to set the allowAutoDelete flag to false when a valid form is submitted for an admin" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+      "call the service to set the allowAutoDelete flag to false when a valid form is submitted for an super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
 
         ApplicationServiceMock.UpdateAutoDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no")
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
 
         val result = addToken(underTest.updateAutoDelete(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(false), *)(*)
+        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
       }
 
-      "return a bad request when an invalid form is submitted for an admin user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+      "return a bad request when an invalid form is submitted for an super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
 
@@ -630,10 +633,10 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *)(*)
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
       }
 
-      "return forbidden when a form is submitted for a non-admin user" in new Setup {
+      "return forbidden when a form is submitted for a non-super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
@@ -644,7 +647,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *)(*)
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, eqTo(noReason))(*)
       }
     }
 
