@@ -695,8 +695,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   "developerService fetchDevelopersByEmailPreferences" should {
     val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
-    val category2   = APICategory("category2")
+    val category1   = ApiCategory("category1")
+    val category2   = ApiCategory("category2")
     val categories  = List(category1, category2)
     val apiName1    = "apiName1"
     val apiName2    = "apiName2"
@@ -737,8 +737,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   "developerService fetchDevelopersByEmailPreferencesPaginated" should {
     val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
-    val category2   = APICategory("category2")
+    val category1   = ApiCategory("category1")
+    val category2   = ApiCategory("category2")
     val categories  = List(category1, category2)
     val apiName1    = "apiName1"
     val apiName2    = "apiName2"
@@ -778,7 +778,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   "developerService fetchDevelopersBySpecificTaxRegimesEmailPreferences" should {
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
+    val category1   = ApiCategory("category1")
 
     "call the connector correctly when only passed a tax regime" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Seq(category1)), privateApiMatch = false, offset, limit)(sandboxUser)

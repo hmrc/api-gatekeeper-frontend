@@ -50,8 +50,8 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
       .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
-  def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
-    http.GET[List[APICategoryDetails]](s"$serviceBaseUrl/api-categories")
+  def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
+    http.GET[List[ApiCategoryDetails]](s"$serviceBaseUrl/api-categories")
       .recover(for5xx(new FetchApiCategoriesFailed))
   }
 }

@@ -139,7 +139,7 @@ class ApiDefinitionConnectorSpec
     val url = "/api-categories"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"))
+      val response = List(ApiCategoryDetails("Business", "Business"), ApiCategoryDetails("VAT", "Vat"))
 
       val payload = Json.toJson(response)
 

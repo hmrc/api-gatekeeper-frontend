@@ -44,7 +44,7 @@ trait ApiDefinitionConnectorMockProvider {
     }
 
     object FetchAPICategories {
-      def returns(categoryDetails: APICategoryDetails*) = when(mock.fetchAPICategories()(*)).thenReturn(successful(categoryDetails.toList))
+      def returns(categoryDetails: ApiCategoryDetails*) = when(mock.fetchAPICategories()(*)).thenReturn(successful(categoryDetails.toList))
     }
 
   }

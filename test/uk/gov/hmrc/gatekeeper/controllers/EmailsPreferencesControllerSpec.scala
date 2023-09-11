@@ -109,9 +109,9 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
-      val category1                 = APICategoryDetails("EXAMPLE", "Example")
-      val category2                 = APICategoryDetails("VAT", "Vat")
-      val category3                 = APICategoryDetails("AGENTS", "Agents")
+      val category1                 = ApiCategoryDetails("EXAMPLE", "Example")
+      val category2                 = ApiCategoryDetails("VAT", "Vat")
+      val category3                 = ApiCategoryDetails("AGENTS", "Agents")
       val categoryList              = List(category1, category2, category3)
       val offset                    = 0
       val limit                     = 4

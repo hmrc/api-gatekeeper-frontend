@@ -20,7 +20,7 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinitionGK, Environment}
+import uk.gov.hmrc.gatekeeper.models.{ApiCategoryDetails, ApiDefinitionGK, Environment}
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 
 trait ApiDefinitionServiceMockProvider {
@@ -81,7 +81,7 @@ trait ApiDefinitionServiceMockProvider {
   object ApiCategories {
     private val whenClause = when(mockApiDefinitionService.apiCategories()(*))
 
-    def returns(details: APICategoryDetails*) = whenClause.thenReturn(successful(details.toList))
+    def returns(details: ApiCategoryDetails*) = whenClause.thenReturn(successful(details.toList))
     def throws(throwable: Throwable)          = whenClause.thenReturn(failed(throwable))
   }
 }

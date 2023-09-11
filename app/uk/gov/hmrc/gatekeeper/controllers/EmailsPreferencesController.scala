@@ -167,13 +167,13 @@ class EmailsPreferencesController @Inject() (
       } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 
-  private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[APICategory])(selectedCategories =>
+  private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[ApiCategory])(selectedCategories =>
       categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory)
     )
 
-  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories =>
+  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[ApiCategoryDetails])(selectedCategories =>
       categories.filter(category => selectedCategories.contains(category.category))
     )
 

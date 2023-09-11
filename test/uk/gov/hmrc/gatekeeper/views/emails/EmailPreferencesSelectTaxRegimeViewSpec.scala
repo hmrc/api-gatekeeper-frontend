@@ -39,12 +39,12 @@ class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailP
 
   "email preferences category view" should {
 
-    val category1          = APICategoryDetails("VAT", "Vat")
-    val category2          = APICategoryDetails("AGENT", "Agents")
-    val category3          = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
+    val category1          = ApiCategoryDetails("VAT", "Vat")
+    val category2          = ApiCategoryDetails("AGENT", "Agents")
+    val category3          = ApiCategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
     val categories         = List(category1, category2, category3)
-    val category4          = APICategoryDetails("CUSTOMS", "Customs")
-    val category5          = APICategoryDetails("EXAMPLE", "Example")
+    val category4          = ApiCategoryDetails("CUSTOMS", "Customs")
+    val category5          = ApiCategoryDetails("EXAMPLE", "Example")
     val categoriesSelected = List(category4, category5)
     val allCategories      = categoriesSelected ++ categories
 

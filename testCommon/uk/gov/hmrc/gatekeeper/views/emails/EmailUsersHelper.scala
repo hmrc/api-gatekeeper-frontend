@@ -131,7 +131,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
-  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Seq[APICategoryDetails], numberOfSets: Int = 1): Unit = {
+  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Seq[ApiCategoryDetails], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedCategories][type=hidden]")
     elements.size shouldBe selectedCategories.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedCategories.map(_.category)

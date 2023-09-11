@@ -276,7 +276,7 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "GET /emails/email-preferences/select-tax-regime" should {
-      val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
+      val categories = List(ApiCategoryDetails("category1", "name1"), ApiCategoryDetails("category2", "name2"), ApiCategoryDetails("category3", "name3"))
 
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
@@ -415,7 +415,7 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "GET /emails/email-preferences/selected-user-tax-regime" should {
-      val categories   = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
+      val categories   = List(ApiCategoryDetails("category1", "name1"), ApiCategoryDetails("category2", "name2"), ApiCategoryDetails("category3", "name3"))
       val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
       val offset       = 0
       val limit        = 15

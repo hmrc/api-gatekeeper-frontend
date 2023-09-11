@@ -99,9 +99,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
-      val category1                 = APICategoryDetails("EXAMPLE", "Example")
-      val category2                 = APICategoryDetails("VAT", "Vat")
-      val category3                 = APICategoryDetails("AGENTS", "Agents")
+      val category1                 = ApiCategoryDetails("EXAMPLE", "Example")
+      val category2                 = ApiCategoryDetails("VAT", "Vat")
+      val category3                 = ApiCategoryDetails("AGENTS", "Agents")
       val categoryList              = List(category1, category2, category3)
 
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
@@ -385,10 +385,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(APICategory("CUSTOMS"))), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(ApiCategory("CUSTOMS"))), eqTo(List(serviceNameThree)), eqTo(true))(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
           eqTo(selectedTopic),
-          eqTo(List(APICategory("CUSTOMS"), APICategory("VAT"))),
+          eqTo(List(ApiCategory("CUSTOMS"), ApiCategory("VAT"))),
           eqTo(List(serviceNameOne, serviceNameTwo)),
           eqTo(false)
         )(*)

@@ -288,7 +288,7 @@ class HttpDeveloperConnectorSpec
         )
 
         val result =
-          await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))))
+          await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Seq(ApiCategory("VAT"), ApiCategory("API1")))))
 
         wireMockVerify(getRequestedFor(matching))
 
@@ -313,7 +313,7 @@ class HttpDeveloperConnectorSpec
         val result = await(connector.fetchByEmailPreferences(
           TopicOptionChoice.BUSINESS_AND_POLICY,
           maybeApis = Some(Seq("service1", "service2")),
-          maybeApiCategories = Some(Seq(APICategory("VAT"), APICategory("API1")))
+          maybeApiCategories = Some(Seq(ApiCategory("VAT"), ApiCategory("API1")))
         ))
 
         wireMockVerify(getRequestedFor(matching))

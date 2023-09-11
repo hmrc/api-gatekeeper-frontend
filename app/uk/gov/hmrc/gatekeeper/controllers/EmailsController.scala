@@ -113,8 +113,8 @@ class EmailsController @Inject() (
     } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
   }
 
-  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[APICategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[APICategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
+  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
+    maybeSelectedCategories.fold(List.empty[ApiCategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
@@ -178,7 +178,7 @@ class EmailsController @Inject() (
     for {
       categories          <- apiDefinitionService.apiCategories()
       users               <- topicAndCategory.map(tup =>
-                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, APICategory(tup._2))
+                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, ApiCategory(tup._2))
                              )
                                .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
       usersAsJson          = Json.toJson(users)

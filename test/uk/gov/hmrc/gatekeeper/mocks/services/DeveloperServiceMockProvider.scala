@@ -160,7 +160,7 @@ trait DeveloperServiceMockProvider {
     object FetchDevelopersByAPICategoryEmailPreferences {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[APICategory])(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[ApiCategory])(*)).thenReturn(successful(users.toList))
     }
 
     def userExists(email: LaxEmailAddress): Unit = {

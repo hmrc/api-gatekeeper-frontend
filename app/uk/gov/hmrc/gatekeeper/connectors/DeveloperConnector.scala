@@ -61,7 +61,7 @@ trait DeveloperConnector {
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategory: Option[Seq[APICategory]] = None,
+      maybeApiCategory: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]]
@@ -69,7 +69,7 @@ trait DeveloperConnector {
   def fetchByEmailPreferencesPaginated(
       topic: Option[TopicOptionChoice] = None,
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategory: Option[Seq[APICategory]] = None,
+      maybeApiCategory: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false,
       offset: Int,
       limit: Int
@@ -157,7 +157,7 @@ class HttpDeveloperConnector @Inject() (
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Seq[APICategory]] = None,
+      maybeApiCategories: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
@@ -175,7 +175,7 @@ class HttpDeveloperConnector @Inject() (
   def fetchByEmailPreferencesPaginated(
       maybeTopic: Option[TopicOptionChoice] = None,
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Seq[APICategory]] = None,
+      maybeApiCategories: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false,
       offset: Int,
       limit: Int
@@ -266,7 +266,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Seq[APICategory]] = None,
+      maybeApiCategories: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false
     )(implicit hc: HeaderCarrier
     ) = Future.successful(List.empty)
@@ -274,7 +274,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
   def fetchByEmailPreferencesPaginated(
       topic: Option[TopicOptionChoice],
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Seq[APICategory]] = None,
+      maybeApiCategories: Option[Seq[ApiCategory]] = None,
       privateapimatch: Boolean = false,
       offset: Int,
       limit: Int

@@ -29,7 +29,7 @@ case class ApiDefinitionGK(
     context: ApiContext,
     versions: List[ApiVersionGK],
     requiresTrust: Option[Boolean],
-    categories: Option[List[APICategory]]
+    categories: Option[List[ApiCategory]]
   ) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
@@ -37,21 +37,21 @@ case class ApiDefinitionGK(
   }
 }
 
-case class APICategory(value: String) extends AnyVal
+case class ApiCategory(value: String) extends AnyVal
 
-object APICategory {
-  implicit val formatApiCategory = Json.valueFormat[APICategory]
+object ApiCategory {
+  implicit val formatApiCategory = Json.valueFormat[ApiCategory]
 }
 
-case class APICategoryDetails(category: String, name: String) {
+case class ApiCategoryDetails(category: String, name: String) {
 
-  def toAPICategory: APICategory = {
-    APICategory(category)
+  def toAPICategory: ApiCategory = {
+    ApiCategory(category)
   }
 }
 
-object APICategoryDetails {
-  implicit val formatApiCategory = Json.format[APICategoryDetails]
+object ApiCategoryDetails {
+  implicit val formatApiCategory = Json.format[ApiCategoryDetails]
 }
 case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 

@@ -34,8 +34,8 @@ case class CombinedApiCategory(value: String) extends AnyVal
 object CombinedApiCategory {
   implicit val categoryFormat: Format[CombinedApiCategory] = Json.format[CombinedApiCategory]
 
-  def toAPICategory(combinedApiCategory: CombinedApiCategory): APICategory = {
-    APICategory(combinedApiCategory.value)
+  def toAPICategory(combinedApiCategory: CombinedApiCategory): ApiCategory = {
+    ApiCategory(combinedApiCategory.value)
   }
 }
 

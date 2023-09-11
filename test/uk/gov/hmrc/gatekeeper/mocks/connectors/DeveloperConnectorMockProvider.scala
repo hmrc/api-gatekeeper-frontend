@@ -53,7 +53,7 @@ trait DeveloperConnectorMockProvider {
       def returnsFor(
           topic: TopicOptionChoice,
           maybeApis: Option[Seq[String]],
-          maybeApiCategory: Option[Seq[APICategory]],
+          maybeApiCategory: Option[Seq[ApiCategory]],
           privateapimatch: Boolean
         )(
           users: RegisteredUser*
@@ -67,7 +67,7 @@ trait DeveloperConnectorMockProvider {
       def returnsFor(
           topic: Option[TopicOptionChoice],
           maybeApis: Option[Seq[String]],
-          maybeApiCategory: Option[Seq[APICategory]],
+          maybeApiCategory: Option[Seq[ApiCategory]],
           privateApiMatch: Boolean,
           offset: Int,
           limit: Int

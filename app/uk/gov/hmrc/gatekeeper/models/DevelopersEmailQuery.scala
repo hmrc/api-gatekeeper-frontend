@@ -23,7 +23,7 @@ case class EmailOverride(email: List[RegisteredUser], isOverride: Boolean = fals
 case class DevelopersEmailQuery(
     topic: Option[String] = None,
     apis: Option[Seq[String]] = None,
-    apiCategories: Option[Seq[APICategory]] = None,
+    apiCategories: Option[Seq[ApiCategory]] = None,
     privateapimatch: Boolean = false,
     apiVersionFilter: Option[String] = None,
     allUsers: Boolean = false,

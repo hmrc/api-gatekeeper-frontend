@@ -30,6 +30,6 @@ trait APIDefinitionHelper {
       ApiContext(context),
       List(ApiVersionGK(ApiVersionNbr(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
       None,
-      categories.map(_.map(APICategory(_)))
+      categories.map(_.map(ApiCategory(_)))
     )
 }

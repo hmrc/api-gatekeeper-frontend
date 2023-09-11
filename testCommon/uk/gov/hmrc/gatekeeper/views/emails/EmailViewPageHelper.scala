@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinitionGK, ApiVersionGK, CombinedApi, RegisteredUser}
+import uk.gov.hmrc.gatekeeper.models.{ApiCategoryDetails, ApiDefinitionGK, ApiVersionGK, CombinedApi, RegisteredUser}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
@@ -207,7 +207,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  private def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
+  private def validateCategoryDropDown(document: Document, categories: List[ApiCategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
         elementExistsByText(document, "option", category.name) shouldBe true
@@ -215,19 +215,19 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     }
   }
 
-  private def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
+  private def validateStaticPageElements(document: Document, categories: List[ApiCategoryDetails]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
     validateCategoryDropDown(document, categories)
     checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
   }
 
-  private def validateStaticPageElementsInTaxRegime(document: Document, categories: List[APICategoryDetails], expectedDestination: String) = {
+  private def validateStaticPageElementsInTaxRegime(document: Document, categories: List[ApiCategoryDetails], expectedDestination: String) = {
     validatePageHeader(document, "Email users interested in a tax regime")
     validateCategoryDropDown(document, categories)
     validateFormDestination(document, "taxRegimeForm", expectedDestination)
   }
 
-  def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[APICategoryDetails]) = {
+  def validateEmailPreferencesAPICategoryPage(document: Document, categories: List[ApiCategoryDetails]) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -236,14 +236,14 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailPreferencesSpecificCategoryPage(document: Document, selectedCategories: List[APICategoryDetails]) = {
+  def validateEmailPreferencesSpecificCategoryPage(document: Document, selectedCategories: List[ApiCategoryDetails]) = {
     val sizeOfSelectedCategories = selectedCategories.size
     val headerTitle              = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
     validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
     validateHiddenSelectedTaxRegimeValues(document, selectedCategories, 2)
   }
 
-  def validateEmailPreferencesSpecificTaxRegime(document: Document, selectedCategories: List[APICategoryDetails]) = {
+  def validateEmailPreferencesSpecificTaxRegime(document: Document, selectedCategories: List[ApiCategoryDetails]) = {
     val sizeOfSelectedCategories = selectedCategories.size
     val headerTitle              = if (sizeOfSelectedCategories < 2) "tax regime" else "tax regimes"
     validatePageHeader(document, s"You have selected $sizeOfSelectedCategories $headerTitle")
@@ -292,7 +292,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
     verifyTableHeader(document)
   }
 
-  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[APICategoryDetails], selectedCategory: APICategoryDetails) = {
+  def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: List[ApiCategoryDetails], selectedCategory: ApiCategoryDetails) = {
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -304,8 +304,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesAPICategoryResultsPage(
       document: Document,
-      categories: List[APICategoryDetails],
-      mayBeSelectedCategory: Option[APICategoryDetails],
+      categories: List[ApiCategoryDetails],
+      mayBeSelectedCategory: Option[ApiCategoryDetails],
       selectedTopic: TopicOptionChoice,
       users: Seq[RegisteredUser]
     ) = {
@@ -324,7 +324,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 
   def validateEmailPreferencesSelectTaxRegimeResultsPage(
       document: Document,
-      categories: List[APICategoryDetails],
+      categories: List[ApiCategoryDetails],
       expectedDestination: String
     ) = {
     validateStaticPageElementsInTaxRegime(document, categories, expectedDestination)
@@ -333,8 +333,8 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
 
   def validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(
       document: Document,
-      categories: List[APICategoryDetails],
-      selectedCategories: List[APICategoryDetails],
+      categories: List[ApiCategoryDetails],
+      selectedCategories: List[ApiCategoryDetails],
       expectedDestination: String
     ) = {
     validateStaticPageElementsInTaxRegime(document, categories, expectedDestination)

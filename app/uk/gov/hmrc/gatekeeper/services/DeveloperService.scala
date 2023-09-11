@@ -180,14 +180,14 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[APICategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[ApiCategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(List(_)))
   }
 
   def fetchDevelopersByEmailPreferencesPaginated(
       topic: Option[TopicOptionChoice],
       maybeApis: Option[Seq[String]] = None,
-      maybeApiCategory: Option[Seq[APICategory]] = None,
+      maybeApiCategory: Option[Seq[ApiCategory]] = None,
       privateApiMatch: Boolean = false,
       offset: Int,
       limit: Int
@@ -196,13 +196,13 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis, maybeApiCategory = maybeApiCategory.map(_.distinct), privateApiMatch, offset, limit)
   }
 
-  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: APICategory)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: ApiCategory)(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Seq(apiCategory)))
   }
 
   def fetchDevelopersBySpecificAPIEmailPreferences(
       topic: TopicOptionChoice,
-      apiCategories: List[APICategory],
+      apiCategories: List[ApiCategory],
       apiNames: List[String],
       privateApiMatch: Boolean
     )(implicit hc: HeaderCarrier
@@ -210,7 +210,7 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories.distinct), privateApiMatch)
   }
 
-  def fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(apiCategories: List[APICategory], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(apiCategories: List[ApiCategory], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferencesPaginated(None, None, Some(apiCategories.distinct), privateapimatch = false, offset, limit)
   }
 

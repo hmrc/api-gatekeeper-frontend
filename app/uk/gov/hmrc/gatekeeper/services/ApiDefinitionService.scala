@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
 import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinitionGK}
+import uk.gov.hmrc.gatekeeper.models.{ApiCategoryDetails, ApiDefinitionGK}
 
 class ApiDefinitionService @Inject() (
     sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
@@ -72,7 +72,7 @@ class ApiDefinitionService @Inject() (
       .map(_.sortBy { case (api, env) => (api.name, env) })
   }
 
-  def apiCategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
+  def apiCategories()(implicit hc: HeaderCarrier): Future[List[ApiCategoryDetails]] = {
     for {
       sandboxCategories    <- sandboxApiDefinitionConnector.fetchAPICategories()
       productionCategories <- productionApiDefinitionConnector.fetchAPICategories()

@@ -337,7 +337,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     }
 
     "GET /emails/email-preferences/by-api-category" should {
-      val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
+      val categories = List(ApiCategoryDetails("category1", "name1"), ApiCategoryDetails("category2", "name2"), ApiCategoryDetails("category3", "name3"))
 
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()

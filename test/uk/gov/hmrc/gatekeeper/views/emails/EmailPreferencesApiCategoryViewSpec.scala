@@ -45,7 +45,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   val expectedTitle = "Email users interested in a tax regime"
 
-  def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
+  def validateCategoryDropDown(document: Document, categories: List[ApiCategoryDetails]) = {
     for (category <- categories) {
       withClue(s"Category: option `${category.category}` not in select list: ") {
         elementExistsByText(document, "option", category.name) shouldBe true
@@ -53,7 +53,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     }
   }
 
-  def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
+  def validateStaticPageElements(document: Document, categories: List[ApiCategoryDetails]) = {
     validatePageHeader(document, expectedTitle)
     validateCategoryDropDown(document, categories)
     checkElementsExistById(
@@ -73,9 +73,9 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
-    val category1 = APICategoryDetails("VAT", "Vat")
-    val category2 = APICategoryDetails("AGENT", "Agents")
-    val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
+    val category1 = ApiCategoryDetails("VAT", "Vat")
+    val category2 = ApiCategoryDetails("AGENT", "Agents")
+    val category3 = ApiCategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
 
     val categories = List(category1, category2, category3)
     "show correct title and options when no filter provided and empty list of users" in new Setup {

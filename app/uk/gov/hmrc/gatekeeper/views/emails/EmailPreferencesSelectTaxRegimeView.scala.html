@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(categories: List[APICategoryDetails], filteredCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(categories: List[ApiCategoryDetails], filteredCategories: List[ApiCategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @drawAPIDropDown = {
     <select class="govuk-select" id="selectedCategories" name="selectedCategories">
