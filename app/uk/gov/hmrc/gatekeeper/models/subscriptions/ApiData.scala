@@ -24,5 +24,5 @@ case class ApiData(
     serviceName: String,
     name: String,
     isTestSupport: Boolean,
-    versions: Map[ApiVersion, VersionData]
+    versions: Map[ApiVersionNbr, VersionData]
   )

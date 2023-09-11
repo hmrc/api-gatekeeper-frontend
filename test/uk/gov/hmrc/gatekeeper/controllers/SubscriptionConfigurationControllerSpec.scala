@@ -61,7 +61,7 @@ class SubscriptionConfigurationControllerSpec
       StrideAuthorisationServiceMock.aMock
     )
 
-    val version                       = ApiVersion.random
+    val version                       = ApiVersionNbr.random
     val context                       = ApiContext.random
     val subscriptionFieldValue        = buildSubscriptionFieldValue(FieldName.random)
     val subscriptionFieldsWrapper     = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))

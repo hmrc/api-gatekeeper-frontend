@@ -53,7 +53,7 @@ class SubscriptionController @Inject() (
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
-    def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersion]): List[VersionSubscriptionWithoutFields] = {
+    def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
       apiData.versions.map {
         case (version, data) =>
           VersionSubscriptionWithoutFields(
@@ -63,8 +63,8 @@ class SubscriptionController @Inject() (
       }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)
     }
 
-    def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext): List[ApiVersion] = {
-      subscriptions.filter(id => id.context == context).map(id => id.version).toList
+    def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext): List[ApiVersionNbr] = {
+      subscriptions.filter(id => id.context == context).map(id => id.versionNbr).toList
     }
 
     def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
@@ -84,17 +84,17 @@ class SubscriptionController @Inject() (
     }
   }
 
-  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
         Redirect(routes.SubscriptionController.manageSubscription(appId))
       )
     }
   }
 
-  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, version: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, version), gatekeeperUser.get).map(_ =>
+      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
         Redirect(routes.SubscriptionController.manageSubscription(appId))
       )
     }

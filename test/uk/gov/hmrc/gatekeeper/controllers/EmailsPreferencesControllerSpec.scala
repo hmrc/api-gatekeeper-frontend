@@ -136,7 +136,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        List(ApiVersionGK(ApiVersion("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
+        List(ApiVersionGK(ApiVersionNbr("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
         None,
         categories = Some(List(category1.toAPICategory))
       )
@@ -146,7 +146,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        List(ApiVersionGK(ApiVersion("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+        List(ApiVersionGK(ApiVersionNbr("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
         None,
         categories = Some(List(category2.toAPICategory))
       )

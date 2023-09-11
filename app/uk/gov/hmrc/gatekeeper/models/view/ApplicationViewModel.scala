@@ -26,8 +26,8 @@ case class ResponsibleIndividualHistoryItem(name: String, email: String, fromDat
 case class ApplicationViewModel(
     developers: List[RegisteredUser],
     application: NewApplication,
-    subscriptions: List[(String, List[(ApiVersion, ApiStatus)])],
-    subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersion, ApiStatus)])],
+    subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])],
+    subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersionNbr, ApiStatus)])],
     stateHistory: List[StateHistory],
     hasSubmissions: Boolean,
     gatekeeperApprovalsUrl: String,

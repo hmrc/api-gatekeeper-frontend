@@ -138,10 +138,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val gatekeeperUserId       = "loggedin.gatekeeper"
     val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
 
-    val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
+    val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersionNbr.random)
 
     val context = apiIdentifier.context
-    val version = apiIdentifier.version
+    val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
@@ -214,9 +214,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 1",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
     val resp2 = ApplicationWithSubscriptionsResponse(
@@ -224,8 +224,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 2",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
     val resp3 = ApplicationWithSubscriptionsResponse(
@@ -233,9 +233,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 3",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
 

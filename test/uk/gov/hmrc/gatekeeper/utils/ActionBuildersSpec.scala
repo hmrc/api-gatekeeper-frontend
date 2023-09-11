@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -61,22 +61,22 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     val subscription = buildSubscription(
       "mySubscription",
       versions = List(
-        buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId),
-        buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
+        buildVersionWithSubscriptionFields(ApiVersionNbr.random, true, applicationId),
+        buildVersionWithSubscriptionFields(ApiVersionNbr.random, true, applicationId)
       )
     )
   }
 
   trait SubscriptionsWithMixOfSubscribedVersionsSetup extends WithSubscription {
-    val version1Subscribed    = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId)
-    val version2NotSubscribed = buildVersionWithSubscriptionFields(ApiVersion.random, false, applicationId)
+    val version1Subscribed    = buildVersionWithSubscriptionFields(ApiVersionNbr.random, true, applicationId)
+    val version2NotSubscribed = buildVersionWithSubscriptionFields(ApiVersionNbr.random, false, applicationId)
 
     val emptySubscriptionFieldsWrapper   = buildSubscriptionFieldsWrapper(applicationId)
-    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
+    val versionWithoutSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersionNbr.random, true, applicationId, fields = Some(emptySubscriptionFieldsWrapper))
 
     val subscriptionFieldValue        = buildSubscriptionFieldValue(FieldName.random)
     val subscriptionFieldsWrapper     = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersion.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
+    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(ApiVersionNbr.random, true, applicationId, fields = Some(subscriptionFieldsWrapper))
 
     val subscription1 = buildSubscription("Subscription1")
     val subscription2 = buildSubscription("Subscription2", versions = List(version1Subscribed, version2NotSubscribed))

@@ -44,7 +44,7 @@ class ApiDefinitionConnectorSpec
     when(mockAppConfig.apiDefinitionProductionBaseUrl).thenReturn(wireMockUrl)
 
     val connector   = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
-    val apiVersion1 = ApiVersion.random
+    val apiVersion1 = ApiVersionNbr.random
   }
 
   import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._

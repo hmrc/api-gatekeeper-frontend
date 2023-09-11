@@ -315,9 +315,9 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             "My App",
             Some(LocalDateTime.parse("2002-02-03T12:01:02")),
             Set(
-              ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-              ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-              ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+              ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
             )
           )
         val response2 = ApplicationWithSubscriptionsResponse(
@@ -325,8 +325,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           "My Other App",
           None,
           Set(
-            ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-            ApiIdentifier(ApiContext("individual-tax"), ApiVersion("1.0"))
+            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+            ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
           )
         )
 

@@ -42,7 +42,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "publicAPI",
       "public api.",
       ApiContext.random,
-      List(ApiVersionGK(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
+      List(ApiVersionGK(ApiVersionNbr.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
       Some(false),
       None
     )
@@ -53,14 +53,14 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "privateAPI",
       "private api.",
       ApiContext.random,
-      List(ApiVersionGK(ApiVersion.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.Private(Nil,None)))),
+      List(ApiVersionGK(ApiVersionNbr.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.Private(Nil,None)))),
       Some(false),
       None
     )
 
-    val version1 = ApiVersionGK(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.PUBLIC))
-    val version2 = ApiVersionGK(ApiVersion("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,None)))
-    val version3 = ApiVersionGK(ApiVersion("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,None)))
+    val version1 = ApiVersionGK(ApiVersionNbr("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.PUBLIC))
+    val version2 = ApiVersionGK(ApiVersionNbr("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,None)))
+    val version3 = ApiVersionGK(ApiVersionNbr("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,None)))
 
     val customsDeclarations1 = ApiDefinitionGK(
       serviceName = "customs-declarations",

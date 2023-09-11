@@ -22,5 +22,5 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 case class ApplicationWithSubscriptionData(
     application: NewApplication,
     subscriptions: Set[ApiIdentifier] = Set.empty,
-    subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Fields.Alias]] = Map.empty
+    subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Fields.Alias]] = Map.empty
   )

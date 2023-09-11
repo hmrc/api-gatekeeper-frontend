@@ -40,8 +40,8 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     val underTest: SubscriptionFieldsService = spy(service)
   }
 
-  val apiVersion            = ApiVersion.random
-  private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersion)
+  val apiVersionNbr            = ApiVersionNbr.random
+  private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersionNbr)
 
   "When application is deployedTo production then principal connector is called" should {
     val application    = mock[Application]
@@ -54,17 +54,17 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     when(newApplication.deployedTo).thenReturn(Environment.PRODUCTION)
 
     "saveFieldValues" in new Setup {
-      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*))
+      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
-      verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*)
+      verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 
@@ -79,17 +79,17 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)
 
     "saveFieldValues" in new Setup {
-      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*))
+      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
-      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersion], *)(*)
+      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
   "fetchAllProductionFieldValues" in new Setup {

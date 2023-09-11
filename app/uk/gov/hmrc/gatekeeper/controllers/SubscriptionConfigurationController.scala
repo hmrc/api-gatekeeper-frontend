@@ -64,12 +64,12 @@ class SubscriptionConfigurationController @Inject() (
     }
   }
 
-  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, apiVersion: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
           val subscriptionVersionsForApp: List[SubscriptionVersion]       = SubscriptionVersion(app)
-          val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
+          val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.versionNbr == versionNbr).head
           val subscriptionFields                                          = subscriptionFieldsForContextAndVersion.fields
 
           val form = EditApiMetadataForm.form
@@ -80,7 +80,7 @@ class SubscriptionConfigurationController @Inject() (
     }
   }
 
-  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, apiVersion: ApiVersion): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
@@ -96,7 +96,7 @@ class SubscriptionConfigurationController @Inject() (
             val errorForm = EditApiMetadataForm.form.fill(form).copy(errors = errors)
 
             val subscriptionVersionsForApp: List[SubscriptionVersion]       = SubscriptionVersion(app)
-            val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.version == apiVersion).head
+            val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.versionNbr == versionNbr).head
 
             val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, errorForm)
 
@@ -106,7 +106,7 @@ class SubscriptionConfigurationController @Inject() (
           def doSaveConfigurations(form: EditApiMetadataForm) = {
             val fields: Fields.Alias = EditApiMetadataForm.toFields(form)
 
-            subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.application, apiContext, apiVersion, fields)
+            subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.application, apiContext, versionNbr, fields)
               .map({
                 case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
                 case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)

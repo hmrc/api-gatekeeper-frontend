@@ -28,7 +28,7 @@ trait APIDefinitionHelper {
       name,
       "desc",
       ApiContext(context),
-      List(ApiVersionGK(ApiVersion(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+      List(ApiVersionGK(ApiVersionNbr(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
       None,
       categories.map(_.map(APICategory(_)))
     )

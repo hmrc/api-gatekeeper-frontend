@@ -29,17 +29,17 @@ trait SubscriptionsBuilder {
     Subscription(name = name, serviceName = s"service-$name", context = context.getOrElse(ApiContext(s"context-$name")), versions = versions)
   }
 
-  def buildApiIdentifier(apiContext: ApiContext, apiVersion: ApiVersion): ApiIdentifier = ApiIdentifier(apiContext, apiVersion)
+  def buildApiIdentifier(apiContext: ApiContext, apiVersion: ApiVersionNbr): ApiIdentifier = ApiIdentifier(apiContext, apiVersion)
 
-  def buildVersionWithSubscriptionFields(version: ApiVersion, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
+  def buildVersionWithSubscriptionFields(versionNbr: ApiVersionNbr, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
     val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
-    VersionSubscription(ApiVersionGK(version, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
+    VersionSubscription(ApiVersionGK(versionNbr, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: List[SubscriptionFieldValue] = List.empty) = {
     val text = applicationId.value.toString()
-    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$text"), ApiContext(s"context-$text"), ApiVersion(s"apiVersion-$text"), fields = fields)
+    SubscriptionFieldsWrapper(applicationId, ClientId(s"clientId-$text"), ApiContext(s"context-$text"), ApiVersionNbr(s"apiVersion-$text"), fields = fields)
   }
 
   def buildSubscriptionFieldDefinition(

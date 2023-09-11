@@ -64,7 +64,7 @@ class ApplciationCommandConnectorSpec
     )
   }
 
-  val apiVersion1   = ApiVersion.random
+  val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
   val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)

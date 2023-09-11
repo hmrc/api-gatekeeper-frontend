@@ -39,8 +39,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
   Helpers.running(app) {
 
-    val apiVersion1 = ApiVersion("1.0")
-    val apiVersion2 = ApiVersion("2.0")
+    val apiVersion1 = ApiVersionNbr("1.0")
+    val apiVersion2 = ApiVersionNbr("2.0")
 
     trait Setup extends ControllerSetupBase {
 

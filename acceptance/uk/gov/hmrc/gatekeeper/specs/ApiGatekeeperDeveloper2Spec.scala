@@ -131,7 +131,7 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
   private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
     val developersJson = developers.map(u => u.email)
-    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersion("1.0"), Some("partialEmail"))
+    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"), Some("partialEmail"))
     
     stubFor(post(urlEqualTo("/collaborators"))
       .withJsonRequestBody(request)

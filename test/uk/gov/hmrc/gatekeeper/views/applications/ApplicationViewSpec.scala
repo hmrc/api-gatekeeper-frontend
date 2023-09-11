@@ -87,7 +87,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
   trait SubscriptionsSetup extends Setup {
 
-    val subscriptionsViewData: List[(String, List[(ApiVersion, ApiStatus)])] = List(
+    val subscriptionsViewData: List[(String, List[(ApiVersionNbr, ApiStatus)])] = List(
       (
         "My API Name",
         List(

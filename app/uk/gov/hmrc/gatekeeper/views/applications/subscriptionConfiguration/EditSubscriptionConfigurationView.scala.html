@@ -28,7 +28,7 @@
 
 @(application: NewApplication, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
-@pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.version.value} ${subscriptionViewModel.displayedStatus}"}
+@pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.versionNbr.value} ${subscriptionViewModel.displayedStatus}"}
 
 @main(
   title = s"${applicationConfig.title} - $pageTitle",
@@ -52,7 +52,7 @@
 ) {
   <h1 class="govuk-heading-l">@pageTitle</h1>
 
-  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.version), Symbol("class") -> "fields-subscription") {
+  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr), Symbol("class") -> "fields-subscription") {
     @helper.CSRF.formField
     @helper.repeatWithIndex(form("fields")) { (field, index) =>
       @defining(field("name").value.getOrElse("")) { formFieldId =>
@@ -62,7 +62,7 @@
         }
 
         <div class="govuk-form-group @if(form.errors(formFieldId).nonEmpty) {govuk-form-group--error}">
-          <label class="govuk-label" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.version}-@{field("description").value.getOrElse("")}">
+          <label class="govuk-label" for="@{subscriptionViewModel.apiContext}-@{subscriptionViewModel.versionNbr}-@{field("description").value.getOrElse("")}">
             @{subscriptionViewModel.fields(index).description}
           </label>
           <div class="govuk-hint">
@@ -70,14 +70,14 @@
           </div>
           @fieldError(form.errors, formFieldId)
           @helper.input(field("value"), Symbol("_label") -> "") { (id, name, value, args) =>
-            <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="govuk-input @if(form.errors(formFieldId).nonEmpty) {govuk-input--error}" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-@{field("name").value.getOrElse("")}">
+            <input type="text" name="@name" value="@{field("value").value.getOrElse("")}" class="govuk-input @if(form.errors(formFieldId).nonEmpty) {govuk-input--error}" id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr)}-@{field("name").value.getOrElse("")}">
           }
         </div>
       }
     }
 
     <div class="govuk-button-group">
-      <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.version)}-submit" class="govuk-button" type="submit" data-module="govuk-button">Save changes</button>
+      <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr)}-submit" class="govuk-button" type="submit" data-module="govuk-button">Save changes</button>
       <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }

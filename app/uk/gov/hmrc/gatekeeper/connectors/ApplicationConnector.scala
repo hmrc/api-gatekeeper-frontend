@@ -40,7 +40,7 @@ object ApplicationConnector {
   implicit val validateApplicationNameResponseErrorDetailsReads = Json.reads[ValidateApplicationNameResponseErrorDetails]
   implicit val validateApplicationNameResponseReads             = Json.reads[ValidateApplicationNameResponse]
 
-  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
+  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])
 
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
 
@@ -209,8 +209,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${version.value}")
+  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${versionNbr.value}")
       .map(_ match {
         case Right(result) => ApplicationUpdateSuccessResult
         case Left(err)     => throw err
@@ -249,7 +249,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[List[ApplicationWithSubscriptionsResponse]](s"$serviceBaseUrl/gatekeeper/applications/subscriptions")
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
     http.POST[SearchCollaboratorsRequest, List[LaxEmailAddress]](s"$serviceBaseUrl/collaborators", request)

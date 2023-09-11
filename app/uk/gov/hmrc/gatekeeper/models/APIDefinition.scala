@@ -55,7 +55,7 @@ object APICategoryDetails {
 }
 case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionGK(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
+case class ApiVersionGK(version: ApiVersionNbr, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = status.displayText
 
   val accessType = access.getOrElse(ApiAccess.PUBLIC).accessType

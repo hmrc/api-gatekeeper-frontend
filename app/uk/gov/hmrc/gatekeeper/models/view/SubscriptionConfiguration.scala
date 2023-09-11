@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
 import uk.gov.hmrc.gatekeeper.models.{ApplicationWithSubscriptionDataAndFieldDefinitions, _}
 
-case class SubscriptionVersion(apiName: String, apiContext: ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
+case class SubscriptionVersion(apiName: String, apiContext: ApiContext, versionNbr: ApiVersionNbr, displayedStatus: String, fields: List[SubscriptionField])
 
 object SubscriptionVersion {
 

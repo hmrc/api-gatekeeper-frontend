@@ -26,7 +26,7 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Environment._
@@ -46,7 +46,7 @@ class ApiPublisherConnectorSpec
     when(mockAppConfig.apiPublisherProductionBaseUrl).thenReturn(wireMockUrl)
 
     val connector   = new ProductionApiPublisherConnector(mockAppConfig, httpClient)
-    val apiVersion1 = ApiVersion.random
+    val apiVersion1 = ApiVersionNbr.random
   }
 
   "fetchUnapproved" should {

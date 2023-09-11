@@ -65,7 +65,7 @@ class ApplicationConnectorSpec
     )
   }
 
-  val apiVersion1   = ApiVersion.random
+  val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
   val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
@@ -278,9 +278,9 @@ class ApplicationConnectorSpec
         "My App",
         Some(LocalDateTime.parse("2002-02-03T12:01:02")),
         Set(
-          ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-          ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-          ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+          ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
         )
       ))
       val payload      = Json.toJson(applications).toString

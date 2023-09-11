@@ -49,7 +49,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
       val expectedValues = List(ApplicationApiFieldValues(
         ClientId("my-client-id"),
         ApiContext("my-api-context"),
-        ApiVersion("my-api-version"),
+        ApiVersionNbr("my-api-version"),
         UUID.randomUUID(),
         Map(FieldName("callbackUrl") -> FieldValue("callbackUrlValue"))
       ))
@@ -59,7 +59,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 
-      val expectedCsv = """|Environment,ClientId,ApiContext,ApiVersion,FieldName
+      val expectedCsv = """|Environment,ClientId,ApiContext,ApiVersionNbr,FieldName
                            |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl
                            |""".stripMargin
 

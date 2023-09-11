@@ -184,7 +184,7 @@ class ApplicationController @Inject() (
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
       val app                                                              = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
       val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
-      val subscriptionFieldValues: Map[ApiContext, Map[ApiVersion, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
+      val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
       val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}"
       val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}/send-new-terms-of-use"
@@ -201,7 +201,7 @@ class ApplicationController @Inject() (
       }
 
       def filterForFields(t: (ApiContext, ApiData)): (ApiContext, ApiData) = {
-        def hasFields(apiContext: ApiContext, apiVersion: ApiVersion): Boolean = {
+        def hasFields(apiContext: ApiContext, apiVersion: ApiVersionNbr): Boolean = {
           subscriptionFieldValues.get(apiContext) match {
             case Some(versions) => versions.get(apiVersion).isDefined
             case None           => false
@@ -214,7 +214,7 @@ class ApplicationController @Inject() (
         (apiContext, filteredApiData)
       }
 
-      def asListOfList(data: ApiData): List[(String, List[(ApiVersion, ApiStatus)])] = {
+      def asListOfList(data: ApiData): List[(String, List[(ApiVersionNbr, ApiStatus)])] = {
 
         if (data.versions.isEmpty) {
           List.empty

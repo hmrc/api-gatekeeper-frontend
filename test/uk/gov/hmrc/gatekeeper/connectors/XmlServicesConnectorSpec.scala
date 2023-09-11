@@ -39,7 +39,7 @@ class XmlServicesConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding {
 
-  val apiVersion1   = ApiVersion.random
+  val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
 
   trait Setup {

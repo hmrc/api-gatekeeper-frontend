@@ -132,7 +132,7 @@
   v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @termsOfUseAgreement.date
 }
 
-@renderSubscriptions(subs: Seq[(String, Seq[(ApiVersion, ApiStatus)])]) = {
+@renderSubscriptions(subs: Seq[(String, Seq[(ApiVersionNbr, ApiStatus)])]) = {
   @for(subscription <- subs.iterator) {
     <li>
       @subscription._1

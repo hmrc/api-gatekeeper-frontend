@@ -87,32 +87,32 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersion] = new PathBindable[ApiVersion] {
+  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
 
-    override def bind(key: String, value: String): Either[String, ApiVersion] = {
-      textBinder.bind(key, value).map(ApiVersion(_))
+    override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
+      textBinder.bind(key, value).map(ApiVersionNbr(_))
     }
 
-    override def unbind(key: String, apiVersion: ApiVersion): String = {
+    override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
       apiVersion.value
     }
   }
 
-  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersion] {
+  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersionNbr] {
 
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersion]] = {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersionNbr]] = {
       for {
         version <- textBinder.bind("version", params)
       } yield {
         version match {
-          case Right(version) => Right(ApiVersion(version))
+          case Right(version) => Right(ApiVersionNbr(version))
           case _              => Left("Unable to bind an api version")
         }
       }
     }
 
-    override def unbind(key: String, version: ApiVersion): String = {
-      textBinder.unbind("version", version.value)
+    override def unbind(key: String, versionNbr: ApiVersionNbr): String = {
+      textBinder.unbind("version", versionNbr.value)
     }
   }
 

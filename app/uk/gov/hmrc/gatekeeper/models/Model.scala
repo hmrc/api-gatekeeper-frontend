@@ -61,7 +61,7 @@ case class ApplicationWithHistory(application: ApplicationResponse, history: Lis
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
 object ApiDefinitions {
-  type Alias = Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
+  type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
 case class ApplicationWithSubscriptionDataAndFieldDefinitions(

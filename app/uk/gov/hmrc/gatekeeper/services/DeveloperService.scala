@@ -74,7 +74,7 @@ class DeveloperService @Inject() (
     }
 
     val allCollaboratorEmailsFutures: List[Future[List[LaxEmailAddress]]] = environmentApplicationConnectors
-      .map(_.searchCollaborators(apiFilter.context, apiFilter.version, maybePartialEmailFilter))
+      .map(_.searchCollaborators(apiFilter.context, apiFilter.versionNbr, maybePartialEmailFilter))
 
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }

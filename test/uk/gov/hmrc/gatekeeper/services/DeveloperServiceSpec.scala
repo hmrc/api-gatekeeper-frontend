@@ -112,7 +112,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val developerCollaborator       = developerUser.email.asDeveloperCollaborator
     val commonUsers                 = List(verifiedAdminUser, unverifiedUser, developerUser)
     val apiContext                  = ApiContext("api")
-    val apiVersion                  = ApiVersion.random
+    val apiVersion                  = ApiVersionNbr.random
 
     val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
 
@@ -668,7 +668,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe List(productionUser)
 
       verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -687,7 +687,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }

@@ -35,14 +35,14 @@ trait SubscriptionFieldsServiceMockProvider {
     object SaveFieldValues {
 
       def succeeds() =
-        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(*))
           .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       def failsWithFieldErrors(fieldErrors: Map[String, String]) =
-        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersion], *)(*))
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(*))
           .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
 
-      def verifyParams(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias) =
+      def verifyParams(application: NewApplication, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias) =
         verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
     }
   }

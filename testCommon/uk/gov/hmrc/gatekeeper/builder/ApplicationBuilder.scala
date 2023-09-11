@@ -67,18 +67,18 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
   val DefaultApplication = buildApplication()
 
-  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersion): Set[ApiIdentifier] =
+  def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
       ApiIdentifier(apiContext, apiVersion)
     )
 
-  def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias): Map[ApiContext, Map[ApiVersion, Fields.Alias]] = {
+  def buildSubscriptionFieldValues(apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias): Map[ApiContext, Map[ApiVersionNbr, Fields.Alias]] = {
     Map(apiContext -> Map(apiVersion -> fields))
   }
 
   def buildApplicationWithSubscriptionData(
       apiContext: ApiContext = ApiContext.random,
-      apiVersion: ApiVersion = ApiVersion.random,
+      apiVersion: ApiVersionNbr = ApiVersionNbr.random,
       fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     ): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
@@ -91,9 +91,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
     def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
 
-    def withSubscriptions(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
+    def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
 
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersion, ApiStatus)])]) =
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) =
       applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
 
     def withDeveloper(developer: RegisteredUser) = {

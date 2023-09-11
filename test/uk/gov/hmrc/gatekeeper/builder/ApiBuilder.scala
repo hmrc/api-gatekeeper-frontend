@@ -40,9 +40,9 @@ trait ApiBuilder {
 
     def withName(newName: String) = apiData.copy(name = newName)
 
-    def withVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(version -> data))
+    def withVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(versionNbr -> data))
 
-    def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
+    def addVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (versionNbr -> data))
   }
 
   val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess.PUBLIC)
@@ -50,9 +50,9 @@ trait ApiBuilder {
   val DefaultServiceName = "A-Service"
   val DefaultName        = "API Name"
 
-  val VersionOne   = ApiVersion("1.0")
-  val VersionTwo   = ApiVersion("2.0")
-  val VersionThree = ApiVersion("3.0")
+  val VersionOne   = ApiVersionNbr("1.0")
+  val VersionTwo   = ApiVersionNbr("2.0")
+  val VersionThree = ApiVersionNbr("3.0")
 
   val DefaultApiData = ApiData(
     serviceName = DefaultServiceName,

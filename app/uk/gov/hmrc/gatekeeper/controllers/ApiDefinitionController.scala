@@ -37,7 +37,7 @@ case class ApiDefinitionView(
     apiName: String,
     serviceName: String,
     apiContext: ApiContext,
-    apiVersion: ApiVersion,
+    apiVersion: ApiVersionNbr,
     versionSource: ApiVersionSource,
     status: String,
     access: String,
