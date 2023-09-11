@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
 
 trait ApiBuilder {
@@ -30,9 +29,10 @@ trait ApiBuilder {
     def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
     def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
-    def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
-    def publicAccess                             = this.withAccess(ApiAccessType.PUBLIC)
-    def privateAccess                            = this.withAccess(ApiAccessType.PRIVATE)
+    // def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
+    def withAccess(newAccess: ApiAccess) = versionData.copy(access = newAccess)
+    def publicAccess                             = this.withAccess(ApiAccess.PUBLIC)
+    def privateAccess                            = this.withAccess(ApiAccess.Private(Nil, None))
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {
@@ -45,7 +45,7 @@ trait ApiBuilder {
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
   }
 
-  val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess(`type` = ApiAccessType.PUBLIC))
+  val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess.PUBLIC)
 
   val DefaultServiceName = "A-Service"
   val DefaultName        = "API Name"

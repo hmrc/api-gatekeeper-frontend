@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.models.subscriptions
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiAccess
 
 case class VersionData(status: ApiStatus, access: ApiAccess)
 

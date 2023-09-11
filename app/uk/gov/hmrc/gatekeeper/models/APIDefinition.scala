@@ -58,12 +58,10 @@ case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, field
 case class ApiVersionGK(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = status.displayText
 
-  val accessType = access.map(_.`type`).getOrElse(ApiAccessType.PUBLIC)
+  val accessType = access.getOrElse(ApiAccess.PUBLIC).accessType
 
   val displayedAccessType = accessType.toString().toLowerCase().capitalize
 }
-
-case class ApiAccess(`type`: ApiAccessType, isTrial: Option[Boolean] = None)
 
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed  extends Throwable

@@ -59,7 +59,7 @@ class ApiDefinitionConnectorSpec
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(ApiAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
         None
       ))
@@ -101,7 +101,7 @@ class ApiDefinitionConnectorSpec
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(ApiAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
         None
       ))
