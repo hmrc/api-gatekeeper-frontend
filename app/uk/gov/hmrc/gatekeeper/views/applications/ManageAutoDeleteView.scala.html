@@ -55,13 +55,13 @@
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
                     <input class="govuk-radios__input" id="auto-delete-yes" name="confirm" type="radio" value="yes" @if(application.moreApplication.allowAutoDelete) {checked}>
-                    <label class="govuk-label govuk-radios__label" for="yes">
+                    <label class="govuk-label govuk-radios__label" for="auto-delete-yes">
                         Yes
                     </label>
                 </div>
                 <div class="govuk-radios__item">
                     <input class="govuk-radios__input" id="auto-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(!application.moreApplication.allowAutoDelete) {checked}>
-                    <label class="govuk-label govuk-radios__label" for="no">
+                    <label class="govuk-label govuk-radios__label" for="auto-delete-no">
                         No
                     </label>
 
