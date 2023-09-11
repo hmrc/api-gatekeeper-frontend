@@ -75,7 +75,7 @@ class ManageAutoDeleteViewSpec extends CommonViewSpec {
       elementExistsByText(document, "p", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.") shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "yes", "Yes") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
     }
 
     "show Auto Delete information and radio button 'No' selected when allowAutoDelete is false for application" in new Setup {
@@ -89,7 +89,7 @@ class ManageAutoDeleteViewSpec extends CommonViewSpec {
       elementExistsByText(document, "p", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.") shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "no", "No") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "auto-delete-no", "No") shouldBe true
       elementExistsByIdWithClass(document, "conditional-reason", "govuk-radios__conditional") shouldBe true
       elementExistsById(document, "reason") shouldBe true
       labelIdentifiedByForAttrContainsText(document, "reason", "Give the reasons for excluding this application from being deleted if it is inactive") shouldBe true
