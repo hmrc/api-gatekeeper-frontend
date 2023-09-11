@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.gatekeeper.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
@@ -122,12 +122,12 @@ class EmailsController @Inject() (
   private def handleGettingApiUsers(
       apis: List[CombinedApi],
       selectedTopic: Option[TopicOptionChoice.Value],
-      apiAccessType: APIAccessType
+      apiAccessType: ApiAccessType
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
     // return this is deployed out to all environments
-    val filteredApis = apis.filter(_.accessType.getOrElse(APIAccessType.PUBLIC) == apiAccessType)
+    val filteredApis = apis.filter(_.accessType.getOrElse(ApiAccessType.PUBLIC) == apiAccessType)
     val categories   = filteredApis.flatMap(_.categories.map(toAPICategory))
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {

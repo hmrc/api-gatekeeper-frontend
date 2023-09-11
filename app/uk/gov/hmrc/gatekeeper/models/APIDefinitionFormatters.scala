@@ -51,13 +51,13 @@ trait APIDefinitionFormatters {
 
   implicit val formatAPIStatus                   = ApiStatusJson.apiStatusFormat(ApiStatus)
   implicit val formatAPIAccess                   = Json.format[ApiAccess]
-  implicit val formatAPIVersion                  = Json.format[ApiVersionDefinition]
+  implicit val formatAPIVersion                  = Json.format[ApiVersionGK]
   implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
   implicit val formatSubscriptionFieldValue      = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields          = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription         = Json.format[VersionSubscription]
   implicit val formatAPIIdentifier               = Json.format[ApiIdentifier]
-  implicit val formatApiDefinitions              = Json.format[ApiDefinition]
+  implicit val formatApiDefinitions              = Json.format[ApiDefinitionGK]
 
   implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
   implicit val subscriptionWithoutFieldsJsonFormatter        = Json.format[SubscriptionWithoutFields]

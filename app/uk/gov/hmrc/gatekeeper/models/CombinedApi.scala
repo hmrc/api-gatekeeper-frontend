@@ -40,7 +40,7 @@ object CombinedApiCategory {
 
 //TODO -change accessType from being an option when APM version which starts returning this data
 // is deployed to production
-case class CombinedApi(displayName: String, serviceName: String, categories: List[CombinedApiCategory], apiType: ApiType, accessType: Option[APIAccessType])
+case class CombinedApi(displayName: String, serviceName: String, categories: List[CombinedApiCategory], apiType: ApiType, accessType: Option[ApiAccessType])
 
 object CombinedApi {
   implicit val formatCombinedApi = Json.format[CombinedApi]

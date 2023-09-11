@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.{PRIVATE, PUBLIC}
+import uk.gov.hmrc.gatekeeper.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models._
@@ -113,23 +113,23 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      val api1    = ApiDefinition(
+      val api1    = ApiDefinitionGK(
         "service1",
         "/",
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        List(ApiVersionDefinition(ApiVersion("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
+        List(ApiVersionGK(ApiVersion("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
         None,
         categories = Some(List(category1.toAPICategory))
       )
-      val api2    = ApiDefinition(
+      val api2    = ApiDefinitionGK(
         "service2",
         "/",
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        List(ApiVersionDefinition(ApiVersion("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+        List(ApiVersionGK(ApiVersion("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
         None,
         categories = Some(List(category2.toAPICategory))
       )

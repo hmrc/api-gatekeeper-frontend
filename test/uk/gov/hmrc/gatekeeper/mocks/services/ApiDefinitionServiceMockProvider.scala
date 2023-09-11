@@ -20,7 +20,7 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition, Environment}
+import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinitionGK, Environment}
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 
 trait ApiDefinitionServiceMockProvider {
@@ -38,7 +38,7 @@ trait ApiDefinitionServiceMockProvider {
     class Calling private (cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
 
-      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
+      def returns(apiDefinitions: ApiDefinitionGK*) = whenClause.thenReturn(successful(apiDefinitions.toList))
       def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
@@ -60,7 +60,7 @@ trait ApiDefinitionServiceMockProvider {
     class Calling[T] private (cond: Option[Environment.Value]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
 
-      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
+      def returns(apiDefinitions: ApiDefinitionGK*) = whenClause.thenReturn(successful(apiDefinitions.toList))
       def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
@@ -74,7 +74,7 @@ trait ApiDefinitionServiceMockProvider {
   object Apis {
     private val whenClause = when(mockApiDefinitionService.apis(*))
 
-    def returns(results: (ApiDefinition, Environment.Value)*) = whenClause.thenReturn(successful(results.toList))
+    def returns(results: (ApiDefinitionGK, Environment.Value)*) = whenClause.thenReturn(successful(results.toList))
     def throws(throwable: Throwable)                          = whenClause.thenReturn(failed(throwable))
   }
 

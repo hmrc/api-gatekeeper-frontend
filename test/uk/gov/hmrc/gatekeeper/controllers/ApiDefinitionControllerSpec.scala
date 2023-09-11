@@ -61,10 +61,10 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val someContext = ApiContext.random
 
       val apiVersions   = List(
-        ApiVersionDefinition(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
-        ApiVersionDefinition(ApiVersion("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE)
+        ApiVersionGK(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
+        ApiVersionGK(ApiVersion("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE)
       )
-      val apiDefinition = ApiDefinition("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, None)
+      val apiDefinition = ApiDefinitionGK("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, None)
 
       Apis.returns((apiDefinition, PRODUCTION))
 

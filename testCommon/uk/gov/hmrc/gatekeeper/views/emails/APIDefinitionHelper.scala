@@ -21,14 +21,14 @@ import uk.gov.hmrc.gatekeeper.models._
 
 trait APIDefinitionHelper {
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[List[String]], version: String): ApiDefinition =
-    ApiDefinition(
+  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[List[String]], version: String): ApiDefinitionGK =
+    ApiDefinitionGK(
       serviceName,
       "url1",
       name,
       "desc",
       ApiContext(context),
-      List(ApiVersionDefinition(ApiVersion(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+      List(ApiVersionGK(ApiVersion(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
       None,
       categories.map(_.map(APICategory(_)))
     )

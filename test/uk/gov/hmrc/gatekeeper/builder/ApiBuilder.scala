@@ -31,9 +31,9 @@ trait ApiBuilder {
     def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
     def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
-    def withAccess(newAccessType: APIAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
-    def publicAccess                             = this.withAccess(APIAccessType.PUBLIC)
-    def privateAccess                            = this.withAccess(APIAccessType.PRIVATE)
+    def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
+    def publicAccess                             = this.withAccess(ApiAccessType.PUBLIC)
+    def privateAccess                            = this.withAccess(ApiAccessType.PRIVATE)
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {
@@ -46,7 +46,7 @@ trait ApiBuilder {
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
   }
 
-  val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = APIAccessType.PUBLIC))
+  val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = ApiAccessType.PUBLIC))
 
   val DefaultServiceName = "A-Service"
   val DefaultName        = "API Name"

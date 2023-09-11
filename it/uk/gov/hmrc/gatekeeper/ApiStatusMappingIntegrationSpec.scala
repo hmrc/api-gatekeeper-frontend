@@ -23,8 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.{Configuration, Mode}
 import play.api.inject.guice.GuiceApplicationBuilder
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import _root_.uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite with WiremockSugarIt {
 
@@ -83,15 +83,15 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
         """.stripMargin
       )))
 
-      val result: Seq[ApiDefinition] = await(connector.fetchPublic())
+      val result: Seq[ApiDefinitionGK] = await(connector.fetchPublic())
 
-      result shouldBe Seq(ApiDefinition(
+      result shouldBe Seq(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess(ApiAccessType.PUBLIC)))),
         Some(false),
         Some(List(APICategory("VAT")))
       ))
@@ -133,15 +133,15 @@ class ApiStatusMappingIntegrationSpec extends AsyncHmrcSpec with GuiceOneAppPerS
         """.stripMargin
       )))
 
-      val result: Seq[ApiDefinition] = await(connector.fetchPublic())
+      val result: Seq[ApiDefinitionGK] = await(connector.fetchPublic())
 
-      result shouldBe Seq(ApiDefinition(
+      result shouldBe Seq(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         apiContext,
-        List(ApiVersionDefinition(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(ApiAccessType.PUBLIC)))),
         Some(false),
         None
       ))

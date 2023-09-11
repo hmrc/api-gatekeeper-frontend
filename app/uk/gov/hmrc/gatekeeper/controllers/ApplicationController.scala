@@ -576,7 +576,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
+  private def groupApisByStatus(apis: List[ApiDefinitionGK]): Map[String, List[VersionSummary]] = {
     val versions = for {
       api     <- apis
       version <- api.versions

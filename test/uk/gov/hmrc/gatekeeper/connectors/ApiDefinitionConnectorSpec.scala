@@ -53,13 +53,13 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinition(
+      val response = List(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(ApiAccessType.PUBLIC)))),
         Some(false),
         None
       ))
@@ -95,13 +95,13 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinition(
+      val response = List(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(ApiAccessType.PUBLIC)))),
         Some(false),
         None
       ))

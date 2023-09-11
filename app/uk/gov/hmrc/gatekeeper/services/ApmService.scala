@@ -52,7 +52,7 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllBoxes()
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
     apmConnector.fetchNonOpenApis(environment)
   }
 

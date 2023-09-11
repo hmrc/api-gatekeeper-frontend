@@ -83,8 +83,8 @@ class ApiDefinitionController @Inject() (
     })
   }
 
-  private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): List[ApiDefinitionView] = {
-    def isTrial(apiVersion: ApiVersionDefinition): Boolean = {
+  private def toViewModel(apiDefinition: ApiDefinitionGK, environment: Environment): List[ApiDefinitionView] = {
+    def isTrial(apiVersion: ApiVersionGK): Boolean = {
       apiVersion.access.fold(false)(access => access.isTrial.getOrElse(false))
     }
 

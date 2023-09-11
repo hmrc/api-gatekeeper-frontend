@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.gatekeeper.models.{APIAccessType, ApiType, CombinedApi, CombinedApiCategory}
+import uk.gov.hmrc.gatekeeper.models.{ApiAccessType, ApiType, CombinedApi, CombinedApiCategory}
 
 trait CombinedApiHelper {
 
-  def simpleAPI(serviceName: String, displayName: String, categories: List[String], apiType: ApiType, accessType: Option[APIAccessType]): CombinedApi =
+  def simpleAPI(serviceName: String, displayName: String, categories: List[String], apiType: ApiType, accessType: Option[ApiAccessType]): CombinedApi =
     CombinedApi(displayName, serviceName, categories.map(CombinedApiCategory(_)), apiType, accessType)
 }

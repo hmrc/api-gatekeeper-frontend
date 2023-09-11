@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition, ApiVersionDefinition, CombinedApi, RegisteredUser}
+import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinitionGK, ApiVersionGK, CombinedApi, RegisteredUser}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
@@ -99,7 +99,7 @@ trait EmailAllUsersViewHelper extends EmailUsersHelper with UserTableHelper {
 trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHelper {
   self: HmrcSpec =>
 
-  def validateEmailPreferencesSelectSubscribedApiPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateEmailPreferencesSelectSubscribedApiPage(document: Document, apis: Seq[ApiDefinitionGK]): Unit = {
     elementExistsByText(document, "h1", "Email users interested in a specific API") shouldBe true
   }
 
@@ -112,11 +112,11 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validatePageHeader(document, "You have selected 2 APIs")
   }
 
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinitionGK]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
-    for (api: ApiDefinition <- apis) {
-      for (version: ApiVersionDefinition <- api.versions) {
+    for (api: ApiDefinitionGK <- apis) {
+      for (version: ApiVersionGK <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.version}") {
           versionOption.isDefined shouldBe true
@@ -128,14 +128,14 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     verifyTableHeader(document, tableIsVisible = false)
   }
 
-  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinition], selectedApiName: String, users: Seq[RegisteredUser]): Unit = {
+  def validateEmailAPISubscriptionsPage(document: Document, apis: Seq[ApiDefinitionGK], selectedApiName: String, users: Seq[RegisteredUser]): Unit = {
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
     getSelectedOptionValue(document).fold(fail("There should be a selected option"))(selectedValue => selectedValue shouldBe selectedApiName)
     validateButtonText(document, "filter", "Filter Again")
 
-    for (api: ApiDefinition <- apis) {
-      for (version: ApiVersionDefinition <- api.versions) {
+    for (api: ApiDefinitionGK <- apis) {
+      for (version: ApiVersionGK <- api.versions) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.version.value}]")
         versionOption.isDefined shouldBe true
       }

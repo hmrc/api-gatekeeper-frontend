@@ -63,8 +63,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
+  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
+    http.GET[List[ApiDefinitionGK]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
   }
 
   // TODO - better return type

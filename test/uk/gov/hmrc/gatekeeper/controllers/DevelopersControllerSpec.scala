@@ -198,10 +198,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions   = List(
-          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
-          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
+          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -218,10 +218,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiContext = ApiContext.random
 
         val apiVersions   = List(
-          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
-          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
+          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "", "", apiContext, apiVersions, None, None)
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -234,10 +234,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
+        val apiVersionDefinition = ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition         = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition         = List(ApiDefinitionGK("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

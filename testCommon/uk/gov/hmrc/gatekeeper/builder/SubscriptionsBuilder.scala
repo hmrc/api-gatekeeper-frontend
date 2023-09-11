@@ -21,7 +21,7 @@ import scala.util.Random
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
-import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApiVersionDefinition, Subscription, VersionSubscription, _}
+import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApiVersionGK, Subscription, VersionSubscription, _}
 
 trait SubscriptionsBuilder {
 
@@ -34,7 +34,7 @@ trait SubscriptionsBuilder {
   def buildVersionWithSubscriptionFields(version: ApiVersion, subscribed: Boolean, applicationId: ApplicationId, fields: Option[SubscriptionFieldsWrapper] = None) = {
     val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
-    VersionSubscription(ApiVersionDefinition(version, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
+    VersionSubscription(ApiVersionGK(version, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, None), subscribed = subscribed, fields = fields.getOrElse(defaults))
   }
 
   def buildSubscriptionFieldsWrapper(applicationId: ApplicationId, fields: List[SubscriptionFieldValue] = List.empty) = {

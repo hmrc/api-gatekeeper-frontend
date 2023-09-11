@@ -43,13 +43,13 @@ object ApiVersionSource {
   }
 }
 
-case class ApiDefinition(
+case class ApiDefinitionGK(
     serviceName: String,
     serviceBaseUrl: String,
     name: String,
     description: String,
     context: ApiContext,
-    versions: List[ApiVersionDefinition],
+    versions: List[ApiVersionGK],
     requiresTrust: Option[Boolean],
     categories: Option[List[APICategory]]
   ) {
@@ -75,12 +75,12 @@ case class APICategoryDetails(category: String, name: String) {
 object APICategoryDetails {
   implicit val formatApiCategory = Json.format[APICategoryDetails]
 }
-case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
+case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionDefinition(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
+case class ApiVersionGK(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
   val displayedStatus = ApiStatus.displayedStatus(status)
 
-  val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
+  val accessType = access.map(_.`type`).getOrElse(ApiAccessType.PUBLIC)
 
   val displayedAccessType = accessType.toString().toLowerCase().capitalize
 }
@@ -98,14 +98,14 @@ object ApiStatus extends Enumeration {
   }
 }
 
-case class ApiAccess(`type`: APIAccessType, isTrial: Option[Boolean] = None)
+case class ApiAccess(`type`: ApiAccessType, isTrial: Option[Boolean] = None)
 
-sealed trait APIAccessType extends EnumEntry
+sealed trait ApiAccessType extends EnumEntry
 
-object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
+object ApiAccessType extends Enum[ApiAccessType] with PlayJsonEnum[ApiAccessType] {
   val values = findValues
-  case object PRIVATE extends APIAccessType
-  case object PUBLIC  extends APIAccessType
+  case object PRIVATE extends ApiAccessType
+  case object PUBLIC  extends ApiAccessType
 }
 
 class FetchApiDefinitionsFailed extends Throwable
@@ -123,7 +123,7 @@ case class SubscriptionWithoutFields(name: String, serviceName: String, context:
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
-case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
+case class VersionSubscriptionWithoutFields(version: ApiVersionGK, subscribed: Boolean)
 
 object Subscription {
 
