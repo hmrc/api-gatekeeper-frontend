@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.hmrc.gatekeeper.models.ApiAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
 import org.jsoup.Jsoup
 import org.scalatest.{BeforeAndAfterEach, Suite}
@@ -30,6 +29,7 @@ import uk.gov.hmrc.gatekeeper.support._
 import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
     with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
@@ -78,12 +78,12 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
   val apis = List(api1, api2, api3)
 
-  val combinedApi1 = simpleAPI("api-1", "API 1", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi2 = simpleAPI("api-2", "API 2", List("CATEGORY1", "VAT"), ApiType.REST_API, Some(PUBLIC))
-  val combinedApi3 = simpleAPI("api-3", "API 3", List("TAX", "VAT"), ApiType.REST_API, Some(PUBLIC))
-  val combinedApi4 = simpleAPI("api-4", "API 4", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi5 = simpleAPI("api-5", "API 5", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi6 = simpleAPI("api-6", "API 6", List.empty, ApiType.XML_API, Some(PUBLIC))
+  val combinedApi1 = simpleAPI("api-1", "API 1", List.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi2 = simpleAPI("api-2", "API 2", List("CATEGORY1", "VAT"), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi3 = simpleAPI("api-3", "API 3", List("TAX", "VAT"), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi4 = simpleAPI("api-4", "API 4", List.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi5 = simpleAPI("api-5", "API 5", List.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi6 = simpleAPI("api-6", "API 6", List.empty, ApiType.XML_API, Some(ApiAccessType.PUBLIC))
   val combinedApis = List(combinedApi1, combinedApi2, combinedApi3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =

@@ -32,7 +32,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.ApiAccessType.{PRIVATE, PUBLIC}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
 import uk.gov.hmrc.gatekeeper.models._
@@ -148,9 +147,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val serviceNameTwo   = "serviceNameTwo"
       val serviceNameThree = "serviceNameThree"
 
-      val combinedRestApi        = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-      val combinedXmlApi         = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
-      val combinedPrivateRestApi = CombinedApi("displayName3", serviceNameThree, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PRIVATE))
+      val combinedRestApi        = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+      val combinedXmlApi         = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+      val combinedPrivateRestApi = CombinedApi("displayName3", serviceNameThree, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(ApiAccessType.PRIVATE))
       val combinedApisList       = List(combinedRestApi, combinedXmlApi, combinedPrivateRestApi)
 
       val underTest = new EmailsController(

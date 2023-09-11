@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -66,14 +64,6 @@ case class ApiVersionGK(version: ApiVersion, versionSource: ApiVersionSource, st
 }
 
 case class ApiAccess(`type`: ApiAccessType, isTrial: Option[Boolean] = None)
-
-sealed trait ApiAccessType extends EnumEntry
-
-object ApiAccessType extends Enum[ApiAccessType] with PlayJsonEnum[ApiAccessType] {
-  val values = findValues
-  case object PRIVATE extends ApiAccessType
-  case object PUBLIC  extends ApiAccessType
-}
 
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed  extends Throwable

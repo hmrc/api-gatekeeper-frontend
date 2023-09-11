@@ -32,7 +32,7 @@ trait ApiDefinitionTestData {
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
@@ -90,7 +90,7 @@ trait ApiDefinitionTestData {
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
@@ -119,7 +119,7 @@ trait ApiDefinitionTestData {
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
