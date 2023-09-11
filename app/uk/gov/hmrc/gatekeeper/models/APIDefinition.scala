@@ -24,25 +24,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
-sealed trait ApiVersionSource {
-  def asText: String
-}
-
-object ApiVersionSource {
-
-  case object RAML extends ApiVersionSource {
-    val asText = "RAML"
-  }
-
-  case object OAS extends ApiVersionSource {
-    val asText = "OAS"
-  }
-
-  case object UNKNOWN extends ApiVersionSource {
-    val asText = "UNKNOWN"
-  }
-}
-
 case class ApiDefinitionGK(
     serviceName: String,
     serviceBaseUrl: String,

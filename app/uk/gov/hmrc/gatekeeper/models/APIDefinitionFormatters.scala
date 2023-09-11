@@ -23,21 +23,6 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefini
 
 trait APIDefinitionFormatters {
 
-  implicit val apiVersionSourceJF: Format[ApiVersionSource] = new Format[ApiVersionSource] {
-    import ApiVersionSource.{OAS, RAML, UNKNOWN}
-
-    def reads(json: JsValue): JsResult[ApiVersionSource] = json match {
-      case JsString(RAML.asText)    => JsSuccess(RAML)
-      case JsString(OAS.asText)     => JsSuccess(OAS)
-      case JsString(UNKNOWN.asText) => JsSuccess(UNKNOWN)
-      case e                        => JsError(s"Cannot parse source value from '$e'")
-    }
-
-    def writes(foo: ApiVersionSource): JsValue = {
-      JsString(foo.asText)
-    }
-  }
-
   implicit val formatFieldValue                         = Json.valueFormat[FieldValue]
   implicit val formatFieldName                          = Json.valueFormat[FieldName]
   implicit val keyReadsFieldName: KeyReads[FieldName]   = key => JsSuccess(FieldName(key))
