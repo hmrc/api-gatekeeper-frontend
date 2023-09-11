@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
-@import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 @import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 @import uk.gov.hmrc.gatekeeper.models.State._
 @import uk.gov.hmrc.gatekeeper.models.view._
@@ -138,8 +137,9 @@
     <li>
       @subscription._1
       @{
-        subscription._2.map(data =>
-          data._1.value + " (" + ApiStatus.displayedStatus(data._2) + ")"
+        subscription._2.map(data => 
+          data._1.value + " (" + data._2.displayText + ")"
+
         ).mkString(", ")
       }
     </li>

@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models.{ApiStatus, Environment, FieldName, FieldValue}
+import uk.gov.hmrc.gatekeeper.models.{Environment, FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -112,7 +112,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include("Subscription configuration")
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(ApiStatus.displayedStatus(versionData.status))
+      responseBody should include(versionData.status.displayText)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
       responseBody should include(fields.head._2.value)
 
@@ -152,13 +152,13 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${ApiStatus.displayedStatus(versionData.status)}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${versionData.status.displayText}"
 
       val responseBody = Helpers.contentAsString(result)
 
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(ApiStatus.displayedStatus(versionData.status))
+      responseBody should include(versionData.status.displayText)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.description)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
       responseBody should include(fields.head._2.value)

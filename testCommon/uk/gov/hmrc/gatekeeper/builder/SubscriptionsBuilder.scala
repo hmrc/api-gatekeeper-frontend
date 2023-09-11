@@ -21,7 +21,7 @@ import scala.util.Random
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
-import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApiVersionGK, Subscription, VersionSubscription, _}
+import uk.gov.hmrc.gatekeeper.models.{ApiVersionGK, Subscription, VersionSubscription, _}
 
 trait SubscriptionsBuilder {
 

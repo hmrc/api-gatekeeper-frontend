@@ -39,7 +39,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
@@ -582,7 +581,7 @@ class ApplicationController @Inject() (
       version <- api.versions
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
 
-    versions.groupBy(v => ApiStatus.displayedStatus(v.status))
+    versions.groupBy(_.status.displayText)
   }
 
   def reviewPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>

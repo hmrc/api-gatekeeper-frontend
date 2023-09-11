@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
 
@@ -46,7 +45,7 @@ trait ApiBuilder {
     def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
   }
 
-  val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = ApiAccessType.PUBLIC))
+  val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess(`type` = ApiAccessType.PUBLIC))
 
   val DefaultServiceName = "A-Service"
   val DefaultName        = "API Name"

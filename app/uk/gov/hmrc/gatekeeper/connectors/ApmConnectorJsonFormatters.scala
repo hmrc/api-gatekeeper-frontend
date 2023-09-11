@@ -18,9 +18,9 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber}
-import uk.gov.hmrc.gatekeeper.models.{APIDefinitionFormatters, ApiStatusJson}
+import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 
-private[connectors] object ApmConnectorJsonFormatters extends ApiStatusJson with APIDefinitionFormatters {
+private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionFormatters {
 
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantFormatter.WithTimeZone._

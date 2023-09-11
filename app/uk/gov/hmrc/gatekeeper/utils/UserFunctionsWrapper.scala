@@ -39,7 +39,7 @@ trait UserFunctionsWrapper {
   def getApiVersionsDropDownValues(apiDefinitions: List[ApiDefinitionGK]) = {
     def toKeyValue(api: ApiDefinitionGK, versionDefinition: ApiVersionGK) = {
       val value: String           = ApiContextVersion(api.context, versionDefinition.version).toStringValue.trim
-      val displayedStatus: String = ApiStatus.displayedStatus(versionDefinition.status).trim
+      val displayedStatus: String = versionDefinition.status.displayText
       val description: String     = s"${api.name} (${versionDefinition.version.value}) ($displayedStatus)"
 
       DropDownValue(value, description)

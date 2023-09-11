@@ -21,7 +21,7 @@ import play.api.data.Forms.{nonEmptyText, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
-import uk.gov.hmrc.gatekeeper.models.{ApiStatus, ApplicationWithSubscriptionDataAndFieldDefinitions, _}
+import uk.gov.hmrc.gatekeeper.models.{ApplicationWithSubscriptionDataAndFieldDefinitions, _}
 
 case class SubscriptionVersion(apiName: String, apiContext: ApiContext, version: ApiVersion, displayedStatus: String, fields: List[SubscriptionField])
 
@@ -43,7 +43,7 @@ object SubscriptionVersion {
           app.allPossibleSubs(contextMap._1).name,
           contextMap._1,
           versionMap._1,
-          ApiStatus.displayedStatus(app.allPossibleSubs(contextMap._1).versions(versionMap._1).status),
+          app.allPossibleSubs(contextMap._1).versions(versionMap._1).status.displayText,
           toSubscriptionFields(versionMap._2)
         )
       })

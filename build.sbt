@@ -93,7 +93,8 @@ lazy val microservice = Project(appName, file("."))
   .settings(
     routesImport ++= Seq(
       "uk.gov.hmrc.gatekeeper.controllers.binders._",
-      "uk.gov.hmrc.gatekeeper.models._"
+      "uk.gov.hmrc.gatekeeper.models._",
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._"
     ),
     TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",

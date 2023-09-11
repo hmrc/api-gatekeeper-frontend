@@ -21,7 +21,6 @@ import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
 case class ApiDefinitionGK(
@@ -59,24 +58,11 @@ object APICategoryDetails {
 case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
 case class ApiVersionGK(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
-  val displayedStatus = ApiStatus.displayedStatus(status)
+  val displayedStatus = status.displayText
 
   val accessType = access.map(_.`type`).getOrElse(ApiAccessType.PUBLIC)
 
   val displayedAccessType = accessType.toString().toLowerCase().capitalize
-}
-
-object ApiStatus extends Enumeration {
-  type ApiStatus = Value
-  val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
-
-  val displayedStatus: (ApiStatus) => String = {
-    case ApiStatus.ALPHA      => "Alpha"
-    case ApiStatus.BETA       => "Beta"
-    case ApiStatus.STABLE     => "Stable"
-    case ApiStatus.DEPRECATED => "Deprecated"
-    case ApiStatus.RETIRED    => "Retired"
-  }
 }
 
 case class ApiAccess(`type`: ApiAccessType, isTrial: Option[Boolean] = None)

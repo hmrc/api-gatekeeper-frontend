@@ -14,16 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.models.subscriptions
+package uk.gov.hmrc.apiplatform.modules.common.utils
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiAccess
+object SealedTraitJsonFormatting {
+  import play.api.libs.json._
 
-case class VersionData(status: ApiStatus, access: ApiAccess)
+  def createFormatFor[T](name: String, read: String => Option[T], write: T => String = (t: T) => t.toString) = new Format[T] {
 
-case class ApiData(
-    serviceName: String,
-    name: String,
-    isTestSupport: Boolean,
-    versions: Map[ApiVersion, VersionData]
-  )
+    def reads(json: JsValue): JsResult[T] = json match {
+      case JsString(text) => read(text).fold[JsResult[T]] { JsError(s"$text is not a valid $name") }(JsSuccess(_))
+      case e              => JsError(s"Cannot parse $name from '$e'")
+    }
+
+    def writes(foo: T): JsValue = {
+      JsString(write(foo))
+    }
+  }
+}
