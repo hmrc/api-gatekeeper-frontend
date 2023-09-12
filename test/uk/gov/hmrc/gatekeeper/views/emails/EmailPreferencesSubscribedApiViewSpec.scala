@@ -32,6 +32,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSubscribedApiView
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper {
 
@@ -42,8 +43,8 @@ class EmailPreferencesSubscribedApiViewSpec extends CommonViewSpec with EmailAPI
 
   "email preferences subscribed api view" must {
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
     val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)

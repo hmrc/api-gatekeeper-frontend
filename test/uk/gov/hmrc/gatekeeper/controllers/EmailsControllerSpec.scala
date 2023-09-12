@@ -99,10 +99,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
-      val category1                 = ApiCategoryDetails("EXAMPLE", "Example")
-      val category2                 = ApiCategoryDetails("VAT", "Vat")
-      val category3                 = ApiCategoryDetails("AGENTS", "Agents")
-      val categoryList              = List(category1, category2, category3)
+      val category1                 = ApiCategory.EXAMPLE
+      val category2                 = ApiCategory.VAT
+      val category3                 = ApiCategory.AGENTS
+      val categorySet              = Set(category1, category2, category3)
 
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
@@ -120,7 +120,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiContext("service1"),
         List(ApiVersionGK(ApiVersionNbr("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
         None,
-        categories = Some(List(category1.toAPICategory))
+        categories = Some(Set(category1))
       )
       val api2    = ApiDefinitionGK(
         "service2",
@@ -130,7 +130,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiContext("service2"),
         List(ApiVersionGK(ApiVersionNbr("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
         None,
-        categories = Some(List(category2.toAPICategory))
+        categories = Some(Set(category2))
       )
       val twoApis = List(api1, api2)
 
@@ -139,17 +139,13 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FetchAllApiDefinitions.inAny.returns(twoApis: _*)
       }
 
-      def givenApiDefinition3Categories() = {
-        ApiCategories.returns(category1, category2, category3)
-      }
-
       val serviceNameOne   = "serviceNameOne"
       val serviceNameTwo   = "serviceNameTwo"
       val serviceNameThree = "serviceNameThree"
 
-      val combinedRestApi        = CombinedApi("displayName1", serviceNameOne, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-      val combinedXmlApi         = CombinedApi("displayName2", serviceNameTwo, List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
-      val combinedPrivateRestApi = CombinedApi("displayName3", serviceNameThree, List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(ApiAccessType.PRIVATE))
+      val combinedRestApi        = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+      val combinedXmlApi         = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+      val combinedPrivateRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PRIVATE))
       val combinedApisList       = List(combinedRestApi, combinedXmlApi, combinedPrivateRestApi)
 
       val underTest = new EmailsController(
@@ -385,10 +381,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(List(ApiCategory("CUSTOMS"))), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.CUSTOMS)), eqTo(List(serviceNameThree)), eqTo(true))(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
           eqTo(selectedTopic),
-          eqTo(List(ApiCategory("CUSTOMS"), ApiCategory("VAT"))),
+          eqTo(Set(ApiCategory.CUSTOMS, ApiCategory.VAT)),
           eqTo(List(serviceNameOne, serviceNameTwo)),
           eqTo(false)
         )(*)
@@ -445,7 +441,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when no filters selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition3Categories()
         val request                = createGetRequest("/emails/email-preferences/by-api-category")
         val result: Future[Result] = underTest.emailPreferencesApiCategory()(request)
         status(result) shouldBe OK
@@ -455,11 +450,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when topic filter `TECHNICAL` selected and no users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
-        val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1.category))(request)
+        val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -469,11 +463,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition3Categories()
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
 
-        val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1.category}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1.category))(request)
+        val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some("TECHNICAL"), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)

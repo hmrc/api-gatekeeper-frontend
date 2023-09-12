@@ -42,8 +42,8 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
     val user1                                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                                = Seq(user1, user2)
-    val api1                                                                                 = simpleAPI(serviceName = "serviceName1", displayName = "displayName1", List.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val api2                                                                                 = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", List.empty, ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+    val api1                                                                                 = simpleAPI(serviceName = "serviceName1", displayName = "displayName1", Set.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+    val api2                                                                                 = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", Set.empty, ApiType.XML_API, Some(ApiAccessType.PUBLIC))
     val apis                                                                                 = List(api1, api2)
 
   }

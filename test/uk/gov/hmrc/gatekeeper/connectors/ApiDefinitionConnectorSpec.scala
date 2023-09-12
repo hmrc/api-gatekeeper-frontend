@@ -134,37 +134,4 @@ class ApiDefinitionConnectorSpec
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
     }
   }
-
-  "fetchAPICategories" should {
-    val url = "/api-categories"
-
-    "respond with 200 and convert body" in new Setup {
-      val response = List(ApiCategoryDetails("Business", "Business"), ApiCategoryDetails("VAT", "Vat"))
-
-      val payload = Json.toJson(response)
-
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      await(connector.fetchAPICategories()) shouldBe response
-    }
-
-    "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
-    }
-  }
 }

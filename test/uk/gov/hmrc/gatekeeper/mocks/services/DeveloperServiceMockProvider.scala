@@ -27,6 +27,7 @@ import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait DeveloperServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar with UserIdTracker =>

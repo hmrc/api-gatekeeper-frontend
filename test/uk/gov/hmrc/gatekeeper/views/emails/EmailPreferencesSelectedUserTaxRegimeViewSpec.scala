@@ -31,6 +31,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.{EmailPreferencesSelectedTaxRegimeView, EmailPreferencesSelectedUserTaxRegimeView}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -45,13 +46,13 @@ class EmailPreferencesSelectedUserTaxRegimeViewSpec extends CommonViewSpec with 
 
   "email preferences selected category view" should {
 
-    val category1          = ApiCategoryDetails("VAT", "Vat")
-    val category2          = ApiCategoryDetails("AGENT", "Agents")
-    val category3          = ApiCategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
-    val categories         = List(category1, category2, category3)
-    val category4          = ApiCategoryDetails("CUSTOMS", "Customs")
-    val category5          = ApiCategoryDetails("EXAMPLE", "Example")
-    val categoriesSelected = List(category4, category5)
+    val category1          = ApiCategory.VAT
+    val category2          = ApiCategory.AGENTS
+    val category3          = ApiCategory.RELIEF_AT_SOURCE
+    val categories         = Set[ApiCategory](category1, category2, category3)
+    val category4          = ApiCategory.CUSTOMS
+    val category5          = ApiCategory.EXAMPLE
+    val categoriesSelected = Set[ApiCategory](category4, category5)
     val allCategories      = categoriesSelected ++ categories
 
     "show correct title and options with page1 results" in new Setup {

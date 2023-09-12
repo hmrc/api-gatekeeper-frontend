@@ -28,7 +28,7 @@
 
 @this(main: MainView, govukPagination: GovukPagination, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[ApiCategoryDetails], selectedCategory: String, selectedCategoryName: String, selectedAPIs: List[CombinedApi], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], selectedCategory: Option[ApiCategory], selectedCategoryName: String, selectedAPIs: List[CombinedApi], offset: Int, limit: Int, totalCount: Int)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @currentPage = @{
     (offset / limit) + 1
@@ -39,7 +39,7 @@
 }
 
 @tpdQuery = @{
-    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(ApiCategory(selectedCategory))), false, None, false)
+    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, selectedCategory.map(Set(_)), false, None, false)
 }
 @userSelection = @{
     Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),

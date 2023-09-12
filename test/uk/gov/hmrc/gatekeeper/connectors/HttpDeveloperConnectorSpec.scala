@@ -36,6 +36,7 @@ import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class HttpDeveloperConnectorSpec
     extends AsyncHmrcSpec
@@ -274,7 +275,7 @@ class HttpDeveloperConnectorSpec
       }
 
       "make a call with topic and api category passed into the service and return users from response" in new Setup {
-        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1"""
+        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=PAYE"""
         val user     = aUserResponse(developerEmail)
         val matching = urlMatching(url)
 
@@ -288,7 +289,7 @@ class HttpDeveloperConnectorSpec
         )
 
         val result =
-          await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Seq(ApiCategory("VAT"), ApiCategory("API1")))))
+          await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Set(ApiCategory.VAT, ApiCategory.PAYE))))
 
         wireMockVerify(getRequestedFor(matching))
 
@@ -297,7 +298,7 @@ class HttpDeveloperConnectorSpec
       }
 
       "make a call with topic, api categories and apis passed into the service and return users from response" in new Setup {
-        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=API1&service=service1&service=service2"""
+        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=AGENTS&service=service1&service=service2"""
         val user     = aUserResponse(developerEmail)
         val matching = urlMatching(url)
 
@@ -313,7 +314,7 @@ class HttpDeveloperConnectorSpec
         val result = await(connector.fetchByEmailPreferences(
           TopicOptionChoice.BUSINESS_AND_POLICY,
           maybeApis = Some(Seq("service1", "service2")),
-          maybeApiCategories = Some(Seq(ApiCategory("VAT"), ApiCategory("API1")))
+          maybeApiCategories = Some(Set(ApiCategory.VAT, ApiCategory.AGENTS))
         ))
 
         wireMockVerify(getRequestedFor(matching))

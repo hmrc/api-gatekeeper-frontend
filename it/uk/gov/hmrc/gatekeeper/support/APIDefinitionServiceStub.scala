@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-import uk.gov.hmrc.gatekeeper.models.{ApiCategoryDetails, ApiDefinitionGK}
+import uk.gov.hmrc.gatekeeper.models.ApiDefinitionGK
 import play.api.http.Status
 import play.api.libs.json.Json
 
@@ -38,15 +38,6 @@ trait APIDefinitionServiceStub {
 
   def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinitionGK]): Unit = {
     stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
-      .willReturn(
-        aResponse()
-          .withStatus(Status.OK)
-          .withBody(Json.toJson(apis).toString())
-      ))
-  }
-
-  def primeGetAllCategories(apis: Seq[ApiCategoryDetails]): Unit = {
-    stubFor(get(urlEqualTo(getCategoriesUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)

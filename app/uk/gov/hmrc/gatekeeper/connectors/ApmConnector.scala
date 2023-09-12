@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinit
 import uk.gov.hmrc.gatekeeper.models.applications._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
+import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {

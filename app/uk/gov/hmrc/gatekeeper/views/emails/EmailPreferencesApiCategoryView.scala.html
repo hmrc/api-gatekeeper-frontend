@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], categories: List[ApiCategoryDetails], selectedCategory: String, selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String, maybeTopicFilter: Option[TopicOptionChoice], maybeSelectedCategory: Option[ApiCategory], selectedCategoryName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Email users interested in a tax regime",
@@ -47,10 +47,10 @@
             </legend>
             <div class="govuk-form-group">
                 <label class="govuk-label govuk-!-font-weight-bold" for="selectedCategory">Select a tax regime from the list </label>
-                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value="@selectedCategory">
+                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value='@{maybeSelectedCategory.fold("")(x => x.toString())}'>
                     <option value="">Select tax regime</option>
-                    @for(category <- categories.sortBy(_.name)) {
-                        <option @if(selectedCategory == category.category) {selected} value="@category.category">@category.name.trim </option>
+                    @for(category <- ApiCategory.values.toList.sortBy(_.displayText)) {
+                        <option @if(maybeSelectedCategory == Some(category)) {selected} value="@category">@category.displayText </option>
                     }
                 </select>
             </div>
@@ -69,9 +69,8 @@
 
     @if(maybeTopicFilter.isDefined) {
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
-      @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, Some(Seq(ApiCategory(selectedCategory))), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
+      @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, maybeSelectedCategory.map(Set(_)), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
-
     }
   </div>
 }

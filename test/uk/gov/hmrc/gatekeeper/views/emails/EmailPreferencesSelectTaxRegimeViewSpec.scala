@@ -28,6 +28,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectTaxRegimeView
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -39,25 +40,25 @@ class EmailPreferencesSelectTaxRegimeViewSpec extends CommonViewSpec with EmailP
 
   "email preferences category view" should {
 
-    val category1          = ApiCategoryDetails("VAT", "Vat")
-    val category2          = ApiCategoryDetails("AGENT", "Agents")
-    val category3          = ApiCategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
-    val categories         = List(category1, category2, category3)
-    val category4          = ApiCategoryDetails("CUSTOMS", "Customs")
-    val category5          = ApiCategoryDetails("EXAMPLE", "Example")
-    val categoriesSelected = List(category4, category5)
+    val category1          = ApiCategory.VAT
+    val category2          = ApiCategory.AGENTS
+    val category3          = ApiCategory.RELIEF_AT_SOURCE
+    val categories         = Set[ApiCategory](category1, category2, category3)
+    val category4          = ApiCategory.CUSTOMS
+    val category5          = ApiCategory.EXAMPLE
+    val categoriesSelected = Set[ApiCategory](category4, category5)
     val allCategories      = categoriesSelected ++ categories
 
     "show correct title and options when no filter provided " in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTaxRegimeView.render(allCategories, List(), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectTaxRegimeView.render(Set(), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), allCategories, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
+      validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), categoriesSelected, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
     }
 
     "show correct title and options when selectedAPis are provided" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSelectTaxRegimeView.render(allCategories, categoriesSelected, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSelectTaxRegimeView.render(categoriesSelected, request, LoggedInUser(None), messagesProvider)
       validateSelectTaxRegimePageWithPreviouslySelectedTaxRegimes(
         Jsoup.parse(result.body),
         allCategories,

@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoi
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, _}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
@@ -131,12 +132,12 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
-  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Seq[ApiCategoryDetails], numberOfSets: Int = 1): Unit = {
+  def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Set[ApiCategory], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedCategories][type=hidden]")
     elements.size shouldBe selectedCategories.size * numberOfSets
-    elements.map(_.attr("value")).toSet should contain allElementsOf selectedCategories.map(_.category)
+    elements.map(_.attr("value")).toSet should contain allElementsOf selectedCategories.map(_.toString())
   }
-
+  
   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]): Unit = {
     TopicOptionChoice.values.foreach(topic => validateTopicEntry(document, topic))
     validateSelectedTopic(document, selectedTopic)

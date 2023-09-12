@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
@@ -113,9 +112,6 @@ class EmailsController @Inject() (
     } yield Ok(emailPreferencesSelectApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
   }
 
-  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[ApiCategoryDetails])(selectedCategories => categories.filter(category => selectedCategories.contains(category.category)))
-
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
@@ -128,7 +124,7 @@ class EmailsController @Inject() (
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
     // return this is deployed out to all environments
     val filteredApis = apis.filter(_.accessType.getOrElse(ApiAccessType.PUBLIC) == apiAccessType)
-    val categories   = filteredApis.flatMap(_.categories.map(toAPICategory))
+    val categories   = filteredApis.flatMap(_.categories).toSet
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
@@ -168,29 +164,27 @@ class EmailsController @Inject() (
       })
   }
 
-  def emailPreferencesApiCategory(selectedTopic: Option[String] = None, selectedCategory: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val topicAndCategory: Option[(TopicOptionChoice, String)] =
+  def emailPreferencesApiCategory(selectedTopic: Option[String] = None, maybeSelectedCategory: Option[ApiCategory] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val topicAndCategory: Option[(TopicOptionChoice, ApiCategory)] =
       for {
         topic    <- selectedTopic.map(TopicOptionChoice.withName)
-        category <- selectedCategory.filter(!_.isEmpty)
+        category <- maybeSelectedCategory
       } yield (topic, category)
 
     for {
-      categories          <- apiDefinitionService.apiCategories()
       users               <- topicAndCategory.map(tup =>
-                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, ApiCategory(tup._2))
+                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2)
                              )
                                .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
       usersAsJson          = Json.toJson(users)
-      selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
-      selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
+      selectedCategory     = topicAndCategory.map(_._2)
+      selectedCategoryName = selectedCategory.map(_.displayText).getOrElse("")
     } yield Ok(emailPreferencesApiCategoryView(
       users,
       usersAsJson,
       usersToEmailCopyText(users),
       topicAndCategory.map(_._1),
-      categories,
-      selectedCategory.getOrElse(""),
+      maybeSelectedCategory,
       selectedCategoryName
     ))
   }

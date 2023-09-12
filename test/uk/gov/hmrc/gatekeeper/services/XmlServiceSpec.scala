@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class XmlServiceSpec extends AsyncHmrcSpec {
 
@@ -49,15 +50,15 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       serviceName = "xml-api-one",
       context = "context",
       description = "description",
-      categories = Some(Seq(ApiCategory("PAYE"), ApiCategory("VAT")))
+      categories = Some(Set(ApiCategory.PAYE, ApiCategory.VAT))
     )
 
-    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two", categories = Some(Seq(ApiCategory("CUSTOMS"))))
-    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Seq(ApiCategory("CUSTOMS"))))
-    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Seq(ApiCategory("OTHER"))))
+    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two", categories = Some(Set(ApiCategory.CUSTOMS)))
+    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Set(ApiCategory.CUSTOMS)))
+    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Set(ApiCategory.OTHER)))
 
-    val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Seq(ApiCategory("VAT"))))
-    val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Seq(ApiCategory("VAT"))))
+    val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Set(ApiCategory.VAT)))
+    val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Set(ApiCategory.VAT)))
 
     val xmlApis               = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
     val xmlApisWithCategories = List(xmlApiWithCategory1, xmlApiWithCategory2)

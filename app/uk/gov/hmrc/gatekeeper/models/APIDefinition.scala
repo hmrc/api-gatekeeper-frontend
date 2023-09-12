@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.Json
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
@@ -29,7 +27,7 @@ case class ApiDefinitionGK(
     context: ApiContext,
     versions: List[ApiVersionGK],
     requiresTrust: Option[Boolean],
-    categories: Option[List[ApiCategory]]
+    categories: Option[Set[ApiCategory]]
   ) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
@@ -37,22 +35,6 @@ case class ApiDefinitionGK(
   }
 }
 
-case class ApiCategory(value: String) extends AnyVal
-
-object ApiCategory {
-  implicit val formatApiCategory = Json.valueFormat[ApiCategory]
-}
-
-case class ApiCategoryDetails(category: String, name: String) {
-
-  def toAPICategory: ApiCategory = {
-    ApiCategory(category)
-  }
-}
-
-object ApiCategoryDetails {
-  implicit val formatApiCategory = Json.format[ApiCategoryDetails]
-}
 case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
 case class ApiVersionGK(version: ApiVersionNbr, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {

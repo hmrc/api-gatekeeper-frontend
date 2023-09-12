@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiAccessType, ApiCategory}
 
-import play.api.libs.json.{Format, Json}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiAccessType
+import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import play.api.libs.json.Json
 
 sealed trait ApiType extends EnumEntry
 
@@ -29,19 +29,9 @@ object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
   case object XML_API  extends ApiType
 }
 
-case class CombinedApiCategory(value: String) extends AnyVal
-
-object CombinedApiCategory {
-  implicit val categoryFormat: Format[CombinedApiCategory] = Json.format[CombinedApiCategory]
-
-  def toAPICategory(combinedApiCategory: CombinedApiCategory): ApiCategory = {
-    ApiCategory(combinedApiCategory.value)
-  }
-}
-
 //TODO -change accessType from being an option when APM version which starts returning this data
 // is deployed to production
-case class CombinedApi(displayName: String, serviceName: String, categories: List[CombinedApiCategory], apiType: ApiType, accessType: Option[ApiAccessType])
+case class  CombinedApi(displayName: String, serviceName: String, categories: Set[ApiCategory], apiType: ApiType, accessType: Option[ApiAccessType])
 
 object CombinedApi {
   implicit val formatCombinedApi = Json.format[CombinedApi]

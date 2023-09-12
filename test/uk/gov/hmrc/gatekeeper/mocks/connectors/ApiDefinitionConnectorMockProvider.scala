@@ -42,11 +42,6 @@ trait ApiDefinitionConnectorMockProvider {
     object FetchPrivate {
       def returns(defs: ApiDefinitionGK*) = when(mock.fetchPrivate()(*)).thenReturn(successful(defs.toList))
     }
-
-    object FetchAPICategories {
-      def returns(categoryDetails: ApiCategoryDetails*) = when(mock.fetchAPICategories()(*)).thenReturn(successful(categoryDetails.toList))
-    }
-
   }
 
   object ApiDefinitionConnectorMock {

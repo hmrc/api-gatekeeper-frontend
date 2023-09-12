@@ -175,4 +175,37 @@ package object binders extends ApplicationLogger {
       textBinder.unbind("developerId", DeveloperIdentifier.asText(warnOnEmailId(s"queryStringBindable UNBIND $key")(developerId)))
     }
   }
+
+  private def apiCategoryFromString(text: String): Either[String, ApiCategory] = {
+    ApiCategory(text).toRight(s"Cannot accept $text as ApiCategoryId")
+  }
+
+  implicit def apiCategoryPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiCategory] = new PathBindable[ApiCategory] {
+
+    override def bind(key: String, value: String): Either[String, ApiCategory] = {
+      textBinder.bind(key, value).flatMap(apiCategoryFromString)
+    }
+
+    override def unbind(key: String, apiCategory: ApiCategory): String = {
+      apiCategory.toString()
+    }
+  }
+
+  implicit def apiCategoryQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiCategory] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiCategory]] = {
+      textBinder.bind(key, params).map(_.flatMap(apiCategoryFromString))
+    }
+
+    override def unbind(key: String, apiCategory: ApiCategory): String = {
+      textBinder.unbind(key, apiCategory.toString())
+    }
+  }
+  
+  /**
+   * QueryString binder for Set
+   */
+  implicit def bindableSet[T: QueryStringBindable]: QueryStringBindable[Set[T]] =
+    QueryStringBindable.bindableSeq[T].transform(_.toSet, _.toSeq)
+
 }

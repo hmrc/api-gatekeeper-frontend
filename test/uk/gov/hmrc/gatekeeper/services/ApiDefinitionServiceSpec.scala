@@ -70,7 +70,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
       versions = List(version1),
-      categories = Some(List(ApiCategory("CUSTOMS")))
+      categories = Some(Set(ApiCategory.CUSTOMS))
     )
 
     val customsDeclarations2 = ApiDefinitionGK(
@@ -81,7 +81,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
       versions = List(version2.copy(), version3.copy()),
-      categories = Some(List(ApiCategory("CUSTOMS")))
+      categories = Some(Set(ApiCategory.CUSTOMS))
     )
   }
 
@@ -184,20 +184,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
         (privateSandbox, Environment.SANDBOX),
         (publicSandbox, Environment.SANDBOX)
       )
-    }
-  }
-
-  "apiCategories" when {
-    "get all apiCategories" in new Setup {
-      val prodCategories    = List(ApiCategoryDetails("Business", "Business"), ApiCategoryDetails("VAT", "Vat"), ApiCategoryDetails("EXAMPLE", "Example"))
-      val sandboxCategories = List(ApiCategoryDetails("VAT", "Vat"), ApiCategoryDetails("EXAMPLE", "Example"), ApiCategoryDetails("AGENTS", "Agents"))
-      val allCategories     = (prodCategories ++ sandboxCategories).distinct
-
-      ApiDefinitionConnectorMock.Prod.FetchAPICategories.returns(prodCategories: _*)
-      ApiDefinitionConnectorMock.Sandbox.FetchAPICategories.returns(sandboxCategories: _*)
-
-      val response: List[ApiCategoryDetails] = await(definitionService.apiCategories())
-      response should contain only (allCategories: _*)
     }
   }
 }

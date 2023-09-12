@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.CombinedApiCategory.toAPICategory
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
@@ -122,7 +121,7 @@ class EmailsPreferencesController @Inject() (
       }
     }
 
-  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
+  def addAnotherTaxRegimeOption(selectOption: String, selectedCategories: Option[Set[ApiCategory]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { _ =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectTaxRegime(selectedCategories)))
@@ -130,21 +129,19 @@ class EmailsPreferencesController @Inject() (
       }
     }
 
-  def selectedUserTaxRegime(selectedCategories: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] = {
+  def selectedUserTaxRegime(maybeSelectedCategories: Option[Set[ApiCategory]], offset: Int, limit: Int): Action[AnyContent] = {
+    val selectedCategories = maybeSelectedCategories.getOrElse(Set.empty)
     anyStrideUserAction { implicit request =>
       for {
-        categories                <- apiDefinitionService.apiCategories()
-        selectedApiCategories      = filterSelectedApiCategories(selectedCategories, categories)
-        userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedApiCategories, offset, limit)
+        userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedCategories, offset, limit)
         totalCount                 = userPaginatedResponse.totalCount
         users                      = userPaginatedResponse.users.filter(_.verified)
-        selectedApiCategoryDetails = filterSelectedCategories(selectedCategories, categories)
         usersAsJson                = Json.toJson(users)
       } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
         users,
         usersAsJson,
         usersToEmailCopyText(users),
-        selectedApiCategoryDetails,
+        selectedCategories,
         offset,
         limit,
         totalCount
@@ -167,16 +164,6 @@ class EmailsPreferencesController @Inject() (
       } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 
-  private def filterSelectedApiCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[ApiCategory])(selectedCategories =>
-      categories.filter(category => selectedCategories.contains(category.category)).map(cat => cat.toAPICategory)
-    )
-
-  private def filterSelectedCategories(maybeSelectedCategories: Option[List[String]], categories: List[ApiCategoryDetails]) =
-    maybeSelectedCategories.fold(List.empty[ApiCategoryDetails])(selectedCategories =>
-      categories.filter(category => selectedCategories.contains(category.category))
-    )
-
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
@@ -189,7 +176,7 @@ class EmailsPreferencesController @Inject() (
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
     // return this is deployed out to all environments
     val filteredApis = apis.filter(_.accessType.getOrElse(ApiAccessType.PUBLIC) == apiAccessType)
-    val categories   = filteredApis.flatMap(_.categories.map(toAPICategory))
+    val categories   = filteredApis.flatMap(_.categories).toSet
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
@@ -231,38 +218,30 @@ class EmailsPreferencesController @Inject() (
 
   def selectedApiTopic(
       selectedTopic: Option[String] = None,
-      selectedCategory: Option[String] = None,
+      maybeSelectedCategory: Option[ApiCategory] = None,
       selectedAPIs: List[String] = List.empty,
       offset: Int,
       limit: Int
     ): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
-      val topicAndCategory: Option[(TopicOptionChoice.Value, String)] =
-        for {
-          topic    <- selectedTopic.map(TopicOptionChoice.withName)
-          category <- selectedCategory.filter(_.nonEmpty).orElse(Some(""))
-        } yield (topic, category)
+      val topic =selectedTopic.map(TopicOptionChoice.withName)
       for {
         apis                <- apmService.fetchAllCombinedApis()
         filteredApis         = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        categories          <- apiDefinitionService.apiCategories()
-        userPaginatedResult <- topicAndCategory.map(tup =>
-                                 developerService.fetchDevelopersByEmailPreferencesPaginated(Some(tup._1), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
+        userPaginatedResult <- topic.map(t =>
+                                 developerService.fetchDevelopersByEmailPreferencesPaginated(Some(t), Some(selectedAPIs), None, privateApiMatch = false, offset, limit)
                                )
                                  .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
         usersAsJson          = Json.toJson(users)
-        selectedCategories   = categories.filter(category => category.category == topicAndCategory.map(_._2).getOrElse(""))
-        selectedCategoryName = if (selectedCategories.nonEmpty) selectedCategories.head.name else ""
       } yield Ok(emailPreferencesSelectedTopicView(
         users,
         usersAsJson,
         usersToEmailCopyText(users),
-        topicAndCategory.map(_._1),
-        categories,
-        selectedCategory.getOrElse(""),
-        selectedCategoryName,
+        topic,
+        maybeSelectedCategory,
+        maybeSelectedCategory.map(_.displayText).getOrElse(""),
         filteredApis,
         offset,
         limit,
@@ -282,19 +261,13 @@ class EmailsPreferencesController @Inject() (
       } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
-  def selectTaxRegime(previouslySelectedCategories: Option[List[String]] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    for {
-      categories        <- apiDefinitionService.apiCategories()
-      selectedCategories = categories.filter(c => previouslySelectedCategories.exists(categories => categories.contains(c.category)))
-    } yield Ok(emailPreferencesSelectTaxRegimeView(categories, selectedCategories))
+  def selectTaxRegime(maybePreviouslySelectedCategories: Option[Set[ApiCategory]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    successful(Ok(emailPreferencesSelectTaxRegimeView(maybePreviouslySelectedCategories.getOrElse(Set.empty))))
   }
 
-  def selectedTaxRegime(selectedCategories: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectedTaxRegime(selectedCategories: Set[ApiCategory], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
-    for {
-      categories        <- apiDefinitionService.apiCategories()
-      filteredCategories = filterSelectedCategories(Some(selectedCategories), categories).sortBy(_.name)
-    } yield Ok(emailPreferencesSelectedTaxRegimeView(filteredCategories, selectedTopic))
+    successful(Ok(emailPreferencesSelectedTaxRegimeView(selectedCategories, selectedTopic)))
   }
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
