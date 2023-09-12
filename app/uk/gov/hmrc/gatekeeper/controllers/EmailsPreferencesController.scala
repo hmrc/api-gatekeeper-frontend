@@ -21,7 +21,6 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -136,10 +135,8 @@ class EmailsPreferencesController @Inject() (
         userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedCategories, offset, limit)
         totalCount                 = userPaginatedResponse.totalCount
         users                      = userPaginatedResponse.users.filter(_.verified)
-        usersAsJson                = Json.toJson(users)
       } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
         users,
-        usersAsJson,
         usersToEmailCopyText(users),
         selectedCategories,
         offset,
@@ -160,8 +157,7 @@ class EmailsPreferencesController @Inject() (
         userPaginatedResult <- developerService.fetchDevelopersByEmailPreferencesPaginated(maybeTopic, offset = offset, limit = limit)
         totalCount           = userPaginatedResult.totalCount
         filteredUsers        = userPaginatedResult.users.filter(_.verified)
-        filteredUsersAsJson  = Json.toJson(filteredUsers)
-      } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
+      } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 
   private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
@@ -200,8 +196,7 @@ class EmailsPreferencesController @Inject() (
         publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PRIVATE)
         combinedUsers = publicUsers ++ privateUsers
-        usersAsJson   = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 
@@ -234,10 +229,8 @@ class EmailsPreferencesController @Inject() (
                                  .getOrElse(Future.successful(UserPaginatedResponse(0, List.empty)))
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
-        usersAsJson          = Json.toJson(users)
       } yield Ok(emailPreferencesSelectedTopicView(
         users,
-        usersAsJson,
         usersToEmailCopyText(users),
         topic,
         maybeSelectedCategory,
@@ -257,8 +250,7 @@ class EmailsPreferencesController @Inject() (
         userPaginatedResult <- developerService.fetchDevelopersBySpecificApisEmailPreferences(selectedAPIs, offset, limit)
         totalCount           = userPaginatedResult.totalCount
         users                = userPaginatedResult.users.filter(_.verified)
-        usersAsJson          = Json.toJson(users)
-      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersAsJson, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
+      } yield Ok(emailPreferencesSelectedSubscribedApiView(users, usersToEmailCopyText(users), filteredApis, offset, limit, totalCount))
     }
 
   def selectTaxRegime(maybePreviouslySelectedCategories: Option[Set[ApiCategory]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -282,8 +274,7 @@ class EmailsPreferencesController @Inject() (
     for {
       result       <- developerService.fetchUsersPaginated(offset, limit)
       filteredUsers = result.users.filter(_.verified)
-      usersAsJson   = Json.toJson(filteredUsers)
       totalCount    = result.totalCount
-    } yield Ok(emailsAllUsersNewView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
+    } yield Ok(emailsAllUsersNewView(filteredUsers, usersToEmailCopyText(filteredUsers), offset, limit, totalCount))
   }
 }

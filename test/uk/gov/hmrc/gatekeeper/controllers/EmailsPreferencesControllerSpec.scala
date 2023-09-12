@@ -22,7 +22,6 @@ import scala.concurrent.Future
 import akka.stream.Materializer
 import org.scalatest.Assertion
 
-import play.api.libs.json.{JsArray, Json}
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
@@ -67,16 +66,16 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
     trait Setup extends ControllerSetupBase {
       when(mockEmailInformationNewView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersNewView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersNewView.apply(*, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiNewView.apply(*, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedTopicView.apply(*, *, *, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesChoiceNewView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectedTaxRegimeView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedUserTaxRegimeView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectUserTopicView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedUserTopicView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectedSubscribedApiView.apply(*, *, *, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -252,10 +251,9 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
-        val filteredUsersAsJson = Json.toJson(filteredUsers)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
 
-        verify(mockEmailAllUsersNewView).apply(eqTo(filteredUsers), eqTo(filteredUsersAsJson), eqTo(expectedEmailString), eqTo(1), eqTo(3), eqTo(4))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(filteredUsers), eqTo(expectedEmailString), eqTo(1), eqTo(3), eqTo(4))(*, *, *)
       }
 
       "render as expected when 2 users are retrieved from the developer service" in new Setup {
@@ -265,7 +263,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersNewView).apply(eqTo(verified2Users), *, eqTo(expectedEmailString), eqTo(1), eqTo(2), eqTo(4))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(verified2Users), eqTo(expectedEmailString), eqTo(1), eqTo(2), eqTo(4))(*, *, *)
       }
 
       "render as expected when no verified users are retrieved from the developer service" in new Setup {
@@ -274,7 +272,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.emailAllUsersPage(0, 0)(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(new JsArray()), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
+        verify(mockEmailAllUsersNewView).apply(eqTo(List.empty), eqTo(""), eqTo(0), eqTo(0), eqTo(0))(*, *, *)
       }
 
     }

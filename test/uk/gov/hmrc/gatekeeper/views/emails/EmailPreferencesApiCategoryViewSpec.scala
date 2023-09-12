@@ -40,7 +40,6 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                   = new JsArray()
     val emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   }
 
@@ -83,7 +82,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -92,7 +91,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
@@ -100,7 +99,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and options when only Category filter provided" in new Setup {
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, Some(category1), "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", None, Some(category1), "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
@@ -109,7 +108,6 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesApiCategoryView.render(
           users,
-          emailRecipientsAsJson,
           s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           Some(category2),
@@ -126,7 +124,6 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesApiCategoryView.render(
           Seq.empty,
-          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.RELEASE_SCHEDULES),
           Some(category2),

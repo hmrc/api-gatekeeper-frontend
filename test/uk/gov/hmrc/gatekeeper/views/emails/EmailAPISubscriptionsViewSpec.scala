@@ -36,7 +36,6 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                        = new JsArray()
     val emailApiSubscriptionsView: EmailApiSubscriptionsView  = app.injector.instanceOf[EmailApiSubscriptionsView]
   }
 
@@ -57,7 +56,6 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
         emailApiSubscriptionsView.render(
           dropdowns,
           users,
-          emailRecipientsAsJson,
           s"${user1.email.text}; ${user2.email.text}",
           queryParams,
           request,
@@ -71,7 +69,7 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     "show correct title and select correct option when filter present but no Users returned" in new Setup {
       val queryParams                   = Map("apiVersionFilter" -> dropdownview2.value)
       val result: HtmlFormat.Appendable =
-        emailApiSubscriptionsView.render(dropdowns, Seq.empty, emailRecipientsAsJson, "", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview2.value, Seq.empty)
     }
@@ -79,7 +77,7 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     "show correct title and select no options when no filter present and no Users returned" in new Setup {
       val queryParams: Map[String, String] = Map.empty
       val result: HtmlFormat.Appendable    =
-        emailApiSubscriptionsView.render(dropdowns, Seq.empty, emailRecipientsAsJson, "", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2))
     }

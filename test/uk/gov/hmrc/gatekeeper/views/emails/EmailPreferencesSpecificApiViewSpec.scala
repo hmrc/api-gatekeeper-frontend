@@ -54,20 +54,20 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and elements on initial load" in new Setup {
       val result: HtmlFormat.Appendable = {
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, "", List.empty, None, request, LoggedInUser(None), messagesProvider)
       }
       validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), List.empty)
     }
 
     "show correct title and elements when topic filter provided but nothing else" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, "", List.empty, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
       validateEmailPreferencesSpecificAPIWithOnlyTopicFilter(Jsoup.parse(result.body), selectedTopic)
     }
 
     "show correct title and elements when topic filter provided and selectedApis" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(List.empty, new JsArray(), "", combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(List.empty, "", combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList, List.empty, "")
     }
@@ -75,7 +75,7 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
     "show correct title and elements when topic filter provided, selectedApis and list of users and emails" in new Setup {
       val emails                        = users.map(_.email.text).sorted.mkString("; ")
       val result: HtmlFormat.Appendable =
-        emailPreferencesSpecificApiView.render(users, new JsArray(), emails, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesSpecificApiView.render(users, emails, combinedList, Some(selectedTopic), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), selectedTopic, combinedList)
     }

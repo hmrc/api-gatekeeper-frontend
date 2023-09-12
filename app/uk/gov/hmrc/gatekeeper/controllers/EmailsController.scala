@@ -21,7 +21,6 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -148,8 +147,7 @@ class EmailsController @Inject() (
         publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
         privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PRIVATE)
         combinedUsers = (publicUsers ++ privateUsers).distinct
-        usersAsJson   = Json.toJson(combinedUsers)
-      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersAsJson, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
 
@@ -159,8 +157,7 @@ class EmailsController @Inject() (
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
       .map(users => {
         val filteredUsers       = users.filter(_.verified)
-        val filteredUsersAsJson = Json.toJson(filteredUsers)
-        Ok(emailPreferencesTopicView(filteredUsers, filteredUsersAsJson, usersToEmailCopyText(filteredUsers), maybeTopic))
+        Ok(emailPreferencesTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic))
       })
   }
 
@@ -176,12 +173,10 @@ class EmailsController @Inject() (
                                developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2)
                              )
                                .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
-      usersAsJson          = Json.toJson(users)
       selectedCategory     = topicAndCategory.map(_._2)
       selectedCategoryName = selectedCategory.map(_.displayText).getOrElse("")
     } yield Ok(emailPreferencesApiCategoryView(
       users,
-      usersAsJson,
       usersToEmailCopyText(users),
       topicAndCategory.map(_._1),
       maybeSelectedCategory,
@@ -201,8 +196,7 @@ class EmailsController @Inject() (
     developerService.fetchUsers
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
-        val usersAsJson   = Json.toJson(filteredUsers)
-        Ok(emailsAllUsersView(filteredUsers, usersAsJson, usersToEmailCopyText(filteredUsers)))
+        Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))
       })
   }
 
@@ -222,8 +216,7 @@ class EmailsController @Inject() (
                            }
                          )
       verifiedUsers    = registeredUsers.filter(_.verified)
-      usersAsJson      = Json.toJson(verifiedUsers)
       apis            <- apiDropDowns
-    } yield Ok(emailApiSubscriptionsView(apis, verifiedUsers, usersAsJson, usersToEmailCopyText(verifiedUsers), queryParams))
+    } yield Ok(emailApiSubscriptionsView(apis, verifiedUsers, usersToEmailCopyText(verifiedUsers), queryParams))
   }
 }

@@ -229,7 +229,6 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   }
 
   def validateEmailPreferencesAPICategoryPage(document: Document, categories: Set[ApiCategory]) = {
-    println(document.body().html())
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 
@@ -295,7 +294,6 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   }
 
   def validateEmailPreferencesAPICategoryPageWithCategoryFilter(document: Document, categories: Set[ApiCategory], selectedCategory: ApiCategory) = {
-     println(document.body().html())
     validateStaticPageElements(document, categories)
     validateCopyToClipboardLink(document, Seq.empty)
 

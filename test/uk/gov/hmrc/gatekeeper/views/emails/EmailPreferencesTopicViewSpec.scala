@@ -36,7 +36,6 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                        = new JsArray()
     val emailPreferencesTopicView: EmailPreferencesTopicView  = app.injector.instanceOf[EmailPreferencesTopicView]
   }
 
@@ -48,7 +47,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", None, request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, "", None, request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesTopicPage(Jsoup.parse(result.body))
     }
@@ -57,7 +56,6 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
       val result: HtmlFormat.Appendable =
         emailPreferencesTopicView.render(
           users,
-          emailRecipientsAsJson,
           s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           request,
@@ -70,7 +68,7 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, emailRecipientsAsJson, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }

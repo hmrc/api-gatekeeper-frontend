@@ -36,7 +36,6 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                        = new JsArray()
     val emailAllUsersView: EmailAllUsersView                  = app.injector.instanceOf[EmailAllUsersView]
   }
 
@@ -47,13 +46,13 @@ class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper 
       val user2                         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
       val users                         = Seq(user1, user2)
       val result: HtmlFormat.Appendable =
-        emailAllUsersView.render(users, emailRecipientsAsJson, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
+        emailAllUsersView.render(users, s"${user1.email.text}; ${user2.email.text}", request, LoggedInUser(None), messagesProvider)
 
       validateEmailAllUsersPage(Jsoup.parse(result.body), users)
     }
 
     "show correct title and content for empty / no users" in new Setup {
-      val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, emailRecipientsAsJson, "", request, LoggedInUser(None), messagesProvider)
+      val result: HtmlFormat.Appendable = emailAllUsersView.render(Seq.empty, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailAllUsersPage(Jsoup.parse(result.body), Seq.empty)
     }
