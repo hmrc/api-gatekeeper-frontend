@@ -59,10 +59,10 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
       verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
@@ -84,10 +84,10 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
 
       verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }

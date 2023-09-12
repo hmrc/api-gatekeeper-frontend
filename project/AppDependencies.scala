@@ -19,7 +19,7 @@ object AppDependencies {
     "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.12.0-play-28",
     "uk.gov.hmrc"                 %% "json-encryption"                   % "5.1.0-play-28",
     "uk.gov.hmrc"                 %% "emailaddress"                      % "3.7.0",
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.1.5",
+    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.1.6",
     "commons-net"                 %  "commons-net"                       % "3.6",
     "org.slf4j"                   %  "slf4j-api"                         % slf4jVersion,
     "org.slf4j"                   %  "jcl-over-slf4j"                    % slf4jVersion,
