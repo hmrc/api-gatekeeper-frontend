@@ -33,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
@@ -116,7 +116,7 @@ class EmailsController @Inject() (
 
   private def handleGettingApiUsers(
       apis: List[CombinedApi],
-      selectedTopic: Option[TopicOptionChoice.Value],
+      selectedTopic: Option[TopicOptionChoice],
       apiAccessType: ApiAccessType
     )(implicit hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
@@ -136,8 +136,7 @@ class EmailsController @Inject() (
     })
   }
 
-  def emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopicStr: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val selectedTopic: Option[TopicOptionChoice.Value] = selectedTopicStr.map(TopicOptionChoice.withName)
+  def emailPreferencesSpecificApis(selectedAPIs: List[String], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     if (selectedAPIs.forall(_.isEmpty)) {
       Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
@@ -151,9 +150,8 @@ class EmailsController @Inject() (
     }
   }
 
-  def emailPreferencesTopic(selectedTopic: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def emailPreferencesTopic(maybeTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     // withName could throw an exception here
-    val maybeTopic = selectedTopic.map(TopicOptionChoice.withName)
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
       .map(users => {
         val filteredUsers       = users.filter(_.verified)
@@ -161,10 +159,10 @@ class EmailsController @Inject() (
       })
   }
 
-  def emailPreferencesApiCategory(selectedTopic: Option[String] = None, maybeSelectedCategory: Option[ApiCategory] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def emailPreferencesApiCategory(maybeSelectedTopic: Option[TopicOptionChoice] = None, maybeSelectedCategory: Option[ApiCategory] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val topicAndCategory: Option[(TopicOptionChoice, ApiCategory)] =
       for {
-        topic    <- selectedTopic.map(TopicOptionChoice.withName)
+        topic    <- maybeSelectedTopic
         category <- maybeSelectedCategory
       } yield (topic, category)
 

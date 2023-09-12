@@ -310,7 +310,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         val request                = createGetRequest("/emails/email-preferences/select-topic")
         val result: Future[Result] = underTest.selectTopicPage(
           Some(combinedApisList.map(_.serviceName)),
-          Some(TopicOptionChoice.TECHNICAL.toString)
+          Some(TopicOptionChoice.TECHNICAL)
         )(request)
 
         status(result) shouldBe OK
@@ -326,7 +326,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.selectedApiTopic(
-          Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString),
+          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
           Some(category1),
           combinedApisList.map(_.serviceName),
           0,
@@ -344,7 +344,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request                = createGetRequest("/emails/email-preferences/selected-api-topic")
         val result: Future[Result] = underTest.selectedApiTopic(
-          Some(TopicOptionChoice.TECHNICAL.toString),
+          Some(TopicOptionChoice.TECHNICAL),
           Some(category1),
           combinedApisList.map(_.serviceName),
           0,
@@ -411,7 +411,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request                = createGetRequest("/emails/email-preferences/select-user-topic")
         val result: Future[Result] = underTest.selectUserTopicPage(
-          Some(TopicOptionChoice.TECHNICAL.toString)
+          Some(TopicOptionChoice.TECHNICAL)
         )(request)
 
         status(result) shouldBe OK
@@ -426,7 +426,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
         val request = createGetRequest("/emails/email-preferences/selected-user-topic")
 
-        val result: Future[Result] = underTest.selectedUserTopic(Some(TopicOptionChoice.BUSINESS_AND_POLICY.toString), offset, limit)(request)
+        val result: Future[Result] = underTest.selectedUserTopic(Some(TopicOptionChoice.BUSINESS_AND_POLICY), offset, limit)(request)
 
         status(result) shouldBe OK
       }

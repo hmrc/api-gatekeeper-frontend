@@ -25,6 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK, ApiVersionGK, CombinedApi, RegisteredUser}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
     with EmailInformationViewHelper

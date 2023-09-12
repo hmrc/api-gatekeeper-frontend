@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -69,7 +69,7 @@
 
     @if(maybeTopicFilter.isDefined) {
       <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
-      @recipientTable(users, emails, new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, maybeSelectedCategory.map(Set(_)), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
+      @recipientTable(users, emails, new DevelopersEmailQuery(maybeTopicFilter, None, maybeSelectedCategory.map(Set(_)), false, None, false), applicationConfig, Map("Tax regime" -> selectedCategoryName,
     "Topic" -> TopicOptionChoice.optionLabel(maybeTopicFilter.get)))
     }
   </div>

@@ -23,7 +23,7 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker

@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, _}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.common.utils.SealedTraitJsonFormatting
 
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
@@ -56,12 +57,27 @@ object EmailPreferencesChoice extends Enumeration {
   }
 }
 
-object TopicOptionChoice extends Enumeration {
-  type TopicOptionChoice = Value
+sealed trait TopicOptionChoice {
+  lazy val optionLabel = TopicOptionChoice.optionLabel(this)
+  lazy val optionHint = TopicOptionChoice.optionHint(this)
+}
 
-  val BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES = Value
+object TopicOptionChoice {
+  case object BUSINESS_AND_POLICY extends TopicOptionChoice
+  case object TECHNICAL extends TopicOptionChoice
+  case object RELEASE_SCHEDULES extends TopicOptionChoice
+  case object EVENT_INVITES extends TopicOptionChoice
 
-  implicit val emailPreferencesChoiceFormat = Json.formatEnum(TopicOptionChoice)
+  val values = Set[TopicOptionChoice](BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES)
+  
+  def apply(text: String): Option[TopicOptionChoice] = {
+    TopicOptionChoice.values.find(_.toString == text.toUpperCase)
+  }
+
+  def unsafeApply(text: String): TopicOptionChoice =
+    apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Topic Option Choice"))
+
+  implicit val formatTopicOptionAndChoice = SealedTraitJsonFormatting.createFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
 
   val optionLabel: TopicOptionChoice => String = {
     case BUSINESS_AND_POLICY => "Business and policy"

@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 package object binders extends ApplicationLogger {
 
@@ -201,7 +202,21 @@ package object binders extends ApplicationLogger {
       textBinder.unbind(key, apiCategory.toString())
     }
   }
-  
+
+  private def topicFromString(text: String): Either[String, TopicOptionChoice] = {
+    TopicOptionChoice(text).toRight(s"Cannot accept $text as ApiCategoryId")
+  }
+
+  implicit def topicQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[TopicOptionChoice] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, TopicOptionChoice]] = {
+      textBinder.bind(key, params).map(_.flatMap(topicFromString))
+    }
+
+    override def unbind(key: String, topic: TopicOptionChoice): String = {
+      textBinder.unbind(key, topic.toString())
+    }
+  }
   /**
    * QueryString binder for Set
    */

@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 case class EmailOverride(email: List[RegisteredUser], isOverride: Boolean = false)
 
 case class DevelopersEmailQuery(
-    topic: Option[String] = None,
+    topic: Option[TopicOptionChoice] = None,
     apis: Option[Seq[String]] = None,
     apiCategories: Option[Set[ApiCategory]] = None,
     privateapimatch: Boolean = false,

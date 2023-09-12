@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -39,7 +39,7 @@
 }
 
 @tpdQuery = @{
-    new DevelopersEmailQuery(Some(maybeTopicFilter.get.toString), None, selectedCategory.map(Set(_)), false, None, false)
+    new DevelopersEmailQuery(maybeTopicFilter, None, selectedCategory.map(Set(_)), false, None, false)
 }
 @userSelection = @{
     Map("API" -> selectedAPIs.map(_.displayName).mkString("<br>"),
@@ -50,7 +50,7 @@
     breadcrumbs = Seq(
         Crumb(
             "Back",
-            s"${routes.EmailsPreferencesController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString))}",
+            s"${routes.EmailsPreferencesController.selectTopicPage(Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter)}",
             Some("data-back-link")
         )
     )) {
@@ -106,7 +106,7 @@
 
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(selectedAPIs.map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(selectedAPIs.map(_.serviceName), maybeTopicFilter).url">
                                         Change<span class="govuk-visually-hidden"> APIs</span>
                                     </a>
                                 </dd>
@@ -119,7 +119,7 @@
                                     @userSelection.get("Topic")
                                 </dd>
                                 <dd class="govuk-summary-list__actions">
-                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.addAnotherApiOption("0", Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
+                                    <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.addAnotherApiOption("0", Some(selectedAPIs.map(_.serviceName)), maybeTopicFilter).url">
                                         Change<span class="govuk-visually-hidden"> topic</span>
                                     </a>
                                 </dd>
@@ -151,7 +151,7 @@
                                     val pages = (currentPage.max(1) to lastPage.min(lastPage - 1)).map { page =>
                                         if(lastPage > 1) {
                                             PaginationItem(
-                                                href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter.map(_.toString), None, selectedAPIs.map(_.serviceName), (page - 1) * limit, limit)}",
+                                                href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter, None, selectedAPIs.map(_.serviceName), (page - 1) * limit, limit)}",
                                                 number = Some(page.toString),
                                                 current = Some(page == currentPage)
                                             )
@@ -163,13 +163,13 @@
                                     val ellipsisAtTheBeginning = if(currentPage > 1) PaginationItem(ellipsis = Some(true)) else PaginationItem()
                                     val last = if(lastPage > 1) {
                                         PaginationItem(
-                                            href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter.map(_.toString), None, selectedAPIs.map(_.serviceName), (lastPage -1) * limit)}",
+                                            href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter, None, selectedAPIs.map(_.serviceName), (lastPage -1) * limit)}",
                                             number = Some(lastPage.toString),
                                             current = Some(lastPage == currentPage))
                                     } else { PaginationItem() }
 
-                                    val prev = if(offset >= limit) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter.map(_.toString), None, selectedAPIs.map(_.serviceName), offset - limit)}")) else None
-                                    val next = if(offset < (totalCount - limit)  && (totalCount > limit)) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter.map(_.toString), None, selectedAPIs.map(_.serviceName), offset + limit)}")) else None
+                                    val prev = if(offset >= limit) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter, None, selectedAPIs.map(_.serviceName), offset - limit)}")) else None
+                                    val next = if(offset < (totalCount - limit)  && (totalCount > limit)) Some(PaginationLink(href = s"${routes.EmailsPreferencesController.selectedApiTopic(maybeTopicFilter, None, selectedAPIs.map(_.serviceName), offset + limit)}")) else None
                                     val paginationItems = Some(Seq(ellipsisAtTheBeginning) ++ startFrom ++ Seq(ellipsisAtTheEnd) ++ Seq(last))
 
                                     govukPagination(Pagination(items = paginationItems, previous = prev, next = next))

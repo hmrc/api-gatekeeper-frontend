@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(filteredCategories: Set[ApiCategory], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredCategories: Set[ApiCategory], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -77,7 +77,7 @@
                                   @if(filteredCategories.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
                                           <a class="govuk-link govuk-link--no-visited-state"
-                                          href="@routes.EmailsPreferencesController.selectedTaxRegime(filteredCategories.filterNot(_.equals(filteredCategory)), maybeTopicFilter.map(_.toString)).url">
+                                          href="@routes.EmailsPreferencesController.selectedTaxRegime(filteredCategories.filterNot(_.equals(filteredCategory)), maybeTopicFilter).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @filteredCategory from the list</span>
                                           </a>
@@ -116,7 +116,7 @@
               }
 
               @if(maybeTopicFilter.nonEmpty) {
-                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
+                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter"/>
               }
 
           </fieldset>
