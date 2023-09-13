@@ -14,13 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.views.helper.application._
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
-@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -110,8 +108,10 @@
             <td role="cell" class="govuk-table__cell" data-event-time><span class="table-heading" aria-hidden="true">Date and time</span>@{event.eventDateTime}</td>
             <td role="cell" class="govuk-table__cell" data-event-tag>
               <span class="table-heading" aria-hidden="true">What changed</span>
-              <p><span class="govuk-!-font-weight-bold govuk-!-display-block">@{event.eventTag}</span>
-             @Html({event.eventDetails.mkString("</br>")})</p>
+              <p>
+                <span class="govuk-!-font-weight-bold govuk-!-display-block">@{event.eventTag}</span>
+                <span class="word-break-all">@Html({event.eventDetails.mkString("</br>")})</span>
+              </p>
             </td>
             <td role="cell" class="govuk-table__cell" data-event-actor><span class="table-heading" aria-hidden="true">Changes made by</span>@{event.actor}</td>
           </tr>
