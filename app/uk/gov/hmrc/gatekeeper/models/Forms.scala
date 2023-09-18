@@ -347,7 +347,7 @@ object Forms {
     val form: Form[AutoDeleteConfirmationForm] = Form(
       mapping(
         "confirm" -> text,
-        "reason" -> text
+        "reason"  -> text
       )(AutoDeleteConfirmationForm.apply)(AutoDeleteConfirmationForm.unapply)
         .verifying(
           "auto.delete.reason.required",

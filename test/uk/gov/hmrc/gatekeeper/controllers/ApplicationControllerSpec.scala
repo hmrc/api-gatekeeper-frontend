@@ -588,7 +588,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
     "updateAutoDelete" should {
       val noReason = "No reasons given"
-      val reason = "Some reason"
+      val reason   = "Some reason"
 
       "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)

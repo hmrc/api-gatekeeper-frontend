@@ -224,7 +224,13 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def updateAutoDelete(applicationId: ApplicationId, allowAutoDelete: Boolean, gatekeeperUser: String, reason: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateAutoDelete(
+      applicationId: ApplicationId,
+      allowAutoDelete: Boolean,
+      gatekeeperUser: String,
+      reason: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
 
     val appCmdResult = allowAutoDelete match {
       case true  => commandConnector.dispatch(applicationId, ApplicationCommands.AllowApplicationAutoDelete(gatekeeperUser, reason, now()), Set.empty[LaxEmailAddress])

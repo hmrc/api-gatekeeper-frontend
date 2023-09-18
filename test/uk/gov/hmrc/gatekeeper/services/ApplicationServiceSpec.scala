@@ -839,8 +839,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "updateAutoDelete" should {
     val noReason = "No reasons given"
-    val reason = "Some reason"
-
+    val reason   = "Some reason"
 
     "issue AllowApplicationAutoDelete command when auto delete is true in either sandbox or production app" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()

@@ -48,5 +48,5 @@ object ApiCataloguePublishConnector {
   case class Config(serviceBaseUrl: String)
   // API Catalogue Publish
   case class PublishResponse(id: String, publisherReference: String, platformType: String)
-  implicit val formatPublishResponse: OFormat[PublishResponse]       = Json.format[PublishResponse]
+  implicit val formatPublishResponse: OFormat[PublishResponse] = Json.format[PublishResponse]
 }
