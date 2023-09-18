@@ -33,9 +33,6 @@ class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConn
   def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
     handleResult(http.POSTEmpty[PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName"))
 
-  def publishAll()(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishAllResponse]] =
-    handleResult(http.POSTEmpty[PublishAllResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish-all"))
-
   private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] = {
     result.map(x => Right(x))
       .recover {
@@ -51,7 +48,5 @@ object ApiCataloguePublishConnector {
   case class Config(serviceBaseUrl: String)
   // API Catalogue Publish
   case class PublishResponse(id: String, publisherReference: String, platformType: String)
-  case class PublishAllResponse(message: String)
   implicit val formatPublishResponse: OFormat[PublishResponse]       = Json.format[PublishResponse]
-  implicit val formatPublishAllResponse: OFormat[PublishAllResponse] = Json.format[PublishAllResponse]
 }
