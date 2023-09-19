@@ -15,8 +15,8 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models.State._
-@import uk.gov.hmrc.gatekeeper.models.Environment.Environment
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 @import uk.gov.hmrc.gatekeeper.models.{PaginatedApplicationResponse, VersionSummary}
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import java.time.format.DateTimeFormatter
@@ -87,9 +87,9 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
               @for((status, versions) <- apis) {
                 <optgroup label="@{status}">
                   @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
-                    @defining(s"${version.apiIdentifier.context.value}--${version.apiIdentifier.version.value}") { value =>
+                    @defining(s"${version.apiIdentifier.context.value}--${version.apiIdentifier.versionNbr.value}") { value =>
                       <option @if(apiSubscription == Some(value)){selected} value="@value">
-                        @version.name (@version.apiIdentifier.version.value)
+                        @version.name (@version.apiIdentifier.versionNbr.value)
                       </option>
                     }
                   }

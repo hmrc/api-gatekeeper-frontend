@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.pages
 
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
 trait DynamicPage extends WebPage {
   val pageHeading: String

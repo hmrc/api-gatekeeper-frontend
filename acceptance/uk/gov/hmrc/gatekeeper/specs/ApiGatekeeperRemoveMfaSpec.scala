@@ -29,7 +29,7 @@ import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 
 import scala.io.Source
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 class ApiGatekeeperRemoveMfaSpec

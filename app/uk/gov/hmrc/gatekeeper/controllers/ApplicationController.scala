@@ -21,14 +21,13 @@ import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -38,15 +37,13 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.models.{Environment, _}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.{ColumnDefinition, _}
@@ -55,6 +52,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
 class ApplicationController @Inject() (
@@ -101,12 +99,12 @@ class ApplicationController @Inject() (
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                              = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val env                                              = Environment.apply(environment.getOrElse("SANDBOX"))
     val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
     val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
-        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}"
+        s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url
       }
@@ -118,7 +116,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env      = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val env      = Environment.apply(environment.getOrElse("SANDBOX"))
     val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params   = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
@@ -129,7 +127,7 @@ class ApplicationController @Inject() (
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
-      ColumnDefinition("App ID", (app => app.id.text())),
+      ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo)),
@@ -174,7 +172,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationWithSubscriptionsCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env: Option[models.Environment.Value] = Try(Environment.withName(environment.getOrElse("SANDBOX"))).toOption
+    val env: Option[Environment] = Environment.apply(environment.getOrElse("SANDBOX"))
 
     applicationService.fetchApplicationsWithSubscriptions(env)
       .map(applicationResponse => Ok(toCsvContent(applicationResponse, env)))
@@ -186,8 +184,8 @@ class ApplicationController @Inject() (
       val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
       val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}"
-      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId.text()}/send-new-terms-of-use"
+      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
+      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
 
       def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)
@@ -750,7 +748,7 @@ class ApplicationController @Inject() (
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 
-    def validateApplicationName(environment: Environment.Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
+    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
       val isValid = environment match {
         case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == applicationName))
         case _                      => true

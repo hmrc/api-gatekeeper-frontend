@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 
 case class ApplicationWithSubscriptionData(

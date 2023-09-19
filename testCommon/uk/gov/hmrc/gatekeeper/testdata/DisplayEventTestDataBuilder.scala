@@ -19,10 +19,9 @@ package uk.gov.hmrc.gatekeeper.testdata
 import java.time.{Clock, Instant, ZoneOffset}
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 
 trait DisplayEventTestDataBuilder {
 
@@ -32,7 +31,7 @@ trait DisplayEventTestDataBuilder {
   val gkActor: Actors.GatekeeperUser               = Actors.GatekeeperUser("iam@admin.com")
   val nowInstant: Instant                          = Instant.now(fixedClock)
 
-  val userId                                           = UserId(UUID.randomUUID())
+  val userId                                           = UserId.random
   def makeAppAdministrator(counter: Int): Collaborator = Collaborators.Administrator(UserId(UUID.randomUUID()), LaxEmailAddress(s"AppAdmin-$counter"))
   def makeAppDeveloper(counter: Int): Collaborator     = Collaborators.Developer(UserId(UUID.randomUUID()), LaxEmailAddress(s"AppDev-$counter"))
 

@@ -23,14 +23,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -83,7 +82,7 @@ class ApplicationService @Inject() (
       }
     }
 
-    applicationConnectorFor(Some(PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
+    applicationConnectorFor(Some(Environment.PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
       buildChanges(appStateHistory.applicationId, appStateHistory.appName, appStateHistory.journeyVersion, appStateHistory.stateHistory)
     }))
   }
@@ -278,8 +277,8 @@ class ApplicationService @Inject() (
     val req = CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access)
 
     appEnv match {
-      case PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
-      case SANDBOX    => sandboxApplicationConnector.createPrivOrROPCApp(req)
+      case Environment.PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
+      case Environment.SANDBOX    => sandboxApplicationConnector.createPrivOrROPCApp(req)
     }
   }
 
@@ -287,7 +286,7 @@ class ApplicationService @Inject() (
     if (application.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
-    if (environment == Some(PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
+    if (environment == Some(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
 
   def apiScopeConnectorFor(application: Application): ApiScopeConnector =
     if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector

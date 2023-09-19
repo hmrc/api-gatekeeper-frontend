@@ -25,9 +25,8 @@ import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersionNbr}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -82,7 +81,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       if (definitions.isEmpty) {
         Future.successful(None)
       } else {
-        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
+        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.versionNbr)
       }
     }
 

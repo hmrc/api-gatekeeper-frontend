@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 trait ApiBuilder {
 
@@ -32,7 +33,7 @@ trait ApiBuilder {
     // def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
     def withAccess(newAccess: ApiAccess) = versionData.copy(access = newAccess)
     def publicAccess                             = this.withAccess(ApiAccess.PUBLIC)
-    def privateAccess                            = this.withAccess(ApiAccess.Private(Nil, None))
+    def privateAccess                            = this.withAccess(ApiAccess.Private(Nil))
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {

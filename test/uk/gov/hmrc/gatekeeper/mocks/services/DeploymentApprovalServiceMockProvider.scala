@@ -22,6 +22,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait DeploymentApprovalServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -38,7 +39,7 @@ trait DeploymentApprovalServiceMockProvider {
 
     object FetchApprovalSummary {
 
-      def returnsForEnv(environment: Environment.Value)(approvalSummary: APIApprovalSummary) =
+      def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =
         when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
     }
 

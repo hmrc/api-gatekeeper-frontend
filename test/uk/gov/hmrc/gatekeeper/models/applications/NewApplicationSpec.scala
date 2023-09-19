@@ -18,9 +18,10 @@ package uk.gov.hmrc.gatekeeper.models.applications
 
 import java.time.{LocalDateTime, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class NewApplicationSpec extends HmrcSpec {
   val url            = "http://example.com"

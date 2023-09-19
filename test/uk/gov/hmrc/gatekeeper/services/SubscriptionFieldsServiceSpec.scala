@@ -20,13 +20,13 @@ import scala.concurrent.Future.successful
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.models.{Environment, _}
+import uk.gov.hmrc.gatekeeper.models._
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
@@ -59,10 +59,10 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
       verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
@@ -84,10 +84,10 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.version, fields))
+      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.version), eqTo(fields))(*)
+        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
       verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }

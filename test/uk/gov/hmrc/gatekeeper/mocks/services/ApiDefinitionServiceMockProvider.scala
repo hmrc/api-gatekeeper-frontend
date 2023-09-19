@@ -20,8 +20,9 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK, Environment}
+import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK}
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait ApiDefinitionServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -35,7 +36,7 @@ trait ApiDefinitionServiceMockProvider {
     def inBoth    = Calling(None)
     def inAny     = Calling()
 
-    class Calling private (cond: Option[Environment.Value]) {
+    class Calling private (cond: Option[Environment]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinitionGK*) = whenClause.thenReturn(successful(apiDefinitions.toList))
@@ -45,7 +46,7 @@ trait ApiDefinitionServiceMockProvider {
     object Calling {
       def apply() = new Calling(*)
 
-      def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))
+      def apply(env: Option[Environment]) = new Calling(eqTo(env))
     }
 
   }
@@ -57,7 +58,7 @@ trait ApiDefinitionServiceMockProvider {
     def inBoth    = Calling(None)
     def inAny     = Calling()
 
-    class Calling[T] private (cond: Option[Environment.Value]) {
+    class Calling[T] private (cond: Option[Environment]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
 
       def returns(apiDefinitions: ApiDefinitionGK*) = whenClause.thenReturn(successful(apiDefinitions.toList))
@@ -67,14 +68,14 @@ trait ApiDefinitionServiceMockProvider {
     object Calling {
       def apply() = new Calling(*)
 
-      def apply(env: Option[Environment.Value]) = new Calling(eqTo(env))
+      def apply(env: Option[Environment]) = new Calling(eqTo(env))
     }
   }
 
   object Apis {
     private val whenClause = when(mockApiDefinitionService.apis(*))
 
-    def returns(results: (ApiDefinitionGK, Environment.Value)*) = whenClause.thenReturn(successful(results.toList))
+    def returns(results: (ApiDefinitionGK, Environment)*) = whenClause.thenReturn(successful(results.toList))
     def throws(throwable: Throwable)                          = whenClause.thenReturn(failed(throwable))
   }
 }

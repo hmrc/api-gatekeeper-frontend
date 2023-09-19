@@ -18,11 +18,11 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.{LocalDateTime, Period}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.AccessType._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class ModelSpec extends AsyncHmrcSpec {
 

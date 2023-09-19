@@ -22,12 +22,11 @@ import scala.concurrent.Future
 
 import play.api.test.Helpers._
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
-import uk.gov.hmrc.gatekeeper.models.{ClientId, Environment}
 import uk.gov.hmrc.gatekeeper.services.ApmService
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 

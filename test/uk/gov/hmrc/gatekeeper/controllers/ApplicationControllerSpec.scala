@@ -34,15 +34,15 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, MoreApplication}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -179,7 +179,7 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -191,7 +191,7 @@ class ApplicationControllerSpec
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(PRODUCTION)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.PRODUCTION)), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
       }
 
@@ -203,7 +203,7 @@ class ApplicationControllerSpec
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -228,7 +228,7 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(SANDBOX)), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), eqTo(expectedParams))(*)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {

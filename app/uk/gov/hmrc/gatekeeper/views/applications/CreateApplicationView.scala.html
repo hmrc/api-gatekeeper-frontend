@@ -16,7 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.models.CreatePrivOrROPCAppForm
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.gatekeeper.models.Environment._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
@@ -39,7 +39,7 @@
         <div class="govuk-radios govuk-radios--inline" data-module="govuk-radios">
           <div class="govuk-radios__item">
             @defining(form.data.get("environment") == Some("PRODUCTION")) { productionChecked =>
-              <input class="govuk-radios__input" id="environmentProduction" type="radio" name="environment" value="@PRODUCTION" @if(productionChecked) {checked}>
+              <input class="govuk-radios__input" id="environmentProduction" type="radio" name="environment" value="PRODUCTION" @if(productionChecked) {checked}>
             }
             <label class="govuk-label govuk-radios__label" for="environmentProduction">
               Production
@@ -47,7 +47,7 @@
           </div>
           <div class="govuk-radios__item">
             @defining(form.data.get("environment") == Some("SANDBOX")) { sandboxChecked =>
-              <input class="govuk-radios__input" id="environmentSandbox" type="radio" name="environment" value="@SANDBOX" @if(sandboxChecked) {checked}>
+              <input class="govuk-radios__input" id="environmentSandbox" type="radio" name="environment" value="SANDBOX" @if(sandboxChecked) {checked}>
             }
             <label class="govuk-label govuk-radios__label" for="environmentSandbox">
               Sandbox

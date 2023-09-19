@@ -26,10 +26,10 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersionNbr
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 
 class ApiPublisherConnectorSpec
@@ -54,7 +54,7 @@ class ApiPublisherConnectorSpec
     val url         = "/services/unapproved"
 
     "return unapproved API approval summaries" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(PRODUCTION)))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION)))
       val payload  = Json.toJson(response)
 
       stubFor(
@@ -89,7 +89,7 @@ class ApiPublisherConnectorSpec
     val url         = s"/service/$serviceName/summary"
 
     "return approval summary for an API" in new Setup {
-      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(PRODUCTION))
+      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(Environment.PRODUCTION))
 
       stubFor(
         get(urlEqualTo(url))

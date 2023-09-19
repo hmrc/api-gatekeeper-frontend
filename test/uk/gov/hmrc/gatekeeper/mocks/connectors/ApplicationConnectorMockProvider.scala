@@ -23,10 +23,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
 

@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 trait APIDefinitionFormatters {
 
@@ -28,18 +28,14 @@ trait APIDefinitionFormatters {
   implicit val keyReadsFieldName: KeyReads[FieldName]   = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 
-  implicit val keyReadsApiContext: KeyReads[ApiContext]   = key => JsSuccess(ApiContext(key))
-  implicit val keyWritesApiContext: KeyWrites[ApiContext] = _.value
-
-  implicit val keyReadsApiVersion: KeyReads[ApiVersionNbr]   = key => JsSuccess(ApiVersionNbr(key))
-  implicit val keyWritesApiVersion: KeyWrites[ApiVersionNbr] = _.value
+  implicit val keyReadsApiVersionNbr: KeyReads[ApiVersionNbr]   = key => JsSuccess(ApiVersionNbr(key))
+  implicit val keyWritesApiVersionNbr: KeyWrites[ApiVersionNbr] = _.value
 
   implicit val formatAPIVersion                  = Json.format[ApiVersionGK]
   implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
   implicit val formatSubscriptionFieldValue      = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields          = Json.format[SubscriptionFieldsWrapper]
   implicit val formatVersionSubscription         = Json.format[VersionSubscription]
-  implicit val formatAPIIdentifier               = Json.format[ApiIdentifier]
   implicit val formatApiDefinitions              = Json.format[ApiDefinitionGK]
 
   implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]

@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK}
 
 class ApiDefinitionService @Inject() (
@@ -33,9 +33,9 @@ class ApiDefinitionService @Inject() (
 
   def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
     val connectors                                          = environment match {
-      case Some(PRODUCTION) => List(productionApiDefinitionConnector)
-      case Some(SANDBOX)    => List(sandboxApiDefinitionConnector)
-      case _                => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+      case Some(Environment.PRODUCTION) => List(productionApiDefinitionConnector)
+      case Some(Environment.SANDBOX)    => List(sandboxApiDefinitionConnector)
+      case _                            => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
     }
     val publicApisFuture: List[Future[List[ApiDefinitionGK]]] = connectors.map(_.fetchPublic())
     val privateApisFuture                                   = connectors.map(_.fetchPrivate())
@@ -69,6 +69,6 @@ class ApiDefinitionService @Inject() (
     Future.sequence(connectors
       .map(getApisFromConnector))
       .map(_.flatten)
-      .map(_.sortBy { case (api, env) => (api.name, env) })
+      .map(_.sortBy { case (api, env) => (api.name, env.toString()) })
   }
 }
