@@ -29,8 +29,8 @@ object AppDependencies {
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.1.10",
-    "uk.gov.hmrc"                 %% "api-platform-application-commands" % "0.22.2"
+    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.1.11",
+    "uk.gov.hmrc"                 %% "api-platform-application-commands" % "0.22.3"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
@@ -41,7 +41,7 @@ object AppDependencies {
     "com.github.tomakehurst"      %  "wiremock-jre8-standalone"          % "2.34.0",
     "org.seleniumhq.selenium"     %  "selenium-java"                     % seleniumVersion,
     "org.seleniumhq.selenium"     %  "htmlunit-driver"                   % "3.64.0",
-    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.12",
+    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.22",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
     "org.scalatestplus.play"      %% "scalatestplus-play"                % "5.1.0",
     "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.40.0"
