@@ -425,6 +425,19 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       result.body.contains("Subscription configuration") shouldBe false
     }
 
+    "show button for application events" in new Setup {
+      val subscriptions = List.empty
+
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withSubscriptions(subscriptions),
+        strideUserRequest,
+        Flash.emptyCookie
+      )
+
+      result.contentType should include("text/html")
+      result.body.contains("Check application changes") shouldBe true
+    }
+
     "show manage IP allowlist link when user is at least a superuser" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
