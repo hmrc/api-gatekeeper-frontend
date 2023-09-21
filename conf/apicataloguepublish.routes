@@ -1,5 +1,0 @@
-# api catalogue publish routes
-
-GET         /start                                                 uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish.ApiCataloguePublishController.start()
-GET         /publishall                                            uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish.ApiCataloguePublishController.publishAll()
-GET         /publish                                               uk.gov.hmrc.gatekeeper.controllers.apicataloguepublish.ApiCataloguePublishController.publishByServiceName(serviceName: String)

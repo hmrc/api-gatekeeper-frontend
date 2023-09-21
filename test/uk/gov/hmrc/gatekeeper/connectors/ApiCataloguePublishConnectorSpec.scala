@@ -99,33 +99,5 @@ class ApiCataloguePublishConnectorSpec
 
       }
     }
-
-    "publishAll" should {
-      val publishAllUrl = "/api-platform-api-catalogue-publish/publish-all"
-
-      "return Right" in new Setup {
-
-        val expectedResponse: PublishAllResponse =
-          PublishAllResponse(message = "Publish all called and is working in the background, check application logs for progress")
-        val expectedResponseAsString: String     = Json.toJson(expectedResponse).toString
-
-        primePostWithBody(publishAllUrl, OK, expectedResponseAsString)
-
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
-        result match {
-          case Right(response: PublishAllResponse) => response shouldBe expectedResponse
-          case Left(_: Throwable)                  => fail()
-        }
-      }
-
-      "return Left if there is an error in the backend" in new Setup {
-        primePost(publishAllUrl, INTERNAL_SERVER_ERROR)
-        val result: Either[Throwable, PublishAllResponse] = await(underTest.publishAll())
-        result match {
-          case Left(UpstreamErrorResponse(_, status, _, _)) if 500 to 599 contains status => succeed
-          case _                                                                          => fail()
-        }
-      }
-    }
   }
 }
