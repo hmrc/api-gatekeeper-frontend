@@ -138,7 +138,7 @@
     <li>
       @subscription._1
       @{
-        subscription._2.map(data => 
+        subscription._2.map(data =>
           data._1.value + " (" + ApiStatus.displayedStatus(data._2) + ")"
         ).mkString(", ")
       }
@@ -265,7 +265,7 @@
               <a href={model.gatekeeperApprovalsUrl} class="govuk-link" role="button" id="review">Check application</a>
             } else {
               <a href={routes.ApplicationController.reviewPage(applicationId).url} class="govuk-link" role="button" id="review">Check application</a>
-            }  
+            }
           } else if (application.state.isPendingRequesterVerification) {
             <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
           }
@@ -486,6 +486,14 @@
         }
       </div>
     }
+    <div class="govuk-summary-list__row">
+      <h2 class="govuk-heading-m govuk-!-margin-top-8">Application changes</h2>
+      <p class="govuk-body">
+        <a id="application-events" href="@{
+          routes.ApplicationEventsController.page(applicationId)
+        }" class="govuk-button govuk-button--secondary">Check application changes</a>
+      </p>
+    </div>
     <div class="govuk-summary-list__row" style="height: 180px;">
       <dt class="govuk-summary-list__key">
         Team members
@@ -532,7 +540,7 @@
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
           <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
           <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" data-clip-text>Copy all team member email addresses</button>
-          <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button> 
+          <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button>
         }
       </dd>
       @if(!application.state.isDeleted && (request.role.isSuperUser || access.accessType == AccessType.STANDARD)) {
