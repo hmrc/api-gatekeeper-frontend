@@ -137,7 +137,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         ApiContext("service1"),
         List(ApiVersionGK(ApiVersionNbr("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
         None,
-        categories = Some(Set(category1))
+        categories = Set(category1)
       )
       val api2    = ApiDefinitionGK(
         "service2",
@@ -147,7 +147,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         ApiContext("service2"),
         List(ApiVersionGK(ApiVersionNbr("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
         None,
-        categories = Some(Set(category2))
+        categories = Set(category2)
       )
       val twoApis = List(api1, api2)
 

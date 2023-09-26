@@ -29,8 +29,8 @@ object AppDependencies {
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.1.11",
-    "uk.gov.hmrc"                 %% "api-platform-application-commands" % "0.22.3"
+    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.4.0",
+    "uk.gov.hmrc"                 %% "api-platform-application-commands" % "0.24.0"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")

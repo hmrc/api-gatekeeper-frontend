@@ -97,7 +97,6 @@ class ApmConnectorSpec
     val url = "/api-definitions"
 
     "return all subscribeable API's and their ApiData" in new Setup {
-      import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
       implicit val versionDataWrites = Json.writes[VersionData]
       implicit val apiDataWrites     = Json.writes[ApiData]
 

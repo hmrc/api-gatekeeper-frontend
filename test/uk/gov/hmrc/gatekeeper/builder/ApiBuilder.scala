@@ -33,7 +33,7 @@ trait ApiBuilder {
     // def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
     def withAccess(newAccess: ApiAccess) = versionData.copy(access = newAccess)
     def publicAccess                             = this.withAccess(ApiAccess.PUBLIC)
-    def privateAccess                            = this.withAccess(ApiAccess.Private(Nil))
+    def privateAccess                            = this.withAccess(ApiAccess.Private(false))
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {

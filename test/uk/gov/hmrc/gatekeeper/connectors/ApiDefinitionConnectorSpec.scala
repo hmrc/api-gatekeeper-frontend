@@ -62,7 +62,7 @@ class ApiDefinitionConnectorSpec
         ApiContext("dummy-api"),
         List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
-        None
+        Set(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)
@@ -104,7 +104,7 @@ class ApiDefinitionConnectorSpec
         ApiContext("dummy-api"),
         List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
-        None
+        Set(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)

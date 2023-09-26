@@ -16,9 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.util.UUID
-import scala.util.Try
-
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -30,10 +27,7 @@ import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 package object binders extends ApplicationLogger {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as ApplicationId")
-      .map(uuid => ApplicationId(uuid))
+    ApplicationId.apply(text).toRight(s"Cannot accept $text as ApplicationId")
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -116,13 +110,8 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  import java.{util => ju}
-
   private def eitherFromString(text: String): Either[String, UserId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as userId")
-      .map(UserId(_))
+    UserId.apply(text).toRight(s"Cannot accept $text as userId")
   }
 
   implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {

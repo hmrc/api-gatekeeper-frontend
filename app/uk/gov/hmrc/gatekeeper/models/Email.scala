@@ -17,8 +17,9 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.apiplatform.modules.common.utils.SealedTraitJsonFormatting
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
 
+// TODO - Remove Enumeration
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value

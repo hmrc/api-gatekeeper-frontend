@@ -223,6 +223,7 @@ case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScop
   val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
 }
 
+// TODO - Remove Enumeration
 object OverrideType extends Enumeration {
   type OverrideType = Value
   val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS, SUPPRESS_IV_FOR_INDIVIDUALS = Value
@@ -321,6 +322,7 @@ object ApplicationWithSubscriptionsResponse {
   implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
 }
 
+// TODO - Remove Enumeration
 object AccessType extends Enumeration {
   type AccessType = Value
   val STANDARD, PRIVILEGED, ROPC = Value
@@ -342,6 +344,7 @@ case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
+// TODO - Remove Enumeration
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value

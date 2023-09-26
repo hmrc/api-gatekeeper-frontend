@@ -26,7 +26,7 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Employers PAYE",
        |   "description": "EMPLOYERS PAYE API.",
-       |    "deployedTo": "PRODUCTION",
+       |   "deployedTo": "PRODUCTION",
        |   "context": "employers-paye",
        |   "versions": [
        |     {
@@ -48,7 +48,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |  {
        |   "serviceName": "payeCreditsAPI",
@@ -77,7 +78,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |  {
        |   "serviceName": "individualBenefitsAPI",
@@ -106,7 +108,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |   {
        |   "serviceName": "selfAssessmentAPI",
@@ -135,7 +138,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | }
        |]
   """.stripMargin

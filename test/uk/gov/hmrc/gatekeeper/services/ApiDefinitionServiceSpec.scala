@@ -44,7 +44,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       ApiContext.random,
       List(ApiVersionGK(ApiVersionNbr.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
       Some(false),
-      None
+      Set(ApiCategory.OTHER)
     )
 
     val privateDefinition = ApiDefinitionGK(
@@ -53,14 +53,14 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "privateAPI",
       "private api.",
       ApiContext.random,
-      List(ApiVersionGK(ApiVersionNbr.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.Private(Nil,false)))),
+      List(ApiVersionGK(ApiVersionNbr.random, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.Private(false)))),
       Some(false),
-      None
+      Set(ApiCategory.OTHER)
     )
 
     val version1 = ApiVersionGK(ApiVersionNbr("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.PUBLIC))
-    val version2 = ApiVersionGK(ApiVersionNbr("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,false)))
-    val version3 = ApiVersionGK(ApiVersionNbr("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(Nil,false)))
+    val version2 = ApiVersionGK(ApiVersionNbr("2.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(false)))
+    val version3 = ApiVersionGK(ApiVersionNbr("3.0"), ApiVersionSource.UNKNOWN, ApiStatus.BETA, Some(ApiAccess.Private(false)))
 
     val customsDeclarations1 = ApiDefinitionGK(
       serviceName = "customs-declarations",
@@ -70,7 +70,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
       versions = List(version1),
-      categories = Some(Set(ApiCategory.CUSTOMS))
+      categories = Set(ApiCategory.CUSTOMS)
     )
 
     val customsDeclarations2 = ApiDefinitionGK(
@@ -81,7 +81,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       context = ApiContext("customs/declarations"),
       requiresTrust = Some(false),
       versions = List(version2.copy(), version3.copy()),
-      categories = Some(Set(ApiCategory.CUSTOMS))
+      categories = Set(ApiCategory.CUSTOMS)
     )
   }
 

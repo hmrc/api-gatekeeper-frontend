@@ -88,6 +88,7 @@ object SubscriptionFields {
     implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }
 
+  // TODO - Remove Enumeration
   object SubscriptionRedirect extends Enumeration {
     type SubscriptionRedirectType = Value
     val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value

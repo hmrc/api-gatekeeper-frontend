@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status
 import play.api.libs.json.Json
@@ -81,7 +80,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinitionGK], topic: TopicOptionChoice): Unit = {
-    val categories: Set[ApiCategory] = selectedApis.map(_.categories.getOrElse(Set.empty)).reduce(_ ++ _)
+    val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _)
 
     val topicParam    = s"topic=${topic.toString}"
     val regimeParams  = categories.map(category => s"&regime=${category}").mkString

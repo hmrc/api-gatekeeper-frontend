@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait APIDefinitionHelper {
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[Set[ApiCategory]], version: String): ApiDefinitionGK =
+  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Set[ApiCategory], version: String): ApiDefinitionGK =
     ApiDefinitionGK(
       serviceName,
       "url1",

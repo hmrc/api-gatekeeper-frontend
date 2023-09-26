@@ -201,7 +201,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
           ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinitionGK("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, Set(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -221,7 +221,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
           ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinitionGK("", "", name = "", "", apiContext, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "", "", apiContext, apiVersions, None, Set(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -237,7 +237,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiVersionDefinition = ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition         = List(ApiDefinitionGK("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition         = List(ApiDefinitionGK("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, Set(ApiCategory.OTHER)))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

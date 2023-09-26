@@ -144,6 +144,7 @@ sealed trait ResendVerificationSuccessful
 
 case object ResendVerificationSuccessful extends ResendVerificationSuccessful
 
+// TODO - Remove Enumeration
 object UpliftAction extends Enumeration {
   type UpliftAction = Value
   val APPROVE, REJECT = Value

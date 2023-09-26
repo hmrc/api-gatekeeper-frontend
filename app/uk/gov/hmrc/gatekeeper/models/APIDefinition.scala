@@ -28,7 +28,7 @@ case class ApiDefinitionGK(
     context: ApiContext,
     versions: List[ApiVersionGK],
     requiresTrust: Option[Boolean],
-    categories: Option[Set[ApiCategory]]
+    categories: Set[ApiCategory]
   ) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {

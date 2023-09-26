@@ -65,7 +65,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
         ApiVersionGK(ApiVersionNbr("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
         ApiVersionGK(ApiVersionNbr("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE)
       )
-      val apiDefinition = ApiDefinitionGK("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, None)
+      val apiDefinition = ApiDefinitionGK("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, Set(ApiCategory.OTHER))
 
       Apis.returns((apiDefinition, PRODUCTION))
 

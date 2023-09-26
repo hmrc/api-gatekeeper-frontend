@@ -32,6 +32,9 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
     val maybeTitleText = getElementBySelector(document, "#pageTitle")
+    
+    if(maybeTitleText.isEmpty) println(document.html())
+    
     maybeTitleText.fold(fail("page title not present in page"))(_.text shouldBe expectedTitle)
   }
 
