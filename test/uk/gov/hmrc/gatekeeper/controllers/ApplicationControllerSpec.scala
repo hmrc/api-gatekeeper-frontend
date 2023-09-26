@@ -16,28 +16,27 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
-
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
-
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
@@ -49,7 +48,7 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteView, _}
+import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteFalseView, ManageAutoDeleteTrueView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -83,8 +82,10 @@ class ApplicationControllerSpec
   private lazy val createApplicationSuccessView  = app.injector.instanceOf[CreateApplicationSuccessView]
   private lazy val manageGrantLengthView         = app.injector.instanceOf[ManageGrantLengthView]
   private lazy val manageGrantLengthSuccessView  = app.injector.instanceOf[ManageGrantLengthSuccessView]
-  private lazy val manageAutoDeleteView          = app.injector.instanceOf[ManageAutoDeleteView]
+  private lazy val manageAutoDeleteTrueView      = app.injector.instanceOf[ManageAutoDeleteTrueView]
+  private lazy val manageAutoDeleteFalseView     = app.injector.instanceOf[ManageAutoDeleteFalseView]
   private lazy val autoDeleteSuccessView         = app.injector.instanceOf[AutoDeleteSuccessView]
+  private lazy val eventsConnector               = mock[EnvironmentAwareApiPlatformEventsConnector]
   private lazy val errorHandler                  = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
@@ -122,6 +123,12 @@ class ApplicationControllerSpec
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
+      val basicAppWithAutoDeleteFalse = basicApplication.copy(moreApplication = MoreApplication(allowAutoDelete = false))
+      val basicAppWithAutoDeleteFalseId = basicAppWithAutoDeleteFalse.id
+      val appWithAutoDeleteFalse = ApplicationWithHistory(basicAppWithAutoDeleteFalse, List.empty)
+      val events = List(DisplayEvent(basicAppWithAutoDeleteFalseId, Instant.now(), GatekeeperUser("gk user"), "APP_LIFECYCLE", "Application auto delete blocked", List("This app should not be deleted")))
+
+
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
       val underTest = new ApplicationController(
@@ -152,8 +159,10 @@ class ApplicationControllerSpec
         createApplicationSuccessView,
         manageGrantLengthView,
         manageGrantLengthSuccessView,
-        manageAutoDeleteView,
+        manageAutoDeleteTrueView,
+        manageAutoDeleteFalseView,
         autoDeleteSuccessView,
+        eventsConnector,
         mockApmService,
         errorHandler,
         LdapAuthorisationServiceMock.aMock
@@ -553,7 +562,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     }
 
     "manageAutoDeletePage" should {
-      "return the manage auto delete page for an admin" in new Setup {
+      "return the manage auto delete true page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         givenTheAppWillBeReturned()
@@ -564,7 +573,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
       }
 
-      "return the manage auto delete page for a super user" in new Setup {
+      "return the manage auto delete true page for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
@@ -572,6 +581,58 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
         contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
+      }
+
+      "return the error page when auto delete false and no events found and GK user is admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
+
+        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe NOT_FOUND
+        contentAsString(result) should include("Reason not found")
+
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+      }
+
+      "return the error page when auto delete false and no events found and GK user is super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
+
+        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe NOT_FOUND
+        contentAsString(result) should include("Reason not found")
+
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+      }
+
+      "return the manage auto delete false page when an event exists and GK user is admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
+
+        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
+
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+      }
+
+      "return the manage auto delete false page when an event exists and GK user is super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
+
+        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
+
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the forbidden page for a normal user" in new Setup {
@@ -586,11 +647,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       }
     }
 
-    "updateAutoDelete" should {
+    "updateAutoDeletePreviouslyTrue" should {
       val noReason = "No reasons given"
       val reason = "Some reason"
 
-      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an super user" in new Setup {
+      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
@@ -599,14 +660,14 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
 
-        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+        val result = addToken(underTest.updateAutoDeletePreviouslyTrue(applicationId))(request)
 
         status(result) shouldBe OK
 
         verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "call the service to set the allowAutoDelete flag to false when a valid form is submitted for an super user" in new Setup {
+      "call the service to set the allowAutoDelete flag to false when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
@@ -615,35 +676,35 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
 
-        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+        val result = addToken(underTest.updateAutoDeletePreviouslyTrue(applicationId))(request)
 
         status(result) shouldBe OK
 
         verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
       }
 
-      "return a bad request when an invalid form is submitted for an super user" in new Setup {
+      "return a bad request when an invalid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
-        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+        val result = addToken(underTest.updateAutoDeletePreviouslyTrue(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
         verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
       }
 
-      "return forbidden when a form is submitted for a non-super user" in new Setup {
+      "return forbidden when a form is submitted for a normal user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
 
-        val result = addToken(underTest.updateAutoDelete(applicationId))(request)
+        val result = addToken(underTest.updateAutoDeletePreviouslyTrue(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
@@ -651,7 +712,103 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       }
     }
 
-    "manageIpAllowlistPage" should {
+    "updateAutoDeletePreviouslyFalse" should {
+      val noReason = "No reasons given"
+      val reason = "This app should not be deleted"
+      val date = "12th Aug"
+
+      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an admin user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).updateAutoDelete(eqTo(basicAppWithAutoDeleteFalseId), eqTo(true), *, eqTo(noReason))(*)
+      }
+
+      "call the service to set the allowAutoDelete flag to true when a valid form is submitted for a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe OK
+
+        verify(mockApplicationService).updateAutoDelete(eqTo(basicAppWithAutoDeleteFalseId), eqTo(true), *, eqTo(noReason))(*)
+      }
+
+      "show to autoDeleteSuccessView when confirm is set to 'no' on valid form by an admin user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(s"${basicAppWithAutoDeleteFalse.name} will not be deleted if it is inactive")
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+      }
+
+      "show to autoDeleteSuccessView when confirm is set to 'no' on valid form by a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include(s"${basicAppWithAutoDeleteFalse.name} will not be deleted if it is inactive")
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+      }
+
+      "return a bad request when an invalid form is submitted for a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe BAD_REQUEST
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+      }
+
+      "return a forbidden when form submitted for a normal user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+
+        val result = addToken(underTest.updateAutoDeletePreviouslyFalse(basicAppWithAutoDeleteFalseId))(request)
+
+        status(result) shouldBe FORBIDDEN
+
+        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+      }
+    }
+
+      "manageIpAllowlistPage" should {
       "return the manage IP allowlist page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 

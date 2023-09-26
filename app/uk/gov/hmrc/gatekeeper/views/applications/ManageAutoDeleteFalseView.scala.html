@@ -1,0 +1,104 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyFalseForm
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+
+@(application: ApplicationResponse, reason: String, reasonDate: String, form: Form[AutoDeletePreviouslyFalseForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+    title = s"${applicationConfig.title} - Do you want your application to be deleted?",
+    breadcrumbs = Seq(
+        Crumb(
+            s"${application.name}",
+            s"${routes.ApplicationController.applicationPage(application.id)}",
+            Some("data-breadcrumb-view-application")
+        ),
+        Crumb(
+            "Applications",
+            s"${routes.ApplicationController.applicationsPage(None)}",
+            Some("data-breadcrumb-view-applications")
+        )
+    )
+) {
+    @errorSummary2(form)
+
+    <h1 class="govuk-heading-l">@{application.name} has been set not to be deleted if it is inactive</h1>
+
+    <dl class="govuk-summary-list govuk-!-margin-bottom-9">
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key" id="reason-text">
+                Reason
+            </dt>
+            <dd class="govuk-summary-list__value" id="reason-value">
+                @reason
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key" id="date-text">
+                Date
+            </dt>
+            <dd class="govuk-summary-list__value" id="date-value">
+                @reasonDate
+            </dd>
+        </div>
+    </dl>
+
+    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyFalse(application.id)) {
+        @helper.CSRF.formField
+        <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
+            @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
+
+            <fieldset class="govuk-fieldset" aria-describedby="auto-delete-hint">
+                <legend class="govuk-fieldset__legend govuk-fieldset__legend--m">
+                    <h2 class="govuk-fieldset__heading govuk-!-margin-bottom-4">
+                            Do you want to change the application to be deleted if it is inactive?
+                    </h2>
+                </legend>
+                <div class="govuk-radios" data-module="govuk-radios">
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="auto-delete-yes" name="confirm" type="radio" value="yes" aria-describedby="auto-delete-yes-item-hint">
+                        <label class="govuk-label govuk-radios__label" for="auto-delete-yes">
+                            Yes
+                        </label>
+                    </div>
+                    <div class="govuk-radios__item">
+                        <input class="govuk-radios__input" id="auto-delete-no" name="confirm" type="radio" value="no" aria-describedby="auto-delete-no-item-hint">
+                        <label class="govuk-label govuk-radios__label" for="auto-delete-no">
+                            No, the application should not be deleted if inactive
+                        </label>
+                    </div>
+                </div>
+                <input type="hidden" name="reason" value='@reason' >
+                <input type="hidden" name="reasonDate" value='@reasonDate' >
+            </fieldset>
+
+        </div>
+
+        <br>
+        <div class="govuk-button-group">
+            <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+        </div>
+    }
+}

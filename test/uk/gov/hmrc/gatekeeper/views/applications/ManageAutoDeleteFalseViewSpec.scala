@@ -24,20 +24,22 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyFalseForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.AutoDeleteSuccessView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteFalseView
 
 import java.time.{LocalDateTime, Period}
 
-class AutoDeleteSuccessViewSpec extends CommonViewSpec {
+class ManageAutoDeleteFalseViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request                                      = FakeRequest()
-    val autoDeleteSuccessView: AutoDeleteSuccessView = app.injector.instanceOf[AutoDeleteSuccessView]
-    val grantLength: Period                          = Period.ofDays(547)
+    val request                                    = FakeRequest().withCSRFToken
+    val manageAutoDeleteTrueView: ManageAutoDeleteFalseView = app.injector.instanceOf[ManageAutoDeleteFalseView]
+    val grantLength: Period                        = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -56,29 +58,31 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
         Standard(),
         ApplicationState(),
         grantLength,
-        ipAllowlist = IpAllowlist()
+        ipAllowlist = IpAllowlist(),
+        moreApplication = MoreApplication(allowAutoDelete = false)
       )
+
+    val reason = "Do not delete this application"
+    val reasonDate = "26th Sept 2023"
   }
 
-  "Auto Delete Success view" should {
-    "show Auto Delete success page when allowAutoDelete was updated to true" in new Setup {
-      val result: Appendable = autoDeleteSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
+  "Auto Delete view" should {
+    "show reason, date and radio buttons when allowAutoDelete is false for application" in new Setup {
+      val result: Appendable = manageAutoDeleteTrueView(application, reason, reasonDate, AutoDeletePreviouslyFalseForm.form)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "h1", s"${application.name} will be deleted if it is inactive") shouldBe true
-      elementExistsByText(document, "a", "Back to application page") shouldBe true
-    }
-
-    "show Auto Delete success page when allowAutoDelete was updated to false" in new Setup {
-      val result: Appendable = autoDeleteSuccessView(application.copy(moreApplication = MoreApplication(false)), false)(request, LoggedInUser(None), messagesProvider)
-
-      val document: Document = Jsoup.parse(result.body)
-
-      result.contentType should include("text/html")
-      elementExistsByText(document, "h1", s"${application.name} will not be deleted if it is inactive") shouldBe true
-      elementExistsByText(document, "a", "Back to application page") shouldBe true
+      elementExistsByText(document, "h1", s"${application.name} has been set not to be deleted if it is inactive") shouldBe true
+      elementIdentifiedByIdContainsText(document, "dd", "reason-text", "Reason")
+      elementIdentifiedByIdContainsText(document, "dd", "reason-value", reason)
+      elementIdentifiedByIdContainsText(document, "dd", "date-text", "Date")
+      elementIdentifiedByIdContainsText(document, "dd", "date-value", reasonDate)
+      elementExistsByText(document, "h2", s"Do you want to change the application to be deleted if it is inactive?") shouldBe true
+      elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
+      elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
+      labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "auto-delete-no", "No, the application should not be deleted if inactive") shouldBe true
     }
   }
 }

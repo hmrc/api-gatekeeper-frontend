@@ -16,22 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
@@ -59,38 +58,40 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class ApplicationController @Inject() (
-    strideAuthorisationService: StrideAuthorisationService,
-    val applicationService: ApplicationService,
-    val forbiddenView: ForbiddenView,
-    apiDefinitionService: ApiDefinitionService,
-    developerService: DeveloperService,
-    termsOfUseService: TermsOfUseService,
-    mcc: MessagesControllerComponents,
-    applicationsView: ApplicationsView,
-    applicationView: ApplicationView,
-    manageAccessOverridesView: ManageAccessOverridesView,
-    manageScopesView: ManageScopesView,
-    ipAllowlistView: IpAllowlistView,
-    manageIpAllowlistView: ManageIpAllowlistView,
-    manageRateLimitView: ManageRateLimitView,
-    deleteApplicationView: DeleteApplicationView,
-    deleteApplicationSuccessView: DeleteApplicationSuccessView,
-    override val errorTemplate: ErrorTemplate,
-    blockApplicationView: BlockApplicationView,
-    blockApplicationSuccessView: BlockApplicationSuccessView,
-    unblockApplicationView: UnblockApplicationView,
-    unblockApplicationSuccessView: UnblockApplicationSuccessView,
-    reviewView: ReviewView,
-    approvedView: ApprovedView,
-    createApplicationView: CreateApplicationView,
-    createApplicationSuccessView: CreateApplicationSuccessView,
-    manageGrantLengthView: ManageGrantLengthView,
-    manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-    manageAutoDeleteView: ManageAutoDeleteView,
-    autoDeleteSuccessView: AutoDeleteSuccessView,
-    val apmService: ApmService,
-    val errorHandler: ErrorHandler,
-    val ldapAuthorisationService: LdapAuthorisationService
+                                        strideAuthorisationService: StrideAuthorisationService,
+                                        val applicationService: ApplicationService,
+                                        val forbiddenView: ForbiddenView,
+                                        apiDefinitionService: ApiDefinitionService,
+                                        developerService: DeveloperService,
+                                        termsOfUseService: TermsOfUseService,
+                                        mcc: MessagesControllerComponents,
+                                        applicationsView: ApplicationsView,
+                                        applicationView: ApplicationView,
+                                        manageAccessOverridesView: ManageAccessOverridesView,
+                                        manageScopesView: ManageScopesView,
+                                        ipAllowlistView: IpAllowlistView,
+                                        manageIpAllowlistView: ManageIpAllowlistView,
+                                        manageRateLimitView: ManageRateLimitView,
+                                        deleteApplicationView: DeleteApplicationView,
+                                        deleteApplicationSuccessView: DeleteApplicationSuccessView,
+                                        override val errorTemplate: ErrorTemplate,
+                                        blockApplicationView: BlockApplicationView,
+                                        blockApplicationSuccessView: BlockApplicationSuccessView,
+                                        unblockApplicationView: UnblockApplicationView,
+                                        unblockApplicationSuccessView: UnblockApplicationSuccessView,
+                                        reviewView: ReviewView,
+                                        approvedView: ApprovedView,
+                                        createApplicationView: CreateApplicationView,
+                                        createApplicationSuccessView: CreateApplicationSuccessView,
+                                        manageGrantLengthView: ManageGrantLengthView,
+                                        manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+                                        manageAutoDeleteTrueView: ManageAutoDeleteTrueView,
+                                        manageAutoDeleteFalseView: ManageAutoDeleteFalseView,
+                                        autoDeleteSuccessView: AutoDeleteSuccessView,
+                                        eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
+                                        val apmService: ApmService,
+                                        val errorHandler: ErrorHandler,
+                                        val ldapAuthorisationService: LdapAuthorisationService
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
@@ -461,11 +462,34 @@ class ApplicationController @Inject() (
 
   def manageAutoDelete(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+
+      def getView(event: Option[DisplayEvent]) = {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+        val reasonNotFound = "Reason not found"
+        event match {
+          case None => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
+          case Some(event) => Ok(manageAutoDeleteFalseView(app.application, event.metaData.mkString, event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter), AutoDeletePreviouslyFalseForm.form))
+        }
+      }
+
+      def handleAutoDeleteFalse(application: Application) = {
+        for {
+          event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
+            .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
+          view = getView(event)
+        } yield view
+      }
+
+      if (app.application.moreApplication.allowAutoDelete) {
+        Future.successful(Ok(manageAutoDeleteTrueView(app.application, AutoDeletePreviouslyTrueForm.form)))
+      } else {
+        handleAutoDeleteFalse(app.application)
+      }
+
     }
   }
 
-  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateAutoDeletePreviouslyTrue(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
         applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -473,19 +497,43 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
+      def handleValidForm(form: AutoDeletePreviouslyTrueForm): Future[Result] = {
         form.confirm match {
-          case "yes" => handleUpdateAutoDelete(true, "No reasons given")
-          case "no"  => handleUpdateAutoDelete(false, form.reason)
+          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
+          case "no"  => handleUpdateAutoDelete(allowAutoDelete = false, form.reason)
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteView(app.application, form)))
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyTrueForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteTrueView(app.application, form)))
       }
 
-      AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      AutoDeletePreviouslyTrueForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    }
+  }
+
+  def updateAutoDeletePreviouslyFalse(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    withApp(appId) { app =>
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
+          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+        }
+      }
+
+      def handleValidForm(form: AutoDeletePreviouslyFalseForm) = {
+        form.confirm match {
+          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
+          case "no" => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
+          case _ => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+        }
+      }
+
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyFalseForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteFalseView(app.application, form.data("reason"), form.data("reasonDate"), form)))
+      }
+
+      AutoDeletePreviouslyFalseForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 
