@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{LocalDateTime, ZoneOffset}
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
+
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
@@ -58,40 +60,40 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class ApplicationController @Inject() (
-                                        strideAuthorisationService: StrideAuthorisationService,
-                                        val applicationService: ApplicationService,
-                                        val forbiddenView: ForbiddenView,
-                                        apiDefinitionService: ApiDefinitionService,
-                                        developerService: DeveloperService,
-                                        termsOfUseService: TermsOfUseService,
-                                        mcc: MessagesControllerComponents,
-                                        applicationsView: ApplicationsView,
-                                        applicationView: ApplicationView,
-                                        manageAccessOverridesView: ManageAccessOverridesView,
-                                        manageScopesView: ManageScopesView,
-                                        ipAllowlistView: IpAllowlistView,
-                                        manageIpAllowlistView: ManageIpAllowlistView,
-                                        manageRateLimitView: ManageRateLimitView,
-                                        deleteApplicationView: DeleteApplicationView,
-                                        deleteApplicationSuccessView: DeleteApplicationSuccessView,
-                                        override val errorTemplate: ErrorTemplate,
-                                        blockApplicationView: BlockApplicationView,
-                                        blockApplicationSuccessView: BlockApplicationSuccessView,
-                                        unblockApplicationView: UnblockApplicationView,
-                                        unblockApplicationSuccessView: UnblockApplicationSuccessView,
-                                        reviewView: ReviewView,
-                                        approvedView: ApprovedView,
-                                        createApplicationView: CreateApplicationView,
-                                        createApplicationSuccessView: CreateApplicationSuccessView,
-                                        manageGrantLengthView: ManageGrantLengthView,
-                                        manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-                                        manageAutoDeleteTrueView: ManageAutoDeleteTrueView,
-                                        manageAutoDeleteFalseView: ManageAutoDeleteFalseView,
-                                        autoDeleteSuccessView: AutoDeleteSuccessView,
-                                        eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
-                                        val apmService: ApmService,
-                                        val errorHandler: ErrorHandler,
-                                        val ldapAuthorisationService: LdapAuthorisationService
+    strideAuthorisationService: StrideAuthorisationService,
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    apiDefinitionService: ApiDefinitionService,
+    developerService: DeveloperService,
+    termsOfUseService: TermsOfUseService,
+    mcc: MessagesControllerComponents,
+    applicationsView: ApplicationsView,
+    applicationView: ApplicationView,
+    manageAccessOverridesView: ManageAccessOverridesView,
+    manageScopesView: ManageScopesView,
+    ipAllowlistView: IpAllowlistView,
+    manageIpAllowlistView: ManageIpAllowlistView,
+    manageRateLimitView: ManageRateLimitView,
+    deleteApplicationView: DeleteApplicationView,
+    deleteApplicationSuccessView: DeleteApplicationSuccessView,
+    override val errorTemplate: ErrorTemplate,
+    blockApplicationView: BlockApplicationView,
+    blockApplicationSuccessView: BlockApplicationSuccessView,
+    unblockApplicationView: UnblockApplicationView,
+    unblockApplicationSuccessView: UnblockApplicationSuccessView,
+    reviewView: ReviewView,
+    approvedView: ApprovedView,
+    createApplicationView: CreateApplicationView,
+    createApplicationSuccessView: CreateApplicationSuccessView,
+    manageGrantLengthView: ManageGrantLengthView,
+    manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
+    manageAutoDeleteTrueView: ManageAutoDeleteTrueView,
+    manageAutoDeleteFalseView: ManageAutoDeleteFalseView,
+    autoDeleteSuccessView: AutoDeleteSuccessView,
+    eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
+    val apmService: ApmService,
+    val errorHandler: ErrorHandler,
+    val ldapAuthorisationService: LdapAuthorisationService
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
@@ -462,21 +464,25 @@ class ApplicationController @Inject() (
 
   def manageAutoDelete(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-
       def getView(event: Option[DisplayEvent]) = {
         val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
-        val reasonNotFound = "Reason not found"
+        val reasonNotFound    = "Reason not found"
         event match {
-          case None => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
-          case Some(event) => Ok(manageAutoDeleteFalseView(app.application, event.metaData.mkString, event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter), AutoDeletePreviouslyFalseForm.form))
+          case None        => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
+          case Some(event) => Ok(manageAutoDeleteFalseView(
+              app.application,
+              event.metaData.mkString,
+              event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
+              AutoDeletePreviouslyFalseForm.form
+            ))
         }
       }
 
       def handleAutoDeleteFalse(application: Application) = {
         for {
           event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
-            .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
-          view = getView(event)
+                     .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
+          view   = getView(event)
         } yield view
       }
 
@@ -524,8 +530,8 @@ class ApplicationController @Inject() (
       def handleValidForm(form: AutoDeletePreviouslyFalseForm) = {
         form.confirm match {
           case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
-          case "no" => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
-          case _ => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+          case "no"  => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 

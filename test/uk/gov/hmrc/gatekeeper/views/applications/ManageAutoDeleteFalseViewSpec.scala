@@ -16,10 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
+import java.time.{LocalDateTime, Period}
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
@@ -32,14 +36,12 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteFalseView
 
-import java.time.{LocalDateTime, Period}
-
 class ManageAutoDeleteFalseViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request                                    = FakeRequest().withCSRFToken
+    val request                                             = FakeRequest().withCSRFToken
     val manageAutoDeleteTrueView: ManageAutoDeleteFalseView = app.injector.instanceOf[ManageAutoDeleteFalseView]
-    val grantLength: Period                        = Period.ofDays(547)
+    val grantLength: Period                                 = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -62,7 +64,7 @@ class ManageAutoDeleteFalseViewSpec extends CommonViewSpec {
         moreApplication = MoreApplication(allowAutoDelete = false)
       )
 
-    val reason = "Do not delete this application"
+    val reason     = "Do not delete this application"
     val reasonDate = "26th Sept 2023"
   }
 

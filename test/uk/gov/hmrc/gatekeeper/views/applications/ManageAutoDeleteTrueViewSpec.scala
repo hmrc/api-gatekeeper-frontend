@@ -39,9 +39,9 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteTrueView
 class ManageAutoDeleteTrueViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request                                    = FakeRequest().withCSRFToken
+    val request                                            = FakeRequest().withCSRFToken
     val manageAutoDeleteTrueView: ManageAutoDeleteTrueView = app.injector.instanceOf[ManageAutoDeleteTrueView]
-    val grantLength: Period                        = Period.ofDays(547)
+    val grantLength: Period                                = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(

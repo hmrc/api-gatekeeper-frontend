@@ -21,16 +21,19 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
+
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
+
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
@@ -123,11 +126,17 @@ class ApplicationControllerSpec
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
-      val basicAppWithAutoDeleteFalse = basicApplication.copy(moreApplication = MoreApplication(allowAutoDelete = false))
+      val basicAppWithAutoDeleteFalse   = basicApplication.copy(moreApplication = MoreApplication(allowAutoDelete = false))
       val basicAppWithAutoDeleteFalseId = basicAppWithAutoDeleteFalse.id
-      val appWithAutoDeleteFalse = ApplicationWithHistory(basicAppWithAutoDeleteFalse, List.empty)
-      val events = List(DisplayEvent(basicAppWithAutoDeleteFalseId, Instant.now(), GatekeeperUser("gk user"), "APP_LIFECYCLE", "Application auto delete blocked", List("This app should not be deleted")))
-
+      val appWithAutoDeleteFalse        = ApplicationWithHistory(basicAppWithAutoDeleteFalse, List.empty)
+      val events                        = List(DisplayEvent(
+        basicAppWithAutoDeleteFalseId,
+        Instant.now(),
+        GatekeeperUser("gk user"),
+        "APP_LIFECYCLE",
+        "Application auto delete blocked",
+        List("This app should not be deleted")
+      ))
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
@@ -649,7 +658,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
     "updateAutoDeletePreviouslyTrue" should {
       val noReason = "No reasons given"
-      val reason = "Some reason"
+      val reason   = "Some reason"
 
       "call the service to set the allowAutoDelete flag to true when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
@@ -714,8 +723,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
     "updateAutoDeletePreviouslyFalse" should {
       val noReason = "No reasons given"
-      val reason = "This app should not be deleted"
-      val date = "12th Aug"
+      val reason   = "This app should not be deleted"
+      val date     = "12th Aug"
 
       "call the service to set the allowAutoDelete flag to true when a valid form is submitted for an admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
@@ -808,7 +817,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       }
     }
 
-      "manageIpAllowlistPage" should {
+    "manageIpAllowlistPage" should {
       "return the manage IP allowlist page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 

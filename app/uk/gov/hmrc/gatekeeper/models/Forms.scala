@@ -346,8 +346,8 @@ object Forms {
 
     val form: Form[AutoDeletePreviouslyFalseForm] = Form(
       mapping(
-        "confirm" -> text.verifying("auto.delete.option.required", _.nonEmpty),
-        "reason" -> text,
+        "confirm"    -> text.verifying("auto.delete.option.required", _.nonEmpty),
+        "reason"     -> text,
         "reasonDate" -> text
       )(AutoDeletePreviouslyFalseForm.apply)(AutoDeletePreviouslyFalseForm.unapply)
     )
@@ -360,7 +360,7 @@ object Forms {
     val form: Form[AutoDeletePreviouslyTrueForm] = Form(
       mapping(
         "confirm" -> text,
-        "reason" -> text
+        "reason"  -> text
       )(AutoDeletePreviouslyTrueForm.apply)(AutoDeletePreviouslyTrueForm.unapply)
         .verifying(
           "auto.delete.reason.required",
