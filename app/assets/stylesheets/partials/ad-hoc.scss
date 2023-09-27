@@ -140,6 +140,106 @@ th {
   }
 }
 
+.responsive-table {
+  width: 100%;
+}
+.responsive-table thead {
+  border: 0;
+  clip: rect(1px, 1px, 1px, 1px);
+  height: 1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+}
+@media (min-width: 48em) {
+  .responsive-table thead {
+    clip: auto;
+    display: table-header-group;
+    height: auto;
+    overflow: auto;
+    position: relative;
+    width: auto;
+  }
+}
+@media (min-width: 48em) {
+  .responsive-table tbody {
+    display: table-row-group;
+  }
+}
+.responsive-table tbody tr {
+  display: block;
+}
+.responsive-table tbody td {
+  display: flex;
+  justify-content: space-between;
+  vertical-align: middle;
+}
+
+@media (min-width: 48em) {
+  .responsive-table tbody td {
+    display: table-cell;
+  }
+}
+.responsive-table tbody .table-heading {
+  font-weight: 700;
+  text-align: left;
+  padding-right: 1em;
+  display: block;
+}
+@media (min-width: 48em) {
+  .responsive-table tbody .table-heading {
+    display: none;
+  }
+}
+.responsive-table tbody .govuk-table__header:last-child, .responsive-table tbody .govuk-table__cell:last-child {
+  padding-right: 20px;
+}
+.responsive-table tbody tr {
+  margin-bottom: 1em;
+}
+.responsive-table tbody tr:last-child {
+  margin-bottom: 0;
+}
+@media (min-width: 48em) {
+  .responsive-table tbody tr {
+    display: table-row;
+  }
+}
+.responsive-table tbody tr th {
+  text-align: right;
+}
+@media (min-width: 48em) {
+  .responsive-table tbody tr th {
+    text-align: left;
+  }
+}
+.responsive-table tbody tr td {
+  min-width: 1px;
+  text-align: right;
+  p{
+    margin-top: 0 ;
+  }
+}
+@media (min-width: 48em) {
+  .responsive-table tbody tr td {
+    text-align: left;
+  }
+}
+.responsive-table tbody tr td.numeric {
+  text-align: left;
+}
+@media (min-width: 48em) {
+  .responsive-table tbody tr td.numeric {
+    text-align: right;
+  }
+}
+@media (min-width: 48em) {
+  .responsive-table tbody .total {
+    display: block;
+  }
+}
+
 p.error-notification {
     margin-bottom: 0;
 }

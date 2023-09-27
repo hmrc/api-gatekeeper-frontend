@@ -32,13 +32,4 @@ trait ApiCataloguePublishStub {
           .withBody(Json.toJson(responseBody).toString())
       ))
   }
-
-  def primePublishAll(status: Int): Unit = {
-    stubFor(post(urlEqualTo(publishAllUrl))
-      .willReturn(
-        aResponse()
-          .withStatus(status)
-          .withBody(Json.toJson(ApiCataloguePublishConnector.PublishAllResponse("Happy Happy")).toString())
-      ))
-  }
 }

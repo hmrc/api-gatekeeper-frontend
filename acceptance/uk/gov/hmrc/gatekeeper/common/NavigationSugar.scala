@@ -25,7 +25,7 @@ import org.scalatest.Assertions
 import org.scalatest.matchers.should.Matchers
 import java.time.Duration
 
-trait NavigationSugar extends WebBrowser with Eventually  with Assertions with Matchers {
+trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 
   implicit override val patienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)), interval = scaled(Span(100, Millis)))
 
@@ -92,7 +92,7 @@ trait NavigationSugar extends WebBrowser with Eventually  with Assertions with M
   }
 
   def verifyText(attributeName: String, expected: String, index: Int = 0)(implicit webDriver: WebDriver) = {
-    webDriver.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText shouldBe expected
+    webDriver.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText should include(expected)
   }
 
   def verifyCountOfElementsByAttribute(attributeName: String, expected: Int)(implicit webDriver: WebDriver) = {

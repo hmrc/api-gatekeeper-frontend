@@ -31,15 +31,6 @@ trait ApiCataloguePublishConnectorMockProvider {
 
   object ApiCataloguePublishConnectorMock {
 
-    object PublishAll {
-
-      def returnRight() = when(mockApiCataloguePublishConnector.publishAll()(*)).thenReturn(successful(Right(PublishAllResponse(message =
-        "Publish all called and is working in the background, check application logs for progress"
-      ))))
-
-      def returnLeft() = when(mockApiCataloguePublishConnector.publishAll()(*)).thenReturn(successful(Left(UpstreamErrorResponse("error", 500, 500, Map.empty))))
-    }
-
     object PublishByServiceName {
 
       def returnRight() = when(mockApiCataloguePublishConnector.publishByServiceName(*)(*)).thenReturn(successful(Right(PublishResponse(

@@ -14,17 +14,30 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.views.helper.application._
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
-@main(title = s"${applicationConfig.title} - Application Events") {
+@main(
+  title = s"${applicationConfig.title} - Application Events",
+  breadcrumbs = Seq(
+    Crumb(
+      s"${queryModel.applicationName}",
+      s"${routes.ApplicationController.applicationPage(queryModel.applicationId)}",
+      Some("data-breadcrumb-view-application")
+    ),
+    Crumb(
+      "Applications",
+      s"${routes.ApplicationController.applicationsPage(None)}",
+      Some("data-breadcrumb-view-applications")
+    )
+  )) {
 
   <span class="govuk-caption-l">@{queryModel.applicationName}</span>
   <h1 class="govuk-heading-l">Application changes</h1>
@@ -77,12 +90,13 @@
   @if(queryModel.events.isEmpty) {
     <p class="govuk-body">There are no matching application changes</p>
   } else {
+    <p class="govuk-body">Showing <span class="govuk-!-font-weight-bold">@queryModel.events.length</span> application changes</p>
+
     <table class="govuk-table responsive-table" data-module="moj-sortable-table">
       <thead class="govuk-table__head">
         <tr role="row" class="govuk-table__row">
           <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Date and time</th>
-          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="ascending">Type of change</th>
-          <th scope="col" class="govuk-table__header govuk-!-width-one-quarter word-break-all" aria-sort="none">What changed</th>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-half" aria-sort="ascending">What changed</th>
           <th scope="col" class="govuk-table__header govuk-!-width-one-quarter" aria-sort="none">Changes made by</th>
         </tr>
       </thead>
@@ -91,10 +105,15 @@
 
         @for(event <- queryModel.events) {
           <tr role="row" class="govuk-table__row">
-            <td role="cell" class="govuk-table__cell" data-event-time>@{event.eventDateTime}</td>
-            <td role="cell" class="govuk-table__cell" data-event-tag>@{event.eventTag}</td>
-            <td role="cell" class="govuk-table__cell word-break-all" data-event-details>@Html({event.eventDetails.mkString("</br>")})</td>
-            <td role="cell" class="govuk-table__cell" data-event-actor>@{event.actor}</td>
+            <td role="cell" class="govuk-table__cell" data-event-time><span class="table-heading" aria-hidden="true">Date and time</span>@{event.eventDateTime}</td>
+            <td role="cell" class="govuk-table__cell" data-event-tag>
+              <span class="table-heading" aria-hidden="true">What changed</span>
+              <p>
+                <span class="govuk-!-font-weight-bold govuk-!-display-block">@{event.eventTag}</span>
+                <span class="word-break-all">@Html({event.eventDetails.mkString("</br>")})</span>
+              </p>
+            </td>
+            <td role="cell" class="govuk-table__cell" data-event-actor><span class="table-heading" aria-hidden="true">Changes made by</span>@{event.actor}</td>
           </tr>
         }
       </tbody>
