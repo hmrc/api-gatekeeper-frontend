@@ -340,40 +340,40 @@ object Forms {
     )
   }
 
-  final case class AutoDeletePreviouslyFalseForm(confirm: String = "", reason: String = "", reasonDate: String = "")
+  final case class AutoDeletePreviouslyDisabledForm(confirm: String = "", reason: String = "", reasonDate: String = "")
 
-  object AutoDeletePreviouslyFalseForm {
+  object AutoDeletePreviouslyDisabledForm {
 
-    val form: Form[AutoDeletePreviouslyFalseForm] = Form(
+    val form: Form[AutoDeletePreviouslyDisabledForm] = Form(
       mapping(
         "confirm"    -> text,
         "reason"     -> text,
         "reasonDate" -> text
-      )(AutoDeletePreviouslyFalseForm.apply)(AutoDeletePreviouslyFalseForm.unapply)
+      )(AutoDeletePreviouslyDisabledForm.apply)(AutoDeletePreviouslyDisabledForm.unapply)
         .verifying(
           "auto.delete.option.required",
           fields =>
             fields match {
-              case data: AutoDeletePreviouslyFalseForm => data.confirm.nonEmpty
+              case data: AutoDeletePreviouslyDisabledForm => data.confirm.nonEmpty
             }
         )
     )
   }
 
-  final case class AutoDeletePreviouslyTrueForm(confirm: String = "", reason: String)
+  final case class AutoDeletePreviouslyEnabledForm(confirm: String = "", reason: String)
 
-  object AutoDeletePreviouslyTrueForm {
+  object AutoDeletePreviouslyEnabledForm {
 
-    val form: Form[AutoDeletePreviouslyTrueForm] = Form(
+    val form: Form[AutoDeletePreviouslyEnabledForm] = Form(
       mapping(
         "confirm" -> text,
         "reason"  -> text
-      )(AutoDeletePreviouslyTrueForm.apply)(AutoDeletePreviouslyTrueForm.unapply)
+      )(AutoDeletePreviouslyEnabledForm.apply)(AutoDeletePreviouslyEnabledForm.unapply)
         .verifying(
           "auto.delete.reason.required",
           fields =>
             fields match {
-              case data: AutoDeletePreviouslyTrueForm =>
+              case data: AutoDeletePreviouslyEnabledForm =>
                 if (data.confirm.equalsIgnoreCase("no") && data.reason.isEmpty) false else true
             }
         )

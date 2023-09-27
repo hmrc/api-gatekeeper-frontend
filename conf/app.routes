@@ -58,8 +58,8 @@ GET         /applications/:id/grant-length                                    uk
 POST        /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateGrantLength(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
 GET         /applications/:id/auto-delete                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageAutoDelete(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
-POST        /applications/:id/auto-delete/previously-true                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAutoDeletePreviouslyTrue(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
-POST        /applications/:id/auto-delete/previously-false                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAutoDeletePreviouslyFalse(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+POST        /applications/:id/auto-delete/previously-enabled                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAutoDeletePreviouslyEnabled(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
+POST        /applications/:id/auto-delete/previously-disabled                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAutoDeletePreviouslyDisabled(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)
 
 
 GET         /applications/:id/team-members                                    uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.manageTeamMembers(id: uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId)

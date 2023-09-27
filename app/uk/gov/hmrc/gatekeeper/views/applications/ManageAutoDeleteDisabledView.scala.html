@@ -19,12 +19,12 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyFalseForm
+@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(application: ApplicationResponse, reason: String, reasonDate: String, form: Form[AutoDeletePreviouslyFalseForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, reason: String, reasonDate: String, form: Form[AutoDeletePreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Do you want your application to be deleted?",
@@ -66,7 +66,7 @@
         </div>
     </dl>
 
-    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyFalse(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyDisabled(application.id)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)

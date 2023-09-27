@@ -28,20 +28,20 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyFalseForm
+import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteFalseView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteDisabledView
 
-class ManageAutoDeleteFalseViewSpec extends CommonViewSpec {
+class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request                                             = FakeRequest().withCSRFToken
-    val manageAutoDeleteTrueView: ManageAutoDeleteFalseView = app.injector.instanceOf[ManageAutoDeleteFalseView]
-    val grantLength: Period                                 = Period.ofDays(547)
+    val request                                                    = FakeRequest().withCSRFToken
+    val manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView = app.injector.instanceOf[ManageAutoDeleteDisabledView]
+    val grantLength: Period                                        = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -68,9 +68,9 @@ class ManageAutoDeleteFalseViewSpec extends CommonViewSpec {
     val reasonDate = "26th Sept 2023"
   }
 
-  "Auto Delete view" should {
-    "show reason, date and radio buttons when allowAutoDelete is false for application" in new Setup {
-      val result: Appendable = manageAutoDeleteTrueView(application, reason, reasonDate, AutoDeletePreviouslyFalseForm.form)(request, LoggedInUser(None), messagesProvider)
+  "Auto Delete Disabled view" should {
+    "show reason, date and radio buttons when auto deletion is disabled for application" in new Setup {
+      val result: Appendable = manageAutoDeleteDisabledView(application, reason, reasonDate, AutoDeletePreviouslyDisabledForm.form)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

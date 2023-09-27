@@ -87,8 +87,8 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-    manageAutoDeleteTrueView: ManageAutoDeleteTrueView,
-    manageAutoDeleteFalseView: ManageAutoDeleteFalseView,
+    manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView,
+    manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView,
     autoDeleteSuccessView: AutoDeleteSuccessView,
     eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
     val apmService: ApmService,
@@ -469,11 +469,11 @@ class ApplicationController @Inject() (
         val reasonNotFound    = "Reason not found"
         event match {
           case None        => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
-          case Some(event) => Ok(manageAutoDeleteFalseView(
+          case Some(event) => Ok(manageAutoDeleteDisabledView(
               app.application,
               event.metaData.mkString,
               event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
-              AutoDeletePreviouslyFalseForm.form
+              AutoDeletePreviouslyDisabledForm.form
             ))
         }
       }
@@ -487,7 +487,7 @@ class ApplicationController @Inject() (
       }
 
       if (app.application.moreApplication.allowAutoDelete) {
-        Future.successful(Ok(manageAutoDeleteTrueView(app.application, AutoDeletePreviouslyTrueForm.form)))
+        Future.successful(Ok(manageAutoDeleteEnabledView(app.application, AutoDeletePreviouslyEnabledForm.form)))
       } else {
         handleAutoDeleteFalse(app.application)
       }
@@ -495,7 +495,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def updateAutoDeletePreviouslyTrue(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateAutoDeletePreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
         applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -503,7 +503,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleValidForm(form: AutoDeletePreviouslyTrueForm): Future[Result] = {
+      def handleValidForm(form: AutoDeletePreviouslyEnabledForm): Future[Result] = {
         form.confirm match {
           case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
           case "no"  => handleUpdateAutoDelete(allowAutoDelete = false, form.reason)
@@ -511,15 +511,15 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeletePreviouslyTrueForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteTrueView(app.application, form)))
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyEnabledForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteEnabledView(app.application, form)))
       }
 
-      AutoDeletePreviouslyTrueForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      AutoDeletePreviouslyEnabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 
-  def updateAutoDeletePreviouslyFalse(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateAutoDeletePreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
         applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -527,7 +527,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleValidForm(form: AutoDeletePreviouslyFalseForm) = {
+      def handleValidForm(form: AutoDeletePreviouslyDisabledForm) = {
         form.confirm match {
           case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
           case "no"  => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
@@ -535,11 +535,11 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeletePreviouslyFalseForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteFalseView(app.application, form.data("reason"), form.data("reasonDate"), form)))
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyDisabledForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteDisabledView(app.application, form.data("reason"), form.data("reasonDate"), form)))
       }
 
-      AutoDeletePreviouslyFalseForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      AutoDeletePreviouslyDisabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 

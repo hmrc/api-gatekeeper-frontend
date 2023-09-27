@@ -63,7 +63,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
   }
 
   "Auto Delete Success view" should {
-    "show Auto Delete success page when allowAutoDelete was updated to true" in new Setup {
+    "show Auto Delete success page when auto deletion was enabled for the application" in new Setup {
       val result: Appendable = autoDeleteSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
@@ -73,7 +73,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
       elementExistsByText(document, "a", "Back to application page") shouldBe true
     }
 
-    "show Auto Delete success page when allowAutoDelete was updated to false" in new Setup {
+    "show Auto Delete success page when auto deletion was disabled for the application" in new Setup {
       val result: Appendable = autoDeleteSuccessView(application.copy(moreApplication = MoreApplication(false)), false)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)

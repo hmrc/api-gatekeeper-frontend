@@ -19,12 +19,12 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyTrueForm
+@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyEnabledForm
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(application: ApplicationResponse, form: Form[AutoDeletePreviouslyTrueForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[AutoDeletePreviouslyEnabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Do you want your application to be deleted?",
@@ -50,7 +50,7 @@
         Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.
     </p>
 
-    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyTrue(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyEnabled(application.id)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
 
