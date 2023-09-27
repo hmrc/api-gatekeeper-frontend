@@ -39,11 +39,13 @@
     )
   )
 ) {
-  <div class="govuk-panel govuk-panel--confirmation">
-    <h1 class="govuk-panel__title">
-        @{application.name} will @if(!allowAutoDelete){not} be deleted if it is inactive
-    </h1>
-  </div>
+    <div class="govuk-grid-column-three-quarters">
+      <div class="govuk-panel govuk-panel--confirmation">
+        <h1 class="govuk-panel__title">
+            @{application.name} will @if(!allowAutoDelete){not} be deleted if it is inactive
+        </h1>
+      </div>
 
-  <a id="back-button" class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Back to application page</a>
+      <a id="back-button" class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Back to application page</a>
+  </div>
 }

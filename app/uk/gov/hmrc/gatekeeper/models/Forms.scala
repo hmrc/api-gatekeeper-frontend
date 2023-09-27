@@ -346,10 +346,17 @@ object Forms {
 
     val form: Form[AutoDeletePreviouslyFalseForm] = Form(
       mapping(
-        "confirm"    -> text.verifying("auto.delete.option.required", _.nonEmpty),
+        "confirm"    -> text,
         "reason"     -> text,
         "reasonDate" -> text
       )(AutoDeletePreviouslyFalseForm.apply)(AutoDeletePreviouslyFalseForm.unapply)
+        .verifying(
+          "auto.delete.option.required",
+          fields =>
+            fields match {
+              case data: AutoDeletePreviouslyFalseForm => data.confirm.nonEmpty
+            }
+        )
     )
   }
 

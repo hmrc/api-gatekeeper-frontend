@@ -41,9 +41,11 @@
         )
     )
 ) {
+    <div class="govuk-grid-column-two-thirds">
     @errorSummary2(form)
 
     <h1 class="govuk-heading-l">@{application.name} has been set not to be deleted if it is inactive</h1>
+        <br>
 
     <dl class="govuk-summary-list govuk-!-margin-bottom-9">
         <div class="govuk-summary-list__row">
@@ -66,7 +68,7 @@
 
     @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyFalse(application.id)) {
         @helper.CSRF.formField
-        <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
+        <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
 
             <fieldset class="govuk-fieldset" aria-describedby="auto-delete-hint">
@@ -100,5 +102,6 @@
             <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
             <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
         </div>
+    </div>
     }
 }
