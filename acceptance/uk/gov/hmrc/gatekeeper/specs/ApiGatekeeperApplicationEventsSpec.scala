@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding

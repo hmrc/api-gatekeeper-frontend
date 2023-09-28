@@ -27,16 +27,16 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, _}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class ApplicationConnectorSpec
     extends AsyncHmrcSpec
@@ -65,7 +65,7 @@ class ApplicationConnectorSpec
     )
   }
 
-  val apiVersion1   = ApiVersion.random
+  val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
   val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
@@ -278,9 +278,9 @@ class ApplicationConnectorSpec
         "My App",
         Some(LocalDateTime.parse("2002-02-03T12:01:02")),
         Set(
-          ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-          ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-          ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+          ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
         )
       ))
       val payload      = Json.toJson(applications).toString

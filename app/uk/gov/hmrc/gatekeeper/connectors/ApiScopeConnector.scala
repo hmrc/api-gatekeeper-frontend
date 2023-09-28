@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 
 abstract class ApiScopeConnector(implicit ec: ExecutionContext) {

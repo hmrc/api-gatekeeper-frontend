@@ -27,7 +27,6 @@
 @this(main: MainView, govukPagination: GovukPagination, applicationConfig: AppConfig)
 
 @(users: Seq[RegisteredUser],
-        composeEmailRecipients: JsValue,
         emails: String,
         offset: Int,
         limit: Int,
@@ -53,7 +52,7 @@
     ) {
         <div class="content__body full-width">
             <div><h1 class="govuk-heading-l govuk-!-margin-bottom-5" id="pageTitle">Email all users</h1></div>
-            @recipientTableNew(users, composeEmailRecipients, emails, totalCount, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+            @recipientTableNew(users, emails, totalCount, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
 
             @{
                 val pages = (currentPage.max(1) to lastPage.min(lastPage - 1)).map { page =>

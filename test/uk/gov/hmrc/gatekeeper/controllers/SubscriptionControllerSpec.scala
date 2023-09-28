@@ -24,8 +24,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -107,12 +106,12 @@ class SubscriptionControllerSpec
 
         SubscriptionsServiceMock.SubscribeToApi.succeeds()
 
-        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
+        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        SubscriptionsServiceMock.SubscribeToApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersion("1.0")), gatekeeperUser)
+        SubscriptionsServiceMock.SubscribeToApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersionNbr("1.0")), gatekeeperUser)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -120,7 +119,7 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
+        val result = addToken(underTest.subscribeToApi(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 
@@ -137,12 +136,12 @@ class SubscriptionControllerSpec
 
         SubscriptionsServiceMock.UnsubscribeFromApi.succeeds()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion("1.0")))(aSuperUserLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
 
-        SubscriptionsServiceMock.UnsubscribeFromApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersion("1.0")), gatekeeperUser)
+        SubscriptionsServiceMock.UnsubscribeFromApi.verifyCalledWith(basicApplication, ApiIdentifier(apiContext, ApiVersionNbr("1.0")), gatekeeperUser)
       }
 
       "return forbidden when submitted for a non-super user" in new Setup {
@@ -150,7 +149,7 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersion.random))(aLoggedInRequest)
+        val result = addToken(underTest.unsubscribeFromApi(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
 

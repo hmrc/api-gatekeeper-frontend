@@ -17,9 +17,8 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiStatus._
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
 
 trait ApiBuilder {
 
@@ -31,9 +30,10 @@ trait ApiBuilder {
     def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
     def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
-    def withAccess(newAccessType: APIAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
-    def publicAccess                             = this.withAccess(APIAccessType.PUBLIC)
-    def privateAccess                            = this.withAccess(APIAccessType.PRIVATE)
+    // def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
+    def withAccess(newAccess: ApiAccess) = versionData.copy(access = newAccess)
+    def publicAccess                             = this.withAccess(ApiAccess.PUBLIC)
+    def privateAccess                            = this.withAccess(ApiAccess.Private(false))
   }
 
   implicit class ApiDataExtension(apiData: ApiData) {
@@ -41,19 +41,19 @@ trait ApiBuilder {
 
     def withName(newName: String) = apiData.copy(name = newName)
 
-    def withVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(version -> data))
+    def withVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(versionNbr -> data))
 
-    def addVersion(version: ApiVersion, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (version -> data))
+    def addVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (versionNbr -> data))
   }
 
-  val DefaultVersionData = VersionData(status = STABLE, access = ApiAccess(`type` = APIAccessType.PUBLIC))
+  val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess.PUBLIC)
 
   val DefaultServiceName = "A-Service"
   val DefaultName        = "API Name"
 
-  val VersionOne   = ApiVersion("1.0")
-  val VersionTwo   = ApiVersion("2.0")
-  val VersionThree = ApiVersion("3.0")
+  val VersionOne   = ApiVersionNbr("1.0")
+  val VersionTwo   = ApiVersionNbr("2.0")
+  val VersionThree = ApiVersionNbr("3.0")
 
   val DefaultApiData = ApiData(
     serviceName = DefaultServiceName,

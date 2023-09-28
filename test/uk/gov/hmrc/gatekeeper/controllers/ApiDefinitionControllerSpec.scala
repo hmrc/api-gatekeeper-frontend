@@ -26,10 +26,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
-import uk.gov.hmrc.gatekeeper.models.Environment.PRODUCTION
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -61,10 +62,10 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val someContext = ApiContext.random
 
       val apiVersions   = List(
-        ApiVersionDefinition(ApiVersion("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
-        ApiVersionDefinition(ApiVersion("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE)
+        ApiVersionGK(ApiVersionNbr("1.0"), ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
+        ApiVersionGK(ApiVersionNbr("2.0"), ApiVersionSource.OAS, ApiStatus.STABLE)
       )
-      val apiDefinition = ApiDefinition("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, None)
+      val apiDefinition = ApiDefinitionGK("aServiceName", "", name = "MyApi", "", someContext, apiVersions, None, Set(ApiCategory.OTHER))
 
       Apis.returns((apiDefinition, PRODUCTION))
 

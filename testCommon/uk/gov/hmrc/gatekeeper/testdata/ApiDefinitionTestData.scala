@@ -26,13 +26,13 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Employers PAYE",
        |   "description": "EMPLOYERS PAYE API.",
-       |    "deployedTo": "PRODUCTION",
+       |   "deployedTo": "PRODUCTION",
        |   "context": "employers-paye",
        |   "versions": [
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
@@ -48,7 +48,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |  {
        |   "serviceName": "payeCreditsAPI",
@@ -77,7 +78,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |  {
        |   "serviceName": "individualBenefitsAPI",
@@ -90,7 +92,7 @@ trait ApiDefinitionTestData {
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
@@ -106,7 +108,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | },
        |   {
        |   "serviceName": "selfAssessmentAPI",
@@ -119,7 +122,7 @@ trait ApiDefinitionTestData {
        |     {
        |       "version": "1.0",
        |       "versionSource": "UNKNOWN",
-       |       "status": "PUBLISHED",
+       |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
        |       },
@@ -135,7 +138,8 @@ trait ApiDefinitionTestData {
        |       ]
        |     }
        |   ],
-       |   "requiresTrust": false
+       |   "requiresTrust": false,
+       |   "categories": [ "OTHER"]
        | }
        |]
   """.stripMargin

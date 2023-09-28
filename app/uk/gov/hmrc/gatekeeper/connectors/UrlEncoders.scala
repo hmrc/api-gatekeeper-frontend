@@ -18,8 +18,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.net.URLEncoder.encode
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiVersion}
-import uk.gov.hmrc.gatekeeper.models.ClientId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait UrlEncoders {
 
@@ -27,8 +26,8 @@ trait UrlEncoders {
     def urlEncode: String = encode(context.value, "UTF-8")
   }
 
-  implicit class UrlEncodeVersion(version: ApiVersion) {
-    def urlEncode: String = encode(version.value, "UTF-8")
+  implicit class UrlEncodeVersion(versionNbr: ApiVersionNbr) {
+    def urlEncode: String = encode(versionNbr.value, "UTF-8")
   }
 
   implicit class UrlEncodeClientId(clientId: ClientId) {

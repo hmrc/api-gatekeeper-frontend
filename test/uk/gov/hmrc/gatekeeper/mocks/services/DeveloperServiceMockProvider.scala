@@ -23,10 +23,11 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait DeveloperServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar with UserIdTracker =>
@@ -160,7 +161,7 @@ trait DeveloperServiceMockProvider {
     object FetchDevelopersByAPICategoryEmailPreferences {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[APICategory])(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[ApiCategory])(*)).thenReturn(successful(users.toList))
     }
 
     def userExists(email: LaxEmailAddress): Unit = {

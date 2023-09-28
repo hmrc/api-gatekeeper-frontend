@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.models.subscriptions
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiVersion
-import uk.gov.hmrc.gatekeeper.models.ApiAccess
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 case class VersionData(status: ApiStatus, access: ApiAccess)
 
@@ -26,5 +25,5 @@ case class ApiData(
     serviceName: String,
     name: String,
     isTestSupport: Boolean,
-    versions: Map[ApiVersion, VersionData]
+    versions: Map[ApiVersionNbr, VersionData]
   )

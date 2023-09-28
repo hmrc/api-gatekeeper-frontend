@@ -17,10 +17,10 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.http.Status
 import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait DeveloperServiceStub {
   val emailPreferencesUrl          = "/developers/email-preferences"
@@ -69,8 +69,8 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: APICategoryDetails): Unit = {
-    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + "?topic=" + topic.toString + "&regime=" + category.category
+  def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: ApiCategory): Unit = {
+    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + "?topic=" + topic.toString + "&regime=" + category
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
         aResponse()
@@ -79,11 +79,11 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
-    val categories: Seq[APICategory] = selectedApis.map(_.categories.getOrElse(Seq.empty)).reduce(_ ++ _).distinct
+  def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinitionGK], topic: TopicOptionChoice): Unit = {
+    val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _)
 
     val topicParam    = s"topic=${topic.toString}"
-    val regimeParams  = categories.map(category => s"&regime=${category.value}").mkString
+    val regimeParams  = categories.map(category => s"&regime=${category}").mkString
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
     val emailpreferencesByTopicAndCategoryUrl = s"$emailPreferencesUrl?$topicParam$regimeParams$serviceParams"
@@ -121,7 +121,7 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Seq[String], offset: Int, limit: Int): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Set[ApiCategory], offset: Int, limit: Int): Unit = {
     val regimeParam      = s"regime=${regimes.head}"
     val paginationParams = s"offset=$offset&limit=$limit"
 

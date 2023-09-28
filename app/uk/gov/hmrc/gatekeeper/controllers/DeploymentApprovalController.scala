@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 class DeploymentApprovalController @Inject() (
     val forbiddenView: ForbiddenView,
@@ -65,7 +66,7 @@ class DeploymentApprovalController @Inject() (
     def errors(errors: Form[HandleApprovalForm]) =
       fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
 
-    def doCalls(serviceName: String, environment: Environment.Value): Future[Unit] = {
+    def doCalls(serviceName: String, environment: Environment): Future[Unit] = {
       deploymentApprovalService.approveService(serviceName, environment)
         .flatMap(_ =>
           environment match {
@@ -78,7 +79,7 @@ class DeploymentApprovalController @Inject() (
     def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
       validForm.approval_confirmation match {
         case "Yes" =>
-          doCalls(serviceName, Environment.withName(environment)) map {
+          doCalls(serviceName, Environment.unsafeApply(environment)) map {
             _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
           }
         case _     => throw new UnsupportedOperationException("Can't Reject Service Approval")
@@ -89,6 +90,6 @@ class DeploymentApprovalController @Inject() (
   }
 
   private def fetchApiDefinitionSummary(serviceName: String, environment: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    deploymentApprovalService.fetchApprovalSummary(serviceName, Environment.withName(environment))
+    deploymentApprovalService.fetchApprovalSummary(serviceName, Environment.unsafeApply(environment))
   }
 }

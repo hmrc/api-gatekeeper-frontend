@@ -25,12 +25,10 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
@@ -61,7 +59,7 @@ case class ApplicationWithHistory(application: ApplicationResponse, history: Lis
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
 object ApiDefinitions {
-  type Alias = Map[ApiContext, Map[ApiVersion, Map[FieldName, SubscriptionFieldDefinition]]]
+  type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
 case class ApplicationWithSubscriptionDataAndFieldDefinitions(
@@ -146,6 +144,7 @@ sealed trait ResendVerificationSuccessful
 
 case object ResendVerificationSuccessful extends ResendVerificationSuccessful
 
+// TODO - Remove Enumeration
 object UpliftAction extends Enumeration {
   type UpliftAction = Value
   val APPROVE, REJECT = Value
@@ -359,7 +358,7 @@ object DeleteDeveloperRequest {
 }
 
 final case class CreatePrivOrROPCAppForm(
-    environment: Environment = SANDBOX,
+    environment: Environment = Environment.SANDBOX,
     accessType: Option[String] = None,
     applicationName: String = "",
     applicationDescription: String = "",

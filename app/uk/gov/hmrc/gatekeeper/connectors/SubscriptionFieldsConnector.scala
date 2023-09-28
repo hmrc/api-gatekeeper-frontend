@@ -25,9 +25,8 @@ import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiContext, ApiIdentifier, ApiVersion}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, _}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.{DefinitionsByApiVersion, SubscriptionFieldsConnector}
@@ -54,11 +53,11 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     internalFetchFieldValues(() => getDefinitions())(clientId, apiIdentifier)
   }
 
-  def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
+  def fetchFieldValues(clientId: ClientId, apiContext: ApiContext, versionNbr: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldValue]] = {
 
-    def getDefinitions() = fetchFieldDefinitions(apiContext, version)
+    def getDefinitions() = fetchFieldDefinitions(apiContext, versionNbr)
 
-    internalFetchFieldValues(() => getDefinitions())(clientId, ApiIdentifier(apiContext, version))
+    internalFetchFieldValues(() => getDefinitions())(clientId, ApiIdentifier(apiContext, versionNbr))
   }
 
   def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
@@ -82,7 +81,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
       if (definitions.isEmpty) {
         Future.successful(None)
       } else {
-        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.version)
+        fetchApplicationApiValues(clientId, apiIdentifier.context, apiIdentifier.versionNbr)
       }
     }
 
@@ -93,7 +92,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     } yield joinFieldValuesToDefinitions(definitions, fieldValues)
   }
 
-  def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldDefinition]] = {
+  def fetchFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[SubscriptionFieldDefinition]] = {
     val url = urlSubscriptionFieldDefinition(apiContext, apiVersion)
     http.GET[Option[ApiFieldDefinitions]](url).map(_.fold(List.empty[SubscriptionFieldDefinition])(_.fieldDefinitions.map(toDomain)))
   }
@@ -107,7 +106,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
   def saveFieldValues(
       clientId: ClientId,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
@@ -125,7 +124,7 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     })
   }
 
-  def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
+  def deleteFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[FieldsDeleteResult] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     http.DELETE[HttpResponse](url).map(_.status match {
       case NO_CONTENT | NOT_FOUND => FieldsDeleteSuccessResult
@@ -135,24 +134,24 @@ abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext
     }
   }
 
-  private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion)(implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
+  private def fetchApplicationApiValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[Option[ApplicationApiFieldValues]] = {
     val url = urlSubscriptionFieldValues(clientId, apiContext, apiVersion)
     http.GET[Option[ApplicationApiFieldValues]](url)
   }
 
-  private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
+  private def urlSubscriptionFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     SubscriptionFieldsConnector.urlSubscriptionFieldValues(serviceBaseUrl)(clientId, apiContext, apiVersion)
 
-  private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: ApiVersion) =
+  private def urlSubscriptionFieldDefinition(apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     SubscriptionFieldsConnector.urlSubscriptionFieldDefinition(serviceBaseUrl)(apiContext, apiVersion)
 }
 
 object SubscriptionFieldsConnector extends UrlEncoders {
 
-  def urlSubscriptionFieldValues(baseUrl: String)(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion) =
+  def urlSubscriptionFieldValues(baseUrl: String)(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     s"$baseUrl/field/application/${clientId.urlEncode}/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
-  def urlSubscriptionFieldDefinition(baseUrl: String)(apiContext: ApiContext, apiVersion: ApiVersion) =
+  def urlSubscriptionFieldDefinition(baseUrl: String)(apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     s"$baseUrl/definition/context/${apiContext.urlEncode}/version/${apiVersion.urlEncode}"
 
   def toDomain(f: FieldDefinition): SubscriptionFieldDefinition = {
@@ -174,7 +173,7 @@ object SubscriptionFieldsConnector extends UrlEncoders {
 
   private[connectors] case class FieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
-  private[connectors] case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersion, fieldDefinitions: List[FieldDefinition])
+  private[connectors] case class ApiFieldDefinitions(apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldDefinitions: List[FieldDefinition])
 
   private[connectors] case class AllApiFieldDefinitions(apis: List[ApiFieldDefinitions])
 

@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.models._
 
 abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
@@ -40,19 +40,14 @@ abstract class ApiDefinitionConnector(implicit ec: ExecutionContext) {
       case e: UpstreamErrorResponse if (is5xx(e.statusCode)) => throw ex
     }
 
-  def fetchPublic()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition")
+  def fetchPublic()(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
+    http.GET[List[ApiDefinitionGK]](s"$serviceBaseUrl/api-definition")
       .recover(for5xx(new FetchApiDefinitionsFailed))
   }
 
-  def fetchPrivate()(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[List[ApiDefinition]](s"$serviceBaseUrl/api-definition?type=private")
+  def fetchPrivate()(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
+    http.GET[List[ApiDefinitionGK]](s"$serviceBaseUrl/api-definition?type=private")
       .recover(for5xx(new FetchApiDefinitionsFailed))
-  }
-
-  def fetchAPICategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
-    http.GET[List[APICategoryDetails]](s"$serviceBaseUrl/api-categories")
-      .recover(for5xx(new FetchApiCategoriesFailed))
   }
 }
 

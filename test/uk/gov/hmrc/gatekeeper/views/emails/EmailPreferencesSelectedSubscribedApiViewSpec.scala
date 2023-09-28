@@ -25,25 +25,24 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSelectedSubscribedApiView
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]                                = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                                       = new JsArray()
     val emailPreferencesSelectedSubscribedApiView: EmailPreferencesSelectedSubscribedApiView = app.injector.instanceOf[EmailPreferencesSelectedSubscribedApiView]
     val user1                                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users                                                                                = Seq(user1, user2)
-    val api1                                                                                 = simpleAPI(serviceName = "serviceName1", displayName = "displayName1", List.empty, ApiType.REST_API, Some(PUBLIC))
-    val api2                                                                                 = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", List.empty, ApiType.XML_API, Some(PUBLIC))
+    val api1                                                                                 = simpleAPI(serviceName = "serviceName1", displayName = "displayName1", Set.empty, ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+    val api2                                                                                 = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", Set.empty, ApiType.XML_API, Some(ApiAccessType.PUBLIC))
     val apis                                                                                 = List(api1, api2)
 
   }
@@ -54,7 +53,6 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedSubscribedApiView.render(
           users,
-          emailRecipientsAsJson,
           "",
           apis,
           0,
@@ -72,7 +70,6 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedSubscribedApiView.render(
           users,
-          emailRecipientsAsJson,
           "",
           apis,
           4,
@@ -90,7 +87,6 @@ class EmailPreferencesSelectedSubscribedApiViewSpec extends CommonViewSpec with 
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedSubscribedApiView.render(
           users,
-          emailRecipientsAsJson,
           "",
           apis,
           8,

@@ -22,8 +22,7 @@ import play.api.mvc.Results.{BadRequest, NotFound}
 import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._

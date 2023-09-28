@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,7 +37,6 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]                = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                       = new JsArray()
     val emailPreferencesSelectedTopicView: EmailPreferencesSelectedTopicView = app.injector.instanceOf[EmailPreferencesSelectedTopicView]
     val user1                                                                = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
@@ -52,11 +51,9 @@ class EmailPreferencesSelectedTopicViewSpec extends CommonViewSpec with EmailPre
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedTopicView.render(
           users,
-          emailRecipientsAsJson,
           "",
           Some(BUSINESS_AND_POLICY),
-          categories,
-          "",
+          None,
           "",
           List(),
           0,

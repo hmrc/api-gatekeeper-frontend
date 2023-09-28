@@ -23,10 +23,9 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.ProxiedHttpClient
-import uk.gov.hmrc.gatekeeper.models.Environment
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 object ApiPlatformEventsConnector {
 
@@ -55,7 +54,7 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
 
 abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends ApplicationLogger {
   protected val httpClient: HttpClient
-  val environment: Environment.Environment
+  val environment: Environment
   val serviceBaseUrl: String
 
   def http: HttpClient
@@ -81,7 +80,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
         case Some((a, b)) => a -> b
       }
 
-    http.GET[Option[QueryResponse]](s"$applicationEventsUri/${appId.value.toString()}", queryParams)
+    http.GET[Option[QueryResponse]](s"$applicationEventsUri/${appId}", queryParams)
       .map {
         case None           => List.empty
         case Some(response) => response.events

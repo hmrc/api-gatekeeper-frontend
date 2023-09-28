@@ -29,12 +29,12 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
@@ -112,7 +112,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     val developerCollaborator       = developerUser.email.asDeveloperCollaborator
     val commonUsers                 = List(verifiedAdminUser, unverifiedUser, developerUser)
     val apiContext                  = ApiContext("api")
-    val apiVersion                  = ApiVersion.random
+    val apiVersion                  = ApiVersionNbr.random
 
     val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
 
@@ -668,7 +668,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       result shouldBe List(productionUser)
 
       verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -687,7 +687,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersion], *)(*)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
     }
   }
@@ -695,22 +695,22 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   "developerService fetchDevelopersByEmailPreferences" should {
     val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
-    val category2   = APICategory("category2")
-    val categories  = List(category1, category2)
+    val category1   = ApiCategory.AGENTS
+    val category2   = ApiCategory.BUSINESS_RATES
+    val categories  = Set[ApiCategory](category1, category2)
     val apiName1    = "apiName1"
     val apiName2    = "apiName2"
     val apiName3    = "apiName3"
     val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when passed a topic and a category" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Seq(category1)), false)(sandboxUser)
+      DeveloperConnectorMock.FetchByEmailPreferences.returnsFor(topic, None, Some(Set(category1)), false)(sandboxUser)
 
       val result = await(underTest.fetchDevelopersByAPICategoryEmailPreferences(topic, category1))
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(List(category1))), *)(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Set(category1))), *)(*)
     }
 
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
@@ -737,22 +737,22 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   "developerService fetchDevelopersByEmailPreferencesPaginated" should {
     val topic       = TopicOptionChoice.BUSINESS_AND_POLICY
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
-    val category2   = APICategory("category2")
-    val categories  = List(category1, category2)
+    val category1   = ApiCategory.VAT
+    val category2   = ApiCategory.BUSINESS_RATES
+    val categories  = Set[ApiCategory](category1, category2)
     val apiName1    = "apiName1"
     val apiName2    = "apiName2"
     val apiName3    = "apiName3"
     val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when only passed a category" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Seq(category1)), privateApiMatch = false, offset, limit)(sandboxUser)
+      DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Set(category1)), privateApiMatch = false, offset, limit)(sandboxUser)
 
-      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(List(category1), offset, limit))
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(Set(category1), offset, limit))
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(List(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
     }
 
     "call the connector correctly when only passed a topic" in new Setup {
@@ -778,15 +778,14 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   "developerService fetchDevelopersBySpecificTaxRegimesEmailPreferences" should {
     val sandboxUser = aUser("sandbox")
-    val category1   = APICategory("category1")
-
+    val category1   = ApiCategory.VAT
     "call the connector correctly when only passed a tax regime" in new Setup {
-      DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Seq(category1)), privateApiMatch = false, offset, limit)(sandboxUser)
-      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(List(category1), offset, limit))
+      DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, None, Some(Set(category1)), privateApiMatch = false, offset, limit)(sandboxUser)
+      val result = await(underTest.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(Set(category1), offset, limit))
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Seq(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
     }
   }
 

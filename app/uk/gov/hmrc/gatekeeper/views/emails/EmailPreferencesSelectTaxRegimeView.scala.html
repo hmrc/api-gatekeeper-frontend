@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -24,13 +24,13 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(categories: List[APICategoryDetails], filteredCategories: List[APICategoryDetails])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(filteredCategories: Set[ApiCategory])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @drawAPIDropDown = {
     <select class="govuk-select" id="selectedCategories" name="selectedCategories">
         <option value="">Select tax regime</option>
-        @for(category <- categories.sortBy(_.name)) {
-            <option value="@category.category">@category.name.trim</option>
+        @for(category <- ApiCategory.values.toList.sortBy(_.displayText)) {
+            <option value="@category">@category.displayText</option>
         }
     </select>
 }
@@ -47,7 +47,7 @@
 ) {
 
     <div class="govuk-template__body">
-    <form id="taxRegimeForm" name="tax-regime-form" action="@routes.EmailsPreferencesController.selectedTaxRegime(List.empty, None).url" method="get">
+    <form id="taxRegimeForm" name="tax-regime-form" action="@routes.EmailsPreferencesController.selectedTaxRegime(Set.empty, None).url" method="get">
 
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
@@ -58,14 +58,14 @@
                 <label class="govuk-label" for="selectedCategories">Select a tax regime from the list </label>
                 @if(filteredCategories.nonEmpty) {
                     @for(filteredCategory <- filteredCategories){
-                        <input class="govuk-visually-hidden" type="hidden" name="selectedCategories" value="@filteredCategory.category"/>
+                        <input class="govuk-visually-hidden" type="hidden" name="selectedCategories" value="@filteredCategory"/>
                     }
                 }
 
                 @*<select class="govuk-select govuk-select-width-full" id="selectedCategories" name="selectedCategories">
                     <option value="">Select tax regime</option>
-                    @for(category <- categories.sortBy(_.name)) {
-                        <option value="@category.category">@category.name.trim</option>
+                    @for(category <- categories.sortBy(_.displayText)) {
+                        <option value="@category">@category.displayText</option>
                     }
                 </select>*@
                 @drawAPIDropDown

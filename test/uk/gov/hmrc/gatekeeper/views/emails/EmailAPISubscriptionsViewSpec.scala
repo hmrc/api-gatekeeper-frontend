@@ -25,18 +25,18 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailApiSubscriptionsView
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                        = new JsArray()
     val emailApiSubscriptionsView: EmailApiSubscriptionsView  = app.injector.instanceOf[EmailApiSubscriptionsView]
   }
 
@@ -45,8 +45,8 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     val user1         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users         = Seq(user1, user2)
-    val api1          = simpleAPIDefinition("api", "Magical API", "magical", None, "1")
-    val api2          = simpleAPIDefinition("api", "Magical API", "magical", None, "2")
+    val api1          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.OTHER), "1")
+    val api2          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.OTHER), "2")
     val dropdownview1 = DropDownValue("magical__2", "Magical API (ALPHA)")
     val dropdownview2 = DropDownValue("magical__1", "Magical API (BETA)")
     val queryParams   = Map("apiVersionFilter" -> dropdownview1.value)
@@ -57,7 +57,6 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
         emailApiSubscriptionsView.render(
           dropdowns,
           users,
-          emailRecipientsAsJson,
           s"${user1.email.text}; ${user2.email.text}",
           queryParams,
           request,
@@ -71,7 +70,7 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     "show correct title and select correct option when filter present but no Users returned" in new Setup {
       val queryParams                   = Map("apiVersionFilter" -> dropdownview2.value)
       val result: HtmlFormat.Appendable =
-        emailApiSubscriptionsView.render(dropdowns, Seq.empty, emailRecipientsAsJson, "", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2), dropdownview2.value, Seq.empty)
     }
@@ -79,7 +78,7 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     "show correct title and select no options when no filter present and no Users returned" in new Setup {
       val queryParams: Map[String, String] = Map.empty
       val result: HtmlFormat.Appendable    =
-        emailApiSubscriptionsView.render(dropdowns, Seq.empty, emailRecipientsAsJson, "", queryParams, request, LoggedInUser(None), messagesProvider)
+        emailApiSubscriptionsView.render(dropdowns, Seq.empty, "", queryParams, request, LoggedInUser(None), messagesProvider)
 
       validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), Seq(api1, api2))
     }

@@ -28,15 +28,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
@@ -138,10 +137,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val gatekeeperUserId       = "loggedin.gatekeeper"
     val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
 
-    val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersion.random)
+    val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersionNbr.random)
 
     val context = apiIdentifier.context
-    val version = apiIdentifier.version
+    val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
     val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
@@ -168,7 +167,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list all subscribed applications from production when PRODUCTION environment is specified" in new Setup {
       ApplicationConnectorMock.Prod.SearchApplications.returns(allProductionApplications: _*)
 
-      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(PRODUCTION), Map.empty))
+      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.PRODUCTION), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
       val app2 = result.applications.find(sa => sa.name == "application2").get
@@ -182,7 +181,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list all subscribed applications from sandbox when SANDBOX environment is specified" in new Setup {
       ApplicationConnectorMock.Sandbox.SearchApplications.returns(allSandboxApplications: _*)
 
-      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(SANDBOX), Map.empty))
+      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.SANDBOX), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == "application1").get
       val app2 = result.applications.find(sa => sa.name == "application2").get
@@ -214,9 +213,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 1",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
     val resp2 = ApplicationWithSubscriptionsResponse(
@@ -224,8 +223,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 2",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
     val resp3 = ApplicationWithSubscriptionsResponse(
@@ -233,16 +232,16 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       "My App 3",
       Some(LocalDateTime.parse("2002-02-03T12:01:02")),
       Set(
-        ApiIdentifier(ApiContext("hello"), ApiVersion("1.0")),
-        ApiIdentifier(ApiContext("hello"), ApiVersion("2.0")),
-        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersion("1.5"))
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
     )
 
     "list all applications from production when PRODUCTION environment is specified" in new Setup {
       ApplicationConnectorMock.Prod.FetchApplicationsWithSubscriptions.returns(resp1, resp2)
 
-      val result: List[ApplicationWithSubscriptionsResponse] = await(underTest.fetchApplicationsWithSubscriptions(Some(PRODUCTION)))
+      val result: List[ApplicationWithSubscriptionsResponse] = await(underTest.fetchApplicationsWithSubscriptions(Some(Environment.PRODUCTION)))
 
       val app1 = result.find(sa => sa.name == "My App 1").get
       val app2 = result.find(sa => sa.name == "My App 2").get
@@ -254,7 +253,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list all applications from sandbox when SANDBOX environment is specified" in new Setup {
       ApplicationConnectorMock.Sandbox.FetchApplicationsWithSubscriptions.returns(resp3)
 
-      val result = await(underTest.fetchApplicationsWithSubscriptions(Some(SANDBOX)))
+      val result = await(underTest.fetchApplicationsWithSubscriptions(Some(Environment.SANDBOX)))
 
       result.head shouldBe resp3
     }

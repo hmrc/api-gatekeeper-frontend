@@ -22,7 +22,7 @@ import com.google.inject.{Inject, Singleton}
 
 import play.api.mvc.MessagesControllerComponents
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
@@ -49,13 +49,13 @@ class SubscriptionFieldsController @Inject() (
     with ErrorHelper {
 
   def subscriptionFieldValues() = anyAuthenticatedUserAction { implicit request =>
-    case class FlattenedSubscriptionFieldValue(clientId: ClientId, context: ApiContext, version: ApiVersion, name: FieldName)
+    case class FlattenedSubscriptionFieldValue(clientId: ClientId, context: ApiContext, versionNbr: ApiVersionNbr, name: FieldName)
 
     val columnDefinitions: Seq[ColumnDefinition[FlattenedSubscriptionFieldValue]] = Seq(
       ColumnDefinition("Environment", (_ => Environment.PRODUCTION.toString())),
       ColumnDefinition("ClientId", (data => data.clientId.value)),
       ColumnDefinition("ApiContext", (data => data.context.value)),
-      ColumnDefinition("ApiVersion", (data => data.version.value)),
+      ColumnDefinition("ApiVersionNbr", (data => data.versionNbr.value)),
       ColumnDefinition("FieldName", (data => data.name.value))
     )
 
@@ -73,7 +73,7 @@ class SubscriptionFieldsController @Inject() (
     subscriptionFieldsService.fetchAllProductionFieldValues().map(allFieldsValues => {
 
       val sortedAndFlattenedFields = flattendFieldValues(allFieldsValues)
-        .sortBy(x => (x.clientId.value, x.context, x.version, x.name.value))
+        .sortBy(x => (x.clientId.value, x.context, x.versionNbr, x.name.value))
 
       Ok(toCsvString(columnDefinitions, sortedAndFlattenedFields))
     })

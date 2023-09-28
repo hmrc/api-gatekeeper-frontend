@@ -30,9 +30,9 @@ import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import org.scalatest.matchers.should.Matchers
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{ApiPlatformEventsConnector, DisplayEvent, FilterValue, QueryableValues}
 
 class ApiGatekeeperBaseSpec

@@ -16,20 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 trait APIDefinitionHelper {
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Option[List[String]], version: String): ApiDefinition =
-    ApiDefinition(
+  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Set[ApiCategory], version: String): ApiDefinitionGK =
+    ApiDefinitionGK(
       serviceName,
       "url1",
       name,
       "desc",
       ApiContext(context),
-      List(ApiVersionDefinition(ApiVersion(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+      List(ApiVersionGK(ApiVersionNbr(version), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
       None,
-      categories.map(_.map(APICategory(_)))
+      categories
     )
 }

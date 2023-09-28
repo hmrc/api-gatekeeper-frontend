@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: Seq[RegisteredUser], composeEmailRecipients: JsValue, emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: Seq[RegisteredUser], emails: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Emails all users",
@@ -38,6 +38,6 @@
 ){
     <div class="content__body full-width">
         <div><h1 class="govuk-heading-l"  id="pageTitle">Email all users</h1></div>
-        @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
+        @recipientTable(users, emails, new DevelopersEmailQuery(None, None, None, false, None, true, None), applicationConfig, Map("To" -> "All Developer Hub users"))
     </div>
 }

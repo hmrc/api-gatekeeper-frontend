@@ -23,7 +23,7 @@ import scala.concurrent.Future
 import play.api.http.Status.FORBIDDEN
 import play.api.test.Helpers._
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
 import uk.gov.hmrc.gatekeeper.models._
@@ -49,7 +49,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
       val expectedValues = List(ApplicationApiFieldValues(
         ClientId("my-client-id"),
         ApiContext("my-api-context"),
-        ApiVersion("my-api-version"),
+        ApiVersionNbr("my-api-version"),
         UUID.randomUUID(),
         Map(FieldName("callbackUrl") -> FieldValue("callbackUrlValue"))
       ))
@@ -59,7 +59,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
 
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 
-      val expectedCsv = """|Environment,ClientId,ApiContext,ApiVersion,FieldName
+      val expectedCsv = """|Environment,ClientId,ApiContext,ApiVersionNbr,FieldName
                            |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl
                            |""".stripMargin
 

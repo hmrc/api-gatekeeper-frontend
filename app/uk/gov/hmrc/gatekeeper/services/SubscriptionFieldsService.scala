@@ -21,7 +21,7 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
@@ -36,7 +36,7 @@ class SubscriptionFieldsService @Inject() (
   def saveFieldValues(
       application: NewApplication,
       apiContext: ApiContext,
-      apiVersion: ApiVersion,
+      apiVersion: ApiVersionNbr,
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
@@ -61,7 +61,7 @@ class SubscriptionFieldsService @Inject() (
 object SubscriptionFieldsService {
 
   trait SubscriptionFieldsConnector {
-    def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+    def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
 
     def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]]
   }

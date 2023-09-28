@@ -25,13 +25,13 @@ import play.api.http.Status._
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.SubscriptionFieldsConnector.JsonFormatters._
 import uk.gov.hmrc.gatekeeper.connectors.SubscriptionFieldsConnector._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class SubscriptionFieldsConnectorSpec
     extends AsyncHmrcSpec
@@ -42,7 +42,7 @@ class SubscriptionFieldsConnectorSpec
 
   private val clientId                       = ClientId.random
   private val apiContext                     = ApiContext.random
-  private val apiVersion                     = ApiVersion.random
+  private val apiVersion                     = ApiVersionNbr.random
   private val fieldName                      = FieldName.random
   private val subscriptionDefinition         = SubscriptionFieldDefinition(fieldName, "my-description", "my-hint", "my-type", "my-shortDescription")
   private val expectedSubscriptionDefinition = SubscriptionFieldDefinition(fieldName, "desc1", "hint1", "some type", "shortDescription")
@@ -70,26 +70,26 @@ class SubscriptionFieldsConnectorSpec
 
   "urlSubscriptionFieldValues" should {
     "return simple url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(ClientId("1"), ApiContext("path"), ApiVersion("1")) shouldBe "base/field/application/1/context/path/version/1"
+      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(ClientId("1"), ApiContext("path"), ApiVersionNbr("1")) shouldBe "base/field/application/1/context/path/version/1"
     }
     "return complex encoded url" in {
       SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(
         ClientId("1 2"),
         ApiContext("path1/path2"),
-        ApiVersion("1.0 demo")
+        ApiVersionNbr("1.0 demo")
       ) shouldBe "base/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
     }
   }
 
   "urlSubscriptionFieldDefinition" should {
     "return simple url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(ApiContext("path"), ApiVersion("1")) shouldBe "base/definition/context/path/version/1"
+      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(ApiContext("path"), ApiVersionNbr("1")) shouldBe "base/definition/context/path/version/1"
     }
 
     "return complex encoded url" in {
       SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(
         ApiContext("path1/path2"),
-        ApiVersion("1.0 demo")
+        ApiVersionNbr("1.0 demo")
       ) shouldBe "base/definition/context/path1%2Fpath2/version/1.0+demo"
     }
   }
@@ -208,7 +208,7 @@ class SubscriptionFieldsConnectorSpec
       val expectedResult = List(ApplicationApiFieldValues(
         ClientId("clientId-1"),
         ApiContext("apiContext"),
-        ApiVersion("1.0"),
+        ApiVersionNbr("1.0"),
         UUID.randomUUID(),
         fieldValues
       ))

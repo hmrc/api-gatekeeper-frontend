@@ -20,7 +20,8 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.{ClientId, IpAllowlist}
+import uk.gov.hmrc.gatekeeper.models.IpAllowlist
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData
     with CheckInformationTestData {
