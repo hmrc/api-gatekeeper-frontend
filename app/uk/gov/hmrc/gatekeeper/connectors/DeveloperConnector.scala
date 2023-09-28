@@ -29,13 +29,11 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
@@ -185,11 +183,11 @@ class HttpDeveloperConnector @Inject() (
     logger.info(s"fetchByEmailPreferencesPaginated topic is $maybeTopic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String, String)] =
       maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString())))
-    val apis                  = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
-    val topic                 = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
-    val privateApiMatchParams = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
-    val pageParams            = Seq("offset" -> s"$offset", "limit" -> s"$limit")
-    val params                = privateApiMatchParams ++ pageParams
+    val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
+    val topic                          = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
+    val privateApiMatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
+    val pageParams                     = Seq("offset" -> s"$offset", "limit" -> s"$limit")
+    val params                         = privateApiMatchParams ++ pageParams
 
     def prepareQueryParams = {
       (maybeTopic, maybeApis, maybeApiCategories) match {

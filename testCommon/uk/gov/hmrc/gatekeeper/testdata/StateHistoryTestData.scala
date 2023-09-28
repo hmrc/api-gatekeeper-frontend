@@ -20,8 +20,7 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId}
 import uk.gov.hmrc.gatekeeper.builder.StateHistoryBuilder
 import uk.gov.hmrc.gatekeeper.models.{State, StateHistory}
 

@@ -20,11 +20,10 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 
 trait DeveloperConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

@@ -18,9 +18,8 @@ package uk.gov.hmrc.apiplatform.modules.common.utils
 
 import java.time.temporal.ChronoUnit
 import java.time.{Clock, LocalDateTime, ZoneOffset}
+
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
-
-
 
 trait FixedClock extends ClockNow {
 

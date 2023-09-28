@@ -23,9 +23,9 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.ProxiedHttpClient
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 object ApiPlatformEventsConnector {
 

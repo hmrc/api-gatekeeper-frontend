@@ -19,12 +19,12 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeleteConfirmationForm
+@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyEnabledForm
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(application: ApplicationResponse, form: Form[AutoDeleteConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationResponse, form: Form[AutoDeletePreviouslyEnabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Do you want your application to be deleted?",
@@ -41,6 +41,7 @@
         )
     )
 ) {
+    <div class="govuk-grid-column-two-thirds">
     @errorSummary2(form)
 
     <h1 class="govuk-heading-l">Do you want @{application.name} to be deleted if it is inactive?</h1>
@@ -49,9 +50,11 @@
         Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.
     </p>
 
-    @helper.form(action = routes.ApplicationController.updateAutoDelete(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyEnabled(application.id)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
+
+            @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
                     <input class="govuk-radios__input" id="auto-delete-yes" name="confirm" type="radio" value="yes" @if(application.moreApplication.allowAutoDelete) {checked}>
@@ -64,19 +67,21 @@
                     <label class="govuk-label govuk-radios__label" for="auto-delete-no">
                         No
                     </label>
-
                 </div>
 
                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-reason">
                     <label class="govuk-label" for="reason">Give the reasons for excluding this application from being deleted if it is inactive
                     </label>
-                    @fieldError(form.errors, "reason", form.error("submissionError").isEmpty)
                     <textarea class="govuk-textarea" id="reason" name="reason" type="text" spellcheck="false" rows="2" maxlength="100"></textarea>
                 </div>
             </div>
         </div>
 
         <br>
-        <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+        <div class="govuk-button-group">
+            <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+        </div>
+    </div>
     }
 }

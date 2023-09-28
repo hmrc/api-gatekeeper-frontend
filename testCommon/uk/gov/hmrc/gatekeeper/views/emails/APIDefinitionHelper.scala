@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.models._
 
 trait APIDefinitionHelper {
 

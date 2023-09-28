@@ -27,20 +27,20 @@ import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeleteConfirmationForm
+import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyEnabledForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteEnabledView
 
-class ManageAutoDeleteViewSpec extends CommonViewSpec {
+class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
 
   trait Setup {
-    val request                                    = FakeRequest().withCSRFToken
-    val manageAutoDeleteView: ManageAutoDeleteView = app.injector.instanceOf[ManageAutoDeleteView]
-    val grantLength: Period                        = Period.ofDays(547)
+    val request                                                  = FakeRequest().withCSRFToken
+    val manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView = app.injector.instanceOf[ManageAutoDeleteEnabledView]
+    val grantLength: Period                                      = Period.ofDays(547)
 
     val application: ApplicationResponse =
       ApplicationResponse(
@@ -63,9 +63,9 @@ class ManageAutoDeleteViewSpec extends CommonViewSpec {
       )
   }
 
-  "Auto Delete view" should {
-    "show Auto Delete information and radio button 'Yes' selected when allowAutoDelete is true for application" in new Setup {
-      val result: Appendable = manageAutoDeleteView(application, AutoDeleteConfirmationForm.form)(request, LoggedInUser(None), messagesProvider)
+  "Auto Delete Enabled view" should {
+    "show radio button 'Yes' checked when auto deletion is enabled for application" in new Setup {
+      val result: Appendable = manageAutoDeleteEnabledView(application, AutoDeletePreviouslyEnabledForm.form)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -77,9 +77,9 @@ class ManageAutoDeleteViewSpec extends CommonViewSpec {
       labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
     }
 
-    "show Auto Delete information and radio button 'No' selected when allowAutoDelete is false for application" in new Setup {
+    "show reason text area when radio button 'No' selected" in new Setup {
       val result: Appendable =
-        manageAutoDeleteView(application.copy(moreApplication = MoreApplication(false)), AutoDeleteConfirmationForm.form)(request, LoggedInUser(None), messagesProvider)
+        manageAutoDeleteEnabledView(application.copy(moreApplication = MoreApplication(false)), AutoDeletePreviouslyEnabledForm.form)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

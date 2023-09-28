@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{LocalDateTime, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
@@ -29,18 +29,19 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
@@ -52,7 +53,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
 class ApplicationController @Inject() (
@@ -83,8 +83,10 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-    manageAutoDeleteView: ManageAutoDeleteView,
+    manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView,
+    manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView,
     autoDeleteSuccessView: AutoDeleteSuccessView,
+    eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -180,12 +182,12 @@ class ApplicationController @Inject() (
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
-      val app                                                              = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
-      val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+      val app                                                                 = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+      val subscriptions: Set[ApiIdentifier]                                   = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
-      val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
-      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
+      val stateHistory                                                        = applicationWithSubscriptionsAndStateHistory.stateHistory
+      val gatekeeperApprovalsUrl                                              = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
+      val termsOfUseInvitationUrl                                             = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
 
       def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)
@@ -458,11 +460,38 @@ class ApplicationController @Inject() (
 
   def manageAutoDelete(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(manageAutoDeleteView(app.application, AutoDeleteConfirmationForm.form)))
+      def getView(event: Option[DisplayEvent]) = {
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+        val reasonNotFound    = "Reason not found"
+        event match {
+          case None        => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
+          case Some(event) => Ok(manageAutoDeleteDisabledView(
+              app.application,
+              event.metaData.mkString,
+              event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
+              AutoDeletePreviouslyDisabledForm.form
+            ))
+        }
+      }
+
+      def handleAutoDeleteDisabled(application: Application) = {
+        for {
+          event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
+                     .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
+          view   = getView(event)
+        } yield view
+      }
+
+      if (app.application.moreApplication.allowAutoDelete) {
+        Future.successful(Ok(manageAutoDeleteEnabledView(app.application, AutoDeletePreviouslyEnabledForm.form)))
+      } else {
+        handleAutoDeleteDisabled(app.application)
+      }
+
     }
   }
 
-  def updateAutoDelete(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateAutoDeletePreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
         applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -470,19 +499,43 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleValidForm(form: AutoDeleteConfirmationForm): Future[Result] = {
+      def handleValidForm(form: AutoDeletePreviouslyEnabledForm): Future[Result] = {
         form.confirm match {
-          case "yes" => handleUpdateAutoDelete(true, "No reasons given")
-          case "no"  => handleUpdateAutoDelete(false, form.reason)
+          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
+          case "no"  => handleUpdateAutoDelete(allowAutoDelete = false, form.reason)
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeleteConfirmationForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteView(app.application, form)))
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyEnabledForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteEnabledView(app.application, form)))
       }
 
-      AutoDeleteConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      AutoDeletePreviouslyEnabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    }
+  }
+
+  def updateAutoDeletePreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    withApp(appId) { app =>
+      def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
+        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
+          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+        }
+      }
+
+      def handleValidForm(form: AutoDeletePreviouslyDisabledForm) = {
+        form.confirm match {
+          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
+          case "no"  => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+        }
+      }
+
+      def handleInvalidForm(form: Form[AutoDeletePreviouslyDisabledForm]): Future[Result] = {
+        successful(BadRequest(manageAutoDeleteDisabledView(app.application, form.data("reason"), form.data("reasonDate"), form)))
+      }
+
+      AutoDeletePreviouslyDisabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 

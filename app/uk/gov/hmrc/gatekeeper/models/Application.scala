@@ -28,7 +28,6 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
-
 trait Application {
   val id: ApplicationId
   val name: String

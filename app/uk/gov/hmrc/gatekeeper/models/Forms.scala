@@ -27,9 +27,9 @@ import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
 import uk.gov.hmrc.gatekeeper.models.OverrideType._
 
@@ -340,20 +340,40 @@ object Forms {
     )
   }
 
-  final case class AutoDeleteConfirmationForm(confirm: String = "", reason: String)
+  final case class AutoDeletePreviouslyDisabledForm(confirm: String = "", reason: String = "", reasonDate: String = "")
 
-  object AutoDeleteConfirmationForm {
+  object AutoDeletePreviouslyDisabledForm {
 
-    val form: Form[AutoDeleteConfirmationForm] = Form(
+    val form: Form[AutoDeletePreviouslyDisabledForm] = Form(
+      mapping(
+        "confirm"    -> text,
+        "reason"     -> text,
+        "reasonDate" -> text
+      )(AutoDeletePreviouslyDisabledForm.apply)(AutoDeletePreviouslyDisabledForm.unapply)
+        .verifying(
+          "auto.delete.option.required",
+          fields =>
+            fields match {
+              case data: AutoDeletePreviouslyDisabledForm => data.confirm.nonEmpty
+            }
+        )
+    )
+  }
+
+  final case class AutoDeletePreviouslyEnabledForm(confirm: String = "", reason: String)
+
+  object AutoDeletePreviouslyEnabledForm {
+
+    val form: Form[AutoDeletePreviouslyEnabledForm] = Form(
       mapping(
         "confirm" -> text,
         "reason"  -> text
-      )(AutoDeleteConfirmationForm.apply)(AutoDeleteConfirmationForm.unapply)
+      )(AutoDeletePreviouslyEnabledForm.apply)(AutoDeletePreviouslyEnabledForm.unapply)
         .verifying(
           "auto.delete.reason.required",
           fields =>
             fields match {
-              case data: AutoDeleteConfirmationForm =>
+              case data: AutoDeletePreviouslyEnabledForm =>
                 if (data.confirm.equalsIgnoreCase("no") && data.reason.isEmpty) false else true
             }
         )

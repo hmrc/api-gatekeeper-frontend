@@ -27,13 +27,11 @@ import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeleteConfirmationForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.{AutoDeleteSuccessView, ManageAutoDeleteView}
+import uk.gov.hmrc.gatekeeper.views.html.applications.AutoDeleteSuccessView
 
 class AutoDeleteSuccessViewSpec extends CommonViewSpec {
 
@@ -64,7 +62,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
   }
 
   "Auto Delete Success view" should {
-    "show Auto Delete success page when allowAutoDelete was updated to true" in new Setup {
+    "show Auto Delete success page when auto deletion was enabled for the application" in new Setup {
       val result: Appendable = autoDeleteSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
@@ -74,7 +72,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
       elementExistsByText(document, "a", "Back to application page") shouldBe true
     }
 
-    "show Auto Delete success page when allowAutoDelete was updated to false" in new Setup {
+    "show Auto Delete success page when auto deletion was disabled for the application" in new Setup {
       val result: Appendable = autoDeleteSuccessView(application.copy(moreApplication = MoreApplication(false)), false)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)

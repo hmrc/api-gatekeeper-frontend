@@ -111,7 +111,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val category1                 = ApiCategory.EXAMPLE
       val category2                 = ApiCategory.VAT
       val category3                 = ApiCategory.AGENTS
-      val categorySet              = Set(category1, category2, category3)
+      val categorySet               = Set(category1, category2, category3)
       val offset                    = 0
       val limit                     = 4
 

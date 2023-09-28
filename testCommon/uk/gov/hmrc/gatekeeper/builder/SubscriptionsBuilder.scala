@@ -19,10 +19,9 @@ package uk.gov.hmrc.gatekeeper.builder
 import scala.util.Random
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import uk.gov.hmrc.gatekeeper.models.{ApiVersionGK, Subscription, VersionSubscription, _}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait SubscriptionsBuilder {
 

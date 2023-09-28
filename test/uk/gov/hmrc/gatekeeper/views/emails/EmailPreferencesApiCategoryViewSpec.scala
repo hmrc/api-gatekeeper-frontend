@@ -25,6 +25,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -34,7 +35,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesApiCategoryView
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
@@ -79,7 +79,6 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
     val categories = Set[ApiCategory](category1, category2, category3)
 
-    
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)

@@ -18,23 +18,22 @@ package uk.gov.hmrc.gatekeeper.views.emails
 
 import org.jsoup.nodes.{Document, Element}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, _}
+import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
     val maybeTitleText = getElementBySelector(document, "#pageTitle")
-    
-    if(maybeTitleText.isEmpty) println(document.html())
-    
+
+    if (maybeTitleText.isEmpty) println(document.html())
+
     maybeTitleText.fold(fail("page title not present in page"))(_.text shouldBe expectedTitle)
   }
 
@@ -140,7 +139,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     elements.size shouldBe selectedCategories.size * numberOfSets
     elements.map(_.attr("value")).toSet should contain allElementsOf selectedCategories.map(_.toString())
   }
-  
+
   def validateTopicGrid(document: Document, selectedTopic: Option[TopicOptionChoice]): Unit = {
     TopicOptionChoice.values.foreach(topic => validateTopicEntry(document, topic))
     validateSelectedTopic(document, selectedTopic)

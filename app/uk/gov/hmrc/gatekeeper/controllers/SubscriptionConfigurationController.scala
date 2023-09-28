@@ -95,7 +95,8 @@ class SubscriptionConfigurationController @Inject() (
             val errorForm = EditApiMetadataForm.form.fill(form).copy(errors = errors)
 
             val subscriptionVersionsForApp: List[SubscriptionVersion]       = SubscriptionVersion(app)
-            val subscriptionFieldsForContextAndVersion: SubscriptionVersion = subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.versionNbr == versionNbr).head
+            val subscriptionFieldsForContextAndVersion: SubscriptionVersion =
+              subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.versionNbr == versionNbr).head
 
             val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, errorForm)
 

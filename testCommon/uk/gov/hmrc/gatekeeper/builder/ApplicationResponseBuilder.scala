@@ -19,10 +19,9 @@ package uk.gov.hmrc.gatekeeper.builder
 import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models.State._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   val grantLength: Period = Period.ofDays(547)
