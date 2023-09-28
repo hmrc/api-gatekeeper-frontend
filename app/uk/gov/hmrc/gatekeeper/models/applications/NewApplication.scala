@@ -20,8 +20,8 @@ import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, RateLimitTier}
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 
 case class NewApplication(
@@ -60,7 +60,7 @@ case class NewApplication(
 
 object NewApplication {
   import play.api.libs.json.Json
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 

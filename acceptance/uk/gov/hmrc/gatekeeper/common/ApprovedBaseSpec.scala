@@ -25,7 +25,7 @@ import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequest
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier

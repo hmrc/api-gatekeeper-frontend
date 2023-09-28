@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import play.api.libs.json.Json
 
-@(users: Seq[User], composeEmailRecipients: JsValue, emails: String, totalCount: Int, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
+@(users: Seq[User], emails: String, totalCount: Int, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
   <div class="govuk-button-group govuk-!-margin-bottom-5">

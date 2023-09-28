@@ -21,8 +21,7 @@ import scala.util.Random
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 case class FieldName(value: String) extends AnyVal
 
@@ -57,13 +56,13 @@ object SubscriptionFields {
 
   def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl: _*)
 
-  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: List[SubscriptionFieldValue])
+  case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: List[SubscriptionFieldValue])
 
   case class SubscriptionFieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
   case class SubscriptionFieldValue(definition: SubscriptionFieldDefinition, value: FieldValue)
 
-  case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fieldsId: UUID, fields: Map[FieldName, FieldValue])
+  case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldsId: UUID, fields: Map[FieldName, FieldValue])
 
   object SubscriptionFieldValue {
 
@@ -83,12 +82,13 @@ object SubscriptionFields {
     }
   }
 
-  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersion, fields: Fields.Alias)
+  case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias)
 
   object SubscriptionFieldsPutRequest extends APIDefinitionFormatters {
     implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }
 
+  // TODO - Remove Enumeration
   object SubscriptionRedirect extends Enumeration {
     type SubscriptionRedirectType = Value
     val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value

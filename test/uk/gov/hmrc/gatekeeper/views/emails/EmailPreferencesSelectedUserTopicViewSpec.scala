@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -36,7 +36,6 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]                        = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                               = new JsArray()
     val emailPreferencesSelectedUserTopicView: EmailPreferencesSelectedUserTopicView = app.injector.instanceOf[EmailPreferencesSelectedUserTopicView]
     val user1                                                                        = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2                                                                        = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
@@ -50,7 +49,6 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedUserTopicView.render(
           users,
-          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.TECHNICAL),
           0,
@@ -68,7 +66,6 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedUserTopicView.render(
           users,
-          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.TECHNICAL),
           2,
@@ -86,7 +83,6 @@ class EmailPreferencesSelectedUserTopicViewSpec extends CommonViewSpec with Emai
       val result: HtmlFormat.Appendable =
         emailPreferencesSelectedUserTopicView.render(
           users,
-          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.TECHNICAL),
           4,

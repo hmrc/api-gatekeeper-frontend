@@ -23,12 +23,12 @@ import play.api.test.{FakeRequest, Helpers}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 
@@ -39,8 +39,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
   Helpers.running(app) {
 
-    val apiVersion1 = ApiVersion("1.0")
-    val apiVersion2 = ApiVersion("2.0")
+    val apiVersion1 = ApiVersionNbr("1.0")
+    val apiVersion2 = ApiVersionNbr("2.0")
 
     trait Setup extends ControllerSetupBase {
 
@@ -198,10 +198,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions   = List(
-          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
-          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
+          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinition("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, Set(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -218,10 +218,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiContext = ApiContext.random
 
         val apiVersions   = List(
-          ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
-          ApiVersionDefinition(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
+          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
         )
-        val apiDefinition = ApiDefinition("", "", name = "", "", apiContext, apiVersions, None, None)
+        val apiDefinition = ApiDefinitionGK("", "", name = "", "", apiContext, apiVersions, None, Set(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -234,10 +234,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersionDefinition = ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
+        val apiVersionDefinition = ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition         = List(ApiDefinition("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, None))
+        val apiDefinition         = List(ApiDefinitionGK("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, Set(ApiCategory.OTHER)))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.CollaboratorRole
 
 trait CollaboratorsBuilder {

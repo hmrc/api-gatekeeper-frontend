@@ -22,8 +22,9 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 trait DeveloperConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -53,12 +54,12 @@ trait DeveloperConnectorMockProvider {
       def returnsFor(
           topic: TopicOptionChoice,
           maybeApis: Option[Seq[String]],
-          maybeApiCategory: Option[Seq[APICategory]],
+          maybeApiCategories: Option[Set[ApiCategory]],
           privateapimatch: Boolean
         )(
           users: RegisteredUser*
         ) =
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateapimatch))(*))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateapimatch))(*))
           .thenReturn(successful(users.toList))
     }
 
@@ -67,14 +68,14 @@ trait DeveloperConnectorMockProvider {
       def returnsFor(
           topic: Option[TopicOptionChoice],
           maybeApis: Option[Seq[String]],
-          maybeApiCategory: Option[Seq[APICategory]],
+          maybeApiCategories: Option[Set[ApiCategory]],
           privateApiMatch: Boolean,
           offset: Int,
           limit: Int
         )(
           users: RegisteredUser*
         ) =
-        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategory), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(*))
+        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(*))
           .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
 

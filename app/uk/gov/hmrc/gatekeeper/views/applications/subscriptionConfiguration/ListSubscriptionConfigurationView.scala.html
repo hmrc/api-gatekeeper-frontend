@@ -50,7 +50,7 @@
 
   @for(subscriptionVersion <- subscriptionVersions) {
     <h2 class="govuk-heading-m">
-      @{subscriptionVersion.apiName} @{subscriptionVersion.version.value} @{subscriptionVersion.displayedStatus}
+      @{subscriptionVersion.apiName} @{subscriptionVersion.versionNbr.value} @{subscriptionVersion.displayedStatus}
     </h2>
     <table class="govuk-table">
       <caption class="govuk-visually-hidden">Table containing configurations for selected API's</caption>
@@ -59,7 +59,7 @@
           <th scope="col" class="govuk-table__header col-35">Name</th>
           <th scope="col" class="govuk-table__header col-60">Configuration</th>
           <th scope="col" class="govuk-table__header">
-            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.version)}" class="govuk-link govuk-link--no-visited-state" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.version)}-submit">Edit</a>
+            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}" class="govuk-link govuk-link--no-visited-state" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}-submit">Edit</a>
           </th>
         </tr>
       </thead>

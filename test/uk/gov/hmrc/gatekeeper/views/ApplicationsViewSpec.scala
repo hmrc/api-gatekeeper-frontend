@@ -38,15 +38,15 @@ import org.jsoup.Jsoup
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
@@ -57,10 +57,10 @@ class ApplicationsViewSpec extends CommonViewSpec {
     implicit val loggedInUser          = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      displayedStatus(STABLE)     -> Seq(VersionSummary("Dummy API", STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersion.random))),
-      displayedStatus(BETA)       -> Seq(VersionSummary("Beta API", BETA, ApiIdentifier(ApiContext("beta-api"), ApiVersion.random))),
-      displayedStatus(RETIRED)    -> Seq(VersionSummary("Retired API", RETIRED, ApiIdentifier(ApiContext("ret-api"), ApiVersion.random))),
-      displayedStatus(DEPRECATED) -> Seq(VersionSummary("Deprecated API", DEPRECATED, ApiIdentifier(ApiContext("dep-api"), ApiVersion.random)))
+      ApiStatus.STABLE.displayText     -> Seq(VersionSummary("Dummy API", ApiStatus.STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
+      ApiStatus.BETA.displayText       -> Seq(VersionSummary("Beta API", ApiStatus.BETA, ApiIdentifier(ApiContext("beta-api"), ApiVersionNbr.random))),
+      ApiStatus.RETIRED.displayText    -> Seq(VersionSummary("Retired API", ApiStatus.RETIRED, ApiIdentifier(ApiContext("ret-api"), ApiVersionNbr.random))),
+      ApiStatus.DEPRECATED.displayText -> Seq(VersionSummary("Deprecated API", ApiStatus.DEPRECATED, ApiIdentifier(ApiContext("dep-api"), ApiVersionNbr.random)))
     )
 
     val collaborators: Set[Collaborator] = Set(

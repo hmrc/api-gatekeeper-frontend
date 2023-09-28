@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
 import uk.gov.hmrc.gatekeeper.models._
@@ -34,26 +34,26 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesApiCategoryView
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
     implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
-    val emailRecipientsAsJson: JsArray                                   = new JsArray()
     val emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   }
 
   val expectedTitle = "Email users interested in a tax regime"
 
-  def validateCategoryDropDown(document: Document, categories: List[APICategoryDetails]) = {
+  def validateCategoryDropDown(document: Document, categories: Set[ApiCategory]) = {
     for (category <- categories) {
-      withClue(s"Category: option `${category.category}` not in select list: ") {
-        elementExistsByText(document, "option", category.name) shouldBe true
+      withClue(s"Category: option `${category}` not in select list: ") {
+        elementExistsByText(document, "option", category.displayText) shouldBe true
       }
     }
   }
 
-  def validateStaticPageElements(document: Document, categories: List[APICategoryDetails]) = {
+  def validateStaticPageElements(document: Document, categories: Set[ApiCategory]) = {
     validatePageHeader(document, expectedTitle)
     validateCategoryDropDown(document, categories)
     checkElementsExistById(
@@ -73,14 +73,16 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
-    val category1 = APICategoryDetails("VAT", "Vat")
-    val category2 = APICategoryDetails("AGENT", "Agents")
-    val category3 = APICategoryDetails("RELIEF_AT_SOURCE", "Relief at source")
+    val category1 = ApiCategory.VAT
+    val category2 = ApiCategory.AGENTS
+    val category3 = ApiCategory.RELIEF_AT_SOURCE
 
-    val categories = List(category1, category2, category3)
+    val categories = Set[ApiCategory](category1, category2, category3)
+
+    
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -89,15 +91,15 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", Some(BUSINESS_AND_POLICY), categories, "", "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and options when only Category filter provided" in new Setup {
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, emailRecipientsAsJson, "", None, categories, category1.category, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", None, Some(category1), "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, category1)
     }
@@ -106,36 +108,32 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
       val result: HtmlFormat.Appendable =
         emailPreferencesApiCategoryView.render(
           users,
-          emailRecipientsAsJson,
           s"${user1.email.text}; ${user2.email.text}",
           Some(TopicOptionChoice.BUSINESS_AND_POLICY),
-          categories,
-          category2.category,
+          Some(category2),
           "",
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(category2), TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
         emailPreferencesApiCategoryView.render(
           Seq.empty,
-          emailRecipientsAsJson,
           "",
           Some(TopicOptionChoice.RELEASE_SCHEDULES),
-          categories,
-          category2.category,
+          Some(category2),
           "",
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), categories, Some(category2), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
     }
 
   }

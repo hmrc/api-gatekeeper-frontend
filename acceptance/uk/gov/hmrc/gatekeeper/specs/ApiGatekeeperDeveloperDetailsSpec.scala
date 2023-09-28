@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
@@ -96,7 +96,7 @@ class ApiGatekeeperDeveloperDetailsSpec
 
   def stubApplicationForDeveloper(userId: UserId) = {
     stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${userId.asText}/applications"))
+      get(urlPathEqualTo(s"/gatekeeper/developer/${userId}/applications"))
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 

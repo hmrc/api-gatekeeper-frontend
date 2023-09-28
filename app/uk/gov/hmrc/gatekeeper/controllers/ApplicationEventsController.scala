@@ -25,8 +25,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.mvc._
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController

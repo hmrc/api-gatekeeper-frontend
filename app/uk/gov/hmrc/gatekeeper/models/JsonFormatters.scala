@@ -16,36 +16,4 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json._
-
 class InvalidEnumException(className: String, input: String) extends RuntimeException(s"Enumeration expected of type: '$className', but it does not contain '$input'")
-
-trait ApiStatusJson {
-
-  def apiStatusReads[ApiStatus](apiStatus: ApiStatus): Reads[ApiStatus.Value] = new Reads[ApiStatus.Value] {
-
-    def reads(json: JsValue): JsResult[ApiStatus.Value] = json match {
-      case JsString("PROTOTYPED") => JsSuccess(ApiStatus.BETA)
-      case JsString("PUBLISHED")  => JsSuccess(ApiStatus.STABLE)
-      case JsString(s)            => {
-        try {
-          JsSuccess(ApiStatus.withName(s))
-        } catch {
-          case _: NoSuchElementException =>
-            JsError(s"Enumeration expected of type: ApiStatus, but it does not contain '$s'")
-        }
-      }
-      case _                      => JsError("String value expected")
-    }
-  }
-
-  implicit def apiStatusWrites: Writes[ApiStatus.Value] = new Writes[ApiStatus.Value] {
-    def writes(v: ApiStatus.Value): JsValue = JsString(v.toString)
-  }
-
-  implicit def apiStatusFormat[ApiStatus](apiStatus: ApiStatus): Format[ApiStatus.Value] = {
-    Format(apiStatusReads(apiStatus), apiStatusWrites)
-  }
-}
-
-object ApiStatusJson extends ApiStatusJson

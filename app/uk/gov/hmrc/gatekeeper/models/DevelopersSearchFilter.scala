@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class DevelopersSearchFilter(
@@ -26,8 +26,8 @@ case class DevelopersSearchFilter(
     developerStatusFilter: DeveloperStatusFilter = AllStatus
   )
 
-case class ApiContextVersion(context: ApiContext, version: ApiVersion) {
-  def toStringValue: String = s"${context.value}__${version.value}"
+case class ApiContextVersion(context: ApiContext, versionNbr: ApiVersionNbr) {
+  def toStringValue: String = s"${context.value}__${versionNbr.value}"
 }
 
 object ApiContextVersion {
@@ -36,7 +36,7 @@ object ApiContextVersion {
   def apply(value: Option[String]): Option[ApiContextVersion] = {
     value match {
       case None                                    => None
-      case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), ApiVersion(version)))
+      case Some(ApiIdPattern(apiContext, version)) => Some(ApiContextVersion(ApiContext(apiContext), ApiVersionNbr(version)))
       case _                                       => throw new Exception("Invalid API context or version")
     }
   }

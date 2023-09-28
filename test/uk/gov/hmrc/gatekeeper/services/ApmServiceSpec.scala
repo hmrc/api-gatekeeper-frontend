@@ -21,10 +21,11 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 
@@ -38,17 +39,17 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     val combinedRestApi1 = CombinedApi(
       "displayName1",
       "serviceName1",
-      List(CombinedApiCategory("CUSTOMS")),
+      Set(ApiCategory.CUSTOMS),
       ApiType.REST_API,
-      Some(PUBLIC)
+      Some(ApiAccessType.PUBLIC)
     )
 
     val combinedXmlApi2 = CombinedApi(
       "displayName2",
       "serviceName2",
-      List(CombinedApiCategory("VAT")),
+      Set(ApiCategory.VAT),
       ApiType.XML_API,
-      Some(PUBLIC)
+      Some(ApiAccessType.PUBLIC)
     )
     val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 

@@ -23,12 +23,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment.Environment
 import uk.gov.hmrc.gatekeeper.models._
 
 object ApplicationConnector {
@@ -40,7 +36,7 @@ object ApplicationConnector {
   implicit val validateApplicationNameResponseErrorDetailsReads = Json.reads[ValidateApplicationNameResponseErrorDetails]
   implicit val validateApplicationNameResponseReads             = Json.reads[ValidateApplicationNameResponse]
 
-  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])
+  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])
 
   implicit val writes = Json.writes[SearchCollaboratorsRequest]
 
@@ -58,9 +54,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def http: HttpClient
 
-  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId.text()}"
+  def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId}"
 
-  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId.text()}"
+  def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId}"
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
@@ -103,14 +99,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId.asText}/applications")
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId.asText}/applications")
+    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
@@ -209,8 +205,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, version: ApiVersion)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${version.value}")
+  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${versionNbr.value}")
       .map(_ match {
         case Right(result) => ApplicationUpdateSuccessResult
         case Left(err)     => throw err
@@ -249,14 +245,14 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[List[ApplicationWithSubscriptionsResponse]](s"$serviceBaseUrl/gatekeeper/applications/subscriptions")
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersion, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
     http.POST[SearchCollaboratorsRequest, List[LaxEmailAddress]](s"$serviceBaseUrl/collaborators", request)
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId.text()}")
+    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")
       .map(_ match {
         case Some(_) => true
         case None    => false
@@ -264,7 +260,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId.text()}")
+    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId}")
       .map(_ match {
         case Some(_) => true
         case None    => false

@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
@@ -37,7 +37,7 @@ case class ApiDefinitionView(
     apiName: String,
     serviceName: String,
     apiContext: ApiContext,
-    apiVersion: ApiVersion,
+    apiVersion: ApiVersionNbr,
     versionSource: ApiVersionSource,
     status: String,
     access: String,
@@ -72,7 +72,7 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("serviceName", (vm => vm.serviceName)),
         ColumnDefinition("context", (vm => vm.apiContext.value)),
         ColumnDefinition("version", (vm => vm.apiVersion.value)),
-        ColumnDefinition("source", (vm => vm.versionSource.asText)),
+        ColumnDefinition("source", (vm => vm.versionSource.toString())),
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
         ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
@@ -83,9 +83,12 @@ class ApiDefinitionController @Inject() (
     })
   }
 
-  private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): List[ApiDefinitionView] = {
-    def isTrial(apiVersion: ApiVersionDefinition): Boolean = {
-      apiVersion.access.fold(false)(access => access.isTrial.getOrElse(false))
+  private def toViewModel(apiDefinition: ApiDefinitionGK, environment: Environment): List[ApiDefinitionView] = {
+    def isTrial(apiVersion: ApiVersionGK): Boolean = {
+      apiVersion.access.fold(false)(_ match {
+        case ApiAccess.Private(true) => true
+        case _ => false
+      })
     }
 
     apiDefinition.versions.map(v =>

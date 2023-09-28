@@ -26,7 +26,6 @@
 
 @(apiVersions: Seq[DropDownValue],
   users: Seq[RegisteredUser],
-  composeEmailRecipients: JsValue,
   emails: String,
   params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
 )
@@ -64,7 +63,7 @@
 
       @if(apiVersionFilter.isDefined && !apiVersionFilter.get.isEmpty ) {
         <hr class="govuk-section-break govuk-section-break--m govuk-section-break--visible"/>
-        @recipientTable(users, composeEmailRecipients, emails, new DevelopersEmailQuery(None, None, None, false, Some(apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim), false, Some(EmailOverride(users.toList, false))), applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
+        @recipientTable(users, emails, new DevelopersEmailQuery(None, None, None, false, Some(apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim), false, Some(EmailOverride(users.toList, false))), applicationConfig, Map("API subscription" -> apiVersions.filter(v => v.value == apiVersionFilter.get).head.description.trim))
       }
     }
   </div>

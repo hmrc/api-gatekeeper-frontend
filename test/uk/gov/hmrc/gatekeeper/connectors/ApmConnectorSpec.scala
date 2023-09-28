@@ -27,16 +27,16 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, _}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
 import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
 import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class ApmConnectorSpec
     extends AsyncHmrcSpec
@@ -59,8 +59,8 @@ class ApmConnectorSpec
 
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", List(CombinedApiCategory("CUSTOMS")), ApiType.REST_API, Some(PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", List(CombinedApiCategory("VAT")), ApiType.XML_API, Some(PUBLIC))
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)
@@ -97,7 +97,6 @@ class ApmConnectorSpec
     val url = "/api-definitions"
 
     "return all subscribeable API's and their ApiData" in new Setup {
-      import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
       implicit val versionDataWrites = Json.writes[VersionData]
       implicit val apiDataWrites     = Json.writes[ApiData]
 

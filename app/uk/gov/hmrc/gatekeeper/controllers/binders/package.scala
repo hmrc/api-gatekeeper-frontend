@@ -16,24 +16,18 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.util.UUID
-import scala.util.Try
-
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 package object binders extends ApplicationLogger {
 
   private def applicationIdFromString(text: String): Either[String, ApplicationId] = {
-    Try(UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as ApplicationId")
-      .map(uuid => ApplicationId(uuid))
+    ApplicationId.apply(text).toRight(s"Cannot accept $text as ApplicationId")
   }
 
   implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
@@ -87,42 +81,37 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersion] = new PathBindable[ApiVersion] {
+  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
 
-    override def bind(key: String, value: String): Either[String, ApiVersion] = {
-      textBinder.bind(key, value).map(ApiVersion(_))
+    override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
+      textBinder.bind(key, value).map(ApiVersionNbr(_))
     }
 
-    override def unbind(key: String, apiVersion: ApiVersion): String = {
+    override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
       apiVersion.value
     }
   }
 
-  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersion] {
+  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersionNbr] {
 
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersion]] = {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersionNbr]] = {
       for {
         version <- textBinder.bind("version", params)
       } yield {
         version match {
-          case Right(version) => Right(ApiVersion(version))
+          case Right(version) => Right(ApiVersionNbr(version))
           case _              => Left("Unable to bind an api version")
         }
       }
     }
 
-    override def unbind(key: String, version: ApiVersion): String = {
-      textBinder.unbind("version", version.value)
+    override def unbind(key: String, versionNbr: ApiVersionNbr): String = {
+      textBinder.unbind("version", versionNbr.value)
     }
   }
 
-  import java.{util => ju}
-
   private def eitherFromString(text: String): Either[String, UserId] = {
-    Try(ju.UUID.fromString(text))
-      .toOption
-      .toRight(s"Cannot accept $text as userId")
-      .map(UserId(_))
+    UserId.apply(text).toRight(s"Cannot accept $text as userId")
   }
 
   implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
@@ -175,4 +164,51 @@ package object binders extends ApplicationLogger {
       textBinder.unbind("developerId", DeveloperIdentifier.asText(warnOnEmailId(s"queryStringBindable UNBIND $key")(developerId)))
     }
   }
+
+  private def apiCategoryFromString(text: String): Either[String, ApiCategory] = {
+    ApiCategory(text).toRight(s"Cannot accept $text as ApiCategoryId")
+  }
+
+  implicit def apiCategoryPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiCategory] = new PathBindable[ApiCategory] {
+
+    override def bind(key: String, value: String): Either[String, ApiCategory] = {
+      textBinder.bind(key, value).flatMap(apiCategoryFromString)
+    }
+
+    override def unbind(key: String, apiCategory: ApiCategory): String = {
+      apiCategory.toString()
+    }
+  }
+
+  implicit def apiCategoryQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiCategory] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiCategory]] = {
+      textBinder.bind(key, params).map(_.flatMap(apiCategoryFromString))
+    }
+
+    override def unbind(key: String, apiCategory: ApiCategory): String = {
+      textBinder.unbind(key, apiCategory.toString())
+    }
+  }
+
+  private def topicFromString(text: String): Either[String, TopicOptionChoice] = {
+    TopicOptionChoice(text).toRight(s"Cannot accept $text as ApiCategoryId")
+  }
+
+  implicit def topicQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[TopicOptionChoice] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, TopicOptionChoice]] = {
+      textBinder.bind(key, params).map(_.flatMap(topicFromString))
+    }
+
+    override def unbind(key: String, topic: TopicOptionChoice): String = {
+      textBinder.unbind(key, topic.toString())
+    }
+  }
+  /**
+   * QueryString binder for Set
+   */
+  implicit def bindableSet[T: QueryStringBindable]: QueryStringBindable[Set[T]] =
+    QueryStringBindable.bindableSeq[T].transform(_.toSet, _.toSeq)
+
 }

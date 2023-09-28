@@ -29,7 +29,7 @@ import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
 import uk.gov.hmrc.gatekeeper.models.OverrideType._
 
@@ -244,7 +244,7 @@ object Forms {
 
     override def bind(key: String, data: Map[String, String]) =
       data.get(key)
-        .flatMap(name => Try(Environment.withName(name)).toOption)
+        .flatMap(name => Environment.apply(name))
         .toRight(Seq(FormError(key, "application.environment.required", Nil)))
 
     override def unbind(key: String, value: Environment) = Map(key -> value.toString)

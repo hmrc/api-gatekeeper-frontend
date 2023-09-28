@@ -20,10 +20,11 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait ApplicationServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -100,7 +101,7 @@ trait ApplicationServiceMockProvider {
       def returns(stateHistory: StateHistory*) =
         when(mockApplicationService.fetchStateHistory(*[ApplicationId], *)(*)).thenReturn(successful(stateHistory.toList))
 
-      def verifyParams(applicationId: ApplicationId, env: Environment.Environment) =
+      def verifyParams(applicationId: ApplicationId, env: Environment) =
         verify(mockApplicationService).fetchStateHistory(eqTo(applicationId), eqTo(env))(*)
     }
 

@@ -23,7 +23,7 @@ import org.jsoup.Jsoup
 
 import play.api.test.FakeRequest
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.controllers.HandleUpliftForm
 import uk.gov.hmrc.gatekeeper.models._

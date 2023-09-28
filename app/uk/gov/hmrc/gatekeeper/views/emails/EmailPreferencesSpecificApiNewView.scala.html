@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.TopicOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: List[RegisteredUser], composeEmailRecipients: JsValue, emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice.Value])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: List[RegisteredUser], emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
   if(api.apiType == ApiType.XML_API) {
@@ -64,7 +64,7 @@
                               <ul class="govuk-summary-list__actions-list">
                                   <li class="govuk-summary-list__actions-list-item">
                                       <a class="govuk-link govuk-link--no-visited-state"
-                                         href="@routes.EmailsPreferencesController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter.map(_.toString)).url">
+                                         href="@routes.EmailsPreferencesController.selectSpecificApi(Some(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName)), maybeTopicFilter).url">
                                           <span aria-hidden="true">Change</span>
                                           <span class="govuk-visually-hidden">Change @handleAppendXmlTag(filteredApi)</span>
                                           @if(maybeTopicFilter.isDefined) {
@@ -74,7 +74,7 @@
                                   </li>
                                   @if(filteredApis.size > 1) {
                                           <li class="govuk-summary-list__actions-list-item">
-                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter.map(_.toString)).url">
+                                          <a class="govuk-link govuk-link--no-visited-state" href="@routes.EmailsPreferencesController.specificApis(filteredApis.filterNot(_.equals(filteredApi)).map(_.serviceName), maybeTopicFilter).url">
                                           <span aria-hidden="true">Remove</span>
                                           <span class="govuk-visually-hidden">Remove @handleAppendXmlTag(filteredApi) from the list</span>
                                           </a>
@@ -111,7 +111,7 @@
                   <span><input type="hidden" name="selectedAPIs" value="@filteredApi.serviceName"/></span>
               }
               @if(maybeTopicFilter.nonEmpty) {
-                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter.map(_.toString)"/>
+                  <input class="govuk-visually-hidden" type="hidden" name="selectedTopic" value="@maybeTopicFilter"/>
               }
           </fieldset>
       </div>

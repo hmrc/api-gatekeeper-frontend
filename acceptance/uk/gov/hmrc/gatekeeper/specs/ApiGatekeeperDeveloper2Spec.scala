@@ -28,10 +28,10 @@ import scala.collection.immutable.List
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+
 class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 
   import MockDataSugar._
@@ -131,7 +131,7 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
 
   private def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
     val developersJson = developers.map(u => u.email)
-    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersion("1.0"), Some("partialEmail"))
+    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"), Some("partialEmail"))
     
     stubFor(post(urlEqualTo("/collaborators"))
       .withJsonRequestBody(request)

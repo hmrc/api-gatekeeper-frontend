@@ -25,11 +25,9 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
-import uk.gov.hmrc.gatekeeper.models.ApiStatus._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
@@ -88,7 +86,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
   trait SubscriptionsSetup extends Setup {
 
-    val subscriptionsViewData: List[(String, List[(ApiVersion, ApiStatus)])] = List(
+    val subscriptionsViewData: List[(String, List[(ApiVersionNbr, ApiStatus)])] = List(
       (
         "My API Name",
         List(

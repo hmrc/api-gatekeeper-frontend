@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.gatekeeper.connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class DeploymentApprovalService @Inject() (
     sandboxApiPublisherConnector: SandboxApiPublisherConnector,
@@ -49,5 +49,5 @@ class DeploymentApprovalService @Inject() (
     connectorFor(environment).approveService(serviceName)
   }
 
-  def connectorFor(environment: Environment) = if (environment == PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
+  def connectorFor(environment: Environment) = if (environment == Environment.PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
 }

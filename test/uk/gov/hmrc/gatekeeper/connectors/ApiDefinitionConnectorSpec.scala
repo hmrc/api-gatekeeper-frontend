@@ -26,6 +26,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, WireMockSugar}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -44,7 +45,7 @@ class ApiDefinitionConnectorSpec
     when(mockAppConfig.apiDefinitionProductionBaseUrl).thenReturn(wireMockUrl)
 
     val connector   = new ProductionApiDefinitionConnector(mockAppConfig, httpClient)
-    val apiVersion1 = ApiVersion.random
+    val apiVersion1 = ApiVersionNbr.random
   }
 
   import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
@@ -53,15 +54,15 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinition(
+      val response = List(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
-        None
+        Set(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)
@@ -95,15 +96,15 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinition(
+      val response = List(ApiDefinitionGK(
         "dummyAPI",
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionDefinition(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess(APIAccessType.PUBLIC)))),
+        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
         Some(false),
-        None
+        Set(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)
@@ -132,39 +133,6 @@ class ApiDefinitionConnectorSpec
       )
 
       intercept[FetchApiDefinitionsFailed](await(connector.fetchPrivate()))
-    }
-  }
-
-  "fetchAPICategories" should {
-    val url = "/api-categories"
-
-    "respond with 200 and convert body" in new Setup {
-      val response = List(APICategoryDetails("Business", "Business"), APICategoryDetails("VAT", "Vat"))
-
-      val payload = Json.toJson(response)
-
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      await(connector.fetchAPICategories()) shouldBe response
-    }
-
-    "propagate 500 as FetchApiDefinitionsFailed exception" in new Setup {
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[FetchApiCategoriesFailed](await(connector.fetchAPICategories()))
     }
   }
 }

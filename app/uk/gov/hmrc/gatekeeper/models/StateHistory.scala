@@ -20,14 +20,13 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 
 case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime = LocalDateTime.now())
 
 object StateHistory {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
 
   def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
     s1.applicationId match {

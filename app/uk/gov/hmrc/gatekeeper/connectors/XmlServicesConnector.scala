@@ -24,7 +24,7 @@ import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 

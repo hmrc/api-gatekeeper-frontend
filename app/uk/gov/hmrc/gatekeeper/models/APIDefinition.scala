@@ -16,42 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
-
-import play.api.libs.json.Json
-
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.ApiStatus.ApiStatus
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
-sealed trait ApiVersionSource {
-  def asText: String
-}
-
-object ApiVersionSource {
-
-  case object RAML extends ApiVersionSource {
-    val asText = "RAML"
-  }
-
-  case object OAS extends ApiVersionSource {
-    val asText = "OAS"
-  }
-
-  case object UNKNOWN extends ApiVersionSource {
-    val asText = "UNKNOWN"
-  }
-}
-
-case class ApiDefinition(
+case class ApiDefinitionGK(
     serviceName: String,
     serviceBaseUrl: String,
     name: String,
     description: String,
     context: ApiContext,
-    versions: List[ApiVersionDefinition],
+    versions: List[ApiVersionGK],
     requiresTrust: Option[Boolean],
-    categories: Option[List[APICategory]]
+    categories: Set[ApiCategory]
   ) {
 
   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
@@ -59,53 +36,14 @@ case class ApiDefinition(
   }
 }
 
-case class APICategory(value: String) extends AnyVal
+case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
-object APICategory {
-  implicit val formatApiCategory = Json.valueFormat[APICategory]
-}
+case class ApiVersionGK(version: ApiVersionNbr, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
+  val displayedStatus = status.displayText
 
-case class APICategoryDetails(category: String, name: String) {
-
-  def toAPICategory: APICategory = {
-    APICategory(category)
-  }
-}
-
-object APICategoryDetails {
-  implicit val formatApiCategory = Json.format[APICategoryDetails]
-}
-case class VersionSubscription(version: ApiVersionDefinition, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
-
-case class ApiVersionDefinition(version: ApiVersion, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
-  val displayedStatus = ApiStatus.displayedStatus(status)
-
-  val accessType = access.map(_.`type`).getOrElse(APIAccessType.PUBLIC)
+  val accessType = access.getOrElse(ApiAccess.PUBLIC).accessType
 
   val displayedAccessType = accessType.toString().toLowerCase().capitalize
-}
-
-object ApiStatus extends Enumeration {
-  type ApiStatus = Value
-  val ALPHA, BETA, STABLE, DEPRECATED, RETIRED = Value
-
-  val displayedStatus: (ApiStatus) => String = {
-    case ApiStatus.ALPHA      => "Alpha"
-    case ApiStatus.BETA       => "Beta"
-    case ApiStatus.STABLE     => "Stable"
-    case ApiStatus.DEPRECATED => "Deprecated"
-    case ApiStatus.RETIRED    => "Retired"
-  }
-}
-
-case class ApiAccess(`type`: APIAccessType, isTrial: Option[Boolean] = None)
-
-sealed trait APIAccessType extends EnumEntry
-
-object APIAccessType extends Enum[APIAccessType] with PlayJsonEnum[APIAccessType] {
-  val values = findValues
-  case object PRIVATE extends APIAccessType
-  case object PUBLIC  extends APIAccessType
 }
 
 class FetchApiDefinitionsFailed extends Throwable
@@ -123,7 +61,7 @@ case class SubscriptionWithoutFields(name: String, serviceName: String, context:
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
-case class VersionSubscriptionWithoutFields(version: ApiVersionDefinition, subscribed: Boolean)
+case class VersionSubscriptionWithoutFields(version: ApiVersionGK, subscribed: Boolean)
 
 object Subscription {
 

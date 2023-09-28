@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
@@ -41,8 +41,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchUnapprovedServices" should {
     "fetch the unapproved services" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION)))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)))
       ApiPublisherConnectorMock.Prod.FetchUnapproved.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.FetchUnapproved.returns(expectedSandboxSummaries: _*)
 
@@ -56,10 +56,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchApiDefinitionSummary" should {
     "fetch the Api definition summary for sandbox" in new Setup {
-      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX))
+      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX))
       ApiPublisherConnectorMock.Sandbox.FetchApprovalSummary.returns(expectedSummary)
 
-      val result = await(underTest.fetchApprovalSummary(serviceName, SANDBOX))
+      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.SANDBOX))
 
       result shouldBe expectedSummary
 
@@ -68,10 +68,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "fetch the Api definition summary for production" in new Setup {
-      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
+      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION))
       ApiPublisherConnectorMock.Prod.FetchApprovalSummary.returns(expectedSummary)
 
-      val result = await(underTest.fetchApprovalSummary(serviceName, PRODUCTION))
+      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.PRODUCTION))
 
       result shouldBe expectedSummary
 
@@ -85,7 +85,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "approve the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, SANDBOX))
+      await(underTest.approveService(serviceName, Environment.SANDBOX))
 
       verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(*)
       verify(mockProductionApiPublisherConnector, never).approveService(*)(*)
@@ -94,7 +94,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "approve the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, PRODUCTION))
+      await(underTest.approveService(serviceName, Environment.PRODUCTION))
 
       verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(*)
       verify(mockSandboxApiPublisherConnector, never).approveService(*)(*)
@@ -103,13 +103,13 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "connectorFor" should {
     "return the sandbox API publisher connector when asked for sandbox" in new Setup {
-      val connector = underTest.connectorFor(SANDBOX)
+      val connector = underTest.connectorFor(Environment.SANDBOX)
 
       connector shouldBe mockSandboxApiPublisherConnector
     }
 
     "return the production API publisher connector when asked for production" in new Setup {
-      val connector = underTest.connectorFor(PRODUCTION)
+      val connector = underTest.connectorFor(Environment.PRODUCTION)
 
       connector shouldBe mockProductionApiPublisherConnector
     }

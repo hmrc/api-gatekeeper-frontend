@@ -24,12 +24,12 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.developers.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.APIAccessType.PUBLIC
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.support._
 import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
 class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
     with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
@@ -70,20 +70,20 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
   val verifiedUsers = Seq(verifiedUser1, verifiedUser2)
   val allUsers      = Seq(verifiedUser1, verifiedUser2, unverifiedUser1)
 
-  val api1 = simpleAPIDefinition("api-1", "API 1", "api1", None, "1")
-  val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Some(List("CATEGORY1", "VAT")), "1")
-  val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Some(List("TAX", "VAT")), "1")
-  val api4 = simpleAPIDefinition("api-4", "API 4", "api4", None, "1")
-  val api5 = simpleAPIDefinition("api-5", "API 5", "api5", None, "1")
-  val api6 = simpleAPIDefinition("api-6", "API 6", "api6", None, "1")
+  val api1 = simpleAPIDefinition("api-1", "API 1", "api1", Set(ApiCategory.OTHER), "1")
+  val api2 = simpleAPIDefinition("api-2", "API 2", "api2", Set(ApiCategory.AGENTS), "1")
+  val api3 = simpleAPIDefinition("api-3", "API 3", "api3", Set(ApiCategory.VAT), "1")
+  val api4 = simpleAPIDefinition("api-4", "API 4", "api4", Set(ApiCategory.OTHER), "1")
+  val api5 = simpleAPIDefinition("api-5", "API 5", "api5", Set(ApiCategory.OTHER), "1")
+  val api6 = simpleAPIDefinition("api-6", "API 6", "api6", Set(ApiCategory.OTHER), "1")
   val apis = List(api1, api2, api3)
 
-  val combinedApi1 = simpleAPI("api-1", "API 1", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi2 = simpleAPI("api-2", "API 2", List("CATEGORY1", "VAT"), ApiType.REST_API, Some(PUBLIC))
-  val combinedApi3 = simpleAPI("api-3", "API 3", List("TAX", "VAT"), ApiType.REST_API, Some(PUBLIC))
-  val combinedApi4 = simpleAPI("api-4", "API 4", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi5 = simpleAPI("api-5", "API 5", List.empty, ApiType.REST_API, Some(PUBLIC))
-  val combinedApi6 = simpleAPI("api-6", "API 6", List.empty, ApiType.XML_API, Some(PUBLIC))
+  val combinedApi1 = simpleAPI("api-1", "API 1", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi2 = simpleAPI("api-2", "API 2", Set(ApiCategory.AGENTS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi3 = simpleAPI("api-3", "API 3", Set(ApiCategory.VAT), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi4 = simpleAPI("api-4", "API 4", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi5 = simpleAPI("api-5", "API 5", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi6 = simpleAPI("api-6", "API 6", Set(ApiCategory.OTHER), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
   val combinedApis = List(combinedApi1, combinedApi2, combinedApi3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
@@ -276,20 +276,16 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "GET /emails/email-preferences/select-tax-regime" should {
-      val categories = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
-
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeGetAllCategories(categories)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-tax-regime", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), categories, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
+        validateEmailPreferencesSelectTaxRegimeResultsPage(Jsoup.parse(result.body), ApiCategory.values, "/api-gatekeeper/emails/email-preferences/by-specific-tax-regime")
       }
 
       "respond with 303 and render the page with selected user tax regime" in {
         primeAuthServiceSuccess()
-        primeGetAllCategories(categories)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/add-another-tax-regime-option?selectOption=", validHeaders)
 
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/selected-user-tax-regime")
@@ -415,7 +411,7 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
     }
 
     "GET /emails/email-preferences/selected-user-tax-regime" should {
-      val categories   = List(APICategoryDetails("category1", "name1"), APICategoryDetails("category2", "name2"), APICategoryDetails("category3", "name3"))
+      val categories   = Set[ApiCategory](ApiCategory.AGENTS, ApiCategory.BUSINESS_RATES, ApiCategory.VAT)
       val selectedApis = Seq(combinedApi4, combinedApi5, combinedApi6)
       val offset       = 0
       val limit        = 15
@@ -423,10 +419,9 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
         primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
-        primeGetAllCategories(categories)
-        primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(allUsers, categories.map(_.category), offset, limit)
+        primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(allUsers, categories, offset, limit)
 
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-tax-regime?selectedCategories=category1&offset=$offset&limit=$limit", validHeaders)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/selected-user-tax-regime?selectedCategories=agents&offset=$offset&limit=$limit", validHeaders)
 
         result.status shouldBe OK
       }

@@ -26,7 +26,7 @@ import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
-import uk.gov.hmrc.gatekeeper.models.Environment._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval.{DeploymentApprovalView, DeploymentReviewView}
@@ -67,8 +67,8 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchUnapprovedServices.returns(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(PRODUCTION))
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION))
       )
 
       val result = underTest.pendingPage()(aLoggedInRequest)
@@ -94,7 +94,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
   "reviewPage" should {
     "render the deployment review page for a sandbox API" in new Setup {
-      val environment     = SANDBOX
+      val environment     = Environment.SANDBOX
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
@@ -113,7 +113,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "render the deployment review page for a production API" in new Setup {
-      val environment     = PRODUCTION
+      val environment     = Environment.PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
@@ -140,7 +140,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
   }
   "handleApproval" should {
     "call the approveService and redirect if form contains confirmation for a sandbox API" in new Setup {
-      val environment     = SANDBOX
+      val environment     = Environment.SANDBOX
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
@@ -160,7 +160,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "call the approveService and redirect if form contains confirmation for a production API" in new Setup {
-      val environment     = PRODUCTION
+      val environment     = Environment.PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
@@ -181,7 +181,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "return bad request if approval is not confirmed" in new Setup {
-      val environment = PRODUCTION
+      val environment = Environment.PRODUCTION
 
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
@@ -193,7 +193,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
 
     "return bad request if invalid form" in new Setup {
-      val environment     = PRODUCTION
+      val environment     = Environment.PRODUCTION
       val approvalSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(environment))
 
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)

@@ -17,28 +17,17 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.time.{LocalDateTime, Period}
-import java.util.UUID
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiIdentifier
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{ApplicationId, Collaborator, Collaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
-case class ClientId(value: String) extends AnyVal
-
-object ClientId {
-  import play.api.libs.json.Json
-  implicit val clientIdFormat = Json.valueFormat[ClientId]
-
-  def empty: ClientId  = ClientId("")
-  def random: ClientId = ClientId(UUID.randomUUID().toString)
-}
 
 trait Application {
   val id: ApplicationId
@@ -129,7 +118,7 @@ object TermsAndConditionsLocation {
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
 
 object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
   implicit val format = Json.format[TermsOfUseAcceptance]
 }
 
@@ -234,6 +223,7 @@ case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScop
   val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
 }
 
+// TODO - Remove Enumeration
 object OverrideType extends Enumeration {
   type OverrideType = Value
   val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS, SUPPRESS_IV_FOR_INDIVIDUALS = Value
@@ -272,7 +262,7 @@ case class ApplicationResponse(
   ) extends Application
 
 object ApplicationResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
@@ -332,6 +322,7 @@ object ApplicationWithSubscriptionsResponse {
   implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
 }
 
+// TODO - Remove Enumeration
 object AccessType extends Enumeration {
   type AccessType = Value
   val STANDARD, PRIVILEGED, ROPC = Value
@@ -353,6 +344,7 @@ case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
 
+// TODO - Remove Enumeration
 object State extends Enumeration {
   type State = Value
   val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value
@@ -390,20 +382,6 @@ object State extends Enumeration {
     def isPendingGatekeeperApproval    = state == State.PENDING_GATEKEEPER_APPROVAL
     def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
     def isDeleted                      = state == State.DELETED
-  }
-}
-
-object Environment extends Enumeration {
-  type Environment = Value
-  val SANDBOX, PRODUCTION = Value
-  implicit val format     = Json.formatEnum(Environment)
-
-  implicit class Display(e: Environment) {
-
-    def asDisplayed() = e match {
-      case SANDBOX    => "Sandbox"
-      case PRODUCTION => "Production"
-    }
   }
 }
 

@@ -22,8 +22,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
-import uk.gov.hmrc.gatekeeper.models.Environment._
-import uk.gov.hmrc.gatekeeper.models.{APICategoryDetails, ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK}
 
 class ApiDefinitionService @Inject() (
     sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
@@ -31,13 +31,13 @@ class ApiDefinitionService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
     val connectors                                          = environment match {
-      case Some(PRODUCTION) => List(productionApiDefinitionConnector)
-      case Some(SANDBOX)    => List(sandboxApiDefinitionConnector)
-      case _                => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
+      case Some(Environment.PRODUCTION) => List(productionApiDefinitionConnector)
+      case Some(Environment.SANDBOX)    => List(sandboxApiDefinitionConnector)
+      case _                            => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
     }
-    val publicApisFuture: List[Future[List[ApiDefinition]]] = connectors.map(_.fetchPublic())
+    val publicApisFuture: List[Future[List[ApiDefinitionGK]]] = connectors.map(_.fetchPublic())
     val privateApisFuture                                   = connectors.map(_.fetchPrivate())
 
     for {
@@ -46,14 +46,14 @@ class ApiDefinitionService @Inject() (
     } yield (publicApis ++ privateApis).distinct
   }
 
-  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
     fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toList)
   }
 
-  def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinition, Environment)]] = {
+  def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinitionGK, Environment)]] = {
 
-    def getApisFromConnector(connector: ApiDefinitionConnector): Future[List[(ApiDefinition, Environment)]] = {
-      def addEnvironmentToApis(result: Future[List[ApiDefinition]]): Future[List[(ApiDefinition, Environment)]] =
+    def getApisFromConnector(connector: ApiDefinitionConnector): Future[List[(ApiDefinitionGK, Environment)]] = {
+      def addEnvironmentToApis(result: Future[List[ApiDefinitionGK]]): Future[List[(ApiDefinitionGK, Environment)]] =
         result.map(apis => apis.map(api => (api, connector.environment)))
 
       Future.sequence(
@@ -69,14 +69,6 @@ class ApiDefinitionService @Inject() (
     Future.sequence(connectors
       .map(getApisFromConnector))
       .map(_.flatten)
-      .map(_.sortBy { case (api, env) => (api.name, env) })
+      .map(_.sortBy { case (api, env) => (api.name, env.toString()) })
   }
-
-  def apiCategories()(implicit hc: HeaderCarrier): Future[List[APICategoryDetails]] = {
-    for {
-      sandboxCategories    <- sandboxApiDefinitionConnector.fetchAPICategories()
-      productionCategories <- productionApiDefinitionConnector.fetchAPICategories()
-    } yield (sandboxCategories ++ productionCategories).distinct
-  }
-
 }

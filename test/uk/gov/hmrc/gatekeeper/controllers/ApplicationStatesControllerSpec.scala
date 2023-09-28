@@ -24,7 +24,7 @@ import mocks.services.ApplicationServiceMockProvider
 import play.api.http.Status.{FORBIDDEN, OK}
 import play.api.test.Helpers.{contentAsString, contentType, header, running, status}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
