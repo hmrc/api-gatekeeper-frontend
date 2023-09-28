@@ -57,7 +57,7 @@
             <div class="govuk-form-group">
                 <label class="govuk-label" for="selectedCategories">Select a tax regime from the list </label>
                 @if(filteredCategories.nonEmpty) {
-                    @for(filteredCategory <- filteredCategories){
+                    @for(filteredCategory <- filteredCategories.toList.sortBy(_.displayText)){
                         <input class="govuk-visually-hidden" type="hidden" name="selectedCategories" value="@filteredCategory"/>
                     }
                 }
