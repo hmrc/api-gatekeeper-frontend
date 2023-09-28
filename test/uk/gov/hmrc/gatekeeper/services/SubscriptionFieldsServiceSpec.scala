@@ -25,8 +25,8 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
@@ -40,7 +40,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     val underTest: SubscriptionFieldsService = spy(service)
   }
 
-  val apiVersionNbr            = ApiVersionNbr.random
+  val apiVersionNbr         = ApiVersionNbr.random
   private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersionNbr)
 
   "When application is deployedTo production then principal connector is called" should {

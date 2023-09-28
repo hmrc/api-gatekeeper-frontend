@@ -22,9 +22,8 @@ import cats.data.NonEmptyList
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
 

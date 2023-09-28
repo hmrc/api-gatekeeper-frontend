@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
 
 // TODO - Remove Enumeration
@@ -60,17 +61,17 @@ object EmailPreferencesChoice extends Enumeration {
 
 sealed trait TopicOptionChoice {
   lazy val optionLabel = TopicOptionChoice.optionLabel(this)
-  lazy val optionHint = TopicOptionChoice.optionHint(this)
+  lazy val optionHint  = TopicOptionChoice.optionHint(this)
 }
 
 object TopicOptionChoice {
   case object BUSINESS_AND_POLICY extends TopicOptionChoice
-  case object TECHNICAL extends TopicOptionChoice
-  case object RELEASE_SCHEDULES extends TopicOptionChoice
-  case object EVENT_INVITES extends TopicOptionChoice
+  case object TECHNICAL           extends TopicOptionChoice
+  case object RELEASE_SCHEDULES   extends TopicOptionChoice
+  case object EVENT_INVITES       extends TopicOptionChoice
 
   val values = Set[TopicOptionChoice](BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES)
-  
+
   def apply(text: String): Option[TopicOptionChoice] = {
     TopicOptionChoice.values.find(_.toString == text.toUpperCase)
   }

@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -38,10 +38,10 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
@@ -53,7 +53,6 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
 class ApplicationController @Inject() (
@@ -183,12 +182,12 @@ class ApplicationController @Inject() (
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
-      val app                                                              = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
-      val subscriptions: Set[ApiIdentifier]                                = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
+      val app                                                                 = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+      val subscriptions: Set[ApiIdentifier]                                   = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
       val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
-      val stateHistory                                                     = applicationWithSubscriptionsAndStateHistory.stateHistory
-      val gatekeeperApprovalsUrl                                           = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
-      val termsOfUseInvitationUrl                                          = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
+      val stateHistory                                                        = applicationWithSubscriptionsAndStateHistory.stateHistory
+      val gatekeeperApprovalsUrl                                              = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
+      val termsOfUseInvitationUrl                                             = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
 
       def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
         subscriptions.exists(id => id.context == t._1)

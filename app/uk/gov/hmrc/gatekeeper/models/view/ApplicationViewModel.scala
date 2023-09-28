@@ -17,10 +17,10 @@
 package uk.gov.hmrc.gatekeeper.models.view
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, StateHistory}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 case class ResponsibleIndividualHistoryItem(name: String, email: String, fromDate: String, toDate: String)
 

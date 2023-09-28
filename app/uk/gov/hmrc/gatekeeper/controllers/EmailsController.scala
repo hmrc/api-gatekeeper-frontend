@@ -23,8 +23,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -33,8 +33,7 @@ import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.emails._
@@ -127,7 +126,7 @@ class EmailsController @Inject() (
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
-        case (_, Nil)     => successful(List.empty[RegisteredUser])
+        case (_, Nil)                   => successful(List.empty[RegisteredUser])
         case (ApiAccessType.PUBLIC, _)  =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = false).map(_.filter(_.verified))
         case (ApiAccessType.PRIVATE, _) =>
@@ -154,33 +153,34 @@ class EmailsController @Inject() (
     // withName could throw an exception here
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
       .map(users => {
-        val filteredUsers       = users.filter(_.verified)
+        val filteredUsers = users.filter(_.verified)
         Ok(emailPreferencesTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic))
       })
   }
 
-  def emailPreferencesApiCategory(maybeSelectedTopic: Option[TopicOptionChoice] = None, maybeSelectedCategory: Option[ApiCategory] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val topicAndCategory: Option[(TopicOptionChoice, ApiCategory)] =
-      for {
-        topic    <- maybeSelectedTopic
-        category <- maybeSelectedCategory
-      } yield (topic, category)
+  def emailPreferencesApiCategory(maybeSelectedTopic: Option[TopicOptionChoice] = None, maybeSelectedCategory: Option[ApiCategory] = None): Action[AnyContent] =
+    anyStrideUserAction { implicit request =>
+      val topicAndCategory: Option[(TopicOptionChoice, ApiCategory)] =
+        for {
+          topic    <- maybeSelectedTopic
+          category <- maybeSelectedCategory
+        } yield (topic, category)
 
-    for {
-      users               <- topicAndCategory.map(tup =>
-                               developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2)
-                             )
-                               .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
-      selectedCategory     = topicAndCategory.map(_._2)
-      selectedCategoryName = selectedCategory.map(_.displayText).getOrElse("")
-    } yield Ok(emailPreferencesApiCategoryView(
-      users,
-      usersToEmailCopyText(users),
-      topicAndCategory.map(_._1),
-      maybeSelectedCategory,
-      selectedCategoryName
-    ))
-  }
+      for {
+        users               <- topicAndCategory.map(tup =>
+                                 developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2)
+                               )
+                                 .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+        selectedCategory     = topicAndCategory.map(_._2)
+        selectedCategoryName = selectedCategory.map(_.displayText).getOrElse("")
+      } yield Ok(emailPreferencesApiCategoryView(
+        users,
+        usersToEmailCopyText(users),
+        topicAndCategory.map(_._1),
+        maybeSelectedCategory,
+        selectedCategoryName
+      ))
+    }
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {

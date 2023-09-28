@@ -23,12 +23,12 @@ import play.api.test.{FakeRequest, Helpers}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 

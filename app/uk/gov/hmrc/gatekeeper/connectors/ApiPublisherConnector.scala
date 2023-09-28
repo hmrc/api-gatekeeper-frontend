@@ -22,8 +22,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 
 abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {

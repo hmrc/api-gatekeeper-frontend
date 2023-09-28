@@ -61,7 +61,14 @@ class SubscriptionFieldsService @Inject() (
 object SubscriptionFieldsService {
 
   trait SubscriptionFieldsConnector {
-    def saveFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias)(implicit hc: HeaderCarrier): Future[SaveSubscriptionFieldsResponse]
+
+    def saveFieldValues(
+        clientId: ClientId,
+        apiContext: ApiContext,
+        apiVersion: ApiVersionNbr,
+        fields: Fields.Alias
+      )(implicit hc: HeaderCarrier
+      ): Future[SaveSubscriptionFieldsResponse]
 
     def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]]
   }

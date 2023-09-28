@@ -17,12 +17,15 @@
 package uk.gov.hmrc.gatekeeper.views.applications
 
 import java.time.{LocalDateTime, Period}
+
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, LaxEmailAddress, UserId}
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
 import uk.gov.hmrc.gatekeeper.models._

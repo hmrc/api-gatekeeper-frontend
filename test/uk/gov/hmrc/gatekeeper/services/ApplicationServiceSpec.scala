@@ -30,12 +30,10 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._

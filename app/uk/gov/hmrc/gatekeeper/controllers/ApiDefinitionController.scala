@@ -22,11 +22,11 @@ import scala.concurrent.ExecutionContext
 import play.api.mvc.MessagesControllerComponents
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
@@ -87,7 +87,7 @@ class ApiDefinitionController @Inject() (
     def isTrial(apiVersion: ApiVersionGK): Boolean = {
       apiVersion.access.fold(false)(_ match {
         case ApiAccess.Private(true) => true
-        case _ => false
+        case _                       => false
       })
     }
 

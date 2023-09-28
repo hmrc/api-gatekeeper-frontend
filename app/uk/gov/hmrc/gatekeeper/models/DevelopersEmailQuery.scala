@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 case class EmailOverride(email: List[RegisteredUser], isOverride: Boolean = false)

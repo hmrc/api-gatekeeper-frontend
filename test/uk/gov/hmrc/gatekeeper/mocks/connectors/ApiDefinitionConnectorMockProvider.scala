@@ -20,9 +20,9 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 
 trait ApiDefinitionConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

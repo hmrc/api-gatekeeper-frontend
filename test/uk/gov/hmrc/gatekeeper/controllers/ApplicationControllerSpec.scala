@@ -34,25 +34,23 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, MoreApplication}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageAutoDeleteDisabledView, ManageAutoDeleteEnabledView, _}
+import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}

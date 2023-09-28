@@ -17,8 +17,8 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 class DeveloperStatusFilterSpec extends HmrcSpec {
 

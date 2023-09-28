@@ -23,6 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -132,9 +133,9 @@ class EmailsPreferencesController @Inject() (
     val selectedCategories = maybeSelectedCategories.getOrElse(Set.empty)
     anyStrideUserAction { implicit request =>
       for {
-        userPaginatedResponse     <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedCategories, offset, limit)
-        totalCount                 = userPaginatedResponse.totalCount
-        users                      = userPaginatedResponse.users.filter(_.verified)
+        userPaginatedResponse <- developerService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(selectedCategories, offset, limit)
+        totalCount             = userPaginatedResponse.totalCount
+        users                  = userPaginatedResponse.users.filter(_.verified)
       } yield Ok(emailPreferencesSelectedUserTaxRegimeView(
         users,
         usersToEmailCopyText(users),
@@ -175,7 +176,7 @@ class EmailsPreferencesController @Inject() (
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
-        case (_, Nil)     => successful(List.empty[RegisteredUser])
+        case (_, Nil)                   => successful(List.empty[RegisteredUser])
         case (ApiAccessType.PUBLIC, _)  =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = false).map(_.filter(_.verified))
         case (ApiAccessType.PRIVATE, _) =>

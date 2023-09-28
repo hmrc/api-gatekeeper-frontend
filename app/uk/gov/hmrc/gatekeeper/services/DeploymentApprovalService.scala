@@ -21,9 +21,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 class DeploymentApprovalService @Inject() (
     sandboxApiPublisherConnector: SandboxApiPublisherConnector,

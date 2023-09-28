@@ -21,8 +21,7 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier}
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
+import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier, TopicOptionChoice}
 
 package object binders extends ApplicationLogger {
 
@@ -205,9 +204,9 @@ package object binders extends ApplicationLogger {
       textBinder.unbind(key, topic.toString())
     }
   }
-  /**
-   * QueryString binder for Set
-   */
+
+  /** QueryString binder for Set
+    */
   implicit def bindableSet[T: QueryStringBindable]: QueryStringBindable[Set[T]] =
     QueryStringBindable.bindableSeq[T].transform(_.toSet, _.toSeq)
 

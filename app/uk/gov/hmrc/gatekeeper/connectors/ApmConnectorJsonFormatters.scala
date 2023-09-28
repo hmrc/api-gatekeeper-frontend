@@ -16,15 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber}
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 
 private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionFormatters {
 
   import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
   import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
-  
+
   import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
   import play.api.libs.json._
 

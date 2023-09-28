@@ -41,7 +41,7 @@
     new DevelopersEmailQuery(None, None, Some(selectedCategories), false, None, false)
 }
 @userSelection = @{
-    Map("Tax Regime" -> selectedCategories.map(_.displayText).mkString("<br>"))
+    Map("Tax Regime" -> selectedCategories.map(_.displayText).toList.sorted.mkString("<br>"))
 }
 @main(
     title = s"${applicationConfig.title} - Email users interested in a tax regime",
@@ -98,7 +98,7 @@
                             Tax Regime
                         </dt>
                         <dd class="govuk-summary-list__value">
-                        @for(selectedCategory <- selectedCategories) {
+                        @for(selectedCategory <- selectedCategories.toList.sortBy(_.displayText)) {
                             @selectedCategory.displayText<br/>
                         }
                         </dd>
