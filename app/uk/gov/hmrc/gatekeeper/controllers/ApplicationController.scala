@@ -478,7 +478,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleAutoDeleteFalse(application: Application) = {
+      def handleAutoDeleteDisabled(application: Application) = {
         for {
           event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
                      .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
@@ -489,7 +489,7 @@ class ApplicationController @Inject() (
       if (app.application.moreApplication.allowAutoDelete) {
         Future.successful(Ok(manageAutoDeleteEnabledView(app.application, AutoDeletePreviouslyEnabledForm.form)))
       } else {
-        handleAutoDeleteFalse(app.application)
+        handleAutoDeleteDisabled(app.application)
       }
 
     }
