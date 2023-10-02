@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.Clock
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
@@ -36,9 +37,10 @@ class DeveloperService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
     commandConnector: ApplicationCommandConnector,
-    xmlService: XmlService
+    xmlService: XmlService,
+    val clock: Clock
   )(implicit ec: ExecutionContext
-  ) {
+  ) extends ClockNow {
 
   def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[User]] = {
 
@@ -241,7 +243,7 @@ class DeveloperService @Inject() (
 
       for {
         adminsToEmail <- fetchAdminsToEmail(developer.email)(app)
-        cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+        cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, now())
         result        <- commandConnector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
                            case Left(_)  => throw new RuntimeException("Failed to remove team member from app")
                            case Right(_) => ()

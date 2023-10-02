@@ -29,11 +29,11 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import java.time.LocalDateTime
+@import java.time.{Clock, LocalDateTime}
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 @import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, clock: Clock)
 
 
 @(model: ApplicationViewModel)(implicit request: LoggedInRequest[_], flash: Flash)
@@ -287,7 +287,7 @@
         Last API call
       </dt>
       <dd class="govuk-summary-list__value" data-last-access>
-        @ApplicationFormatter.getLastAccess(application)(LocalDateTime.now)
+        @ApplicationFormatter.getLastAccess(application)(LocalDateTime.now(clock))
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>

@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.LocalDateTime
+import java.time.{Clock, LocalDateTime}
 
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 
-case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime = LocalDateTime.now())
+case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime = LocalDateTime.now(Clock.systemUTC()))
 
 object StateHistory {
   import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._

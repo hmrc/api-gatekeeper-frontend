@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.Clock
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.NonEmptyList
@@ -27,22 +27,23 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
 class TeamMemberService @Inject() (
     commandConnector: ApplicationCommandConnector,
-    developerConnector: DeveloperConnector
+    developerConnector: DeveloperConnector,
+    val clock: Clock
   )(implicit ec: ExecutionContext
-  ) extends ApplicationLogger {
+  ) extends ApplicationLogger with ClockNow {
 
   def addTeamMember(app: Application, collaborator: Collaborator, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
-      cmd            = ApplicationCommands.AddCollaborator(user, collaborator, LocalDateTime.now())
+      cmd            = ApplicationCommands.AddCollaborator(user, collaborator, now())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }
@@ -58,7 +59,7 @@ class TeamMemberService @Inject() (
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
-      cmd            = ApplicationCommands.RemoveCollaborator(user, collaborator, LocalDateTime.now())
+      cmd            = ApplicationCommands.RemoveCollaborator(user, collaborator, now())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }
