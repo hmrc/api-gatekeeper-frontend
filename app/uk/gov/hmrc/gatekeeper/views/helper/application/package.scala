@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import java.time.{Clock, LocalDateTime}
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -42,7 +42,8 @@ object ApplicationFormatter {
     dateFormatter.format(app.createdOn)
   }
 
-  def getLastAccess(app: NewApplication)(now: LocalDateTime = LocalDateTime.now(Clock.systemUTC())): String = {
+  // Caution: defaulting now = LocalDateTime.now() will not use UTC
+  def getLastAccess(app: NewApplication)(now: LocalDateTime): String = {
     app.lastAccess match {
       case Some(lastAccess) =>
         if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {
