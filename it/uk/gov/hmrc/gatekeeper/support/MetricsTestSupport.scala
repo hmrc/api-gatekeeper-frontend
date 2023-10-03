@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.support
 
+import scala.jdk.CollectionConverters._
+
 import com.codahale.metrics.MetricRegistry
 import com.kenshoo.play.metrics.Metrics
 import org.scalatest.Suite
-import play.api.Application
-
-import scala.jdk.CollectionConverters._
 import org.scalatest.matchers.should.Matchers
+
+import play.api.Application
 
 trait MetricsTestSupport {
   self: Suite with Matchers =>

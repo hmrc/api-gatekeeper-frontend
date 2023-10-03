@@ -17,11 +17,13 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+
 import play.api.http.Status
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 
 trait ApplicationServiceStub extends WireMockExtensions {
 

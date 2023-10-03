@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.common
 
-import play.api.Mode
-import play.api.Application
 import play.api.test.DefaultTestServerFactory
+import play.api.{Application, Mode}
 import play.core.server.ServerConfig
 
 object MyTestServerFactory extends MyTestServer

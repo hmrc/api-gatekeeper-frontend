@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
-import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
-import uk.gov.hmrc.gatekeeper.common.SignInSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
-import org.scalatest.{GivenWhenThen, Tag}
-import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{GivenWhenThen, Tag}
 
+import play.api.http.Status._
+
+import uk.gov.hmrc.gatekeeper.common.SignInSugar
+import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
+import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
 

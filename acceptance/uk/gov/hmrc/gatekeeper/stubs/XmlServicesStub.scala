@@ -17,7 +17,9 @@
 package uk.gov.hmrc.gatekeeper.stubs
 
 import com.github.tomakehurst.wiremock.client.WireMock.{aResponse, get, stubFor, urlEqualTo}
+
 import play.api.http.Status.OK
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.xmlApis
 

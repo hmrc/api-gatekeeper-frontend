@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.testdata._
-import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
-
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.testdata._
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperApplicationEventsSpec
     extends ApiGatekeeperBaseSpec

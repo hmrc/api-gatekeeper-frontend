@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.gatekeeper.common.WebPage
 
 case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
 

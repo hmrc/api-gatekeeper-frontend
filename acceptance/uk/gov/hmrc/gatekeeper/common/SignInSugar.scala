@@ -18,9 +18,11 @@ package uk.gov.hmrc.gatekeeper.common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.WebDriver
-import play.api.http.Status.{OK, SEE_OTHER}
-import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
+
 import play.api.Application
+import play.api.http.Status.{OK, SEE_OTHER}
+
+import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.utils.MockCookies
 
 trait SignInSugar extends NavigationSugar {

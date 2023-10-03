@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
+import org.openqa.selenium.Keys.ENTER
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.common.{NavigationSugar, WebPage}
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage.APIFilter.APIFilterList
-import org.openqa.selenium.Keys.ENTER
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationsPage extends WebPage with NavigationSugar {
 

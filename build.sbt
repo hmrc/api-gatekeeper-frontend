@@ -61,6 +61,7 @@ lazy val microservice = Project(appName, file("."))
   .configs(IntegrationTest)
   .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
   .settings(integrationTestSettings())
+  .settings(inConfig(IntegrationTest)(scalafixConfigSettings(IntegrationTest)))
   .settings(
     IntegrationTest / parallelExecution := false,
     IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
@@ -70,6 +71,7 @@ lazy val microservice = Project(appName, file("."))
   .configs(AcceptanceTest)
   .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
   .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
+  .settings(inConfig(AcceptanceTest)(scalafixConfigSettings(AcceptanceTest)))
   .settings(
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,

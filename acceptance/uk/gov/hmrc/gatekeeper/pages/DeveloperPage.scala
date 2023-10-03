@@ -16,10 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
+import org.openqa.selenium.Keys.ENTER
+
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter.APIFilterList
-import org.openqa.selenium.Keys.ENTER
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object DeveloperPage extends WebPage {
   override val url: String = s"http://localhost:$port/api-gatekeeper/developers"

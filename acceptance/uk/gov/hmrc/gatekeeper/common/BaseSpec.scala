@@ -20,10 +20,11 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
 import org.openqa.selenium.WebDriver
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestData}
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestData}
 import org.scalatestplus.play.guice.GuiceOneServerPerTest
+
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.RunningServer
 import play.api.{Application, Mode}

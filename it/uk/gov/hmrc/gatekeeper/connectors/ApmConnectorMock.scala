@@ -17,7 +17,9 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+
 import play.api.http.Status._
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
 trait ApmConnectorMock {

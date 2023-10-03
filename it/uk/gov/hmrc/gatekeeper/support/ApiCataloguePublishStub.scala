@@ -17,7 +17,9 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
+
 import play.api.libs.json.Json
+
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 
 trait ApiCataloguePublishStub {
