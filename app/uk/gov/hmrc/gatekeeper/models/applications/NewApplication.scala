@@ -60,7 +60,7 @@ case class NewApplication(
 
 object NewApplication {
   import play.api.libs.json.Json
-  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
