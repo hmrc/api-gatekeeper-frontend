@@ -38,6 +38,7 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.CidrBlock
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -572,23 +573,22 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "manageIpAllowlist" should {
-    "send the updated IP allowlist to the TPA connector" in new Setup {
+    "issue the command to update the ip allowlist" in new Setup {
       val existingIpAllowlist      = IpAllowlist(required = false, Set("192.168.1.0/24"))
       val app: ApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
       val newIpAllowlist           = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
-      ApplicationConnectorMock.Prod.UpdateIpAllowlist.succeeds()
+      CommandConnectorMock.IssueCommand.succeeds()
 
-      val result: UpdateIpAllowlistResult = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist))
+      val result = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist, gatekeeperUserId))
 
-      result shouldBe UpdateIpAllowlistSuccessResult
-      verify(mockProductionApplicationConnector).updateIpAllowlist(eqTo(app.id), eqTo(newIpAllowlist.required), eqTo(newIpAllowlist.allowlist))(*)
-    }
+      result shouldBe ApplicationUpdateSuccessResult
 
-    "propagate connector errors" in new Setup {
-      ApplicationConnectorMock.Prod.UpdateIpAllowlist.failsWithISE()
-
-      intercept[UpstreamErrorResponse] {
-        await(underTest.manageIpAllowlist(stdApp1, false, Set("192.168.1.0/24")))
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
+        case ApplicationCommands.ChangeIpAllowlist(aUser, _, required, oldIpAllowlist, newIpAllowlist) =>
+          aUser shouldBe Actors.GatekeeperUser(gatekeeperUserId)
+          required shouldBe true
+          oldIpAllowlist shouldBe List(CidrBlock("192.168.1.0/24"))
+          newIpAllowlist shouldBe List(CidrBlock("192.168.1.0/24"), CidrBlock("192.168.2.0/24"))
       }
     }
   }

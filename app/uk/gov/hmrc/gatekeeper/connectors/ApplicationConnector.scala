@@ -157,6 +157,11 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
+  /**
+    * APIS-6274 - This code is no longr used.
+    * The service that used to call this now uses a command to perform the update.
+    * Remove once the new code has been tested and released.
+    */
   def updateIpAllowlist(applicationId: ApplicationId, required: Boolean, ipAllowlist: Set[String])(implicit hc: HeaderCarrier): Future[UpdateIpAllowlistResult] = {
     http.PUT[UpdateIpAllowlistRequest, Either[UpstreamErrorResponse, HttpResponse]](
       s"${baseApplicationUrl(applicationId)}/ipAllowlist",

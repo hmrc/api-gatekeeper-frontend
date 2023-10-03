@@ -394,7 +394,7 @@ class ApplicationController @Inject() (
           val formWithErrors = IpAllowlistForm.form.fill(form).withError("allowlistedIps", messagesApi.preferred(request)("ipAllowlist.invalid.required"))
           Future.successful(BadRequest(manageIpAllowlistView(app.application, formWithErrors)))
         } else {
-          applicationService.manageIpAllowlist(app.application, form.required, form.allowlist).map { _ =>
+          applicationService.manageIpAllowlist(app.application, form.required, form.allowlist, loggedIn.userFullName.get).map { _ =>
             Redirect(routes.ApplicationController.applicationPage(appId))
           }
         }

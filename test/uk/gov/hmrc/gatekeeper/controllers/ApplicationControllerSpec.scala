@@ -865,7 +865,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage the IP allowlist using the app service for a super user" in new Setup {
@@ -878,7 +878,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "clear the IP allowlist when allowlistedIps is empty" in new Setup {
@@ -891,7 +891,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set()))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application.application), eqTo(required), eqTo(Set()), eqTo("Bobby Example"))(*)
       }
 
       "fail validation when clearing a required IP allowlist" in new Setup {
@@ -904,7 +904,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
         contentAsString(result) should include("The IP allow list is mandatory for this application")
-        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
+        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -929,7 +929,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *)(*)
+          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
         }
       }
 
