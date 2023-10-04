@@ -16,24 +16,24 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
-import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
-import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DashboardPage}
-import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
+import scala.io.Source
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.GivenWhenThen
+import org.scalatest.matchers.should.Matchers
+
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import scala.io.Source
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{ApiPlatformEventsConnector, DisplayEvent, FilterValue, QueryableValues}
+import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
+import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DashboardPage}
+import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperBaseSpec
     extends BaseSpec

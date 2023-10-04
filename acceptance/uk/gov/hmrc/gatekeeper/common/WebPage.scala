@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.common
 
+import java.time.Duration
+
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatestplus.selenium.{Page, WebBrowser}
 import org.scalatest.matchers.should.Matchers
-import java.time.Duration
+import org.scalatestplus.selenium.{Page, WebBrowser}
 
 case class Link(href: String, text: String)
 

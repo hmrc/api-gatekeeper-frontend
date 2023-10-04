@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import akka.stream.Materializer
+
 import play.api.Application
 import play.api.i18n.{Lang, Messages, MessagesApi}
 import play.api.inject.guice.GuiceApplicationBuilder
@@ -24,6 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 abstract class BaseISpec

@@ -16,19 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.common
 
-import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.{By, NoSuchElementException}
-import play.api.libs.json.Json
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdRequest
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
-import play.api.http.Status._
 import org.scalatest.matchers.should.Matchers
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+
+import play.api.http.Status._
+import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 trait ApprovedBaseSpec extends BaseSpec
   with SignInSugar with Matchers with CustomMatchers with UrlEncoding {

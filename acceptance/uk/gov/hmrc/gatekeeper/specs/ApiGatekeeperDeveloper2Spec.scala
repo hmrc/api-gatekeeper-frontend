@@ -16,21 +16,23 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
-import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
+import scala.collection.immutable.List
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
 import org.scalatest.{Assertions, Tag}
+
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import scala.collection.immutable.List
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
-import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
+import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions with WireMockExtensions {
 

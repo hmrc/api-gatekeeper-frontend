@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
@@ -100,7 +100,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
       CommandConnectorMock.aMock,
-      mockXmlService
+      mockXmlService,
+      FixedClock.clock
     )
 
     val verifiedAdminUser           = aUser("admin1")

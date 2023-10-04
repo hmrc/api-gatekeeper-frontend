@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.support
 
-import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.CombinedApi
+
 import play.api.http.Status
+
+import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
+import uk.gov.hmrc.gatekeeper.models.CombinedApi
 
 trait ApmServiceStub extends WireMockExtensions {
 

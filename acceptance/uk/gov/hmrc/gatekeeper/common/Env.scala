@@ -17,14 +17,13 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import java.net.URL
+import scala.util.{Properties, Try}
 
 import org.openqa.selenium.chrome.{ChromeDriver, ChromeOptions}
+import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.{Dimension, WebDriver}
 
-import scala.util.{Properties, Try}
-import org.openqa.selenium.firefox.FirefoxOptions
-import org.openqa.selenium.firefox.FirefoxDriver
 import uk.gov.hmrc.webdriver.SingletonDriver
 
 trait Env {

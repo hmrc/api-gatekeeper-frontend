@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.support
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+
 import play.api.Application
 
 abstract class ServerBaseISpec

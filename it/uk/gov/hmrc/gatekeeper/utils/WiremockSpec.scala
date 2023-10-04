@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.connectors.WiremockSugarIt
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.test.FutureAwaits
-import play.api.test.DefaultAwaitTimeout
-import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpec
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
+
+import play.api.test.{DefaultAwaitTimeout, FutureAwaits}
+
+import uk.gov.hmrc.gatekeeper.connectors.WiremockSugarIt
 
 trait WiremockSpec
     extends AnyWordSpec

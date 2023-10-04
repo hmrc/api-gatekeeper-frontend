@@ -16,17 +16,18 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.testdata.{ApiDefinitionTestData, ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, CommonTestData, StateHistoryTestData}
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models._
 import org.scalatest.{Assertions, Tag}
+
 import play.api.http.Status._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.testdata._
+import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec

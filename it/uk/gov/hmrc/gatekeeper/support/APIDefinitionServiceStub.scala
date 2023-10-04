@@ -17,10 +17,12 @@
 package uk.gov.hmrc.gatekeeper.support
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitionGK
+
 import play.api.http.Status
 import play.api.libs.json.Json
+
+import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
+import uk.gov.hmrc.gatekeeper.models.ApiDefinitionGK
 
 trait APIDefinitionServiceStub {
   val apiPublicDefinitionUrl  = "/api-definition"

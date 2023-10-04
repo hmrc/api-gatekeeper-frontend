@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.common
 
+import java.time.Duration
+
 import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatest.concurrent.Eventually
-import org.scalatestplus.selenium.WebBrowser
-import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.Assertions
+import org.scalatest.concurrent.Eventually
 import org.scalatest.matchers.should.Matchers
-import java.time.Duration
+import org.scalatest.time.{Millis, Seconds, Span}
+import org.scalatestplus.selenium.WebBrowser
 
 trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 

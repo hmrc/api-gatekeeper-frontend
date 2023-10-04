@@ -42,7 +42,8 @@ object ApplicationFormatter {
     dateFormatter.format(app.createdOn)
   }
 
-  def getLastAccess(app: NewApplication)(now: LocalDateTime = LocalDateTime.now()): String = {
+  // Caution: defaulting now = LocalDateTime.now() will not use UTC
+  def getLastAccess(app: NewApplication)(now: LocalDateTime): String = {
     app.lastAccess match {
       case Some(lastAccess) =>
         if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {

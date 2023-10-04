@@ -23,7 +23,8 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.State.State
 
-case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime = LocalDateTime.now())
+// Caution: defaulting changedAt = LocalDateTime.now() will not use UTC
+case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime)
 
 object StateHistory {
   import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._

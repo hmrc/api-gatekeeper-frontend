@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.{LocalDateTime, Period}
+import java.time.{LocalDateTime, Period, ZoneOffset}
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -405,7 +405,7 @@ case class ApplicationState(
     name: State = State.TESTING,
     requestedByEmailAddress: Option[String] = None,
     verificationCode: Option[String] = None,
-    updatedOn: LocalDateTime = LocalDateTime.now()
+    updatedOn: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
   ) {
   def isApproved                     = name.isApproved
   def isPendingGatekeeperApproval    = name.isPendingGatekeeperApproval
