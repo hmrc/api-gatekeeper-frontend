@@ -62,7 +62,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object ManageIpAllowlist {
-      def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *)(*)).thenReturn(successful(UpdateIpAllowlistSuccessResult))
+      def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UpdateOverrides {
