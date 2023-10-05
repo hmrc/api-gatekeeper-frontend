@@ -24,7 +24,6 @@ private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionForma
 
   import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
   import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
-
   import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
   import play.api.libs.json._
 

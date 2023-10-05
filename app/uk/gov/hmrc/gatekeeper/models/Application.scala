@@ -269,7 +269,7 @@ object ApplicationResponse {
   implicit private val formatPrivileged = Json.format[Privileged]
   implicit private val formatRopc       = Json.format[Ropc]
 
-  implicit val formatAccess = Union.from[Access]("accessType")
+  implicit val formatAccess: OFormat[Access] = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
