@@ -216,15 +216,6 @@ sealed trait UpdateScopesResult
 case object UpdateScopesSuccessResult       extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
-case class UpdateIpAllowlistRequest(required: Boolean, allowlist: Set[String])
-
-object UpdateIpAllowlistRequest {
-  implicit val format = Json.format[UpdateIpAllowlistRequest]
-}
-
-sealed trait UpdateIpAllowlistResult
-case object UpdateIpAllowlistSuccessResult extends UpdateIpAllowlistResult
-
 case class ValidateApplicationNameRequest(applicationName: String, selfApplicationId: ApplicationId)
 
 object ValidateApplicationNameRequest {

@@ -467,39 +467,6 @@ class ApplicationConnectorSpec
     }
   }
 
-  "updateIpAllowlist" should {
-    val url            = s"/application/${applicationId.value.toString()}/ipAllowlist"
-    val newIpAllowlist = IpAllowlist(required = false, Set("192.168.1.0/24", "192.168.2.0/24"))
-    val request        = Json.toJson(UpdateIpAllowlistRequest(newIpAllowlist.required, newIpAllowlist.allowlist)).toString
-
-    "make a PUT request and return a successful result if the request was successful on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(request))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-          )
-      )
-      await(connector.updateIpAllowlist(applicationId, newIpAllowlist.required, newIpAllowlist.allowlist)) shouldBe UpdateIpAllowlistSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(request))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateIpAllowlist(applicationId, newIpAllowlist.required, newIpAllowlist.allowlist))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
   "unsubscribeFromApi" should {
     val apiContext = ApiContext.random
     val url        = s"/application/${applicationId.value.toString()}/subscription?context=${apiContext.value}&version=${apiVersion1.value}"

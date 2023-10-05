@@ -91,11 +91,6 @@ trait ApplicationConnectorMockProvider {
       def succeeds() = when(aMock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
     }
 
-    object UpdateIpAllowlist {
-      def succeeds()     = when(aMock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(successful(UpdateIpAllowlistSuccessResult))
-      def failsWithISE() = when(aMock.updateIpAllowlist(*[ApplicationId], *, *)(*)).thenReturn(failed(UpstreamErrorResponse("Error", 500)))
-    }
-
     object UnblockApplication {
       def succeeds() = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
       def fails()    = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockFailureResult))
