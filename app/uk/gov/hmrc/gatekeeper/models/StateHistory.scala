@@ -27,7 +27,7 @@ import uk.gov.hmrc.gatekeeper.models.State.State
 case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime)
 
 object StateHistory {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
 
   def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
     s1.applicationId match {
