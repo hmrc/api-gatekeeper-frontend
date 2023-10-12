@@ -117,7 +117,7 @@ object TermsAndConditionsLocation {
 case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
 
 object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
   implicit val format = Json.format[TermsOfUseAcceptance]
 }
 
@@ -261,7 +261,7 @@ case class ApplicationResponse(
   ) extends Application
 
 object ApplicationResponse {
-  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
   implicit val formatTotpIds = Json.format[TotpIds]
 
