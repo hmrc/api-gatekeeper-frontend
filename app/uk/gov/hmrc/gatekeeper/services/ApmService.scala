@@ -21,6 +21,7 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -50,7 +51,7 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchAllBoxes()
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
+  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apmConnector.fetchNonOpenApis(environment)
   }
 

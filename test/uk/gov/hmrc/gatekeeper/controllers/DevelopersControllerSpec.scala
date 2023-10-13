@@ -198,10 +198,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions   = List(
-          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA),
-          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+          ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
-        val apiDefinition = ApiDefinitionGK("", "", name = "MyApi", "", ApiContext.random, apiVersions, None, Set(ApiCategory.OTHER))
+        val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", ApiContext.random, apiVersions, false, false, None, List(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -218,10 +218,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiContext = ApiContext.random
 
         val apiVersions   = List(
-          ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE),
-          ApiVersionGK(apiVersion2, ApiVersionSource.UNKNOWN, ApiStatus.STABLE)
+          ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+          ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
-        val apiDefinition = ApiDefinitionGK("", "", name = "", "", apiContext, apiVersions, None, Set(ApiCategory.OTHER))
+        val apiDefinition = ApiDefinition(ServiceName(""), "", "", "", apiContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -234,10 +234,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersionDefinition = ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.ALPHA)
+        val apiVersionDefinition = ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
 
         val apiVersionDefinitions = List(apiVersionDefinition, apiVersionDefinition)
-        val apiDefinition         = List(ApiDefinitionGK("", "", name = "MyApi", "", apiContext, apiVersionDefinitions, None, Set(ApiCategory.OTHER)))
+        val apiDefinition         = List(ApiDefinition(ServiceName(""), "", "MyApi", "", apiContext, apiVersionDefinitions, false, false, None, List(ApiCategory.OTHER)))
 
         val result = developersController.getApiVersionsDropDownValues(apiDefinition)
 

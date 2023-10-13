@@ -35,11 +35,11 @@ object SortingHelper {
   }
 
   def descendingVersionWithoutFields(v1: VersionSubscriptionWithoutFields, v2: VersionSubscriptionWithoutFields) = {
-    versionSorter(v1.version.version.value, v2.version.version.value)
+    versionSorter(v1.version.versionNbr.value, v2.version.versionNbr.value)
   }
 
   def descendingVersionWithFields(v1: VersionSubscription, v2: VersionSubscription) = {
-    versionSorter(v1.version.version.value, v2.version.version.value)
+    versionSorter(v1.version.versionNbr.value, v2.version.versionNbr.value)
   }
 
 }

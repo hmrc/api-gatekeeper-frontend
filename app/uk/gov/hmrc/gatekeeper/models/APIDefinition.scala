@@ -20,31 +20,31 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
-case class ApiDefinitionGK(
-    serviceName: String,
-    serviceBaseUrl: String,
-    name: String,
-    description: String,
-    context: ApiContext,
-    versions: List[ApiVersionGK],
-    requiresTrust: Option[Boolean],
-    categories: Set[ApiCategory]
-  ) {
+// case class ApiDefinitionGK(
+//     serviceName: String,
+//     serviceBaseUrl: String,
+//     name: String,
+//     description: String,
+//     context: ApiContext,
+//     versions: List[ApiVersionGK],
+//     requiresTrust: Option[Boolean],
+//     categories: Set[ApiCategory]
+//   ) {
 
-  def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
-    v1.version.version.value.toDouble > v2.version.version.value.toDouble
-  }
-}
+//   def descendingVersion(v1: VersionSubscription, v2: VersionSubscription) = {
+//     v1.version.version.value.toDouble > v2.version.version.value.toDouble
+//   }
+// }
 
-case class VersionSubscription(version: ApiVersionGK, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
+case class VersionSubscription(version: ApiVersion, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 
-case class ApiVersionGK(version: ApiVersionNbr, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
-  val displayedStatus = status.displayText
+// case class ApiVersionGK(version: ApiVersionNbr, versionSource: ApiVersionSource, status: ApiStatus, access: Option[ApiAccess] = None) {
+//   val displayedStatus = status.displayText
 
-  val accessType = access.getOrElse(ApiAccess.PUBLIC).accessType
+//   val accessType = access.getOrElse(ApiAccess.PUBLIC).accessType
 
-  val displayedAccessType = accessType.toString().toLowerCase().capitalize
-}
+//   val displayedAccessType = accessType.toString().toLowerCase().capitalize
+// }
 
 class FetchApiDefinitionsFailed extends Throwable
 class FetchApiCategoriesFailed  extends Throwable
@@ -61,7 +61,7 @@ case class SubscriptionWithoutFields(name: String, serviceName: String, context:
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
-case class VersionSubscriptionWithoutFields(version: ApiVersionGK, subscribed: Boolean)
+case class VersionSubscriptionWithoutFields(version: ApiVersion, subscribed: Boolean)
 
 object Subscription {
 

@@ -21,10 +21,11 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApplicationId, _}
+import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
-import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionGK, ApiDefinitions}
 import uk.gov.hmrc.gatekeeper.services.ApmService
 
 trait ApmServiceMockProvider {
@@ -50,7 +51,7 @@ trait ApmServiceMockProvider {
     object FetchNonOpenApiDefinitions {
       private val whenClause = when(mockApmService.fetchNonOpenApis(*[Environment])(*))
 
-      def returns(apiDefinitions: ApiDefinitionGK*) = whenClause.thenReturn(successful(apiDefinitions.toList))
+      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
     }
 
     def fetchAllPossibleSubscriptionsReturns(returns: Map[ApiContext, ApiData]) = {

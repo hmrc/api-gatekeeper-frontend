@@ -20,9 +20,9 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models._
 
 trait ApiDefinitionConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -37,11 +37,11 @@ trait ApiDefinitionConnectorMockProvider {
     def mock: ApiDefinitionConnector
 
     object FetchPublic {
-      def returns(defs: ApiDefinitionGK*) = when(mock.fetchPublic()(*)).thenReturn(successful(defs.toList))
+      def returns(defs: ApiDefinition*) = when(mock.fetchPublic()(*)).thenReturn(successful(defs.toList))
     }
 
     object FetchPrivate {
-      def returns(defs: ApiDefinitionGK*) = when(mock.fetchPrivate()(*)).thenReturn(successful(defs.toList))
+      def returns(defs: ApiDefinition*) = when(mock.fetchPrivate()(*)).thenReturn(successful(defs.toList))
     }
   }
 

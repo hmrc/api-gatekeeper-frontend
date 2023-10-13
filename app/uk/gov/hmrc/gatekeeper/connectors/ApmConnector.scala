@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
@@ -61,8 +62,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinitionGK]] = {
-    http.GET[List[ApiDefinitionGK]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
+  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+    http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
   }
 
   // TODO - better return type

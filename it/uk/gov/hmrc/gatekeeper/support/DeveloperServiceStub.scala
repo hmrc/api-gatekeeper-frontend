@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -81,8 +82,8 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinitionGK], topic: TopicOptionChoice): Unit = {
-    val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _)
+  def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
+    val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _).toSet
 
     val topicParam    = s"topic=${topic.toString}"
     val regimeParams  = categories.map(category => s"&regime=${category}").mkString

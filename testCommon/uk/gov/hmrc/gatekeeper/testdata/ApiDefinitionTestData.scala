@@ -26,12 +26,10 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Employers PAYE",
        |   "description": "EMPLOYERS PAYE API.",
-       |   "deployedTo": "PRODUCTION",
        |   "context": "employers-paye",
        |   "versions": [
        |     {
        |       "version": "1.0",
-       |       "versionSource": "UNKNOWN",
        |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
@@ -43,12 +41,17 @@ trait ApiDefinitionTestData {
        |           "method": "GET",
        |           "authType": "USER",
        |           "throttlingTier": "UNLIMITED",
-       |           "scope": "read:employers-paye-1"
+       |           "scope": "read:employers-paye-1",
+       |           "queryParameters": []
        |         }
-       |       ]
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
        |     }
        |   ],
        |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-07-06T09:13:40.439Z",
        |   "categories": [ "OTHER"]
        | },
        |  {
@@ -56,12 +59,10 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Paye Credits",
        |   "description": "PAYE CREDITS API",
-       |    "deployedTo": "PRODUCTION",
        |   "context": "paye-credits",
        |   "versions": [
        |     {
        |       "version": "1.0",
-       |       "versionSource": "UNKNOWN",
        |       "status": "DEPRECATED",
        |       "access": {
        |         "type": "PUBLIC"
@@ -73,12 +74,17 @@ trait ApiDefinitionTestData {
        |           "method": "GET",
        |           "authType": "USER",
        |           "throttlingTier": "UNLIMITED",
-       |           "scope": "read:paye-credits-1"
+       |           "scope": "read:paye-credits-1",
+       |           "queryParameters": []
        |         }
-       |       ]
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
        |     }
        |   ],
        |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2022-07-06T09:13:40.439Z",
        |   "categories": [ "OTHER"]
        | },
        |  {
@@ -86,12 +92,10 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Individual Benefits",
        |   "description": "INDIVIDUAL BENEFITS API.",
-       |    "deployedTo": "PRODUCTION",
        |   "context": "individual-benefits",
        |   "versions": [
        |     {
        |       "version": "1.0",
-       |       "versionSource": "UNKNOWN",
        |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
@@ -103,12 +107,17 @@ trait ApiDefinitionTestData {
        |           "method": "GET",
        |           "authType": "USER",
        |           "throttlingTier": "UNLIMITED",
-       |           "scope": "read:individual-benefits-1"
+       |           "scope": "read:individual-benefits-1",
+       |           "queryParameters": []
        |         }
-       |       ]
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
        |     }
        |   ],
        |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-06-06T09:13:40.439Z",
        |   "categories": [ "OTHER"]
        | },
        |   {
@@ -116,12 +125,10 @@ trait ApiDefinitionTestData {
        |   "serviceBaseUrl": "http://localhost/",
        |   "name": "Self Assessment",
        |   "description": "SELF ASSESSMENT API.",
-       |    "deployedTo": "PRODUCTION",
        |   "context": "self-assessment",
        |   "versions": [
        |     {
        |       "version": "1.0",
-       |       "versionSource": "UNKNOWN",
        |       "status": "STABLE",
        |       "access": {
        |         "type": "PUBLIC"
@@ -133,12 +140,17 @@ trait ApiDefinitionTestData {
        |           "method": "GET",
        |           "authType": "USER",
        |           "throttlingTier": "UNLIMITED",
-       |           "scope": "read:self-assessment-1"
+       |           "scope": "read:self-assessment-1",
+       |           "queryParameters": []
        |         }
-       |       ]
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
        |     }
        |   ],
        |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-04-06T09:13:40.439Z",
        |   "categories": [ "OTHER"]
        | }
        |]

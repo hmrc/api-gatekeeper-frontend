@@ -48,21 +48,21 @@ class ApiDefinitionConnectorSpec
     val apiVersion1 = ApiVersionNbr.random
   }
 
-  import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-
   "fetchAll" should {
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinitionGK(
-        "dummyAPI",
+      val response = List(ApiDefinition(
+        ServiceName("dummyAPI"),
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
-        Some(false),
-        Set(ApiCategory.OTHER)
+        List(ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        false,
+        false,
+        None,
+        List(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)
@@ -96,15 +96,17 @@ class ApiDefinitionConnectorSpec
     val url = "/api-definition"
 
     "respond with 200 and convert body" in new Setup {
-      val response = List(ApiDefinitionGK(
-        "dummyAPI",
+      val response = List(ApiDefinition(
+        ServiceName("dummyAPI"),
         "http://localhost/",
         "dummyAPI",
         "dummy api.",
         ApiContext("dummy-api"),
-        List(ApiVersionGK(apiVersion1, ApiVersionSource.UNKNOWN, ApiStatus.STABLE, Some(ApiAccess.PUBLIC))),
-        Some(false),
-        Set(ApiCategory.OTHER)
+        List(ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        false,
+        false,
+        None,
+        List(ApiCategory.OTHER)
       ))
 
       val payload = Json.toJson(response)
