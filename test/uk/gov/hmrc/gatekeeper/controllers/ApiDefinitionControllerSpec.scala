@@ -71,9 +71,9 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
       val result = controller.apis()(aLoggedInRequest)
 
-      contentAsString(result) shouldBe s"""name,serviceName,context,version,source,status,access,isTrial,environment
-                                          |MyApi,aServiceName,${someContext.value},1.0,UNKNOWN,Alpha,PUBLIC,false,PRODUCTION
-                                          |MyApi,aServiceName,${someContext.value},2.0,OAS,Stable,PUBLIC,false,PRODUCTION
+      contentAsString(result) shouldBe s"""name,serviceName,context,version,source,status,access,isTrial,environment,requiresTrust
+                                          |MyApi,aServiceName,${someContext.value},1.0,UNKNOWN,Alpha,PUBLIC,false,PRODUCTION,false
+                                          |MyApi,aServiceName,${someContext.value},2.0,OAS,Stable,PUBLIC,false,PRODUCTION,false
                                           |""".stripMargin
     }
 
