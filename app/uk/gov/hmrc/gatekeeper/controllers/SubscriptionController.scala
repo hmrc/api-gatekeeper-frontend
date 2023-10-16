@@ -32,7 +32,6 @@ import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
-import uk.gov.hmrc.gatekeeper.utils.SortingHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -52,11 +51,14 @@ class SubscriptionController @Inject() (
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
+      Ordering.by[VersionSubscriptionWithoutFields, ApiVersionNbr](_.version.versionNbr).reverse
+
     def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
       apiData.versions.map {
         case (version, data) =>
           VersionSubscriptionWithoutFields(data, apiVersions.contains(version))
-      }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)
+      }.toList.sorted
     }
 
     def filterSubscriptionsByContext(subscriptions: Set[ApiIdentifier], context: ApiContext): List[ApiVersionNbr] = {
