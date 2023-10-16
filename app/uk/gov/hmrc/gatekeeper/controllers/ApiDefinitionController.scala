@@ -40,6 +40,7 @@ case class ApiDefinitionView(
     versionSource: ApiVersionSource,
     status: String,
     access: String,
+    requiresTrust: Boolean,
     isTrial: Boolean,
     environment: String
   )
@@ -75,7 +76,8 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
         ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
-        ColumnDefinition("environment", (vm => vm.environment))
+        ColumnDefinition("environment", (vm => vm.environment)),
+        ColumnDefinition("requiresTrust", (vm => vm.requiresTrust.toString()))
       )
 
       Ok(toCsvString(columnDefinitions, allDefinitionsAsRows))
@@ -99,6 +101,7 @@ class ApiDefinitionController @Inject() (
         v.versionSource,
         v.status.displayText,
         v.access.accessType.toString(),
+        apiDefinition.requiresTrust,
         isTrial(v),
         environment.toString
       )
