@@ -95,9 +95,6 @@ class ApmConnectorSpec
     val url = "/api-definitions"
 
     "return all subscribeable API's and their ApiData" in new Setup {
-      // implicit val versionDataWrites = Json.writes[VersionData]
-      // implicit val apiDataWrites     = Json.writes[ApiData]
-
       val apiData              = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
       val apiContext           = ApiContext("Api Context")
       val apiContextAndApiData = Map(apiContext -> apiData)

@@ -66,7 +66,7 @@ class SubscriptionController @Inject() (
     def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
       allPossibleSubs.map {
         case (context, data) =>
-          SubscriptionWithoutFields(data.name, data.serviceName.value, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
+          SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
       }.toList
     }
 

@@ -33,7 +33,7 @@ case class Subscription(name: String, serviceName: String, context: ApiContext, 
   lazy val subscriptionNumberText = Subscription.subscriptionNumberLabel(versions)
 }
 
-case class SubscriptionWithoutFields(name: String, serviceName: String, context: ApiContext, versions: List[VersionSubscriptionWithoutFields]) {
+case class SubscriptionWithoutFields(name: String, serviceName: ServiceName, context: ApiContext, versions: List[VersionSubscriptionWithoutFields]) {
   lazy val subscriptionNumberText = SubscriptionWithoutFields.subscriptionNumberLabel(versions)
 }
 
