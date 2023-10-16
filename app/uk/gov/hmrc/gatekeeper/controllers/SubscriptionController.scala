@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelpe
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.utils.SortingHelper
@@ -56,10 +55,7 @@ class SubscriptionController @Inject() (
     def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
       apiData.versions.map {
         case (version, data) =>
-          VersionSubscriptionWithoutFields(
-            ApiVersion(version, data.status, data.access, List.empty, true, None, ApiVersionSource.UNKNOWN),
-            apiVersions.contains(version)
-          )
+          VersionSubscriptionWithoutFields(data, apiVersions.contains(version))
       }.toList.sortWith(SortingHelper.descendingVersionWithoutFields)
     }
 
@@ -70,7 +66,7 @@ class SubscriptionController @Inject() (
     def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
       allPossibleSubs.map {
         case (context, data) =>
-          SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
+          SubscriptionWithoutFields(data.name, data.serviceName.value, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
       }.toList
     }
 

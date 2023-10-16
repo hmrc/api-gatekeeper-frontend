@@ -1,100 +1,263 @@
 {
     "individuals/relief-at-source": {
         "serviceName": "ras-api",
+        "serviceBaseUrl": "https://individual-ras.tax.protected.mdtp",
         "name": "Relief At Source",
-        "isTestSupport": false,
+        "description": "Relief At Source",
+        "context": "individuals/relief-at-source",
         "versions": {
             "2.0": {
+                "version": "2.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/ras/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get ras summary",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:individual-ras",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             },
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/ras/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get ras summary",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:individual-ras",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-07-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "individuals/deductions/other": {
         "serviceName": "other-deductions-api",
+        "serviceBaseUrl": "https://other-deductions.tax.protected.mdtp",
         "name": "Other Deductions (MTD)",
-        "isTestSupport": false,
+        "description": "Other Deductions (MTD)",
+        "context": "individuals/deductions/other",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/otd/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get other deductions summary",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:other-deductions",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-08-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "individual-paye-test-support": {
         "serviceName": "paye-des-stub",
+        "serviceBaseUrl": "https://paye-des.tax.protected.mdtp",
         "name": "Individual PAYE Test Support",
-        "isTestSupport": true,
+        "description": "Individual PAYE Test Support",
+        "context": "individual-paye-test-support",
         "versions": {
             "2.0": {
+                "version": "2.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/paye/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get other deductions summary",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:paye-test",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             },
             "1.0": {
-                "status": "BETA",
+               "version": "1.0",
+               "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/paye/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get other deductions summary",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:paye-test",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-09-06T09:22:47.419Z",
+        "categories": [
+            "PAYE"
+        ]
     },
     "test/fraud-prevention-headers": {
         "serviceName": "txm-fph-validator-api",
+        "serviceBaseUrl": "https://fraud-prevention.tax.protected.mdtp",
         "name": "Test Fraud Prevention Headers",
-        "isTestSupport": true,
+        "description": "Test Fraud Prevention Headers",
+        "context": "test/fraud-prevention-headers",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/fph/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get fraud prevention headers",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:txm-fph",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-10-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "misc/push-pull-notification": {
         "serviceName": "push-pull-notifications-api",
+        "serviceBaseUrl": "https://push-pull-notification.tax.protected.mdtp",
         "name": "Push Pull Notifications",
-        "isTestSupport": false,
+        "description": "Push Pull Notifications",
+        "context": "misc/push-pull-notification",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/ppns/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get PPNS",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:push-pull-notification",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-11-06T09:22:47.419Z",
+        "categories": [
+            "OTHER"
+        ]
     },
     "accounts/self-assessment": {
         "serviceName": "self-assessment-accounts-api",
+        "serviceBaseUrl": "https://self-assessment.tax.protected.mdtp",
         "name": "Self Assessment Accounts (MTD)",
-        "isTestSupport": false,
+        "description": "Self Assessment Accounts (MTD)",
+        "context": "accounts/self-assessment",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/self-assessment/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get self assessment",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:self-assessment",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2022-12-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "organisations/business-rates": {
         "serviceName": "business-rates-api",
+        "serviceBaseUrl": "https://business-rates.tax.protected.mdtp",
         "name": "Business Rates",
-        "isTestSupport": false,
+        "description": "Business Rates",
+        "context": "organisations/business-rates",
         "versions": {
             "2.0": {
+                "version": "2.0",
                 "status": "BETA",
                 "access": {
                     "type": "PRIVATE",
@@ -106,9 +269,23 @@
                         "90a52b25-2bf7-450d-8140-c334fef45272"
                     ],
                     "isTrial": true
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/business-rates/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get business rates",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:business-rates",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             },
             "1.2": {
+                "version": "1.2",
                 "status": "BETA",
                 "access": {
                     "type": "PRIVATE",
@@ -120,912 +297,202 @@
                         "90a52b25-2bf7-450d-8140-c334fef45272"
                     ],
                     "isTrial": true
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/business-rates/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get business rates",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:business-rates",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2023-01-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "state-pension": {
         "serviceName": "state-pension",
+        "serviceBaseUrl": "https://state-pension.tax.protected.mdtp",
         "name": "State Pension",
-        "isTestSupport": false,
+        "description": "State Pension",
+        "context": "state-pension",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "STABLE",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/state-pension/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get state pension",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:state-pension",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2023-02-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "obligations/details": {
         "serviceName": "obligations-api",
+        "serviceBaseUrl": "https://obligations.tax.protected.mdtp",
         "name": "Obligations (MTD)",
-        "isTestSupport": false,
+        "description": "Obligations (MTD)",
+        "context": "obligations/details",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/obligations/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get obligations",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:obligations",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2023-03-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "individuals/charges": {
         "serviceName": "individuals-charges-api",
+        "serviceBaseUrl": "https://charges.tax.protected.mdtp",
         "name": "Individuals Charges (MTD)",
-        "isTestSupport": false,
+        "description": "Individuals Charges (MTD)",
+        "context": "individuals/charges",
         "versions": {
             "1.0": {
+                "version": "1.0",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/charges/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get charges",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:charges",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2023-03-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "individual-tax": {
         "serviceName": "individual-tax",
+        "serviceBaseUrl": "https://individual-tax.tax.protected.mdtp",
         "name": "Individual Tax",
-        "isTestSupport": false,
+        "description": "Individual Tax",
+        "context": "individual-tax",
         "versions": {
             "1.1": {
+                "version": "1.1",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/individual-tax/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get individual tax",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:individual-tax",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
+        },
+        "requiresTrust": false,
+        "isTestSupport": false,
+        "lastPublishedAt": "2023-04-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     },
     "individual-employment": {
         "serviceName": "individual-employment",
+        "serviceBaseUrl": "https://individual-employment.tax.protected.mdtp",
         "name": "Individual Employment",
-        "isTestSupport": false,
+        "description": "Individual Employment",
+        "context": "individual-employment",
         "versions": {
             "1.1": {
+                "version": "1.1",
                 "status": "BETA",
                 "access": {
                     "type": "PUBLIC"
-                }
+                },
+                "endpoints": [
+                    {
+                        "uriPattern": "/individual-employment/{utr}/annual-summary/{taxYear}",
+                        "endpointName": "Get individual employment",
+                        "method": "GET",
+                        "authType": "USER",
+                        "throttlingTier": "UNLIMITED",
+                        "scope": "read:individual-employment",
+                        "queryParameters": []
+                    }
+                ],
+                "endpointsEnabled": true,
+                "versionSource": "UNKNOWN"
             }
-        }
-    },
-    "pension-scheme-administrator-lookup": {
-        "serviceName": "pension-scheme-administrator-lookup-api",
-        "name": "Pension Scheme Administrator Lookup",
+        },
+        "requiresTrust": false,
         "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/reliefs": {
-        "serviceName": "individuals-reliefs-api",
-        "name": "Individuals Reliefs (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "national-insurance-record": {
-        "serviceName": "national-insurance-record",
-        "name": "National Insurance Record",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "test/customs/transits": {
-        "serviceName": "common-transit-convention-traders-test-support",
-        "name": "Common Transit Convention Traders Test Support",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/supporting-documentation": {
-        "serviceName": "customs-file-upload",
-        "name": "Document Submission API",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/imports/notifications": {
-        "serviceName": "import-control-entry-declaration-intervention",
-        "name": "Safety and Security Import Notifications",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individual-benefits": {
-        "serviceName": "individual-benefits",
-        "name": "Individual Benefits",
-        "isTestSupport": false,
-        "versions": {
-            "1.1": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/business/details": {
-        "serviceName": "business-details-api",
-        "name": "Business Details (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "test/stop-autodeploy": {
-        "serviceName": "api-stop-autodeploy-test",
-        "name": "Stop Auto Deploy Test",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "agents": {
-        "serviceName": "agent-authorisation-api",
-        "name": "Agent Authorisation",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "organisations/vat": {
-        "serviceName": "vat-api",
-        "name": "VAT (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/matching": {
-        "serviceName": "individuals-matching-api",
-        "name": "Individuals Matching",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "self-assessment": {
-        "serviceName": "self-assessment-api",
-        "name": "Self Assessment (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/deductions/student-loans": {
-        "serviceName": "student-loans-api",
-        "name": "Student Loans API (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/transits": {
-        "serviceName": "common-transit-convention-traders",
-        "name": "Common Transit Convention Traders",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "lifetime-isa": {
-        "serviceName": "lisa-api",
-        "name": "Lifetime ISA",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "bulk-data-download": {
-        "serviceName": "secure-data-exchange-bulk-download",
-        "name": "Bulk Data File List",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "national-insurance-test-support": {
-        "serviceName": "national-insurance-des-stub",
-        "name": "National Insurance Test Support",
-        "isTestSupport": true,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/losses": {
-        "serviceName": "individual-losses-api",
-        "name": "Individual Losses (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "ciao/hey/welcome": {
-        "serviceName": "ciao-multisegment-api",
-        "name": "Ciao multi-segment context API",
-        "isTestSupport": false,
-        "versions": {
-            "3.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/business/property": {
-        "serviceName": "property-business-api",
-        "name": "Property Business (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "marriage-allowance-test-support": {
-        "serviceName": "marriage-allowance-des-stub",
-        "name": "Marriage Allowance Test Support",
-        "isTestSupport": true,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/pensions/lifetime-allowance/protections": {
-        "serviceName": "pensions-lifetime-allowance-api",
-        "name": "Pensions Lifetime Allowance",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/imports/declarations": {
-        "serviceName": "import-control-entry-declaration-store",
-        "name": "Safety and Security Import Declarations",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "national-insurance": {
-        "serviceName": "national-insurance",
-        "name": "National Insurance",
-        "isTestSupport": false,
-        "versions": {
-            "1.1": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/goods-movement-system": {
-        "serviceName": "goods-movement-system-haulier-api",
-        "name": "Goods Vehicle Movements",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customer": {
-        "serviceName": "customer-api",
-        "name": "Customer Matching",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/imports/outcomes": {
-        "serviceName": "import-control-entry-declaration-outcome",
-        "name": "Safety and Security Import Outcomes",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "api-simulator": {
-        "serviceName": "api-simulator",
-        "name": "API Simulator",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "organisations/interest-restriction": {
-        "serviceName": "interest-restriction-return",
-        "name": "Interest Restriction Return (IRR)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "agent-authorisation-test-support": {
-        "serviceName": "agent-authorisation-test-support-api",
-        "name": "Agent Authorisation Test Support",
-        "isTestSupport": true,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individual-income": {
-        "serviceName": "individual-income",
-        "name": "Individual Income",
-        "isTestSupport": false,
-        "versions": {
-            "1.1": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "marriage-allowance": {
-        "serviceName": "marriage-allowance",
-        "name": "Marriage Allowance",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/calculations": {
-        "serviceName": "individual-calculations-api",
-        "name": "Individual Calculations (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/self-assessment/income-summary": {
-        "serviceName": "self-assessment-biss-api",
-        "name": "Business Income Source Summary (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/declarations": {
-        "serviceName": "customs-declarations",
-        "name": "Customs Declarations",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "organisations/trusts": {
-        "serviceName": "trust-registration-api",
-        "name": "Trust Registration Service",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/deductions/cis": {
-        "serviceName": "cis-deductions-api",
-        "name": "CIS Deductions (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "hello": {
-        "serviceName": "api-example-microservice",
-        "name": "Hello World",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "test/api-documentation-test-service": {
-        "serviceName": "api-documentation-test-service",
-        "name": "API Documentation Test",
-        "isTestSupport": false,
-        "versions": {
-            "5.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.4": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.3": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.2": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.1": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "3.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.9": {
-                "status": "BETA",
-                "access": {
-                    "type": "PRIVATE",
-                    "whitelistedApplicationIds": [
-                        "ab349380-17cc-4de0-a7ac-c76baedd7133"
-                    ],
-                    "isTrial": true
-                }
-            },
-            "2.8": {
-                "status": "BETA",
-                "access": {
-                    "type": "PRIVATE",
-                    "whitelistedApplicationIds": [
-                        "ab349380-17cc-4de0-a7ac-c76baedd7133"
-                    ],
-                    "isTrial": true
-                }
-            },
-            "2.7": {
-                "status": "ALPHA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.6": {
-                "status": "BETA",
-                "access": {
-                    "type": "PRIVATE",
-                    "whitelistedApplicationIds": [],
-                    "isTrial": true
-                }
-            },
-            "2.3": {
-                "status": "BETA",
-                "access": {
-                    "type": "PRIVATE",
-                    "whitelistedApplicationIds": [
-                        "ab349380-17cc-4de0-a7ac-c76baedd7133"
-                    ],
-                    "isTrial": true
-                }
-            },
-            "2.2": {
-                "status": "BETA",
-                "access": {
-                    "type": "PRIVATE",
-                    "whitelistedApplicationIds": [],
-                    "isTrial": true
-                }
-            },
-            "2.1": {
-                "status": "ALPHA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.5": {
-                "status": "ALPHA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "0.9": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "notifications": {
-        "serviceName": "api-notification-pull",
-        "name": "Pull Notifications",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "test/api-platform-test": {
-        "serviceName": "api-platform-test",
-        "name": "API Platform Test",
-        "isTestSupport": false,
-        "versions": {
-            "7.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "6.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "5.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "4.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "3.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.3": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.2": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.1": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "2.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "STABLE",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/inventory-linking/exports": {
-        "serviceName": "customs-inventory-linking-exports",
-        "name": "Customs Inventory Linking Exports",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "create-test-user": {
-        "serviceName": "api-platform-test-user",
-        "name": "Create Test User",
-        "isTestSupport": true,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "customs/notifications": {
-        "serviceName": "customs-notification-push-retry",
-        "name": "Customs Notification Push Retry",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "organisations/estates": {
-        "serviceName": "estate-registration-api",
-        "name": "Estate Registration Service",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/income-received": {
-        "serviceName": "individuals-income-received-api",
-        "name": "Individuals Income Received (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/state-benefits": {
-        "serviceName": "individuals-state-benefits-api",
-        "name": "Individuals State Benefits (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
-    },
-    "individuals/self-assessment/adjustable-summary": {
-        "serviceName": "self-assessment-bsas-api",
-        "name": "Business Source Adjustable Summary (MTD)",
-        "isTestSupport": false,
-        "versions": {
-            "2.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            },
-            "1.0": {
-                "status": "BETA",
-                "access": {
-                    "type": "PUBLIC"
-                }
-            }
-        }
+        "lastPublishedAt": "2023-04-06T09:22:47.419Z",
+        "categories": [
+            "SELF_ASSESSMENT"
+        ]
     }
 }

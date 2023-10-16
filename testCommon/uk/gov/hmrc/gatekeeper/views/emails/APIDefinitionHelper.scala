@@ -30,7 +30,7 @@ trait APIDefinitionHelper {
       "desc",
       ApiContext(context),
       List(ApiVersion(ApiVersionNbr(version), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
-      false, 
+      false,
       false,
       None,
       categories.toList

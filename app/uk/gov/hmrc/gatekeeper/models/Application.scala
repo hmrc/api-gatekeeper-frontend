@@ -274,10 +274,10 @@ object ApplicationResponse {
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole   = Json.formatEnum(CollaboratorRole)
-  implicit val format3      = Json.formatEnum(State)
-  implicit val format4      = Json.format[ApplicationState]
-  implicit val format5      = Json.format[ApprovedApplication]
+  implicit val formatRole                    = Json.formatEnum(CollaboratorRole)
+  implicit val format3                       = Json.formatEnum(State)
+  implicit val format4                       = Json.format[ApplicationState]
+  implicit val format5                       = Json.format[ApprovedApplication]
 
   val applicationResponseReads: Reads[ApplicationResponse] = (
     (JsPath \ "id").read[ApplicationId] and

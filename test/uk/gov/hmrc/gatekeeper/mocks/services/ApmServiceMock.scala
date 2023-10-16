@@ -21,11 +21,10 @@ import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitions
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.services.ApmService
 
 trait ApmServiceMockProvider {

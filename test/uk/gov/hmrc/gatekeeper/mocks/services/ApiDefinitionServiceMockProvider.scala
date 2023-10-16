@@ -39,8 +39,8 @@ trait ApiDefinitionServiceMockProvider {
     class Calling private (cond: Option[Environment]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
 
-      def returns(apiDefinitions: ApiDefinition*)   = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def throws(throwable: Throwable)              = whenClause.thenReturn(failed(throwable))
+      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
+      def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
     object Calling {
@@ -61,8 +61,8 @@ trait ApiDefinitionServiceMockProvider {
     class Calling[T] private (cond: Option[Environment]) {
       private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
 
-      def returns(apiDefinitions: ApiDefinition*)   = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def throws(throwable: Throwable)              = whenClause.thenReturn(failed(throwable))
+      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
+      def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
     }
 
     object Calling {
@@ -75,7 +75,7 @@ trait ApiDefinitionServiceMockProvider {
   object Apis {
     private val whenClause = when(mockApiDefinitionService.apis(*))
 
-    def returns(results: (ApiDefinition, Environment)*)   = whenClause.thenReturn(successful(results.toList))
-    def throws(throwable: Throwable)                      = whenClause.thenReturn(failed(throwable))
+    def returns(results: (ApiDefinition, Environment)*) = whenClause.thenReturn(successful(results.toList))
+    def throws(throwable: Throwable)                    = whenClause.thenReturn(failed(throwable))
   }
 }
