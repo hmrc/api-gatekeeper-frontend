@@ -91,7 +91,7 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
     stubFor(post(urlEqualTo(s"/application/${blockedApplicationId.value.toString()}/unblock")).willReturn(aResponse().withStatus(OK)))
   }
 
-    def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
+  def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubPaginatedApplicationList()
 

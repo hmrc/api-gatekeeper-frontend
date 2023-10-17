@@ -22,13 +22,10 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, Box
 
 private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionFormatters {
 
-  import uk.gov.hmrc.apiplatform.modules.common.services.LocalDateTimeFormatter._
-  import uk.gov.hmrc.apiplatform.modules.common.services.InstantJsonFormatter.WithTimeZone._
-  import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
 
-  implicit val readsVersionData: Reads[VersionData] = Json.reads[VersionData]
-  implicit val readsApiData: Reads[ApiData]         = Json.reads[ApiData]
   implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
 
   implicit val readsBoxId         = Json.valueFormat[BoxId]

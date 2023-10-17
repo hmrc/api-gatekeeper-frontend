@@ -129,25 +129,29 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      val api1    = ApiDefinitionGK(
-        "service1",
+      val api1    = ApiDefinition(
+        ServiceName("service1"),
         "/",
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        List(ApiVersionGK(ApiVersionNbr("1"), ApiVersionSource.UNKNOWN, ApiStatus.BETA)),
+        List(ApiVersion(ApiVersionNbr("1"), ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        false,
+        false,
         None,
-        categories = Set(category1)
+        List(category1)
       )
-      val api2    = ApiDefinitionGK(
-        "service2",
+      val api2    = ApiDefinition(
+        ServiceName("service2"),
         "/",
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        List(ApiVersionGK(ApiVersionNbr("3"), ApiVersionSource.UNKNOWN, ApiStatus.STABLE)),
+        List(ApiVersion(ApiVersionNbr("3"), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        false,
+        false,
         None,
-        categories = Set(category2)
+        List(category2)
       )
       val twoApis = List(api1, api2)
 

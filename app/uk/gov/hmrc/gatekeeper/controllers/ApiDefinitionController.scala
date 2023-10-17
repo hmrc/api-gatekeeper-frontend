@@ -27,7 +27,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
@@ -85,24 +84,24 @@ class ApiDefinitionController @Inject() (
     })
   }
 
-  private def toViewModel(apiDefinition: ApiDefinitionGK, environment: Environment): List[ApiDefinitionView] = {
-    def isTrial(apiVersion: ApiVersionGK): Boolean = {
-      apiVersion.access.fold(false)(_ match {
+  private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): List[ApiDefinitionView] = {
+    def isTrial(apiVersion: ApiVersion): Boolean = {
+      apiVersion.access match {
         case ApiAccess.Private(true) => true
         case _                       => false
-      })
+      }
     }
 
     apiDefinition.versions.map(v =>
       ApiDefinitionView(
         apiDefinition.name,
-        apiDefinition.serviceName,
+        apiDefinition.serviceName.value,
         apiDefinition.context,
-        v.version,
+        v.versionNbr,
         v.versionSource,
-        v.displayedStatus,
-        v.accessType.toString,
-        apiDefinition.requiresTrust.getOrElse(false),
+        v.status.displayText,
+        v.access.accessType.toString(),
+        apiDefinition.requiresTrust,
         isTrial(v),
         environment.toString
       )

@@ -25,6 +25,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
@@ -33,7 +34,6 @@ import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
 import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 
 case class BearerToken(authToken: String, expiry: LocalDateTime) {
   override val toString = authToken

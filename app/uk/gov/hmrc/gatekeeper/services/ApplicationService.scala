@@ -23,13 +23,12 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{CidrBlock, Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.CidrBlock
 
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
@@ -190,22 +189,28 @@ class ApplicationService @Inject() (
     }
   }
 
-  def manageIpAllowlist(application: ApplicationResponse, required: Boolean, ipAllowlist: Set[String], gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def manageIpAllowlist(
+      application: ApplicationResponse,
+      required: Boolean,
+      ipAllowlist: Set[String],
+      gatekeeperUser: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
     val currentIpAllowlist = application.ipAllowlist.allowlist.map(CidrBlock(_)).toList
-    val newIpAllowlist = ipAllowlist.map(CidrBlock(_)).toList
+    val newIpAllowlist     = ipAllowlist.map(CidrBlock(_)).toList
 
     commandConnector.dispatch(
       application.id,
       ApplicationCommands.ChangeIpAllowlist(
         Actors.GatekeeperUser(gatekeeperUser),
         now(),
-        required, 
+        required,
         currentIpAllowlist,
         newIpAllowlist
       ),
       Set.empty[LaxEmailAddress]
     )
-    .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
+      .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def validateApplicationName(application: ApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {

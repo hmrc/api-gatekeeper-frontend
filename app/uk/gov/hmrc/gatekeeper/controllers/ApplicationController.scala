@@ -43,7 +43,6 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.models.subscriptions.ApiData
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
@@ -626,11 +625,11 @@ class ApplicationController @Inject() (
     }
   }
 
-  private def groupApisByStatus(apis: List[ApiDefinitionGK]): Map[String, List[VersionSummary]] = {
+  private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
     val versions = for {
       api     <- apis
       version <- api.versions
-    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.version))
+    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.versionNbr))
 
     versions.groupBy(_.status.displayText)
   }

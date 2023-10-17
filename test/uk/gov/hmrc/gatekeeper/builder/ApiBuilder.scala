@@ -17,12 +17,11 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiVersionNbr
-import uk.gov.hmrc.gatekeeper.models.subscriptions.{ApiData, VersionData}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiVersionNbr}
 
 trait ApiBuilder {
 
-  implicit class VersionDataExtension(versionData: VersionData) {
+  implicit class VersionDataExtension(versionData: ApiVersion) {
     def withStatus(newStatus: ApiStatus) = versionData.copy(status = newStatus)
     def alpha                            = versionData.copy(status = ApiStatus.ALPHA)
     def beta                             = versionData.copy(status = ApiStatus.BETA)
@@ -41,14 +40,14 @@ trait ApiBuilder {
 
     def withName(newName: String) = apiData.copy(name = newName)
 
-    def withVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = Map(versionNbr -> data))
+    def withVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiData.copy(versions = Map(versionNbr -> data))
 
-    def addVersion(versionNbr: ApiVersionNbr, data: VersionData = DefaultVersionData) = apiData.copy(versions = apiData.versions + (versionNbr -> data))
+    def addVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiData.copy(versions = apiData.versions + (versionNbr -> data))
   }
 
-  val DefaultVersionData = VersionData(status = ApiStatus.STABLE, access = ApiAccess.PUBLIC)
+  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty)
 
-  val DefaultServiceName = "A-Service"
+  val DefaultServiceName = ServiceName("A-Service")
   val DefaultName        = "API Name"
 
   val VersionOne   = ApiVersionNbr("1.0")
@@ -57,8 +56,12 @@ trait ApiBuilder {
 
   val DefaultApiData = ApiData(
     serviceName = DefaultServiceName,
+    serviceBaseUrl = "http://serviceBaseUrl",
     name = DefaultName,
+    description = "Description",
+    context = ApiContext("context/name"),
+    versions = Map(VersionOne -> DefaultVersionData),
     isTestSupport = false,
-    versions = Map(VersionOne -> DefaultVersionData)
+    categories = List.empty
   )
 }

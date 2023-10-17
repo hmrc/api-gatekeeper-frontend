@@ -21,15 +21,14 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-import uk.gov.hmrc.gatekeeper.models.ApiDefinitionGK
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait APIDefinitionServiceStub {
   val apiPublicDefinitionUrl  = "/api-definition"
   val apiPrivateDefinitionUrl = "/api-definition?type=private"
   val getCategoriesUrl        = "/api-categories"
 
-  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[ApiDefinitionGK]): Unit = {
+  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[ApiDefinition]): Unit = {
     stubFor(get(urlEqualTo(apiPublicDefinitionUrl))
       .willReturn(
         aResponse()
@@ -38,7 +37,7 @@ trait APIDefinitionServiceStub {
       ))
   }
 
-  def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinitionGK]): Unit = {
+  def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinition]): Unit = {
     stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
       .willReturn(
         aResponse()
