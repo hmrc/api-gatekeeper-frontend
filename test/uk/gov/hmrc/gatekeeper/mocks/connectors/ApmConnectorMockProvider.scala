@@ -20,13 +20,12 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -61,13 +60,14 @@ trait ApmConnectorMockProvider {
     }
 
     object FetchAllApiDefinitions {
+
       def returnsFor(env: Environment)(apis: ApiDefinition*) =
         when(aMock.fetchAllApis(eqTo(env))(*)).thenReturn(successful(apis.toList))
 
-      def verifyNeverCalledFor(env: Environment) = 
+      def verifyNeverCalledFor(env: Environment) =
         verify(aMock, never).fetchAllApis(eqTo(env))(*)
 
-      def verifyCalledFor(env: Environment) = 
+      def verifyCalledFor(env: Environment) =
         verify(aMock, atLeastOnce).fetchAllApis(eqTo(env))(*)
     }
   }

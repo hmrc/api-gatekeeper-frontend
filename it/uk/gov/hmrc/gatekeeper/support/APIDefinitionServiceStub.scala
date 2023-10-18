@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait APIDefinitionServiceStub {
-  val apmDefinitionsUrl  = "/api-definitions/all"
+  val apmDefinitionsUrl = "/api-definitions/all"
 
   def primeDefinitionServiceSuccessWithAPIs(apis: Seq[ApiDefinition]): Unit = {
     stubFor(get(urlPathEqualTo(apmDefinitionsUrl))

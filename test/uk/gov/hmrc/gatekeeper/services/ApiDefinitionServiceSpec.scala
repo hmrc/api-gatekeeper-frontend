@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.services
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import mocks.connectors.ApmConnectorMockProvider
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,7 +27,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import mocks.connectors.ApmConnectorMockProvider
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
@@ -154,7 +154,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicSandbox, privateSandbox)
-      
+
       val allDefinitions: Seq[(ApiDefinition, Environment)] = await(definitionService.apis)
 
       allDefinitions shouldBe Seq(

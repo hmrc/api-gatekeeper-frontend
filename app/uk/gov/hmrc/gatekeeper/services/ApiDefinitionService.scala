@@ -26,29 +26,29 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 
 class ApiDefinitionService @Inject() (
-  apmConnector: ApmConnector
-)(implicit ec: ExecutionContext
-) {
+    apmConnector: ApmConnector
+  )(implicit ec: ExecutionContext
+  ) {
 
   def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val envs = environment.fold[List[Environment]](Environment.values.toList)(List(_))
 
     val allApis: List[Future[List[ApiDefinition]]] = envs.map(e => apmConnector.fetchAllApis(e))
-    
+
     Future.reduceLeft(allApis)(_ ++ _).map(_.distinct)
   }
 
   def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinition, Environment)]] = {
-    val envs = Environment.values.toList
-    val tupleEnv: Environment => ApiDefinition => (ApiDefinition,Environment) = (e) => (a) => (a,e)
+    val envs                                                                                   = Environment.values.toList
+    val tupleEnv: Environment => ApiDefinition => (ApiDefinition, Environment)                 = (e) => (a) => (a, e)
     val tupleListEnv: Environment => List[ApiDefinition] => List[(ApiDefinition, Environment)] = (e) => (as) => as.map(tupleEnv(e))
 
     Future.reduceLeft(
-      envs.map(e => 
+      envs.map(e =>
         apmConnector.fetchAllApis(e)
-        .map(tupleListEnv(e))
+          .map(tupleListEnv(e))
       )
     )(_ ++ _)
-    .map(_.sortBy { case (api, env) => (api.name, env.toString()) })
+      .map(_.sortBy { case (api, env) => (api.name, env.toString()) })
   }
 }
