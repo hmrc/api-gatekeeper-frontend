@@ -23,52 +23,32 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.connectors.{ApiDefinitionConnector, ProductionApiDefinitionConnector, SandboxApiDefinitionConnector}
+import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 
 class ApiDefinitionService @Inject() (
-    sandboxApiDefinitionConnector: SandboxApiDefinitionConnector,
-    productionApiDefinitionConnector: ProductionApiDefinitionConnector
+    apmConnector: ApmConnector
   )(implicit ec: ExecutionContext
   ) {
 
   def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val connectors                                          = environment match {
-      case Some(Environment.PRODUCTION) => List(productionApiDefinitionConnector)
-      case Some(Environment.SANDBOX)    => List(sandboxApiDefinitionConnector)
-      case _                            => List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
-    }
-    val publicApisFuture: List[Future[List[ApiDefinition]]] = connectors.map(_.fetchPublic())
-    val privateApisFuture                                   = connectors.map(_.fetchPrivate())
+    val envs = environment.fold[List[Environment]](Environment.values.toList)(List(_))
 
-    for {
-      publicApis  <- Future.reduceLeft(publicApisFuture)(_ ++ _)
-      privateApis <- Future.reduceLeft(privateApisFuture)(_ ++ _)
-    } yield (publicApis ++ privateApis).distinct
-  }
+    val allApis: List[Future[List[ApiDefinition]]] = envs.map(e => apmConnector.fetchAllApis(e))
 
-  def fetchAllDistinctApisIgnoreVersions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    fetchAllApiDefinitions(environment).map(_.groupBy(_.serviceName).map(_._2.head).toList)
+    Future.reduceLeft(allApis)(_ ++ _).map(_.distinct)
   }
 
   def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinition, Environment)]] = {
+    val envs                                                                                   = Environment.values.toList
+    val tupleEnv: Environment => ApiDefinition => (ApiDefinition, Environment)                 = (e) => (a) => (a, e)
+    val tupleListEnv: Environment => List[ApiDefinition] => List[(ApiDefinition, Environment)] = (e) => (as) => as.map(tupleEnv(e))
 
-    def getApisFromConnector(connector: ApiDefinitionConnector): Future[List[(ApiDefinition, Environment)]] = {
-      def addEnvironmentToApis(result: Future[List[ApiDefinition]]): Future[List[(ApiDefinition, Environment)]] =
-        result.map(apis => apis.map(api => (api, connector.environment)))
-
-      Future.sequence(
-        List(
-          connector.fetchPublic(),
-          connector.fetchPrivate()
-        ).map(addEnvironmentToApis)
-      ).map(_.flatten)
-    }
-
-    val connectors = List(sandboxApiDefinitionConnector, productionApiDefinitionConnector)
-
-    Future.sequence(connectors
-      .map(getApisFromConnector))
-      .map(_.flatten)
+    Future.reduceLeft(
+      envs.map(e =>
+        apmConnector.fetchAllApis(e)
+          .map(tupleListEnv(e))
+      )
+    )(_ ++ _)
       .map(_.sortBy { case (api, env) => (api.name, env.toString()) })
   }
 }

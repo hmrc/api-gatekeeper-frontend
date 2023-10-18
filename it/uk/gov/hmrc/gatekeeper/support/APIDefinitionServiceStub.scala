@@ -24,21 +24,10 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 
 trait APIDefinitionServiceStub {
-  val apiPublicDefinitionUrl  = "/api-definition"
-  val apiPrivateDefinitionUrl = "/api-definition?type=private"
-  val getCategoriesUrl        = "/api-categories"
+  val apmDefinitionsUrl = "/api-definitions/all"
 
-  def primeDefinitionServiceSuccessWithPublicAPIs(apis: Seq[ApiDefinition]): Unit = {
-    stubFor(get(urlEqualTo(apiPublicDefinitionUrl))
-      .willReturn(
-        aResponse()
-          .withStatus(Status.OK)
-          .withBody(Json.toJson(apis).toString())
-      ))
-  }
-
-  def primeDefinitionServiceSuccessWithPrivateAPIs(apis: Seq[ApiDefinition]): Unit = {
-    stubFor(get(urlEqualTo(apiPrivateDefinitionUrl))
+  def primeDefinitionServiceSuccessWithAPIs(apis: Seq[ApiDefinition]): Unit = {
+    stubFor(get(urlPathEqualTo(apmDefinitionsUrl))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)

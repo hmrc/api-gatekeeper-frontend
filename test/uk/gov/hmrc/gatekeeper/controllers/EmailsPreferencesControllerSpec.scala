@@ -156,7 +156,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val twoApis = List(api1, api2)
 
       def givenApiDefinition2Apis() = {
-        FetchAllDistinctApisIgnoreVersions.inAny.returns(twoApis: _*)
         FetchAllApiDefinitions.inAny.returns(twoApis: _*)
       }
 

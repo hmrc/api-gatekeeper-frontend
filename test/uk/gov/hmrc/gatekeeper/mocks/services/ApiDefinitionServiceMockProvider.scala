@@ -51,27 +51,6 @@ trait ApiDefinitionServiceMockProvider {
 
   }
 
-  object FetchAllDistinctApisIgnoreVersions {
-
-    def inProd    = Calling(Some(Environment.PRODUCTION))
-    def inSandbox = Calling(Some(Environment.SANDBOX))
-    def inBoth    = Calling(None)
-    def inAny     = Calling()
-
-    class Calling[T] private (cond: Option[Environment]) {
-      private val whenClause = when(mockApiDefinitionService.fetchAllDistinctApisIgnoreVersions(cond)(*))
-
-      def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
-      def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
-    }
-
-    object Calling {
-      def apply() = new Calling(*)
-
-      def apply(env: Option[Environment]) = new Calling(eqTo(env))
-    }
-  }
-
   object Apis {
     private val whenClause = when(mockApiDefinitionService.apis(*))
 

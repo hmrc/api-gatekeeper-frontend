@@ -214,8 +214,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(apis)
-        primeDefinitionServiceSuccessWithPrivateAPIs(Seq.empty)
+        primeDefinitionServiceSuccessWithAPIs(apis)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
         result.status shouldBe OK
 
@@ -225,8 +224,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page with users when selected api sent" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithPublicAPIs(apis)
-        primeDefinitionServiceSuccessWithPrivateAPIs(Seq.empty)
+        primeDefinitionServiceSuccessWithAPIs(apis)
         primeApplicationServiceSuccessWithUsers(allUsers)
         primeDeveloperServiceGetByEmails(allUsers ++ Seq(unverifiedUser1))
         val dropdownvalues: Seq[DropDownValue] = getApiVersionsDropDownValues(apis)

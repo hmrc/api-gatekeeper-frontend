@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -30,31 +30,50 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 trait ApmConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val mockApmConnector       = mock[ApmConnector]
   val mockApmConnectorConfig = mock[ApmConnector.Config]
 
-  object FetchAllCombinedApis {
-    def returns(combinedApis: List[CombinedApi]) = when(mockApmConnector.fetchAllCombinedApis()(*)).thenReturn(successful(combinedApis))
+  trait ApmConnectorMock {
+    def aMock: ApmConnector
+
+    object FetchAllCombinedApis {
+      def returns(combinedApis: List[CombinedApi]) = when(aMock.fetchAllCombinedApis()(*)).thenReturn(successful(combinedApis))
+    }
+
+    object FetchApplicationById {
+
+      def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) =
+        when(aMock.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
+    }
+
+    object FetchAllPossibleSubscriptions {
+
+      def returns(possibleSubscriptions: Map[ApiContext, ApiData]) =
+        when(aMock.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
+    }
+
+    object GetAllFieldDefinitions {
+      def returns(fieldDefinitions: ApiDefinitions.Alias) = when(aMock.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
+    }
+
+    object FetchAllBoxes {
+      def returns(allBoxes: List[Box]) = when(aMock.fetchAllBoxes()(*)).thenReturn(successful(allBoxes))
+    }
+
+    object FetchAllApiDefinitions {
+
+      def returnsFor(env: Environment)(apis: ApiDefinition*) =
+        when(aMock.fetchAllApis(eqTo(env))(*)).thenReturn(successful(apis.toList))
+
+      def verifyNeverCalledFor(env: Environment) =
+        verify(aMock, never).fetchAllApis(eqTo(env))(*)
+
+      def verifyCalledFor(env: Environment) =
+        verify(aMock, atLeastOnce).fetchAllApis(eqTo(env))(*)
+    }
   }
 
-  object FetchApplicationById {
-
-    def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) =
-      when(mockApmConnector.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
-  }
-
-  object FetchAllPossibleSubscriptions {
-
-    def returns(possibleSubscriptions: Map[ApiContext, ApiData]) =
-      when(mockApmConnector.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
-  }
-
-  object GetAllFieldDefinitions {
-    def returns(fieldDefinitions: ApiDefinitions.Alias) = when(mockApmConnector.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
-  }
-
-  object FetchAllBoxes {
-    def returns(allBoxes: List[Box]) = when(mockApmConnector.fetchAllBoxes()(*)).thenReturn(successful(allBoxes))
+  object ApmConnectorMock extends ApmConnectorMock {
+    val aMock = mock[ApmConnector]
   }
 
   object ApmConnectorConfigMock {

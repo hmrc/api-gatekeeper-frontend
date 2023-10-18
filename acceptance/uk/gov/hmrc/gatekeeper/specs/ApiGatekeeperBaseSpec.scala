@@ -152,8 +152,7 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubApiDefinition() = {
-    stubFor(get(urlEqualTo("/api-definition")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-    stubFor(get(urlEqualTo("/api-definition?type=private")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
+    stubFor(get(urlPathEqualTo("/api-definitions/all")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
     stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
   }
 
