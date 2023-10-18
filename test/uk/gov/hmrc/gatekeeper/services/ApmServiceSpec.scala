@@ -31,7 +31,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
-    val apmService = new ApmService(mockApmConnector)
+    val apmService = new ApmService(ApmConnectorMock.aMock)
 
     val anAppId = ApplicationId.random
 
@@ -59,7 +59,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchApplicationById" should {
       "return None" in new Setup {
 
-        FetchApplicationById.returns(None)
+        ApmConnectorMock.FetchApplicationById.returns(None)
 
         val result = await(apmService.fetchApplicationById(anAppId))
         result shouldBe None
@@ -69,7 +69,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchAllPossibleSubscriptions" should {
       "return empty Map" in new Setup {
 
-        FetchAllPossibleSubscriptions.returns(Map.empty)
+        ApmConnectorMock.FetchAllPossibleSubscriptions.returns(Map.empty)
 
         val result = await(apmService.fetchAllPossibleSubscriptions(anAppId))
         result shouldBe Map.empty
@@ -79,7 +79,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "getAllFieldDefinitions" should {
       "return empty field definitions" in new Setup {
 
-        GetAllFieldDefinitions.returns(Map.empty)
+        ApmConnectorMock.GetAllFieldDefinitions.returns(Map.empty)
 
         val result = await(apmService.getAllFieldDefinitions(Environment.PRODUCTION))
         result shouldBe Map.empty
@@ -89,7 +89,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchAllCombinedApis" should {
       "return a list of CombinedApi" in new Setup {
 
-        FetchAllCombinedApis.returns(combinedList)
+        ApmConnectorMock.FetchAllCombinedApis.returns(combinedList)
 
         val result = await(apmService.fetchAllCombinedApis())
         result shouldBe combinedList
@@ -100,7 +100,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       "return a list of PPNS Boxes" in new Setup {
         val allBoxes = List.empty
 
-        FetchAllBoxes.returns(allBoxes)
+        ApmConnectorMock.FetchAllBoxes.returns(allBoxes)
 
         val result = await(apmService.fetchAllBoxes())
         result shouldBe allBoxes

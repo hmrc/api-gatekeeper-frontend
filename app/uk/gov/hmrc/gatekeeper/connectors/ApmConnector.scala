@@ -65,6 +65,10 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
   }
 
+  def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+    http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
+  }
+
   // TODO - better return type
   // TODO - better error handling for expected errors
   def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {

@@ -55,7 +55,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       mockProductionApplicationConnector,
       mockSandboxApiScopeConnector,
       mockProductionApiScopeConnector,
-      mockApmConnector,
+      ApmConnectorMock.aMock,
       mockDeveloperConnector,
       mockSubscriptionFieldsService,
       CommandConnectorMock.aMock,
