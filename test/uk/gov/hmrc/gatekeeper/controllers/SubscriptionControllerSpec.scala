@@ -163,13 +163,12 @@ class SubscriptionControllerSpec
 
           val newApplication                  = buildApplication()
           val applicationWithSubscriptionData = ApplicationWithSubscriptionData(newApplication, Set.empty, Map.empty)
-          val apiData                         = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-          val apiContext                      = ApiContext("Api Context")
-          val apiContextAndApiData            = Map(apiContext -> apiData)
+          val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+          val possibleSubs                    = List(apiDefinition)
 
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
-          ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+          ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
           val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
 

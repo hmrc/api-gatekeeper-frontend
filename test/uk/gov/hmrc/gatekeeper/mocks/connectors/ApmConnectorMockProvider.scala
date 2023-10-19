@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -47,12 +47,12 @@ trait ApmConnectorMockProvider {
 
     object FetchAllPossibleSubscriptions {
 
-      def returns(possibleSubscriptions: Map[ApiContext, ApiData]) =
+      def returns(possibleSubscriptions: List[ApiDefinition]) =
         when(aMock.fetchAllPossibleSubscriptions(*[ApplicationId])(*)).thenReturn(successful(possibleSubscriptions))
     }
 
     object GetAllFieldDefinitions {
-      def returns(fieldDefinitions: ApiDefinitions.Alias) = when(aMock.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
+      def returns(fieldDefinitions: ApiDefinitionFields.Alias) = when(aMock.getAllFieldDefinitions(*)(*)).thenReturn(successful(fieldDefinitions))
     }
 
     object FetchAllBoxes {
@@ -61,7 +61,7 @@ trait ApmConnectorMockProvider {
 
     object FetchAllApiDefinitions {
 
-      def returnsFor(env: Environment)(apis: ApiData*) =
+      def returnsFor(env: Environment)(apis: ApiDefinition*) =
         when(aMock.fetchAllApis(eqTo(env))(*)).thenReturn(successful(apis.toList))
 
       def verifyNeverCalledFor(env: Environment) =

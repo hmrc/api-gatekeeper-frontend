@@ -22,17 +22,20 @@ import uk.gov.hmrc.gatekeeper.models._
 
 trait APIDefinitionHelper {
 
-  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Set[ApiCategory], version: String): ApiDefinition =
+  def simpleAPIDefinition(serviceName: String, name: String, context: String, categories: Set[ApiCategory], version: String): ApiDefinition = {
+    val versionNbr = ApiVersionNbr(version)
+
     ApiDefinition(
       ServiceName(serviceName),
       "url1",
       name,
       "desc",
       ApiContext(context),
-      List(ApiVersion(ApiVersionNbr(version), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(versionNbr -> ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
       false,
       false,
       None,
       categories.toList
     )
+  }
 }

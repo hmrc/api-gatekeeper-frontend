@@ -18,16 +18,16 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiVersionNbr}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models.{ApiDefinitions, FieldName}
+import uk.gov.hmrc.gatekeeper.models.{ApiDefinitionFields, FieldName}
 
 trait FieldDefinitionsBuilder {
 
-  def buildApiDefinitions(): ApiDefinitions.Alias = {
+  def buildApiDefinitionFields(): ApiDefinitionFields.Alias = {
     def contexts = Seq.fill(1)(ApiContext.random)
     buildApiContexts(contexts)
   }
 
-  private def buildApiContexts(apiContexts: Seq[ApiContext]): ApiDefinitions.Alias = {
+  private def buildApiContexts(apiContexts: Seq[ApiContext]): ApiDefinitionFields.Alias = {
     def versions = Seq.fill(2)(ApiVersionNbr.random)
     apiContexts.map(apiContext => (apiContext -> buildVersions(versions))).toMap
   }

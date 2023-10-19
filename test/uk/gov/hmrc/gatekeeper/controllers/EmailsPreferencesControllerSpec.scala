@@ -132,7 +132,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val apiVersion1 = ApiVersionNbr("1")
       val apiVersion3 = ApiVersionNbr("3")
 
-      val api1    = ApiData(
+      val api1    = ApiDefinition(
         ServiceName("service1"),
         "/",
         "serviceName",
@@ -144,7 +144,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         None,
         List(category1)
       )
-      val api2    = ApiData(
+      val api2    = ApiDefinition(
         ServiceName("service2"),
         "/",
         "service2Name",

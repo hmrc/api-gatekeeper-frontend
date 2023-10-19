@@ -89,7 +89,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends AppWithSubscriptionDataSetup with FieldDefinitionsBuilder with ApiBuilder {
-    val allFieldDefinitions = buildApiDefinitions()
+    val allFieldDefinitions = buildApiDefinitionFields()
 
     val apiContext = allFieldDefinitions.keySet.head
     val apiVersion = allFieldDefinitions(apiContext).keySet.head
@@ -131,16 +131,16 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
     "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      val apiData              = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-      val apiContextAndApiData = Map(apiContext -> apiData)
+      val apiDefinition           = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+      val possibleSubs  = List(apiDefinition)
 
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
-      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+      ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
       val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
-        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions.nonEmpty shouldBe true
-        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitions(apiContext).keySet.contains(apiVersion) shouldBe true
+        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields.nonEmpty shouldBe true
+        applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields(apiContext).keySet.contains(apiVersion) shouldBe true
 
         Future.successful(Ok(expectedResult))
       })

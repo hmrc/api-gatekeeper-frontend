@@ -84,7 +84,7 @@ trait ActionBuilders extends ApplicationLogger {
     }
   }
 
-  private def filterApiDefinitions(allApiDefintions: ApiDefinitions.Alias, applicationSubscriptions: Set[ApiIdentifier]): ApiDefinitions.Alias = {
+  private def filterApiDefinitions(allApiDefintions: ApiDefinitionFields.Alias, applicationSubscriptions: Set[ApiIdentifier]): ApiDefinitionFields.Alias = {
     val apiContexts: List[ApiContext] = applicationSubscriptions.map(apiIdentifier => apiIdentifier.context).toList
 
     val apiDefinitionsFilteredByContext = allApiDefintions.filter(contextMap => apiContexts.contains(contextMap._1))

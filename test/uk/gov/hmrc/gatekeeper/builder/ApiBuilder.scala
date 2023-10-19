@@ -35,14 +35,16 @@ trait ApiBuilder {
     def privateAccess                    = this.withAccess(ApiAccess.Private(false))
   }
 
-  implicit class ApiDataExtension(apiData: ApiData) {
-    def testSupport = apiData.copy(isTestSupport = true)
+  implicit class ApiDefinitionSyntax(apiDefinition: ApiDefinition) {
+    def testSupport = apiDefinition.copy(isTestSupport = true)
 
-    def withName(newName: String) = apiData.copy(name = newName)
+    def withName(newName: String) = apiDefinition.copy(name = newName)
 
-    def withVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiData.copy(versions = Map(versionNbr -> data))
+    def withVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiDefinition.copy(versions = Map(versionNbr -> data))
 
-    def addVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiData.copy(versions = apiData.versions + (versionNbr -> data))
+    def addVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiDefinition.copy(versions = apiDefinition.versions + (versionNbr -> data))
+
+    def withContext(apiContext: ApiContext) = apiDefinition.copy(context = apiContext)
   }
 
   val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty)
@@ -54,7 +56,7 @@ trait ApiBuilder {
   val VersionTwo   = ApiVersionNbr("2.0")
   val VersionThree = ApiVersionNbr("3.0")
 
-  val DefaultApiData = ApiData(
+  val DefaultApiDefinition = ApiDefinition(
     serviceName = DefaultServiceName,
     serviceBaseUrl = "http://serviceBaseUrl",
     name = DefaultName,

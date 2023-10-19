@@ -28,7 +28,7 @@ case class SubscriptionVersion(apiName: String, apiContext: ApiContext, versionN
 object SubscriptionVersion {
 
   def apply(app: ApplicationWithSubscriptionDataAndFieldDefinitions): List[SubscriptionVersion] = {
-    app.apiDefinitions.flatMap(contextMap => {
+    app.apiDefinitionFields.flatMap(contextMap => {
       contextMap._2.map(versionMap => {
         def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): List[SubscriptionField] = {
           fieldNames.map(fieldName => {
@@ -39,11 +39,13 @@ object SubscriptionVersion {
           }).toList
         }
 
+        val apiDefinition = app.allPossibleSubs.find(_.context == contextMap._1).get
+
         SubscriptionVersion(
-          app.allPossibleSubs(contextMap._1).name,
+          apiDefinition.name,
           contextMap._1,
           versionMap._1,
-          app.allPossibleSubs(contextMap._1).versions(versionMap._1).status.displayText,
+          apiDefinition.versions(versionMap._1).status.displayText,
           toSubscriptionFields(versionMap._2)
         )
       })

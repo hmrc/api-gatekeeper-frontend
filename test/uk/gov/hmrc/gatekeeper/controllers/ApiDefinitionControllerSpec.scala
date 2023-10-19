@@ -67,7 +67,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
         apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
         apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
       )
-      val apiDefinition = ApiData(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
+      val apiDefinition = ApiDefinition(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
 
       Apis.returns((apiDefinition, PRODUCTION))
 

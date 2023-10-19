@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
@@ -58,14 +58,14 @@ case class ApplicationWithHistory(application: ApplicationResponse, history: Lis
 
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
-object ApiDefinitions {
+object ApiDefinitionFields {
   type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
 case class ApplicationWithSubscriptionDataAndFieldDefinitions(
     applicationWithSubscriptionData: ApplicationWithSubscriptionData,
-    apiDefinitions: ApiDefinitions.Alias,
-    allPossibleSubs: Map[ApiContext, ApiData]
+    apiDefinitionFields: ApiDefinitionFields.Alias,
+    allPossibleSubs: List[ApiDefinition]
   )
 
 object ApplicationWithHistory {

@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
@@ -38,12 +38,12 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] =
     http.GET[Option[ApplicationWithSubscriptionData]](s"${config.serviceBaseUrl}/applications/${applicationId}")
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
+  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
     http.GET[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
   }
 
-  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
-    http.GET[Map[ApiContext, ApiData]](
+  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+    http.GET[Map[ApiContext, ApiDefinition]](
       url = s"${config.serviceBaseUrl}/api-definitions",
       queryParams = Seq(
         applicationIdQueryParam -> applicationId.value.toString(),
@@ -51,6 +51,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
       ),
       headers = Seq.empty[(String, String)]
     )
+    .map(_.values.toList)
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
@@ -65,8 +66,8 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
     http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
   }
 
-  def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiData]] = {
-    http.GET[Map[ApiContext, ApiData]](s"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
+  def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+    http.GET[Map[ApiContext, ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
       .map(_.values.toList)
   }
 

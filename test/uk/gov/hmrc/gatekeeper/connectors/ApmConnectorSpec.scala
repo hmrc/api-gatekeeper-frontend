@@ -94,11 +94,11 @@ class ApmConnectorSpec
   "fetchAllPossibleSubscriptions" should {
     val url = "/api-definitions"
 
-    "return all subscribeable API's and their ApiData" in new Setup {
-      val apiData              = DefaultApiData.addVersion(VersionOne, DefaultVersionData)
-      val apiContext           = ApiContext("Api Context")
-      val apiContextAndApiData = Map(apiContext -> apiData)
-      val payload              = Json.stringify(Json.toJson(apiContextAndApiData))
+    "return all subscribeable API's and their ApiDefinition" in new Setup {
+      val apiDefinition           = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
+      val apiContext              = ApiContext("Api Context")
+      val apiContextAndDefinition = Map(apiContext -> apiDefinition)
+      val payload                 = Json.stringify(Json.toJson(apiContextAndDefinition))
 
       stubFor(
         get(urlPathEqualTo(url))
@@ -112,7 +112,7 @@ class ApmConnectorSpec
       )
 
       val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-      result(apiContext).name shouldBe "API Name"
+      result shouldBe List(apiDefinition)
     }
   }
 

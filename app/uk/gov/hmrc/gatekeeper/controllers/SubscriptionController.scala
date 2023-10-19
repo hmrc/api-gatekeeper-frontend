@@ -54,8 +54,8 @@ class SubscriptionController @Inject() (
     implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
       Ordering.by[VersionSubscriptionWithoutFields, ApiVersionNbr](_.version.versionNbr).reverse
 
-    def convertToVersionSubscription(apiData: ApiData, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
-      apiData.versions.map {
+    def convertToVersionSubscription(apiDefinition: ApiDefinition, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
+      apiDefinition.versions.map {
         case (version, data) =>
           VersionSubscriptionWithoutFields(data, apiVersions.contains(version))
       }.toList.sorted
@@ -65,11 +65,10 @@ class SubscriptionController @Inject() (
       subscriptions.filter(id => id.context == context).map(id => id.versionNbr).toList
     }
 
-    def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: Map[ApiContext, ApiData]): List[SubscriptionWithoutFields] = {
-      allPossibleSubs.map {
-        case (context, data) =>
-          SubscriptionWithoutFields(data.name, data.serviceName, context, convertToVersionSubscription(data, filterSubscriptionsByContext(subscriptions, context)))
-      }.toList
+    def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: List[ApiDefinition]): List[SubscriptionWithoutFields] = {
+      allPossibleSubs.map( defn =>
+        SubscriptionWithoutFields(defn.name, defn.serviceName, defn.context, convertToVersionSubscription(defn, filterSubscriptionsByContext(subscriptions, defn.context)))
+      )
     }
 
     withAppAndSubsData(appId) { appWithSubsData =>
