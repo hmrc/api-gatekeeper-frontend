@@ -79,6 +79,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   val api5 = simpleAPIDefinition("api-5", "API 5", "api5", Set(ApiCategory.OTHER), "1.0")
   val api6 = simpleAPIDefinition("api-6", "API 6", "api6", Set(ApiCategory.OTHER), "1.0")
   val apis = List(api1, api2, api3)
+  val apiData = ApiData.from(apis)
 
   val combinedApi1 = simpleAPI("api-1", "API 1", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
   val combinedApi2 = simpleAPI("api-2", "API 2", Set(ApiCategory.AGENTS, ApiCategory.VAT), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
@@ -211,10 +212,9 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     }
 
     "GET /emails/api-subscribers " should {
-
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithAPIs(apis)
+        primeDefinitionServiceSuccessWithAPIs(apiData)
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
         result.status shouldBe OK
 
@@ -224,10 +224,10 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page with users when selected api sent" in {
         primeAuthServiceSuccess()
-        primeDefinitionServiceSuccessWithAPIs(apis)
+        primeDefinitionServiceSuccessWithAPIs(apiData)
         primeApplicationServiceSuccessWithUsers(allUsers)
         primeDeveloperServiceGetByEmails(allUsers ++ Seq(unverifiedUser1))
-        val dropdownvalues: Seq[DropDownValue] = getApiVersionsDropDownValues(apis)
+        val dropdownvalues: Seq[DropDownValue] = getApiVersionsDropDownValues(apiData.values.toList)
         val result                             = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers?apiVersionFilter=${dropdownvalues.head.value}", validHeaders)
         result.status shouldBe OK
 

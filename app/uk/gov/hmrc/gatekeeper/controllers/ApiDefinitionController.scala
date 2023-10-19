@@ -60,9 +60,7 @@ class ApiDefinitionController @Inject() (
     with ErrorHelper {
 
   def apis() = anyAuthenticatedUserAction { implicit request =>
-    val definitions = apiDefinitionService.apis
-
-    definitions.map(allDefinitions => {
+    apiDefinitionService.apis.map( allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
         .flatMap { case (d, env) => toViewModel(d, env) }
         .sortBy((vm: ApiDefinitionView) => (vm.apiName, vm.apiVersion))
@@ -84,7 +82,7 @@ class ApiDefinitionController @Inject() (
     })
   }
 
-  private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): List[ApiDefinitionView] = {
+  private def toViewModel(apiData: ApiData, environment: Environment): Iterable[ApiDefinitionView] = {
     def isTrial(apiVersion: ApiVersion): Boolean = {
       apiVersion.access match {
         case ApiAccess.Private(true) => true
@@ -92,16 +90,16 @@ class ApiDefinitionController @Inject() (
       }
     }
 
-    apiDefinition.versions.map(v =>
+    apiData.versions.values.map(v =>
       ApiDefinitionView(
-        apiDefinition.name,
-        apiDefinition.serviceName.value,
-        apiDefinition.context,
+        apiData.name,
+        apiData.serviceName.value,
+        apiData.context,
         v.versionNbr,
         v.versionSource,
         v.status.displayText,
         v.access.accessType.toString(),
-        apiDefinition.requiresTrust,
+        apiData.requiresTrust,
         isTrial(v),
         environment.toString
       )

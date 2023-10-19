@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -61,7 +61,7 @@ trait ApmConnectorMockProvider {
 
     object FetchAllApiDefinitions {
 
-      def returnsFor(env: Environment)(apis: ApiDefinition*) =
+      def returnsFor(env: Environment)(apis: ApiData*) =
         when(aMock.fetchAllApis(eqTo(env))(*)).thenReturn(successful(apis.toList))
 
       def verifyNeverCalledFor(env: Environment) =

@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 trait ApiDefinitionTestData {
 
-  val apiDefinition =
+  val listOfApiDefinitions =
     s"""
        |[
        | {
@@ -148,6 +148,144 @@ trait ApiDefinitionTestData {
        |       "versionSource": "UNKNOWN"
        |     }
        |   ],
+       |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-04-06T09:13:40.439Z",
+       |   "categories": [ "OTHER"]
+       | }
+       |]
+  """.stripMargin
+
+  val mapOfApiData =
+    s"""
+       |{
+       | "employers-paye" : {
+       |   "serviceName": "employersPayeAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Employers PAYE",
+       |   "description": "EMPLOYERS PAYE API.",
+       |   "context": "employers-paye",
+       |   "versions": {
+       |     "1.0": {
+       |       "version": "1.0",
+       |       "status": "STABLE",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "employersPayeAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:employers-paye-1",
+       |           "queryParameters": []
+       |         }
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
+       |     }
+       |   },
+       |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-07-06T09:13:40.439Z",
+       |   "categories": [ "OTHER"]
+       | },
+       | "paye-credits": {
+       |   "serviceName": "payeCreditsAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Paye Credits",
+       |   "description": "PAYE CREDITS API",
+       |   "context": "paye-credits",
+       |   "versions": {
+       |     "1.0": {
+       |       "version": "1.0",
+       |       "status": "DEPRECATED",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "payeCreditsAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:paye-credits-1",
+       |           "queryParameters": []
+       |         }
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
+       |     }
+       |   },
+       |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2022-07-06T09:13:40.439Z",
+       |   "categories": [ "OTHER"]
+       | },
+       | "individual-benefits": {
+       |   "serviceName": "individualBenefitsAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Individual Benefits",
+       |   "description": "INDIVIDUAL BENEFITS API.",
+       |   "context": "individual-benefits",
+       |   "versions": {
+       |     "1.0": {
+       |       "version": "1.0",
+       |       "status": "STABLE",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "individualBenefitsAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:individual-benefits-1",
+       |           "queryParameters": []
+       |         }
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
+       |     }
+       |   },
+       |   "requiresTrust": false,
+       |   "isTestSupport": false,
+       |   "lastPublishedAt": "2023-06-06T09:13:40.439Z",
+       |   "categories": [ "OTHER"]
+       | },
+       | "self-assessment": {
+       |   "serviceName": "selfAssessmentAPI",
+       |   "serviceBaseUrl": "http://localhost/",
+       |   "name": "Self Assessment",
+       |   "description": "SELF ASSESSMENT API.",
+       |   "context": "self-assessment",
+       |   "versions": {
+       |     "1.0": {
+       |       "version": "1.0",
+       |       "status": "STABLE",
+       |       "access": {
+       |         "type": "PUBLIC"
+       |       },
+       |       "endpoints": [
+       |         {
+       |           "uriPattern": "/qwerty",
+       |           "endpointName": "selfAssessmentAPI",
+       |           "method": "GET",
+       |           "authType": "USER",
+       |           "throttlingTier": "UNLIMITED",
+       |           "scope": "read:self-assessment-1",
+       |           "queryParameters": []
+       |         }
+       |       ],
+       |       "endpointsEnabled": true,
+       |       "versionSource": "UNKNOWN"
+       |     }
+       |   },
        |   "requiresTrust": false,
        |   "isTestSupport": false,
        |   "lastPublishedAt": "2023-04-06T09:13:40.439Z",
