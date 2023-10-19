@@ -60,7 +60,7 @@ class ApiDefinitionController @Inject() (
     with ErrorHelper {
 
   def apis() = anyAuthenticatedUserAction { implicit request =>
-    apiDefinitionService.apis.map( allDefinitions => {
+    apiDefinitionService.apis.map(allDefinitions => {
       val allDefinitionsAsRows = allDefinitions
         .flatMap { case (d, env) => toViewModel(d, env) }
         .sortBy((vm: ApiDefinitionView) => (vm.apiName, vm.apiVersion))

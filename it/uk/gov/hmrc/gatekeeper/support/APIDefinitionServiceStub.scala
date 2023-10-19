@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
 trait APIDefinitionServiceStub {
   val apmDefinitionsUrl = "/api-definitions/all"
 
-  def primeDefinitionServiceSuccessWithAPIs(apis: Map[ApiContext,ApiData]): Unit = {
+  def primeDefinitionServiceSuccessWithAPIs(apis: Map[ApiContext, ApiData]): Unit = {
     stubFor(get(urlPathEqualTo(apmDefinitionsUrl))
       .willReturn(
         aResponse()

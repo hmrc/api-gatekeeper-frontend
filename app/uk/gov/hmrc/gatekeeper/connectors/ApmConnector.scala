@@ -67,7 +67,7 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
 
   def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiData]] = {
     http.GET[Map[ApiContext, ApiData]](s"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
-    .map(_.values.toList)
+      .map(_.values.toList)
   }
 
   // TODO - better return type

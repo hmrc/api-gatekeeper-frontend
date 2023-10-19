@@ -291,7 +291,7 @@ trait ApiDefinitionTestData {
        |   "lastPublishedAt": "2023-04-06T09:13:40.439Z",
        |   "categories": [ "OTHER"]
        | }
-       |]
+       |}
   """.stripMargin
 
 }

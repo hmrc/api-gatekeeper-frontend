@@ -105,7 +105,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
-      
+
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
       def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)

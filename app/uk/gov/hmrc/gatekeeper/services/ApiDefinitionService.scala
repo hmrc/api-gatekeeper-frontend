@@ -21,9 +21,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
 
 class ApiDefinitionService @Inject() (
     apmConnector: ApmConnector
@@ -36,11 +36,11 @@ class ApiDefinitionService @Inject() (
     val allApis: List[Future[List[ApiData]]] = envs.map(e => apmConnector.fetchAllApis(e))
 
     Future.reduceLeft(allApis)(_ ++ _)
-      .map(_.distinct)  // for when identical in both environments
+      .map(_.distinct) // for when identical in both environments
   }
 
   def apis(implicit hc: HeaderCarrier): Future[List[(ApiData, Environment)]] = {
-    val envs                                                                                   = Environment.values.toList
+    val envs                                                                       = Environment.values.toList
     val tupleEnv: Environment => ApiData => (ApiData, Environment)                 = (e) => (a) => (a, e)
     val tupleListEnv: Environment => List[ApiData] => List[(ApiData, Environment)] = (e) => (as) => as.map(tupleEnv(e))
 
