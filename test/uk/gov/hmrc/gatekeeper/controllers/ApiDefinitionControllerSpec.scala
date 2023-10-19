@@ -52,6 +52,9 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       StrideAuthorisationServiceMock.aMock,
       LdapAuthorisationServiceMock.aMock
     )
+
+    val apiVersion1 = ApiVersionNbr("1.0")
+    val apiVersion2 = ApiVersionNbr("2.0")
   }
 
   "apis" should {
@@ -60,11 +63,11 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
       val someContext = ApiContext.random
 
-      val apiVersions   = List(
-        ApiVersion(ApiVersionNbr("1.0"), ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
-        ApiVersion(ApiVersionNbr("2.0"), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
+      val apiVersions   = Map(
+        apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+        apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
       )
-      val apiDefinition = ApiDefinition(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
+      val apiDefinition = ApiData(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
 
       Apis.returns((apiDefinition, PRODUCTION))
 

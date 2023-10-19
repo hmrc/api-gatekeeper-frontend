@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiData
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 
@@ -30,18 +30,19 @@ class ApiDefinitionService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllApiDefinitions(environment: Option[Environment] = None)(implicit hc: HeaderCarrier): Future[List[ApiData]] = {
     val envs = environment.fold[List[Environment]](Environment.values.toList)(List(_))
 
-    val allApis: List[Future[List[ApiDefinition]]] = envs.map(e => apmConnector.fetchAllApis(e))
+    val allApis: List[Future[List[ApiData]]] = envs.map(e => apmConnector.fetchAllApis(e))
 
-    Future.reduceLeft(allApis)(_ ++ _).map(_.distinct)
+    Future.reduceLeft(allApis)(_ ++ _)
+      .map(_.distinct) // for when identical in both environments
   }
 
-  def apis(implicit hc: HeaderCarrier): Future[List[(ApiDefinition, Environment)]] = {
-    val envs                                                                                   = Environment.values.toList
-    val tupleEnv: Environment => ApiDefinition => (ApiDefinition, Environment)                 = (e) => (a) => (a, e)
-    val tupleListEnv: Environment => List[ApiDefinition] => List[(ApiDefinition, Environment)] = (e) => (as) => as.map(tupleEnv(e))
+  def apis(implicit hc: HeaderCarrier): Future[List[(ApiData, Environment)]] = {
+    val envs                                                                       = Environment.values.toList
+    val tupleEnv: Environment => ApiData => (ApiData, Environment)                 = (e) => (a) => (a, e)
+    val tupleListEnv: Environment => List[ApiData] => List[(ApiData, Environment)] = (e) => (as) => as.map(tupleEnv(e))
 
     Future.reduceLeft(
       envs.map(e =>

@@ -152,8 +152,8 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubApiDefinition() = {
-    stubFor(get(urlPathEqualTo("/api-definitions/all")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
-    stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(apiDefinition)))
+    stubFor(get(urlPathEqualTo("/api-definitions/all")).willReturn(aResponse().withStatus(OK).withBody(mapOfApiData)))
+    stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(listOfApiDefinitions)))
   }
 
   def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {

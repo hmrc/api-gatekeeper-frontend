@@ -21,12 +21,13 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiContext
 
 trait APIDefinitionServiceStub {
   val apmDefinitionsUrl = "/api-definitions/all"
 
-  def primeDefinitionServiceSuccessWithAPIs(apis: Seq[ApiDefinition]): Unit = {
+  def primeDefinitionServiceSuccessWithAPIs(apis: Map[ApiContext, ApiData]): Unit = {
     stubFor(get(urlPathEqualTo(apmDefinitionsUrl))
       .willReturn(
         aResponse()

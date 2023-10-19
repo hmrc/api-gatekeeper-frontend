@@ -35,26 +35,28 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     val definitionService = new ApiDefinitionService(ApmConnectorMock.aMock)
 
-    val publicDefinition = ApiDefinition(
+    val apiVersion1 = ApiVersionNbr.random
+
+    val publicDefinition = ApiData(
       ServiceName("publicAPI"),
       "http://localhost/",
       "publicAPI",
       "public api.",
       ApiContext.random,
-      List(ApiVersion(ApiVersionNbr.random, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
       false,
       false,
       None,
       List(ApiCategory.OTHER)
     )
 
-    val privateDefinition = ApiDefinition(
+    val privateDefinition = ApiData(
       ServiceName("privateAPI"),
       "http://localhost/",
       "privateAPI",
       "private api.",
       ApiContext.random,
-      List(ApiVersion(ApiVersionNbr.random, ApiStatus.STABLE, ApiAccess.Private(false), List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.Private(false), List.empty, false, None, ApiVersionSource.UNKNOWN)),
       false,
       false,
       None,
@@ -99,7 +101,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
 
-        val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
+        val allDefinitions: Future[List[ApiData]] = definitionService.fetchAllApiDefinitions(None)
 
         await(allDefinitions) shouldBe expectedApiDefintions
       }
@@ -111,7 +113,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)()
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
 
-        val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.SANDBOX))
+        val allDefinitions: Future[List[ApiData]] = definitionService.fetchAllApiDefinitions(Some(Environment.SANDBOX))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
@@ -126,7 +128,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
 
-        val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.PRODUCTION))
+        val allDefinitions: Future[List[ApiData]] = definitionService.fetchAllApiDefinitions(Some(Environment.PRODUCTION))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
@@ -139,7 +141,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
         ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
 
-        val allDefinitions: Future[Seq[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
+        val allDefinitions: Future[List[ApiData]] = definitionService.fetchAllApiDefinitions(None)
 
         await(allDefinitions) should have size 2
       }
@@ -155,7 +157,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicSandbox, privateSandbox)
 
-      val allDefinitions: Seq[(ApiDefinition, Environment)] = await(definitionService.apis)
+      val allDefinitions: List[(ApiData, Environment)] = await(definitionService.apis)
 
       allDefinitions shouldBe Seq(
         (privateDefinition, Environment.PRODUCTION),

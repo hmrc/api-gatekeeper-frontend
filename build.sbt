@@ -135,3 +135,12 @@ coverageExcludedPackages := Seq(
   """uk\.gov\.hmrc\.apiplatform\.modules\.common\..*""",
   """uk\.gov\.hmrc\.apiplatform\.modules\.commands\.applications\.domain\.models\..*"""
 ).mkString(";")
+
+commands ++= Seq(
+  Command.command("run-all-tests") { state => "test" :: "it:test" :: "acceptance:test" :: "sandbox:test" :: state },
+
+  Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
+
+  // Coverage does not need compile !
+  Command.command("pre-commit") { state => "scalafmtAll" :: "scalafixAll" :: "clean" :: "coverage" :: "run-all-tests" :: "coverageReport" :: state }
+)

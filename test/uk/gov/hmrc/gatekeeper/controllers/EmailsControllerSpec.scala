@@ -103,6 +103,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val category3                 = ApiCategory.AGENTS
       val categorySet               = Set(category1, category2, category3)
 
+      val apiVersion1 = ApiVersionNbr("1.0")
+      val apiVersion3 = ApiVersionNbr("3.0")
+
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
       def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
@@ -111,25 +114,25 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      val api1    = ApiDefinition(
+      val api1    = ApiData(
         ServiceName("service1"),
         "/",
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        List(ApiVersion(ApiVersionNbr("1.0"), ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         false,
         None,
         List(category1)
       )
-      val api2    = ApiDefinition(
+      val api2    = ApiData(
         ServiceName("service2"),
         "/",
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        List(ApiVersion(ApiVersionNbr("3.0"), ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         false,
         None,
