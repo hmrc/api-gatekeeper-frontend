@@ -30,6 +30,32 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
+object ApmConnector {
+  val applicationIdQueryParam = "applicationId"
+  val restrictedQueryParam    = "restricted"
+
+  case class Config(
+    serviceBaseUrl: String
+  )
+
+
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._ // Combinator syntax
+
+  def fromList(in: List[ApiDefinition]): Map[ApiContext, ApiDefinition] = {
+    in.map(defn => defn.context -> defn).toMap
+  }
+
+  case class Wrapper(value: Map[ApiContext, ApiDefinition])
+
+  implicit val readsWrapper: Reads[Wrapper] = (
+    (
+      (JsPath).read[Map[ApiContext, ApiDefinition]] or
+      (JsPath).read[List[ApiDefinition]].map(fromList)
+    ).map(Wrapper(_))
+  )
+}
+
 @Singleton
 class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
   import ApmConnectorJsonFormatters._
@@ -43,15 +69,14 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[Map[ApiContext, ApiDefinition]](
+    http.GET[Wrapper](
       url = s"${config.serviceBaseUrl}/api-definitions",
       queryParams = Seq(
         applicationIdQueryParam -> applicationId.value.toString(),
         restrictedQueryParam    -> "false"
       ),
       headers = Seq.empty[(String, String)]
-    )
-    .map(_.values.toList)
+    ).map(_.value.values.toList)
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
@@ -79,11 +104,3 @@ class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(imp
   }
 }
 
-object ApmConnector {
-  val applicationIdQueryParam = "applicationId"
-  val restrictedQueryParam    = "restricted"
-
-  case class Config(
-      serviceBaseUrl: String
-    )
-}

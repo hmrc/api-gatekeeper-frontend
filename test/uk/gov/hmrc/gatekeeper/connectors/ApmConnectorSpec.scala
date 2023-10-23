@@ -114,6 +114,26 @@ class ApmConnectorSpec
       val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
       result shouldBe List(apiDefinition)
     }
+
+    "return all subscribeable API's and their ApiDefinition from map of definitions" in new Setup {
+      val apiDefinition           = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
+      val listOfApiDefinition = List(apiDefinition)
+      val payload                 = Json.stringify(Json.toJson(listOfApiDefinition))
+
+      stubFor(
+        get(urlPathEqualTo(url))
+          .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
+          .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload)
+          )
+      )
+
+      val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
+      result shouldBe List(apiDefinition)
+    }
   }
 
   "getAllFieldDefinitions" should {
