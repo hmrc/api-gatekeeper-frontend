@@ -30,7 +30,7 @@ object AppDependencies {
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
     "uk.gov.hmrc"                 %% "api-platform-application-domain"   % "0.21.0",
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.6.1"
+    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.6.3"
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
