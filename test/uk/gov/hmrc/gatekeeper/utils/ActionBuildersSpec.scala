@@ -131,7 +131,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
     "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
-      val apiDefinition           = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+      val apiDefinition = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
       val possibleSubs  = List(apiDefinition)
 
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)

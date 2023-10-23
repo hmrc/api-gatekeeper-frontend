@@ -116,9 +116,9 @@ class ApmConnectorSpec
     }
 
     "return all subscribeable API's and their ApiDefinition from map of definitions" in new Setup {
-      val apiDefinition           = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
+      val apiDefinition       = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
       val listOfApiDefinition = List(apiDefinition)
-      val payload                 = Json.stringify(Json.toJson(listOfApiDefinition))
+      val payload             = Json.stringify(Json.toJson(listOfApiDefinition))
 
       stubFor(
         get(urlPathEqualTo(url))

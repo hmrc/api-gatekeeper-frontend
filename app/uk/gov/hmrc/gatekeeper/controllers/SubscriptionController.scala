@@ -66,7 +66,7 @@ class SubscriptionController @Inject() (
     }
 
     def convertToSubscriptions(subscriptions: Set[ApiIdentifier], allPossibleSubs: List[ApiDefinition]): List[SubscriptionWithoutFields] = {
-      allPossibleSubs.map( defn =>
+      allPossibleSubs.map(defn =>
         SubscriptionWithoutFields(defn.name, defn.serviceName, defn.context, convertToVersionSubscription(defn, filterSubscriptionsByContext(subscriptions, defn.context)))
       )
     }

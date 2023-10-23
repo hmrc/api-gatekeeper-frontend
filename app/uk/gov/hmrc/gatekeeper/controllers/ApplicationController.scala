@@ -193,9 +193,9 @@ class ApplicationController @Inject() (
       }
 
       def filterOutVersions(defn: ApiDefinition): ApiDefinition = {
-        val apiContext          = defn.context
-        val filteredVersions    = defn.versions.filter(versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
-        
+        val apiContext       = defn.context
+        val filteredVersions = defn.versions.filter(versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
+
         defn.copy(versions = filteredVersions)
       }
 
@@ -207,9 +207,9 @@ class ApplicationController @Inject() (
           }
         }
 
-        val apiContext          = defn.context
-        val filteredVersions    = defn.versions.filter(v => hasFields(apiContext, v._1))
-        
+        val apiContext       = defn.context
+        val filteredVersions = defn.versions.filter(v => hasFields(apiContext, v._1))
+
         defn.copy(versions = filteredVersions)
       }
 
@@ -251,8 +251,8 @@ class ApplicationController @Inject() (
         doesApplicationHaveSubmissions      <- applicationService.doesApplicationHaveSubmissions(appId)
         doesApplicationHaveTermsOfUseInvite <- applicationService.doesApplicationHaveTermsOfUseInvitation(appId)
 
-        seqOfSubscriptions              = subscribedVersions.flatMap(asListOfList).sortWith(_._1 < _._1)      // TODO
-        subscriptionsThatHaveFieldDefns = subscribedWithFields.flatMap(asListOfList).sortWith(_._1 < _._1)    // TODO
+        seqOfSubscriptions              = subscribedVersions.flatMap(asListOfList).sortWith(_._1 < _._1)   // TODO
+        subscriptionsThatHaveFieldDefns = subscribedWithFields.flatMap(asListOfList).sortWith(_._1 < _._1) // TODO
         responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
         maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
         isEligibleForTermsOfUseInvite   = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
