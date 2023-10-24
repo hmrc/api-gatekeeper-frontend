@@ -114,7 +114,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
-      val api1    = ApiData(
+      val api1    = ApiDefinition(
         ServiceName("service1"),
         "/",
         "serviceName",
@@ -126,7 +126,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         None,
         List(category1)
       )
-      val api2    = ApiData(
+      val api2    = ApiDefinition(
         ServiceName("service2"),
         "/",
         "service2Name",

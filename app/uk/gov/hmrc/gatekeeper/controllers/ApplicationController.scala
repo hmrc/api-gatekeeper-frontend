@@ -188,18 +188,18 @@ class ApplicationController @Inject() (
       val gatekeeperApprovalsUrl                                              = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
       val termsOfUseInvitationUrl                                             = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
 
-      def isSubscribed(t: (ApiContext, ApiData)): Boolean = {
-        subscriptions.exists(id => id.context == t._1)
+      def isSubscribed(defn: ApiDefinition): Boolean = {
+        subscriptions.exists(id => id.context == defn.context)
       }
 
-      def filterOutVersions(t: (ApiContext, ApiData)): (ApiContext, ApiData) = {
-        val apiContext       = t._1
-        val filteredVersions = t._2.versions.filter(versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
-        val filteredApiData  = t._2.copy(versions = filteredVersions)
-        (apiContext, filteredApiData)
+      def filterOutVersions(defn: ApiDefinition): ApiDefinition = {
+        val apiContext       = defn.context
+        val filteredVersions = defn.versions.filter(versions => subscriptions.contains(ApiIdentifier(apiContext, versions._1)))
+
+        defn.copy(versions = filteredVersions)
       }
 
-      def filterForFields(t: (ApiContext, ApiData)): (ApiContext, ApiData) = {
+      def filterForFields(defn: ApiDefinition): ApiDefinition = {
         def hasFields(apiContext: ApiContext, apiVersion: ApiVersionNbr): Boolean = {
           subscriptionFieldValues.get(apiContext) match {
             case Some(versions) => versions.get(apiVersion).isDefined
@@ -207,13 +207,13 @@ class ApplicationController @Inject() (
           }
         }
 
-        val apiContext       = t._1
-        val filteredVersions = t._2.versions.filter(v => hasFields(apiContext, v._1))
-        val filteredApiData  = t._2.copy(versions = filteredVersions)
-        (apiContext, filteredApiData)
+        val apiContext       = defn.context
+        val filteredVersions = defn.versions.filter(v => hasFields(apiContext, v._1))
+
+        defn.copy(versions = filteredVersions)
       }
 
-      def asListOfList(data: ApiData): List[(String, List[(ApiVersionNbr, ApiStatus)])] = {
+      def asListOfList(data: ApiDefinition): List[(String, List[(ApiVersionNbr, ApiStatus)])] = {
 
         if (data.versions.isEmpty) {
           List.empty
@@ -251,8 +251,8 @@ class ApplicationController @Inject() (
         doesApplicationHaveSubmissions      <- applicationService.doesApplicationHaveSubmissions(appId)
         doesApplicationHaveTermsOfUseInvite <- applicationService.doesApplicationHaveTermsOfUseInvitation(appId)
 
-        seqOfSubscriptions              = subscribedVersions.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
-        subscriptionsThatHaveFieldDefns = subscribedWithFields.values.toList.flatMap(asListOfList).sortWith(_._1 < _._1)
+        seqOfSubscriptions              = subscribedVersions.flatMap(asListOfList).sortWith(_._1 < _._1)   // TODO
+        subscriptionsThatHaveFieldDefns = subscribedWithFields.flatMap(asListOfList).sortWith(_._1 < _._1) // TODO
         responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
         maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
         isEligibleForTermsOfUseInvite   = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
@@ -628,7 +628,7 @@ class ApplicationController @Inject() (
   private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
     val versions = for {
       api     <- apis
-      version <- api.versions
+      version <- api.versionsAsList
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.versionNbr))
 
     versions.groupBy(_.status.displayText)

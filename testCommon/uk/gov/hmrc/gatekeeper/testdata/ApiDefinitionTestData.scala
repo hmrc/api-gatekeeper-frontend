@@ -156,7 +156,7 @@ trait ApiDefinitionTestData {
        |]
   """.stripMargin
 
-  val mapOfApiData =
+  val mapOfApiDefinitions =
     s"""
        |{
        | "employers-paye" : {

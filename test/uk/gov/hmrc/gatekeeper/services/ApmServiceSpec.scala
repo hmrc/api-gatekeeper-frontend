@@ -69,10 +69,11 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     "fetchAllPossibleSubscriptions" should {
       "return empty Map" in new Setup {
 
-        ApmConnectorMock.FetchAllPossibleSubscriptions.returns(Map.empty)
+        ApmConnectorMock.FetchAllPossibleSubscriptions.returns(List.empty)
 
         val result = await(apmService.fetchAllPossibleSubscriptions(anAppId))
-        result shouldBe Map.empty
+
+        result shouldBe List.empty
       }
     }
 
@@ -82,6 +83,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
         ApmConnectorMock.GetAllFieldDefinitions.returns(Map.empty)
 
         val result = await(apmService.getAllFieldDefinitions(Environment.PRODUCTION))
+
         result shouldBe Map.empty
       }
     }

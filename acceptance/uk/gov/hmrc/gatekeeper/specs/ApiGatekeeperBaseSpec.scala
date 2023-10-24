@@ -47,19 +47,19 @@ class ApiGatekeeperBaseSpec
 
   // Stub call to APM
   def stubNewApplication(application: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/applications/${appId.value.toString()}")).willReturn(aResponse().withBody(application).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/applications/${appId}")).willReturn(aResponse().withBody(application).withStatus(OK)))
   }
 
   def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK)))
   }
 
   def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId.value.toString()}/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
   }
 
   def stubApiDefintionsForApplication(apiDefinitions: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=${appId.value.toString()}&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/api-definitions?applicationId=${appId}&restricted=false")).willReturn(aResponse().withBody(apiDefinitions).withStatus(OK)))
   }
 
   def stubDevelopers(developers: List[RegisteredUser]) = {
@@ -152,7 +152,7 @@ class ApiGatekeeperBaseSpec
   }
 
   def stubApiDefinition() = {
-    stubFor(get(urlPathEqualTo("/api-definitions/all")).willReturn(aResponse().withStatus(OK).withBody(mapOfApiData)))
+    stubFor(get(urlPathEqualTo("/api-definitions/all")).willReturn(aResponse().withStatus(OK).withBody(mapOfApiDefinitions)))
     stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(listOfApiDefinitions)))
   }
 

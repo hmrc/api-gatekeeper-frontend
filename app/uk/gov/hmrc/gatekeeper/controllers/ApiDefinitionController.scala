@@ -82,7 +82,7 @@ class ApiDefinitionController @Inject() (
     })
   }
 
-  private def toViewModel(apiData: ApiData, environment: Environment): Iterable[ApiDefinitionView] = {
+  private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): Iterable[ApiDefinitionView] = {
     def isTrial(apiVersion: ApiVersion): Boolean = {
       apiVersion.access match {
         case ApiAccess.Private(true) => true
@@ -90,16 +90,16 @@ class ApiDefinitionController @Inject() (
       }
     }
 
-    apiData.versions.values.map(v =>
+    apiDefinition.versions.values.map(v =>
       ApiDefinitionView(
-        apiData.name,
-        apiData.serviceName.value,
-        apiData.context,
+        apiDefinition.name,
+        apiDefinition.serviceName.value,
+        apiDefinition.context,
         v.versionNbr,
         v.versionSource,
         v.status.displayText,
         v.access.accessType.toString(),
-        apiData.requiresTrust,
+        apiDefinition.requiresTrust,
         isTrial(v),
         environment.toString
       )

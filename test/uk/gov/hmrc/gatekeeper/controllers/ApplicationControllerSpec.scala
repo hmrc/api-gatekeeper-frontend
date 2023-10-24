@@ -1601,14 +1601,13 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         val application2                    = buildApplication()
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
-        val apiData                         = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-        val apiContext                      = ApiContext("Api Context")
-        val apiContextAndApiData            = Map(apiContext -> apiData)
+        val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+        val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
 
-        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
         ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
@@ -1634,14 +1633,13 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         val application2                    = buildApplication().copy(state = ApplicationState(State.DELETED))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
-        val apiData                         = DefaultApiData.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-        val apiContext                      = ApiContext("Api Context")
-        val apiContextAndApiData            = Map(apiContext -> apiData)
+        val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+        val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
 
-        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(apiContextAndApiData)
+        ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
         ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()

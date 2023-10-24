@@ -21,7 +21,7 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiData, ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -34,11 +34,11 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchApplicationById(applicationId)
   }
 
-  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Map[ApiContext, ApiData]] = {
+  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
   }
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitions.Alias] = {
+  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
     apmConnector.getAllFieldDefinitions(environment)
   }
 

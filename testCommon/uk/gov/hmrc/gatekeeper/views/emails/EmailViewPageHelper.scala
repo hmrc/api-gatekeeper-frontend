@@ -117,7 +117,7 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     elementExistsByText(document, "h1", "Email all users subscribed to an API") shouldBe true
 
     for (api: ApiDefinition <- apis) {
-      for (version: ApiVersion <- api.versions) {
+      for (version: ApiVersion <- api.versionsAsList) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.versionNbr.value}]")
         withClue(s"dropdown option not rendered for ${api.serviceName} version ${version.versionNbr}") {
           versionOption.isDefined shouldBe true
@@ -136,7 +136,7 @@ trait EmailAPISubscriptionsViewHelper extends EmailUsersHelper with UserTableHel
     validateButtonText(document, "filter", "Filter Again")
 
     for (api: ApiDefinition <- apis) {
-      for (version: ApiVersion <- api.versions) {
+      for (version: ApiVersion <- api.versionsAsList) {
         val versionOption = getElementBySelector(document, s"option[value=${api.context.value}__${version.versionNbr.value}]")
         versionOption.isDefined shouldBe true
       }

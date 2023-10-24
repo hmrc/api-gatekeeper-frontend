@@ -70,7 +70,7 @@ class SubscriptionConfigurationControllerSpec
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder with ApplicationBuilder {
-    val allFieldDefinitions = buildApiDefinitions()
+    val allFieldDefinitions = buildApiDefinitionFields()
 
     val apiContext = allFieldDefinitions.keySet.head
     val apiVersion = allFieldDefinitions(apiContext).keySet.head
@@ -81,8 +81,8 @@ class SubscriptionConfigurationControllerSpec
 
     val apiName         = "API Name"
     val versionData     = DefaultVersionData
-    val apiData         = DefaultApiData.withName(apiName).withVersion(apiVersion, versionData)
-    val allPossibleSubs = Map(apiContext -> apiData)
+    val apiDefinition   = DefaultApiDefinition.withName(apiName).withVersion(apiVersion, versionData).withContext(apiContext)
+    val allPossibleSubs = List(apiDefinition)
   }
 
   trait EditSaveFormData extends AppWithSubscriptionDataAndFieldDefinitionsSetup {
