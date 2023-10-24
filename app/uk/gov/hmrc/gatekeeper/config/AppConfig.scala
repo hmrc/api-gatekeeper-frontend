@@ -61,12 +61,6 @@ trait AppConfig {
   def apiPublisherSandboxApiKey: String
   def apiPublisherProductionBaseUrl: String
 
-  def apiDefinitionSandboxBaseUrl: String
-  def apiDefinitionSandboxUseProxy: Boolean
-  def apiDefinitionSandboxBearerToken: String
-  def apiDefinitionSandboxApiKey: String
-  def apiDefinitionProductionBaseUrl: String
-
   def superUserRole: String
   def userRole: String
   def adminRole: String
@@ -76,9 +70,8 @@ trait AppConfig {
   def gatekeeperApprovalsEnabled: Boolean
   def gatekeeperApprovalsBaseUrl: String
 
-  def gatekeeperComposeEmailBaseUrl: String
-  def gatekeeperComposeEmailUrl: String
-  def gatekeeperComposeEmailUsersUrl: String
+  def apiGatekeeperEmailUrl: String
+  def apiGatekeeperEmailUsersUrl: String
 }
 
 @Singleton
@@ -99,18 +92,12 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val apiScopeSandboxBearerToken    = bearerToken("api-scope-sandbox")
   val apiScopeSandboxApiKey         = apiKey("api-scope-sandbox")
   val apiScopeProductionBaseUrl     = serviceUrl("api-scope")("api-scope-production")
-  val apiScopeProductionUseProxy    = useProxy("api-scope-production")
-  val apiScopeProductionBearerToken = bearerToken("api-scope-production")
-  val apiScopeProductionApiKey      = apiKey("api-scope-production")
 
   val applicationSandboxBaseUrl        = serviceUrl("third-party-application")("third-party-application-sandbox")
   val applicationSandboxUseProxy       = useProxy("third-party-application-sandbox")
   val applicationSandboxBearerToken    = bearerToken("third-party-application-sandbox")
   val applicationSandboxApiKey         = apiKey("third-party-application-sandbox")
   val applicationProductionBaseUrl     = serviceUrl("third-party-application")("third-party-application-production")
-  val applicationProductionUseProxy    = useProxy("third-party-application-production")
-  val applicationProductionBearerToken = bearerToken("third-party-application-production")
-  val applicationProductionApiKey      = apiKey("third-party-application-production")
 
   val authBaseUrl      = baseUrl("auth")
   val strideLoginUrl   = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
@@ -121,27 +108,13 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val subscriptionFieldsSandboxBearerToken    = bearerToken("api-subscription-fields-sandbox")
   val subscriptionFieldsSandboxApiKey         = apiKey("api-subscription-fields-sandbox")
   val subscriptionFieldsProductionBaseUrl     = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
-  val subscriptionFieldsProductionUseProxy    = useProxy("api-subscription-fields-production")
-  val subscriptionFieldsProductionBearerToken = bearerToken("api-subscription-fields-production")
-  val subscriptionFieldsProductionApiKey      = apiKey("api-subscription-fields-production")
 
   val apiPublisherSandboxBaseUrl        = serviceUrl("api-publisher")("api-publisher-sandbox")
   val apiPublisherSandboxUseProxy       = useProxy("api-publisher-sandbox")
   val apiPublisherSandboxBearerToken    = bearerToken("api-publisher-sandbox")
   val apiPublisherSandboxApiKey         = apiKey("api-publisher-sandbox")
   val apiPublisherProductionBaseUrl     = serviceUrl("api-publisher")("api-publisher-production")
-  val apiPublisherProductionUseProxy    = useProxy("api-publisher-production")
-  val apiPublisherProductionBearerToken = bearerToken("api-publisher-production")
-  val apiPublisherProductionApiKey      = apiKey("api-publisher-production")
 
-  val apiDefinitionSandboxBaseUrl        = serviceUrl("api-definition")("api-definition-sandbox")
-  val apiDefinitionSandboxUseProxy       = useProxy("api-definition-sandbox")
-  val apiDefinitionSandboxBearerToken    = bearerToken("api-definition-sandbox")
-  val apiDefinitionSandboxApiKey         = apiKey("api-definition-sandbox")
-  val apiDefinitionProductionBaseUrl     = serviceUrl("api-definition")("api-definition-production")
-  val apiDefinitionProductionUseProxy    = useProxy("api-definition-production")
-  val apiDefinitionProductionBearerToken = bearerToken("api-definition-production")
-  val apiDefinitionProductionApiKey      = apiKey("api-definition-production")
 
   val superUserRole = getString("roles.super-user")
   val userRole      = getString("roles.user")
@@ -152,7 +125,7 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val gatekeeperApprovalsEnabled = getBoolean("api-gatekeeper-approvals-frontend.enabled")
   val gatekeeperApprovalsBaseUrl = baseUrl("api-gatekeeper-approvals-frontend")
 
-  val gatekeeperComposeEmailBaseUrl  = baseUrl("gatekeeper-compose-email-frontend")
-  val gatekeeperComposeEmailUrl      = s"$gatekeeperComposeEmailBaseUrl/api-gatekeeper/compose-email/email"
-  val gatekeeperComposeEmailUsersUrl = s"$gatekeeperComposeEmailBaseUrl/api-gatekeeper/compose-email/email/users"
+  private val apiGatekeeperEmailBaseUrl  = baseUrl("api-gatekeeper-email-frontend")
+  val apiGatekeeperEmailUrl      = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper/compose-email/email"
+  val apiGatekeeperEmailUsersUrl = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper/compose-email/email/users"
 }

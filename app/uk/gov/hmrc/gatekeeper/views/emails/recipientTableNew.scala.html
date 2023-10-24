@@ -25,7 +25,7 @@
 @if(users.nonEmpty) {
   <div class="govuk-button-group govuk-!-margin-bottom-5">
       <div style="visibility: visible">
-          <form method="post" action="@config.gatekeeperComposeEmailUrl">
+          <form method="post" action="@config.apiGatekeeperEmailUrl">
               @helper.CSRF.formField
               <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
               <input type="hidden" name="user-selection-query" value="@{Json.toJson(tpdQuery)}"/>

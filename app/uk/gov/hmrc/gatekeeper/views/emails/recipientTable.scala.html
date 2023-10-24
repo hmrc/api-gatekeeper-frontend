@@ -32,7 +32,7 @@
     </div>
 
     <div style="visibility: visible">
-      <form method="post" action="@config.gatekeeperComposeEmailUrl">
+      <form method="post" action="@config.apiGatekeeperEmailUrl">
         @helper.CSRF.formField
         <input type="hidden" name="user-selection" value="@{Json.stringify(Json.toJson(userSelection))}"/>
         <input type="hidden" name="user-selection-query" value="@{Json.toJson(tpdQuery)}"/>
