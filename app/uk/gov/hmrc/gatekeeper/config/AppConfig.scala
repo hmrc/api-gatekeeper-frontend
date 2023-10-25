@@ -91,13 +91,13 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val apiScopeSandboxUseProxy       = useProxy("api-scope-sandbox")
   val apiScopeSandboxBearerToken    = bearerToken("api-scope-sandbox")
   val apiScopeSandboxApiKey         = apiKey("api-scope-sandbox")
-  val apiScopeProductionBaseUrl     = serviceUrl("api-scope")("api-scope-production")
+  val apiScopeProductionBaseUrl     = baseUrl("api-scope-production")
 
   val applicationSandboxBaseUrl        = serviceUrl("third-party-application")("third-party-application-sandbox")
   val applicationSandboxUseProxy       = useProxy("third-party-application-sandbox")
   val applicationSandboxBearerToken    = bearerToken("third-party-application-sandbox")
   val applicationSandboxApiKey         = apiKey("third-party-application-sandbox")
-  val applicationProductionBaseUrl     = serviceUrl("third-party-application")("third-party-application-production")
+  val applicationProductionBaseUrl     = baseUrl("third-party-application-production")
 
   val authBaseUrl      = baseUrl("auth")
   val strideLoginUrl   = s"${baseUrl("stride-auth-frontend")}/stride/sign-in"
@@ -107,13 +107,13 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val subscriptionFieldsSandboxUseProxy       = useProxy("api-subscription-fields-sandbox")
   val subscriptionFieldsSandboxBearerToken    = bearerToken("api-subscription-fields-sandbox")
   val subscriptionFieldsSandboxApiKey         = apiKey("api-subscription-fields-sandbox")
-  val subscriptionFieldsProductionBaseUrl     = serviceUrl("api-subscription-fields")("api-subscription-fields-production")
+  val subscriptionFieldsProductionBaseUrl     = baseUrl("api-subscription-fields-production")
 
   val apiPublisherSandboxBaseUrl        = serviceUrl("api-publisher")("api-publisher-sandbox")
   val apiPublisherSandboxUseProxy       = useProxy("api-publisher-sandbox")
   val apiPublisherSandboxBearerToken    = bearerToken("api-publisher-sandbox")
   val apiPublisherSandboxApiKey         = apiKey("api-publisher-sandbox")
-  val apiPublisherProductionBaseUrl     = serviceUrl("api-publisher")("api-publisher-production")
+  val apiPublisherProductionBaseUrl     = baseUrl("api-publisher-production")
 
 
   val superUserRole = getString("roles.super-user")
