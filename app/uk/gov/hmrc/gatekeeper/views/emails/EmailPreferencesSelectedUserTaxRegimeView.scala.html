@@ -64,7 +64,7 @@
                 @if(users.nonEmpty) {
                     <div class="govuk-button-group govuk-!-margin-bottom-4">
                         <div style="visibility: visible">
-                            <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.gatekeeperComposeEmailUrl">
+                            <form name="gatekeeper-email-editor" method="post" action="@applicationConfig.apiGatekeeperEmailUrl">
                                 @helper.CSRF.formField
                                 <input type="hidden" name="user-selection" value="@{
                                     Json.stringify(Json.toJson(userSelection))
