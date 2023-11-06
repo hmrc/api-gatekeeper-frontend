@@ -126,6 +126,6 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val gatekeeperApprovalsBaseUrl = baseUrl("api-gatekeeper-approvals-frontend")
 
   private val apiGatekeeperEmailBaseUrl  = baseUrl("api-gatekeeper-email-frontend")
-  val apiGatekeeperEmailUrl      = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper/compose-email/email"
-  val apiGatekeeperEmailUsersUrl = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper/compose-email/email/users"
+  val apiGatekeeperEmailUrl      = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"
+  val apiGatekeeperEmailUsersUrl = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email/users"
 }
