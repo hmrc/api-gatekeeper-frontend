@@ -19,8 +19,6 @@ package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 import play.api.libs.json.{JsSuccess, Json, OFormat, OWrites, Reads}
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.gatekeeper.models.OverrideType
-
 sealed trait OverrideFlag {
   val overrideType: OverrideType.Value
 }
