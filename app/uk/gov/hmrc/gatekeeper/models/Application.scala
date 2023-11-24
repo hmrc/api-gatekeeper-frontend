@@ -22,7 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, State, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
@@ -206,22 +206,6 @@ case class ApplicationWithSubscriptionsResponse(id: ApplicationId, name: String,
 
 object ApplicationWithSubscriptionsResponse {
   implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
-}
-
-// TODO - Remove Enumeration
-object AccessType extends Enumeration {
-  type AccessType = Value
-  val STANDARD, PRIVILEGED, ROPC = Value
-
-  val displayedType: AccessType => String = {
-    case STANDARD   => "Standard"
-    case PRIVILEGED => "Privileged"
-    case ROPC       => "ROPC"
-  }
-
-  def from(accessType: String) = {
-    AccessType.values.find(e => e.toString == accessType.toUpperCase)
-  }
 }
 
 case class TotpIds(production: String)
