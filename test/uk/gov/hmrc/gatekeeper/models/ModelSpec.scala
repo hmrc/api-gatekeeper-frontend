@@ -20,6 +20,7 @@ import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._

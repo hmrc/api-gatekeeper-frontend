@@ -16,15 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.{LocalDateTime, Period, ZoneOffset}
+import java.time.{LocalDateTime, Period}
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, Privileged, Ropc, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, State, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -213,16 +212,4 @@ object CollaboratorRole extends Enumeration {
   }
 
   implicit val format = Json.formatEnum(CollaboratorRole)
-}
-
-case class ApplicationState(
-    name: State = State.TESTING,
-    requestedByEmailAddress: Option[String] = None,
-    verificationCode: Option[String] = None,
-    updatedOn: LocalDateTime = LocalDateTime.now(ZoneOffset.UTC)
-  ) {
-  def isApproved                     = name.isApproved
-  def isPendingGatekeeperApproval    = name.isPendingGatekeeperApproval
-  def isPendingRequesterVerification = name.isPendingRequesterVerification
-  def isDeleted                      = name.isDeleted
 }
