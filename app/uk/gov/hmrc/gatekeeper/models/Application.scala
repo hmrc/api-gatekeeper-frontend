@@ -22,7 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -51,31 +51,6 @@ case class ContactDetails(fullname: String, email: String, telephoneNumber: Stri
 
 object ContactDetails {
   implicit val formatContactDetails = Json.format[ContactDetails]
-}
-
-case class CheckInformation(
-    contactDetails: Option[ContactDetails] = None,
-    confirmedName: Boolean = false,
-    providedPrivacyPolicyURL: Boolean = false,
-    providedTermsAndConditionsURL: Boolean = false,
-    applicationDetails: Option[String] = None,
-    termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
-  ) {
-
-  def latestTOUAgreement: Option[TermsOfUseAgreement] = {
-    implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
-
-    termsOfUseAgreements match {
-      case Nil        => None
-      case agreements => Option(agreements.maxBy(_.timeStamp))
-    }
-  }
-}
-
-object CheckInformation {
-
-  implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
-  implicit val formatApprovalInformation = Json.format[CheckInformation]
 }
 
 sealed trait PrivacyPolicyLocation
