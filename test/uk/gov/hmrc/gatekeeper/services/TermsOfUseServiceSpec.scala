@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneOffset}
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec

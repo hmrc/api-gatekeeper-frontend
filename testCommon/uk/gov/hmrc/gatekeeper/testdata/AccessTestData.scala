@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.models.{Access, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Standard}
 
 trait AccessTestData {
 

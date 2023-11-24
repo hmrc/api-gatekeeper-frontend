@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.{LocalDateTime, Period}
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, IpAllowlist, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}

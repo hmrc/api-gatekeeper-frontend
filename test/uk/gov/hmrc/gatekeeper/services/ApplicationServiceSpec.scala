@@ -28,6 +28,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowlist, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{CidrBlock, Collaborator, Collaborators, GrantLength, RateLimitTier}

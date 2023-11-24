@@ -22,6 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessWithRestrictedScopes, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, State, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
@@ -106,32 +107,6 @@ case class ImportantSubmissionData(
 
 object ImportantSubmissionData {
   implicit val format = Json.format[ImportantSubmissionData]
-}
-
-sealed trait Access {
-  val accessType: AccessType.Value
-}
-
-sealed trait AccessWithRestrictedScopes extends Access {
-  val scopes: Set[String]
-}
-
-case class Standard(
-    redirectUris: List[String] = List.empty,
-    termsAndConditionsUrl: Option[String] = None,
-    privacyPolicyUrl: Option[String] = None,
-    importantSubmissionData: Option[ImportantSubmissionData] = None,
-    overrides: Set[OverrideFlag] = Set.empty
-  ) extends Access {
-  override val accessType = AccessType.STANDARD
-}
-
-case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
-  override val accessType = AccessType.PRIVILEGED
-}
-
-case class Ropc(scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
-  override val accessType = AccessType.ROPC
 }
 
 sealed trait OverrideFlag {
