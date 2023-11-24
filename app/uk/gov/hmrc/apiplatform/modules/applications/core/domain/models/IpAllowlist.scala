@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.models
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 case class IpAllowlist(required: Boolean = false, allowlist: Set[String] = Set.empty)
 
