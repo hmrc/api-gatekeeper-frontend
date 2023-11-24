@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-import uk.gov.hmrc.gatekeeper.models.{AccessType, ImportantSubmissionData, OverrideFlag, TotpIds}
+import uk.gov.hmrc.gatekeeper.models.{AccessType, ImportantSubmissionData, TotpIds}
 
 sealed trait Access {
   val accessType: AccessType.Value

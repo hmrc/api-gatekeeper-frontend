@@ -22,7 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessWithRestrictedScopes, Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, State, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
@@ -107,55 +107,6 @@ case class ImportantSubmissionData(
 
 object ImportantSubmissionData {
   implicit val format = Json.format[ImportantSubmissionData]
-}
-
-sealed trait OverrideFlag {
-  val overrideType: OverrideType.Value
-}
-
-object OverrideFlag {
-  implicit private val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
-
-  implicit private val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
-    Reads { _ => JsSuccess(PersistLogin) },
-    OWrites[PersistLogin.type] { _ => Json.obj() }
-  )
-
-  implicit private val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
-  implicit private val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
-  implicit private val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
-
-  implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
-    .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
-    .and[PersistLogin.type](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
-    .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
-    .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
-    .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
-    .format
-}
-
-sealed trait OverrideFlagWithScopes extends OverrideFlag {
-  val scopes: Set[String]
-}
-
-case object PersistLogin extends OverrideFlag {
-  val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
-}
-
-case class SuppressIvForAgents(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_AGENTS
-}
-
-case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
-}
-
-case class SuppressIvForIndividuals(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
-}
-
-case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
 }
 
 // TODO - Remove Enumeration
