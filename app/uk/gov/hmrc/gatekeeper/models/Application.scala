@@ -22,6 +22,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -51,8 +52,6 @@ case class ContactDetails(fullname: String, email: String, telephoneNumber: Stri
 object ContactDetails {
   implicit val formatContactDetails = Json.format[ContactDetails]
 }
-
-case class TermsOfUseAgreement(emailAddress: String, timeStamp: LocalDateTime, version: String)
 
 case class CheckInformation(
     contactDetails: Option[ContactDetails] = None,

@@ -19,9 +19,11 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
+
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.TermsOfUseAgreement
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.gatekeeper.models.applications._
-import uk.gov.hmrc.gatekeeper.models.{CheckInformation, Standard, TermsOfUseAgreement}
+import uk.gov.hmrc.gatekeeper.models.{CheckInformation, Standard}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 object TermsOfUseService {
