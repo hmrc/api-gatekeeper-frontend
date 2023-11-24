@@ -47,12 +47,6 @@ trait Application {
   def isPendingRequesterVerification = state.isPendingRequesterVerification
 }
 
-case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
-
-object ContactDetails {
-  implicit val formatContactDetails = Json.format[ContactDetails]
-}
-
 sealed trait PrivacyPolicyLocation
 
 object PrivacyPolicyLocation {

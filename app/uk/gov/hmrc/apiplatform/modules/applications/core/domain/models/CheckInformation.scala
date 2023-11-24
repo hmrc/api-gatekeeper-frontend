@@ -20,16 +20,14 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.gatekeeper.models.ContactDetails
-
 case class CheckInformation(
-                             contactDetails: Option[ContactDetails] = None,
-                             confirmedName: Boolean = false,
-                             providedPrivacyPolicyURL: Boolean = false,
-                             providedTermsAndConditionsURL: Boolean = false,
-                             applicationDetails: Option[String] = None,
-                             termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
-                           ) {
+    contactDetails: Option[ContactDetails] = None,
+    confirmedName: Boolean = false,
+    providedPrivacyPolicyURL: Boolean = false,
+    providedTermsAndConditionsURL: Boolean = false,
+    applicationDetails: Option[String] = None,
+    termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
+  ) {
 
   def latestTOUAgreement: Option[TermsOfUseAgreement] = {
     implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
