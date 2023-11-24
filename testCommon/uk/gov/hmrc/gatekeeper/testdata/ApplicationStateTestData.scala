@@ -18,7 +18,8 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.LocalDateTime
 
-import uk.gov.hmrc.gatekeeper.models.{ApplicationState, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
+import uk.gov.hmrc.gatekeeper.models.ApplicationState
 
 trait ApplicationStateTestData extends CommonTestData {
 

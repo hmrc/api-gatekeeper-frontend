@@ -20,8 +20,9 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.State.State
 
 // Caution: defaulting changedAt = LocalDateTime.now() will not use UTC
 case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, notes: Option[String] = None, changedAt: LocalDateTime)

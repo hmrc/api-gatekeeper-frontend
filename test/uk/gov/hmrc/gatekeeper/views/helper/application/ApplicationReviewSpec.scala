@@ -19,9 +19,9 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.State._
 
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
   "ApplicationsReview" when {

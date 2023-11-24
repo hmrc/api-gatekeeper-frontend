@@ -22,11 +22,11 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, IpAllowlist, MoreApplication, State, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
 trait Application {
@@ -303,47 +303,6 @@ case class TotpIds(production: String)
 case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
-
-// TODO - Remove Enumeration
-object State extends Enumeration {
-  type State = Value
-  val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value
-  implicit val format                                                                                                                                        = Json.formatEnum(State)
-
-  val displayedState: State => String = {
-    case TESTING                                     => "Created"
-    case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => "Pending Responsible Individual Verification"
-    case PENDING_GATEKEEPER_APPROVAL                 => "Pending gatekeeper check"
-    case PENDING_REQUESTER_VERIFICATION              => "Pending submitter verification"
-    case PRE_PRODUCTION                              => "Active"
-    case PRODUCTION                                  => "Active"
-    case DELETED                                     => "Deleted"
-  }
-
-  val additionalInformation: State => String = {
-    case TESTING                                     =>
-      "A production application that its admin has created but not submitted for checking"
-    case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION =>
-      "A production application that has been submitted for checking, but the responsible individual has not completed the email verification process"
-    case PENDING_GATEKEEPER_APPROVAL                 =>
-      "A production application that one of its admins has submitted for checking"
-    case PENDING_REQUESTER_VERIFICATION              =>
-      "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
-    case PRE_PRODUCTION                              =>
-      "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
-    case PRODUCTION                                  =>
-      "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
-    case DELETED                                     =>
-      "An application that has been deleted and is no longer active"
-  }
-
-  implicit class StateHelpers(state: State) {
-    def isApproved                     = state == State.PRE_PRODUCTION || state == State.PRODUCTION
-    def isPendingGatekeeperApproval    = state == State.PENDING_GATEKEEPER_APPROVAL
-    def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
-    def isDeleted                      = state == State.DELETED
-  }
-}
 
 object CollaboratorRole extends Enumeration {
   type CollaboratorRole = Value

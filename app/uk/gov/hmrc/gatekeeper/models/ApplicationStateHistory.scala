@@ -20,8 +20,8 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.models.State.State
 
 case class ApplicationStateHistoryItem(state: State, timestamp: LocalDateTime)
 case class ApplicationStateHistory(applicationId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem])

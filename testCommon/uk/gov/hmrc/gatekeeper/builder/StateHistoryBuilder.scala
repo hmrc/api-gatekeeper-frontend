@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.LocalDateTime
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, ApplicationId}
-import uk.gov.hmrc.gatekeeper.models.State.State
 import uk.gov.hmrc.gatekeeper.models.StateHistory
 
 trait StateHistoryBuilder {
