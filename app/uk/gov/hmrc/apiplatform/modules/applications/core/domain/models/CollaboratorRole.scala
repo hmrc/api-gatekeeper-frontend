@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.builder
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole
+import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
-trait CollaboratorsBuilder {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+object CollaboratorRole extends Enumeration {
+  type CollaboratorRole = Value
+  val DEVELOPER, ADMINISTRATOR = Value
 
-  def buildCollaborators(collaborators: Seq[(String, CollaboratorRole.Value)]): Set[Collaborator] = {
-    collaborators.map {
-      case (email, CollaboratorRole.ADMINISTRATOR) => Collaborators.Administrator(UserId.random, email.toLaxEmail)
-      case (email, CollaboratorRole.DEVELOPER)     => Collaborators.Developer(UserId.random, email.toLaxEmail)
-    }.toSet
+  def displayedRole: Collaborator => String = _ match {
+    case _: Collaborators.Administrator => "Administrator"
+    case _                              => "Developer"
   }
+
+  def from(role: Option[String]) = role match {
+    case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
+    case _       => Some(CollaboratorRole.DEVELOPER)
+  }
+
+  implicit val format = Json.formatEnum(CollaboratorRole)
 }

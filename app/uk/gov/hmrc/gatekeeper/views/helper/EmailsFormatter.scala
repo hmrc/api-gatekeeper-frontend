@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.gatekeeper.models.CollaboratorRole
 
 object EmailsFormatter {
 

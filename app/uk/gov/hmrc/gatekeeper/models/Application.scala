@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
@@ -131,20 +131,3 @@ object ApplicationWithSubscriptionsResponse {
 case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)
-
-object CollaboratorRole extends Enumeration {
-  type CollaboratorRole = Value
-  val DEVELOPER, ADMINISTRATOR = Value
-
-  def displayedRole: Collaborator => String = _ match {
-    case _: Collaborators.Administrator => "Administrator"
-    case _                              => "Developer"
-  }
-
-  def from(role: Option[String]) = role match {
-    case Some(r) => CollaboratorRole.values.find(e => e.toString == r.toUpperCase)
-    case _       => Some(CollaboratorRole.DEVELOPER)
-  }
-
-  implicit val format = Json.formatEnum(CollaboratorRole)
-}
