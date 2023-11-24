@@ -22,10 +22,9 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
@@ -44,68 +43,6 @@ trait Application {
   def isApproved                     = state.isApproved
   def isPendingGatekeeperApproval    = state.isPendingGatekeeperApproval
   def isPendingRequesterVerification = state.isPendingRequesterVerification
-}
-
-sealed trait PrivacyPolicyLocation
-
-object PrivacyPolicyLocation {
-  case object NoneProvided      extends PrivacyPolicyLocation
-  case object InDesktopSoftware extends PrivacyPolicyLocation
-  case class Url(value: String) extends PrivacyPolicyLocation
-
-  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
-  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat               = Json.format[Url]
-
-  implicit val format = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
-    .and[NoneProvided.type]("noneProvided")
-    .and[InDesktopSoftware.type]("inDesktop")
-    .and[Url]("url")
-    .format
-}
-
-sealed trait TermsAndConditionsLocation
-
-object TermsAndConditionsLocation {
-  case object NoneProvided      extends TermsAndConditionsLocation
-  case object InDesktopSoftware extends TermsAndConditionsLocation
-  case class Url(value: String) extends TermsAndConditionsLocation
-
-  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
-  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat               = Json.format[Url]
-
-  implicit val format = Union.from[TermsAndConditionsLocation]("termsAndConditionsType")
-    .and[NoneProvided.type]("noneProvided")
-    .and[InDesktopSoftware.type]("inDesktop")
-    .and[Url]("url")
-    .format
-}
-
-case class ResponsibleIndividual(fullName: ResponsibleIndividual.Name, emailAddress: ResponsibleIndividual.EmailAddress)
-
-object ResponsibleIndividual {
-  import play.api.libs.json.{Format, Json}
-
-  case class Name(value: String)         extends AnyVal
-  case class EmailAddress(value: String) extends AnyVal
-
-  implicit val nameFormat         = Json.valueFormat[Name]
-  implicit val emailAddressFormat = Json.valueFormat[EmailAddress]
-
-  implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
-
-  def build(name: String, email: String) = ResponsibleIndividual(Name(name), EmailAddress(email))
-}
-
-case class ImportantSubmissionData(
-    termsAndConditionsLocation: TermsAndConditionsLocation,
-    privacyPolicyLocation: PrivacyPolicyLocation,
-    termsOfUseAcceptances: List[TermsOfUseAcceptance]
-  )
-
-object ImportantSubmissionData {
-  implicit val format = Json.format[ImportantSubmissionData]
 }
 
 case class ApplicationResponse(
@@ -190,8 +127,6 @@ case class ApplicationWithSubscriptionsResponse(id: ApplicationId, name: String,
 object ApplicationWithSubscriptionsResponse {
   implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
 }
-
-case class TotpIds(production: String)
 
 case class TotpSecrets(production: String)
 

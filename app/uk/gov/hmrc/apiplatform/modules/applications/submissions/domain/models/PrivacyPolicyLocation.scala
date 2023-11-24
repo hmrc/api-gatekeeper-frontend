@@ -16,13 +16,23 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
 
-import java.time.LocalDateTime
-
 import play.api.libs.json.Json
+import uk.gov.hmrc.play.json.Union
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
+sealed trait PrivacyPolicyLocation
 
-object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-  implicit val format = Json.format[TermsOfUseAcceptance]
+object PrivacyPolicyLocation {
+  case object NoneProvided      extends PrivacyPolicyLocation
+  case object InDesktopSoftware extends PrivacyPolicyLocation
+  case class Url(value: String) extends PrivacyPolicyLocation
+
+  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
+  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
+  implicit val urlFormat               = Json.format[Url]
+
+  implicit val format = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
+    .and[NoneProvided.type]("noneProvided")
+    .and[InDesktopSoftware.type]("inDesktop")
+    .and[Url]("url")
+    .format
 }

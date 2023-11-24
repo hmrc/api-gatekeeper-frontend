@@ -16,13 +16,18 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
 
-import java.time.LocalDateTime
+case class ResponsibleIndividual(fullName: ResponsibleIndividual.Name, emailAddress: ResponsibleIndividual.EmailAddress)
 
-import play.api.libs.json.Json
+object ResponsibleIndividual {
+  import play.api.libs.json.{Format, Json}
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime)
+  case class Name(value: String)         extends AnyVal
+  case class EmailAddress(value: String) extends AnyVal
 
-object TermsOfUseAcceptance {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-  implicit val format = Json.format[TermsOfUseAcceptance]
+  implicit val nameFormat         = Json.valueFormat[Name]
+  implicit val emailAddressFormat = Json.valueFormat[EmailAddress]
+
+  implicit val format: Format[ResponsibleIndividual] = Json.format[ResponsibleIndividual]
+
+  def build(name: String, email: String) = ResponsibleIndividual(Name(name), EmailAddress(email))
 }
