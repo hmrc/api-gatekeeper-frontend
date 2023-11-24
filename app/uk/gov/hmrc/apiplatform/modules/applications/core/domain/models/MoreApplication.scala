@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.models.applications
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import play.api.libs.json.{Format, Json}
 
