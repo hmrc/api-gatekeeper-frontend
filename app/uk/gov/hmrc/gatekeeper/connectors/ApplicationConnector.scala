@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status._
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHistory
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._

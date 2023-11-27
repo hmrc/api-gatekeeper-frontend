@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 
 case class DispatchSuccessResult(applicationResponse: ApplicationResponse)
 

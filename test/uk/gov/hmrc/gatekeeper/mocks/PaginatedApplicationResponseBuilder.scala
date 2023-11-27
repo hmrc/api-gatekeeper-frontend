@@ -16,7 +16,8 @@
 
 package mocks
 
-import uk.gov.hmrc.gatekeeper.models.{ApplicationResponse, PaginatedApplicationResponse}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.gatekeeper.models.PaginatedApplicationResponse
 
 object PaginatedApplicationResponseBuilder {
 
