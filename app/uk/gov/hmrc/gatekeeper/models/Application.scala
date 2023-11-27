@@ -32,10 +32,14 @@ trait Application {
   val collaborators: Set[Collaborator]
   val clientId: ClientId
   val deployedTo: String
+}
 
-  def admins = collaborators.filter(_.isAdministrator)
+object ApplicationCollaboratorHelper {
 
-  def isSoleAdmin(emailAddress: LaxEmailAddress) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
+  def admins(app: Application): Set[Collaborator] = app.collaborators.filter(_.isAdministrator)
+
+  def isSoleAdmin(app: Application, emailAddress: LaxEmailAddress): Boolean =
+    admins(app).map(_.emailAddress).contains(emailAddress) && admins(app).size == 1
 }
 
 case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
