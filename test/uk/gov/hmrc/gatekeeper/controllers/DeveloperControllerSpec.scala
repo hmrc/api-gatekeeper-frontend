@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import play.api.test.Helpers._
@@ -25,7 +25,7 @@ import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -51,7 +51,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
-      val grantLength: Period = Period.ofDays(547)
+      val grantLength = GrantLength.EIGHTEEN_MONTHS.days
       ApplicationResponse(
         ApplicationId.random,
         ClientId.random,

@@ -375,7 +375,7 @@
         Application grant Length
       </dt>
       <dd class="govuk-summary-list__value" grant-length>
-        @{GrantLength.unsafeApply(application.grantLength.getDays).toString}
+        @{GrantLength.unsafeApply(application.grantLength).toString}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">

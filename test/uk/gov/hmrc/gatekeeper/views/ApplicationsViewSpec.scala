@@ -41,7 +41,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -69,7 +69,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val applications    = List[ApplicationResponse](
       ApplicationResponse(

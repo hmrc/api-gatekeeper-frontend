@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.connectors.CommandConnectorMockProvider
@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
@@ -59,7 +59,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val stdApp1 = ApplicationResponse(
       ApplicationId.random,

@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -42,7 +42,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
-    val grantLength: Period       = Period.ofDays(547)
+    val grantLength               = GrantLength.EIGHTEEN_MONTHS.days
 
     val adminEmail = "sample@example.com"
 

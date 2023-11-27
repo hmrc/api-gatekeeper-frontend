@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, PersistLogin, Privileged, Standard, SuppressIvForAgents}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -57,7 +57,7 @@ class ApplicationConnectorSpec
       Some(lastAccess),
       Privileged(),
       ApplicationState(),
-      Period.ofDays(547),
+      GrantLength.EIGHTEEN_MONTHS.days,
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),
@@ -224,7 +224,7 @@ class ApplicationConnectorSpec
     )
 
     "retrieve all applications" in new Setup {
-      val grantLength: Period = Period.ofDays(547)
+      val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
       val applications = List(ApplicationResponse(
         applicationId,
@@ -330,8 +330,8 @@ class ApplicationConnectorSpec
   }
 
   "fetchApplication" should {
-    val url                 = s"/gatekeeper/application/${applicationId.value.toString()}"
-    val grantLength: Period = Period.ofDays(547)
+    val url         = s"/gatekeeper/application/${applicationId.value.toString()}"
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val collaborators: Set[Collaborator] = Set(
       administrator,

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Privileged
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
@@ -55,7 +55,7 @@ class ApplciationCommandConnectorSpec
       Some(lastAccess),
       Privileged(),
       ApplicationState(),
-      Period.ofDays(547),
+      GrantLength.EIGHTEEN_MONTHS.days,
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.play.json.Union
 
@@ -43,7 +43,7 @@ case class NewApplication(
     blocked: Boolean,
     checkInformation: Option[CheckInformation] = None,
     ipAllowlist: IpAllowlist = IpAllowlist(),
-    grantLength: Period,
+    grantLength: Int,
     moreApplication: MoreApplication = MoreApplication()
   ) {
 

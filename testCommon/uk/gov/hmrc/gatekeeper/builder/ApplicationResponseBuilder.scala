@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models._
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
-  val grantLength: Period = Period.ofDays(547)
+  val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
   def buildApplicationResponse(
       appId: ApplicationId = ApplicationId.random,

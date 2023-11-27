@@ -439,7 +439,7 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays)))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength)))
       Future.successful(Ok(manageGrantLengthView(app.application, form)))
     }
   }

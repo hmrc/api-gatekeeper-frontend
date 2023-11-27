@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Format, JsPath, Json, OFormat, Reads}
@@ -39,7 +39,7 @@ case class ApplicationResponse(
     lastAccess: Option[LocalDateTime],
     access: Access,
     state: ApplicationState,
-    grantLength: Period,
+    grantLength: Int,
     rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
     termsAndConditionsUrl: Option[String] = None,
     privacyPolicyUrl: Option[String] = None,
@@ -80,7 +80,7 @@ object ApplicationResponse {
       (JsPath \ "lastAccess").readNullable[LocalDateTime] and
       (JsPath \ "access").read[Access] and
       (JsPath \ "state").read[ApplicationState] and
-      (JsPath \ "grantLength").read[Period] and
+      (JsPath \ "grantLength").read[Int] and
       (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and

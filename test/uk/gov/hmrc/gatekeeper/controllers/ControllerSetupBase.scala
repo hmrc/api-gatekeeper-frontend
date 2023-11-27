@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 import mocks.connectors._
@@ -28,6 +28,7 @@ import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -50,7 +51,7 @@ trait ControllerSetupBase
     with CommandConnectorMockProvider {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
-  val grantLength: Period    = Period.ofDays(547)
+  val grantLength            = GrantLength.EIGHTEEN_MONTHS.days
 
   val basicApplication = ApplicationResponse(
     ApplicationId.random,

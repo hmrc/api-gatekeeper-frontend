@@ -27,7 +27,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, IpAllowlist, TermsOfUseAgreement}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models._
@@ -48,8 +48,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       new RegisteredUser(LaxEmailAddress("joe.bloggs@example.co.uk"), UserId.random, "joe", "bloggs", false)
     }
 
-    val clientId            = ClientId("clientid")
-    val grantLength: Period = Period.ofDays(547)
+    val clientId    = ClientId("clientid")
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val application = NewApplication(
       id = ApplicationId.random,

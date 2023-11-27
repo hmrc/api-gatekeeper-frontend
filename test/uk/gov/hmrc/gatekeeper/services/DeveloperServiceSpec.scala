@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
@@ -31,7 +31,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
@@ -65,7 +65,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
   }
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationResponse = {
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
     ApplicationResponse(
       ApplicationId.random,
       ClientId("clientId"),

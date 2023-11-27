@@ -26,7 +26,7 @@ import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -39,7 +39,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
   trait Setup {
     val request                                      = FakeRequest()
     val autoDeleteSuccessView: AutoDeleteSuccessView = app.injector.instanceOf[AutoDeleteSuccessView]
-    val grantLength: Period                          = Period.ofDays(547)
+    val grantLength                                  = GrantLength.EIGHTEEN_MONTHS.days
 
     val application: ApplicationResponse =
       ApplicationResponse(

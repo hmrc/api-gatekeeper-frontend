@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -72,7 +72,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
+    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val stdApp1 = ApplicationResponse(
       ApplicationId.random,

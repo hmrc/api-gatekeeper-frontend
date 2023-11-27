@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
@@ -38,10 +38,10 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       lastAccess: LocalDateTime = LocalDateTime.now(),
       checkInformation: Option[CheckInformation] = None
     ): NewApplication = {
-    val clientId            = ClientId.random
-    val appOwnerEmail       = "a@b.com"
-    val grantLength: Period = Period.ofDays(547)
-    val ipAllowlist         = IpAllowlist()
+    val clientId      = ClientId.random
+    val appOwnerEmail = "a@b.com"
+    val grantLength   = GrantLength.EIGHTEEN_MONTHS.days
+    val ipAllowlist   = IpAllowlist()
 
     NewApplication(
       id = appId,
