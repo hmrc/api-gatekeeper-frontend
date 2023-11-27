@@ -36,10 +36,6 @@ trait Application {
   def admins = collaborators.filter(_.isAdministrator)
 
   def isSoleAdmin(emailAddress: LaxEmailAddress) = admins.map(_.emailAddress).contains(emailAddress) && admins.size == 1
-
-  def isApproved                     = state.isApproved
-  def isPendingGatekeeperApproval    = state.isPendingGatekeeperApproval
-  def isPendingRequesterVerification = state.isPendingRequesterVerification
 }
 
 case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {

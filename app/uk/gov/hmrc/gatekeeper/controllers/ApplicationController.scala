@@ -666,7 +666,7 @@ class ApplicationController @Inject() (
       }
 
       def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
-        val verified = app.isApproved
+        val verified = app.state.isApproved
         val details  = applicationReviewDetails(app, submissionDetails)(request)
 
         ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
