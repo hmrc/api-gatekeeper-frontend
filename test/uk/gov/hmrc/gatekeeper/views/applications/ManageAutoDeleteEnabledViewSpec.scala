@@ -49,7 +49,7 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
         ClientId("clientid"),
         "gatewayId",
         "application1",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         None,
         Set(
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),

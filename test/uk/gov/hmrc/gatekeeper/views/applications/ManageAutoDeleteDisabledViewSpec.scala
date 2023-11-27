@@ -27,10 +27,9 @@ import play.twirl.api.HtmlFormat.Appendable
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
@@ -49,7 +48,7 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
         ClientId("clientid"),
         "gatewayId",
         "application1",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         None,
         Set(
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),

@@ -277,7 +277,7 @@ case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
 sealed trait CreatePrivOrROPCAppResult
 
-case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: String, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
+case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
     extends CreatePrivOrROPCAppResult
 
 object CreatePrivOrROPCAppSuccessResult {
@@ -381,7 +381,7 @@ sealed trait FieldsDeleteResult
 case object FieldsDeleteSuccessResult extends FieldsDeleteResult
 case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
-final case class CreatePrivOrROPCAppRequest(environment: String, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
+final case class CreatePrivOrROPCAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 
 object CreatePrivOrROPCAppRequest {
   implicit val format1 = Json.formatEnum(AccessType)

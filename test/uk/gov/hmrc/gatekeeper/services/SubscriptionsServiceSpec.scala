@@ -66,7 +66,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       ClientId("clientid1"),
       "gatewayId1",
       "application1",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
@@ -81,7 +81,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       ClientId("clientid2"),
       "gatewayId2",
       "application2",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
@@ -96,7 +96,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       ClientId("clientid3"),
       "gatewayId3",
       "application3",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
@@ -111,7 +111,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       ClientId("clientid4"),
       "gatewayId4",
       "application4",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
@@ -130,7 +130,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
+    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX))
     val testContext                                    = ApiContext("test-context")
     val unknownContext                                 = ApiContext("unknown-context")
     val superContext                                   = ApiContext("super-context")

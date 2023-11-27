@@ -59,7 +59,7 @@ class ModelSpec extends AsyncHmrcSpec {
         ClientId("clientid"),
         "gatewayId",
         "application",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         None,
         teamMembers,
         LocalDateTime.now(),

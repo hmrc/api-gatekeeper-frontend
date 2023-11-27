@@ -64,7 +64,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     )
   }
 
-  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: String = "PRODUCTION"): ApplicationResponse = {
+  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationResponse = {
     val grantLength: Period = Period.ofDays(547)
     ApplicationResponse(
       ApplicationId.random,
@@ -82,9 +82,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
     )
   }
 
-  def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "PRODUCTION")
+  def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = Environment.PRODUCTION)
 
-  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = "SANDBOX")
+  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationResponse = anApp(name, collaborators, deployedTo = Environment.SANDBOX)
 
   val prodAppId = ApplicationId.random
 

@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -228,7 +228,7 @@ class DeveloperService @Inject() (
   def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
     def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: Application): Future[Set[LaxEmailAddress]] = {
-      if (app.deployedTo == "SANDBOX") {
+      if (app.deployedTo == Environment.SANDBOX) {
         Future.successful(Set.empty)
       } else {
         val appAdmins = admins(app).filterNot(_.emailAddress == filterOutThisEmail).map(_.emailAddress)

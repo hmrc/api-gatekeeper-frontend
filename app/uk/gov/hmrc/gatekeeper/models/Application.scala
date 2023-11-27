@@ -31,7 +31,7 @@ trait Application {
   val state: ApplicationState
   val collaborators: Set[Collaborator]
   val clientId: ClientId
-  val deployedTo: String
+  val deployedTo: Environment
 }
 
 object ApplicationCollaboratorHelper {

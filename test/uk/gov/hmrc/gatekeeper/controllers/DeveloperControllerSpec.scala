@@ -57,7 +57,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
         ClientId.random,
         "gatewayId",
         "application",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         None,
         collaborators,
         LocalDateTime.now(),

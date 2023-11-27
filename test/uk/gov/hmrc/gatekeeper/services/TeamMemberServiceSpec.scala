@@ -68,7 +68,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       ClientId("clientid1"),
       "gatewayId1",
       "application1",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),

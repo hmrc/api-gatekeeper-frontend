@@ -295,7 +295,7 @@ class ApplicationService @Inject() (
       access: AppAccess
     )(implicit hc: HeaderCarrier
     ): Future[CreatePrivOrROPCAppResult] = {
-    val req = CreatePrivOrROPCAppRequest(appEnv.toString, appName, appDescription, collaborators, access)
+    val req = CreatePrivOrROPCAppRequest(appEnv, appName, appDescription, collaborators, access)
 
     appEnv match {
       case Environment.PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
@@ -304,13 +304,13 @@ class ApplicationService @Inject() (
   }
 
   def applicationConnectorFor(application: Application): ApplicationConnector =
-    if (application.deployedTo == "PRODUCTION") productionApplicationConnector else sandboxApplicationConnector
+    if (application.deployedTo == Environment.PRODUCTION) productionApplicationConnector else sandboxApplicationConnector
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
-    if (environment == Some(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
+    if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
 
   def apiScopeConnectorFor(application: Application): ApiScopeConnector =
-    if (application.deployedTo == "PRODUCTION") productionApiScopeConnector else sandboxApiScopeConnector
+    if (application.deployedTo == Environment.PRODUCTION) productionApiScopeConnector else sandboxApiScopeConnector
 
   private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
 

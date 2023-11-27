@@ -43,7 +43,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       clientId = clientId,
       gatewayId = "",
       name = s"$appId-name",
-      deployedTo = Environment.SANDBOX.toString,
+      deployedTo = Environment.SANDBOX,
       description = Some(s"$appId-description"),
       collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
       createdOn = createdOn,
@@ -75,7 +75,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       ClientId("clientid"),
       "gatewayId",
       "appName",
-      "deployedTo",
+      Environment.PRODUCTION,
       None,
       Set.empty,
       createdOn,
@@ -111,8 +111,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   def anActor() = Actors.Unknown
 
   implicit class ApplicationResponseExtension(app: ApplicationResponse) {
-    def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION.toString)
-    def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX.toString)
+    def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
+    def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 

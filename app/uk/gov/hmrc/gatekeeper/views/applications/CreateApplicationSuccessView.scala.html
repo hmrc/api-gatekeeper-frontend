@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
+@(applicationId: ApplicationId, applicationName: String, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
@@ -67,7 +67,7 @@
         Environment
       </dt>
       <dd class="govuk-summary-list__value">
-        @environment.toLowerCase.capitalize
+        @environment.displayText
       </dd>
     </div>
     <div class="govuk-summary-list__row">

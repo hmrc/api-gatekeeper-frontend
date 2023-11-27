@@ -24,7 +24,7 @@ import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.gatekeeper.models.{Application, ApprovedApplication}
 
 case class ApplicationResponse(
@@ -32,7 +32,7 @@ case class ApplicationResponse(
     clientId: ClientId,
     gatewayId: String,
     name: String,
-    deployedTo: String,
+    deployedTo: Environment,
     description: Option[String] = None,
     collaborators: Set[Collaborator],
     createdOn: LocalDateTime,
@@ -73,7 +73,7 @@ object ApplicationResponse {
       (JsPath \ "clientId").read[ClientId] and
       (JsPath \ "gatewayId").read[String] and
       (JsPath \ "name").read[String] and
-      (JsPath \ "deployedTo").read[String] and
+      (JsPath \ "deployedTo").read[Environment] and
       (JsPath \ "description").readNullable[String] and
       (JsPath \ "collaborators").read[Set[Collaborator]] and
       (JsPath \ "createdOn").read[LocalDateTime] and

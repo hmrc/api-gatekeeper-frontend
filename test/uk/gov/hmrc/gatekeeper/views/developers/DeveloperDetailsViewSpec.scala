@@ -42,7 +42,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec {
       state: ApplicationState,
       collaborators: Set[Collaborator],
       clientId: ClientId = ClientId("a-client-id"),
-      deployedTo: String = "PRODUCTION"
+      deployedTo: Environment = Environment.PRODUCTION
     ) extends Application
 
   trait Setup {

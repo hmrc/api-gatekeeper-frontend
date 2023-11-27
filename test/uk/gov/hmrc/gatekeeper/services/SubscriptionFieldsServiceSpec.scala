@@ -48,7 +48,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     val newApplication = mock[NewApplication]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn("PRODUCTION")
+    when(application.deployedTo).thenReturn(Environment.PRODUCTION)
 
     when(newApplication.clientId).thenReturn(ClientId("client-id"))
     when(newApplication.deployedTo).thenReturn(Environment.PRODUCTION)
@@ -73,7 +73,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
     val newApplication = mock[NewApplication]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn("SANDBOX")
+    when(application.deployedTo).thenReturn(Environment.SANDBOX)
 
     when(newApplication.clientId).thenReturn(ClientId("client-id"))
     when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)

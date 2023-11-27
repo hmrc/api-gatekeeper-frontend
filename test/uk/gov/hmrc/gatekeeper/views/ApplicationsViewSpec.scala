@@ -77,7 +77,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         ClientId("clientid1"),
         "gatewayId1",
         "Testing App",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         Some("Testing App"),
         collaborators,
         LocalDateTime.now(),
@@ -91,7 +91,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         ClientId("clientid1"),
         "gatewayId1",
         "Pending Gatekeeper Approval App",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         Some("Pending Gatekeeper Approval App"),
         collaborators,
         LocalDateTime.now(),
@@ -105,7 +105,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         ClientId("clientid1"),
         "gatewayId1",
         "Pending Requester Verification App",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         Some("Pending Requester Verification App"),
         collaborators,
         LocalDateTime.now(),
@@ -119,7 +119,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         ClientId("clientid1"),
         "gatewayId1",
         "Production App",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         Some("Production App"),
         collaborators,
         LocalDateTime.now(),
@@ -129,7 +129,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         grantLength
       )
     )
-    val getApprovalsUrl = (appId: ApplicationId, deployedTo: String) => "approvals/url"
+    val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     val applicationViewWithNoApis: () => HtmlFormat.Appendable =
       () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)

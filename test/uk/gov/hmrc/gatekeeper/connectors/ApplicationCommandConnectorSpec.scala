@@ -48,7 +48,7 @@ class ApplciationCommandConnectorSpec
       ClientId("clientid"),
       "gatewayId",
       "appName",
-      "deployedTo",
+      Environment.PRODUCTION,
       None,
       Set.empty,
       createdOn,

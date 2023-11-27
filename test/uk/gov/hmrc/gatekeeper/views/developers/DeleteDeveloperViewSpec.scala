@@ -39,7 +39,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec {
       id: ApplicationId = ApplicationId.random,
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       clientId: ClientId = ClientId("a-client-id"),
-      deployedTo: String = "PRODUCTION"
+      deployedTo: Environment = Environment.PRODUCTION
     ) extends Application
 
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)

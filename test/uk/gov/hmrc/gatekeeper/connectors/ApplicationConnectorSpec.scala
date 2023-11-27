@@ -50,7 +50,7 @@ class ApplicationConnectorSpec
       ClientId("clientid"),
       "gatewayId",
       "appName",
-      "deployedTo",
+      Environment.PRODUCTION,
       None,
       Set.empty,
       createdOn,
@@ -231,7 +231,7 @@ class ApplicationConnectorSpec
         ClientId("clientid1"),
         "gatewayId1",
         "application1",
-        "PRODUCTION",
+        Environment.PRODUCTION,
         None,
         collaborators,
         LocalDateTime.now(),
@@ -344,7 +344,7 @@ class ApplicationConnectorSpec
       ClientId("clientid1"),
       "gatewayId1",
       "application1",
-      "PRODUCTION",
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
@@ -511,9 +511,9 @@ class ApplicationConnectorSpec
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
+      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, appName, appDescription, admin, access)
       val request                     = Json.toJson(createPrivOrROPCAppRequest).toString
-      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", ClientId("client ID"), totpSecrets, appAccess)
+      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, ClientId("client ID"), totpSecrets, appAccess)
       val response                    = Json.toJson(createPrivOrROPCAppResponse).toString
 
       stubFor(

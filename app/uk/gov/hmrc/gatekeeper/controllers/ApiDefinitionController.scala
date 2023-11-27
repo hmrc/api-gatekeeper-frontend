@@ -42,7 +42,7 @@ case class ApiDefinitionView(
     access: String,
     requiresTrust: Boolean,
     isTrial: Boolean,
-    environment: String
+    environment: Environment
   )
 
 @Singleton
@@ -74,7 +74,7 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
         ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
-        ColumnDefinition("environment", (vm => vm.environment)),
+        ColumnDefinition("environment", (vm => vm.environment.toString)),
         ColumnDefinition("requiresTrust", (vm => vm.requiresTrust.toString()))
       )
 
@@ -101,7 +101,7 @@ class ApiDefinitionController @Inject() (
         v.access.accessType.toString(),
         apiDefinition.requiresTrust,
         isTrial(v),
-        environment.toString
+        environment
       )
     )
   }

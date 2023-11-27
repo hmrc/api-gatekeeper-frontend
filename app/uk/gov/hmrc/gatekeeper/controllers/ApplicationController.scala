@@ -104,11 +104,11 @@ class ApplicationController @Inject() (
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                              = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
-    val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
-    val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
+    val env                                                   = Environment.apply(environment.getOrElse("SANDBOX"))
+    val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
+    val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url
@@ -135,7 +135,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
-      ColumnDefinition("Environment", (app => app.deployedTo)),
+      ColumnDefinition("Environment", (app => app.deployedTo.toString)),
       ColumnDefinition("Status", (app => State.displayedState(app.state.name))),
       ColumnDefinition("Rate limit tier", (app => app.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
@@ -169,7 +169,7 @@ class ApplicationController @Inject() (
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]](
       ColumnDefinition("Name", app => app.name),
       ColumnDefinition("App ID", app => app.id.value.toString),
-      ColumnDefinition("Environment", _ => env.getOrElse("SANDBOX").toString),
+      ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
       ColumnDefinition("Last API call", app => app.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
@@ -779,7 +779,7 @@ class ApplicationController @Inject() (
   }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
-    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
+    if (app.application.deployedTo == Environment.SANDBOX) Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
@@ -806,7 +806,7 @@ class ApplicationController @Inject() (
 
     def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
       val isValid = environment match {
-        case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == applicationName))
+        case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION) && (app.name == applicationName))
         case _                      => true
       }
       if (isValid) applicationName.valid else "application.name.already.exists".invalidNec

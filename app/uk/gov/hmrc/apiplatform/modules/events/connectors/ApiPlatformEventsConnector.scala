@@ -40,15 +40,15 @@ object ApiPlatformEventsConnector {
 @Singleton
 class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
 
-  protected def connectorFor(deployedTo: String): ApiPlatformEventsConnector = deployedTo match {
-    case "PRODUCTION" => principal
-    case "SANDBOX"    => subordinate
+  protected def connectorFor(deployedTo: Environment): ApiPlatformEventsConnector = deployedTo match {
+    case Environment.PRODUCTION => principal
+    case Environment.SANDBOX    => subordinate
   }
 
-  def fetchQueryableValues(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[QueryableValues] =
+  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(implicit hc: HeaderCarrier): Future[QueryableValues] =
     connectorFor(deployedTo).fetchQueryableValues(appId)
 
-  def query(appId: ApplicationId, deployedTo: String, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
+  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
     connectorFor(deployedTo).query(appId, tag, actorType)
 }
 

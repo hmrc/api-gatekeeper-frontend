@@ -40,18 +40,18 @@ class SubscriptionFieldsService @Inject() (
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
-    connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
+    connectorFor(application.deployedTo).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
   def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
-    val productionEnvironment = Environment.PRODUCTION.toString()
+    val productionEnvironment = Environment.PRODUCTION
     val connector             = connectorFor(productionEnvironment)
 
     connector.fetchAllFieldValues()
   }
 
-  private def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
-    if (deployedTo == "PRODUCTION") {
+  private def connectorFor(deployedTo: Environment): SubscriptionFieldsConnector =
+    if (deployedTo == Environment.PRODUCTION) {
       productionSubscriptionFieldsConnector
     } else {
       sandboxSubscriptionFieldsConnector
