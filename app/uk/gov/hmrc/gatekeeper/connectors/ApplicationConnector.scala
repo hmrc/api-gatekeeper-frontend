@@ -21,6 +21,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status._
+import play.api.libs.json.{OWrites, Reads}
 import uk.gov.hmrc.http.{HttpClient, _}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, StateHistory}
@@ -34,16 +35,16 @@ object ApplicationConnector {
   case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
   case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])
 
-  implicit val validateApplicationNameResponseErrorDetailsReads = Json.reads[ValidateApplicationNameResponseErrorDetails]
-  implicit val validateApplicationNameResponseReads             = Json.reads[ValidateApplicationNameResponse]
+  implicit val validateApplicationNameResponseErrorDetailsReads: Reads[ValidateApplicationNameResponseErrorDetails] = Json.reads[ValidateApplicationNameResponseErrorDetails]
+  implicit val validateApplicationNameResponseReads: Reads[ValidateApplicationNameResponse]                         = Json.reads[ValidateApplicationNameResponse]
 
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])
 
-  implicit val writes = Json.writes[SearchCollaboratorsRequest]
+  implicit val writes: OWrites[SearchCollaboratorsRequest] = Json.writes[SearchCollaboratorsRequest]
 
   case class TermsOfUseInvitationResponse(applicationId: ApplicationId)
 
-  implicit val termsOfUseInvitationResponseReads = Json.reads[TermsOfUseInvitationResponse]
+  implicit val termsOfUseInvitationResponseReads: Reads[TermsOfUseInvitationResponse] = Json.reads[TermsOfUseInvitationResponse]
 }
 
 abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with ApplicationUpdateFormatters {

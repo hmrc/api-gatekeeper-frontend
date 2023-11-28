@@ -26,10 +26,10 @@ private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionForma
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
 
-  implicit val readsApplicationWithSubscriptionData = Json.reads[ApplicationWithSubscriptionData]
+  implicit val readsApplicationWithSubscriptionData: Reads[ApplicationWithSubscriptionData] = Json.reads[ApplicationWithSubscriptionData]
 
-  implicit val readsBoxId         = Json.valueFormat[BoxId]
-  implicit val readsBoxCreator    = Json.reads[BoxCreator]
-  implicit val readsBoxSubscriber = Json.reads[BoxSubscriber]
-  implicit val readsBox           = Json.reads[Box]
+  implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
+  implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
+  implicit val readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
+  implicit val readsBox: Reads[Box]                     = Json.reads[Box]
 }

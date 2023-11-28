@@ -26,8 +26,10 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType.OverrideType
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, _}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
@@ -42,7 +44,7 @@ case class BearerToken(authToken: String, expiry: LocalDateTime) {
 }
 
 object BearerToken {
-  implicit val format = Json.format[BearerToken]
+  implicit val format: OFormat[BearerToken] = Json.format[BearerToken]
 }
 
 object GatekeeperSessionKeys {
@@ -71,33 +73,33 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
   )
 
 object ApplicationWithHistory {
-  implicit val formatTotpIds = Json.format[TotpId]
+  implicit val formatTotpIds: OFormat[TotpId] = Json.format[TotpId]
 
-  implicit private val formatStandard   = Json.format[Standard]
-  implicit private val formatPrivileged = Json.format[Privileged]
-  implicit private val formatRopc       = Json.format[Ropc]
+  implicit private val formatStandard: OFormat[Standard]     = Json.format[Standard]
+  implicit private val formatPrivileged: OFormat[Privileged] = Json.format[Privileged]
+  implicit private val formatRopc: OFormat[Ropc]             = Json.format[Ropc]
 
-  implicit val formatAccess = Union.from[Access]("accessType")
+  implicit val formatAccess: OFormat[Access]              = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
-  implicit val formatRole   = Json.formatEnum(CollaboratorRole)
-  implicit val format3      = Json.format[ApplicationState]
-  implicit val format4      = Json.formatEnum(State)
-  implicit val format5      = Json.format[SubmissionDetails]
-  implicit val format6      = Json.format[ApplicationReviewDetails]
-  implicit val format7      = Json.format[ApprovedApplication]
-  implicit val format8      = Json.format[ApplicationResponse]
-  implicit val format9      = Json.format[ApplicationWithHistory]
+  implicit val formatRole: Format[CollaboratorRole]       = Json.formatEnum(CollaboratorRole)
+  implicit val format3: Format[State]                     = Json.formatEnum(State)
+  implicit val format4: OFormat[ApplicationState]         = Json.format[ApplicationState]
+  implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
+  implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
+  implicit val format7: OFormat[ApprovedApplication]      = Json.format[ApprovedApplication]
+  implicit val format8: OFormat[ApplicationResponse]      = Json.format[ApplicationResponse]
+  implicit val format9: OFormat[ApplicationWithHistory]   = Json.format[ApplicationWithHistory]
 }
 
 case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: LocalDateTime, state: State)
 
 object ApplicationWithUpliftRequest {
 
-  implicit val formatState = Json.formatEnum(State)
-  implicit val format      = Json.format[ApplicationWithUpliftRequest]
+  implicit val formatState: Format[State]                    = Json.formatEnum(State)
+  implicit val format: OFormat[ApplicationWithUpliftRequest] = Json.format[ApplicationWithUpliftRequest]
 
   val compareBySubmittedOn = (a: ApplicationWithUpliftRequest, b: ApplicationWithUpliftRequest) => a.submittedOn.isBefore(b.submittedOn)
 }
@@ -119,7 +121,7 @@ object ApplicationNotFound extends Throwable
 case class ApproveUpliftRequest(gatekeeperUserId: String)
 
 object ApproveUpliftRequest {
-  implicit val format = Json.format[ApproveUpliftRequest]
+  implicit val format: OFormat[ApproveUpliftRequest] = Json.format[ApproveUpliftRequest]
 }
 
 sealed trait ApproveUpliftSuccessful
@@ -129,7 +131,7 @@ case object ApproveUpliftSuccessful extends ApproveUpliftSuccessful
 case class RejectUpliftRequest(gatekeeperUserId: String, reason: String)
 
 object RejectUpliftRequest {
-  implicit val format = Json.format[RejectUpliftRequest]
+  implicit val format: OFormat[RejectUpliftRequest] = Json.format[RejectUpliftRequest]
 }
 
 sealed trait RejectUpliftSuccessful
@@ -139,7 +141,7 @@ case object RejectUpliftSuccessful extends RejectUpliftSuccessful
 case class ResendVerificationRequest(gatekeeperUserId: String)
 
 object ResendVerificationRequest {
-  implicit val format = Json.format[ResendVerificationRequest]
+  implicit val format: OFormat[ResendVerificationRequest] = Json.format[ResendVerificationRequest]
 }
 
 sealed trait ResendVerificationSuccessful
@@ -153,7 +155,7 @@ object UpliftAction extends Enumeration {
 
   def from(action: String): Option[Value] = UpliftAction.values.find(e => e.toString == action.toUpperCase)
 
-  implicit val format = Json.formatEnum(UpliftAction)
+  implicit val format: Format[UpliftAction] = Json.formatEnum(UpliftAction)
 }
 
 case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: LocalDateTime)
@@ -161,7 +163,7 @@ case class SubmissionDetails(submitterName: String, submitterEmail: String, subm
 case class ApprovalDetails(submittedOn: LocalDateTime, approvedBy: String, approvedOn: LocalDateTime)
 
 object SubmissionDetails {
-  implicit val format = Json.format[SubmissionDetails]
+  implicit val format: OFormat[SubmissionDetails] = Json.format[SubmissionDetails]
 }
 
 case class ApplicationReviewDetails(
@@ -180,27 +182,27 @@ case class ApplicationReviewDetails(
 
 object ApplicationReviewDetails {
   import SubmissionDetails.format
-  implicit val format2 = Json.format[ApplicationReviewDetails]
+  implicit val format2: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
 }
 
 case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: LocalDateTime, verified: Boolean)
 
 object ApprovedApplication {
-  implicit val format1 = Json.format[ApplicationReviewDetails]
-  implicit val format2 = Json.format[ApprovedApplication]
+  implicit val format1: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
+  implicit val format2: OFormat[ApprovedApplication]      = Json.format[ApprovedApplication]
 }
 case class CategorisedApplications(pendingApproval: List[ApplicationWithUpliftRequest], approved: List[ApplicationWithUpliftRequest])
 
 case class OverrideRequest(overrideType: OverrideType, scopes: Set[String] = Set.empty)
 
 object OverrideRequest {
-  implicit val format = Json.format[OverrideRequest]
+  implicit val format: OFormat[OverrideRequest] = Json.format[OverrideRequest]
 }
 
 case class UpdateOverridesRequest(overrides: Set[OverrideFlag])
 
 object UpdateOverridesRequest {
-  implicit val format = Json.format[UpdateOverridesRequest]
+  implicit val format: OFormat[UpdateOverridesRequest] = Json.format[UpdateOverridesRequest]
 }
 
 sealed trait UpdateOverridesResult
@@ -211,7 +213,7 @@ case class UpdateOverridesFailureResult(overrideFlagErrors: Set[OverrideFlag] = 
 case class UpdateScopesRequest(scopes: Set[String])
 
 object UpdateScopesRequest {
-  implicit val format = Json.format[UpdateScopesRequest]
+  implicit val format: OFormat[UpdateScopesRequest] = Json.format[UpdateScopesRequest]
 }
 
 sealed trait UpdateScopesResult
@@ -221,7 +223,7 @@ case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 case class ValidateApplicationNameRequest(applicationName: String, selfApplicationId: ApplicationId)
 
 object ValidateApplicationNameRequest {
-  implicit val format = Json.format[ValidateApplicationNameRequest]
+  implicit val format: OFormat[ValidateApplicationNameRequest] = Json.format[ValidateApplicationNameRequest]
 }
 
 trait ApplicationUpdate {
@@ -237,10 +239,10 @@ case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmai
 
 trait ApplicationUpdateFormatters {
 
-  implicit val changeNameFormatter = Json.writes[ChangeProductionApplicationName]
+  implicit val changeNameFormatter: OWrites[ChangeProductionApplicationName] = Json.writes[ChangeProductionApplicationName]
     .transform((obj: JsObject) => obj + ("updateType" -> JsString("changeProductionApplicationName")))
 
-  implicit val deleteApplicationByGatekeeperFormatter = Json.writes[DeleteApplicationByGatekeeper]
+  implicit val deleteApplicationByGatekeeperFormatter: OWrites[DeleteApplicationByGatekeeper] = Json.writes[DeleteApplicationByGatekeeper]
     .transform((obj: JsObject) => obj + ("updateType" -> JsString("deleteApplicationByGatekeeper")))
 }
 
@@ -281,57 +283,57 @@ case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, dep
     extends CreatePrivOrROPCAppResult
 
 object CreatePrivOrROPCAppSuccessResult {
-  implicit val rds1 = Json.reads[TotpSecrets]
-  implicit val rds2 = Json.formatEnum(AccessType)
-  implicit val rds4 = Json.reads[AppAccess]
-  implicit val rds5 = Json.reads[CreatePrivOrROPCAppSuccessResult]
+  implicit val rds1: Reads[TotpSecrets]                      = Json.reads[TotpSecrets]
+  implicit val rds2: Format[AccessType]                      = Json.formatEnum(AccessType)
+  implicit val rds4: Reads[AppAccess]                        = Json.reads[AppAccess]
+  implicit val rds5: Reads[CreatePrivOrROPCAppSuccessResult] = Json.reads[CreatePrivOrROPCAppSuccessResult]
 
-  implicit val format1 = Json.format[TotpSecrets]
-  implicit val format2 = Json.format[AppAccess]
-  implicit val format3 = Json.format[CreatePrivOrROPCAppSuccessResult]
+  implicit val format1: OFormat[TotpSecrets]                      = Json.format[TotpSecrets]
+  implicit val format2: OFormat[AppAccess]                        = Json.format[AppAccess]
+  implicit val format3: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
 }
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 
 object ApiScope {
-  implicit val formats = Json.format[ApiScope]
+  implicit val formats: OFormat[ApiScope] = Json.format[ApiScope]
 }
 
 final case class DeleteApplicationForm(applicationNameConfirmation: String, collaboratorEmail: Option[String])
 
 object DeleteApplicationForm {
-  implicit val format = Json.format[DeleteApplicationForm]
+  implicit val format: OFormat[DeleteApplicationForm] = Json.format[DeleteApplicationForm]
 }
 
 final case class DeleteApplicationRequest(gatekeeperUserId: String, requestedByEmailAddress: String)
 
 object DeleteApplicationRequest {
-  implicit val format = Json.format[DeleteApplicationRequest]
+  implicit val format: OFormat[DeleteApplicationRequest] = Json.format[DeleteApplicationRequest]
 }
 
 final case class BlockApplicationForm(applicationNameConfirmation: String)
 
 object BlockApplicationForm {
-  implicit val format = Json.format[BlockApplicationForm]
+  implicit val format: OFormat[BlockApplicationForm] = Json.format[BlockApplicationForm]
 }
 
 final case class UnblockApplicationForm(applicationNameConfirmation: String)
 
 object UnblockApplicationForm {
-  implicit val format = Json.format[UnblockApplicationForm]
+  implicit val format: OFormat[UnblockApplicationForm] = Json.format[UnblockApplicationForm]
 }
 
 final case class BlockApplicationRequest(gatekeeperUserId: String)
 
 object BlockApplicationRequest {
-  implicit val format = Json.format[BlockApplicationRequest]
+  implicit val format: OFormat[BlockApplicationRequest] = Json.format[BlockApplicationRequest]
 }
 
 final case class UnblockApplicationRequest(gatekeeperUserId: String)
 
 object UnblockApplicationRequest {
-  implicit val format = Json.format[UnblockApplicationRequest]
+  implicit val format: OFormat[UnblockApplicationRequest] = Json.format[UnblockApplicationRequest]
 }
 
 case class DeleteCollaboratorRequest(
@@ -341,13 +343,13 @@ case class DeleteCollaboratorRequest(
   )
 
 object DeleteCollaboratorRequest {
-  implicit val writesDeleteCollaboratorRequest = Json.writes[DeleteCollaboratorRequest]
+  implicit val writesDeleteCollaboratorRequest: OWrites[DeleteCollaboratorRequest] = Json.writes[DeleteCollaboratorRequest]
 }
 
 final case class DeleteDeveloperRequest(gatekeeperUserId: String, emailAddress: String)
 
 object DeleteDeveloperRequest {
-  implicit val format = Json.format[DeleteDeveloperRequest]
+  implicit val format: OFormat[DeleteDeveloperRequest] = Json.format[DeleteDeveloperRequest]
 }
 
 final case class CreatePrivOrROPCAppForm(
@@ -384,11 +386,11 @@ case object FieldsDeleteFailureResult extends FieldsDeleteResult
 final case class CreatePrivOrROPCAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 
 object CreatePrivOrROPCAppRequest {
-  implicit val format1 = Json.formatEnum(AccessType)
-  implicit val format2 = Json.formatEnum(CollaboratorRole)
-  implicit val format4 = Json.format[TotpSecrets]
-  implicit val format6 = Json.format[AppAccess]
-  implicit val format7 = Json.format[CreatePrivOrROPCAppRequest]
+  implicit val format1: Format[AccessType]                  = Json.formatEnum(AccessType)
+  implicit val format2: Format[CollaboratorRole]            = Json.formatEnum(CollaboratorRole)
+  implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
+  implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
+  implicit val format7: OFormat[CreatePrivOrROPCAppRequest] = Json.format[CreatePrivOrROPCAppRequest]
 }
 
 case class AppAccess(accessType: AccessType.AccessType, scopes: List[String])
@@ -396,14 +398,14 @@ case class AppAccess(accessType: AccessType.AccessType, scopes: List[String])
 final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
 
 object AddTeamMemberRequest {
-  implicit val format1 = Json.formatEnum(CollaboratorRole)
-  implicit val format3 = Json.format[AddTeamMemberRequest]
+  implicit val format1: Format[CollaboratorRole]      = Json.formatEnum(CollaboratorRole)
+  implicit val format3: OFormat[AddTeamMemberRequest] = Json.format[AddTeamMemberRequest]
 }
 
 final case class AddTeamMemberResponse(registeredUser: Boolean)
 
 object AddTeamMemberResponse {
-  implicit val format = Json.format[AddTeamMemberResponse]
+  implicit val format: OFormat[AddTeamMemberResponse] = Json.format[AddTeamMemberResponse]
 }
 
 case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment]) {
@@ -411,13 +413,13 @@ case class APIApprovalSummary(serviceName: String, name: String, description: Op
 }
 
 object APIApprovalSummary {
-  implicit val format = Json.format[APIApprovalSummary]
+  implicit val format: OFormat[APIApprovalSummary] = Json.format[APIApprovalSummary]
 }
 
 case class ApproveServiceRequest(serviceName: String)
 
 object ApproveServiceRequest {
-  implicit val format = Json.format[ApproveServiceRequest]
+  implicit val format: OFormat[ApproveServiceRequest] = Json.format[ApproveServiceRequest]
 }
 
 class UpdateApiDefinitionsFailed extends Throwable

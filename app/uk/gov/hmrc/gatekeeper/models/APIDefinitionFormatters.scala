@@ -22,20 +22,20 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefini
 
 trait APIDefinitionFormatters {
 
-  implicit val formatFieldValue                         = Json.valueFormat[FieldValue]
-  implicit val formatFieldName                          = Json.valueFormat[FieldName]
+  implicit val formatFieldValue: Format[FieldValue]     = Json.valueFormat[FieldValue]
+  implicit val formatFieldName: Format[FieldName]       = Json.valueFormat[FieldName]
   implicit val keyReadsFieldName: KeyReads[FieldName]   = key => JsSuccess(FieldName(key))
   implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
 
-  implicit val formatSubscriptionFieldDefinition = Json.format[SubscriptionFieldDefinition]
-  implicit val formatSubscriptionFieldValue      = Json.format[SubscriptionFieldValue]
-  implicit val formatSubscriptionFields          = Json.format[SubscriptionFieldsWrapper]
-  implicit val formatVersionSubscription         = Json.format[VersionSubscription]
+  implicit val formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
+  implicit val formatSubscriptionFieldValue: OFormat[SubscriptionFieldValue]           = Json.format[SubscriptionFieldValue]
+  implicit val formatSubscriptionFields: OFormat[SubscriptionFieldsWrapper]            = Json.format[SubscriptionFieldsWrapper]
+  implicit val formatVersionSubscription: OFormat[VersionSubscription]                 = Json.format[VersionSubscription]
 
-  implicit val versionSubscriptionWithoutFieldsJsonFormatter = Json.format[VersionSubscriptionWithoutFields]
-  implicit val subscriptionWithoutFieldsJsonFormatter        = Json.format[SubscriptionWithoutFields]
+  implicit val versionSubscriptionWithoutFieldsJsonFormatter: OFormat[VersionSubscriptionWithoutFields] = Json.format[VersionSubscriptionWithoutFields]
+  implicit val subscriptionWithoutFieldsJsonFormatter: OFormat[SubscriptionWithoutFields]               = Json.format[SubscriptionWithoutFields]
 
-  implicit val formatSubscriptionResponse = Json.format[SubscriptionResponse]
+  implicit val formatSubscriptionResponse: OFormat[SubscriptionResponse] = Json.format[SubscriptionResponse]
 }
 
 object APIDefinitionFormatters extends APIDefinitionFormatters

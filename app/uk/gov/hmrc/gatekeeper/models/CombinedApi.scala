@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiAccessType, ApiCategory}
 
@@ -35,5 +35,5 @@ object ApiType extends Enum[ApiType] with PlayJsonEnum[ApiType] {
 case class CombinedApi(displayName: String, serviceName: String, categories: Set[ApiCategory], apiType: ApiType, accessType: Option[ApiAccessType])
 
 object CombinedApi {
-  implicit val formatCombinedApi = Json.format[CombinedApi]
+  implicit val formatCombinedApi: OFormat[CombinedApi] = Json.format[CombinedApi]
 }

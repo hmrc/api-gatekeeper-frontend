@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.models.xml
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
 case class XmlApi(name: String, serviceName: String, context: String, description: String, categories: Option[Set[ApiCategory]] = None)
 
 object XmlApi {
-  implicit val formatXmlApi = Json.format[XmlApi]
+  implicit val formatXmlApi: OFormat[XmlApi] = Json.format[XmlApi]
 }

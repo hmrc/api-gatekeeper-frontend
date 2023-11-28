@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 
 case class DispatchSuccessResult(applicationResponse: ApplicationResponse)
 
 object DispatchSuccessResult {
-  implicit val format = Json.format[DispatchSuccessResult]
+  implicit val format: OFormat[DispatchSuccessResult] = Json.format[DispatchSuccessResult]
 }

@@ -18,12 +18,12 @@ package uk.gov.hmrc.gatekeeper.models
 
 import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class TaxRegimeInterests(regime: String, services: Set[String])
 
 object TaxRegimeInterests {
-  implicit val formatTaxRegimeInterests = Json.format[TaxRegimeInterests]
+  implicit val formatTaxRegimeInterests: OFormat[TaxRegimeInterests] = Json.format[TaxRegimeInterests]
 }
 
 sealed trait EmailTopic extends EnumEntry
@@ -41,7 +41,7 @@ object EmailTopic extends Enum[EmailTopic] with PlayJsonEnum[EmailTopic] {
 case class EmailPreferences(interests: List[TaxRegimeInterests], topics: Set[EmailTopic])
 
 object EmailPreferences {
-  implicit val formatEmailPreferences = Json.format[EmailPreferences]
+  implicit val formatEmailPreferences: OFormat[EmailPreferences] = Json.format[EmailPreferences]
 
   def noPreferences: EmailPreferences = EmailPreferences(interests = List.empty[TaxRegimeInterests], Set.empty[EmailTopic])
 }

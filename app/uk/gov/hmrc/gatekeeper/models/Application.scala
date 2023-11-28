@@ -39,7 +39,7 @@ case class PaginatedApplicationResponse(applications: List[ApplicationResponse],
 }
 
 object PaginatedApplicationResponse {
-  implicit val format = Json.format[PaginatedApplicationResponse]
+  implicit val format: OFormat[PaginatedApplicationResponse] = Json.format[PaginatedApplicationResponse]
 }
 
 case class ApplicationWithSubscriptionsResponse(id: ApplicationId, name: String, lastAccess: Option[LocalDateTime], apiIdentifiers: Set[ApiIdentifier])

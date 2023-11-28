@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 
@@ -33,6 +33,6 @@ case class DevelopersEmailQuery(
   )
 
 object DevelopersEmailQuery {
-  implicit val emailOverrideFormatter     = Json.format[EmailOverride]
-  implicit val formatDevelopersEmailQuery = Json.format[DevelopersEmailQuery]
+  implicit val emailOverrideFormatter: OFormat[EmailOverride]            = Json.format[EmailOverride]
+  implicit val formatDevelopersEmailQuery: OFormat[DevelopersEmailQuery] = Json.format[DevelopersEmailQuery]
 }

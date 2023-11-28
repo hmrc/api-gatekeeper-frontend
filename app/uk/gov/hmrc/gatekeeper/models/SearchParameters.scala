@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 final case class SearchParameters(emailFilter: Option[String], status: Option[String])
 
 object SearchParameters {
-  implicit val searchParametersFormat = Json.format[SearchParameters]
+  implicit val searchParametersFormat: OFormat[SearchParameters] = Json.format[SearchParameters]
 }

@@ -18,9 +18,11 @@ package uk.gov.hmrc.gatekeeper.models.applications
 
 import java.time.LocalDateTime
 
+import play.api.libs.json.{Format, OFormat}
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
@@ -64,21 +66,21 @@ object NewApplication {
   import play.api.libs.json.Json
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
-  implicit val formatTotpIds = Json.format[TotpId]
+  implicit val formatTotpIds: OFormat[TotpId] = Json.format[TotpId]
 
-  implicit private val formatStandard   = Json.format[Standard]
-  implicit private val formatPrivileged = Json.format[Privileged]
-  implicit private val formatRopc       = Json.format[Ropc]
+  implicit private val formatStandard: OFormat[Standard]     = Json.format[Standard]
+  implicit private val formatPrivileged: OFormat[Privileged] = Json.format[Privileged]
+  implicit private val formatRopc: OFormat[Ropc]             = Json.format[Ropc]
 
-  implicit val formAccessType = Union.from[Access]("accessType")
+  implicit val formAccessType: OFormat[Access] = Union.from[Access]("accessType")
     .and[Standard](AccessType.STANDARD.toString)
     .and[Privileged](AccessType.PRIVILEGED.toString)
     .and[Ropc](AccessType.ROPC.toString)
     .format
 
-  implicit val formatRole             = Json.formatEnum(CollaboratorRole)
-  implicit val formatApplicationState = Json.format[ApplicationState]
-  implicit val applicationFormat      = Json.format[NewApplication]
+  implicit val formatRole: Format[CollaboratorRole]              = Json.formatEnum(CollaboratorRole)
+  implicit val formatApplicationState: OFormat[ApplicationState] = Json.format[ApplicationState]
+  implicit val applicationFormat: OFormat[NewApplication]        = Json.format[NewApplication]
 
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)
 }

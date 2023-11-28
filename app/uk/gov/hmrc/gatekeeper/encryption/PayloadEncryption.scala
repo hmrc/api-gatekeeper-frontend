@@ -25,7 +25,7 @@ import uk.gov.hmrc.crypto.json.{JsonDecryptor, JsonEncryptor}
 case class SecretRequest(data: String)
 
 object SecretRequest {
-  implicit val format = Json.format[SecretRequest]
+  implicit val format: OFormat[SecretRequest] = Json.format[SecretRequest]
 }
 
 trait SendsSecretRequest {
