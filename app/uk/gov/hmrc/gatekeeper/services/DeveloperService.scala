@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.ApplicationCollaboratorHelper._
+import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 
 class DeveloperService @Inject() (
@@ -231,7 +231,7 @@ class DeveloperService @Inject() (
       if (app.deployedTo == Environment.SANDBOX) {
         Future.successful(Set.empty)
       } else {
-        val appAdmins = admins(app).filterNot(_.emailAddress == filterOutThisEmail).map(_.emailAddress)
+        val appAdmins = app.admins.filterNot(_.emailAddress == filterOutThisEmail).map(_.emailAddress)
         for {
           users        <- fetchDevelopersByEmails(appAdmins)
           verifiedUsers = users.toSet.filter(_.verified)
@@ -255,7 +255,7 @@ class DeveloperService @Inject() (
 
     fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email                               = developer.email
-      val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(isSoleAdmin(_, email))
+      val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 
       if (appsSoleAdminOn.isEmpty) {
         for {

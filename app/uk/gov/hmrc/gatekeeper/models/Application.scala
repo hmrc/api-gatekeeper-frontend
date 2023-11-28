@@ -34,14 +34,6 @@ trait Application {
   val deployedTo: Environment
 }
 
-object ApplicationCollaboratorHelper {
-
-  def admins(app: Application): Set[Collaborator] = app.collaborators.filter(_.isAdministrator)
-
-  def isSoleAdmin(app: Application, emailAddress: LaxEmailAddress): Boolean =
-    admins(app).map(_.emailAddress).contains(emailAddress) && admins(app).size == 1
-}
-
 case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
   val maxPage = PaginationHelper.maxPage(matching, pageSize)
 }

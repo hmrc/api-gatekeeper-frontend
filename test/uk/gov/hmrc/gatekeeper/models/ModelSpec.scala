@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models.ApplicationCollaboratorHelper._
+import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 
 class ModelSpec extends AsyncHmrcSpec {
 
@@ -71,22 +71,22 @@ class ModelSpec extends AsyncHmrcSpec {
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))
-      isSoleAdmin(app, emailAddress) shouldBe true
+      app.isSoleAdmin(emailAddress) shouldBe true
     }
 
     "return true when the given email address is the only admin and other team members exist" in {
       val app = application(Set(admin, otherDeveloper))
-      isSoleAdmin(app, emailAddress) shouldBe true
+      app.isSoleAdmin(emailAddress) shouldBe true
     }
 
     "return false when the given email address is not the only admin" in {
       val app = application(Set(admin, otherAdmin))
-      isSoleAdmin(app, emailAddress) shouldBe false
+      app.isSoleAdmin(emailAddress) shouldBe false
     }
 
     "return false when the given email address is not an admin" in {
       val app = application(Set(developer, otherAdmin))
-      isSoleAdmin(app, emailAddress) shouldBe false
+      app.isSoleAdmin(emailAddress) shouldBe false
     }
   }
 

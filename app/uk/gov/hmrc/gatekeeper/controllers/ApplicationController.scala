@@ -41,7 +41,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.ApplicationCollaboratorHelper._
+import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
@@ -662,7 +662,7 @@ class ApplicationController @Inject() (
       }
 
       def administrators(app: ApplicationWithHistory): Future[List[RegisteredUser]] = {
-        val emails: Set[LaxEmailAddress] = admins(app.application).map(_.emailAddress)
+        val emails: Set[LaxEmailAddress] = app.application.admins.map(_.emailAddress)
         developerService.fetchDevelopersByEmails(emails)
       }
 
