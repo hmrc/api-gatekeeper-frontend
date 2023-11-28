@@ -71,7 +71,7 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
   )
 
 object ApplicationWithHistory {
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[TotpId]
 
   implicit private val formatStandard   = Json.format[Standard]
   implicit private val formatPrivileged = Json.format[Privileged]

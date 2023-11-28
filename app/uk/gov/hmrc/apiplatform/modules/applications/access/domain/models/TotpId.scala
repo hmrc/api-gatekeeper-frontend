@@ -16,4 +16,4 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-case class TotpIds(production: String)
+case class TotpId(production: String)

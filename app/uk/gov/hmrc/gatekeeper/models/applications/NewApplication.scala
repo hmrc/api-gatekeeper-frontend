@@ -64,7 +64,7 @@ object NewApplication {
   import play.api.libs.json.Json
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
-  implicit val formatTotpIds = Json.format[TotpIds]
+  implicit val formatTotpIds = Json.format[TotpId]
 
   implicit private val formatStandard   = Json.format[Standard]
   implicit private val formatPrivileged = Json.format[Privileged]

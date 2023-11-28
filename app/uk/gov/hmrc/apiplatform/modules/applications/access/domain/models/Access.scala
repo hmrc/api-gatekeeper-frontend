@@ -36,7 +36,7 @@ case class Standard(
   override val accessType = AccessType.STANDARD
 }
 
-case class Privileged(totpIds: Option[TotpIds] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
+case class Privileged(totpIds: Option[TotpId] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
   override val accessType = AccessType.PRIVILEGED
 }
 
