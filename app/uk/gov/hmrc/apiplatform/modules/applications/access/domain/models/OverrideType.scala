@@ -23,13 +23,5 @@ object OverrideType extends Enumeration {
   type OverrideType = Value
   val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS, SUPPRESS_IV_FOR_INDIVIDUALS = Value
 
-  val displayedType: OverrideType => String = {
-    case PERSIST_LOGIN_AFTER_GRANT      => "Persist login after grant"
-    case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
-    case SUPPRESS_IV_FOR_AGENTS         => "Suppress IV for agents"
-    case SUPPRESS_IV_FOR_ORGANISATIONS  => "Suppress IV for organisations"
-    case SUPPRESS_IV_FOR_INDIVIDUALS    => "Suppress IV for individuals"
-  }
-
   implicit val format = Json.formatEnum(OverrideType)
 }
