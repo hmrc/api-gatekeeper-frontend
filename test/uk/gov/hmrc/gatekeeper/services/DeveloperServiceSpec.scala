@@ -36,12 +36,13 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
-class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
+class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationResponseBuilder {
 
   def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
     val email = s"$name@example.com".toLaxEmail
@@ -66,11 +67,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker {
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationResponse = {
     val grantLength = GrantLength.EIGHTEEN_MONTHS.days
-    ApplicationResponse(
+    buildApplicationResponse(
       ApplicationId.random,
       ClientId("clientId"),
       "gatewayId",
-      name,
+      Some(name),
       deployedTo,
       None,
       collaborators,

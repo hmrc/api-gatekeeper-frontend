@@ -27,11 +27,12 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
@@ -48,16 +49,17 @@ trait ControllerSetupBase
     with ApmServiceMockProvider
     with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker
-    with CommandConnectorMockProvider {
+    with CommandConnectorMockProvider
+    with ApplicationResponseBuilder {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
   val grantLength            = GrantLength.EIGHTEEN_MONTHS.days
 
-  val basicApplication = ApplicationResponse(
+  val basicApplication = buildApplicationResponse(
     ApplicationId.random,
     ClientId.random,
     "gatewayId1",
-    "application1",
+    Some("application1"),
     Environment.PRODUCTION,
     None,
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),

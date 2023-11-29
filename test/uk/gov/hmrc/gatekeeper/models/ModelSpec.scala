@@ -20,14 +20,15 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 
-class ModelSpec extends AsyncHmrcSpec {
+class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
@@ -54,11 +55,11 @@ class ModelSpec extends AsyncHmrcSpec {
     val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     val grantLength                                 = GrantLength.EIGHTEEN_MONTHS.days
     def application(teamMembers: Set[Collaborator]) =
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application",
+        Some("application"),
         Environment.PRODUCTION,
         None,
         teamMembers,

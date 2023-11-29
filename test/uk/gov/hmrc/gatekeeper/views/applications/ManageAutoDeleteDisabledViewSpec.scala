@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
@@ -37,17 +38,17 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteDisabledVi
 
 class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationResponseBuilder {
     val request                                                    = FakeRequest().withCSRFToken
     val manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView = app.injector.instanceOf[ManageAutoDeleteDisabledView]
     val grantLength                                                = GrantLength.EIGHTEEN_MONTHS.days
 
     val application: ApplicationResponse =
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application1",
+        Some("application1"),
         Environment.PRODUCTION,
         None,
         Set(

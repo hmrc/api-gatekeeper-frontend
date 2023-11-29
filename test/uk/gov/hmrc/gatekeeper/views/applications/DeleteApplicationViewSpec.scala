@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -37,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.DeleteApplicationView
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationResponseBuilder {
     val request                   = FakeRequest().withCSRFToken
     val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
@@ -47,11 +48,11 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val adminEmail = "sample@example.com"
 
     val application =
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application1",
+        Some("application1"),
         Environment.PRODUCTION,
         None,
         Set(

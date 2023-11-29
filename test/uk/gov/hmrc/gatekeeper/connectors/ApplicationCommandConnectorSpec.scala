@@ -26,45 +26,21 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Privileged
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
-class ApplciationCommandConnectorSpec
+class ApplicationCommandConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
-
-  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
-    ApplicationResponse(
-      ApplicationId.random,
-      ClientId("clientid"),
-      "gatewayId",
-      "appName",
-      Environment.PRODUCTION,
-      None,
-      Set.empty,
-      createdOn,
-      Some(lastAccess),
-      Privileged(),
-      ApplicationState(),
-      GrantLength.EIGHTEEN_MONTHS.days,
-      RateLimitTier.BRONZE,
-      Some("termsUrl"),
-      Some("privacyPolicyUrl"),
-      checkInformation = None,
-      blocked = false,
-      ipAllowlist = IpAllowlist(),
-      moreApplication = MoreApplication()
-    )
-  }
+    with UrlEncoding
+    with ApplicationResponseBuilder {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random

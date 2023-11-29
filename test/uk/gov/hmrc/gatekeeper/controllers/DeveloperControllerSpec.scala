@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -36,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
+class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationResponseBuilder {
 
   implicit val materializer                   = app.materializer
   private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
@@ -52,11 +53,11 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
     def anApplication(collaborators: Set[Collaborator]) = {
       val grantLength = GrantLength.EIGHTEEN_MONTHS.days
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId.random,
         "gatewayId",
-        "application",
+        Some("application"),
         Environment.PRODUCTION,
         None,
         collaborators,

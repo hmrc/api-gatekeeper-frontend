@@ -45,13 +45,14 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationResponseBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
@@ -72,11 +73,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
     val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
     val applications    = List[ApplicationResponse](
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Testing App",
+        Some("Testing App"),
         Environment.PRODUCTION,
         Some("Testing App"),
         collaborators,
@@ -93,11 +94,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
         IpAllowlist(),
         MoreApplication()
       ),
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Pending Gatekeeper Approval App",
+        Some("Pending Gatekeeper Approval App"),
         Environment.PRODUCTION,
         Some("Pending Gatekeeper Approval App"),
         collaborators,
@@ -114,11 +115,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
         IpAllowlist(),
         MoreApplication()
       ),
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Pending Requester Verification App",
+        Some("Pending Requester Verification App"),
         Environment.PRODUCTION,
         Some("Pending Requester Verification App"),
         collaborators,
@@ -135,11 +136,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
         IpAllowlist(),
         MoreApplication()
       ),
-      ApplicationResponse(
+      buildApplicationResponse(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Production App",
+        Some("Production App"),
         Environment.PRODUCTION,
         Some("Production App"),
         collaborators,

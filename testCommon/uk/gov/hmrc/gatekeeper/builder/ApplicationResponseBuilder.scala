@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
@@ -26,43 +27,54 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models._
 
 trait ApplicationResponseBuilder extends CollaboratorsBuilder {
-  val grantLength = GrantLength.EIGHTEEN_MONTHS.days
 
+  // scalastyle:off parameter.number
   def buildApplicationResponse(
-      appId: ApplicationId = ApplicationId.random,
-      createdOn: LocalDateTime = LocalDateTime.now(),
-      lastAccess: LocalDateTime = LocalDateTime.now(),
-      checkInformation: Option[CheckInformation] = None
-    ): ApplicationResponse = {
-
-    val clientId      = ClientId.random
-    val appOwnerEmail = "a@b.com"
-
-    ApplicationResponse(
-      id = appId,
-      clientId = clientId,
-      gatewayId = "",
-      name = s"$appId-name",
-      deployedTo = Environment.SANDBOX,
-      description = Some(s"$appId-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
-      createdOn = createdOn,
-      lastAccess = Some(lastAccess),
-      access = Standard(
+      id: ApplicationId = ApplicationId.random,
+      clientId: ClientId = ClientId.random,
+      gatewayId: String = "",
+      name: Option[String] = None,
+      deployedTo: Environment = Environment.SANDBOX,
+      description: Option[String] = None,
+      collaborators: Set[Collaborator] = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
+      createdOn: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
+      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
+      access: Access = Standard(
         redirectUris = List("https://red1", "https://red2"),
         termsAndConditionsUrl = Some("http://tnc-url.com")
       ),
-      state = ApplicationState(State.PRODUCTION),
+      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
+      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
+      termsAndConditionsUrl: Option[String] = Some("http://tnc-url.com"),
+      privacyPolicyUrl: Option[String] = Some("http://privacy-policy-url.com"),
+      checkInformation: Option[CheckInformation] = None,
+      blocked: Boolean = false,
+      ipAllowlist: IpAllowlist = IpAllowlist(),
+      moreApplication: MoreApplication = MoreApplication()
+    ): ApplicationResponse =
+    ApplicationResponse(
+      id,
+      clientId,
+      gatewayId,
+      name.getOrElse(s"$id-name"),
+      deployedTo,
+      Some(description.getOrElse(s"$id-description")),
+      collaborators,
+      createdOn,
+      lastAccess,
+      access,
+      state,
       grantLength,
-      rateLimitTier = RateLimitTier.BRONZE,
-      termsAndConditionsUrl = Some("http://tnc-url.com"),
-      privacyPolicyUrl = Some("http://privacy-policy-url.com"),
-      checkInformation = checkInformation,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      rateLimitTier,
+      termsAndConditionsUrl,
+      privacyPolicyUrl,
+      checkInformation,
+      blocked,
+      ipAllowlist,
+      moreApplication
     )
-  }
+  // scalastyle:on parameter.number
 
   val DefaultApplicationResponse = buildApplicationResponse()
 
@@ -71,11 +83,11 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   }
 
   def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
-    ApplicationResponse(
+    buildApplicationResponse(
       ApplicationId.random,
       ClientId("clientid"),
       "gatewayId",
-      "appName",
+      Some("appName"),
       Environment.PRODUCTION,
       None,
       Set.empty,
@@ -83,14 +95,11 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       Some(lastAccess),
       Privileged(),
       ApplicationState(),
-      grantLength,
+      GrantLength.EIGHTEEN_MONTHS.days,
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      None
     )
   }
 
