@@ -27,8 +27,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -65,7 +65,14 @@ trait ControllerSetupBase
     Some(LocalDateTime.now()),
     Standard(),
     ApplicationState(),
-    grantLength
+    grantLength,
+    RateLimitTier.BRONZE,
+    termsAndConditionsUrl = None,
+    privacyPolicyUrl = None,
+    checkInformation = None,
+    blocked = false,
+    IpAllowlist(),
+    MoreApplication()
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

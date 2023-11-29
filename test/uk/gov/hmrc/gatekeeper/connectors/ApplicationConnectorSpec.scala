@@ -28,7 +28,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, PersistLogin, Privileged, Standard, SuppressIvForAgents}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, State, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -61,7 +61,10 @@ class ApplicationConnectorSpec
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),
-      None
+      checkInformation = None,
+      blocked = false,
+      IpAllowlist(),
+      MoreApplication()
     )
   }
 
@@ -238,7 +241,14 @@ class ApplicationConnectorSpec
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -351,7 +361,14 @@ class ApplicationConnectorSpec
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
       Standard(),
       applicationState,
-      grantLength
+      grantLength,
+      RateLimitTier.BRONZE,
+      termsAndConditionsUrl = None,
+      privacyPolicyUrl = None,
+      checkInformation = None,
+      blocked = false,
+      IpAllowlist(),
+      MoreApplication()
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString

@@ -26,7 +26,7 @@ import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
@@ -59,6 +59,11 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
         Standard(),
         ApplicationState(),
         grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
         ipAllowlist = IpAllowlist(),
         moreApplication = MoreApplication(allowAutoDelete = false)
       )

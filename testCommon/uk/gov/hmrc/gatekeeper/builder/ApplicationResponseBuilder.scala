@@ -59,7 +59,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       privacyPolicyUrl = Some("http://privacy-policy-url.com"),
       checkInformation = checkInformation,
       blocked = false,
-      ipAllowlist = IpAllowlist()
+      IpAllowlist(),
+      MoreApplication()
     )
   }
 
@@ -86,7 +87,10 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),
-      None
+      checkInformation = None,
+      blocked = false,
+      IpAllowlist(),
+      MoreApplication()
     )
   }
 

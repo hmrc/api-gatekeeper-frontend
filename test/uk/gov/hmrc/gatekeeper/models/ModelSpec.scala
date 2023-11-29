@@ -20,8 +20,8 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -66,7 +66,14 @@ class ModelSpec extends AsyncHmrcSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       )
 
     "return true when the given email address is the only admin and no other team members" in {

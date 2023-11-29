@@ -33,20 +33,20 @@ case class ApplicationResponse(
     gatewayId: String,
     name: String,
     deployedTo: Environment,
-    description: Option[String] = None,
+    description: Option[String],
     collaborators: Set[Collaborator],
     createdOn: LocalDateTime,
     lastAccess: Option[LocalDateTime],
     access: Access,
     state: ApplicationState,
     grantLength: Int,
-    rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
-    termsAndConditionsUrl: Option[String] = None,
-    privacyPolicyUrl: Option[String] = None,
-    checkInformation: Option[CheckInformation] = None,
-    blocked: Boolean = false,
-    ipAllowlist: IpAllowlist = IpAllowlist(),
-    moreApplication: MoreApplication = MoreApplication()
+    rateLimitTier: RateLimitTier,
+    termsAndConditionsUrl: Option[String],
+    privacyPolicyUrl: Option[String],
+    checkInformation: Option[CheckInformation],
+    blocked: Boolean,
+    ipAllowlist: IpAllowlist,
+    moreApplication: MoreApplication
   ) extends Application
 
 object ApplicationResponse {

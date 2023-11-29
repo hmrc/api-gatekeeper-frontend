@@ -24,8 +24,8 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -62,7 +62,14 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       )
 
     val applicationWithHistory = ApplicationWithHistory(application, List.empty)

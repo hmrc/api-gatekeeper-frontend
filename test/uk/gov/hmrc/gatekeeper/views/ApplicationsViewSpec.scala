@@ -40,8 +40,8 @@ import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -84,7 +84,14 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       ),
       ApplicationResponse(
         ApplicationId.random,
@@ -98,7 +105,14 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       ),
       ApplicationResponse(
         ApplicationId.random,
@@ -112,7 +126,14 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       ),
       ApplicationResponse(
         ApplicationId.random,
@@ -126,7 +147,14 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength
+        grantLength,
+        RateLimitTier.BRONZE,
+        termsAndConditionsUrl = None,
+        privacyPolicyUrl = None,
+        checkInformation = None,
+        blocked = false,
+        IpAllowlist(),
+        MoreApplication()
       )
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"

@@ -27,7 +27,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Privileged
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, _}
@@ -59,7 +59,10 @@ class ApplciationCommandConnectorSpec
       RateLimitTier.BRONZE,
       Some("termsUrl"),
       Some("privacyPolicyUrl"),
-      None
+      checkInformation = None,
+      blocked = false,
+      ipAllowlist = IpAllowlist(),
+      moreApplication = MoreApplication()
     )
   }
 
