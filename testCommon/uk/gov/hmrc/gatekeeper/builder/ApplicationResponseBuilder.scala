@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
@@ -36,13 +35,10 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       name: Option[String] = None,
       deployedTo: Environment = Environment.SANDBOX,
       description: Option[String] = None,
-      collaborators: Set[Collaborator] = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
-      createdOn: LocalDateTime = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
-      access: Access = Standard(
-        redirectUris = List("https://red1", "https://red2"),
-        termsAndConditionsUrl = Some("http://tnc-url.com")
-      ),
+      collaborators: Set[Collaborator],
+      createdOn: LocalDateTime = LocalDateTime.now(),
+      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
+      access: Access,
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
@@ -77,6 +73,11 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
   // scalastyle:on parameter.number
 
   val DefaultApplicationResponse = buildApplicationResponse(
+    collaborators = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
+    access = Standard(
+      redirectUris = List("https://red1", "https://red2"),
+      termsAndConditionsUrl = Some("http://tnc-url.com")
+    ),
     termsAndConditionsUrl = Some("http://tnc-url.com"),
     privacyPolicyUrl = Some("http://privacy-policy-url.com")
   )
