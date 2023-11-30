@@ -37,12 +37,12 @@ case class ApplicationResponse(
     collaborators: Set[Collaborator],
     createdOn: LocalDateTime,
     lastAccess: Option[LocalDateTime],
-    access: Access,
-    state: ApplicationState,
     grantLength: Int,
-    rateLimitTier: RateLimitTier,
     termsAndConditionsUrl: Option[String],
     privacyPolicyUrl: Option[String],
+    access: Access,
+    state: ApplicationState,
+    rateLimitTier: RateLimitTier,
     checkInformation: Option[CheckInformation],
     blocked: Boolean,
     ipAllowlist: IpAllowlist,
@@ -78,12 +78,12 @@ object ApplicationResponse {
       (JsPath \ "collaborators").read[Set[Collaborator]] and
       (JsPath \ "createdOn").read[LocalDateTime] and
       (JsPath \ "lastAccess").readNullable[LocalDateTime] and
-      (JsPath \ "access").read[Access] and
-      (JsPath \ "state").read[ApplicationState] and
       (JsPath \ "grantLength").read[Int] and
-      (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
+      (JsPath \ "access").read[Access] and
+      (JsPath \ "state").read[ApplicationState] and
+      (JsPath \ "rateLimitTier").read[RateLimitTier] and
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
       (JsPath \ "ipAllowlist").read[IpAllowlist] and
