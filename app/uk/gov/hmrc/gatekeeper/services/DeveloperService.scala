@@ -82,7 +82,7 @@ class DeveloperService @Inject() (
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }
 
-  def filterUsersBy(filter: ApiFilter[String], apps: List[Application])(users: List[Developer]): List[Developer] = {
+  def filterUsersBy(filter: ApiFilter[String], apps: List[ApplicationResponse])(users: List[Developer]): List[Developer] = {
 
     val registeredEmails = users.map(_.user.email)
 
@@ -92,16 +92,16 @@ class DeveloperService @Inject() (
 
     def asUnregisteredUser(c: KEY): UnregisteredUser = UnregisteredUser(c._1, c._2)
 
-    def linkAppsAndCollaborators(apps: List[Application]): Map[KEY, Set[Application]] = {
-      apps.foldLeft(Map.empty[KEY, Set[Application]])((uMap, appResp) =>
+    def linkAppsAndCollaborators(apps: List[ApplicationResponse]): Map[KEY, Set[ApplicationResponse]] = {
+      apps.foldLeft(Map.empty[KEY, Set[ApplicationResponse]])((uMap, appResp) =>
         appResp.collaborators.foldLeft(uMap)((m, c) => {
-          val userApps = m.getOrElse(asKey(c), Set.empty[Application]) + appResp
+          val userApps = m.getOrElse(asKey(c), Set.empty[ApplicationResponse]) + appResp
           m + (asKey(c) -> userApps)
         })
       )
     }
 
-    lazy val unregisteredCollaborators: Map[KEY, Set[Application]] =
+    lazy val unregisteredCollaborators: Map[KEY, Set[ApplicationResponse]] =
       linkAppsAndCollaborators(apps).view.filterKeys(k => !registeredEmails.contains(k._1)).toMap
 
     lazy val unregistered: Set[Developer] =
@@ -125,11 +125,11 @@ class DeveloperService @Inject() (
     }
   }
 
-  def getDevelopersWithApps(apps: List[Application], users: List[User]): List[Developer] = {
+  def getDevelopersWithApps(apps: List[ApplicationResponse], users: List[User]): List[Developer] = {
 
-    def isACollaboratorForApp(user: User)(app: Application): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
+    def isACollaboratorForApp(user: User)(app: ApplicationResponse): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
-    def collaboratingApps(user: User): List[Application] = {
+    def collaboratingApps(user: User): List[ApplicationResponse] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
@@ -227,7 +227,7 @@ class DeveloperService @Inject() (
 
   def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: Application): Future[Set[LaxEmailAddress]] = {
+    def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: ApplicationResponse): Future[Set[LaxEmailAddress]] = {
       if (app.deployedTo == Environment.SANDBOX) {
         Future.successful(Set.empty)
       } else {
@@ -240,7 +240,7 @@ class DeveloperService @Inject() (
       }
     }
 
-    def removeTeamMemberFromApp(developer: Developer)(app: Application): Future[Unit] = {
+    def removeTeamMemberFromApp(developer: Developer)(app: ApplicationResponse): Future[Unit] = {
       val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (developer.email)).get // Safe as we know we're a dev on this app
 
       for {

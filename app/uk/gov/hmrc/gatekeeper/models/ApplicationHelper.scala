@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationHelper {
 
-  implicit class CollaboratorSyntax(application: Application) {
+  implicit class CollaboratorSyntax(application: ApplicationResponse) {
 
     // TODO: Move to api-platform-application-domain?
     def admins: Set[Collaborator] = application.collaborators.filter(_.isAdministrator)

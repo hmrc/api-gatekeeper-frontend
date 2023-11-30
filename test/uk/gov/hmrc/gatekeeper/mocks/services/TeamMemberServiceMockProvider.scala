@@ -21,10 +21,10 @@ import scala.concurrent.Future.successful
 import cats.data.NonEmptyList
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
-import uk.gov.hmrc.gatekeeper.models.Application
 import uk.gov.hmrc.gatekeeper.services.TeamMemberService
 
 trait TeamMemberServiceMockProvider {
@@ -43,7 +43,7 @@ trait TeamMemberServiceMockProvider {
         when(mockTeamMemberService.addTeamMember(*, *, *)(*))
           .thenReturn(successful(NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp).asLeft[Unit]))
 
-      def verifyCalledWith(application: Application, collaborator: Collaborator, gatekeeperUser: Actors.GatekeeperUser) =
+      def verifyCalledWith(application: ApplicationResponse, collaborator: Collaborator, gatekeeperUser: Actors.GatekeeperUser) =
         verify(mockTeamMemberService).addTeamMember(eqTo(application), eqTo(collaborator), eqTo(gatekeeperUser))(*)
     }
 
@@ -58,7 +58,7 @@ trait TeamMemberServiceMockProvider {
         when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
           .thenReturn(successful(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin).asLeft[Unit]))
 
-      def verifyCalledWith(application: Application, emailToRemove: LaxEmailAddress, gatekeeperUser: Actors.GatekeeperUser) =
+      def verifyCalledWith(application: ApplicationResponse, emailToRemove: LaxEmailAddress, gatekeeperUser: Actors.GatekeeperUser) =
         verify(mockTeamMemberService).removeTeamMember(eqTo(application), eqTo(emailToRemove), eqTo(gatekeeperUser))(*)
     }
   }

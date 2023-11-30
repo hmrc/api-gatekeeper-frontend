@@ -21,18 +21,8 @@ import java.time.LocalDateTime
 import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
-
-trait Application {
-  val id: ApplicationId
-  val name: String
-  val state: ApplicationState
-  val collaborators: Set[Collaborator]
-  val clientId: ClientId
-  val deployedTo: Environment
-}
 
 case class PaginatedApplicationResponse(applications: List[ApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
   val maxPage = PaginationHelper.maxPage(matching, pageSize)

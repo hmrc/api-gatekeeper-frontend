@@ -46,7 +46,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
-      access: Access,
+      access: Access = Standard(),
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       checkInformation: Option[CheckInformation] = None,

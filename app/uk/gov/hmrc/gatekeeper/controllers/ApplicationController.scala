@@ -477,7 +477,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleAutoDeleteDisabled(application: Application) = {
+      def handleAutoDeleteDisabled(application: ApplicationResponse) = {
         for {
           event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
                      .map(events => events.find(e => e.eventType == "Application auto delete blocked"))

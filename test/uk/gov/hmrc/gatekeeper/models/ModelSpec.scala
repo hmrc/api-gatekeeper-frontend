@@ -47,7 +47,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
     }
   }
 
-  "Application.isSoleAdmin" should {
+  "ApplicationHelper.isSoleAdmin" should {
     val emailAddress                                = "admin@example.com".toLaxEmail
     val admin                                       = Collaborators.Administrator(UserId.random, emailAddress)
     val developer                                   = Collaborators.Developer(UserId.random, emailAddress)

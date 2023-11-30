@@ -21,11 +21,11 @@ import javax.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypes, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
-import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
 class SubscriptionsService @Inject() (
@@ -34,12 +34,12 @@ class SubscriptionsService @Inject() (
   ) extends CommandHandlerTypes[DispatchSuccessResult]
     with ClockNow {
 
-  def subscribeToApi(application: Application, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  def subscribeToApi(application: ApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, now())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 
-  def unsubscribeFromApi(application: Application, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  def unsubscribeFromApi(application: ApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, now())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }

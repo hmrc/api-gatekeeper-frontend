@@ -49,7 +49,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     RegisteredUser(email, idOf(email), "Fred", "Example", verified, emailPreferences = emailPreferences)
   }
 
-  def aDeveloper(name: String, apps: List[Application] = List.empty, verified: Boolean = true) = {
+  def aDeveloper(name: String, apps: List[ApplicationResponse] = List.empty, verified: Boolean = true) = {
     val email = s"$name@example.com".toLaxEmail
     Developer(
       RegisteredUser(email, idOf(email), name, s"${name}son", verified),
@@ -57,7 +57,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     )
   }
 
-  def anUnregisteredDeveloper(name: String, apps: List[Application] = List.empty) = {
+  def anUnregisteredDeveloper(name: String, apps: List[ApplicationResponse] = List.empty) = {
     val email = s"$name@example.com".toLaxEmail
     Developer(
       UnregisteredUser(email, idOf(email)),
@@ -168,7 +168,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.collaborator.emailAddress == email
 
     def verifyCollaboratorRemovedFromApp(
-        app: Application,
+        app: ApplicationResponse,
         userToRemove: LaxEmailAddress,
         gatekeeperUserName: String,
         adminsToEmail: Set[LaxEmailAddress]

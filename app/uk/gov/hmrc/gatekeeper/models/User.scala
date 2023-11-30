@@ -20,6 +20,7 @@ import play.api.libs.functional.syntax._
 import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.gatekeeper.models.MfaId.format
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
@@ -89,7 +90,7 @@ case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends User
   val lastName  = "n/a"
 }
 
-case class Developer(user: User, applications: List[Application], xmlServiceNames: Set[String] = Set.empty, xmlOrganisations: List[XmlOrganisation] = List.empty) {
+case class Developer(user: User, applications: List[ApplicationResponse], xmlServiceNames: Set[String] = Set.empty, xmlOrganisations: List[XmlOrganisation] = List.empty) {
   lazy val fullName = user.fullName
 
   lazy val email = user.email

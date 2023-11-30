@@ -45,7 +45,7 @@ class ApplicationService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def resendVerification(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
+  def resendVerification(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
@@ -239,7 +239,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def updateGrantLength(application: Application, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateGrantLength(application: ApplicationResponse, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
@@ -260,30 +260,30 @@ class ApplicationService @Inject() (
     appCmdResult.map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def updateRateLimitTier(application: Application, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateRateLimitTier(application: ApplicationResponse, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, now(), tier), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def deleteApplication(application: Application, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def deleteApplication(application: ApplicationResponse, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     val reasons       = "Application deleted by Gatekeeper user"
     val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, now())
     applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
   }
 
-  def blockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
+  def blockApplication(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
     applicationConnectorFor(application).blockApplication(application.id, BlockApplicationRequest(gatekeeperUserId))
   }
 
-  def unblockApplication(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
+  def unblockApplication(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
     applicationConnectorFor(application).unblockApplication(application.id, UnblockApplicationRequest(gatekeeperUserId))
   }
 
-  def approveUplift(application: Application, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
+  def approveUplift(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
     applicationConnectorFor(application).approveUplift(application.id, gatekeeperUserId)
   }
 
-  def rejectUplift(application: Application, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
+  def rejectUplift(application: ApplicationResponse, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
     applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
   }
 
@@ -303,13 +303,13 @@ class ApplicationService @Inject() (
     }
   }
 
-  def applicationConnectorFor(application: Application): ApplicationConnector =
+  def applicationConnectorFor(application: ApplicationResponse): ApplicationConnector =
     if (application.deployedTo == Environment.PRODUCTION) productionApplicationConnector else sandboxApplicationConnector
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
     if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
 
-  def apiScopeConnectorFor(application: Application): ApiScopeConnector =
+  def apiScopeConnectorFor(application: ApplicationResponse): ApiScopeConnector =
     if (application.deployedTo == Environment.PRODUCTION) productionApiScopeConnector else sandboxApiScopeConnector
 
   private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)

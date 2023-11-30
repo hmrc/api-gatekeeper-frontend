@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.json.Union
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
-import uk.gov.hmrc.gatekeeper.models.{Application, ApprovedApplication}
+import uk.gov.hmrc.gatekeeper.models.ApprovedApplication
 
 case class ApplicationResponse(
     id: ApplicationId,
@@ -47,7 +47,7 @@ case class ApplicationResponse(
     blocked: Boolean,
     ipAllowlist: IpAllowlist,
     moreApplication: MoreApplication
-  ) extends Application
+  )
 
 object ApplicationResponse {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
