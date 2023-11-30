@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.views.helper.application
+package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType._
 
