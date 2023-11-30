@@ -58,8 +58,6 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
         moreApplication = MoreApplication(allowAutoDelete = false)
       )
 

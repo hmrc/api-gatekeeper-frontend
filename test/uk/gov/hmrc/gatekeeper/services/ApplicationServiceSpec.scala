@@ -85,9 +85,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       Standard(),
-      ApplicationState(),
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None
+      ApplicationState()
     )
 
     val stdApp2 = buildApplicationResponse(
@@ -101,9 +99,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       Standard(),
-      ApplicationState(),
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None
+      ApplicationState()
     )
 
     val privilegedApp = buildApplicationResponse(
@@ -117,9 +113,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       Privileged(),
-      ApplicationState(),
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None
+      ApplicationState()
     )
 
     val ropcApp                = buildApplicationResponse(
@@ -133,9 +127,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       Ropc(),
-      ApplicationState(),
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None
+      ApplicationState()
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"

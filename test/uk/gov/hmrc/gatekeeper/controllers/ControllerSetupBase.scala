@@ -64,9 +64,7 @@ trait ControllerSetupBase
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
     Standard(),
-    ApplicationState(),
-    termsAndConditionsUrl = None,
-    privacyPolicyUrl = None
+    ApplicationState()
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

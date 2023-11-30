@@ -303,8 +303,6 @@ class ApplicationControllerSpec
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           Standard(),
           ApplicationState(),
-          termsAndConditionsUrl = None,
-          privacyPolicyUrl = None,
           moreApplication = MoreApplication(allowAutoDelete = false)
         )
 
@@ -1272,9 +1270,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             Standard(),
-            ApplicationState(),
-            termsAndConditionsUrl = None,
-            privacyPolicyUrl = None
+            ApplicationState()
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1311,9 +1307,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             Standard(),
-            ApplicationState(),
-            termsAndConditionsUrl = None,
-            privacyPolicyUrl = None
+            ApplicationState()
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1350,9 +1344,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             Standard(),
-            ApplicationState(),
-            termsAndConditionsUrl = None,
-            privacyPolicyUrl = None
+            ApplicationState()
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1388,9 +1380,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             Standard(),
-            ApplicationState(),
-            termsAndConditionsUrl = None,
-            privacyPolicyUrl = None
+            ApplicationState()
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)

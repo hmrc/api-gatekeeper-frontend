@@ -216,9 +216,7 @@ class ApplicationConnectorSpec
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         Standard(),
-        ApplicationState(),
-        termsAndConditionsUrl = None,
-        privacyPolicyUrl = None
+        ApplicationState()
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -330,9 +328,7 @@ class ApplicationConnectorSpec
       LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
       Standard(),
-      applicationState,
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None
+      applicationState
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString

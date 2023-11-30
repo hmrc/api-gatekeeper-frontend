@@ -63,9 +63,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         Standard(),
-        ApplicationState(),
-        termsAndConditionsUrl = None,
-        privacyPolicyUrl = None
+        ApplicationState()
       )
     }
 

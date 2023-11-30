@@ -46,8 +46,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
-      termsAndConditionsUrl: Option[String] = Some("http://tnc-url.com"),
-      privacyPolicyUrl: Option[String] = Some("http://privacy-policy-url.com"),
+      termsAndConditionsUrl: Option[String] = None,
+      privacyPolicyUrl: Option[String] = None,
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
@@ -76,7 +76,10 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
     )
   // scalastyle:on parameter.number
 
-  val DefaultApplicationResponse = buildApplicationResponse()
+  val DefaultApplicationResponse = buildApplicationResponse(
+    termsAndConditionsUrl = Some("http://tnc-url.com"),
+    privacyPolicyUrl = Some("http://privacy-policy-url.com")
+  )
 
   def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
