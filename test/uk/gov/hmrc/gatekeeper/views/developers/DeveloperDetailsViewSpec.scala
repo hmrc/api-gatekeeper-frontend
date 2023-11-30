@@ -27,15 +27,15 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 
-class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationResponseBuilder {
+class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
 
   trait Setup {
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
@@ -143,14 +143,14 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationResponseBu
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
-      val testApplication1 = buildApplicationResponse(
+      val testApplication1 = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail)),
         state = ApplicationState(State.TESTING)
       )
-      val testApplication2 = buildApplicationResponse(
+      val testApplication2 = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName2"),
         deployedTo = Environment.PRODUCTION,

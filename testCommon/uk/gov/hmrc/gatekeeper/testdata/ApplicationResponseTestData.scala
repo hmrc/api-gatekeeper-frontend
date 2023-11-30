@@ -23,11 +23,11 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
+trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 
-  val defaultApplicationResponse = DefaultApplicationResponse
+  val defaultApplicationResponse = DefaultApplication
     .withId(applicationId)
     .withName(applicationName)
     .withDescription("application for test")

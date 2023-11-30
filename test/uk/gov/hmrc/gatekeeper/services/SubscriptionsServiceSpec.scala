@@ -30,9 +30,9 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
@@ -42,7 +42,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
   trait Setup
       extends MockitoSugar with ArgumentMatchersSugar
-      with CommandConnectorMockProvider with ApplicationResponseBuilder {
+      with CommandConnectorMockProvider with ApplicationBuilder {
 
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -60,7 +60,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val stdApp1 = buildApplicationResponse(
+    val stdApp1 = buildApplication(
       ApplicationId.random,
       ClientId("clientid1"),
       "gatewayId1",
@@ -74,7 +74,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       state = ApplicationState()
     )
 
-    val stdApp2 = buildApplicationResponse(
+    val stdApp2 = buildApplication(
       ApplicationId.random,
       ClientId("clientid2"),
       "gatewayId2",
@@ -88,7 +88,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       state = ApplicationState()
     )
 
-    val privilegedApp = buildApplicationResponse(
+    val privilegedApp = buildApplication(
       ApplicationId.random,
       ClientId("clientid3"),
       "gatewayId3",
@@ -102,7 +102,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       state = ApplicationState()
     )
 
-    val ropcApp                = buildApplicationResponse(
+    val ropcApp                = buildApplication(
       ApplicationId.random,
       ClientId("clientid4"),
       "gatewayId4",

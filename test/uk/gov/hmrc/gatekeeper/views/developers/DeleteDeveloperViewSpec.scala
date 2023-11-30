@@ -23,16 +23,16 @@ import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
 
-class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationResponseBuilder {
+class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
 
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
@@ -44,7 +44,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationResponseBui
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = buildApplicationResponse(
+      val app       = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
@@ -60,7 +60,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationResponseBui
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = buildApplicationResponse(
+      val app       = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,

@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
@@ -49,11 +49,11 @@ trait ControllerSetupBase
     with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker
     with CommandConnectorMockProvider
-    with ApplicationResponseBuilder {
+    with ApplicationBuilder {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
 
-  val basicApplication = buildApplicationResponse(
+  val basicApplication = buildApplication(
     ApplicationId.random,
     ClientId.random,
     "gatewayId1",

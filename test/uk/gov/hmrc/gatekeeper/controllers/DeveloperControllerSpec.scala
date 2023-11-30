@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -37,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationResponseBuilder {
+class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationBuilder {
 
   implicit val materializer                   = app.materializer
   private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
@@ -51,8 +51,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
 
   Helpers.running(app) {
 
-    def anApplication(collaborators: Set[Collaborator]) = {
-      buildApplicationResponse(
+    def anApplicationWithCollaborators(collaborators: Set[Collaborator]) = {
+      buildApplication(
         ApplicationId.random,
         ClientId.random,
         "gatewayId",
@@ -73,7 +73,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
       val developerId  = UuidIdentifier(user.userId)
 
-      val apps      = List(anApplication(Set(
+      val apps      = List(anApplicationWithCollaborators(Set(
         Collaborators.Administrator(UserId.random, emailAddress),
         Collaborators.Developer(UserId.random, "someoneelse@example.com".toLaxEmail)
       )))

@@ -32,9 +32,9 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -44,7 +44,7 @@ class ApplicationConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
-    with ApplicationResponseBuilder {
+    with ApplicationBuilder {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
@@ -205,7 +205,7 @@ class ApplicationConnectorSpec
     )
 
     "retrieve all applications" in new Setup {
-      val applications = List(buildApplicationResponse(
+      val applications = List(buildApplication(
         applicationId,
         ClientId("clientid1"),
         "gatewayId1",
@@ -317,7 +317,7 @@ class ApplicationConnectorSpec
     )
     val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS))
     val applicationState                 = ApplicationState(State.TESTING, None, None, LocalDateTime.now)
-    val application                      = buildApplicationResponse(
+    val application                      = buildApplication(
       applicationId,
       ClientId("clientid1"),
       "gatewayId1",

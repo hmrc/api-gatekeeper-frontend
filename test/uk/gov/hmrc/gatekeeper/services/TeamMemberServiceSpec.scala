@@ -34,7 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -44,7 +44,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       extends MockitoSugar
       with ArgumentMatchersSugar
       with CommandConnectorMockProvider
-      with ApplicationResponseBuilder {
+      with ApplicationBuilder {
 
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -63,7 +63,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val stdApp1 = buildApplicationResponse(
+    val stdApp1 = buildApplication(
       ApplicationId.random,
       ClientId("clientid1"),
       "gatewayId1",

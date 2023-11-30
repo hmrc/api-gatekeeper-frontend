@@ -27,13 +27,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
-import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
-import uk.gov.hmrc.gatekeeper.models.{CombinedApi, _}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorSpec

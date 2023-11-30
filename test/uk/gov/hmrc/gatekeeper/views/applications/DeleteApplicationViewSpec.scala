@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import org.jsoup.Jsoup
 
@@ -24,11 +24,11 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.DeleteApplicationView
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
-  trait Setup extends ApplicationResponseBuilder {
+  trait Setup extends ApplicationBuilder {
     val request                   = FakeRequest().withCSRFToken
     val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
@@ -47,7 +47,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
     val adminEmail = "sample@example.com"
 
     val application =
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",

@@ -43,16 +43,16 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standar
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
-  trait Setup extends ApplicationResponseBuilder {
+  trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
     implicit val mockConfig: AppConfig = mock[AppConfig]
@@ -71,7 +71,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     )
 
     val applications    = List[ApplicationResponse](
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
@@ -84,7 +84,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         access = Standard(),
         state = ApplicationState()
       ),
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
@@ -97,7 +97,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         access = Standard(),
         state = ApplicationState()
       ),
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
@@ -110,7 +110,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         access = Standard(),
         state = ApplicationState()
       ),
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",

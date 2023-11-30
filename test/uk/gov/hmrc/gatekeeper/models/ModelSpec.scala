@@ -25,10 +25,10 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 
-class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
+class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
@@ -54,7 +54,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
     val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
     val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     def application(teamMembers: Set[Collaborator]) =
-      buildApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",

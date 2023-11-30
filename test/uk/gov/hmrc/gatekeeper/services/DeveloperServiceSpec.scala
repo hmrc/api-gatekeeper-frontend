@@ -34,15 +34,15 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
-class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationResponseBuilder {
+class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationBuilder {
 
   def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
     val email = s"$name@example.com".toLaxEmail
@@ -66,7 +66,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
   }
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationResponse = {
-    buildApplicationResponse(
+    buildApplication(
       ApplicationId.random,
       ClientId("clientId"),
       "gatewayId",

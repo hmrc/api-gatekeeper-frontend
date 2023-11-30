@@ -17,13 +17,13 @@
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.builder.{ApplicationBuilder, ApplicationResponseBuilder}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 class ApplicationPublicDescriptionSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsPublicDescription" when {
     "submittedBy" should {
       "is present" in {
-        val app = DefaultApplication.withCheckInformation(aCheckInformation2())
+        val app = DefaultApplication.withCheckInformation(aCheckInformation())
         ApplicationPublicDescription.apply(app) shouldBe Some("application details")
       }
       "is not present" in {

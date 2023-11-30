@@ -18,12 +18,13 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.LocalDateTime
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
@@ -85,7 +86,33 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     )
   )
 
-  def aCheckInformation2(): CheckInformation = {
+  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
+    ApplicationWithHistory(applicationResponse, stateHistories)
+  }
+
+  def anApplication(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
+    buildApplication(
+      ApplicationId.random,
+      ClientId("clientid"),
+      "gatewayId",
+      Some("appName"),
+      Environment.PRODUCTION,
+      None,
+      Set.empty,
+      createdOn,
+      Some(lastAccess),
+      termsAndConditionsUrl = Some("termsUrl"),
+      privacyPolicyUrl = Some("privacyPolicyUrl"),
+      access = Privileged(),
+      state = ApplicationState()
+    )
+  }
+
+  def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
+    anApplication().copy(checkInformation = Some(checkInformation))
+  }
+
+  def aCheckInformation(): CheckInformation = {
     CheckInformation(
       contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
       confirmedName = true,
@@ -94,6 +121,12 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       applicationDetails = Some("application details")
     )
   }
+
+  def aStateHistory(state: State, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
+    StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
+  }
+
+  def anActor() = Actors.Unknown
 
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
@@ -195,5 +228,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 
+    def toSeq = Seq(app)
   }
 }
