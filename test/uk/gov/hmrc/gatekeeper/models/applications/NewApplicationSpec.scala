@@ -40,13 +40,13 @@ class NewApplicationSpec extends HmrcSpec with ApplicationBuilder {
     ClientId.random,
     "gatewayId",
     Some("name"),
-    LocalDateTime.now(),
-    Some(LocalDateTime.now()),
     Environment.PRODUCTION,
+    createdOn = LocalDateTime.now(),
+    lastAccess = Some(LocalDateTime.now()),
+    grantLength = GrantLength.ONE_DAY.days,
     access = standardAccess,
     rateLimitTier = RateLimitTier.BRONZE,
-    blocked = false,
-    grantLength = GrantLength.ONE_DAY.days
+    blocked = false
   )
 
   "privacy policy location" should {

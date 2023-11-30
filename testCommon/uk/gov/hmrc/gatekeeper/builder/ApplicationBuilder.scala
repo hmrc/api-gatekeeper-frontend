@@ -38,18 +38,18 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       clientId: ClientId = ClientId.random,
       gatewayId: String = "",
       name: Option[String] = None,
-      createdOn: LocalDateTime = LocalDateTime.now(),
-      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
       deployedTo: Environment = Environment.SANDBOX,
       description: Option[String] = None,
       collaborators: Set[Collaborator] = Set.empty,
+      createdOn: LocalDateTime = LocalDateTime.now(),
+      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
+      grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       access: Access,
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
-      blocked: Boolean = false,
       checkInformation: Option[CheckInformation] = None,
+      blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
-      grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       moreApplication: MoreApplication = MoreApplication()
     ): NewApplication =
     NewApplication(

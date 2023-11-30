@@ -55,16 +55,16 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       clientId = clientId,
       gatewayId = "gateway",
       name = Some("AnApplicationName"),
-      createdOn = LocalDateTime.now(),
-      lastAccess = Some(LocalDateTime.now()),
       deployedTo = Environment.PRODUCTION,
       description = None,
       collaborators = Set.empty,
+      createdOn = LocalDateTime.now(),
+      lastAccess = Some(LocalDateTime.now()),
       access = Standard(),
       state = ApplicationState(),
       rateLimitTier = RateLimitTier.BRONZE,
-      blocked = false,
       checkInformation = None,
+      blocked = false,
       ipAllowlist = IpAllowlist()
     )
 
