@@ -35,7 +35,7 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       name: Option[String] = None,
       deployedTo: Environment = Environment.SANDBOX,
       description: Option[String] = None,
-      collaborators: Set[Collaborator],
+      collaborators: Set[Collaborator] = Set.empty,
       createdOn: LocalDateTime = LocalDateTime.now(),
       lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
