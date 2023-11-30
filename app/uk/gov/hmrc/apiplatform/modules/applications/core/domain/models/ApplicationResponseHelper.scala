@@ -14,15 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.models
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-object ApplicationHelper {
+object ApplicationResponseHelper {
 
   implicit class CollaboratorSyntax(application: ApplicationResponse) {
 

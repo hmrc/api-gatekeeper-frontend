@@ -19,12 +19,12 @@ package uk.gov.hmrc.gatekeeper.models.applications
 import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 
 class NewApplicationSpec extends HmrcSpec with ApplicationBuilder {
   val url            = "http://example.com"

@@ -24,14 +24,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
-import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
+import uk.gov.hmrc.gatekeeper.models._
 
 class DeveloperService @Inject() (
     appConfig: AppConfig,

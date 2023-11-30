@@ -28,11 +28,12 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -41,7 +42,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
@@ -49,7 +49,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper.{ColumnDefinition, _}
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
