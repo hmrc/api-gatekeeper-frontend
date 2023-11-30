@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.models.applications
 import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -43,10 +44,16 @@ class NewApplicationSpec extends HmrcSpec {
     Some(LocalDateTime.now()),
     None,
     Environment.PRODUCTION,
+    description = None,
+    collaborators = Set.empty,
     access = standardAccess,
+    state = ApplicationState(),
     rateLimitTier = RateLimitTier.BRONZE,
     blocked = false,
-    grantLength = GrantLength.ONE_DAY.days
+    checkInformation = None,
+    ipAllowlist = IpAllowlist(),
+    grantLength = GrantLength.ONE_DAY.days,
+    moreApplication = MoreApplication()
   )
 
   "privacy policy location" should {

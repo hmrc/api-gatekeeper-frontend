@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, MoreApplication, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
@@ -63,7 +63,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       ),
       checkInformation = checkInformation,
       ipAllowlist = ipAllowlist,
-      grantLength = grantLength
+      grantLength = grantLength,
+      moreApplication = MoreApplication()
     )
   }
 

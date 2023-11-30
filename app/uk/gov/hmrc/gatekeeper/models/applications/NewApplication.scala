@@ -35,18 +35,18 @@ case class NewApplication(
     name: String,
     createdOn: LocalDateTime,
     lastAccess: Option[LocalDateTime],
-    lastAccessTokenUsage: Option[LocalDateTime] = None,
+    lastAccessTokenUsage: Option[LocalDateTime],
     deployedTo: Environment,
-    description: Option[String] = None,
-    collaborators: Set[Collaborator] = Set.empty,
-    access: Access = Standard(),
-    state: ApplicationState = ApplicationState(),
+    description: Option[String],
+    collaborators: Set[Collaborator],
+    access: Access,
+    state: ApplicationState,
     rateLimitTier: RateLimitTier,
     blocked: Boolean,
-    checkInformation: Option[CheckInformation] = None,
-    ipAllowlist: IpAllowlist = IpAllowlist(),
+    checkInformation: Option[CheckInformation],
+    ipAllowlist: IpAllowlist,
     grantLength: Int,
-    moreApplication: MoreApplication = MoreApplication()
+    moreApplication: MoreApplication
   ) {
 
   lazy val privacyPolicyLocation = access match {
