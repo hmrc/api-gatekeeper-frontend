@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{I
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.gatekeeper.models.ApplicationHelper._
 
 class NewApplicationSpec extends HmrcSpec with ApplicationBuilder {
   val url            = "http://example.com"

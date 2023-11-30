@@ -16,72 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.models.applications
 
-import java.time.LocalDateTime
-
-import play.api.libs.json.{Format, OFormat}
-import uk.gov.hmrc.play.json.Union
-
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-
-case class NewApplication(
-    id: ApplicationId,
-    clientId: ClientId,
-    gatewayId: String,
-    name: String,
-    deployedTo: Environment,
-    description: Option[String],
-    collaborators: Set[Collaborator],
-    createdOn: LocalDateTime,
-    lastAccess: Option[LocalDateTime],
-    grantLength: Int,
-    termsAndConditionsUrl: Option[String],
-    privacyPolicyUrl: Option[String],
-    access: Access,
-    state: ApplicationState,
-    rateLimitTier: RateLimitTier,
-    checkInformation: Option[CheckInformation],
-    blocked: Boolean,
-    ipAllowlist: IpAllowlist,
-    moreApplication: MoreApplication
-  ) {
-
-  lazy val privacyPolicyLocation = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
-    case Standard(_, _, Some(url), _, _)                                                  => PrivacyPolicyLocation.Url(url)
-    case _                                                                                => PrivacyPolicyLocation.NoneProvided
-  }
-
-  lazy val termsAndConditionsLocation = access match {
-    case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _)), _) => termsAndConditionsLocation
-    case Standard(_, Some(url), _, _, _)                                                       => TermsAndConditionsLocation.Url(url)
-    case _                                                                                     => TermsAndConditionsLocation.NoneProvided
-  }
-}
+case class NewApplication(name: String)
 
 object NewApplication {
-  import play.api.libs.json.Json
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-
-  implicit val formatTotpIds: OFormat[TotpId] = Json.format[TotpId]
-
-  implicit private val formatStandard: OFormat[Standard]     = Json.format[Standard]
-  implicit private val formatPrivileged: OFormat[Privileged] = Json.format[Privileged]
-  implicit private val formatRopc: OFormat[Ropc]             = Json.format[Ropc]
-
-  implicit val formAccessType: OFormat[Access] = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[Ropc](AccessType.ROPC.toString)
-    .format
-
-  implicit val formatRole: Format[CollaboratorRole]              = Json.formatEnum(CollaboratorRole)
-  implicit val formatApplicationState: OFormat[ApplicationState] = Json.format[ApplicationState]
-  implicit val applicationFormat: OFormat[NewApplication]        = Json.format[NewApplication]
-
+  // TODO: Move to api-platform-application-domain?
   implicit val ordering: Ordering[NewApplication] = Ordering.by(_.name)
 }

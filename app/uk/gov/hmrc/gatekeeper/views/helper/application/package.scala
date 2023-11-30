@@ -20,14 +20,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, StateHistory}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, StateHistory}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ApplicationPublicDescription {
 
-  def apply(application: NewApplication): Option[String] = {
+  def apply(application: ApplicationResponse): Option[String] = {
     for {
       checkInformation <- application.checkInformation
       description      <- checkInformation.applicationDetails
@@ -39,12 +37,12 @@ object ApplicationFormatter {
   val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
-  def getCreatedOn(app: NewApplication): String = {
+  def getCreatedOn(app: ApplicationResponse): String = {
     dateFormatter.format(app.createdOn)
   }
 
   // Caution: defaulting now = LocalDateTime.now() will not use UTC
-  def getLastAccess(app: NewApplication)(now: LocalDateTime): String = {
+  def getLastAccess(app: ApplicationResponse)(now: LocalDateTime): String = {
     app.lastAccess match {
       case Some(lastAccess) =>
         if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {

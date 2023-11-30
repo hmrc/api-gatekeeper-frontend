@@ -16,8 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationHelper {
@@ -29,5 +31,20 @@ object ApplicationHelper {
 
     def isSoleAdmin(emailAddress: LaxEmailAddress): Boolean =
       application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
+  }
+
+  implicit class LocationsSyntax(application: ApplicationResponse) {
+
+    lazy val privacyPolicyLocation: PrivacyPolicyLocation = application.access match {
+      case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
+      case Standard(_, _, Some(url), _, _)                                                  => PrivacyPolicyLocation.Url(url)
+      case _                                                                                => PrivacyPolicyLocation.NoneProvided
+    }
+
+    lazy val termsAndConditionsLocation: TermsAndConditionsLocation = application.access match {
+      case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _)), _) => termsAndConditionsLocation
+      case Standard(_, Some(url), _, _, _)                                                       => TermsAndConditionsLocation.Url(url)
+      case _                                                                                     => TermsAndConditionsLocation.NoneProvided
+    }
   }
 }

@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator,
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
@@ -53,8 +53,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
       moreApplication: MoreApplication = MoreApplication()
-    ): NewApplication =
-    NewApplication(
+    ): ApplicationResponse =
+    ApplicationResponse(
       id,
       clientId,
       gatewayId,
@@ -85,6 +85,16 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     )
   )
 
+  def aCheckInformation2(): CheckInformation = {
+    CheckInformation(
+      contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
+      confirmedName = true,
+      providedPrivacyPolicyURL = true,
+      providedTermsAndConditionsURL = true,
+      applicationDetails = Some("application details")
+    )
+  }
+
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
       ApiIdentifier(apiContext, apiVersion)
@@ -107,7 +117,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   }
 
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
-    def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
+    def withApplication(application: ApplicationResponse) = applicationViewModel.copy(application = application)
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
 
@@ -135,7 +145,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
   }
 
-  implicit class ApplicationExtension(app: NewApplication) {
+  implicit class ApplicationExtension(app: ApplicationResponse) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 

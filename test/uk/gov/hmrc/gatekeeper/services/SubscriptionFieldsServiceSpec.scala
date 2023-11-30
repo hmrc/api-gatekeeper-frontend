@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
@@ -45,7 +44,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
   "When application is deployedTo production then principal connector is called" should {
     val application    = mock[ApplicationResponse]
-    val newApplication = mock[NewApplication]
+    val newApplication = mock[ApplicationResponse]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
     when(application.deployedTo).thenReturn(Environment.PRODUCTION)
@@ -70,7 +69,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
   "When application is deployed to sandbox then subordinate connector is called" should {
     val application    = mock[ApplicationResponse]
-    val newApplication = mock[NewApplication]
+    val newApplication = mock[ApplicationResponse]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
     when(application.deployedTo).thenReturn(Environment.SANDBOX)

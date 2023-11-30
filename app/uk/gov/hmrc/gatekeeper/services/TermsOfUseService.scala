@@ -21,9 +21,8 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
-import uk.gov.hmrc.gatekeeper.models.applications._
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 object TermsOfUseService {
@@ -39,7 +38,7 @@ class TermsOfUseService {
     checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress, formatDateTime(toua.timeStamp), toua.version))
   }
 
-  private def getAgreementFromCheckInformation(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromCheckInformation(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.checkInformation match {
       case Some(chkInfo) => getAgreementDetailsFromCheckInformation(chkInfo).lastOption
       case _             => None
@@ -55,13 +54,13 @@ class TermsOfUseService {
     )
   }
 
-  private def getAgreementFromStandardApp(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromStandardApp(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.access match {
       case std: Standard => getAgreementDetailsFromStandardApp(std).lastOption
       case _             => None
     }
   }
 
-  def getAgreementDetails(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] =
+  def getAgreementDetails(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] =
     getAgreementFromStandardApp(application).fold(getAgreementFromCheckInformation(application))(Some(_))
 }
