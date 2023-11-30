@@ -36,12 +36,12 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val responsibleIndividual      = ResponsibleIndividual(ResponsibleIndividual.Name(name), ResponsibleIndividual.EmailAddress(email2))
   val version1_2                 = "1.2"
   val version2                   = "2"
-  val appWithNoAgreements        = buildApplication()
+  val appWithNoAgreements        = DefaultApplication
   val checkInfoAgreement         = TermsOfUseAgreement(email1_2, dateTime, version1_2)
   val checkInformation           = CheckInformation(termsOfUseAgreements = List(checkInfoAgreement))
   val stdAppAgreement            = TermsOfUseAcceptance(responsibleIndividual, timestamp)
   val importantSubmissionData    = ImportantSubmissionData(TermsAndConditionsLocation.InDesktopSoftware, PrivacyPolicyLocation.InDesktopSoftware, List(stdAppAgreement))
-  val appWithCheckInfoAgreements = buildApplication(checkInformation = Some(checkInformation))
+  val appWithCheckInfoAgreements = DefaultApplication.copy(checkInformation = Some(checkInformation))
   val appWithStdAppAgreements    = appWithNoAgreements.copy(access = Standard(importantSubmissionData = Some(importantSubmissionData)))
   val nonStdApp                  = appWithNoAgreements.copy(access = Privileged())
   val underTest                  = new TermsOfUseService()

@@ -48,14 +48,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       new RegisteredUser(LaxEmailAddress("joe.bloggs@example.co.uk"), UserId.random, "joe", "bloggs", false)
     }
 
-    val clientId    = ClientId("clientid")
-    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
+    val clientId = ClientId("clientid")
 
-    val application = NewApplication(
+    val application = buildApplication(
       id = ApplicationId.random,
       clientId = clientId,
       gatewayId = "gateway",
-      name = "AnApplicationName",
+      name = Some("AnApplicationName"),
       createdOn = LocalDateTime.now(),
       lastAccess = Some(LocalDateTime.now()),
       lastAccessTokenUsage = None,
@@ -67,9 +66,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       rateLimitTier = RateLimitTier.BRONZE,
       blocked = false,
       checkInformation = None,
-      ipAllowlist = IpAllowlist(),
-      grantLength,
-      moreApplication = MoreApplication()
+      ipAllowlist = IpAllowlist()
     )
 
     val DefaultApplicationViewModel = ApplicationViewModel(

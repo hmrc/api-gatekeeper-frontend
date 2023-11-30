@@ -53,7 +53,7 @@ class ApmConnectorSpec
 
     val applicationId = ApplicationId.random
 
-    val application = buildApplication(applicationId)
+    val application = DefaultApplication.copy(id = applicationId)
 
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 

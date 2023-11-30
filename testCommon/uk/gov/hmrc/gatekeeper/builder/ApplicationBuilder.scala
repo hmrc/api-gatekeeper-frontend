@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, CollaboratorRole, IpAllowlist, MoreApplication, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
@@ -32,43 +32,56 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
+  // scalastyle:off parameter.number
   def buildApplication(
-      appId: ApplicationId = ApplicationId.random,
+      id: ApplicationId = ApplicationId.random,
+      clientId: ClientId = ClientId.random,
+      gatewayId: String = "",
+      name: Option[String] = None,
       createdOn: LocalDateTime = LocalDateTime.now(),
-      lastAccess: LocalDateTime = LocalDateTime.now(),
-      checkInformation: Option[CheckInformation] = None
-    ): NewApplication = {
-    val clientId      = ClientId.random
-    val appOwnerEmail = "a@b.com"
-    val grantLength   = GrantLength.EIGHTEEN_MONTHS.days
-    val ipAllowlist   = IpAllowlist()
-
+      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
+      lastAccessTokenUsage: Option[LocalDateTime] = None,
+      deployedTo: Environment = Environment.SANDBOX,
+      description: Option[String] = None,
+      collaborators: Set[Collaborator] = Set.empty,
+      access: Access,
+      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
+      blocked: Boolean = false,
+      checkInformation: Option[CheckInformation] = None,
+      ipAllowlist: IpAllowlist = IpAllowlist(),
+      grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
+      moreApplication: MoreApplication = MoreApplication()
+    ): NewApplication =
     NewApplication(
-      id = appId,
-      clientId = clientId,
-      gatewayId = "",
-      name = s"${appId.value.toString()}-name",
-      createdOn = createdOn,
-      lastAccess = Some(lastAccess),
-      lastAccessTokenUsage = None,
-      deployedTo = Environment.SANDBOX,
-      description = Some(s"${appId.value.toString()}-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
-      state = ApplicationState(State.PRODUCTION),
-      rateLimitTier = RateLimitTier.BRONZE,
-      blocked = false,
-      access = Standard(
-        redirectUris = List("https://red1", "https://red2"),
-        termsAndConditionsUrl = Some("http://tnc-url.com")
-      ),
-      checkInformation = checkInformation,
-      ipAllowlist = ipAllowlist,
-      grantLength = grantLength,
-      moreApplication = MoreApplication()
+      id,
+      clientId,
+      gatewayId,
+      name.getOrElse(s"${id.value}-name"),
+      createdOn,
+      lastAccess,
+      lastAccessTokenUsage,
+      deployedTo,
+      Some(description.getOrElse(s"${id.value}-description")),
+      collaborators,
+      access,
+      state,
+      rateLimitTier,
+      blocked,
+      checkInformation,
+      ipAllowlist,
+      grantLength,
+      moreApplication
     )
-  }
+  // scalastyle:on parameter.number
 
-  val DefaultApplication = buildApplication()
+  val DefaultApplication = buildApplication(
+    collaborators = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
+    access = Standard(
+      redirectUris = List("https://red1", "https://red2"),
+      termsAndConditionsUrl = Some("http://tnc-url.com")
+    )
+  )
 
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
@@ -85,7 +98,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     ): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
-      buildApplication(ApplicationId.random),
+      DefaultApplication,
       buildSubscriptions(apiContext, apiVersion),
       buildSubscriptionFieldValues(apiContext, apiVersion, fields)
     )

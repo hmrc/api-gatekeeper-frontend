@@ -23,11 +23,11 @@ class ApplicationPublicDescriptionSpec extends AsyncHmrcSpec with ApplicationBui
   "ApplicationsPublicDescription" when {
     "submittedBy" should {
       "is present" in {
-        val app = buildApplication().withCheckInformation(aCheckInformation())
+        val app = DefaultApplication.withCheckInformation(aCheckInformation())
         ApplicationPublicDescription.apply(app) shouldBe Some("application details")
       }
       "is not present" in {
-        val app = buildApplication()
+        val app = DefaultApplication
         ApplicationPublicDescription.apply(app) shouldBe None
       }
     }

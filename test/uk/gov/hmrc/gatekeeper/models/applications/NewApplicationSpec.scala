@@ -19,13 +19,13 @@ package uk.gov.hmrc.gatekeeper.models.applications
 import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-class NewApplicationSpec extends HmrcSpec {
+class NewApplicationSpec extends HmrcSpec with ApplicationBuilder {
   val url            = "http://example.com"
   val standardAccess = Standard()
 
@@ -35,25 +35,19 @@ class NewApplicationSpec extends HmrcSpec {
     List.empty
   )
 
-  val baseApplication = NewApplication(
+  val baseApplication = buildApplication(
     ApplicationId.random,
     ClientId.random,
     "gatewayId",
-    "name",
+    Some("name"),
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
     None,
     Environment.PRODUCTION,
-    description = None,
-    collaborators = Set.empty,
     access = standardAccess,
-    state = ApplicationState(),
     rateLimitTier = RateLimitTier.BRONZE,
     blocked = false,
-    checkInformation = None,
-    ipAllowlist = IpAllowlist(),
-    grantLength = GrantLength.ONE_DAY.days,
-    moreApplication = MoreApplication()
+    grantLength = GrantLength.ONE_DAY.days
   )
 
   "privacy policy location" should {

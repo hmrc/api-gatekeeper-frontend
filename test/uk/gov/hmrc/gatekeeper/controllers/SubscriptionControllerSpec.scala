@@ -163,7 +163,7 @@ class SubscriptionControllerSpec
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val newApplication                  = buildApplication()
+          val newApplication                  = DefaultApplication
           val applicationWithSubscriptionData = ApplicationWithSubscriptionData(newApplication, Set.empty, Map.empty)
           val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
           val possibleSubs                    = List(apiDefinition)

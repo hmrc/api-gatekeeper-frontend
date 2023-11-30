@@ -1598,7 +1598,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     "applicationPage" should {
       "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = buildApplication()
+        val application2                    = DefaultApplication
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
@@ -1630,7 +1630,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = buildApplication().copy(state = ApplicationState(State.DELETED))
+        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
