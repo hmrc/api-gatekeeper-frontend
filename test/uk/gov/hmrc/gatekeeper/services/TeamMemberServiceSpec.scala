@@ -73,8 +73,8 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Standard(),
-      ApplicationState()
+      access = Standard(),
+      state = ApplicationState()
     )
 
     val gatekeeperUserId = "loggedin.gatekeeper"

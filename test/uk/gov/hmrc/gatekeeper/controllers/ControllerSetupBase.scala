@@ -63,8 +63,8 @@ trait ControllerSetupBase
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
-    Standard(),
-    ApplicationState()
+    access = Standard(),
+    state = ApplicationState()
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

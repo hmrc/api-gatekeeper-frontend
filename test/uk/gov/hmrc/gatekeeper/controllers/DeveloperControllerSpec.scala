@@ -62,8 +62,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState()
+        access = Standard(),
+        state = ApplicationState()
       )
     }
 

@@ -38,12 +38,12 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       collaborators: Set[Collaborator],
       createdOn: LocalDateTime = LocalDateTime.now(),
       lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
-      access: Access,
-      state: ApplicationState = ApplicationState(State.PRODUCTION),
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
-      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
+      access: Access,
+      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
@@ -74,12 +74,12 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
 
   val DefaultApplicationResponse = buildApplicationResponse(
     collaborators = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
+    termsAndConditionsUrl = Some("http://tnc-url.com"),
+    privacyPolicyUrl = Some("http://privacy-policy-url.com"),
     access = Standard(
       redirectUris = List("https://red1", "https://red2"),
       termsAndConditionsUrl = Some("http://tnc-url.com")
-    ),
-    termsAndConditionsUrl = Some("http://tnc-url.com"),
-    privacyPolicyUrl = Some("http://privacy-policy-url.com")
+    )
   )
 
   def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplicationResponse(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
@@ -97,10 +97,10 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       Set.empty,
       createdOn,
       Some(lastAccess),
-      Privileged(),
-      ApplicationState(),
       termsAndConditionsUrl = Some("termsUrl"),
-      privacyPolicyUrl = Some("privacyPolicyUrl")
+      privacyPolicyUrl = Some("privacyPolicyUrl"),
+      access = Privileged(),
+      state = ApplicationState()
     )
   }
 

@@ -55,8 +55,8 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState()
+        access = Standard(),
+        state = ApplicationState()
       )
   }
 

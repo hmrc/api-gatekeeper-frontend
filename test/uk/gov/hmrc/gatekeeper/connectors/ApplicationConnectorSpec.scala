@@ -215,8 +215,8 @@ class ApplicationConnectorSpec
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState()
+        access = Standard(),
+        state = ApplicationState()
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -327,8 +327,8 @@ class ApplicationConnectorSpec
       collaborators,
       LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
-      Standard(),
-      applicationState
+      access = Standard(),
+      state = applicationState
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString

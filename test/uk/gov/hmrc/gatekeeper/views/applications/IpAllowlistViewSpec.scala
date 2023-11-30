@@ -55,8 +55,8 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
+        access = Standard(),
+        state = ApplicationState(),
         ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
       )
   }

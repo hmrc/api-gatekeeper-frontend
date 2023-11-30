@@ -60,8 +60,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState()
+        access = Standard(),
+        state = ApplicationState()
       )
 
     val applicationWithHistory = ApplicationWithHistory(application, List.empty)
