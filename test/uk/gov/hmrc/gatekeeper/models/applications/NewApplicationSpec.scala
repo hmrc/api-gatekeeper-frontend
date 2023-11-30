@@ -42,7 +42,6 @@ class NewApplicationSpec extends HmrcSpec with ApplicationBuilder {
     Some("name"),
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
-    None,
     Environment.PRODUCTION,
     access = standardAccess,
     rateLimitTier = RateLimitTier.BRONZE,

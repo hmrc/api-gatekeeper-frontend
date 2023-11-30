@@ -57,7 +57,6 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       name = Some("AnApplicationName"),
       createdOn = LocalDateTime.now(),
       lastAccess = Some(LocalDateTime.now()),
-      lastAccessTokenUsage = None,
       deployedTo = Environment.PRODUCTION,
       description = None,
       collaborators = Set.empty,
