@@ -95,11 +95,8 @@ trait ApplicationResponseBuilder extends CollaboratorsBuilder {
       Some(lastAccess),
       Privileged(),
       ApplicationState(),
-      GrantLength.EIGHTEEN_MONTHS.days,
-      RateLimitTier.BRONZE,
-      Some("termsUrl"),
-      Some("privacyPolicyUrl"),
-      None
+      termsAndConditionsUrl = Some("termsUrl"),
+      privacyPolicyUrl = Some("privacyPolicyUrl")
     )
   }
 

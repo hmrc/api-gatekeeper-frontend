@@ -40,7 +40,6 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationResponseBuilder {
     val request                                      = FakeRequest()
     val autoDeleteSuccessView: AutoDeleteSuccessView = app.injector.instanceOf[AutoDeleteSuccessView]
-    val grantLength                                  = GrantLength.EIGHTEEN_MONTHS.days
 
     val application: ApplicationResponse =
       buildApplicationResponse(
@@ -58,14 +57,8 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       )
   }
 

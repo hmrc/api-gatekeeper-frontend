@@ -20,8 +20,8 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -53,7 +53,6 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
     val developer                                   = Collaborators.Developer(UserId.random, emailAddress)
     val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
     val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    val grantLength                                 = GrantLength.EIGHTEEN_MONTHS.days
     def application(teamMembers: Set[Collaborator]) =
       buildApplicationResponse(
         ApplicationId.random,
@@ -67,14 +66,8 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       )
 
     "return true when the given email address is the only admin and no other team members" in {

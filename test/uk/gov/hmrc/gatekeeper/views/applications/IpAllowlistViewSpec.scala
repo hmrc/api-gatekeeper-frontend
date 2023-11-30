@@ -40,7 +40,6 @@ class IpAllowlistViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationResponseBuilder {
     val request                          = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
-    val grantLength                      = GrantLength.EIGHTEEN_MONTHS.days
 
     val application: ApplicationResponse =
       buildApplicationResponse(
@@ -58,14 +57,9 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
         privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(allowlist = Set("1.1.1.1/24")),
-        MoreApplication()
+        ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
       )
   }
 

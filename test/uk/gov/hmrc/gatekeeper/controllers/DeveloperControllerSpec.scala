@@ -24,8 +24,8 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -52,7 +52,6 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
   Helpers.running(app) {
 
     def anApplication(collaborators: Set[Collaborator]) = {
-      val grantLength = GrantLength.EIGHTEEN_MONTHS.days
       buildApplicationResponse(
         ApplicationId.random,
         ClientId.random,
@@ -65,14 +64,8 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       )
     }
 

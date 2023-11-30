@@ -30,8 +30,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
@@ -66,7 +66,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
   }
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationResponse = {
-    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
     buildApplicationResponse(
       ApplicationId.random,
       ClientId("clientId"),
@@ -79,14 +78,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
   }
 

@@ -42,7 +42,6 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationResponseBuilder {
     val request                                                  = FakeRequest().withCSRFToken
     val manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView = app.injector.instanceOf[ManageAutoDeleteEnabledView]
-    val grantLength                                              = GrantLength.EIGHTEEN_MONTHS.days
 
     val application: ApplicationResponse =
       buildApplicationResponse(
@@ -60,14 +59,8 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       )
   }
 

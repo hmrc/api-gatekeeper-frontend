@@ -35,7 +35,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, IpAllowlist, MoreApplication, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, MoreApplication, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
@@ -303,14 +303,9 @@ class ApplicationControllerSpec
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           Standard(),
           ApplicationState(),
-          grantLength,
-          RateLimitTier.BRONZE,
           termsAndConditionsUrl = None,
           privacyPolicyUrl = None,
-          checkInformation = None,
-          blocked = false,
-          IpAllowlist(),
-          MoreApplication(false)
+          moreApplication = MoreApplication(allowAutoDelete = false)
         )
 
         ApplicationServiceMock.SearchApplications.returns(applicationResponse)
@@ -1278,14 +1273,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
-            grantLength,
-            RateLimitTier.BRONZE,
             termsAndConditionsUrl = None,
-            privacyPolicyUrl = None,
-            checkInformation = None,
-            blocked = false,
-            IpAllowlist(),
-            MoreApplication()
+            privacyPolicyUrl = None
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1323,14 +1312,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
-            grantLength,
-            RateLimitTier.BRONZE,
             termsAndConditionsUrl = None,
-            privacyPolicyUrl = None,
-            checkInformation = None,
-            blocked = false,
-            IpAllowlist(),
-            MoreApplication()
+            privacyPolicyUrl = None
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1368,14 +1351,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
-            grantLength,
-            RateLimitTier.BRONZE,
             termsAndConditionsUrl = None,
-            privacyPolicyUrl = None,
-            checkInformation = None,
-            blocked = false,
-            IpAllowlist(),
-            MoreApplication()
+            privacyPolicyUrl = None
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1412,14 +1389,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Some(LocalDateTime.now()),
             Standard(),
             ApplicationState(),
-            grantLength,
-            RateLimitTier.BRONZE,
             termsAndConditionsUrl = None,
-            privacyPolicyUrl = None,
-            checkInformation = None,
-            blocked = false,
-            IpAllowlist(),
-            MoreApplication()
+            privacyPolicyUrl = None
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)

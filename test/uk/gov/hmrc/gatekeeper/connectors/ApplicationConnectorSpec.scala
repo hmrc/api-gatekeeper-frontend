@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, PersistLogin, Standard, SuppressIvForAgents}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -205,13 +205,11 @@ class ApplicationConnectorSpec
     )
 
     "retrieve all applications" in new Setup {
-      val grantLength = GrantLength.EIGHTEEN_MONTHS.days
-
-      val applications = List(ApplicationResponse(
+      val applications = List(buildApplicationResponse(
         applicationId,
         ClientId("clientid1"),
         "gatewayId1",
-        "application1",
+        Some("application1"),
         Environment.PRODUCTION,
         None,
         collaborators,
@@ -219,14 +217,8 @@ class ApplicationConnectorSpec
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -339,14 +331,8 @@ class ApplicationConnectorSpec
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
       Standard(),
       applicationState,
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString

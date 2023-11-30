@@ -70,8 +70,6 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
-
     val applications    = List[ApplicationResponse](
       buildApplicationResponse(
         ApplicationId.random,
@@ -85,14 +83,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       ),
       buildApplicationResponse(
         ApplicationId.random,
@@ -106,14 +98,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       ),
       buildApplicationResponse(
         ApplicationId.random,
@@ -127,14 +113,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       ),
       buildApplicationResponse(
         ApplicationId.random,
@@ -148,14 +128,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Some(LocalDateTime.now()),
         Standard(),
         ApplicationState(),
-        grantLength,
-        RateLimitTier.BRONZE,
         termsAndConditionsUrl = None,
-        privacyPolicyUrl = None,
-        checkInformation = None,
-        blocked = false,
-        IpAllowlist(),
-        MoreApplication()
+        privacyPolicyUrl = None
       )
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"

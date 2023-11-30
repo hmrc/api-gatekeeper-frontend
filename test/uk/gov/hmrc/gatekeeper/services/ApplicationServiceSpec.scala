@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{CidrBlock, Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -74,8 +74,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
-
     val stdApp1 = buildApplicationResponse(
       ApplicationId.random,
       ClientId("clientid1"),
@@ -88,14 +86,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
 
     val stdApp2 = buildApplicationResponse(
@@ -110,14 +102,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Some(LocalDateTime.now()),
       Standard(),
       ApplicationState(),
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
 
     val privilegedApp = buildApplicationResponse(
@@ -132,14 +118,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Some(LocalDateTime.now()),
       Privileged(),
       ApplicationState(),
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
 
     val ropcApp                = buildApplicationResponse(
@@ -154,14 +134,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Some(LocalDateTime.now()),
       Ropc(),
       ApplicationState(),
-      grantLength,
-      RateLimitTier.BRONZE,
       termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      checkInformation = None,
-      blocked = false,
-      IpAllowlist(),
-      MoreApplication()
+      privacyPolicyUrl = None
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
