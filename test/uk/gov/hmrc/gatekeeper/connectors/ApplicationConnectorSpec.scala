@@ -27,7 +27,8 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, PersistLogin, Standard, SuppressIvForAgents}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}

@@ -27,6 +27,7 @@ import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -107,8 +108,11 @@ object Forms {
 
       def overrideWithScopes(overrides: Set[OverrideFlag], overrideType: OverrideType) = {
         overrides.find(_.overrideType == overrideType) match {
-          case Some(o: OverrideFlagWithScopes) => (true, Some(o.scopes.mkString(", ")))
-          case _                               => (false, None)
+          case Some(o: SuppressIvForAgents)        => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: SuppressIvForOrganisations) => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: SuppressIvForIndividuals)   => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: GrantWithoutConsent)        => (true, Some(o.scopes.mkString(", ")))
+          case _                                   => (false, None)
         }
       }
 

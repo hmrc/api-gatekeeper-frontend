@@ -16,54 +16,38 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-import play.api.libs.json.{JsSuccess, Json, OFormat, OWrites, Reads}
-import uk.gov.hmrc.play.json.Union
-
 sealed trait OverrideFlag {
-  val overrideType: OverrideType
+  lazy val overrideType: OverrideType = OverrideFlag.asOverrideType(this)
 }
 
 object OverrideFlag {
-  implicit private val formatGrantWithoutConsent: OFormat[GrantWithoutConsent] = Json.format[GrantWithoutConsent]
+  case object PersistLogin                                   extends OverrideFlag
+  case class SuppressIvForAgents(scopes: Set[String])        extends OverrideFlag
+  case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlag
+  case class GrantWithoutConsent(scopes: Set[String])        extends OverrideFlag
+  case class SuppressIvForIndividuals(scopes: Set[String])   extends OverrideFlag
 
-  implicit private val formatPersistLogin: OFormat[PersistLogin.type] = OFormat[PersistLogin.type](
-    Reads { _ => JsSuccess(PersistLogin) },
-    OWrites[PersistLogin.type] { _ => Json.obj() }
-  )
+  def asOverrideType(overrideFlag: OverrideFlag) = overrideFlag match {
+    case SuppressIvForAgents(_)        => OverrideType.SUPPRESS_IV_FOR_AGENTS
+    case SuppressIvForOrganisations(_) => OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
+    case SuppressIvForIndividuals(_)   => OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
+    case GrantWithoutConsent(_)        => OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
+    case _: PersistLogin.type          => OverrideType.PERSIST_LOGIN_AFTER_GRANT
+  }
 
-  implicit private val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
-  implicit private val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
-  implicit private val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
+  import play.api.libs.json._
+  import uk.gov.hmrc.play.json.Union
+  private implicit val formatPersistLogin: OFormat[PersistLogin.type]                        = Json.format[PersistLogin.type]
+  private implicit val formatSuppressIvForAgents: OFormat[SuppressIvForAgents]               = Json.format[SuppressIvForAgents]
+  private implicit val formatSuppressIvForOrganisations: OFormat[SuppressIvForOrganisations] = Json.format[SuppressIvForOrganisations]
+  private implicit val formatGrantWithoutConsent: OFormat[GrantWithoutConsent]               = Json.format[GrantWithoutConsent]
+  private implicit val formatSuppressIvForIndividuals: OFormat[SuppressIvForIndividuals]     = Json.format[SuppressIvForIndividuals]
 
-  implicit val formatOverride = Union.from[OverrideFlag]("overrideType")
+  implicit val formatOverride: OFormat[OverrideFlag] = Union.from[OverrideFlag]("overrideType")
     .and[GrantWithoutConsent](OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT.toString)
     .and[PersistLogin.type](OverrideType.PERSIST_LOGIN_AFTER_GRANT.toString)
     .and[SuppressIvForAgents](OverrideType.SUPPRESS_IV_FOR_AGENTS.toString)
     .and[SuppressIvForOrganisations](OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS.toString)
     .and[SuppressIvForIndividuals](OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS.toString)
     .format
-}
-
-sealed trait OverrideFlagWithScopes extends OverrideFlag {
-  val scopes: Set[String]
-}
-
-case object PersistLogin extends OverrideFlag {
-  val overrideType = OverrideType.PERSIST_LOGIN_AFTER_GRANT
-}
-
-case class SuppressIvForAgents(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_AGENTS
-}
-
-case class SuppressIvForOrganisations(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS
-}
-
-case class SuppressIvForIndividuals(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS
-}
-
-case class GrantWithoutConsent(scopes: Set[String]) extends OverrideFlagWithScopes {
-  val overrideType = OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT
 }

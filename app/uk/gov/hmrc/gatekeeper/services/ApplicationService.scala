@@ -23,7 +23,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessWithRestrictedScopes, OverrideFlag, OverrideFlagWithScopes, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessWithRestrictedScopes, OverrideFlag, Standard}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{CidrBlock, Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
@@ -148,8 +149,11 @@ class ApplicationService @Inject() (
       }
 
       def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
-        case overrideFlagWithScopes: OverrideFlagWithScopes => containsInvalidScopes(validScopes, overrideFlagWithScopes.scopes)
-        case _                                              => false
+        case SuppressIvForAgents(scopes)        => containsInvalidScopes(validScopes, scopes)
+        case SuppressIvForOrganisations(scopes) => containsInvalidScopes(validScopes, scopes)
+        case SuppressIvForIndividuals(scopes)   => containsInvalidScopes(validScopes, scopes)
+        case GrantWithoutConsent(scopes)        => containsInvalidScopes(validScopes, scopes)
+        case _                                  => false
       }
 
       Future.successful(overrides.filter(doesOverrideTypeContainInvalidScopes))
