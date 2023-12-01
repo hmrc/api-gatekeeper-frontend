@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.testdata
 import java.time.{LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait CheckInformationTestData {
 
@@ -37,7 +38,7 @@ trait CheckInformationTestData {
       applicationDetails = Some(""),
       termsOfUseAgreements = List(
         TermsOfUseAgreement(
-          emailAddress = "test@example.com",
+          emailAddress = LaxEmailAddress("test@example.com"),
           timeStamp = LocalDateTime.ofEpochSecond(1459868573962L, 0, ZoneOffset.UTC),
           version = "1.0"
         )

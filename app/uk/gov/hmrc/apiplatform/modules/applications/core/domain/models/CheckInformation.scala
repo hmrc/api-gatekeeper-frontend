@@ -41,6 +41,5 @@ case class CheckInformation(
 
 object CheckInformation {
 
-  implicit val formatTermsOfUseAgreement = Json.format[TermsOfUseAgreement]
   implicit val formatApprovalInformation = Json.format[CheckInformation]
 }

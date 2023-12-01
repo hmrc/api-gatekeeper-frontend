@@ -35,7 +35,7 @@ class TermsOfUseService {
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
 
   private def getAgreementDetailsFromCheckInformation(checkInformation: CheckInformation): List[TermsOfUseAgreementDisplayDetails] = {
-    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress, formatDateTime(toua.timeStamp), toua.version))
+    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatDateTime(toua.timeStamp), toua.version))
   }
 
   private def getAgreementFromCheckInformation(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {

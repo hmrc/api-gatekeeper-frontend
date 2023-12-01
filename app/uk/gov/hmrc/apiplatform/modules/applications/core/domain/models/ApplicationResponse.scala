@@ -93,5 +93,4 @@ object ApplicationResponse {
   implicit val formatApplicationResponse = {
     Format(applicationResponseReads, Json.writes[ApplicationResponse])
   }
-  implicit val format6                   = Json.format[TermsOfUseAgreement]
 }
