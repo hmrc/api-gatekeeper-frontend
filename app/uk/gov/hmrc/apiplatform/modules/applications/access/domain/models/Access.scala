@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.ImportantSubmissionData
 
 sealed trait Access {
-  val accessType: AccessType.Value
+  val accessType: AccessType
 }
 
 sealed trait AccessWithRestrictedScopes extends Access {

@@ -16,18 +16,23 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-// TODO - Remove Enumeration
-object AccessType extends Enumeration {
-  type AccessType = Value
-  val STANDARD, PRIVILEGED, ROPC = Value
+sealed trait AccessType {
+  lazy val displayText: String = this.toString().toLowerCase().capitalize
+}
 
-  val displayedType: AccessType => String = {
-    case STANDARD   => "Standard"
-    case PRIVILEGED => "Privileged"
-    case ROPC       => "ROPC"
-  }
+object AccessType {
+  case object STANDARD   extends AccessType
+  case object PRIVILEGED extends AccessType
+  case object ROPC       extends AccessType
 
-  def from(accessType: String) = {
-    AccessType.values.find(e => e.toString == accessType.toUpperCase)
-  }
+  val values = List(STANDARD, PRIVILEGED, ROPC)
+
+  def apply(text: String): Option[AccessType] = AccessType.values.find(_.toString() == text.toUpperCase)
+
+  def unsafeApply(text: String): AccessType = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Access Type"))
+
+  import play.api.libs.json.Format
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+  implicit val format: Format[AccessType] = SealedTraitJsonFormatting.createFormatFor[AccessType]("Access Type", apply)
+
 }

@@ -16,7 +16,6 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -63,7 +62,7 @@
         Application type
       </dt>
       <dd class="govuk-summary-list__value">
-        @AccessType.displayedType(application.access.accessType)
+        @application.access.accessType.displayText
       </dd>
     </div>
     <div class="govuk-summary-list__row">

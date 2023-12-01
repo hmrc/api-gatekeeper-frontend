@@ -820,7 +820,7 @@ class ApplicationController @Inject() (
     }
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-      def createApp(user: User, accessType: AccessType.AccessType) = {
+      def createApp(user: User, accessType: AccessType) = {
         val collaborators = List(Collaborators.Administrator(user.userId, LaxEmailAddress(form.adminEmail)))
 
         applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
@@ -838,7 +838,7 @@ class ApplicationController @Inject() (
         )
           .mapN((n, u) => (n, u))
 
-      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] =
+      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType): Future[Result] =
         validateValues(apps, user)
           .fold[Future[Result]](
             errs => successful(viewWithFormErrors(errs)),
@@ -852,7 +852,7 @@ class ApplicationController @Inject() (
         BadRequest(createApplicationView(formWithErrors(errs)))
 
       val accessType =
-        form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
+        form.accessType.flatMap(AccessType.apply).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
       val fApps = applicationService.fetchApplications
       val fUser = developerService.seekUser(LaxEmailAddress(form.adminEmail))

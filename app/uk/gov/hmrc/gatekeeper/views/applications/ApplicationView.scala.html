@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideTypeHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CollaboratorRole, State}
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
@@ -392,7 +391,7 @@
         Access type
       </dt>
       <dd class="govuk-summary-list__value" data-access-type>
-        @AccessType.displayedType(access.accessType)
+        @access.accessType.displayText
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>

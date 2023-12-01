@@ -26,7 +26,6 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
@@ -283,7 +282,6 @@ case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, dep
 
 object CreatePrivOrROPCAppSuccessResult {
   implicit val rds1: Reads[TotpSecrets]                      = Json.reads[TotpSecrets]
-  implicit val rds2: Format[AccessType]                      = Json.formatEnum(AccessType)
   implicit val rds4: Reads[AppAccess]                        = Json.reads[AppAccess]
   implicit val rds5: Reads[CreatePrivOrROPCAppSuccessResult] = Json.reads[CreatePrivOrROPCAppSuccessResult]
 
@@ -385,14 +383,13 @@ case object FieldsDeleteFailureResult extends FieldsDeleteResult
 final case class CreatePrivOrROPCAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 
 object CreatePrivOrROPCAppRequest {
-  implicit val format1: Format[AccessType]                  = Json.formatEnum(AccessType)
   implicit val format2: Format[CollaboratorRole]            = Json.formatEnum(CollaboratorRole)
   implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
   implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
   implicit val format7: OFormat[CreatePrivOrROPCAppRequest] = Json.format[CreatePrivOrROPCAppRequest]
 }
 
-case class AppAccess(accessType: AccessType.AccessType, scopes: List[String])
+case class AppAccess(accessType: AccessType, scopes: List[String])
 
 final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
 

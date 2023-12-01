@@ -92,23 +92,23 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "AccessType" should {
 
     "contain all access types" in {
-      AccessType.values shouldBe Set(STANDARD, PRIVILEGED, ROPC)
+      AccessType.values shouldBe List(STANDARD, PRIVILEGED, ROPC)
     }
 
     "convert strings with any case to AccessType" in {
-      AccessType.from("standard") shouldBe Some(STANDARD)
-      AccessType.from("Standard") shouldBe Some(STANDARD)
+      AccessType.apply("standard") shouldBe Some(STANDARD)
+      AccessType.apply("Standard") shouldBe Some(STANDARD)
 
-      AccessType.from("privileged") shouldBe Some(PRIVILEGED)
-      AccessType.from("priVILeged") shouldBe Some(PRIVILEGED)
+      AccessType.apply("privileged") shouldBe Some(PRIVILEGED)
+      AccessType.apply("priVILeged") shouldBe Some(PRIVILEGED)
 
-      AccessType.from("ropc") shouldBe Some(ROPC)
-      AccessType.from("ROPC") shouldBe Some(ROPC)
+      AccessType.apply("ropc") shouldBe Some(ROPC)
+      AccessType.apply("ROPC") shouldBe Some(ROPC)
     }
 
     "convert unknown strings to None" in {
-      AccessType.from("anything") shouldBe None
-      AccessType.from("") shouldBe None
+      AccessType.apply("anything") shouldBe None
+      AccessType.apply("") shouldBe None
     }
   }
 
