@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
 case class ApplicationStateHistoryItem(state: State, timestamp: LocalDateTime)

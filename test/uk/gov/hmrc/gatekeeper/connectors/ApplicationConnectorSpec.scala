@@ -315,7 +315,13 @@ class ApplicationConnectorSpec
       administrator,
       developer
     )
-    val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS))
+    val stateHistory                     = StateHistory(
+      ApplicationId.random,
+      State.PENDING_GATEKEEPER_APPROVAL,
+      Actors.AppCollaborator(collaborators.head.emailAddress),
+      None,
+      LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS)
+    )
     val applicationState                 = ApplicationState(State.TESTING, None, None, LocalDateTime.now)
     val application                      = buildApplication(
       applicationId,
@@ -366,7 +372,7 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url          = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
-      val stateHistory = StateHistory(ApplicationId.random, State(2), Actors.Unknown, None, LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
+      val stateHistory = StateHistory(ApplicationId.random, State.PENDING_GATEKEEPER_APPROVAL, Actors.Unknown, None, LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
       val response     = Json.toJson(List(stateHistory)).toString
 
       stubFor(

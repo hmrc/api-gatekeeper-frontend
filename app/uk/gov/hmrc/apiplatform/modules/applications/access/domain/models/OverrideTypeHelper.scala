@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
 object OverrideTypeHelper {
 
-  implicit class DisplaySyntax(overrideType: OverrideType) {
+  implicit class OverrideTypeSyntax(overrideType: OverrideType) {
 
     // TODO: Move to api-platform-application-domain?
     val displayText: String = overrideType match {

@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
@@ -135,7 +136,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo.toString)),
-      ColumnDefinition("Status", (app => State.displayedState(app.state.name))),
+      ColumnDefinition("Status", (app => app.state.name.displayText)),
       ColumnDefinition("Rate limit tier", (app => app.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
       ColumnDefinition("Blocked", (app => app.blocked.toString())),

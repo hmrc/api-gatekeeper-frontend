@@ -16,45 +16,56 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import play.api.libs.json.Json
+import scala.collection.immutable.ListSet
 
-// TODO - Remove Enumeration
-object State extends Enumeration {
-  type State = Value
-  val TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED = Value
-  implicit val format                                                                                                                                        = Json.formatEnum(State)
+sealed trait State {
+  // $COVERAGE-OFF$
+  lazy val isPreProduction: Boolean = this == State.PRE_PRODUCTION
 
-  val displayedState: State => String = {
-    case TESTING                                     => "Created"
-    case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => "Pending Responsible Individual Verification"
-    case PENDING_GATEKEEPER_APPROVAL                 => "Pending gatekeeper check"
-    case PENDING_REQUESTER_VERIFICATION              => "Pending submitter verification"
-    case PRE_PRODUCTION                              => "Active"
-    case PRODUCTION                                  => "Active"
-    case DELETED                                     => "Deleted"
-  }
+  lazy val isProduction: Boolean = this == State.PRODUCTION
 
-  val additionalInformation: State => String = {
-    case TESTING                                     =>
-      "A production application that its admin has created but not submitted for checking"
-    case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION =>
-      "A production application that has been submitted for checking, but the responsible individual has not completed the email verification process"
-    case PENDING_GATEKEEPER_APPROVAL                 =>
-      "A production application that one of its admins has submitted for checking"
-    case PENDING_REQUESTER_VERIFICATION              =>
-      "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
-    case PRE_PRODUCTION                              =>
-      "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
-    case PRODUCTION                                  =>
-      "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
-    case DELETED                                     =>
-      "An application that has been deleted and is no longer active"
-  }
+  lazy val isApproved: Boolean = isPreProduction || isProduction
 
-  implicit class StateHelpers(state: State) {
-    def isApproved                     = state == State.PRE_PRODUCTION || state == State.PRODUCTION
-    def isPendingGatekeeperApproval    = state == State.PENDING_GATEKEEPER_APPROVAL
-    def isPendingRequesterVerification = state == State.PENDING_REQUESTER_VERIFICATION
-    def isDeleted                      = state == State.DELETED
-  }
+  lazy val isPendingApproval: Boolean = (this == State.PENDING_REQUESTER_VERIFICATION
+    || this == State.PENDING_GATEKEEPER_APPROVAL
+    || this == State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION)
+
+  lazy val isPendingApprovalOrProduction: Boolean = (this == State.PENDING_REQUESTER_VERIFICATION
+    || this == State.PENDING_GATEKEEPER_APPROVAL
+    || this == State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION
+    || this == State.PRODUCTION)
+
+  lazy val isInTesting: Boolean = this == State.TESTING
+
+  lazy val isInTestingOrProduction: Boolean = (this == State.TESTING || this == State.PRODUCTION)
+
+  lazy val isPendingGatekeeperApproval = this == State.PENDING_GATEKEEPER_APPROVAL
+
+  lazy val isPendingRequesterVerification = this == State.PENDING_REQUESTER_VERIFICATION
+
+  lazy val isDeleted = this == State.DELETED
+  // $COVERAGE-ON$
+}
+
+object State {
+
+  case object TESTING                                     extends State
+  case object PENDING_GATEKEEPER_APPROVAL                 extends State
+  case object PENDING_REQUESTER_VERIFICATION              extends State
+  case object PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION extends State
+  case object PRE_PRODUCTION                              extends State
+  case object PRODUCTION                                  extends State
+  case object DELETED                                     extends State
+
+  /* The order of the following declarations is important since it defines the ordering of the enumeration.
+   * Be very careful when changing this, code may be relying on certain values being larger/smaller than others. */
+  val values = ListSet(TESTING, PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION, PENDING_GATEKEEPER_APPROVAL, PENDING_REQUESTER_VERIFICATION, PRE_PRODUCTION, PRODUCTION, DELETED)
+
+  def apply(text: String): Option[State] = State.values.find(_.toString.toUpperCase == text.toUpperCase())
+
+  def unsafeApply(text: String): State = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid State"))
+
+  import play.api.libs.json.Format
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+  implicit val format: Format[State] = SealedTraitJsonFormatting.createFormatFor[State]("State", apply)
 }

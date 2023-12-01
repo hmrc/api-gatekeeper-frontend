@@ -18,8 +18,6 @@ package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import java.time.{LocalDateTime, ZoneOffset}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
-
 case class ApplicationState(
     name: State = State.TESTING,
     requestedByEmailAddress: Option[String] = None,

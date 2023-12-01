@@ -64,7 +64,6 @@ object ApplicationResponse {
     .and[Access.Ropc](AccessType.ROPC.toString)
     .format
   implicit val formatRole                    = Json.formatEnum(CollaboratorRole)
-  implicit val format3                       = Json.formatEnum(State)
   implicit val format4                       = Json.format[ApplicationState]
   implicit val format5                       = Json.format[ApprovedApplication]
 

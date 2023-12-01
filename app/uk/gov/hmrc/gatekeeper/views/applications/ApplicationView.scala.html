@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideTypeHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.MoreApplicationHelper._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CollaboratorRole, State}
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
@@ -259,9 +260,9 @@
         Status
       </dt>
       <dd class="govuk-summary-list__value">
-        <span data-status>@State.displayedState(application.state.name)</span>
+        <span data-status>@application.state.name.displayText</span>
         <br />
-        <span class="govuk-hint" data-status-info>@State.additionalInformation(application.state.name)</span>
+        <span class="govuk-hint" data-status-info>@application.state.name.additionalInformation</span>
       </dd>
       <dd class="govuk-summary-list__actions">
           @{ if (application.state.isPendingGatekeeperApproval){

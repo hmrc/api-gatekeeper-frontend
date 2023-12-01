@@ -28,7 +28,6 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -72,7 +71,6 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
 
 object ApplicationWithHistory {
   implicit val formatRole: Format[CollaboratorRole]       = Json.formatEnum(CollaboratorRole)
-  implicit val format3: Format[State]                     = Json.formatEnum(State)
   implicit val format4: OFormat[ApplicationState]         = Json.format[ApplicationState]
   implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
   implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
@@ -85,7 +83,6 @@ case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: Loc
 
 object ApplicationWithUpliftRequest {
 
-  implicit val formatState: Format[State]                    = Json.formatEnum(State)
   implicit val format: OFormat[ApplicationWithUpliftRequest] = Json.format[ApplicationWithUpliftRequest]
 
   val compareBySubmittedOn = (a: ApplicationWithUpliftRequest, b: ApplicationWithUpliftRequest) => a.submittedOn.isBefore(b.submittedOn)

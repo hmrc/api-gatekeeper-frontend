@@ -20,7 +20,6 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 // Caution: defaulting changedAt = LocalDateTime.now() will not use UTC
@@ -36,6 +35,5 @@ object StateHistory {
     }
   }
 
-  implicit val formatState = Json.formatEnum(State)
-  implicit val format      = Json.format[StateHistory]
+  implicit val format = Json.format[StateHistory]
 }
