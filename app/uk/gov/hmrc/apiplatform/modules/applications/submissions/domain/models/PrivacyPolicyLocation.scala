@@ -16,23 +16,35 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
 
-import play.api.libs.json.Json
-import uk.gov.hmrc.play.json.Union
+sealed trait PrivacyPolicyLocation {
+  def describe(): String = PrivacyPolicyLocations.describe(this)
+}
 
-sealed trait PrivacyPolicyLocation
-
-object PrivacyPolicyLocation {
+object PrivacyPolicyLocations {
   case object NoneProvided      extends PrivacyPolicyLocation
   case object InDesktopSoftware extends PrivacyPolicyLocation
   case class Url(value: String) extends PrivacyPolicyLocation
 
-  implicit val noneProvidedFormat      = Json.format[NoneProvided.type]
-  implicit val inDesktopSoftwareFormat = Json.format[InDesktopSoftware.type]
-  implicit val urlFormat               = Json.format[Url]
+  def describe(privacyPolicyLocation: PrivacyPolicyLocation): String = {
+    privacyPolicyLocation match {
+      case InDesktopSoftware => "In desktop software"
+      case Url(value)        => value
+      case _                 => "None provided"
+    }
+  }
+}
 
-  implicit val format = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
-    .and[NoneProvided.type]("noneProvided")
-    .and[InDesktopSoftware.type]("inDesktop")
-    .and[Url]("url")
+object PrivacyPolicyLocation {
+  import play.api.libs.json._
+  import uk.gov.hmrc.play.json.Union
+
+  private implicit val formatNoneProvided: OFormat[PrivacyPolicyLocations.NoneProvided.type]           = Json.format[PrivacyPolicyLocations.NoneProvided.type]
+  private implicit val formatInDesktopSoftware: OFormat[PrivacyPolicyLocations.InDesktopSoftware.type] = Json.format[PrivacyPolicyLocations.InDesktopSoftware.type]
+  private implicit val formatUrl: OFormat[PrivacyPolicyLocations.Url]                                  = Json.format[PrivacyPolicyLocations.Url]
+
+  implicit val formatPrivacyPolicyLocation: OFormat[PrivacyPolicyLocation] = Union.from[PrivacyPolicyLocation]("privacyPolicyType")
+    .and[PrivacyPolicyLocations.NoneProvided.type]("noneProvided")
+    .and[PrivacyPolicyLocations.InDesktopSoftware.type]("inDesktop")
+    .and[PrivacyPolicyLocations.Url]("url")
     .format
 }

@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
 
-import play.api.libs.json.Json
-
 case class ImportantSubmissionData(
+    organisationUrl: Option[String] = None,
+    responsibleIndividual: ResponsibleIndividual,
+    serverLocations: Set[ServerLocation],
     termsAndConditionsLocation: TermsAndConditionsLocation,
     privacyPolicyLocation: PrivacyPolicyLocation,
     termsOfUseAcceptances: List[TermsOfUseAcceptance]
   )
 
 object ImportantSubmissionData {
-  implicit val format = Json.format[ImportantSubmissionData]
+  import play.api.libs.json._
+  implicit val format: OFormat[ImportantSubmissionData] = Json.format[ImportantSubmissionData]
 }

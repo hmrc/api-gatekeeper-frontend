@@ -227,10 +227,10 @@ class ApplicationController @Inject() (
 
       def getResponsibleIndividualHistory(access: Access): List[ResponsibleIndividualHistoryItem] = {
         access match {
-          case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances))) => {
+          case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, _, termsOfUseAcceptances))) => {
             buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
           }
-          case _                                                                                          => List.empty
+          case _                                                                                                   => List.empty
         }
       }
 
@@ -280,10 +280,10 @@ class ApplicationController @Inject() (
     termsOfUseAcceptances match {
       case Nil                       => List.empty
       case first :: Nil              =>
-        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), "Present"))
+        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.text, formatDateTime(first.dateTime), "Present"))
       case first :: second :: others => List(ResponsibleIndividualHistoryItem(
           first.responsibleIndividual.fullName.value,
-          first.responsibleIndividual.emailAddress.value,
+          first.responsibleIndividual.emailAddress.text,
           formatDateTime(first.dateTime),
           formatDateTime(second.dateTime)
         )) ++

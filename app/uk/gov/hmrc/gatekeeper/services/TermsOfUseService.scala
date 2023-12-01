@@ -49,7 +49,7 @@ class TermsOfUseService {
     std.importantSubmissionData.fold[List[TermsOfUseAgreementDisplayDetails]](List.empty)(isd =>
       isd.termsOfUseAcceptances
         .map((toua: TermsOfUseAcceptance) =>
-          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.value, formatDateTime(toua.dateTime), "2")
+          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.text, formatDateTime(toua.dateTime), "2")
         )
     )
   }

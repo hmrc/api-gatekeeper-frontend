@@ -20,8 +20,10 @@ import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -33,14 +35,15 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val email1_2                   = "bob1.2@example.com"
   val email2                     = "bob2@example.com"
   val name                       = "Bob Example"
-  val responsibleIndividual      = ResponsibleIndividual(ResponsibleIndividual.Name(name), ResponsibleIndividual.EmailAddress(email2))
+  val responsibleIndividual      = ResponsibleIndividual(FullName(name), LaxEmailAddress(email2))
   val version1_2                 = "1.2"
   val version2                   = "2"
   val appWithNoAgreements        = DefaultApplication
   val checkInfoAgreement         = TermsOfUseAgreement(email1_2, dateTime, version1_2)
   val checkInformation           = CheckInformation(termsOfUseAgreements = List(checkInfoAgreement))
-  val stdAppAgreement            = TermsOfUseAcceptance(responsibleIndividual, timestamp)
-  val importantSubmissionData    = ImportantSubmissionData(TermsAndConditionsLocation.InDesktopSoftware, PrivacyPolicyLocation.InDesktopSoftware, List(stdAppAgreement))
+  val stdAppAgreement            = TermsOfUseAcceptance(responsibleIndividual, timestamp, SubmissionId.random)
+  val importantSubmissionData    =
+    ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
   val appWithCheckInfoAgreements = DefaultApplication.copy(checkInformation = Some(checkInformation))
   val appWithStdAppAgreements    = appWithNoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
   val nonStdApp                  = appWithNoAgreements.copy(access = Access.Privileged())

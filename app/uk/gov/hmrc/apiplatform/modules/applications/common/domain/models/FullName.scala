@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
+package uk.gov.hmrc.apiplatform.modules.applications.common.domain.models
 
-import java.time.LocalDateTime
+case class FullName(value: String) extends AnyVal {
+  override def toString(): String = value
+}
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime, submissionId: SubmissionId, submissionInstance: Int = 0)
-
-object TermsOfUseAcceptance {
+object FullName {
   import play.api.libs.json._
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
 
-  implicit val format: OFormat[TermsOfUseAcceptance] = Json.format[TermsOfUseAcceptance]
+  implicit val format: Format[FullName] = Json.valueFormat[FullName]
+
+  implicit val ordering: Ordering[FullName] = Ordering.by[FullName, String](_.value)
 }

@@ -16,13 +16,23 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
 
-import java.time.LocalDateTime
+import java.util.UUID
+import scala.util.control.Exception._
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime, submissionId: SubmissionId, submissionInstance: Int = 0)
+case class SubmissionId(value: UUID) extends AnyVal {
+  override def toString(): String = value.toString()
+}
 
-object TermsOfUseAcceptance {
-  import play.api.libs.json._
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
+object SubmissionId {
+  import play.api.libs.json.{Format, Json}
 
-  implicit val format: OFormat[TermsOfUseAcceptance] = Json.format[TermsOfUseAcceptance]
+  def apply(raw: String): Option[SubmissionId] = allCatch.opt(SubmissionId(UUID.fromString(raw)))
+
+  def unsafeApply(raw: String): SubmissionId = SubmissionId(UUID.fromString(raw))
+
+  implicit val format: Format[SubmissionId] = Json.valueFormat[SubmissionId]
+
+// $COVERAGE-OFF$
+  def random: SubmissionId = SubmissionId(UUID.randomUUID)
+// $COVERAGE-ON$
 }

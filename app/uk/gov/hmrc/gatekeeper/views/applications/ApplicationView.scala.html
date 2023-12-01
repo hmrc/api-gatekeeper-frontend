@@ -20,7 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideTypeHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CollaboratorRole, State}
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
-@import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocation, TermsAndConditionsLocation}
+@import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
 @import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -346,8 +346,8 @@
       <dd class="govuk-summary-list__value" data-privacy-url="">
         @{
           application.privacyPolicyLocation match {
-            case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
-            case PrivacyPolicyLocation.InDesktopSoftware => "In Desktop Software"
+            case PrivacyPolicyLocations.Url(url) => renderExternalUrl(url)
+            case PrivacyPolicyLocations.InDesktopSoftware => "In Desktop Software"
             case _ => ""
           }
         }
@@ -362,8 +362,8 @@
       <dd class="govuk-summary-list__value" data-terms-url="">
         @{
           application.termsAndConditionsLocation match {
-            case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
-            case TermsAndConditionsLocation.InDesktopSoftware => "In Desktop Software"
+            case TermsAndConditionsLocations.Url(url) => renderExternalUrl(url)
+            case TermsAndConditionsLocations.InDesktopSoftware => "In Desktop Software"
             case _ => ""
           }
         }
