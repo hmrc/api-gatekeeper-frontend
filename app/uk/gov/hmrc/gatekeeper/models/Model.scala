@@ -23,10 +23,9 @@ import play.api.data.Form
 import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, OverrideType, _}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}
@@ -71,17 +70,6 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
   )
 
 object ApplicationWithHistory {
-  implicit val formatTotpIds: OFormat[TotpId] = Json.format[TotpId]
-
-  implicit private val formatStandard: OFormat[Access.Standard]     = Json.format[Access.Standard]
-  implicit private val formatPrivileged: OFormat[Access.Privileged] = Json.format[Access.Privileged]
-  implicit private val formatRopc: OFormat[Access.Ropc]             = Json.format[Access.Ropc]
-
-  implicit val formatAccess: OFormat[Access]              = Union.from[Access]("accessType")
-    .and[Access.Standard](AccessType.STANDARD.toString)
-    .and[Access.Privileged](AccessType.PRIVILEGED.toString)
-    .and[Access.Ropc](AccessType.ROPC.toString)
-    .format
   implicit val formatRole: Format[CollaboratorRole]       = Json.formatEnum(CollaboratorRole)
   implicit val format3: Format[State]                     = Json.formatEnum(State)
   implicit val format4: OFormat[ApplicationState]         = Json.format[ApplicationState]

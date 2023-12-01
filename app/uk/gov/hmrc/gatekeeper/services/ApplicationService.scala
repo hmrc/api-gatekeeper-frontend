@@ -182,15 +182,15 @@ class ApplicationService @Inject() (
       case _: Access.Privileged | _: Access.Ropc => {
         (
           for {
-            validScopes <- apiScopeConnectorFor(application).fetchAll()
+            validScopes     <- apiScopeConnectorFor(application).fetchAll()
             hasInvalidScopes = !scopes.subsetOf(validScopes.map(_.key).toSet)
           } yield hasInvalidScopes
-          ).flatMap(hasInvalidScopes =>
+        ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
           else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
-      case _: Access.Standard                       => Future.successful(UpdateScopesInvalidScopesResult)
+      case _: Access.Standard                    => Future.successful(UpdateScopesInvalidScopesResult)
     }
   }
 
