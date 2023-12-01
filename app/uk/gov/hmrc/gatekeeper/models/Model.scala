@@ -27,8 +27,7 @@ import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType.AccessType
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType.OverrideType
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, _}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}

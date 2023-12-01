@@ -16,12 +16,30 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-import play.api.libs.json.Json
+sealed trait OverrideType
 
-// TODO - Remove Enumeration
-object OverrideType extends Enumeration {
-  type OverrideType = Value
-  val PERSIST_LOGIN_AFTER_GRANT, GRANT_WITHOUT_TAXPAYER_CONSENT, SUPPRESS_IV_FOR_AGENTS, SUPPRESS_IV_FOR_ORGANISATIONS, SUPPRESS_IV_FOR_INDIVIDUALS = Value
+object OverrideType {
+  case object PERSIST_LOGIN_AFTER_GRANT      extends OverrideType
+  case object GRANT_WITHOUT_TAXPAYER_CONSENT extends OverrideType
+  case object SUPPRESS_IV_FOR_AGENTS         extends OverrideType
+  case object SUPPRESS_IV_FOR_ORGANISATIONS  extends OverrideType
+  case object SUPPRESS_IV_FOR_INDIVIDUALS    extends OverrideType
+  case object ORIGIN_OVERRIDE                extends OverrideType
 
-  implicit val format = Json.formatEnum(OverrideType)
+  val values = List(
+    PERSIST_LOGIN_AFTER_GRANT,
+    GRANT_WITHOUT_TAXPAYER_CONSENT,
+    SUPPRESS_IV_FOR_AGENTS,
+    SUPPRESS_IV_FOR_ORGANISATIONS,
+    SUPPRESS_IV_FOR_INDIVIDUALS,
+    ORIGIN_OVERRIDE
+  )
+
+  def apply(text: String): Option[OverrideType] = OverrideType.values.find(_.toString() == text.toUpperCase)
+
+  def unsafeApply(text: String): OverrideType = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Override Type"))
+
+  import play.api.libs.json.Format
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+  implicit val format: Format[OverrideType] = SealedTraitJsonFormatting.createFormatFor[OverrideType]("Override Type", apply)
 }

@@ -20,7 +20,7 @@ import play.api.libs.json.{JsSuccess, Json, OFormat, OWrites, Reads}
 import uk.gov.hmrc.play.json.Union
 
 sealed trait OverrideFlag {
-  val overrideType: OverrideType.Value
+  val overrideType: OverrideType
 }
 
 object OverrideFlag {
