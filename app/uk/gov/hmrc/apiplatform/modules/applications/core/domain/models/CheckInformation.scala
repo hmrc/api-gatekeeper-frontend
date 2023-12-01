@@ -16,30 +16,33 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.LocalDateTime
-
-import play.api.libs.json.Json
-
 case class CheckInformation(
     contactDetails: Option[ContactDetails] = None,
     confirmedName: Boolean = false,
+    apiSubscriptionsConfirmed: Boolean = false,
+    apiSubscriptionConfigurationsConfirmed: Boolean = false,
     providedPrivacyPolicyURL: Boolean = false,
     providedTermsAndConditionsURL: Boolean = false,
     applicationDetails: Option[String] = None,
+    teamConfirmed: Boolean = false,
     termsOfUseAgreements: List[TermsOfUseAgreement] = List.empty
-  ) {
-
-  def latestTOUAgreement: Option[TermsOfUseAgreement] = {
-    implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
-
-    termsOfUseAgreements match {
-      case Nil        => None
-      case agreements => Option(agreements.maxBy(_.timeStamp))
-    }
-  }
-}
+  )
 
 object CheckInformation {
+  import play.api.libs.json._
+  import play.api.libs.functional.syntax._
 
-  implicit val formatApprovalInformation = Json.format[CheckInformation]
+  private val reads: Reads[CheckInformation] = (
+    (JsPath \ "contactDetails").readNullable[ContactDetails] and
+      (JsPath \ "confirmedName").read[Boolean] and
+      ((JsPath \ "apiSubscriptionsConfirmed").read[Boolean] or Reads.pure(false)) and
+      ((JsPath \ "apiSubscriptionConfigurationsConfirmed").read[Boolean] or Reads.pure(false)) and
+      (JsPath \ "providedPrivacyPolicyURL").read[Boolean] and
+      (JsPath \ "providedTermsAndConditionsURL").read[Boolean] and
+      (JsPath \ "applicationDetails").readNullable[String] and
+      ((JsPath \ "teamConfirmed").read[Boolean] or Reads.pure(false)) and
+      ((JsPath \ "termsOfUseAgreements").read[List[TermsOfUseAgreement]] or Reads.pure(List.empty[TermsOfUseAgreement]))
+  )(CheckInformation.apply _)
+
+  implicit val format: Format[CheckInformation] = Format(reads, Json.writes[CheckInformation])
 }

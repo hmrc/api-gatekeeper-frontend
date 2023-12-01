@@ -20,6 +20,7 @@ import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
@@ -114,7 +115,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
   def aCheckInformation(): CheckInformation = {
     CheckInformation(
-      contactDetails = Some(ContactDetails("contactFullName", "contactEmail", "contactTelephone")),
+      contactDetails = Some(ContactDetails(FullName("contactFullName"), LaxEmailAddress("contactEmail"), "contactTelephone")),
       confirmedName = true,
       providedPrivacyPolicyURL = true,
       providedTermsAndConditionsURL = true,

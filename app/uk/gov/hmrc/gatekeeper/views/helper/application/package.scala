@@ -98,14 +98,14 @@ object ApplicationReview {
     for {
       checkInformation <- checkInformationOpt
       contactDetails   <- checkInformation.contactDetails
-    } yield contactDetails.fullname
+    } yield contactDetails.fullname.toString()
   }
 
   def getReviewContactEmail(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
       checkInformation <- checkInformationOpt
       contactDetails   <- checkInformation.contactDetails
-    } yield contactDetails.email
+    } yield contactDetails.email.text
   }
 
   def getReviewContactTelephone(checkInformationOpt: Option[CheckInformation]): Option[String] = {

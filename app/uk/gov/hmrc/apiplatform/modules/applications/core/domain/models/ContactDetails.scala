@@ -16,10 +16,17 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import play.api.libs.json.Json
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
-case class ContactDetails(fullname: String, email: String, telephoneNumber: String)
+case class ContactDetails(
+    fullname: FullName,
+    email: LaxEmailAddress,
+    telephoneNumber: String
+  )
 
 object ContactDetails {
-  implicit val formatContactDetails = Json.format[ContactDetails]
+  import play.api.libs.json._
+
+  implicit val format: OFormat[ContactDetails] = Json.format[ContactDetails]
 }

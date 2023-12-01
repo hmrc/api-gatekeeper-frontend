@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.SessionKeys
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}
@@ -158,8 +159,8 @@ case class ApplicationReviewDetails(
     description: String,
     rateLimitTier: Option[RateLimitTier],
     submission: SubmissionDetails,
-    reviewContactName: Option[String],
-    reviewContactEmail: Option[String],
+    reviewContactName: Option[FullName],
+    reviewContactEmail: Option[LaxEmailAddress],
     reviewContactTelephone: Option[String],
     applicationDetails: Option[String],
     termsAndConditionsUrl: Option[String] = None,

@@ -30,18 +30,18 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 
 class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
-  val timestamp                  = LocalDateTime.now(ZoneOffset.UTC)
-  val dateTime                   = LocalDateTime.now
-  val email1_2                   = "bob1.2@example.com"
-  val email2                     = "bob2@example.com"
-  val name                       = "Bob Example"
-  val responsibleIndividual      = ResponsibleIndividual(FullName(name), LaxEmailAddress(email2))
-  val version1_2                 = "1.2"
-  val version2                   = "2"
-  val appWithNoAgreements        = DefaultApplication
-  val checkInfoAgreement         = TermsOfUseAgreement(LaxEmailAddress(email1_2), dateTime, version1_2)
-  val checkInformation           = CheckInformation(termsOfUseAgreements = List(checkInfoAgreement))
-  val stdAppAgreement            = TermsOfUseAcceptance(responsibleIndividual, timestamp, SubmissionId.random)
+  val timestamp             = LocalDateTime.now(ZoneOffset.UTC)
+  val dateTime              = LocalDateTime.now
+  val email1_2              = "bob1.2@example.com"
+  val email2                = "bob2@example.com"
+  val name                  = "Bob Example"
+  val responsibleIndividual = ResponsibleIndividual(FullName(name), LaxEmailAddress(email2))
+  val version1_2            = "1.2"
+  val version2              = "2"
+  val appWithNoAgreements   = DefaultApplication
+  val checkInfoAgreement    = TermsOfUseAgreement(LaxEmailAddress(email1_2), dateTime, version1_2)
+  val checkInformation      = CheckInformation(termsOfUseAgreements = List(checkInfoAgreement))
+  val stdAppAgreement       = TermsOfUseAcceptance(responsibleIndividual, timestamp, SubmissionId.random)
 
   val importantSubmissionData    =
     ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
