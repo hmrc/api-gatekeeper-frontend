@@ -16,9 +16,14 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-case class MoreApplication(allowAutoDelete: Boolean)
+object MoreApplicationHelper {
 
-object MoreApplication {
-  import play.api.libs.json.{Json, OFormat}
-  implicit val format: OFormat[MoreApplication] = Json.format[MoreApplication]
+  implicit class AllowAutoDeleteSyntax(moreApplication: MoreApplication) {
+
+    // TODO: Move to api-platform-application-domain?
+    val displayText: String = moreApplication.allowAutoDelete match {
+      case true  => "Yes"
+      case false => "No"
+    }
+  }
 }

@@ -54,7 +54,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
-      moreApplication: MoreApplication = MoreApplication()
+      moreApplication: MoreApplication = MoreApplication(true)
     ): ApplicationResponse =
     ApplicationResponse(
       id,

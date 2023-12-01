@@ -87,7 +87,7 @@ object ApplicationResponse {
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       ((JsPath \ "blocked").read[Boolean] or Reads.pure(false)) and
       (JsPath \ "ipAllowlist").read[IpAllowlist] and
-      ((JsPath \ "moreApplication").read[MoreApplication] or Reads.pure(MoreApplication()))
+      ((JsPath \ "moreApplication").read[MoreApplication] or Reads.pure(MoreApplication(true)))
   )(ApplicationResponse.apply _)
 
   implicit val formatApplicationResponse = {

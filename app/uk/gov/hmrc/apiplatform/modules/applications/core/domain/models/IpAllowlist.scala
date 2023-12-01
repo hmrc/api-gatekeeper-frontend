@@ -16,10 +16,13 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-case class IpAllowlist(required: Boolean = false, allowlist: Set[String] = Set.empty)
+case class IpAllowlist(
+    required: Boolean = false,
+    allowlist: Set[String] = Set.empty
+  )
 
 object IpAllowlist {
-  import play.api.libs.json.Json
+  import play.api.libs.json._
 
-  implicit val format = Json.format[IpAllowlist]
+  implicit val format: OFormat[IpAllowlist] = Json.format[IpAllowlist]
 }
