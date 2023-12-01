@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ApplicationPublicDescription {
@@ -63,7 +63,7 @@ object ApplicationSubmission {
 
   private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
     stateHistory.filter(_.state.isPendingGatekeeperApproval)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption
 
   def getSubmittedBy(stateHistory: Seq[StateHistory]): Option[String] = {
@@ -86,7 +86,7 @@ object ApplicationReview {
 
   private def getLastApproval(history: Seq[StateHistory]) =
     history.filter(_.state.isPendingRequesterVerification)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption
 
   def getApprovedOn(history: Seq[StateHistory]): Option[String] =

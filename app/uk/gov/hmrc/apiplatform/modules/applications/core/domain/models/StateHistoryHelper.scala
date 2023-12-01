@@ -16,19 +16,13 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.LocalDateTime
+object StateHistoryHelper {
 
-import play.api.libs.json.OFormat
+  def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
+    s1.applicationId match {
+      case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)
+      case _                => true
+    }
+  }
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, ApplicationId}
-
-case class StateHistory(applicationId: ApplicationId, state: State, actor: Actor, previousState: Option[State] = None, notes: Option[String] = None, changedAt: LocalDateTime)
-
-object StateHistory {
-  import play.api.libs.json.Json
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-
-  implicit val orderingOldestFirst: Ordering[StateHistory] = Ordering.by[StateHistory, LocalDateTime](_.changedAt)
-
-  implicit val format: OFormat[StateHistory] = Json.format[StateHistory]
 }

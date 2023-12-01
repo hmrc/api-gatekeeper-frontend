@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
@@ -658,7 +658,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def lastApproval(app: ApplicationWithHistory): StateHistory = {
         app.history.filter(_.state.isPendingRequesterVerification)
-          .sortWith(StateHistory.ascendingDateForAppId)
+          .sortWith(StateHistoryHelper.ascendingDateForAppId)
           .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
 
@@ -688,7 +688,7 @@ class ApplicationController @Inject() (
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
     val submission: StateHistory = app.history.filter(_.state.isPendingGatekeeperApproval)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
     submission.actor match {

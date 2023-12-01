@@ -123,7 +123,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   }
 
   def aStateHistory(state: State, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
-    StateHistory(ApplicationId.random, state, anActor(), None, changedAt)
+    StateHistory(ApplicationId.random, state, anActor(), changedAt = changedAt)
   }
 
   def anActor() = Actors.Unknown

@@ -24,6 +24,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, Appl
 trait StateHistoryBuilder {
 
   def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
-    StateHistory(applicationId, state, actor, None, changedAt)
+    StateHistory(applicationId, state, actor, changedAt = changedAt)
   }
 }
