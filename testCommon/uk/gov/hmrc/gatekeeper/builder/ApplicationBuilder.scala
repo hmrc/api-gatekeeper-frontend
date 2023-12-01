@@ -48,7 +48,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
       access: Access = Access.Standard(),
-      state: ApplicationState = ApplicationState(State.PRODUCTION),
+      state: ApplicationState = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now()),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
@@ -104,7 +104,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       termsAndConditionsUrl = Some("termsUrl"),
       privacyPolicyUrl = Some("privacyPolicyUrl"),
       access = Access.Privileged(),
-      state = ApplicationState()
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
   }
 

@@ -64,7 +64,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
 
     "return true when the given email address is the only admin and no other team members" in {

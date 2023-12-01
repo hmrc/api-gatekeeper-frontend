@@ -74,7 +74,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState()
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
 
     val gatekeeperUserId = "loggedin.gatekeeper"

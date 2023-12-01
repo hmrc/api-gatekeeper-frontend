@@ -77,7 +77,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState()
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
   }
 

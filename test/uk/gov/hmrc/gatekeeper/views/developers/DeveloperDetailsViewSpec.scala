@@ -148,14 +148,14 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.TESTING)
+        state = ApplicationState(State.TESTING, updatedOn = LocalDateTime.now())
       )
       val testApplication2 = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName2"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(Collaborators.Developer(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.PRODUCTION)
+        state = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now())
       )
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))

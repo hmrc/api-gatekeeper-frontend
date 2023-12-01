@@ -216,7 +216,7 @@ class ApplicationConnectorSpec
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -321,7 +321,7 @@ class ApplicationConnectorSpec
       Actors.AppCollaborator(collaborators.head.emailAddress),
       changedAt = LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS)
     )
-    val applicationState                 = ApplicationState(State.TESTING, None, None, LocalDateTime.now)
+    val applicationState                 = ApplicationState(State.TESTING, updatedOn = LocalDateTime.now)
     val application                      = buildApplication(
       applicationId,
       ClientId("clientid1"),

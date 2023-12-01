@@ -57,7 +57,7 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
   }
 

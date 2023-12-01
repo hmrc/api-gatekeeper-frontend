@@ -64,7 +64,7 @@ trait ControllerSetupBase
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
     access = Access.Standard(),
-    state = ApplicationState()
+    state = ApplicationState(updatedOn = LocalDateTime.now())
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

@@ -63,7 +63,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
     }
 

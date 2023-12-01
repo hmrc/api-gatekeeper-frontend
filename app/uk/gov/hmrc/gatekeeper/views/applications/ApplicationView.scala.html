@@ -250,7 +250,7 @@
             @application.name
         </dd>
         <dd class="govuk-summary-list__actions">
-        @if(application.deployedTo == Environment.PRODUCTION && application.state.isApproved) {
+        @if(application.deployedTo == Environment.PRODUCTION && application.state.name.isApproved) {
             <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId).url}" class="button--link" role="button">Manage</a>
         }
         </dd>
@@ -665,10 +665,10 @@
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
   @if(request.role.isAdmin && !application.state.isDeleted) {
-    @if(application.state.isApproved && !application.blocked) {
+    @if(application.state.name.isApproved && !application.blocked) {
       <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
     }
-    @if(application.state.isApproved && application.blocked) {
+    @if(application.state.name.isApproved && application.blocked) {
       <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
   }

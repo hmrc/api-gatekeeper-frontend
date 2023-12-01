@@ -302,7 +302,7 @@ class ApplicationControllerSpec
           createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           access = Access.Standard(),
-          state = ApplicationState(),
+          state = ApplicationState(updatedOn = LocalDateTime.now()),
           moreApplication = MoreApplication(allowAutoDelete = false)
         )
 
@@ -1270,7 +1270,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState()
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1307,7 +1307,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState()
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1344,7 +1344,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState()
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1380,7 +1380,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState()
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1630,7 +1630,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED))
+        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED, updatedOn = LocalDateTime.now()))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)

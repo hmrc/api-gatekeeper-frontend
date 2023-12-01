@@ -60,7 +60,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       createdOn = LocalDateTime.now(),
       lastAccess = Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState(),
+      state = ApplicationState(updatedOn = LocalDateTime.now()),
       rateLimitTier = RateLimitTier.BRONZE,
       checkInformation = None,
       blocked = false,

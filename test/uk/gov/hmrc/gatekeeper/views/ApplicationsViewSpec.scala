@@ -82,7 +82,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -95,7 +95,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -108,7 +108,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -121,7 +121,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState()
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
