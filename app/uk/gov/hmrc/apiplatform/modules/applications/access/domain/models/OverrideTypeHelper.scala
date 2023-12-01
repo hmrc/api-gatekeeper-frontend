@@ -16,20 +16,18 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType._
-
 object OverrideTypeHelper {
 
   implicit class DisplaySyntax(overrideType: OverrideType) {
 
     // TODO: Move to api-platform-application-domain?
     val displayText: String = overrideType match {
-      case PERSIST_LOGIN_AFTER_GRANT      => "Persist login after grant"
-      case GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
-      case SUPPRESS_IV_FOR_AGENTS         => "Suppress IV for agents"
-      case SUPPRESS_IV_FOR_ORGANISATIONS  => "Suppress IV for organisations"
-      case SUPPRESS_IV_FOR_INDIVIDUALS    => "Suppress IV for individuals"
-      case _                              => ""
+      case OverrideType.PERSIST_LOGIN_AFTER_GRANT      => "Persist login after grant"
+      case OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT => "Grant without taxpayer consent"
+      case OverrideType.SUPPRESS_IV_FOR_AGENTS         => "Suppress IV for agents"
+      case OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS  => "Suppress IV for organisations"
+      case OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS    => "Suppress IV for individuals"
+      case _                                           => ""
     }
   }
 }

@@ -23,7 +23,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -62,7 +62,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       )
     }

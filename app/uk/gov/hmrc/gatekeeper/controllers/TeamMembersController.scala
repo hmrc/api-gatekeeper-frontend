@@ -26,7 +26,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
@@ -49,7 +49,7 @@ trait WithRestrictedApp {
   def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.application.access match {
-        case _: Standard                   => f(app)
+        case _: Access.Standard            => f(app)
         case _ if request.role.isSuperUser => f(app)
         case _                             => successful(Forbidden(forbiddenView()))
       }

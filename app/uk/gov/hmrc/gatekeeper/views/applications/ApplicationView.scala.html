@@ -18,7 +18,6 @@
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideTypeHelper._
-@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CollaboratorRole, State}
 @import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocation, TermsAndConditionsLocation}
@@ -106,13 +105,13 @@
             </tr>
           </thead>
           <tbody class="govuk-table__body">
-            @overrides.toList.map(or => or match {
-              case _ @ PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
-              case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
-              case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
-              case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
-              case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
-            })
+            @overrides.toList.map {
+              case _ @ OverrideFlag.PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+              case or: OverrideFlag.SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
+              case or: OverrideFlag.GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+            }
           </tbody>
         </table>
       </dd>
@@ -399,13 +398,13 @@
     </div>
     @{
       access match {
-        case standardAccess : Standard => {
+        case standardAccess : Access.Standard => {
           renderOverrides(standardAccess.overrides)
         }
-        case privilegedAccess : Privileged => {
+        case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)
         }
-        case ropcAccess : Ropc => {
+        case ropcAccess : Access.Ropc => {
           renderScopes(ropcAccess.scopes)
         }
       }

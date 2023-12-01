@@ -54,14 +54,14 @@ object ApplicationResponse {
 
   implicit val formatTotpIds = Json.format[TotpId]
 
-  implicit private val formatStandard   = Json.format[Standard]
-  implicit private val formatPrivileged = Json.format[Privileged]
-  implicit private val formatRopc       = Json.format[Ropc]
+  implicit private val formatStandard   = Json.format[Access.Standard]
+  implicit private val formatPrivileged = Json.format[Access.Privileged]
+  implicit private val formatRopc       = Json.format[Access.Ropc]
 
   implicit val formatAccess: OFormat[Access] = Union.from[Access]("accessType")
-    .and[Standard](AccessType.STANDARD.toString)
-    .and[Privileged](AccessType.PRIVILEGED.toString)
-    .and[Ropc](AccessType.ROPC.toString)
+    .and[Access.Standard](AccessType.STANDARD.toString)
+    .and[Access.Privileged](AccessType.PRIVILEGED.toString)
+    .and[Access.Ropc](AccessType.ROPC.toString)
     .format
   implicit val formatRole                    = Json.formatEnum(CollaboratorRole)
   implicit val format3                       = Json.formatEnum(State)

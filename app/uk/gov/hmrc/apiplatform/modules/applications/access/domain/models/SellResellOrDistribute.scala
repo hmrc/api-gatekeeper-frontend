@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.testdata
+package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
+case class SellResellOrDistribute(answer: String) extends AnyVal {
+  override def toString(): String = answer
+}
 
-trait AccessTestData {
+object SellResellOrDistribute {
+  import play.api.libs.json.{Format, Json}
 
-  val standardAccess = Access.Standard(
-    redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
-    termsAndConditionsUrl = Some("http://localhost:22222/terms"),
-    privacyPolicyUrl = Some("http://localhost:22222/privacy")
-  )
+  implicit val format: Format[SellResellOrDistribute] = Json.valueFormat[SellResellOrDistribute]
 }

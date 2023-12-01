@@ -17,3 +17,8 @@
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
 case class TotpId(production: String)
+
+object TotpId {
+  import play.api.libs.json._
+  implicit val format: OFormat[TotpId] = Json.format[TotpId]
+}

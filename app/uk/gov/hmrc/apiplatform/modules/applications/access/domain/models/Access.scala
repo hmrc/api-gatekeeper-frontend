@@ -16,30 +16,48 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.access.domain.models
 
+import play.api.libs.json._
+
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.ImportantSubmissionData
 
 sealed trait Access {
-  val accessType: AccessType
+  lazy val accessType: AccessType = Access.accessType(this)
 }
 
-sealed trait AccessWithRestrictedScopes extends Access {
-  val scopes: Set[String]
-}
+object Access {
 
-case class Standard(
-    redirectUris: List[String] = List.empty,
-    termsAndConditionsUrl: Option[String] = None,
-    privacyPolicyUrl: Option[String] = None,
-    importantSubmissionData: Option[ImportantSubmissionData] = None,
-    overrides: Set[OverrideFlag] = Set.empty
-  ) extends Access {
-  override val accessType = AccessType.STANDARD
-}
+  def accessType(access: Access): AccessType = access match {
+    case _: Standard   => AccessType.STANDARD
+    case _: Privileged => AccessType.PRIVILEGED
+    case _: Ropc       => AccessType.ROPC
+  }
 
-case class Privileged(totpIds: Option[TotpId] = None, scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
-  override val accessType = AccessType.PRIVILEGED
-}
+  case class Standard(
+      redirectUris: List[RedirectUri] = List.empty,
+      termsAndConditionsUrl: Option[String] = None,
+      privacyPolicyUrl: Option[String] = None,
+      overrides: Set[OverrideFlag] = Set.empty,
+      sellResellOrDistribute: Option[SellResellOrDistribute] = None,
+      importantSubmissionData: Option[ImportantSubmissionData] = None
+    ) extends Access
 
-case class Ropc(scopes: Set[String] = Set.empty) extends AccessWithRestrictedScopes {
-  override val accessType = AccessType.ROPC
+  case class Privileged(
+      totpIds: Option[TotpId] = None,
+      scopes: Set[String] = Set.empty
+    ) extends Access
+
+  case class Ropc(scopes: Set[String] = Set.empty) extends Access
+
+  import uk.gov.hmrc.play.json.Union
+
+  private implicit val formatStandard: OFormat[Standard]     = Json.format[Standard]
+  private implicit val formatPrivileged: OFormat[Privileged] = Json.format[Privileged]
+  private implicit val formatRopc: OFormat[Ropc]             = Json.format[Ropc]
+
+  implicit val format: OFormat[Access] = Union.from[Access]("accessType")
+    .and[Standard](AccessType.STANDARD.toString)
+    .and[Privileged](AccessType.PRIVILEGED.toString)
+    .and[Ropc](AccessType.ROPC.toString)
+    .format
 }

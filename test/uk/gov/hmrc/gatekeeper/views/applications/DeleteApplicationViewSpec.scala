@@ -23,7 +23,7 @@ import org.jsoup.Jsoup
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -60,7 +60,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       )
 

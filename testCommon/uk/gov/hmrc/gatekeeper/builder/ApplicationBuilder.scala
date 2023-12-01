@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.builder
 import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.State
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
@@ -47,7 +47,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
-      access: Access = Standard(),
+      access: Access = Access.Standard(),
       state: ApplicationState = ApplicationState(State.PRODUCTION),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       checkInformation: Option[CheckInformation] = None,
@@ -80,8 +80,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
   val DefaultApplication = buildApplication(
     collaborators = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
-    access = Standard(
-      redirectUris = List("https://red1", "https://red2"),
+    access = Access.Standard(
+      redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
       termsAndConditionsUrl = Some("http://tnc-url.com")
     )
   )
@@ -103,7 +103,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       Some(lastAccess),
       termsAndConditionsUrl = Some("termsUrl"),
       privacyPolicyUrl = Some("privacyPolicyUrl"),
-      access = Privileged(),
+      access = Access.Privileged(),
       state = ApplicationState()
     )
   }
@@ -203,9 +203,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     }
 
     def withAccess(access: Access) = app.copy(access = access)
-    def asStandard                 = app.copy(access = Standard())
-    def asPrivileged               = app.copy(access = Privileged())
-    def asROPC                     = app.copy(access = Ropc())
+    def asStandard                 = app.copy(access = Access.Standard())
+    def asPrivileged               = app.copy(access = Access.Privileged())
+    def asROPC                     = app.copy(access = Access.Ropc())
 
     def withState(state: ApplicationState) = app.copy(state = state)
     def inProduction                       = app.copy(state = app.state.inProduction)

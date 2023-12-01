@@ -39,7 +39,7 @@ import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -81,7 +81,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       ),
       buildApplication(
@@ -94,7 +94,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       ),
       buildApplication(
@@ -107,7 +107,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       ),
       buildApplication(
@@ -120,7 +120,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       )
     )

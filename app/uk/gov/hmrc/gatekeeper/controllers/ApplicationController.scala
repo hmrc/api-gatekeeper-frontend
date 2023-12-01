@@ -27,7 +27,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory}
@@ -228,16 +227,16 @@ class ApplicationController @Inject() (
 
       def getResponsibleIndividualHistory(access: Access): List[ResponsibleIndividualHistoryItem] = {
         access match {
-          case Standard(_, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances)), _) => {
+          case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances))) => {
             buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
           }
-          case _                                                                                => List.empty
+          case _                                                                                          => List.empty
         }
       }
 
       def checkEligibleForTermsOfUseInvite(app: ApplicationResponse, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
-          case std: Standard
+          case std: Access.Standard
               if (app.state.name == State.PRODUCTION &&
                 app.deployedTo == Environment.PRODUCTION &&
                 !hasSubmissions &&
@@ -312,10 +311,10 @@ class ApplicationController @Inject() (
   def updateAccessOverrides(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
-        case SuppressIvForAgents(_)        => FormFields.suppressIvForAgentsScopes
-        case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
-        case SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
-        case GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
+        case OverrideFlag.SuppressIvForAgents(_)        => FormFields.suppressIvForAgentsScopes
+        case OverrideFlag.SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
+        case OverrideFlag.SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
+        case OverrideFlag.GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {
@@ -345,12 +344,13 @@ class ApplicationController @Inject() (
 
   def manageScopes(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
+      def showManageScopesView(scopes: Set[String]) =
+        Future.successful(Ok(manageScopesView(app.application, scopesForm.fill(scopes))))
+
       app.application.access match {
-        case access: AccessWithRestrictedScopes => {
-          val form = scopesForm.fill(access.scopes)
-          Future.successful(Ok(manageScopesView(app.application, form)))
-        }
-        case _                                  => Future.failed(new RuntimeException("Invalid access type on application"))
+        case Access.Privileged(_, scopes) => showManageScopesView(scopes)
+        case Access.Ropc(scopes)          => showManageScopesView(scopes)
+        case _                            => Future.failed(new RuntimeException("Invalid access type on application"))
       }
     }
   }

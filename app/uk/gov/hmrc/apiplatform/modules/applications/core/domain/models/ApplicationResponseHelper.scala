@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocation, TermsAndConditionsLocation}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
@@ -35,15 +35,15 @@ object ApplicationResponseHelper {
   implicit class LocationsSyntax(application: ApplicationResponse) {
 
     lazy val privacyPolicyLocation: PrivacyPolicyLocation = application.access match {
-      case Standard(_, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _)), _) => privacyPolicyLocation
-      case Standard(_, _, Some(url), _, _)                                                  => PrivacyPolicyLocation.Url(url)
-      case _                                                                                => PrivacyPolicyLocation.NoneProvided
+      case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, privacyPolicyLocation, _))) => privacyPolicyLocation
+      case Access.Standard(_, _, Some(url), _, _, _)                                                  => PrivacyPolicyLocation.Url(url)
+      case _                                                                                          => PrivacyPolicyLocation.NoneProvided
     }
 
     lazy val termsAndConditionsLocation: TermsAndConditionsLocation = application.access match {
-      case Standard(_, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _)), _) => termsAndConditionsLocation
-      case Standard(_, Some(url), _, _, _)                                                       => TermsAndConditionsLocation.Url(url)
-      case _                                                                                     => TermsAndConditionsLocation.NoneProvided
+      case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(termsAndConditionsLocation, _, _))) => termsAndConditionsLocation
+      case Access.Standard(_, Some(url), _, _, _, _)                                                       => TermsAndConditionsLocation.Url(url)
+      case _                                                                                               => TermsAndConditionsLocation.NoneProvided
     }
   }
 }

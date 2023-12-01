@@ -23,8 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessWithRestrictedScopes, OverrideFlag, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{CidrBlock, Collaborator, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
@@ -149,18 +148,18 @@ class ApplicationService @Inject() (
       }
 
       def doesOverrideTypeContainInvalidScopes(overrideFlag: OverrideFlag): Boolean = overrideFlag match {
-        case SuppressIvForAgents(scopes)        => containsInvalidScopes(validScopes, scopes)
-        case SuppressIvForOrganisations(scopes) => containsInvalidScopes(validScopes, scopes)
-        case SuppressIvForIndividuals(scopes)   => containsInvalidScopes(validScopes, scopes)
-        case GrantWithoutConsent(scopes)        => containsInvalidScopes(validScopes, scopes)
-        case _                                  => false
+        case OverrideFlag.SuppressIvForAgents(scopes)        => containsInvalidScopes(validScopes, scopes)
+        case OverrideFlag.SuppressIvForOrganisations(scopes) => containsInvalidScopes(validScopes, scopes)
+        case OverrideFlag.SuppressIvForIndividuals(scopes)   => containsInvalidScopes(validScopes, scopes)
+        case OverrideFlag.GrantWithoutConsent(scopes)        => containsInvalidScopes(validScopes, scopes)
+        case _                                               => false
       }
 
       Future.successful(overrides.filter(doesOverrideTypeContainInvalidScopes))
     }
 
     application.access match {
-      case _: Standard => {
+      case _: Access.Standard => {
         (
           for {
             validScopes                    <- apiScopeConnectorFor(application).fetchAll()
@@ -180,18 +179,18 @@ class ApplicationService @Inject() (
   def updateScopes(application: ApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
 
     application.access match {
-      case _: AccessWithRestrictedScopes => {
+      case _: Access.Privileged | _: Access.Ropc => {
         (
           for {
-            validScopes     <- apiScopeConnectorFor(application).fetchAll()
+            validScopes <- apiScopeConnectorFor(application).fetchAll()
             hasInvalidScopes = !scopes.subsetOf(validScopes.map(_.key).toSet)
           } yield hasInvalidScopes
-        ).flatMap(hasInvalidScopes =>
+          ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
           else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
         )
       }
-      case _: Standard                   => Future.successful(UpdateScopesInvalidScopesResult)
+      case _: Access.Standard                       => Future.successful(UpdateScopesInvalidScopesResult)
     }
   }
 

@@ -18,8 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.LocalDateTime
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
@@ -64,7 +63,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
         teamMembers,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       )
 
@@ -92,18 +91,18 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "AccessType" should {
 
     "contain all access types" in {
-      AccessType.values shouldBe List(STANDARD, PRIVILEGED, ROPC)
+      AccessType.values shouldBe List(AccessType.STANDARD, AccessType.PRIVILEGED, AccessType.ROPC)
     }
 
     "convert strings with any case to AccessType" in {
-      AccessType.apply("standard") shouldBe Some(STANDARD)
-      AccessType.apply("Standard") shouldBe Some(STANDARD)
+      AccessType.apply("standard") shouldBe Some(AccessType.STANDARD)
+      AccessType.apply("Standard") shouldBe Some(AccessType.STANDARD)
 
-      AccessType.apply("privileged") shouldBe Some(PRIVILEGED)
-      AccessType.apply("priVILeged") shouldBe Some(PRIVILEGED)
+      AccessType.apply("privileged") shouldBe Some(AccessType.PRIVILEGED)
+      AccessType.apply("priVILeged") shouldBe Some(AccessType.PRIVILEGED)
 
-      AccessType.apply("ropc") shouldBe Some(ROPC)
-      AccessType.apply("ROPC") shouldBe Some(ROPC)
+      AccessType.apply("ropc") shouldBe Some(AccessType.ROPC)
+      AccessType.apply("ROPC") shouldBe Some(AccessType.ROPC)
     }
 
     "convert unknown strings to None" in {

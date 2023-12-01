@@ -34,7 +34,6 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, MoreApplication, State}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, GrantLength, RateLimitTier}
@@ -108,17 +107,17 @@ class ApplicationControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication               = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -302,7 +301,7 @@ class ApplicationControllerSpec
           collaborators = Set.empty,
           createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
-          access = Standard(),
+          access = Access.Standard(),
           state = ApplicationState(),
           moreApplication = MoreApplication(allowAutoDelete = false)
         )
@@ -1012,11 +1011,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
           eqTo(Set(
-            PersistLogin,
-            GrantWithoutConsent(Set("hello", "individual-benefits")),
-            SuppressIvForAgents(Set("openid", "email")),
-            SuppressIvForOrganisations(Set("address", "openid:mdtp")),
-            SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
+            OverrideFlag.PersistLogin,
+            OverrideFlag.GrantWithoutConsent(Set("hello", "individual-benefits")),
+            OverrideFlag.SuppressIvForAgents(Set("openid", "email")),
+            OverrideFlag.SuppressIvForOrganisations(Set("address", "openid:mdtp")),
+            OverrideFlag.SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
           ))
         )(*)
 
@@ -1270,7 +1269,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            access = Standard(),
+            access = Access.Standard(),
             state = ApplicationState()
           )
 
@@ -1307,7 +1306,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            access = Standard(),
+            access = Access.Standard(),
             state = ApplicationState()
           )
 
@@ -1344,7 +1343,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            access = Standard(),
+            access = Access.Standard(),
             state = ApplicationState()
           )
 
@@ -1380,7 +1379,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            access = Standard(),
+            access = Access.Standard(),
             state = ApplicationState()
           )
 

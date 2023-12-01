@@ -25,7 +25,7 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, IpAllowlist, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -59,7 +59,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       collaborators = Set.empty,
       createdOn = LocalDateTime.now(),
       lastAccess = Some(LocalDateTime.now()),
-      access = Standard(),
+      access = Access.Standard(),
       state = ApplicationState(),
       rateLimitTier = RateLimitTier.BRONZE,
       checkInformation = None,

@@ -25,7 +25,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
@@ -70,7 +70,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      access = Standard(),
+      access = Access.Standard(),
       state = ApplicationState()
     )
 
@@ -84,7 +84,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      access = Standard(),
+      access = Access.Standard(),
       state = ApplicationState()
     )
 
@@ -98,7 +98,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      access = Privileged(),
+      access = Access.Privileged(),
       state = ApplicationState()
     )
 
@@ -112,7 +112,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      access = Ropc(),
+      access = Access.Ropc(),
       state = ApplicationState()
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)

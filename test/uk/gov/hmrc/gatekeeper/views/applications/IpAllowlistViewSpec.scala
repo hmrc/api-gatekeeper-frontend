@@ -24,7 +24,7 @@ import org.jsoup.nodes.Document
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, IpAllowlist}
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -54,7 +54,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState(),
         ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
       )

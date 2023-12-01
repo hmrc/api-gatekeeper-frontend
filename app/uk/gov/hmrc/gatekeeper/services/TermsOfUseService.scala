@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Standard
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -45,7 +45,7 @@ class TermsOfUseService {
     }
   }
 
-  private def getAgreementDetailsFromStandardApp(std: Standard): List[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementDetailsFromStandardApp(std: Access.Standard): List[TermsOfUseAgreementDisplayDetails] = {
     std.importantSubmissionData.fold[List[TermsOfUseAgreementDisplayDetails]](List.empty)(isd =>
       isd.termsOfUseAcceptances
         .map((toua: TermsOfUseAcceptance) =>
@@ -56,8 +56,8 @@ class TermsOfUseService {
 
   private def getAgreementFromStandardApp(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.access match {
-      case std: Standard => getAgreementDetailsFromStandardApp(std).lastOption
-      case _             => None
+      case std: Access.Standard => getAgreementDetailsFromStandardApp(std).lastOption
+      case _                    => None
     }
   }
 

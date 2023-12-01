@@ -27,8 +27,6 @@ import play.api.data.validation._
 import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideType._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
@@ -95,11 +93,11 @@ object Forms {
         else None
       }
 
-      val persistLogin               = if (persistLoginEnabled) Some(PersistLogin) else None
-      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, GrantWithoutConsent)
-      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, SuppressIvForAgents)
-      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, SuppressIvForOrganisations)
-      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, SuppressIvForIndividuals)
+      val persistLogin               = if (persistLoginEnabled) Some(OverrideFlag.PersistLogin) else None
+      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent)
+      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents)
+      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations)
+      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals)
 
       Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
     }
@@ -108,27 +106,27 @@ object Forms {
 
       def overrideWithScopes(overrides: Set[OverrideFlag], overrideType: OverrideType) = {
         overrides.find(_.overrideType == overrideType) match {
-          case Some(o: SuppressIvForAgents)        => (true, Some(o.scopes.mkString(", ")))
-          case Some(o: SuppressIvForOrganisations) => (true, Some(o.scopes.mkString(", ")))
-          case Some(o: SuppressIvForIndividuals)   => (true, Some(o.scopes.mkString(", ")))
-          case Some(o: GrantWithoutConsent)        => (true, Some(o.scopes.mkString(", ")))
-          case _                                   => (false, None)
+          case Some(o: OverrideFlag.SuppressIvForOrganisations) => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: OverrideFlag.SuppressIvForAgents)        => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: OverrideFlag.SuppressIvForIndividuals)   => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: OverrideFlag.GrantWithoutConsent)        => (true, Some(o.scopes.mkString(", ")))
+          case _                                                => (false, None)
         }
       }
 
-      val persistLoginEnabled = overrides.exists(_.overrideType == PERSIST_LOGIN_AFTER_GRANT)
+      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PERSIST_LOGIN_AFTER_GRANT)
 
       val (grantWithoutConsentEnabled, grantWithoutConsentScopes) =
-        overrideWithScopes(overrides, GRANT_WITHOUT_TAXPAYER_CONSENT)
+        overrideWithScopes(overrides, OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT)
 
       val (suppressIvForAgentsEnabled, suppressIvForAgentsScopes) =
-        overrideWithScopes(overrides, SUPPRESS_IV_FOR_AGENTS)
+        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_AGENTS)
 
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
-        overrideWithScopes(overrides, SUPPRESS_IV_FOR_ORGANISATIONS)
+        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS)
 
       val (suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes) =
-        overrideWithScopes(overrides, SUPPRESS_IV_FOR_INDIVIDUALS)
+        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS)
 
       Some((
         persistLoginEnabled,

@@ -27,8 +27,7 @@ import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength}
@@ -216,7 +215,7 @@ class ApplicationConnectorSpec
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        access = Standard(),
+        access = Access.Standard(),
         state = ApplicationState()
       ))
       val payload      = Json.toJson(applications).toString
@@ -328,7 +327,7 @@ class ApplicationConnectorSpec
       collaborators,
       LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
-      access = Standard(),
+      access = Access.Standard(),
       state = applicationState
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
@@ -383,7 +382,7 @@ class ApplicationConnectorSpec
   }
 
   "updateOverrides" should {
-    val overridesRequest = UpdateOverridesRequest(Set(PersistLogin, SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
+    val overridesRequest = UpdateOverridesRequest(Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
     val url              = s"/application/${applicationId.value.toString()}/access/overrides"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {

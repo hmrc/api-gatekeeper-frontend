@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.services
 import java.time.format.DateTimeFormatter
 import java.time.{LocalDateTime, ZoneOffset}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -42,8 +42,8 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val stdAppAgreement            = TermsOfUseAcceptance(responsibleIndividual, timestamp)
   val importantSubmissionData    = ImportantSubmissionData(TermsAndConditionsLocation.InDesktopSoftware, PrivacyPolicyLocation.InDesktopSoftware, List(stdAppAgreement))
   val appWithCheckInfoAgreements = DefaultApplication.copy(checkInformation = Some(checkInformation))
-  val appWithStdAppAgreements    = appWithNoAgreements.copy(access = Standard(importantSubmissionData = Some(importantSubmissionData)))
-  val nonStdApp                  = appWithNoAgreements.copy(access = Privileged())
+  val appWithStdAppAgreements    = appWithNoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
+  val nonStdApp                  = appWithNoAgreements.copy(access = Access.Privileged())
   val underTest                  = new TermsOfUseService()
 
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
@@ -62,7 +62,7 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
       maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(timestamp), version2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData AND in CheckInformation" in {
-      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.copy(access = Standard(importantSubmissionData = Some(importantSubmissionData))))
+      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData))))
       maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(timestamp), version2))
     }
     "return None if non-standard app is checked" in {
@@ -71,13 +71,13 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
     }
     "return None if ImportantSubmissionData is missing" in {
       val maybeAgreement =
-        underTest.getAgreementDetails(appWithStdAppAgreements.copy(access = appWithStdAppAgreements.access.asInstanceOf[Standard].copy(importantSubmissionData = None)))
+        underTest.getAgreementDetails(appWithStdAppAgreements.copy(access = appWithStdAppAgreements.access.asInstanceOf[Access.Standard].copy(importantSubmissionData = None)))
       maybeAgreement shouldBe None
     }
     "return None if ImportantSubmissionData.termsOfUseAcceptances is empty" in {
-      val importantSubmissionData = appWithStdAppAgreements.access.asInstanceOf[Standard].importantSubmissionData.get
+      val importantSubmissionData = appWithStdAppAgreements.access.asInstanceOf[Access.Standard].importantSubmissionData.get
       val maybeAgreement          = underTest.getAgreementDetails(appWithStdAppAgreements.copy(access =
-        appWithStdAppAgreements.access.asInstanceOf[Standard].copy(importantSubmissionData = Some(importantSubmissionData.copy(termsOfUseAcceptances = List.empty)))
+        appWithStdAppAgreements.access.asInstanceOf[Access.Standard].copy(importantSubmissionData = Some(importantSubmissionData.copy(termsOfUseAcceptances = List.empty)))
       ))
       maybeAgreement shouldBe None
     }

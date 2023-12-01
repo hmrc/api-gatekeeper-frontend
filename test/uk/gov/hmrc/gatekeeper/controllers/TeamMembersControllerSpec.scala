@@ -24,8 +24,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideFlag.PersistLogin
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Privileged, Ropc, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -61,17 +60,17 @@ class TeamMembersControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
 
