@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import mocks.services.ApplicationServiceMockProvider
 import org.mockito.captor.ArgCaptor
 
@@ -45,7 +46,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.{
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   val forbiddenView        = mock[ForbiddenView]
   val errorTemplate        = mock[ErrorTemplate]

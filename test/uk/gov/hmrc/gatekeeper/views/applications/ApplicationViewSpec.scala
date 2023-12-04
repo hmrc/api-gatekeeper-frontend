@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 
 import org.jsoup.Jsoup
 
-import play.api.mvc.Flash
+import play.api.mvc.{AnyContentAsEmpty, Flash}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
@@ -39,8 +39,8 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
 
   trait Setup {
-    implicit val request = FakeRequest()
-    val applicationView  = app.injector.instanceOf[ApplicationView]
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    val applicationView                                       = app.injector.instanceOf[ApplicationView]
 
     val developers = List[RegisteredUser] {
       new RegisteredUser(LaxEmailAddress("joe.bloggs@example.co.uk"), UserId.random, "joe", "bloggs", false)

@@ -17,16 +17,12 @@
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationResponseHelper {
 
   implicit class AdminsSyntax(application: ApplicationResponse) {
-
-    // TODO: Move to api-platform-application-domain?
-    def admins: Set[Collaborator] = application.collaborators.filter(_.isAdministrator)
 
     def isSoleAdmin(emailAddress: LaxEmailAddress): Boolean =
       application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1

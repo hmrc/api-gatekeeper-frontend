@@ -20,7 +20,6 @@ object StateHelper {
 
   implicit class StateSyntax(state: State) {
 
-    // TODO: Move to api-platform-application-domain?
     val displayText: String = state match {
       case State.TESTING                                     => "Created"
       case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => "Pending Responsible Individual Verification"

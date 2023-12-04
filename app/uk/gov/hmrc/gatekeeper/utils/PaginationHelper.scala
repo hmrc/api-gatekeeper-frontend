@@ -22,7 +22,7 @@ object PaginationHelper {
     if (pageSize == 0) 0
     else {
       val add = if (totalResults % pageSize == 0) 0 else 1
-      Math.ceil(totalResults / pageSize).toInt + add
+      (totalResults / pageSize) + add
     }
   }
 }

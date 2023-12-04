@@ -65,7 +65,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     )
     val underTest          = spy(applicationService)
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = Set[Collaborator](
       Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),

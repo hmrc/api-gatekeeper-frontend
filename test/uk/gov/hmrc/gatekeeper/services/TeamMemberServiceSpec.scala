@@ -55,7 +55,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
     )
     val underTest         = spy(teamMemberService)
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = Set[Collaborator](
       Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
@@ -88,7 +88,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.succeeds()
 
-      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe (())
+      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).value shouldBe (())
     }
 
     "propagate a failure error from application connector" in new Setup {
@@ -108,7 +108,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe (())
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).value shouldBe (())
     }
 
     "propagate CannotRemoveLastAdmin error from application connector" in new Setup {

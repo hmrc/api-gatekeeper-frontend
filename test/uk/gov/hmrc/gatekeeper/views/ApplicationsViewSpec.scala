@@ -54,8 +54,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
-    implicit val mockConfig: AppConfig = mock[AppConfig]
-    implicit val loggedInUser          = LoggedInUser(Some("Bob Dole"))
+    implicit val mockConfig: AppConfig      = mock[AppConfig]
+    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
       ApiStatus.STABLE.displayText     -> Seq(VersionSummary("Dummy API", ApiStatus.STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),

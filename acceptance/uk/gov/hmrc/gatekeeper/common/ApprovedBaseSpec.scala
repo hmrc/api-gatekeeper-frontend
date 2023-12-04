@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.{By, NoSuchElementException}
+import org.openqa.selenium.{By, NoSuchElementException, WebDriver}
 import org.scalatest.matchers.should.Matchers
 
 import play.api.http.Status._
@@ -36,7 +36,7 @@ trait ApprovedBaseSpec extends BaseSpec
 
   import MockDataSugar._
 
-  implicit val driver = webDriver
+  implicit val driver: WebDriver = webDriver
 
   protected def stubRateLimitTier(applicationId: String, tier: String) = {
     stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))

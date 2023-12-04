@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import mocks.services._
 
 import play.api.test.FakeRequest
@@ -42,7 +43,7 @@ class SubscriptionControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]

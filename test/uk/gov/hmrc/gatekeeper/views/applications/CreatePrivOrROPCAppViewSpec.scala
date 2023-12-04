@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.views.applications
 
 import org.jsoup.Jsoup
 
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
@@ -32,10 +33,9 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
 
   trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
-    implicit val request      = FakeRequest().withCSRFToken
 
-    implicit val userFullName             = LoggedInUser(Some("firstName lastName"))
-    val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivOrROPCAppForm)
+    implicit val userFullName: LoggedInUser = LoggedInUser(Some("firstName lastName"))
+    val page: () => HtmlFormat.Appendable   = () => createApplicationView(createPrivOrROPCAppForm)
   }
 
   "CreatePrivOrROPCApp page" should {

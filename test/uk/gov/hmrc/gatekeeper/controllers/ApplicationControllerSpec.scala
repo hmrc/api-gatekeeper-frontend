@@ -22,6 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
+import akka.stream.Materializer
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.jsoup.Jsoup
@@ -62,7 +63,7 @@ class ApplicationControllerSpec
     with TitleChecker
     with CollaboratorTracker {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView             = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                 = app.injector.instanceOf[ForbiddenView]

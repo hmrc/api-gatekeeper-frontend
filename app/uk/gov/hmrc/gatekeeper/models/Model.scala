@@ -267,10 +267,6 @@ object CreatePrivOrROPCAppSuccessResult {
   implicit val rds1: Reads[TotpSecrets]                      = Json.reads[TotpSecrets]
   implicit val rds4: Reads[AppAccess]                        = Json.reads[AppAccess]
   implicit val rds5: Reads[CreatePrivOrROPCAppSuccessResult] = Json.reads[CreatePrivOrROPCAppSuccessResult]
-
-  implicit val format1: OFormat[TotpSecrets]                      = Json.format[TotpSecrets]
-  implicit val format2: OFormat[AppAccess]                        = Json.format[AppAccess]
-  implicit val format3: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
 }
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 

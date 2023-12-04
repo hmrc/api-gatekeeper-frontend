@@ -45,7 +45,7 @@ class HttpDeveloperConnectorSpec
     with UrlEncoding {
 
   trait Setup {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockAppConfig         = mock[AppConfig]
     val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")

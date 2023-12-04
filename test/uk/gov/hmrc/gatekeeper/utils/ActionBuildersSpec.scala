@@ -19,6 +19,9 @@ package uk.gov.hmrc.gatekeeper.utils
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import akka.stream.Materializer
+
+import play.api.i18n.Messages
 import play.api.mvc.Results.Ok
 import play.api.mvc.{MessagesRequest, _}
 import play.api.test.FakeRequest
@@ -27,7 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{LoggedInRequest, _}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
@@ -38,8 +41,8 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 class ActionBuildersSpec extends ControllerBaseSpec {
 
   trait Setup extends ControllerSetupBase {
-    implicit val materializer      = app.materializer
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    implicit val materializer: Materializer = app.materializer
+    implicit val hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
       val applicationService: ApplicationService = mockApplicationService
@@ -47,10 +50,10 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       val errorHandler: ErrorHandler             = app.injector.instanceOf[ErrorHandler]
     }
 
-    val fakeRequest                   = FakeRequest()
-    val msgRequest                    = new MessagesRequest(fakeRequest, stubMessagesApi())
-    implicit val aUserLoggedInRequest = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
-    implicit val messages             = mcc.messagesApi.preferred(aUserLoggedInRequest)
+    val fakeRequest                                                            = FakeRequest()
+    val msgRequest                                                             = new MessagesRequest(fakeRequest, stubMessagesApi())
+    implicit val aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
+    implicit val messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 

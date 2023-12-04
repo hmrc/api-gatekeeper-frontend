@@ -43,7 +43,7 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
     val appId = ApplicationId.random
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
   }
 
   "Call subordinate when environment is SANDBOX" in new Setup {

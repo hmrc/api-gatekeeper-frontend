@@ -52,7 +52,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     )
     val underTest           = spy(subscriptionService)
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = Set[Collaborator](
       Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
@@ -142,7 +142,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.right.value shouldBe DispatchSuccessResult(stdApp1)
+      result.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 
@@ -153,7 +153,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.right.value shouldBe DispatchSuccessResult(stdApp1)
+      result.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 }

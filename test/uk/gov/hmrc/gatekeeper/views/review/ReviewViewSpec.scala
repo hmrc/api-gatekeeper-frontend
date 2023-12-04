@@ -21,6 +21,7 @@ import java.time.LocalDateTime
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
 
+import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
@@ -35,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 class ReviewViewSpec extends CommonViewSpec {
 
   trait Setup extends AppConfigMock {
-    implicit val request = FakeRequest().withCSRFToken
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val reviewView = app.injector.instanceOf[ReviewView]
 

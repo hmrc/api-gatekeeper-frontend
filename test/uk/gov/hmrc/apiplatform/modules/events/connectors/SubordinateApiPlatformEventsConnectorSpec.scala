@@ -38,8 +38,8 @@ class SubordinateApiPlatformEventsConnectorSpec
     with FixedClock {
 
   trait Setup {
-    val authToken   = "Bearer Token"
-    implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+    val authToken                  = "Bearer Token"
+    implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
     val httpClient                                             = app.injector.instanceOf[HttpClient]
     val mockConfig: PrincipalApiPlatformEventsConnector.Config = mock[PrincipalApiPlatformEventsConnector.Config]

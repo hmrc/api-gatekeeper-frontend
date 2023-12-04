@@ -20,7 +20,6 @@ object MoreApplicationHelper {
 
   implicit class AllowAutoDeleteSyntax(moreApplication: MoreApplication) {
 
-    // TODO: Move to api-platform-application-domain?
     val displayText: String = moreApplication.allowAutoDelete match {
       case true  => "Yes"
       case false => "No"

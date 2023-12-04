@@ -29,7 +29,7 @@ object AppDependencies {
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-application-domain"   % "0.31.0-SNAPSHOT",
+    "uk.gov.hmrc"                 %% "api-platform-application-domain"   % "0.31.0",
     "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.9.0"
   )
 
@@ -41,7 +41,7 @@ object AppDependencies {
     "com.github.tomakehurst"      %  "wiremock-jre8-standalone"          % "2.34.0",
     "org.seleniumhq.selenium"     %  "selenium-java"                     % seleniumVersion,
     "org.seleniumhq.selenium"     %  "htmlunit-driver"                   % "3.64.0",
-    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.22",
+    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.29",
     "org.scalatest"               %% "scalatest"                         % "3.2.17",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
     "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.46.0"

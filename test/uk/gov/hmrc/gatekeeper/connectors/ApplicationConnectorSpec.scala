@@ -23,7 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
@@ -49,10 +49,14 @@ class ApplicationConnectorSpec
   val administrator = Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
 
-  val authToken   = "Bearer Token"
-  implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  val authToken                  = "Bearer Token"
+  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
+    implicit val totpFormat: OFormat[TotpSecrets]                        = Json.format[TotpSecrets]
+    implicit val accessFormat: OFormat[AppAccess]                        = Json.format[AppAccess]
+    implicit val createFormat: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
+
     val httpClient               = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
@@ -306,8 +310,7 @@ class ApplicationConnectorSpec
   }
 
   "fetchApplication" should {
-    val url         = s"/gatekeeper/application/${applicationId.value.toString()}"
-    val grantLength = GrantLength.EIGHTEEN_MONTHS.days
+    val url = s"/gatekeeper/application/${applicationId.value.toString()}"
 
     val collaborators: Set[Collaborator] = Set(
       administrator,

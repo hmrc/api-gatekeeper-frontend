@@ -48,7 +48,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val accessType = Some(AccessType.PRIVILEGED)
         val totp       = Some(TotpSecrets(totpSecret))
 
-        implicit val loggedInUser = LoggedInUser(Some(""))
+        implicit val loggedInUser: LoggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider, fakeRequest)

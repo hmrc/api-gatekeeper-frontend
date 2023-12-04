@@ -22,7 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, Writes}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
@@ -44,7 +44,7 @@ class ApmConnectorSpec
     with FixedClock {
 
   trait Setup extends ApplicationBuilder with ApiBuilder {
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClient]
 
@@ -67,7 +67,7 @@ class ApmConnectorSpec
 
   "fetchApplicationById" should {
     "return ApplicationWithSubscriptionData" in new Setup {
-      implicit val writesApplicationWithSubscriptionData = Json.writes[ApplicationWithSubscriptionData]
+      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionData] = Json.writes[ApplicationWithSubscriptionData]
 
       val url                             = s"/applications/${applicationId.value.toString()}"
       val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)

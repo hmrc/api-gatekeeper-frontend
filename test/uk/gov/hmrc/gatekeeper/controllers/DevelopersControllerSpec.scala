@@ -18,6 +18,9 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
+
+import play.api.mvc.AnyContentAsFormUrlEncoded
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 
@@ -33,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer                         = app.materializer
+  implicit val materializer: Materializer           = app.materializer
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                    = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView                   = app.injector.instanceOf[DevelopersView]
@@ -167,8 +170,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1, true), aUser(email2, true), aUser(email3))
 
-        implicit val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
-        val result           = developersController.developersPage()(request)
+        implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
+        val result                                                    = developersController.developersPage()(request)
 
         contentAsString(result) should include(s"${email1.text}; ${email2.text}")
       }
@@ -254,8 +257,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1.toLaxEmail), aUser(email2.toLaxEmail))
 
-        implicit val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
-        val result           = developersController.developersPage()(request)
+        implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
+        val result                                                    = developersController.developersPage()(request)
 
         contentAsString(result) should include("Showing 2 entries")
       }

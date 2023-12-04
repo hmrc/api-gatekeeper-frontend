@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 
 import org.jsoup.Jsoup
 
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, State}
@@ -38,9 +38,9 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
   "delete developer view" should {
-    implicit val request  = FakeRequest().withCSRFToken
+    // implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
     implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(request)
+    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 

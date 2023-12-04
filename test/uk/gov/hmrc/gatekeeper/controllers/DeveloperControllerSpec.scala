@@ -19,6 +19,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
+
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
@@ -38,7 +40,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationBuilder {
 
-  implicit val materializer                   = app.materializer
+  implicit val materializer: Materializer     = app.materializer
   private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView              = app.injector.instanceOf[ForbiddenView]
   private lazy val developerDetailsView       = app.injector.instanceOf[DeveloperDetailsView]

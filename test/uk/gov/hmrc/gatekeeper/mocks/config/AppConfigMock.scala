@@ -22,7 +22,7 @@ import org.mockito.MockitoSugar
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 
 trait AppConfigMock extends MockitoSugar {
-  implicit val mockConfig = mock[AppConfig]
+  implicit val mockConfig: AppConfig = mock[AppConfig]
 
   when(mockConfig.title).thenReturn("Unit Test Title")
 
