@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.data.FormError
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateGrantLengthForm
 

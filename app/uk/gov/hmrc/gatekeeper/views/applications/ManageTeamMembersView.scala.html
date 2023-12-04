@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -58,7 +58,7 @@
       @for(teamMember <- application.collaborators.toSeq.sortBy(_.emailAddress.text)) {
         <tr class="govuk-table__row" data-teamMember-row="@teamMember.emailAddress.text">
           <td class="govuk-table__cell" style="vertical-align: middle;">@teamMember.emailAddress.text</td>
-          <td class="govuk-table__cell" style="vertical-align: middle;">@CollaboratorRole.displayedRole(teamMember)</td>
+          <td class="govuk-table__cell" style="vertical-align: middle;">@teamMember.role.displayText</td>
           <td class="govuk-table__cell">
             @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), Symbol("class") -> "form inline-controls") {
             @helper.CSRF.formField

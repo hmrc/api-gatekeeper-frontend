@@ -23,9 +23,8 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
@@ -241,7 +240,7 @@ class DeveloperService @Inject() (
     }
 
     def removeTeamMemberFromApp(developer: Developer)(app: ApplicationResponse): Future[Unit] = {
-      val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (developer.email)).get // Safe as we know we're a dev on this app
+      val collaborator = app.collaborators.find(_.emailAddress == developer.email).get // Safe as we know we're a dev on this app
 
       for {
         adminsToEmail <- fetchAdminsToEmail(developer.email)(app)

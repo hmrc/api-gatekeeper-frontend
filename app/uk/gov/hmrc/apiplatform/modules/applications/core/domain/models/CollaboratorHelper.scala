@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.LocalDateTime
+object CollaboratorHelper {
 
-case class TermsOfUseAcceptance(responsibleIndividual: ResponsibleIndividual, dateTime: LocalDateTime, submissionId: SubmissionId, submissionInstance: Int = 0)
+  implicit class RoleSyntax(role: Collaborator.Role) {
 
-object TermsOfUseAcceptance {
-  import play.api.libs.json._
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
-
-  implicit val format: OFormat[TermsOfUseAcceptance] = Json.format[TermsOfUseAcceptance]
+    // TODO: Move to api-platform-application-domain?
+    def displayText: String = role match {
+      case Collaborator.Roles.ADMINISTRATOR => "Administrator"
+      case Collaborator.Roles.DEVELOPER     => "Developer"
+    }
+  }
 }

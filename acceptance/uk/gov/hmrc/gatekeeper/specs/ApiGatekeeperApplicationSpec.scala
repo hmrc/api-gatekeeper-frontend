@@ -77,7 +77,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-collaborator-role", "Admin", 0)
       verifyText("data-collaborator-email", "purnima.fakename@example.com", 1)
       verifyText("data-collaborator-role", "Developer", 1)
-      verifyText("data-collaborator-email", "Dixie.fakename@example.com", 2)
+      verifyText("data-collaborator-email", "dixie.fakename@example.com", 2)
       verifyText("data-collaborator-role", "Developer", 2)
       verifyText("data-submitted-on", "22 August 2019")
       verifyText("data-submitted-by-email", "admin@example.com")

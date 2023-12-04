@@ -27,9 +27,7 @@ import uk.gov.hmrc.http.SessionKeys
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CollaboratorRole.CollaboratorRole
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, CollaboratorRole, State, StateHistory}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
@@ -70,7 +68,6 @@ case class ApplicationWithSubscriptionDataAndFieldDefinitions(
   )
 
 object ApplicationWithHistory {
-  implicit val formatRole: Format[CollaboratorRole]       = Json.formatEnum(CollaboratorRole)
   implicit val format4: OFormat[ApplicationState]         = Json.format[ApplicationState]
   implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
   implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
@@ -369,7 +366,6 @@ case object FieldsDeleteFailureResult extends FieldsDeleteResult
 final case class CreatePrivOrROPCAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 
 object CreatePrivOrROPCAppRequest {
-  implicit val format2: Format[CollaboratorRole]            = Json.formatEnum(CollaboratorRole)
   implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
   implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
   implicit val format7: OFormat[CreatePrivOrROPCAppRequest] = Json.format[CreatePrivOrROPCAppRequest]
@@ -377,10 +373,9 @@ object CreatePrivOrROPCAppRequest {
 
 case class AppAccess(accessType: AccessType, scopes: List[String])
 
-final case class AddTeamMemberRequest(email: String, role: CollaboratorRole.CollaboratorRole, requestingEmail: Option[String])
+final case class AddTeamMemberRequest(email: String, role: Collaborator.Role, requestingEmail: Option[String])
 
 object AddTeamMemberRequest {
-  implicit val format1: Format[CollaboratorRole]      = Json.formatEnum(CollaboratorRole)
   implicit val format3: OFormat[AddTeamMemberRequest] = Json.format[AddTeamMemberRequest]
 }
 

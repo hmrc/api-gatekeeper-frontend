@@ -20,8 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.OverrideTypeHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.MoreApplicationHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CollaboratorRole, State}
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators, RateLimitTier}
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
@@ -35,8 +34,7 @@
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.{Clock, LocalDateTime}
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
-@import uk.gov.hmrc.apiplatform.modules .applications.core.domain.models.MoreApplication
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
 
@@ -302,7 +300,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @RateLimitTier.show(application.rateLimitTier)
+        @application.rateLimitTier.displayText
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -543,7 +541,7 @@
         </table>
         @if(application.collaborators.nonEmpty) {
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
-          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
+          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(Collaborator.Roles.ADMINISTRATOR))</span>
           <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" data-clip-text>Copy all team member email addresses</button>
           <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button>
         }

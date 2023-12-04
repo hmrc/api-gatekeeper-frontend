@@ -30,8 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, State, StateHistory, StateHistoryHelper}
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -767,7 +766,7 @@ class ApplicationController @Inject() (
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
-                result.flashing("success" -> s"Rate limit tier has been changed to ${RateLimitTier.show(tier)}")
+                result.flashing("success" -> s"Rate limit tier has been changed to ${tier.displayText}")
               case _                              =>
                 result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
             }

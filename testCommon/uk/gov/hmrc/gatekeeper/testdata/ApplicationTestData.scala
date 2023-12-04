@@ -18,8 +18,7 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.LocalDateTime
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.IpAllowlist
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowlist, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 

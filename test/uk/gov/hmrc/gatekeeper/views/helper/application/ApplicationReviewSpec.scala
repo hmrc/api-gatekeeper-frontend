@@ -41,7 +41,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
         ApplicationReview.getReviewContactName(appResponse.checkInformation) shouldBe Some("contactFullName")
       }
       "review contact email return Some" in {
-        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactEmail")
+        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactemail")
       }
       "review contact telephone return Some" in {
         ApplicationReview.getReviewContactTelephone(appResponse.checkInformation) shouldBe Some("contactTelephone")

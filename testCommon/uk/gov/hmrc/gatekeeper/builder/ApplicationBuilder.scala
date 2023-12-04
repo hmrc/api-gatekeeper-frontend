@@ -21,9 +21,8 @@ import java.time.LocalDateTime
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
@@ -66,6 +65,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       createdOn,
       lastAccess,
       grantLength,
+      lastAccessTokenUsage = None,
       termsAndConditionsUrl,
       privacyPolicyUrl,
       access,
@@ -73,13 +73,14 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       rateLimitTier,
       checkInformation,
       blocked,
+      trusted = false,
       ipAllowlist,
       moreApplication
     )
   // scalastyle:on parameter.number
 
   val DefaultApplication = buildApplication(
-    collaborators = buildCollaborators(Seq(("a@b.com", CollaboratorRole.ADMINISTRATOR))),
+    collaborators = buildCollaborators(Seq(("a@b.com", Collaborator.Roles.ADMINISTRATOR))),
     access = Access.Standard(
       redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
       termsAndConditionsUrl = Some("http://tnc-url.com")
