@@ -104,11 +104,11 @@
           </thead>
           <tbody class="govuk-table__body">
             @overrides.toList.map {
-              case _ @ OverrideFlag.PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
-              case or: OverrideFlag.SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
-              case or: OverrideFlag.SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
-              case or: OverrideFlag.SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
-              case or: OverrideFlag.GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+              case _ @ OverrideFlag.PersistLogin => {@buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+              case or: OverrideFlag.SuppressIvForAgents => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForOrganisations => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForIndividuals => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
+              case or: OverrideFlag.GrantWithoutConsent => {@buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
             }
           </tbody>
         </table>
