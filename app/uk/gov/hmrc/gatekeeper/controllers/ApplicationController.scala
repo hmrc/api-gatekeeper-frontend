@@ -128,7 +128,7 @@ class ApplicationController @Inject() (
   }
 
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
-    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
+    val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
@@ -233,7 +233,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def checkEligibleForTermsOfUseInvite(app: ApplicationResponse, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
+      def checkEligibleForTermsOfUseInvite(app: GKApplicationResponse, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
           case std: Access.Standard
               if (app.state.name == State.PRODUCTION &&
@@ -438,7 +438,7 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength)))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays())))
       Future.successful(Ok(manageGrantLengthView(app.application, form)))
     }
   }
@@ -476,7 +476,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleAutoDeleteDisabled(application: ApplicationResponse) = {
+      def handleAutoDeleteDisabled(application: GKApplicationResponse) = {
         for {
           event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
                      .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
@@ -665,7 +665,7 @@ class ApplicationController @Inject() (
         developerService.fetchDevelopersByEmails(emails)
       }
 
-      def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
+      def application(app: GKApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
         val verified = app.state.name.isApproved
         val details  = applicationReviewDetails(app, submissionDetails)(request)
 
@@ -698,7 +698,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
+  private def applicationReviewDetails(app: GKApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
     val currentRateLimitTierToDisplay = if (request.role.isSuperUser) Some(app.rateLimitTier) else None
 
     val contactDetails = for {
@@ -803,7 +803,7 @@ class ApplicationController @Inject() (
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 
-    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
+    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[GKApplicationResponse]): FieldValidationResult[String] = {
       val isValid = environment match {
         case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION) && (app.name == applicationName))
         case _                      => true
@@ -831,14 +831,14 @@ class ApplicationController @Inject() (
           }
       }
 
-      def validateValues(apps: Seq[ApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
+      def validateValues(apps: Seq[GKApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
         (
           validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
           validateUserSuitability(user).withField("adminEmail")
         )
           .mapN((n, u) => (n, u))
 
-      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType): Future[Result] =
+      def handleValues(apps: Seq[GKApplicationResponse], user: Option[User], accessType: AccessType): Future[Result] =
         validateValues(apps, user)
           .fold[Future[Result]](
             errs => successful(viewWithFormErrors(errs)),

@@ -23,7 +23,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status._
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
@@ -40,7 +40,7 @@ trait ApplicationConnectorMockProvider {
     import mocks.PaginatedApplicationResponseBuilder._
 
     object SearchApplications {
-      def returns(apps: ApplicationResponse*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+      def returns(apps: GKApplicationResponse*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
     }
 
     object SearchCollaborators {
@@ -52,7 +52,7 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchAllApplications {
-      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
+      def returns(apps: GKApplicationResponse*) = when(aMock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchAllApplicationsWithStateHistories {
@@ -62,7 +62,7 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchAllApplicationsWithNoSubscriptions {
-      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
+      def returns(apps: GKApplicationResponse*) = when(aMock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchApplicationsWithSubscriptions {
@@ -70,7 +70,7 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchAllApplicationsBySubscription {
-      def returns(apps: ApplicationResponse*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
+      def returns(apps: GKApplicationResponse*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchApplication {
@@ -81,11 +81,11 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchApplicationsByUserId {
-      def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+      def returns(apps: GKApplicationResponse*) = when(aMock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
     object FetchApplicationsExcludingDeletedByUserId {
-      def returns(apps: ApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+      def returns(apps: GKApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
     object UpdateScopes {

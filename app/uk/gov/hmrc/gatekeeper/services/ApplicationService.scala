@@ -44,7 +44,7 @@ class ApplicationService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def resendVerification(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
+  def resendVerification(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
   }
 
@@ -87,7 +87,7 @@ class ApplicationService @Inject() (
     }))
   }
 
-  def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
+  def fetchApplications(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
     val sandboxApplicationsFuture    = sandboxApplicationConnector.fetchAllApplications()
     val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()
 
@@ -97,7 +97,7 @@ class ApplicationService @Inject() (
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
+  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
     val connectors: List[ApplicationConnector] = envFilter match {
       case ProductionEnvironment => List(productionApplicationConnector)
       case SandboxEnvironment    => List(sandboxApplicationConnector)
@@ -140,7 +140,7 @@ class ApplicationService @Inject() (
     applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
-  def updateOverrides(application: ApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+  def updateOverrides(application: GKApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[OverrideFlag]] = {
       def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
         !scopes.forall(validScopes)
@@ -175,7 +175,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def updateScopes(application: ApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+  def updateScopes(application: GKApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
 
     application.access match {
       case _: Access.Privileged | _: Access.Ropc => {
@@ -194,7 +194,7 @@ class ApplicationService @Inject() (
   }
 
   def manageIpAllowlist(
-      application: ApplicationResponse,
+      application: GKApplicationResponse,
       required: Boolean,
       ipAllowlist: Set[String],
       gatekeeperUser: String
@@ -217,12 +217,12 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def validateApplicationName(application: ApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+  def validateApplicationName(application: GKApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
 
   def updateApplicationName(
-      application: ApplicationResponse,
+      application: GKApplicationResponse,
       adminEmail: LaxEmailAddress,
       gatekeeperUser: String,
       name: String
@@ -241,7 +241,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def updateGrantLength(application: ApplicationResponse, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateGrantLength(application: GKApplicationResponse, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
@@ -262,30 +262,35 @@ class ApplicationService @Inject() (
     appCmdResult.map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def updateRateLimitTier(application: ApplicationResponse, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def updateRateLimitTier(application: GKApplicationResponse, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, now(), tier), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def deleteApplication(application: ApplicationResponse, gatekeeperUserId: String, requestByEmailAddress: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+  def deleteApplication(
+      application: GKApplicationResponse,
+      gatekeeperUserId: String,
+      requestByEmailAddress: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
     val reasons       = "Application deleted by Gatekeeper user"
     val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, now())
     applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
   }
 
-  def blockApplication(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
+  def blockApplication(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
     applicationConnectorFor(application).blockApplication(application.id, BlockApplicationRequest(gatekeeperUserId))
   }
 
-  def unblockApplication(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
+  def unblockApplication(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
     applicationConnectorFor(application).unblockApplication(application.id, UnblockApplicationRequest(gatekeeperUserId))
   }
 
-  def approveUplift(application: ApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
+  def approveUplift(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
     applicationConnectorFor(application).approveUplift(application.id, gatekeeperUserId)
   }
 
-  def rejectUplift(application: ApplicationResponse, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
+  def rejectUplift(application: GKApplicationResponse, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
     applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
   }
 
@@ -305,13 +310,13 @@ class ApplicationService @Inject() (
     }
   }
 
-  def applicationConnectorFor(application: ApplicationResponse): ApplicationConnector =
+  def applicationConnectorFor(application: GKApplicationResponse): ApplicationConnector =
     if (application.deployedTo == Environment.PRODUCTION) productionApplicationConnector else sandboxApplicationConnector
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
     if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
 
-  def apiScopeConnectorFor(application: ApplicationResponse): ApiScopeConnector =
+  def apiScopeConnectorFor(application: GKApplicationResponse): ApiScopeConnector =
     if (application.deployedTo == Environment.PRODUCTION) productionApiScopeConnector else sandboxApiScopeConnector
 
   private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)

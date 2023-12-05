@@ -21,7 +21,7 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
@@ -34,7 +34,7 @@ class SubscriptionFieldsService @Inject() (
   ) extends APIDefinitionFormatters {
 
   def saveFieldValues(
-      application: ApplicationResponse,
+      application: GKApplicationResponse,
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias

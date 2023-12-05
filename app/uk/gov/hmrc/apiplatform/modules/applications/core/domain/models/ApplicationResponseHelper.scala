@@ -22,13 +22,13 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationResponseHelper {
 
-  implicit class AdminsSyntax(application: ApplicationResponse) {
+  implicit class AdminsSyntax(application: GKApplicationResponse) {
 
     def isSoleAdmin(emailAddress: LaxEmailAddress): Boolean =
       application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
   }
 
-  implicit class LocationsSyntax(application: ApplicationResponse) {
+  implicit class LocationsSyntax(application: GKApplicationResponse) {
 
     lazy val privacyPolicyLocation: PrivacyPolicyLocation = application.access match {
       case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, privacyPolicyLocation, _))) => privacyPolicyLocation

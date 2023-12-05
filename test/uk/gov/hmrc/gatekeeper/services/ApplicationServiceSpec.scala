@@ -389,7 +389,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       ApplicationConnectorMock.Prod.FetchAllApplications.returns(allProductionApplications: _*)
       ApplicationConnectorMock.Sandbox.FetchAllApplications.returns(allProductionApplications: _*)
 
-      val result: Seq[ApplicationResponse] = await(underTest.fetchApplications)
+      val result: Seq[GKApplicationResponse] = await(underTest.fetchApplications)
       result shouldEqual allProductionApplications
 
       verify(mockProductionApplicationConnector).fetchAllApplications()(*)
@@ -572,9 +572,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "manageIpAllowlist" should {
     "issue the command to update the ip allowlist" in new Setup {
-      val existingIpAllowlist      = IpAllowlist(required = false, Set("192.168.1.0/24"))
-      val app: ApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
-      val newIpAllowlist           = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
+      val existingIpAllowlist        = IpAllowlist(required = false, Set("192.168.1.0/24"))
+      val app: GKApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
+      val newIpAllowlist             = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
       CommandConnectorMock.IssueCommand.succeeds()
 
       val result = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist, gatekeeperUserId))

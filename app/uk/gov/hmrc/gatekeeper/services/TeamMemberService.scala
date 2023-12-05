@@ -24,7 +24,7 @@ import com.google.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, GKApplicationResponse}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailure}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
@@ -39,7 +39,7 @@ class TeamMemberService @Inject() (
   ) extends ApplicationLogger with ClockNow {
 
   def addTeamMember(
-      app: ApplicationResponse,
+      app: GKApplicationResponse,
       collaborator: Collaborator,
       user: Actors.GatekeeperUser
     )(implicit hc: HeaderCarrier
@@ -53,7 +53,7 @@ class TeamMemberService @Inject() (
   }
 
   def removeTeamMember(
-      app: ApplicationResponse,
+      app: GKApplicationResponse,
       teamMemberToRemove: LaxEmailAddress,
       user: Actors.GatekeeperUser
     )(implicit hc: HeaderCarrier

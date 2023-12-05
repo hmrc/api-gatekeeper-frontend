@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
@@ -43,7 +43,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       collaborators: Set[Collaborator] = Set.empty,
       createdOn: LocalDateTime = LocalDateTime.now(),
       lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
-      grantLength: Int = GrantLength.EIGHTEEN_MONTHS.days,
+      grantLength: Period = Period.ofDays(GrantLength.EIGHTEEN_MONTHS.days),
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
       access: Access = Access.Standard(),
@@ -53,8 +53,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
       moreApplication: MoreApplication = MoreApplication(true)
-    ): ApplicationResponse =
-    ApplicationResponse(
+    ): GKApplicationResponse =
+    GKApplicationResponse(
       id,
       clientId,
       gatewayId,
@@ -65,7 +65,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       createdOn,
       lastAccess,
       grantLength,
-      lastAccessTokenUsage = None,
       termsAndConditionsUrl,
       privacyPolicyUrl,
       access,
@@ -73,7 +72,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       rateLimitTier,
       checkInformation,
       blocked,
-      trusted = false,
       ipAllowlist,
       moreApplication
     )
@@ -87,11 +85,11 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     )
   )
 
-  def anApplicationWithHistory(applicationResponse: ApplicationResponse = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
+  def anApplicationWithHistory(applicationResponse: GKApplicationResponse = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
-  def anApplication(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
+  def anApplication(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): GKApplicationResponse = {
     buildApplication(
       ApplicationId.random,
       ClientId("clientid"),
@@ -109,7 +107,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     )
   }
 
-  def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationResponse = {
+  def anApplicationResponseWith(checkInformation: CheckInformation): GKApplicationResponse = {
     anApplication().copy(checkInformation = Some(checkInformation))
   }
 
@@ -151,7 +149,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
   }
 
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
-    def withApplication(application: ApplicationResponse) = applicationViewModel.copy(application = application)
+    def withApplication(application: GKApplicationResponse) = applicationViewModel.copy(application = application)
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
 
@@ -179,7 +177,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
   }
 
-  implicit class ApplicationExtension(app: ApplicationResponse) {
+  implicit class ApplicationExtension(app: GKApplicationResponse) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 

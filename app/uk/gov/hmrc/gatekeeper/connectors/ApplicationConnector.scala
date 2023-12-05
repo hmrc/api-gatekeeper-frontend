@@ -24,7 +24,7 @@ import play.api.http.Status._
 import play.api.libs.json.{OWrites, Reads}
 import uk.gov.hmrc.http.{HttpClient, _}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -100,36 +100,36 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     http.GET[List[StateHistory]](s"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")
   }
 
-  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")
+  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
+    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications")
+  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
+    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
+  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
+    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
+  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
+    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
-    http.GET[List[ApplicationResponse]](s"$serviceBaseUrl/application")
+  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
+    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application")
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }

@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 @import uk.gov.hmrc.gatekeeper.controllers._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: GKApplicationResponse, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage rate limit tier",

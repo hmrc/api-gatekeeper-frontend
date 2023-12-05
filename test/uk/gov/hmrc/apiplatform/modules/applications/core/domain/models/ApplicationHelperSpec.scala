@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, Period}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
@@ -48,7 +48,7 @@ class ApplicationHelperSpec extends HmrcSpec with ApplicationBuilder {
     Environment.PRODUCTION,
     createdOn = LocalDateTime.now(),
     lastAccess = Some(LocalDateTime.now()),
-    grantLength = GrantLength.ONE_DAY.days,
+    grantLength = Period.ofDays(GrantLength.ONE_DAY.days),
     access = standardAccess,
     rateLimitTier = RateLimitTier.BRONZE,
     blocked = false

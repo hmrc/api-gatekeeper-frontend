@@ -371,7 +371,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
-        val appCaptor          = ArgCaptor[ApplicationResponse]
+        val appCaptor          = ArgCaptor[GKApplicationResponse]
         val gatekeeperIdCaptor = ArgCaptor[String]
         when(mockApplicationService.resendVerification(*, *)(*)).thenReturn(successful(ResendVerificationSuccessful))
 
@@ -1140,7 +1140,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
-        val appCaptor          = ArgumentCaptor.forClass(classOf[ApplicationResponse])
+        val appCaptor          = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
         when(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
           .thenReturn(successful(ApproveUpliftSuccessful))
@@ -1158,7 +1158,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
-        val appCaptor     = ArgumentCaptor.forClass(classOf[ApplicationResponse])
+        val appCaptor     = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])

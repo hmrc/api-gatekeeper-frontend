@@ -21,7 +21,7 @@ import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, CheckInformation, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
@@ -38,7 +38,7 @@ class TermsOfUseService {
     checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatDateTime(toua.timeStamp), toua.version))
   }
 
-  private def getAgreementFromCheckInformation(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromCheckInformation(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.checkInformation match {
       case Some(chkInfo) => getAgreementDetailsFromCheckInformation(chkInfo).lastOption
       case _             => None
@@ -54,13 +54,13 @@ class TermsOfUseService {
     )
   }
 
-  private def getAgreementFromStandardApp(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromStandardApp(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.access match {
       case std: Access.Standard => getAgreementDetailsFromStandardApp(std).lastOption
       case _                    => None
     }
   }
 
-  def getAgreementDetails(application: ApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] =
+  def getAgreementDetails(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] =
     getAgreementFromStandardApp(application).fold(getAgreementFromCheckInformation(application))(Some(_))
 }

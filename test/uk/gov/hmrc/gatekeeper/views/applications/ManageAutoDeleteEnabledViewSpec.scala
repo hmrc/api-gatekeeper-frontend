@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, Collaborators, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -41,7 +41,7 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
     val request                                                  = FakeRequest().withCSRFToken
     val manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView = app.injector.instanceOf[ManageAutoDeleteEnabledView]
 
-    val application: ApplicationResponse =
+    val application: GKApplicationResponse =
       buildApplication(
         ApplicationId.random,
         ClientId("clientid"),

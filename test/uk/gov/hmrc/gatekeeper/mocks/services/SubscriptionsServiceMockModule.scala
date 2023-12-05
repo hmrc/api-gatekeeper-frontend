@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
@@ -37,11 +37,11 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
     object SubscribeToApi {
 
       def succeeds() = {
-        val mockApp = mock[ApplicationResponse]
+        val mockApp = mock[GKApplicationResponse]
         when(aMock.subscribeToApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
-      def verifyCalledWith(app: ApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
+      def verifyCalledWith(app: GKApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
         verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
 
       def verifyNotCalled() =
@@ -51,11 +51,11 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
     object UnsubscribeFromApi {
 
       def succeeds() = {
-        val mockApp = mock[ApplicationResponse]
+        val mockApp = mock[GKApplicationResponse]
         when(aMock.unsubscribeFromApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
-      def verifyCalledWith(app: ApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
+      def verifyCalledWith(app: GKApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
         verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
 
       def verifyNotCalled() =

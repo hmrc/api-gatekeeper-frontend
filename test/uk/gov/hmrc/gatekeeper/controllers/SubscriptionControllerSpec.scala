@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
@@ -76,7 +76,7 @@ class SubscriptionControllerSpec
         List.empty
       )
 
-      def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
+      def aPaginatedApplicationResponse(applications: List[GKApplicationResponse]): PaginatedApplicationResponse = {
         val page     = 1
         val pageSize = 10
         PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)

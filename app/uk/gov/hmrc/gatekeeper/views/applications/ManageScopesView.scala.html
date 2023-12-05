@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[Set[String]])(implicit request: LoggedInRequest[_])
+@(application: GKApplicationResponse, form: Form[Set[String]])(implicit request: LoggedInRequest[_])
 
 @main(
   title = s"${applicationConfig.title} - Manage scopes",

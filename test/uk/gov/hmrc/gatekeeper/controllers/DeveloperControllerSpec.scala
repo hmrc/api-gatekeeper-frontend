@@ -26,7 +26,7 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators, GKApplicationResponse}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -105,10 +105,10 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(List.empty[ApplicationResponse], noDevs)
+        givenDelegateServicesSupply(List.empty[GKApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: List[GKApplicationResponse], developers: List[Developer]): Unit = {
         val apiFilter         = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter      = StatusFilter(None)

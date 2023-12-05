@@ -17,9 +17,8 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.MoreApplicationHelper._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators, RateLimitTier}
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
@@ -375,7 +374,7 @@
         Application grant Length
       </dt>
       <dd class="govuk-summary-list__value" grant-length>
-        @{GrantLength.unsafeApply(application.grantLength).toString}
+        @{GrantLength.unsafeApply(application.grantLength.getDays).toString}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -413,7 +412,7 @@
         Application deleted if inactive
       </dt>
       <dd class="govuk-summary-list__value" data-application-deleted-if-active>
-        @application.moreApplication.displayText
+        @{if (application.moreApplication.allowAutoDelete) "Yes" else "No"}
       </dd>
       @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">

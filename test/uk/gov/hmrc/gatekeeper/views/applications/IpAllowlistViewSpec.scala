@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationResponse, ApplicationState, Collaborators, IpAllowlist}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, IpAllowlist}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -39,7 +39,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
     val request                          = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
 
-    val application: ApplicationResponse =
+    val application: GKApplicationResponse =
       buildApplication(
         ApplicationId.random,
         ClientId("clientid"),

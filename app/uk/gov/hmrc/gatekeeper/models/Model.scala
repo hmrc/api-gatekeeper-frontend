@@ -53,7 +53,7 @@ case class ApplicationAndSubscriptionVersion(application: ApplicationWithHistory
 
 case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: List[Subscription])
 
-case class ApplicationWithHistory(application: ApplicationResponse, history: List[StateHistory])
+case class ApplicationWithHistory(application: GKApplicationResponse, history: List[StateHistory])
 
 case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
 
@@ -72,7 +72,7 @@ object ApplicationWithHistory {
   implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
   implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
   implicit val format7: OFormat[ApprovedApplication]      = Json.format[ApprovedApplication]
-  implicit val format8: OFormat[ApplicationResponse]      = Json.format[ApplicationResponse]
+  implicit val format8: OFormat[GKApplicationResponse]    = Json.format[GKApplicationResponse]
   implicit val format9: OFormat[ApplicationWithHistory]   = Json.format[ApplicationWithHistory]
 }
 

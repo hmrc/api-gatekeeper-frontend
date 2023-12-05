@@ -69,7 +69,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val applications    = List[ApplicationResponse](
+    val applications    = List[GKApplicationResponse](
       buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
