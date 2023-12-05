@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.State._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 
-@(application: ApplicationResponse)
+@(application: GKApplicationResponse)
 @defining(
     application.state.name match {
         case PRODUCTION => ("status status--verified", "Approved")

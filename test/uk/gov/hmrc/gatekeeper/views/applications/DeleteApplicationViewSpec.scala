@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import org.jsoup.Jsoup
 
 import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -35,22 +37,21 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.DeleteApplicationView
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationBuilder {
     val request                   = FakeRequest().withCSRFToken
     val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
     val confirmationErrorMessages = messagesProvider.messages("application.confirmation.error")
-    val grantLength: Period       = Period.ofDays(547)
 
     val adminEmail = "sample@example.com"
 
     val application =
-      ApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application1",
-        "PRODUCTION",
+        Some("application1"),
+        Environment.PRODUCTION,
         None,
         Set(
           Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
@@ -58,9 +59,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
 
     val applicationWithHistory = ApplicationWithHistory(application, List.empty)

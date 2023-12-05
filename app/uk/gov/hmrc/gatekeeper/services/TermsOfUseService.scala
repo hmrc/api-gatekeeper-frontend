@@ -20,8 +20,9 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Singleton
 
-import uk.gov.hmrc.gatekeeper.models.applications._
-import uk.gov.hmrc.gatekeeper.models.{CheckInformation, Standard, TermsOfUseAcceptance, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 object TermsOfUseService {
@@ -34,32 +35,32 @@ class TermsOfUseService {
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
 
   private def getAgreementDetailsFromCheckInformation(checkInformation: CheckInformation): List[TermsOfUseAgreementDisplayDetails] = {
-    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress, formatDateTime(toua.timeStamp), toua.version))
+    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatDateTime(toua.timeStamp), toua.version))
   }
 
-  private def getAgreementFromCheckInformation(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromCheckInformation(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.checkInformation match {
       case Some(chkInfo) => getAgreementDetailsFromCheckInformation(chkInfo).lastOption
       case _             => None
     }
   }
 
-  private def getAgreementDetailsFromStandardApp(std: Standard): List[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementDetailsFromStandardApp(std: Access.Standard): List[TermsOfUseAgreementDisplayDetails] = {
     std.importantSubmissionData.fold[List[TermsOfUseAgreementDisplayDetails]](List.empty)(isd =>
       isd.termsOfUseAcceptances
         .map((toua: TermsOfUseAcceptance) =>
-          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.value, formatDateTime(toua.dateTime), "2")
+          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.text, formatDateTime(toua.dateTime), "2")
         )
     )
   }
 
-  private def getAgreementFromStandardApp(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromStandardApp(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
     application.access match {
-      case std: Standard => getAgreementDetailsFromStandardApp(std).lastOption
-      case _             => None
+      case std: Access.Standard => getAgreementDetailsFromStandardApp(std).lastOption
+      case _                    => None
     }
   }
 
-  def getAgreementDetails(application: NewApplication): Option[TermsOfUseAgreementDisplayDetails] =
+  def getAgreementDetails(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] =
     getAgreementFromStandardApp(application).fold(getAgreementFromCheckInformation(application))(Some(_))
 }

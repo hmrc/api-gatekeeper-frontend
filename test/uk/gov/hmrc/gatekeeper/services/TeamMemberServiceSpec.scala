@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -27,11 +27,13 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -40,7 +42,8 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
   trait Setup
       extends MockitoSugar
       with ArgumentMatchersSugar
-      with CommandConnectorMockProvider {
+      with CommandConnectorMockProvider
+      with ApplicationBuilder {
 
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -52,28 +55,25 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
     )
     val underTest         = spy(teamMemberService)
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = Set[Collaborator](
       Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
-
-    val stdApp1 = ApplicationResponse(
+    val stdApp1 = buildApplication(
       ApplicationId.random,
       ClientId("clientid1"),
       "gatewayId1",
-      "application1",
-      "PRODUCTION",
+      Some("application1"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Standard(),
-      ApplicationState(),
-      grantLength
+      access = Access.Standard(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
 
     val gatekeeperUserId = "loggedin.gatekeeper"
@@ -88,7 +88,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.succeeds()
 
-      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).right.value shouldBe (())
+      await(underTest.addTeamMember(application, collaboratorToAdd, gatekeeperUser)).value shouldBe (())
     }
 
     "propagate a failure error from application connector" in new Setup {
@@ -108,7 +108,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(List.empty))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
 
-      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).right.value shouldBe (())
+      await(underTest.removeTeamMember(application, collaboratorToRemove.emailAddress, gatekeeperUser)).value shouldBe (())
     }
 
     "propagate CannotRemoveLastAdmin error from application connector" in new Setup {

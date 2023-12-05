@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.Future
 
 import mocks.connectors._
@@ -26,9 +26,12 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import play.api.test.FakeRequest
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
@@ -45,24 +48,23 @@ trait ControllerSetupBase
     with ApmServiceMockProvider
     with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker
-    with CommandConnectorMockProvider {
+    with CommandConnectorMockProvider
+    with ApplicationBuilder {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
-  val grantLength: Period    = Period.ofDays(547)
 
-  val basicApplication = ApplicationResponse(
+  val basicApplication = buildApplication(
     ApplicationId.random,
     ClientId.random,
     "gatewayId1",
-    "application1",
-    "PRODUCTION",
+    Some("application1"),
+    Environment.PRODUCTION,
     None,
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
     LocalDateTime.now(),
     Some(LocalDateTime.now()),
-    Standard(),
-    ApplicationState(),
-    grantLength
+    access = Access.Standard(),
+    state = ApplicationState(updatedOn = LocalDateTime.now())
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

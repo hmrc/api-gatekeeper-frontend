@@ -18,12 +18,14 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import mocks.services.TeamMemberServiceMockProvider
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -40,7 +42,7 @@ class TeamMembersControllerSpec
     with TitleChecker
     with CollaboratorTracker {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView     = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView         = app.injector.instanceOf[ForbiddenView]
@@ -59,17 +61,17 @@ class TeamMembersControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
 

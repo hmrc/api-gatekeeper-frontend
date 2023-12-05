@@ -20,13 +20,12 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ApplicationPublicDescription {
 
-  def apply(application: NewApplication): Option[String] = {
+  def apply(application: GKApplicationResponse): Option[String] = {
     for {
       checkInformation <- application.checkInformation
       description      <- checkInformation.applicationDetails
@@ -38,12 +37,12 @@ object ApplicationFormatter {
   val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
-  def getCreatedOn(app: NewApplication): String = {
+  def getCreatedOn(app: GKApplicationResponse): String = {
     dateFormatter.format(app.createdOn)
   }
 
   // Caution: defaulting now = LocalDateTime.now() will not use UTC
-  def getLastAccess(app: NewApplication)(now: LocalDateTime): String = {
+  def getLastAccess(app: GKApplicationResponse)(now: LocalDateTime): String = {
     app.lastAccess match {
       case Some(lastAccess) =>
         if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {
@@ -64,7 +63,7 @@ object ApplicationSubmission {
 
   private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
     stateHistory.filter(_.state.isPendingGatekeeperApproval)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption
 
   def getSubmittedBy(stateHistory: Seq[StateHistory]): Option[String] = {
@@ -87,7 +86,7 @@ object ApplicationReview {
 
   private def getLastApproval(history: Seq[StateHistory]) =
     history.filter(_.state.isPendingRequesterVerification)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption
 
   def getApprovedOn(history: Seq[StateHistory]): Option[String] =
@@ -99,14 +98,14 @@ object ApplicationReview {
     for {
       checkInformation <- checkInformationOpt
       contactDetails   <- checkInformation.contactDetails
-    } yield contactDetails.fullname
+    } yield contactDetails.fullname.toString()
   }
 
   def getReviewContactEmail(checkInformationOpt: Option[CheckInformation]): Option[String] = {
     for {
       checkInformation <- checkInformationOpt
       contactDetails   <- checkInformation.contactDetails
-    } yield contactDetails.email
+    } yield contactDetails.email.text
   }
 
   def getReviewContactTelephone(checkInformationOpt: Option[CheckInformation]): Option[String] = {

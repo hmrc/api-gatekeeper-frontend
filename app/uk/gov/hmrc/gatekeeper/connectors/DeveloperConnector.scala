@@ -24,7 +24,7 @@ import com.google.inject.name.Named
 
 import play.api.Logging
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat, OWrites, Reads}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
@@ -82,16 +82,16 @@ trait DeveloperConnector {
 
 object DeveloperConnector {
   case class FindUserIdRequest(email: LaxEmailAddress)
-  implicit val FindUserIdRequestWrite = Json.writes[FindUserIdRequest]
+  implicit val FindUserIdRequestWrite: OWrites[FindUserIdRequest] = Json.writes[FindUserIdRequest]
 
   case class FindUserIdResponse(userId: UserId)
-  implicit val FindUserIdResponseReads = Json.reads[FindUserIdResponse]
+  implicit val FindUserIdResponseReads: Reads[FindUserIdResponse] = Json.reads[FindUserIdResponse]
 
   case class RemoveMfaRequest(removedBy: String)
-  implicit val RemoveMfaRequestWrites = Json.writes[RemoveMfaRequest]
+  implicit val RemoveMfaRequestWrites: OWrites[RemoveMfaRequest] = Json.writes[RemoveMfaRequest]
 
   case class GetOrCreateUserIdRequest(email: LaxEmailAddress)
-  implicit val getOrCreateUserIdRequestFormat = Json.format[GetOrCreateUserIdRequest]
+  implicit val getOrCreateUserIdRequestFormat: OFormat[GetOrCreateUserIdRequest] = Json.format[GetOrCreateUserIdRequest]
 }
 
 @Singleton

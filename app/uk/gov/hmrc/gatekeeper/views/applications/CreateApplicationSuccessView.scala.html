@@ -15,8 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import uk.gov.hmrc.gatekeeper.models.AccessType
-@import uk.gov.hmrc.gatekeeper.models.AccessType.AccessType
+@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 @import uk.gov.hmrc.gatekeeper.models.TotpSecrets
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -24,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationId: ApplicationId, applicationName: String, environment: String, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
+@(applicationId: ApplicationId, applicationName: String, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
@@ -67,7 +66,7 @@
         Environment
       </dt>
       <dd class="govuk-summary-list__value">
-        @environment.toLowerCase.capitalize
+        @environment.displayText
       </dd>
     </div>
     <div class="govuk-summary-list__row">

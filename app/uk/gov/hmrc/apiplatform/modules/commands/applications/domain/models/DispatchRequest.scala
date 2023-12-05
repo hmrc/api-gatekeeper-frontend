@@ -28,5 +28,5 @@ object DispatchRequest {
   implicit val readsDispatchRequest: Reads[DispatchRequest] = readsExactDispatchRequest orElse readsExactCommand
 
   implicit val writesDispatchRequest: Writes[DispatchRequest] = Json.writes[DispatchRequest]
-  implicit val formatDispatchRequest                          = Format(readsDispatchRequest, writesDispatchRequest)
+  implicit val formatDispatchRequest: Format[DispatchRequest] = Format(readsDispatchRequest, writesDispatchRequest)
 }

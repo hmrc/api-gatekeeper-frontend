@@ -22,7 +22,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 class EnvironmentAwareApiPlatformEventsConnectorSpec
@@ -43,12 +43,12 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
     val appId = ApplicationId.random
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
   }
 
   "Call subordinate when environment is SANDBOX" in new Setup {
 
-    await(connector.fetchQueryableValues(appId, "SANDBOX"))
+    await(connector.fetchQueryableValues(appId, Environment.SANDBOX))
 
     verify(subordinate, times(1)).fetchQueryableValues(eqTo(appId))(*)
     verify(principal, never).fetchQueryableValues(*[ApplicationId])(*)
@@ -56,7 +56,7 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
   "Call principal when environment is PRODUCTION" in new Setup {
 
-    await(connector.fetchQueryableValues(appId, "PRODUCTION"))
+    await(connector.fetchQueryableValues(appId, Environment.PRODUCTION))
 
     verify(subordinate, never).fetchQueryableValues(eqTo(appId))(*)
     verify(principal, times(1)).fetchQueryableValues(*[ApplicationId])(*)

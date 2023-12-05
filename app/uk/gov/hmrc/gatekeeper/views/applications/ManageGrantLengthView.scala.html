@@ -14,17 +14,17 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateGrantLengthForm
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationResponse, form: Form[UpdateGrantLengthForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: GKApplicationResponse, form: Form[UpdateGrantLengthForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage grant length",

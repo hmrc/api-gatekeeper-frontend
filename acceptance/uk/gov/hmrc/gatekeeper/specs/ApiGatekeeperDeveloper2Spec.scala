@@ -91,7 +91,7 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
       DeveloperPage.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
       And("I pick an environment")
-      DeveloperPage.selectByEnvironment("PRODUCTION")
+      DeveloperPage.selectByEnvironment(Environment.PRODUCTION)
 
       And("I pick a Developer Status")
       DeveloperPage.selectByDeveloperStatus("VERIFIED")

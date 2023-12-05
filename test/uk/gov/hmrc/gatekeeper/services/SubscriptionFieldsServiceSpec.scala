@@ -20,13 +20,12 @@ import scala.concurrent.Future.successful
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
@@ -44,11 +43,11 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
   private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersionNbr)
 
   "When application is deployedTo production then principal connector is called" should {
-    val application    = mock[Application]
-    val newApplication = mock[NewApplication]
+    val application    = mock[GKApplicationResponse]
+    val newApplication = mock[GKApplicationResponse]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn("PRODUCTION")
+    when(application.deployedTo).thenReturn(Environment.PRODUCTION)
 
     when(newApplication.clientId).thenReturn(ClientId("client-id"))
     when(newApplication.deployedTo).thenReturn(Environment.PRODUCTION)
@@ -69,11 +68,11 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
-    val application    = mock[Application]
-    val newApplication = mock[NewApplication]
+    val application    = mock[GKApplicationResponse]
+    val newApplication = mock[GKApplicationResponse]
 
     when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn("SANDBOX")
+    when(application.deployedTo).thenReturn(Environment.SANDBOX)
 
     when(newApplication.clientId).thenReturn(ClientId("client-id"))
     when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)

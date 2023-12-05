@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.pages
 
 import org.openqa.selenium.Keys.ENTER
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter.APIFilterList
 
@@ -60,8 +60,8 @@ object DeveloperPage extends WebPage {
     filterBySubscription.value = api.name
   }
 
-  def selectByEnvironment(environment: String) = {
-    filterByEnvironment.value = environment
+  def selectByEnvironment(environment: Environment) = {
+    filterByEnvironment.value = environment.toString
   }
 
   def selectByDeveloperStatus(status: String) = {

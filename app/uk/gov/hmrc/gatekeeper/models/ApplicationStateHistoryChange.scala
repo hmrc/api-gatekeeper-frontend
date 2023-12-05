@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class ApplicationStateHistoryChange(
     applicationId: String,
@@ -29,5 +29,5 @@ case class ApplicationStateHistoryChange(
   )
 
 object ApplicationStateHistoryChange {
-  implicit val formatApplicationStateHistoryChange = Json.format[ApplicationStateHistoryChange]
+  implicit val formatApplicationStateHistoryChange: OFormat[ApplicationStateHistoryChange] = Json.format[ApplicationStateHistoryChange]
 }

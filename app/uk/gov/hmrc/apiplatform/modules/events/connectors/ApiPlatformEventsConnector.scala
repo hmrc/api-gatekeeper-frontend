@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.events.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
 
@@ -32,7 +32,7 @@ object ApiPlatformEventsConnector {
   case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
-    implicit val format = Json.format[QueryResponse]
+    implicit val format: OFormat[QueryResponse] = Json.format[QueryResponse]
   }
 
 }
@@ -40,15 +40,15 @@ object ApiPlatformEventsConnector {
 @Singleton
 class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
 
-  protected def connectorFor(deployedTo: String): ApiPlatformEventsConnector = deployedTo match {
-    case "PRODUCTION" => principal
-    case "SANDBOX"    => subordinate
+  protected def connectorFor(deployedTo: Environment): ApiPlatformEventsConnector = deployedTo match {
+    case Environment.PRODUCTION => principal
+    case Environment.SANDBOX    => subordinate
   }
 
-  def fetchQueryableValues(appId: ApplicationId, deployedTo: String)(implicit hc: HeaderCarrier): Future[QueryableValues] =
+  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(implicit hc: HeaderCarrier): Future[QueryableValues] =
     connectorFor(deployedTo).fetchQueryableValues(appId)
 
-  def query(appId: ApplicationId, deployedTo: String, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
+  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
     connectorFor(deployedTo).query(appId, tag, actorType)
 }
 

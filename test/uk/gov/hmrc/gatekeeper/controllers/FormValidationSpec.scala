@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.data.FormError
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateGrantLengthForm
 
@@ -75,7 +76,7 @@ class FormValidationSpec extends AsyncHmrcSpec {
   "UpdateGrantLengthForm" should {
 
     "validate a properly filled form" in {
-      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> "547"))
+      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString))
       boundForm.errors shouldBe List()
       boundForm.globalErrors shouldBe List()
     }

@@ -18,54 +18,114 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import java.time.{LocalDateTime, Period}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators.Administrator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, NewApplication}
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
+  // scalastyle:off parameter.number
   def buildApplication(
-      appId: ApplicationId = ApplicationId.random,
+      id: ApplicationId = ApplicationId.random,
+      clientId: ClientId = ClientId.random,
+      gatewayId: String = "",
+      name: Option[String] = None,
+      deployedTo: Environment = Environment.SANDBOX,
+      description: Option[String] = None,
+      collaborators: Set[Collaborator] = Set.empty,
       createdOn: LocalDateTime = LocalDateTime.now(),
-      lastAccess: LocalDateTime = LocalDateTime.now(),
-      checkInformation: Option[CheckInformation] = None
-    ): NewApplication = {
-    val clientId            = ClientId.random
-    val appOwnerEmail       = "a@b.com"
-    val grantLength: Period = Period.ofDays(547)
-    val ipAllowlist         = IpAllowlist()
+      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
+      grantLength: Period = Period.ofDays(GrantLength.EIGHTEEN_MONTHS.days),
+      termsAndConditionsUrl: Option[String] = None,
+      privacyPolicyUrl: Option[String] = None,
+      access: Access = Access.Standard(),
+      state: ApplicationState = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now()),
+      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
+      checkInformation: Option[CheckInformation] = None,
+      blocked: Boolean = false,
+      ipAllowlist: IpAllowlist = IpAllowlist(),
+      moreApplication: MoreApplication = MoreApplication(true)
+    ): GKApplicationResponse =
+    GKApplicationResponse(
+      id,
+      clientId,
+      gatewayId,
+      name.getOrElse(s"$id-name"),
+      deployedTo,
+      Some(description.getOrElse(s"$id-description")),
+      collaborators,
+      createdOn,
+      lastAccess,
+      grantLength,
+      termsAndConditionsUrl,
+      privacyPolicyUrl,
+      access,
+      state,
+      rateLimitTier,
+      checkInformation,
+      blocked,
+      ipAllowlist,
+      moreApplication
+    )
+  // scalastyle:on parameter.number
 
-    NewApplication(
-      id = appId,
-      clientId = clientId,
-      gatewayId = "",
-      name = s"${appId.value.toString()}-name",
-      createdOn = createdOn,
-      lastAccess = Some(lastAccess),
-      lastAccessTokenUsage = None,
-      deployedTo = Environment.SANDBOX,
-      description = Some(s"${appId.value.toString()}-description"),
-      collaborators = buildCollaborators(Seq((appOwnerEmail, CollaboratorRole.ADMINISTRATOR))),
-      state = ApplicationState(State.PRODUCTION),
-      rateLimitTier = RateLimitTier.BRONZE,
-      blocked = false,
-      access = Standard(
-        redirectUris = List("https://red1", "https://red2"),
-        termsAndConditionsUrl = Some("http://tnc-url.com")
-      ),
-      checkInformation = checkInformation,
-      ipAllowlist = ipAllowlist,
-      grantLength = grantLength
+  val DefaultApplication = buildApplication(
+    collaborators = buildCollaborators(Seq(("a@b.com", Collaborator.Roles.ADMINISTRATOR))),
+    access = Access.Standard(
+      redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
+      termsAndConditionsUrl = Some("http://tnc-url.com")
+    )
+  )
+
+  def anApplicationWithHistory(applicationResponse: GKApplicationResponse = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
+    ApplicationWithHistory(applicationResponse, stateHistories)
+  }
+
+  def anApplication(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): GKApplicationResponse = {
+    buildApplication(
+      ApplicationId.random,
+      ClientId("clientid"),
+      "gatewayId",
+      Some("appName"),
+      Environment.PRODUCTION,
+      None,
+      Set.empty,
+      createdOn,
+      Some(lastAccess),
+      termsAndConditionsUrl = Some("termsUrl"),
+      privacyPolicyUrl = Some("privacyPolicyUrl"),
+      access = Access.Privileged(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
   }
 
-  val DefaultApplication = buildApplication()
+  def anApplicationResponseWith(checkInformation: CheckInformation): GKApplicationResponse = {
+    anApplication().copy(checkInformation = Some(checkInformation))
+  }
+
+  def aCheckInformation(): CheckInformation = {
+    CheckInformation(
+      contactDetails = Some(ContactDetails(FullName("contactFullName"), LaxEmailAddress("contactEmail"), "contactTelephone")),
+      confirmedName = true,
+      providedPrivacyPolicyURL = true,
+      providedTermsAndConditionsURL = true,
+      applicationDetails = Some("application details")
+    )
+  }
+
+  def aStateHistory(state: State, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
+    StateHistory(ApplicationId.random, state, anActor(), changedAt = changedAt)
+  }
+
+  def anActor() = Actors.Unknown
 
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
@@ -82,14 +142,14 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
       fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     ): ApplicationWithSubscriptionData = {
     ApplicationWithSubscriptionData(
-      buildApplication(ApplicationId.random),
+      DefaultApplication,
       buildSubscriptions(apiContext, apiVersion),
       buildSubscriptionFieldValues(apiContext, apiVersion, fields)
     )
   }
 
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
-    def withApplication(application: NewApplication) = applicationViewModel.copy(application = application)
+    def withApplication(application: GKApplicationResponse) = applicationViewModel.copy(application = application)
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
 
@@ -117,7 +177,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
   }
 
-  implicit class ApplicationExtension(app: NewApplication) {
+  implicit class ApplicationExtension(app: GKApplicationResponse) {
     def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
     def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
 
@@ -142,9 +202,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
     }
 
     def withAccess(access: Access) = app.copy(access = access)
-    def asStandard                 = app.copy(access = Standard())
-    def asPrivileged               = app.copy(access = Privileged())
-    def asROPC                     = app.copy(access = Ropc())
+    def asStandard                 = app.copy(access = Access.Standard())
+    def asPrivileged               = app.copy(access = Access.Privileged())
+    def asROPC                     = app.copy(access = Access.Ropc())
 
     def withState(state: ApplicationState) = app.copy(state = state)
     def inProduction                       = app.copy(state = app.state.inProduction)
@@ -167,5 +227,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder {
 
     def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
 
+    def toSeq = Seq(app)
   }
 }

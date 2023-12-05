@@ -16,12 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.gatekeeper.models.{Access, Standard}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
 
 trait AccessTestData {
 
-  val standardAccess: Access = Standard(
-    redirectUris = List("http://localhost:8080/callback"),
+  val standardAccess = Access.Standard(
+    redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
     termsAndConditionsUrl = Some("http://localhost:22222/terms"),
     privacyPolicyUrl = Some("http://localhost:22222/privacy")
   )

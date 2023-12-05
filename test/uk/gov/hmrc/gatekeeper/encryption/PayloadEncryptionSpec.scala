@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.encryption
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 
@@ -25,7 +25,7 @@ class PayloadEncryptionSpec extends HmrcSpec {
   case class EncryptMe(word: String = "demo", number: Int = 5)
 
   object EncryptMe {
-    implicit val formatter = Json.format[EncryptMe]
+    implicit val formatter: OFormat[EncryptMe] = Json.format[EncryptMe]
   }
 
   "PayloadEncryption" should {

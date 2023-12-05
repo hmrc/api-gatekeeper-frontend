@@ -17,16 +17,16 @@
 package uk.gov.hmrc.gatekeeper.models.view
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, StateHistory}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
 case class ResponsibleIndividualHistoryItem(name: String, email: String, fromDate: String, toDate: String)
 
 case class ApplicationViewModel(
     developers: List[RegisteredUser],
-    application: NewApplication,
+    application: GKApplicationResponse,
     subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])],
     subscriptionsThatHaveFieldDefns: List[(String, List[(ApiVersionNbr, ApiStatus)])],
     stateHistory: List[StateHistory],

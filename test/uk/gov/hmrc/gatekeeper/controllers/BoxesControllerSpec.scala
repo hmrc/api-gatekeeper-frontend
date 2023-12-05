@@ -20,6 +20,8 @@ import java.time.{LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
+import akka.stream.Materializer
+
 import play.api.test.Helpers._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -30,9 +32,9 @@ import uk.gov.hmrc.gatekeeper.services.ApmService
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer = app.materializer
-  val anAppId               = ApplicationId.random
-  val appIdText             = anAppId.value.toString()
+  implicit val materializer: Materializer = app.materializer
+  val anAppId                             = ApplicationId.random
+  val appIdText                           = anAppId.value.toString()
 
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {

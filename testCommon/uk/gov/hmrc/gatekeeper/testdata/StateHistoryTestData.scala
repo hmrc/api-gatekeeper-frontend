@@ -20,9 +20,9 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, ApplicationId}
 import uk.gov.hmrc.gatekeeper.builder.StateHistoryBuilder
-import uk.gov.hmrc.gatekeeper.models.{State, StateHistory}
 
 trait StateHistoryTestData extends StateHistoryBuilder with CommonTestData {
 

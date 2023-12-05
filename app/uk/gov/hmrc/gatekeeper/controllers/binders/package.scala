@@ -40,7 +40,7 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApplicationId] {
+  implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApplicationId] = new QueryStringBindable[ApplicationId] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApplicationId]] = {
       textBinder.bind(key, params).map(_.flatMap(applicationIdFromString))
@@ -62,7 +62,7 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiContext] {
+  implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiContext] = new QueryStringBindable[ApiContext] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiContext]] = {
       for {
@@ -91,7 +91,7 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiVersionNbr] {
+  implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiVersionNbr] = new QueryStringBindable[ApiVersionNbr] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiVersionNbr]] = {
       for {
@@ -144,7 +144,7 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[DeveloperIdentifier] {
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[DeveloperIdentifier] = new QueryStringBindable[DeveloperIdentifier] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
       for {
@@ -179,7 +179,7 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiCategoryQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[ApiCategory] {
+  implicit def apiCategoryQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiCategory] = new QueryStringBindable[ApiCategory] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ApiCategory]] = {
       textBinder.bind(key, params).map(_.flatMap(apiCategoryFromString))
@@ -194,7 +194,7 @@ package object binders extends ApplicationLogger {
     TopicOptionChoice(text).toRight(s"Cannot accept $text as ApiCategoryId")
   }
 
-  implicit def topicQueryStringBindable(implicit textBinder: QueryStringBindable[String]) = new QueryStringBindable[TopicOptionChoice] {
+  implicit def topicQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[TopicOptionChoice] = new QueryStringBindable[TopicOptionChoice] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, TopicOptionChoice]] = {
       textBinder.bind(key, params).map(_.flatMap(topicFromString))

@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import java.util.UUID
+import scala.concurrent.ExecutionContext
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
@@ -59,10 +60,9 @@ class SubscriptionFieldsConnectorSpec
   val definitionUrl = SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("")(apiContext, apiVersion)
 
   trait Setup {
-    implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
-
-    val httpClient               = app.injector.instanceOf[HttpClient]
-    val mockAppConfig: AppConfig = mock[AppConfig]
+    implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+    val httpClient                    = app.injector.instanceOf[HttpClient]
+    val mockAppConfig: AppConfig      = mock[AppConfig]
     when(mockAppConfig.subscriptionFieldsProductionBaseUrl).thenReturn(wireMockUrl)
 
     val subscriptionFieldsConnector = new ProductionSubscriptionFieldsConnector(mockAppConfig, httpClient)

@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-sbt clean-and-test
+sbt pre-commit

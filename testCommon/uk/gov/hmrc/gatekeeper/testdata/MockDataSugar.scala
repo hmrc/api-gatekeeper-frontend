@@ -56,22 +56,22 @@ object MockDataSugar {
   val dev4FirstName = "HannahHmrcSdstusercollaboratir"
   val dev4LastName  = "Kassidyhmrcdevusercollaborato"
 
-  val developer5    = "John.fakename@example.com"
+  val developer5    = "john.fakename@example.com"
   val developer5Id  = "1fe7b18e-a460-4936-b99f-fb0269b829e6"
   val dev5FirstName = "John"
   val dev5LastName  = "Fakename"
 
-  val developer6    = "Vijaya.fakename@example.com"
+  val developer6    = "vijaya.fakename@example.com"
   val developer6Id  = UserId.random.value
   val dev6FirstName = "Vijaya"
   val dev6LastName  = "Fakename"
 
-  val developer7    = "Kerri.fakename@example.com"
+  val developer7    = "kerri.fakename@example.com"
   val developer7Id  = UserId.random.value
   val dev7FirstName = "Kerri"
   val dev7LastName  = "Fakename"
 
-  val developer8    = "Dixie.fakename@example.com"
+  val developer8    = "dixie.fakename@example.com"
   val developer8Id  = UserId.random.value
   val dev8FirstName = "Dixie"
   val dev8LastName  = "Fakename"
@@ -263,48 +263,14 @@ object MockDataSugar {
        |      "accessType": "STANDARD"
        |    },
        |    "rateLimitTier": "BRONZE",
+       |    "blocked": false,
+       |    "trusted": false,
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer",
        |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
        |      "updatedOn": 1459868573962
        |    },
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "moreApplication": {
-       |        "allowAutoDelete": true
-       |      }
-       |  }]
-    """.stripMargin
-
-  val applicationResponseWithNoUsers =
-    s"""
-       |  [{
-       |    "id": "$approvedApp1",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |    "deployedTo": "PRODUCTION",
-       |    "collaborators": [],
-       |    "createdOn": 1458832690624,
-       |    "lastAccess": 1458832690624,
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [],
        |    "ipAllowlist" : {
        |        "required" : false,
        |        "allowlist" : []
@@ -355,6 +321,8 @@ object MockDataSugar {
        |      "accessType": "STANDARD"
        |    },
        |    "rateLimitTier": "BRONZE",
+       |    "blocked": false,
+       |    "trusted": false,
        |    "state": {
        |      "name": "PRODUCTION",
        |      "requestedByEmailAddress": "$developer4",

@@ -21,10 +21,10 @@ import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService._
 
 @Singleton
@@ -34,24 +34,24 @@ class SubscriptionFieldsService @Inject() (
   ) extends APIDefinitionFormatters {
 
   def saveFieldValues(
-      application: NewApplication,
+      application: GKApplicationResponse,
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
-    connectorFor(application.deployedTo.toString).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
+    connectorFor(application.deployedTo).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
   }
 
   def fetchAllProductionFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
-    val productionEnvironment = Environment.PRODUCTION.toString()
+    val productionEnvironment = Environment.PRODUCTION
     val connector             = connectorFor(productionEnvironment)
 
     connector.fetchAllFieldValues()
   }
 
-  private def connectorFor(deployedTo: String): SubscriptionFieldsConnector =
-    if (deployedTo == "PRODUCTION") {
+  private def connectorFor(deployedTo: Environment): SubscriptionFieldsConnector =
+    if (deployedTo == Environment.PRODUCTION) {
       productionSubscriptionFieldsConnector
     } else {
       sandboxSubscriptionFieldsConnector

@@ -16,22 +16,23 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.time.{LocalDateTime, Period}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, OverrideFlag}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -40,38 +41,22 @@ class ApplicationConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
-
-  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
-    ApplicationResponse(
-      ApplicationId.random,
-      ClientId("clientid"),
-      "gatewayId",
-      "appName",
-      "deployedTo",
-      None,
-      Set.empty,
-      createdOn,
-      Some(lastAccess),
-      Privileged(),
-      ApplicationState(),
-      Period.ofDays(547),
-      RateLimitTier.BRONZE,
-      Some("termsUrl"),
-      Some("privacyPolicyUrl"),
-      None
-    )
-  }
+    with UrlEncoding
+    with ApplicationBuilder {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
-  val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
+  val administrator = Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
 
-  val authToken   = "Bearer Token"
-  implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  val authToken                  = "Bearer Token"
+  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
+    implicit val totpFormat: OFormat[TotpSecrets]                        = Json.format[TotpSecrets]
+    implicit val accessFormat: OFormat[AppAccess]                        = Json.format[AppAccess]
+    implicit val createFormat: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
+
     val httpClient               = app.injector.instanceOf[HttpClient]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
@@ -222,21 +207,18 @@ class ApplicationConnectorSpec
     )
 
     "retrieve all applications" in new Setup {
-      val grantLength: Period = Period.ofDays(547)
-
-      val applications = List(ApplicationResponse(
+      val applications = List(buildApplication(
         applicationId,
         ClientId("clientid1"),
         "gatewayId1",
-        "application1",
-        "PRODUCTION",
+        Some("application1"),
+        Environment.PRODUCTION,
         None,
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -328,28 +310,31 @@ class ApplicationConnectorSpec
   }
 
   "fetchApplication" should {
-    val url                 = s"/gatekeeper/application/${applicationId.value.toString()}"
-    val grantLength: Period = Period.ofDays(547)
+    val url = s"/gatekeeper/application/${applicationId.value.toString()}"
 
     val collaborators: Set[Collaborator] = Set(
       administrator,
       developer
     )
-    val stateHistory                     = StateHistory(ApplicationId.random, State(2), Actors.AppCollaborator(collaborators.head.emailAddress), None, LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS))
-    val applicationState                 = ApplicationState(State.TESTING, None, None, LocalDateTime.now)
-    val application                      = ApplicationResponse(
+    val stateHistory                     = StateHistory(
+      ApplicationId.random,
+      State.PENDING_GATEKEEPER_APPROVAL,
+      Actors.AppCollaborator(collaborators.head.emailAddress),
+      changedAt = LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS)
+    )
+    val applicationState                 = ApplicationState(State.TESTING, updatedOn = LocalDateTime.now)
+    val application                      = buildApplication(
       applicationId,
       ClientId("clientid1"),
       "gatewayId1",
-      "application1",
-      "PRODUCTION",
+      Some("application1"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
       Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
-      Standard(),
-      applicationState,
-      grantLength
+      access = Access.Standard(),
+      state = applicationState
     )
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString
@@ -387,7 +372,7 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url          = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
-      val stateHistory = StateHistory(ApplicationId.random, State(2), Actors.Unknown, None, LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
+      val stateHistory = StateHistory(ApplicationId.random, State.PENDING_GATEKEEPER_APPROVAL, Actors.Unknown, changedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
       val response     = Json.toJson(List(stateHistory)).toString
 
       stubFor(
@@ -403,7 +388,7 @@ class ApplicationConnectorSpec
   }
 
   "updateOverrides" should {
-    val overridesRequest = UpdateOverridesRequest(Set(PersistLogin, SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
+    val overridesRequest = UpdateOverridesRequest(Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
     val url              = s"/application/${applicationId.value.toString()}/access/overrides"
 
     "send Authorisation and return OK if the request was successful on the backend" in new Setup {
@@ -509,9 +494,9 @@ class ApplicationConnectorSpec
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest("PRODUCTION", appName, appDescription, admin, access)
+      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, appName, appDescription, admin, access)
       val request                     = Json.toJson(createPrivOrROPCAppRequest).toString
-      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", ClientId("client ID"), totpSecrets, appAccess)
+      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, ClientId("client ID"), totpSecrets, appAccess)
       val response                    = Json.toJson(createPrivOrROPCAppResponse).toString
 
       stubFor(

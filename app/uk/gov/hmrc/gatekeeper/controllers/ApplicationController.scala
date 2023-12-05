@@ -27,9 +27,12 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, GrantLength, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -42,11 +45,10 @@ import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper.{ColumnDefinition, _}
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
@@ -100,11 +102,11 @@ class ApplicationController @Inject() (
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                              = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults                                         = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
-    val params                                           = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
-    val buildAppUrlFn: (ApplicationId, String) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == "PRODUCTION") {
+    val env                                                   = Environment.apply(environment.getOrElse("SANDBOX"))
+    val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
+    val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url
@@ -126,13 +128,13 @@ class ApplicationController @Inject() (
   }
 
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
-    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationResponse]](
+    val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.gatewayId)),
-      ColumnDefinition("Environment", (app => app.deployedTo)),
-      ColumnDefinition("Status", (app => State.displayedState(app.state.name))),
+      ColumnDefinition("Environment", (app => app.deployedTo.toString)),
+      ColumnDefinition("Status", (app => app.state.name.displayText)),
       ColumnDefinition("Rate limit tier", (app => app.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
       ColumnDefinition("Blocked", (app => app.blocked.toString())),
@@ -165,7 +167,7 @@ class ApplicationController @Inject() (
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]](
       ColumnDefinition("Name", app => app.name),
       ColumnDefinition("App ID", app => app.id.value.toString),
-      ColumnDefinition("Environment", _ => env.getOrElse("SANDBOX").toString),
+      ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
       ColumnDefinition("Last API call", app => app.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
@@ -224,16 +226,16 @@ class ApplicationController @Inject() (
 
       def getResponsibleIndividualHistory(access: Access): List[ResponsibleIndividualHistoryItem] = {
         access match {
-          case Standard(_, _, _, Some(ImportantSubmissionData(_, _, termsOfUseAcceptances)), _) => {
+          case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, _, termsOfUseAcceptances))) => {
             buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
           }
-          case _                                                                                => List.empty
+          case _                                                                                                   => List.empty
         }
       }
 
-      def checkEligibleForTermsOfUseInvite(app: NewApplication, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
+      def checkEligibleForTermsOfUseInvite(app: GKApplicationResponse, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
-          case std: Standard
+          case std: Access.Standard
               if (app.state.name == State.PRODUCTION &&
                 app.deployedTo == Environment.PRODUCTION &&
                 !hasSubmissions &&
@@ -277,10 +279,10 @@ class ApplicationController @Inject() (
     termsOfUseAcceptances match {
       case Nil                       => List.empty
       case first :: Nil              =>
-        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.value, formatDateTime(first.dateTime), "Present"))
+        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.text, formatDateTime(first.dateTime), "Present"))
       case first :: second :: others => List(ResponsibleIndividualHistoryItem(
           first.responsibleIndividual.fullName.value,
-          first.responsibleIndividual.emailAddress.value,
+          first.responsibleIndividual.emailAddress.text,
           formatDateTime(first.dateTime),
           formatDateTime(second.dateTime)
         )) ++
@@ -308,10 +310,10 @@ class ApplicationController @Inject() (
   def updateAccessOverrides(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def formFieldForOverrideFlag(overrideFlag: OverrideFlag): String = overrideFlag match {
-        case SuppressIvForAgents(_)        => FormFields.suppressIvForAgentsScopes
-        case SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
-        case SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
-        case GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
+        case OverrideFlag.SuppressIvForAgents(_)        => FormFields.suppressIvForAgentsScopes
+        case OverrideFlag.SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
+        case OverrideFlag.SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
+        case OverrideFlag.GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {
@@ -341,12 +343,13 @@ class ApplicationController @Inject() (
 
   def manageScopes(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
+      def showManageScopesView(scopes: Set[String]) =
+        Future.successful(Ok(manageScopesView(app.application, scopesForm.fill(scopes))))
+
       app.application.access match {
-        case access: AccessWithRestrictedScopes => {
-          val form = scopesForm.fill(access.scopes)
-          Future.successful(Ok(manageScopesView(app.application, form)))
-        }
-        case _                                  => Future.failed(new RuntimeException("Invalid access type on application"))
+        case Access.Privileged(_, scopes) => showManageScopesView(scopes)
+        case Access.Ropc(scopes)          => showManageScopesView(scopes)
+        case _                            => Future.failed(new RuntimeException("Invalid access type on application"))
       }
     }
   }
@@ -435,7 +438,7 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays)))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays())))
       Future.successful(Ok(manageGrantLengthView(app.application, form)))
     }
   }
@@ -473,7 +476,7 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleAutoDeleteDisabled(application: Application) = {
+      def handleAutoDeleteDisabled(application: GKApplicationResponse) = {
         for {
           event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
                      .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
@@ -653,7 +656,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def lastApproval(app: ApplicationWithHistory): StateHistory = {
         app.history.filter(_.state.isPendingRequesterVerification)
-          .sortWith(StateHistory.ascendingDateForAppId)
+          .sortWith(StateHistoryHelper.ascendingDateForAppId)
           .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
       }
 
@@ -662,8 +665,8 @@ class ApplicationController @Inject() (
         developerService.fetchDevelopersByEmails(emails)
       }
 
-      def application(app: ApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
-        val verified = app.isApproved
+      def application(app: GKApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
+        val verified = app.state.name.isApproved
         val details  = applicationReviewDetails(app, submissionDetails)(request)
 
         ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
@@ -683,7 +686,7 @@ class ApplicationController @Inject() (
 
   private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
     val submission: StateHistory = app.history.filter(_.state.isPendingGatekeeperApproval)
-      .sortWith(StateHistory.ascendingDateForAppId)
+      .sortWith(StateHistoryHelper.ascendingDateForAppId)
       .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
 
     submission.actor match {
@@ -695,7 +698,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  private def applicationReviewDetails(app: ApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
+  private def applicationReviewDetails(app: GKApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
     val currentRateLimitTierToDisplay = if (request.role.isSuperUser) Some(app.rateLimitTier) else None
 
     val contactDetails = for {
@@ -762,7 +765,7 @@ class ApplicationController @Inject() (
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
-                result.flashing("success" -> s"Rate limit tier has been changed to ${RateLimitTier.show(tier)}")
+                result.flashing("success" -> s"Rate limit tier has been changed to ${tier.displayText}")
               case _                              =>
                 result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
             }
@@ -775,7 +778,7 @@ class ApplicationController @Inject() (
   }
 
   private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
-    if (app.application.deployedTo == "SANDBOX") Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
+    if (app.application.deployedTo == Environment.SANDBOX) Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
@@ -800,9 +803,9 @@ class ApplicationController @Inject() (
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 
-    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[ApplicationResponse]): FieldValidationResult[String] = {
+    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[GKApplicationResponse]): FieldValidationResult[String] = {
       val isValid = environment match {
-        case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION.toString) && (app.name == applicationName))
+        case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION) && (app.name == applicationName))
         case _                      => true
       }
       if (isValid) applicationName.valid else "application.name.already.exists".invalidNec
@@ -817,7 +820,7 @@ class ApplicationController @Inject() (
     }
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-      def createApp(user: User, accessType: AccessType.AccessType) = {
+      def createApp(user: User, accessType: AccessType) = {
         val collaborators = List(Collaborators.Administrator(user.userId, LaxEmailAddress(form.adminEmail)))
 
         applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
@@ -828,14 +831,14 @@ class ApplicationController @Inject() (
           }
       }
 
-      def validateValues(apps: Seq[ApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
+      def validateValues(apps: Seq[GKApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
         (
           validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
           validateUserSuitability(user).withField("adminEmail")
         )
           .mapN((n, u) => (n, u))
 
-      def handleValues(apps: Seq[ApplicationResponse], user: Option[User], accessType: AccessType.AccessType): Future[Result] =
+      def handleValues(apps: Seq[GKApplicationResponse], user: Option[User], accessType: AccessType): Future[Result] =
         validateValues(apps, user)
           .fold[Future[Result]](
             errs => successful(viewWithFormErrors(errs)),
@@ -849,7 +852,7 @@ class ApplicationController @Inject() (
         BadRequest(createApplicationView(formWithErrors(errs)))
 
       val accessType =
-        form.accessType.flatMap(AccessType.from).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
+        form.accessType.flatMap(AccessType.apply).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
       val fApps = applicationService.fetchApplications
       val fUser = developerService.seekUser(LaxEmailAddress(form.adminEmail))

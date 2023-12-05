@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, Period}
 
 import org.jsoup.Jsoup
 
-import play.api.mvc.Flash
+import play.api.mvc.{AnyContentAsEmpty, Flash}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, IpAllowlist, RateLimitTier, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.NewApplication
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
@@ -39,34 +39,31 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
 
   trait Setup {
-    implicit val request = FakeRequest()
-    val applicationView  = app.injector.instanceOf[ApplicationView]
+    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    val applicationView                                       = app.injector.instanceOf[ApplicationView]
 
     val developers = List[RegisteredUser] {
       new RegisteredUser(LaxEmailAddress("joe.bloggs@example.co.uk"), UserId.random, "joe", "bloggs", false)
     }
 
-    val clientId            = ClientId("clientid")
-    val grantLength: Period = Period.ofDays(547)
+    val clientId = ClientId("clientid")
 
-    val application = NewApplication(
+    val application = buildApplication(
       id = ApplicationId.random,
       clientId = clientId,
       gatewayId = "gateway",
-      name = "AnApplicationName",
-      createdOn = LocalDateTime.now(),
-      lastAccess = Some(LocalDateTime.now()),
-      lastAccessTokenUsage = None,
+      name = Some("AnApplicationName"),
       deployedTo = Environment.PRODUCTION,
       description = None,
       collaborators = Set.empty,
-      access = Standard(),
-      state = ApplicationState(),
+      createdOn = LocalDateTime.now(),
+      lastAccess = Some(LocalDateTime.now()),
+      access = Access.Standard(),
+      state = ApplicationState(updatedOn = LocalDateTime.now()),
       rateLimitTier = RateLimitTier.BRONZE,
-      blocked = false,
       checkInformation = None,
-      ipAllowlist = IpAllowlist(),
-      grantLength
+      blocked = false,
+      ipAllowlist = IpAllowlist()
     )
 
     val DefaultApplicationViewModel = ApplicationViewModel(

@@ -17,13 +17,13 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.{By, NoSuchElementException}
+import org.openqa.selenium.{By, NoSuchElementException, WebDriver}
 import org.scalatest.matchers.should.Matchers
 
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RateLimitTier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
@@ -36,7 +36,7 @@ trait ApprovedBaseSpec extends BaseSpec
 
   import MockDataSugar._
 
-  implicit val driver = webDriver
+  implicit val driver: WebDriver = webDriver
 
   protected def stubRateLimitTier(applicationId: String, tier: String) = {
     stubFor(post(urlEqualTo(s"/application/$applicationId/rate-limit-tier"))

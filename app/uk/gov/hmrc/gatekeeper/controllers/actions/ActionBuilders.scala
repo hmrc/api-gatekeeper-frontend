@@ -22,6 +22,7 @@ import play.api.mvc.Results.{BadRequest, NotFound}
 import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -41,15 +42,15 @@ trait ActionBuilders extends ApplicationLogger {
   def withStandardApp(
       appId: ApplicationId
     )(
-      f: (ApplicationWithHistory, Standard) => Future[Result]
+      f: (ApplicationWithHistory, Access.Standard) => Future[Result]
     )(implicit request: MessagesRequest[_],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
     applicationService.fetchApplication(appId).flatMap(appWithHistory =>
       appWithHistory.application.access match {
-        case access: Standard => f(appWithHistory, access)
-        case _                => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
+        case access: Access.Standard => f(appWithHistory, access)
+        case _                       => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
       }
     )
   }

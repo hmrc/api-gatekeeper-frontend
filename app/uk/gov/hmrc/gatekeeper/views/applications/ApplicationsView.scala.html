@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models.State._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 @import uk.gov.hmrc.gatekeeper.models.{PaginatedApplicationResponse, VersionSummary}
@@ -26,7 +26,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, String) => String)(
+@(paginatedApplications: PaginatedApplicationResponse, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(
 implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
 
 @pageUrl(extra: (String, String)) = @{
@@ -175,7 +175,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
                   @{dateFormatter.format(application.createdOn)}
                 </td>
                 <td class="govuk-table__cell" id="app-env-@index">
-                  @application.deployedTo.toLowerCase.capitalize
+                  @application.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
                   @defining(application.state.name match {

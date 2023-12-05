@@ -18,12 +18,15 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import mocks.services._
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
@@ -40,7 +43,7 @@ class SubscriptionControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]
@@ -59,21 +62,21 @@ class SubscriptionControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
 
-      def aPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
+      def aPaginatedApplicationResponse(applications: List[GKApplicationResponse]): PaginatedApplicationResponse = {
         val page     = 1
         val pageSize = 10
         PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
@@ -161,7 +164,7 @@ class SubscriptionControllerSpec
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val newApplication                  = buildApplication()
+          val newApplication                  = DefaultApplication
           val applicationWithSubscriptionData = ApplicationWithSubscriptionData(newApplication, Set.empty, Map.empty)
           val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
           val possibleSubs                    = List(apiDefinition)

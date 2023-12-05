@@ -20,6 +20,7 @@ import org.jsoup.Jsoup
 
 import play.twirl.api.HtmlFormat
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,7 +38,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
     val appId      = ApplicationId.random
     val appName    = "This is my app name"
-    val env        = "Production"
+    val env        = Environment.PRODUCTION
     val clientId   = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
 
@@ -47,7 +48,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         val accessType = Some(AccessType.PRIVILEGED)
         val totp       = Some(TotpSecrets(totpSecret))
 
-        implicit val loggedInUser = LoggedInUser(Some(""))
+        implicit val loggedInUser: LoggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider, fakeRequest)
@@ -59,9 +60,9 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
-        elementExistsByText(document, "div", s"Application ID ${appId.value.toString()}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "div", s"Environment $env") shouldBe true
+        elementExistsByText(document, "div", s"Environment ${env.displayText}") shouldBe true
         elementExistsByText(document, "div", "Access type Privileged") shouldBe true
         elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe true
         elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true
@@ -82,9 +83,9 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
         elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
-        elementExistsByText(document, "div", s"Application ID ${appId.value.toString()}") shouldBe true
+        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "div", s"Environment $env") shouldBe true
+        elementExistsByText(document, "div", s"Environment ${env.displayText}") shouldBe true
         elementExistsByText(document, "div", "Access type ROPC") shouldBe true
         elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe false
         elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true

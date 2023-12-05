@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -24,12 +24,12 @@ import org.jsoup.nodes.Document
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyEnabledForm
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
@@ -37,18 +37,17 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteEnabledVie
 
 class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationBuilder {
     val request                                                  = FakeRequest().withCSRFToken
     val manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView = app.injector.instanceOf[ManageAutoDeleteEnabledView]
-    val grantLength: Period                                      = Period.ofDays(547)
 
-    val application: ApplicationResponse =
-      ApplicationResponse(
+    val application: GKApplicationResponse =
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application1",
-        "PRODUCTION",
+        Some("application1"),
+        Environment.PRODUCTION,
         None,
         Set(
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
@@ -56,10 +55,8 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
         ),
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength,
-        ipAllowlist = IpAllowlist()
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
   }
 

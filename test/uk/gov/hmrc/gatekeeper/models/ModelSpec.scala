@@ -16,15 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models.AccessType._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-class ModelSpec extends AsyncHmrcSpec {
+class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
@@ -43,27 +45,25 @@ class ModelSpec extends AsyncHmrcSpec {
     }
   }
 
-  "Application.isSoleAdmin" should {
+  "ApplicationHelper.isSoleAdmin" should {
     val emailAddress                                = "admin@example.com".toLaxEmail
     val admin                                       = Collaborators.Administrator(UserId.random, emailAddress)
     val developer                                   = Collaborators.Developer(UserId.random, emailAddress)
     val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
     val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    val grantLength: Period                         = Period.ofDays(547)
     def application(teamMembers: Set[Collaborator]) =
-      ApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
         "gatewayId",
-        "application",
-        "PRODUCTION",
+        Some("application"),
+        Environment.PRODUCTION,
         None,
         teamMembers,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
 
     "return true when the given email address is the only admin and no other team members" in {
@@ -90,23 +90,23 @@ class ModelSpec extends AsyncHmrcSpec {
   "AccessType" should {
 
     "contain all access types" in {
-      AccessType.values shouldBe Set(STANDARD, PRIVILEGED, ROPC)
+      AccessType.values shouldBe List(AccessType.STANDARD, AccessType.PRIVILEGED, AccessType.ROPC)
     }
 
     "convert strings with any case to AccessType" in {
-      AccessType.from("standard") shouldBe Some(STANDARD)
-      AccessType.from("Standard") shouldBe Some(STANDARD)
+      AccessType.apply("standard") shouldBe Some(AccessType.STANDARD)
+      AccessType.apply("Standard") shouldBe Some(AccessType.STANDARD)
 
-      AccessType.from("privileged") shouldBe Some(PRIVILEGED)
-      AccessType.from("priVILeged") shouldBe Some(PRIVILEGED)
+      AccessType.apply("privileged") shouldBe Some(AccessType.PRIVILEGED)
+      AccessType.apply("priVILeged") shouldBe Some(AccessType.PRIVILEGED)
 
-      AccessType.from("ropc") shouldBe Some(ROPC)
-      AccessType.from("ROPC") shouldBe Some(ROPC)
+      AccessType.apply("ropc") shouldBe Some(AccessType.ROPC)
+      AccessType.apply("ROPC") shouldBe Some(AccessType.ROPC)
     }
 
     "convert unknown strings to None" in {
-      AccessType.from("anything") shouldBe None
-      AccessType.from("") shouldBe None
+      AccessType.apply("anything") shouldBe None
+      AccessType.apply("") shouldBe None
     }
   }
 

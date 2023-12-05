@@ -16,9 +16,11 @@
 
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
-@import uk.gov.hmrc.gatekeeper.models.OverrideType.OverrideType
-@import uk.gov.hmrc.gatekeeper.models.State._
+@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
+@import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
 @import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 @import uk.gov.hmrc.gatekeeper.views.helper.application._
@@ -30,8 +32,7 @@
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.{Clock, LocalDateTime}
-@import uk.gov.hmrc.apiplatform.modules.applications.domain.models.GrantLength
-@import uk.gov.hmrc.gatekeeper.models.applications.MoreApplication
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
 
@@ -69,7 +70,7 @@
 @buildOverrideRow(overrideType: OverrideType, scopes: Set[String] = Set.empty) = {
   <tr class="govuk-table__row">
     <td class="govuk-table__cell">
-       @OverrideType.displayedType(overrideType)
+       @overrideType.displayText
     </td>
     <td class="govuk-table__cell">
       @if(scopes.isEmpty) {
@@ -102,13 +103,13 @@
             </tr>
           </thead>
           <tbody class="govuk-table__body">
-            @overrides.toList.map(or => or match {
-              case _ @ PersistLogin => {buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
-              case or: SuppressIvForAgents => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
-              case or: SuppressIvForOrganisations => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
-              case or: SuppressIvForIndividuals => {buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
-              case or: GrantWithoutConsent => {buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
-            })
+            @overrides.toList.map {
+              case _ @ OverrideFlag.PersistLogin => {@buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
+              case or: OverrideFlag.SuppressIvForAgents => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForOrganisations => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
+              case or: OverrideFlag.SuppressIvForIndividuals => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
+              case or: OverrideFlag.GrantWithoutConsent => {@buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+            }
           </tbody>
         </table>
       </dd>
@@ -245,7 +246,7 @@
             @application.name
         </dd>
         <dd class="govuk-summary-list__actions">
-        @if(application.deployedTo == Environment.PRODUCTION && application.state.isApproved) {
+        @if(application.deployedTo == Environment.PRODUCTION && application.state.name.isApproved) {
             <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId).url}" class="button--link" role="button">Manage</a>
         }
         </dd>
@@ -255,9 +256,9 @@
         Status
       </dt>
       <dd class="govuk-summary-list__value">
-        <span data-status>@State.displayedState(application.state.name)</span>
+        <span data-status>@application.state.name.displayText</span>
         <br />
-        <span class="govuk-hint" data-status-info>@State.additionalInformation(application.state.name)</span>
+        <span class="govuk-hint" data-status-info>@application.state.name.additionalInformation</span>
       </dd>
       <dd class="govuk-summary-list__actions">
           @{ if (application.state.isPendingGatekeeperApproval){
@@ -297,7 +298,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @RateLimitTier.show(application.rateLimitTier)
+        @application.rateLimitTier.displayText
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -343,8 +344,8 @@
       <dd class="govuk-summary-list__value" data-privacy-url="">
         @{
           application.privacyPolicyLocation match {
-            case PrivacyPolicyLocation.Url(url) => renderExternalUrl(url)
-            case PrivacyPolicyLocation.InDesktopSoftware => "In Desktop Software"
+            case PrivacyPolicyLocations.Url(url) => renderExternalUrl(url)
+            case PrivacyPolicyLocations.InDesktopSoftware => "In Desktop Software"
             case _ => ""
           }
         }
@@ -359,8 +360,8 @@
       <dd class="govuk-summary-list__value" data-terms-url="">
         @{
           application.termsAndConditionsLocation match {
-            case TermsAndConditionsLocation.Url(url) => renderExternalUrl(url)
-            case TermsAndConditionsLocation.InDesktopSoftware => "In Desktop Software"
+            case TermsAndConditionsLocations.Url(url) => renderExternalUrl(url)
+            case TermsAndConditionsLocations.InDesktopSoftware => "In Desktop Software"
             case _ => ""
           }
         }
@@ -388,20 +389,20 @@
         Access type
       </dt>
       <dd class="govuk-summary-list__value" data-access-type>
-        @AccessType.displayedType(access.accessType)
+        @access.accessType.displayText
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
     </div>
     @{
       access match {
-        case standardAccess : Standard => {
+        case standardAccess : Access.Standard => {
           renderOverrides(standardAccess.overrides)
         }
-        case privilegedAccess : Privileged => {
+        case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)
         }
-        case ropcAccess : Ropc => {
+        case ropcAccess : Access.Ropc => {
           renderScopes(ropcAccess.scopes)
         }
       }
@@ -411,7 +412,7 @@
         Application deleted if inactive
       </dt>
       <dd class="govuk-summary-list__value" data-application-deleted-if-active>
-      @{MoreApplication.displayAutoDelete(application.moreApplication.allowAutoDelete).toString}
+        @{if (application.moreApplication.allowAutoDelete) "Yes" else "No"}
       </dd>
       @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -538,7 +539,7 @@
         </table>
         @if(application.collaborators.nonEmpty) {
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
-          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(CollaboratorRole.ADMINISTRATOR))</span>
+          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(Collaborator.Roles.ADMINISTRATOR))</span>
           <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" data-clip-text>Copy all team member email addresses</button>
           <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button>
         }
@@ -660,10 +661,10 @@
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
   @if(request.role.isAdmin && !application.state.isDeleted) {
-    @if(application.state.isApproved && !application.blocked) {
+    @if(application.state.name.isApproved && !application.blocked) {
       <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
     }
-    @if(application.state.isApproved && application.blocked) {
+    @if(application.state.name.isApproved && application.blocked) {
       <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
   }

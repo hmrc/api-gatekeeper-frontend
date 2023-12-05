@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.connectors.CommandConnectorMockProvider
@@ -25,11 +25,13 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
@@ -39,7 +41,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
   trait Setup
       extends MockitoSugar with ArgumentMatchersSugar
-      with CommandConnectorMockProvider {
+      with CommandConnectorMockProvider with ApplicationBuilder {
 
     val mockDeveloperConnector        = mock[DeveloperConnector]
     val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -50,73 +52,67 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     )
     val underTest           = spy(subscriptionService)
 
-    implicit val hc = HeaderCarrier()
+    implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = Set[Collaborator](
       Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
-
-    val stdApp1 = ApplicationResponse(
+    val stdApp1 = buildApplication(
       ApplicationId.random,
       ClientId("clientid1"),
       "gatewayId1",
-      "application1",
-      "PRODUCTION",
+      Some("application1"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Standard(),
-      ApplicationState(),
-      grantLength
+      access = Access.Standard(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
 
-    val stdApp2 = ApplicationResponse(
+    val stdApp2 = buildApplication(
       ApplicationId.random,
       ClientId("clientid2"),
       "gatewayId2",
-      "application2",
-      "PRODUCTION",
+      Some("application2"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Standard(),
-      ApplicationState(),
-      grantLength
+      access = Access.Standard(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
 
-    val privilegedApp = ApplicationResponse(
+    val privilegedApp = buildApplication(
       ApplicationId.random,
       ClientId("clientid3"),
       "gatewayId3",
-      "application3",
-      "PRODUCTION",
+      Some("application3"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Privileged(),
-      ApplicationState(),
-      grantLength
+      access = Access.Privileged(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
 
-    val ropcApp                = ApplicationResponse(
+    val ropcApp                = buildApplication(
       ApplicationId.random,
       ClientId("clientid4"),
       "gatewayId4",
-      "application4",
-      "PRODUCTION",
+      Some("application4"),
+      Environment.PRODUCTION,
       None,
       collaborators,
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
-      Ropc(),
-      ApplicationState(),
-      grantLength
+      access = Access.Ropc(),
+      state = ApplicationState(updatedOn = LocalDateTime.now())
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
@@ -128,7 +124,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = "SANDBOX"))
+    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX))
     val testContext                                    = ApiContext("test-context")
     val unknownContext                                 = ApiContext("unknown-context")
     val superContext                                   = ApiContext("super-context")
@@ -146,7 +142,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.subscribeToApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.right.value shouldBe DispatchSuccessResult(stdApp1)
+      result.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 
@@ -157,7 +153,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
       val result = await(underTest.unsubscribeFromApi(stdApp1, apiIdentifier, gatekeeperUser))
 
-      result.right.value shouldBe DispatchSuccessResult(stdApp1)
+      result.value shouldBe DispatchSuccessResult(stdApp1)
     }
   }
 }

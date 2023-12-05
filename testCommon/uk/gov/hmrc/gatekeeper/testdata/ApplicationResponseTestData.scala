@@ -20,14 +20,13 @@ import java.time.LocalDateTime
 
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.RateLimitTier
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.ApplicationResponse
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationResponseTestData extends ApplicationResponseBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
+trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
 
-  val defaultApplicationResponse = DefaultApplicationResponse
+  val defaultApplicationResponse = DefaultApplication
     .withId(applicationId)
     .withName(applicationName)
     .withDescription("application for test")
@@ -52,7 +51,7 @@ trait ApplicationResponseTestData extends ApplicationResponseBuilder with Collab
     .withName(pendingApprovalApplicationName)
     .withState(pendingApprovalState)
 
-  implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[ApplicationResponse]) {
+  implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[GKApplicationResponse]) {
     def toJson       = Json.toJson(applicationResponses)
     def toJsonString = Json.toJson(applicationResponses).toString
   }

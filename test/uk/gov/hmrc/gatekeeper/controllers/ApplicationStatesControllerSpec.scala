@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
 import mocks.services.ApplicationServiceMockProvider
 
 import play.api.http.Status.{FORBIDDEN, OK}
@@ -31,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
 
 class ApplicationStatesControllerSpec extends ControllerBaseSpec with ApplicationServiceMockProvider
     with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {

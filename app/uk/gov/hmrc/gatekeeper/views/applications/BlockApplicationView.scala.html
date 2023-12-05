@@ -59,11 +59,11 @@
     <tbody class="govuk-table__body">
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">Environment</th>
-        <td class="govuk-table__cell">@{application.deployedTo.toLowerCase.capitalize}</td>
+        <td class="govuk-table__cell">@{application.deployedTo.displayText}</td>
       </tr>
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">Application type</th>
-        <td class="govuk-table__cell">@AccessType.displayedType(application.access.accessType)</td>
+        <td class="govuk-table__cell">@application.access.accessType.displayText</td>
       </tr>
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header">Status</th>
@@ -80,7 +80,7 @@
         <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
           Application name
         </label>
-      </h1>
+      </h2>
       <p class="govuk-body">Enter the application name to confirm blocking</p>
       @fieldError(form.errors, "applicationNameConfirmation")
       <input id="applicationNameConfirmation" name="applicationNameConfirmation" class="govuk-input @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-input--error}" type="text">

@@ -19,11 +19,11 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.builder.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.State._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilder {
+class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
       val now           = LocalDateTime.now()
@@ -41,7 +41,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilde
         ApplicationReview.getReviewContactName(appResponse.checkInformation) shouldBe Some("contactFullName")
       }
       "review contact email return Some" in {
-        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactEmail")
+        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactemail")
       }
       "review contact telephone return Some" in {
         ApplicationReview.getReviewContactTelephone(appResponse.checkInformation) shouldBe Some("contactTelephone")
@@ -49,7 +49,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationResponseBuilde
     }
     "application is not approved" should {
       val appWithHistory = anApplicationWithHistory()
-      val app            = anApplicationResponse()
+      val app            = anApplication()
 
       "approved by return None" in {
         ApplicationReview.getApprovedBy(appWithHistory.history) shouldBe None

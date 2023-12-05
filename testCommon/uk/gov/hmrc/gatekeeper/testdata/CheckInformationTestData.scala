@@ -18,7 +18,9 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.{LocalDateTime, ZoneOffset}
 
-import uk.gov.hmrc.gatekeeper.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 trait CheckInformationTestData {
 
@@ -26,8 +28,8 @@ trait CheckInformationTestData {
     CheckInformation(
       contactDetails = Some(
         ContactDetails(
-          fullname = "Holly Golightly",
-          email = "holly.golightly@example.com",
+          fullname = FullName("Holly Golightly"),
+          email = LaxEmailAddress("holly.golightly@example.com"),
           telephoneNumber = "020 1122 3344"
         )
       ),
@@ -37,7 +39,7 @@ trait CheckInformationTestData {
       applicationDetails = Some(""),
       termsOfUseAgreements = List(
         TermsOfUseAgreement(
-          emailAddress = "test@example.com",
+          emailAddress = LaxEmailAddress("test@example.com"),
           timeStamp = LocalDateTime.ofEpochSecond(1459868573962L, 0, ZoneOffset.UTC),
           version = "1.0"
         )

@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.models
+package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-case class IpAllowlist(required: Boolean = false, allowlist: Set[String] = Set.empty)
+object StateHistoryHelper {
 
-object IpAllowlist {
-  import play.api.libs.json.Json
+  def ascendingDateForAppId(s1: StateHistory, s2: StateHistory): Boolean = {
+    s1.applicationId match {
+      case s2.applicationId => s1.changedAt.isBefore(s2.changedAt)
+      case _                => true
+    }
+  }
 
-  implicit val format = Json.format[IpAllowlist]
 }

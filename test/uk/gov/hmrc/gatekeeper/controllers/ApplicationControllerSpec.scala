@@ -22,6 +22,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
+import akka.stream.Materializer
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.jsoup.Jsoup
@@ -34,7 +35,8 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, RateLimitTier}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -45,7 +47,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.{ApplicationWithSubscriptionData, MoreApplication}
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -61,7 +63,7 @@ class ApplicationControllerSpec
     with TitleChecker
     with CollaboratorTracker {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView             = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                 = app.injector.instanceOf[ForbiddenView]
@@ -105,17 +107,17 @@ class ApplicationControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Standard(overrides = Set(PersistLogin))),
+        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Privileged(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication               = ApplicationWithHistory(
-        basicApplication.copy(access = Ropc(scopes = Set("openid", "email"))),
+        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -289,20 +291,19 @@ class ApplicationControllerSpec
       "return csv data" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val applicationResponse = ApplicationResponse(
+        val applicationResponse = buildApplication(
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           "the-gateway-id",
-          "App Name",
-          deployedTo = "SANDBOX",
+          Some("App Name"),
+          deployedTo = Environment.SANDBOX,
           description = None,
           collaborators = Set.empty,
           createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
-          Standard(),
-          ApplicationState(),
-          grantLength,
-          moreApplication = MoreApplication(false)
+          access = Access.Standard(),
+          state = ApplicationState(updatedOn = LocalDateTime.now()),
+          moreApplication = MoreApplication(allowAutoDelete = false)
         )
 
         ApplicationServiceMock.SearchApplications.returns(applicationResponse)
@@ -370,7 +371,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
-        val appCaptor          = ArgCaptor[Application]
+        val appCaptor          = ArgCaptor[GKApplicationResponse]
         val gatekeeperIdCaptor = ArgCaptor[String]
         when(mockApplicationService.resendVerification(*, *)(*)).thenReturn(successful(ResendVerificationSuccessful))
 
@@ -531,7 +532,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateGrantLength.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> "547")
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -559,7 +560,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> "547")
+        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -1010,11 +1011,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         verify(mockApplicationService).updateOverrides(
           eqTo(application.application),
           eqTo(Set(
-            PersistLogin,
-            GrantWithoutConsent(Set("hello", "individual-benefits")),
-            SuppressIvForAgents(Set("openid", "email")),
-            SuppressIvForOrganisations(Set("address", "openid:mdtp")),
-            SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
+            OverrideFlag.PersistLogin,
+            OverrideFlag.GrantWithoutConsent(Set("hello", "individual-benefits")),
+            OverrideFlag.SuppressIvForAgents(Set("openid", "email")),
+            OverrideFlag.SuppressIvForOrganisations(Set("address", "openid:mdtp")),
+            OverrideFlag.SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
           ))
         )(*)
 
@@ -1139,7 +1140,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
-        val appCaptor          = ArgumentCaptor.forClass(classOf[Application])
+        val appCaptor          = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
         val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
         when(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
           .thenReturn(successful(ApproveUpliftSuccessful))
@@ -1157,7 +1158,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
-        val appCaptor     = ArgumentCaptor.forClass(classOf[Application])
+        val appCaptor     = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
@@ -1258,24 +1259,25 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp   = ApplicationResponse(
+          val existingApp   = buildApplication(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",
-            "I Already Exist",
-            "PRODUCTION",
+            Some("I Already Exist"),
+            Environment.PRODUCTION,
             None,
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            Standard(),
-            ApplicationState(),
-            grantLength
+            access = Access.Standard(),
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
+
+          println(s"****** Environment.PRODUCTION.toString = ${Environment.PRODUCTION.toString}")
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1294,25 +1296,24 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp   = ApplicationResponse(
+          val existingApp   = buildApplication(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",
-            "I Already Exist",
-            "PRODUCTION",
+            Some("I Already Exist"),
+            Environment.PRODUCTION,
             None,
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            Standard(),
-            ApplicationState(),
-            grantLength
+            access = Access.Standard(),
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1332,25 +1333,24 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
 
-          val existingApp = ApplicationResponse(
+          val existingApp = buildApplication(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",
-            "I Already Exist",
-            "SANDBOX",
+            Some("I Already Exist"),
+            Environment.SANDBOX,
             None,
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            Standard(),
-            ApplicationState(),
-            grantLength
+            access = Access.Standard(),
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "SANDBOX", clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1369,25 +1369,24 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp                      = ApplicationResponse(
+          val existingApp                      = buildApplication(
             ApplicationId.random,
             ClientId.random,
             "gatewayId",
-            "I Already Exist",
-            "SANDBOX",
+            Some("I Already Exist"),
+            Environment.SANDBOX,
             None,
             collaborators,
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
-            Standard(),
-            ApplicationState(),
-            grantLength
+            access = Access.Standard(),
+            state = ApplicationState(updatedOn = LocalDateTime.now())
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", "PRODUCTION", clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.PRODUCTION, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1487,7 +1486,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1516,7 +1515,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1544,7 +1543,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "PRODUCTION", clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1570,7 +1569,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.FetchApplications.returns()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, "SANDBOX", clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1599,7 +1598,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
     "applicationPage" should {
       "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = buildApplication()
+        val application2                    = DefaultApplication
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
@@ -1631,7 +1630,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = buildApplication().copy(state = ApplicationState(State.DELETED))
+        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED, updatedOn = LocalDateTime.now()))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)

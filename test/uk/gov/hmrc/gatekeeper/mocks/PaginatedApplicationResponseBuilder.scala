@@ -16,11 +16,12 @@
 
 package mocks
 
-import uk.gov.hmrc.gatekeeper.models.{ApplicationResponse, PaginatedApplicationResponse}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.gatekeeper.models.PaginatedApplicationResponse
 
 object PaginatedApplicationResponseBuilder {
 
-  def buildPaginatedApplicationResponse(applications: List[ApplicationResponse]): PaginatedApplicationResponse = {
+  def buildPaginatedApplicationResponse(applications: List[GKApplicationResponse]): PaginatedApplicationResponse = {
     val page     = 1
     val pageSize = 10
     PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)

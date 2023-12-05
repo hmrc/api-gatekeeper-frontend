@@ -24,12 +24,11 @@ import com.google.inject.{Inject, Singleton}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, GKApplicationResponse}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailure}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.Application
 
 @Singleton
 class TeamMemberService @Inject() (
@@ -39,7 +38,12 @@ class TeamMemberService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def addTeamMember(app: Application, collaborator: Collaborator, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
+  def addTeamMember(
+      app: GKApplicationResponse,
+      collaborator: Collaborator,
+      user: Actors.GatekeeperUser
+    )(implicit hc: HeaderCarrier
+    ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
@@ -49,13 +53,13 @@ class TeamMemberService @Inject() (
   }
 
   def removeTeamMember(
-      app: Application,
+      app: GKApplicationResponse,
       teamMemberToRemove: LaxEmailAddress,
       user: Actors.GatekeeperUser
     )(implicit hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
-    val collaborator = app.collaborators.find(_.emailAddress equalsIgnoreCase (teamMemberToRemove)).get // Safe to do here.
+    val collaborator = app.collaborators.find(_.emailAddress == teamMemberToRemove).get // Safe to do here.
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))

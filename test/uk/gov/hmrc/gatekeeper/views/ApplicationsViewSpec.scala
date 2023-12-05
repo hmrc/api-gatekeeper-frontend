@@ -39,21 +39,23 @@ import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec {
 
-  trait Setup {
+  trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
-    implicit val mockConfig: AppConfig = mock[AppConfig]
-    implicit val loggedInUser          = LoggedInUser(Some("Bob Dole"))
+    implicit val mockConfig: AppConfig      = mock[AppConfig]
+    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
       ApiStatus.STABLE.displayText     -> Seq(VersionSummary("Dummy API", ApiStatus.STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
@@ -67,67 +69,61 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val grantLength: Period = Period.ofDays(547)
-
-    val applications    = List[ApplicationResponse](
-      ApplicationResponse(
+    val applications    = List[GKApplicationResponse](
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Testing App",
-        "PRODUCTION",
+        Some("Testing App"),
+        Environment.PRODUCTION,
         Some("Testing App"),
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
-      ApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Pending Gatekeeper Approval App",
-        "PRODUCTION",
+        Some("Pending Gatekeeper Approval App"),
+        Environment.PRODUCTION,
         Some("Pending Gatekeeper Approval App"),
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
-      ApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Pending Requester Verification App",
-        "PRODUCTION",
+        Some("Pending Requester Verification App"),
+        Environment.PRODUCTION,
         Some("Pending Requester Verification App"),
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       ),
-      ApplicationResponse(
+      buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
         "gatewayId1",
-        "Production App",
-        "PRODUCTION",
+        Some("Production App"),
+        Environment.PRODUCTION,
         Some("Production App"),
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
     )
-    val getApprovalsUrl = (appId: ApplicationId, deployedTo: String) => "approvals/url"
+    val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     val applicationViewWithNoApis: () => HtmlFormat.Appendable =
       () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)

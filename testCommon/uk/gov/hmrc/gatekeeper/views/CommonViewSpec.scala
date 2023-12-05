@@ -22,7 +22,7 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.i18n.{Lang, MessagesImpl, MessagesProvider}
 import play.api.mvc.request.RequestAttrKey
-import play.api.mvc.{MessagesControllerComponents, MessagesRequest}
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, MessagesRequest, Request}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
@@ -38,9 +38,10 @@ trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", true), List.empty)
 
-  implicit val fakeRequest = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
-  val msgRequest           = new MessagesRequest(fakeRequest, messagesApi)
-  val strideUserRequest    = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
-  val superUserRequest     = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
-  val adminRequest         = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
+  implicit val fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
+
+  val msgRequest        = new MessagesRequest(fakeRequest, messagesApi)
+  val strideUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
+  val superUserRequest  = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
+  val adminRequest      = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
 }

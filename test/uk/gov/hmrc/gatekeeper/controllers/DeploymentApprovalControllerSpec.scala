@@ -20,6 +20,8 @@ import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
@@ -33,7 +35,7 @@ import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval.{DeploymentApprovalV
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView      = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView          = app.injector.instanceOf[ForbiddenView]

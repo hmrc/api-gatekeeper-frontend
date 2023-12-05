@@ -26,7 +26,8 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -47,7 +48,7 @@ trait WithRestrictedApp {
   def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.application.access match {
-        case _: Standard                   => f(app)
+        case _: Access.Standard            => f(app)
         case _ if request.role.isSuperUser => f(app)
         case _                             => successful(Forbidden(forbiddenView()))
       }
@@ -100,8 +101,8 @@ class TeamMembersController @Inject() (
 
         for {
           user        <- developerService.fetchOrCreateUser(emailAddress)
-          role         = CollaboratorRole.from(form.role).getOrElse(Collaborator.Roles.DEVELOPER)
-          collaborator = if (role == CollaboratorRole.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
+          role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Roles.DEVELOPER)
+          collaborator = if (role == Collaborator.Roles.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
           result      <- teamMemberService.addTeamMember(app.application, collaborator, gatekeeperUser.get)
                            .map {
                              case Right(())                                                               => successResult

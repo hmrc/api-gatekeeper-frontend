@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 
@@ -30,7 +30,7 @@ trait ApplicationWithSubscriptionDataTestData extends CommonTestData with Subscr
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
     import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 
-    implicit val ApplicationWithSubscriptionDataFormat = Json.format[ApplicationWithSubscriptionData]
+    implicit val ApplicationWithSubscriptionDataFormat: OFormat[ApplicationWithSubscriptionData] = Json.format[ApplicationWithSubscriptionData]
 
     def toJson       = Json.toJson(applicationWithSubscriptionData)
     def toJsonString = Json.toJson(applicationWithSubscriptionData).toString

@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 import uk.gov.hmrc.gatekeeper.controllers.routes
 
 case class NavLink(label: String, href: Option[String])
 
 object NavLink {
-  implicit val format = Json.format[NavLink]
+  implicit val format: OFormat[NavLink] = Json.format[NavLink]
 }
 
 case object StaticNavLinks {

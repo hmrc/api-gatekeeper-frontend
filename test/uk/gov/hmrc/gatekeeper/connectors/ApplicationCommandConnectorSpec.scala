@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -26,49 +26,28 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, _}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, UserId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
-class ApplciationCommandConnectorSpec
+class ApplicationCommandConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
-    with UrlEncoding {
-
-  def anApplicationResponse(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): ApplicationResponse = {
-    ApplicationResponse(
-      ApplicationId.random,
-      ClientId("clientid"),
-      "gatewayId",
-      "appName",
-      "deployedTo",
-      None,
-      Set.empty,
-      createdOn,
-      Some(lastAccess),
-      Privileged(),
-      ApplicationState(),
-      Period.ofDays(547),
-      RateLimitTier.BRONZE,
-      Some("termsUrl"),
-      Some("privacyPolicyUrl"),
-      None
-    )
-  }
+    with UrlEncoding
+    with ApplicationBuilder {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
-  val administrator = Administrator(UserId.random, "sample@example.com".toLaxEmail)
+  val administrator = Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
 
-  val authToken   = "Bearer Token"
-  implicit val hc = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  val authToken                  = "Bearer Token"
+  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
 
@@ -92,7 +71,7 @@ class ApplciationCommandConnectorSpec
           .withJsonRequestBody(DispatchRequest(command, adminsToEmail))
           .willReturn(
             aResponse()
-              .withJsonBody(DispatchSuccessResult(anApplicationResponse()))
+              .withJsonBody(DispatchSuccessResult(anApplication()))
               .withStatus(OK)
           )
       )

@@ -57,14 +57,16 @@ class DeploymentApprovalController @Inject() (
   }
 
   def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
+    fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }
 
   def handleApproval(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val env = Environment.unsafeApply(environment)
+
     val requestForm: Form[HandleApprovalForm] = HandleApprovalForm.form.bindFromRequest()
 
     def errors(errors: Form[HandleApprovalForm]) =
-      fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(deploymentReview(errors, details)))
+      fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(deploymentReview(errors, details)))
 
     def doCalls(serviceName: String, environment: Environment): Future[Unit] = {
       deploymentApprovalService.approveService(serviceName, environment)
@@ -79,7 +81,7 @@ class DeploymentApprovalController @Inject() (
     def approveApplicationWithValidForm(validForm: HandleApprovalForm) = {
       validForm.approval_confirmation match {
         case "Yes" =>
-          doCalls(serviceName, Environment.unsafeApply(environment)) map {
+          doCalls(serviceName, env) map {
             _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
           }
         case _     => throw new UnsupportedOperationException("Can't Reject Service Approval")
@@ -89,7 +91,7 @@ class DeploymentApprovalController @Inject() (
     requestForm.fold(errors, approveApplicationWithValidForm)
   }
 
-  private def fetchApiDefinitionSummary(serviceName: String, environment: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
-    deploymentApprovalService.fetchApprovalSummary(serviceName, Environment.unsafeApply(environment))
+  private def fetchApiDefinitionSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+    deploymentApprovalService.fetchApprovalSummary(serviceName, environment)
   }
 }

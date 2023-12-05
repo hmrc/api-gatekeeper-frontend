@@ -18,11 +18,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import akka.stream.Materializer
+
 import play.api.test.Helpers._
 
 class NavigationControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer = app.materializer
+  implicit val materializer: Materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {

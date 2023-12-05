@@ -54,7 +54,7 @@
         Environment
       </dt>
       <dd class="govuk-summary-list__value">
-        @{application.deployedTo.toLowerCase.capitalize}
+        @{application.deployedTo.displayText}
       </dd>
     </div>
     <div class="govuk-summary-list__row">
@@ -62,7 +62,7 @@
         Application type
       </dt>
       <dd class="govuk-summary-list__value">
-        @AccessType.displayedType(application.access.accessType)
+        @application.access.accessType.displayText
       </dd>
     </div>
     <div class="govuk-summary-list__row">

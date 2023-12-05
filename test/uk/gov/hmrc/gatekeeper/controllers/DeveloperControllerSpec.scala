@@ -16,17 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
+
+import akka.stream.Materializer
 
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators, GKApplicationResponse}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -34,9 +38,9 @@ import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
+class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationBuilder {
 
-  implicit val materializer                   = app.materializer
+  implicit val materializer: Materializer     = app.materializer
   private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView              = app.injector.instanceOf[ForbiddenView]
   private lazy val developerDetailsView       = app.injector.instanceOf[DeveloperDetailsView]
@@ -48,21 +52,19 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
   Helpers.running(app) {
 
-    def anApplication(collaborators: Set[Collaborator]) = {
-      val grantLength: Period = Period.ofDays(547)
-      ApplicationResponse(
+    def anApplicationWithCollaborators(collaborators: Set[Collaborator]) = {
+      buildApplication(
         ApplicationId.random,
         ClientId.random,
         "gatewayId",
-        "application",
-        "PRODUCTION",
+        Some("application"),
+        Environment.PRODUCTION,
         None,
         collaborators,
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
-        Standard(),
-        ApplicationState(),
-        grantLength
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = LocalDateTime.now())
       )
     }
 
@@ -72,7 +74,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
       val developerId  = UuidIdentifier(user.userId)
 
-      val apps      = List(anApplication(Set(
+      val apps      = List(anApplicationWithCollaborators(Set(
         Collaborators.Administrator(UserId.random, emailAddress),
         Collaborators.Developer(UserId.random, "someoneelse@example.com".toLaxEmail)
       )))
@@ -103,10 +105,10 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(List.empty[ApplicationResponse], noDevs)
+        givenDelegateServicesSupply(List.empty[GKApplicationResponse], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: List[ApplicationResponse], developers: List[Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: List[GKApplicationResponse], developers: List[Developer]): Unit = {
         val apiFilter         = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter      = StatusFilter(None)
