@@ -127,17 +127,61 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
   def stubDeveloper() = {
     stubFor(
       get(urlPathEqualTo("/developer"))
-      .willReturn(
-        aResponse().withStatus(OK).withBody(unverifiedUserJson)
-      )
+        .willReturn(
+          aResponse().withStatus(OK).withBody(unverifiedUserJson)
+        )
     )
   }
 
   def stubApplicationForDeveloper(userId: UserId) = {
     stubFor(
       get(urlPathEqualTo(s"/gatekeeper/developer/${userId}/applications"))
-      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
+        .willReturn(aResponse().withBody(
+          """[
+            |  {
+            |    "id": "b42c4a8f-3df3-451f-92ea-114ff039110e",
+            |    "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+            |    "gatewayId": "12345",
+            |    "name": "application for test",
+            |    "deployedTo": "PRODUCTION",
+            |    "collaborators": [
+            |      {
+            |        "userId": "8e6657be-3b86-42b7-bcdf-855bee3bf941",
+            |        "emailAddress": "a@b.com",
+            |        "role": "ADMINISTRATOR"
+            |      }
+            |    ],
+            |    "createdOn": 1678792287460,
+            |    "lastAccess": 1678792287460,
+            |    "grantLength": 547,
+            |    "redirectUris": [
+            |      "http://red1",
+            |      "http://red2"
+            |    ],
+            |    "access": {
+            |      "redirectUris": [
+            |        "http://isobel.name",
+            |        "http://meghan.biz"
+            |      ],
+            |      "overrides": [],
+            |      "accessType": "STANDARD"
+            |    },
+            |    "state": {
+            |      "name": "PRODUCTION",
+            |      "updatedOn": 1678793142888
+            |    },
+            |    "rateLimitTier": "BRONZE",
+            |    "blocked": false,
+            |    "trusted": false,
+            |    "serverToken": "2faa09169cf8f464ce13b80a14718b15",
+            |    "subscriptions": [],
+            |    "ipAllowlist": {
+            |      "required": false,
+            |      "allowlist": []
+            |    }
+            |  }
+            |]""".stripMargin
+        ).withStatus(OK))
+    )
   }
-
-
 }

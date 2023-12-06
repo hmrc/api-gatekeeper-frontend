@@ -18,7 +18,8 @@ package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import java.time.{LocalDateTime, Period}
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.functional.syntax._
+import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -51,5 +52,30 @@ case class GKApplicationResponse(
 }
 
 object GKApplicationResponse {
-  implicit val appResponseFormat: OFormat[GKApplicationResponse] = Json.format[GKApplicationResponse]
+
+  val reads: Reads[GKApplicationResponse] = (
+    (JsPath \ "id").read[ApplicationId] and
+      (JsPath \ "clientId").read[ClientId] and
+      (JsPath \ "gatewayId").read[String] and
+      (JsPath \ "name").read[String] and
+      (JsPath \ "deployedTo").read[Environment] and
+      (JsPath \ "description").readNullable[String] and
+      (JsPath \ "collaborators").read[Set[Collaborator]] and
+      (JsPath \ "createdOn").read[LocalDateTime] and
+      (JsPath \ "lastAccess").readNullable[LocalDateTime] and
+      (JsPath \ "grantLength").read[Period] and
+      (JsPath \ "termsAndConditionsUrl").readNullable[String] and
+      (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
+      (JsPath \ "access").read[Access] and
+      (JsPath \ "state").read[ApplicationState] and
+      (JsPath \ "rateLimitTier").read[RateLimitTier] and
+      (JsPath \ "checkInformation").readNullable[CheckInformation] and
+      (JsPath \ "blocked").readWithDefault[Boolean](false) and
+      (JsPath \ "ipAllowlist").read[IpAllowlist] and
+      (JsPath \ "moreApplication").readWithDefault[MoreApplication](MoreApplication(true))
+  )(GKApplicationResponse.apply _)
+
+  val writes: OWrites[GKApplicationResponse] = Json.writes[GKApplicationResponse]
+
+  implicit val format: Format[GKApplicationResponse] = Format(reads, writes)
 }
