@@ -45,6 +45,7 @@ class ConfigurationModule extends Module {
         .qualifiedWith(Names.named("PRODUCTION"))
         .to[ProductionSubscriptionFieldsConnector],
       bind[ApmConnector.Config].toProvider[LiveApmConnectorConfigProvider],
+      bind[ThirdPartyOrchestratorConnector.Config].toProvider[ThirdPartyOrchestratorConnectorConfigProvider],
       bind[ApiCataloguePublishConnector.Config].toProvider[ApiCataloguePublishConnectorConfigProvider],
       bind[XmlServicesConnector.Config].toProvider[XmlServicesConnectorConfigProvider],
       bind[ForbiddenHandler].to(classOf[HandleForbiddenWithView])
