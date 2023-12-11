@@ -45,6 +45,8 @@ object Forms {
     val persistLoginEnabled               = "persistLoginEnabled"
     val grantWithoutConsentEnabled        = "grantWithoutConsentEnabled"
     val grantWithoutConsentScopes         = "grantWithoutConsentScopes"
+    val originOverrideEnabled             = "originOverrideEnabled"
+    val originOverrideValue               = "originOverrideValue"
     val suppressIvForAgentsEnabled        = "suppressIvForAgentsEnabled"
     val suppressIvForAgentsScopes         = "suppressIvForAgentsScopes"
     val suppressIvForOrganisationsEnabled = "suppressIvForOrganisationsEnabled"
@@ -63,6 +65,8 @@ object Forms {
   val accessOverridesForm = Form(
     mapping(
       persistLoginEnabled               -> boolean,
+      originOverrideEnabled             -> boolean,
+      originOverrideValue               -> mandatoryIfTrue(originOverrideEnabled, text),
       grantWithoutConsentEnabled        -> boolean,
       grantWithoutConsentScopes         -> mandatoryIfTrue(grantWithoutConsentEnabled, validScopes),
       suppressIvForAgentsEnabled        -> boolean,
@@ -78,6 +82,8 @@ object Forms {
 
     def toSetOfOverrides(
         persistLoginEnabled: Boolean,
+        originOverrideEnabled: Boolean,
+        originOverrideValue: Option[String],
         grantWithoutConsentEnabled: Boolean,
         grantWithoutConsentScopes: Option[String],
         suppressIvForAgentsEnabled: Boolean,
@@ -94,12 +100,13 @@ object Forms {
       }
 
       val persistLogin               = if (persistLoginEnabled) Some(OverrideFlag.PersistLogin) else None
+      val originOverride             = if (originOverrideEnabled) Some(OverrideFlag.OriginOverride(originOverrideValue.get)) else None
       val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent)
       val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents)
       val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations)
       val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals)
 
-      Set(persistLogin, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
+      Set(persistLogin, originOverride, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
     }
 
     def fromSetOfOverrides(overrides: Set[OverrideFlag]) = {
@@ -110,11 +117,15 @@ object Forms {
           case Some(o: OverrideFlag.SuppressIvForAgents)        => (true, Some(o.scopes.mkString(", ")))
           case Some(o: OverrideFlag.SuppressIvForIndividuals)   => (true, Some(o.scopes.mkString(", ")))
           case Some(o: OverrideFlag.GrantWithoutConsent)        => (true, Some(o.scopes.mkString(", ")))
+          case Some(o: OverrideFlag.OriginOverride)             => (true, Some(o.origin))
           case _                                                => (false, None)
         }
       }
 
       val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PERSIST_LOGIN_AFTER_GRANT)
+
+      val (originOverrideEnabled, originOverrideValue) =
+        overrideWithScopes(overrides, OverrideType.ORIGIN_OVERRIDE)
 
       val (grantWithoutConsentEnabled, grantWithoutConsentScopes) =
         overrideWithScopes(overrides, OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT)
@@ -130,6 +141,8 @@ object Forms {
 
       Some((
         persistLoginEnabled,
+        originOverrideEnabled,
+        originOverrideValue,
         grantWithoutConsentEnabled,
         grantWithoutConsentScopes,
         suppressIvForAgentsEnabled,

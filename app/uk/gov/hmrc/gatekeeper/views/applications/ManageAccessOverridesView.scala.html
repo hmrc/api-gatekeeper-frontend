@@ -35,6 +35,16 @@
   </div>
 }
 
+@value(fieldName: String) = {
+  <div class="govuk-form-group @if(form.errors(fieldName).nonEmpty) {govuk-form-group--error}">
+    <label class="govuk-visually-hidden" for=@fieldName>
+      Override Value
+    </label>
+    @fieldError(form.errors, fieldName)
+    <input name="@fieldName" id="@fieldName" class="govuk-input @if(form.errors(fieldName).nonEmpty) {govuk-input--error}" value="@form.data.get(fieldName)"/>
+  </div>
+}
+
 @overrideEnabled(fieldName: String) = {
   <div class="govuk-form-group">
     <fieldset class="govuk-fieldset">
@@ -81,36 +91,67 @@
       <caption class="govuk-visually-hidden">Access Overrides Table</caption>
       <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">Override</th>
-          <th scope="col" class="govuk-table__header">Scopes</th>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-half">Override</th>
           <th scope="col" class="govuk-table__header">Enabled</th>
+          <th scope="col" class="govuk-table__header"> </th>
         </tr>
       </thead>
       <tbody>
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">Persist login after grant</td>
-          <td class="govuk-table__cell"></td>
           <td class="govuk-table__cell">@overrideEnabled("persistLoginEnabled")</td>
+          <td class="govuk-table__cell"></td>
         </tr>
+      </tbody>
+    </table>
+
+    <table class="govuk-table">
+      <caption class="govuk-visually-hidden">Access Overrides With Values Table</caption>
+      <thead class="govuk-table__head">
         <tr class="govuk-table__row">
-          <td class="govuk-table__cell">Grant without taxpayer consent</td>
-          <td class="govuk-table__cell">@scopes("grantWithoutConsentScopes")</td>
-          <td class="govuk-table__cell">@overrideEnabled("grantWithoutConsentEnabled")</td>
+          <th scope="col" class="govuk-table__header govuk-!-width-one-half">Override</th>
+          <th scope="col" class="govuk-table__header">Enabled</th>
+          <th scope="col" class="govuk-table__header">Value</th>
         </tr>
+      </thead>
+      <tbody>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">IV origin</td>
+          <td class="govuk-table__cell">@overrideEnabled("originOverrideEnabled")</td>
+          <td class="govuk-table__cell">@value("originOverrideValue")</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table class="govuk-table">
+      <caption class="govuk-visually-hidden">Access Overrides With Scopes Table</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th scope="col" class="govuk-table__header govuk-!-width-one-half">Override</th>
+          <th scope="col" class="govuk-table__header">Enabled</th>
+          <th scope="col" class="govuk-table__header">Scopes</th>
+        </tr>
+      </thead>
+      <tbody>
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">Suppress IV for agents</td>
-          <td class="govuk-table__cell">@scopes("suppressIvForAgentsScopes")</td>
           <td class="govuk-table__cell">@overrideEnabled("suppressIvForAgentsEnabled")</td>
+          <td class="govuk-table__cell">@scopes("suppressIvForAgentsScopes")</td>
         </tr>
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">Suppress IV for organisations</td>
-          <td class="govuk-table__cell">@scopes("suppressIvForOrganisationsScopes")</td>
           <td class="govuk-table__cell">@overrideEnabled("suppressIvForOrganisationsEnabled")</td>
+          <td class="govuk-table__cell">@scopes("suppressIvForOrganisationsScopes")</td>
         </tr>
         <tr class="govuk-table__row">
           <td class="govuk-table__cell">Suppress IV for individuals</td>
-          <td class="govuk-table__cell">@scopes("suppressIvForIndividualsScopes")</td>
           <td class="govuk-table__cell">@overrideEnabled("suppressIvForIndividualsEnabled")</td>
+          <td class="govuk-table__cell">@scopes("suppressIvForIndividualsScopes")</td>
+        </tr>
+        <tr class="govuk-table__row">
+          <td class="govuk-table__cell">Grant without taxpayer consent</td>
+          <td class="govuk-table__cell">@overrideEnabled("grantWithoutConsentEnabled")</td>
+          <td class="govuk-table__cell">@scopes("grantWithoutConsentScopes")</td>
         </tr>
       </tbody>
     </table>
