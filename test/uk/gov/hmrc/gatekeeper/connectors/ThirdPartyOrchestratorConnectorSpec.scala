@@ -56,9 +56,9 @@ class ThirdPartyOrchestratorConnectorSpec
     val underTest = new ThirdPartyOrchestratorConnector(httpClient, mockConnectorConfig)
   }
 
-  "fetchApplicationById" should {
+  "getApplication" should {
     "return application" in new Setup {
-      val url     = s"/applications/${applicationId.value.toString()}"
+      val url     = s"/applications/${applicationId}"
       val payload = Json.toJson(application)
 
       stubFor(
