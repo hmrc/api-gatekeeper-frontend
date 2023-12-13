@@ -66,7 +66,7 @@ object Forms {
     mapping(
       persistLoginEnabled               -> boolean,
       originOverrideEnabled             -> boolean,
-      originOverrideValue               -> mandatoryIfTrue(originOverrideEnabled, text),
+      originOverrideValue               -> mandatoryIfTrue(originOverrideEnabled, nonEmptyText),
       grantWithoutConsentEnabled        -> boolean,
       grantWithoutConsentScopes         -> mandatoryIfTrue(grantWithoutConsentEnabled, validScopes),
       suppressIvForAgentsEnabled        -> boolean,
