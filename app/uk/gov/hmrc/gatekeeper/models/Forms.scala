@@ -28,6 +28,7 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
@@ -167,6 +168,53 @@ object Forms {
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes)
   )
 
+  final case class RedirectUriForm(redirectUris: List[RedirectUri])
+
+  object RedirectUriForm {
+
+    def fromString(redirectUris: String): List[String] = redirectUris.split("""\s+""").map(_.trim).toList.filterNot(_.isEmpty)
+
+    def toForm(redirectUris: String): RedirectUriForm = {
+      RedirectUriForm(fromString(redirectUris).map(RedirectUri.unsafeApply))
+    }
+
+    def fromForm(redirectUris: RedirectUriForm): Option[String] = {
+      val data = redirectUris.redirectUris.mkString("\n")
+      Some(data)
+    }
+
+    def validateUri(uri: String): ValidationResult = {
+      RedirectUri(uri)
+        .map(_ => Valid)
+        .getOrElse(Invalid(Seq(ValidationError("redirectUri.invalid", uri))))
+    }
+
+    val redirectUrisConstraint: Constraint[String] = Constraint({
+      uris => fromString(uris).map(validateUri).fold(Valid)(reduceValidationResults)
+    })
+
+    val redirectUrisAmountConstraint: Constraint[String] = Constraint({
+      uris =>
+        if (fromString(uris).length > 5) Invalid(Seq(ValidationError("redirectUri.max5")))
+        else Valid
+    })
+
+    val form: Form[RedirectUriForm] = Form(
+      mapping(
+        "redirectUris" -> text.verifying(redirectUrisConstraint).verifying(redirectUrisAmountConstraint)
+      )(RedirectUriForm.toForm)(RedirectUriForm.fromForm)
+    )
+  }
+
+  def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
+    (a, b) match {
+      case (Valid, Valid)             => Valid
+      case (Valid, i: Invalid)        => i
+      case (i: Invalid, Valid)        => i
+      case (Invalid(e1), Invalid(e2)) => Invalid(e1 ++ e2)
+    }
+
+  }
   case class IpAllowlistForm(required: Boolean, allowlist: Set[String])
 
   object IpAllowlistForm {
@@ -191,16 +239,6 @@ object Forms {
     val allowlistedIpsConstraint: Constraint[String] = Constraint({
       allowlistedIps => toSetOfAllowlistedIps(allowlistedIps).map(validateAllowlistedIp).fold(Valid)(reduceValidationResults)
     })
-
-    def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
-      (a, b) match {
-        case (Valid, Valid)             => Valid
-        case (Valid, i: Invalid)        => i
-        case (i: Invalid, Valid)        => i
-        case (Invalid(e1), Invalid(e2)) => Invalid(e1 ++ e2)
-      }
-
-    }
 
     def validateAllowlistedIp(allowlistedIp: String): ValidationResult = {
 
