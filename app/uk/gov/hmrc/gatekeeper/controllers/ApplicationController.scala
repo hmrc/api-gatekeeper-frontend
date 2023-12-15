@@ -315,6 +315,7 @@ class ApplicationController @Inject() (
         case OverrideFlag.SuppressIvForOrganisations(_) => FormFields.suppressIvForOrganisationsScopes
         case OverrideFlag.SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
         case OverrideFlag.GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
+        case OverrideFlag.OriginOverride(_)             => FormFields.originOverrideValue
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {

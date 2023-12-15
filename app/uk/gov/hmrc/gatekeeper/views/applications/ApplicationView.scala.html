@@ -109,6 +109,7 @@
               case or: OverrideFlag.SuppressIvForOrganisations => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
               case or: OverrideFlag.SuppressIvForIndividuals => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
               case or: OverrideFlag.GrantWithoutConsent => {@buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
+              case or: OverrideFlag.OriginOverride => {@buildOverrideRow(OverrideType.ORIGIN_OVERRIDE, Set(or.origin))}
             }
           </tbody>
         </table>

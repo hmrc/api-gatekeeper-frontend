@@ -41,6 +41,21 @@ class FormValidationSpec extends AsyncHmrcSpec {
       val boundForm               = accessOverridesForm.bind(validAccessOverrideForm)
       boundForm.errors shouldBe List.empty
     }
+
+    "pass validation with valid origin overrides" in {
+      val validAccessOverrideForm =
+        Map("originOverrideEnabled" -> "true", "originOverrideValue" -> "ngc")
+      val boundForm               = accessOverridesForm.bind(validAccessOverrideForm)
+      boundForm.errors shouldBe List.empty
+    }
+
+
+    "fail validation without a valid origin overrides" in {
+      val validAccessOverrideForm =
+        Map("originOverrideEnabled" -> "true", "originOverrideValue" -> "")
+      val boundForm               = accessOverridesForm.bind(validAccessOverrideForm)
+      boundForm.errors.length shouldBe 1
+    }
   }
 
   "Scopes form for Privileged and ROPC apps" should {

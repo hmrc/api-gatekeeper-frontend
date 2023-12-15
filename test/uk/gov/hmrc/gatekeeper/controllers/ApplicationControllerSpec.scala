@@ -1134,6 +1134,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "persistLoginEnabled"               -> "true",
+          "originOverrideEnabled"             -> "true",
+          "originOverrideValue"               -> "ngc",
           "grantWithoutConsentEnabled"        -> "true",
           "grantWithoutConsentScopes"         -> "hello, individual-benefits",
           "suppressIvForAgentsEnabled"        -> "true",
@@ -1156,7 +1158,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             OverrideFlag.GrantWithoutConsent(Set("hello", "individual-benefits")),
             OverrideFlag.SuppressIvForAgents(Set("openid", "email")),
             OverrideFlag.SuppressIvForOrganisations(Set("address", "openid:mdtp")),
-            OverrideFlag.SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments"))
+            OverrideFlag.SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments")),
+            OverrideFlag.OriginOverride("ngc")
           ))
         )(*)
 

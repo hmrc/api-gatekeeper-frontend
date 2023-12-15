@@ -72,6 +72,8 @@ POST        /applications/:id/team-members/add                                uk
 POST        /applications/:id/team-members/remove-confirmation                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMember(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 POST        /applications/:id/team-members/remove                             uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMemberAction(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
+GET         /applications/:id/test-get-from-tpo                               uk.gov.hmrc.gatekeeper.controllers.ThirdPartyOrchestratorTestController.page(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
+
 
 GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 
