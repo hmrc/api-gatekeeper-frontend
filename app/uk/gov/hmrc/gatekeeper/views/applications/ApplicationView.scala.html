@@ -424,8 +424,7 @@
     @{
       access match {
         case standardAccess : Access.Standard => {
-          renderOverrides(standardAccess.overrides)
-          renderRedirectUris(standardAccess.redirectUris)
+          Seq(renderOverrides(standardAccess.overrides), renderRedirectUris(standardAccess.redirectUris))
         }
         case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)
