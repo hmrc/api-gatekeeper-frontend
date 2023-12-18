@@ -11,6 +11,10 @@ object AppDependencies {
   lazy val bootstrapVersion = "7.23.0"
   lazy val seleniumVersion = "4.4.0"
 
+  val apiDomainVersion = "0.11.0"
+  val commonDomainVersion = "0.10.0"
+  val appDomainVersion = "0.32.0"
+
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
@@ -29,8 +33,8 @@ object AppDependencies {
     "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-application-domain"   % "0.31.0",
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % "0.9.0"
+    "uk.gov.hmrc"                 %% "api-platform-application-domain"   % appDomainVersion,
+    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % apiDomainVersion
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
@@ -44,6 +48,7 @@ object AppDependencies {
     "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.29",
     "org.scalatest"               %% "scalatest"                         % "3.2.17",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
-    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.46.0"
+    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.46.0",
+    "uk.gov.hmrc"                 %% "api-platform-test-common-domain"   % commonDomainVersion,
   ).map (_ % testScopes)
 }

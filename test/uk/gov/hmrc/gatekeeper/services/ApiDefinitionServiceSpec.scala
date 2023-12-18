@@ -45,7 +45,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       ApiContext.random,
       Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
       false,
-      false,
       None,
       List(ApiCategory.OTHER)
     )
@@ -57,7 +56,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "private api.",
       ApiContext.random,
       Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.Private(false), List.empty, false, None, ApiVersionSource.UNKNOWN)),
-      false,
       false,
       None,
       List(ApiCategory.OTHER)
@@ -73,7 +71,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       name = "Customs Declarations",
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
-      requiresTrust = false,
       versions = Map(version1.versionNbr -> version1),
       categories = List(ApiCategory.CUSTOMS)
     )
@@ -84,7 +81,6 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       name = "Customs Declarations",
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
-      requiresTrust = false,
       versions = Map(version2.versionNbr -> version2.copy(), version3.versionNbr -> version3.copy()),
       categories = List(ApiCategory.CUSTOMS)
     )

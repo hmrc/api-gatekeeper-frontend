@@ -125,8 +125,8 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
           <td class="govuk-table__cell" id="dev-sn-@index">@user.lastName</td>
           <td class="govuk-table__cell" id="dev-status-@index">
             @defining(User.status(user) match {
-              case VerifiedStatus => ("status status--verified", "verified")
-              case UnverifiedStatus => ("status status--not-verified", "not yet verified")
+              case VerifiedStatus     => ("status status--verified", "verified")
+              case UnverifiedStatus   => ("status status--not-verified", "not yet verified")
               case UnregisteredStatus => ("status status--not-verified", "not registered")
             }) { case(cssStyle, text) => <span class="@cssStyle">@text</span> }
           </td>

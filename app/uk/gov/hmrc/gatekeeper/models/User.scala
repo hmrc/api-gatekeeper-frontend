@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
 case class CoreUserDetails(email: LaxEmailAddress, id: UserId)
 
-trait User {
+sealed trait User {
   def email: LaxEmailAddress
   def userId: UserId
   def firstName: String
@@ -41,9 +41,9 @@ object User {
   def asSortField(lastName: String, firstName: String): String = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
 
   def status(user: User): StatusFilter = user match {
-    case u: RegisteredUser if (u.verified)  => VerifiedStatus
-    case u: RegisteredUser if (!u.verified) => UnverifiedStatus
-    case _: UnregisteredUser                => UnregisteredStatus
+    case u: RegisteredUser if (u.verified) => VerifiedStatus
+    case u: RegisteredUser                 => UnverifiedStatus
+    case _: UnregisteredUser               => UnregisteredStatus
   }
 }
 
