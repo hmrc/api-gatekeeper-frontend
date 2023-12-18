@@ -143,7 +143,7 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
+        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
           Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
         </a>
       </dd>
