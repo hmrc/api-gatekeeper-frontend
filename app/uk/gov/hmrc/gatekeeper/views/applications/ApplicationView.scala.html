@@ -33,9 +33,9 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.{Clock, LocalDateTime}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
-
 
 @(model: ApplicationViewModel)(implicit request: LoggedInRequest[_], flash: Flash)
 
@@ -119,6 +119,32 @@
       <dd class="govuk-summary-list__actions">
         <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}">
           Manage<span class="govuk-visually-hidden"> access overrides</span>
+        </a>
+      </dd>
+    }
+  </div>
+}
+
+@renderRedirectUris(redirectUris: List[RedirectUri]) = {
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Redirect URIs
+    </dt>
+    @if(redirectUris.isEmpty) {
+      <dd class="govuk-summary-list__value">
+        No redirect URIs assigned to this application
+      </dd>
+    } else {
+      <dd class="govuk-summary-list__value">
+        <ul class="govuk-list">
+        @redirectUris.map(uri => {<li>{uri}</li>})
+        </ul>
+      </dd>
+    }
+    @if(request.role.isSuperUser && !application.state.isDeleted) {
+      <dd class="govuk-summary-list__actions">
+        <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
+          Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
         </a>
       </dd>
     }
@@ -399,6 +425,7 @@
       access match {
         case standardAccess : Access.Standard => {
           renderOverrides(standardAccess.overrides)
+          renderRedirectUris(standardAccess.redirectUris)
         }
         case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)

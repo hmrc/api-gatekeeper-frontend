@@ -217,6 +217,30 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
+  def manageRedirectUris(
+      application: GKApplicationResponse,
+      redirectUris: List[RedirectUri],
+      gatekeeperUser: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
+    val oldRedirectUris = application.access match {
+      case Access.Standard(redirects, _, _, _, _, _) => redirects
+      case _                                         => List.empty
+    }
+
+    commandConnector.dispatch(
+      application.id,
+      ApplicationCommands.UpdateRedirectUris(
+        Actors.GatekeeperUser(gatekeeperUser),
+        oldRedirectUris,
+        redirectUris,
+        now()
+      ),
+      Set.empty[LaxEmailAddress]
+    )
+      .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
+  }
+
   def validateApplicationName(application: GKApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     applicationConnectorFor(application).validateApplicationName(application.id, name)
   }
