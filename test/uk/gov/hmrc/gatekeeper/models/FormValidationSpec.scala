@@ -49,7 +49,6 @@ class FormValidationSpec extends AsyncHmrcSpec {
       boundForm.errors shouldBe List.empty
     }
 
-
     "fail validation without a valid origin overrides" in {
       val validAccessOverrideForm =
         Map("originOverrideEnabled" -> "true", "originOverrideValue" -> "")
