@@ -172,7 +172,7 @@ object Forms {
 
   object RedirectUriForm {
 
-    def fromString(redirectUris: String): List[String] = redirectUris.split("""\s+""").map(_.trim).toList.filterNot(_.isEmpty)
+    def fromString(redirectUris: String): List[String] = redirectUris.split("""\s+""").map(_.trim).filterNot(_.isEmpty).toList.distinct
 
     def toForm(redirectUris: String): RedirectUriForm = {
       RedirectUriForm(fromString(redirectUris).map(RedirectUri.unsafeApply))
