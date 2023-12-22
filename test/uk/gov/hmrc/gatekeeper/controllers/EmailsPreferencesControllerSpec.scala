@@ -140,7 +140,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         ApiContext("service1"),
         Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
-        false,
         None,
         List(category1)
       )
@@ -151,7 +150,6 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
         "service2Desc",
         ApiContext("service2"),
         Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
-        false,
         false,
         None,
         List(category2)

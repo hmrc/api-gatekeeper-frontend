@@ -122,7 +122,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         ApiContext("service1"),
         Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
-        false,
         None,
         List(category1)
       )
@@ -133,7 +132,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         "service2Desc",
         ApiContext("service2"),
         Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
-        false,
         false,
         None,
         List(category2)

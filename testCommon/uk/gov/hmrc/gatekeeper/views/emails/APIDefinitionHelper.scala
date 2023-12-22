@@ -33,7 +33,6 @@ trait APIDefinitionHelper {
       ApiContext(context),
       Map(versionNbr -> ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
       false,
-      false,
       None,
       categories.toList
     )

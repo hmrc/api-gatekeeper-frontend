@@ -205,7 +205,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
           apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
-        val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", ApiContext.random, apiVersions, false, false, None, List(ApiCategory.OTHER))
+        val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", ApiContext.random, apiVersions, false, None, List(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -226,7 +226,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
 
-        val apiDefinition = ApiDefinition(ServiceName(""), "", "", "", apiContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
+        val apiDefinition = ApiDefinition(ServiceName(""), "", "", "", apiContext, apiVersions, false, None, List(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
 
         val result = developersController.developersPage()(aLoggedInRequest)
@@ -240,7 +240,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiContext = ApiContext.random
 
         val apiVersions   = Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN))
-        val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", apiContext, apiVersions, false, false, None, List(ApiCategory.OTHER))
+        val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", apiContext, apiVersions, false, None, List(ApiCategory.OTHER))
 
         val result = developersController.getApiVersionsDropDownValues(List(apiDefinition, apiDefinition))
 

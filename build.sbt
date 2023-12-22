@@ -14,6 +14,7 @@ import bloop.integrations.sbt.BloopDefaults
 lazy val appName = "api-gatekeeper-frontend"
 
 Global / bloopAggregateSourceDependencies := true
+Global / bloopExportJarClassifiers := Some(Set("sources"))
 
 lazy val AcceptanceTest = config("acceptance") extend Test
 lazy val SandboxTest = config("sandbox") extend Test
