@@ -21,7 +21,7 @@ object AppDependencies {
     "uk.gov.hmrc"                 %% "bootstrap-frontend-play-28"        % bootstrapVersion,
     "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "7.29.0-play-28",
     "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.13.0-play-28",
-    "uk.gov.hmrc"                 %% "json-encryption"                   % "5.2.0-play-28",
+    "uk.gov.hmrc"                 %% "crypto-json-play-28"               % "7.3.0",
     "uk.gov.hmrc"                 %% "emailaddress"                      % "3.8.0",
     "commons-net"                 %  "commons-net"                       % "3.6",
     "org.slf4j"                   %  "slf4j-api"                         % slf4jVersion,
