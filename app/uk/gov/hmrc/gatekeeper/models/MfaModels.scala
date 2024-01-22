@@ -18,9 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.LocalDateTime
 import java.util.UUID
-import scala.collection.immutable
-
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import scala.collection.immutable.ListSet
 
 import play.api.libs.json.{Format, Json}
 
@@ -31,12 +29,11 @@ object MfaId {
   def random: MfaId                  = MfaId(UUID.randomUUID())
 }
 
-sealed trait MfaType extends EnumEntry {
+sealed trait MfaType {
   def asText: String
 }
 
-object MfaType extends Enum[MfaType] with PlayJsonEnum[MfaType] {
-  val values: immutable.IndexedSeq[MfaType] = findValues
+object MfaType {
 
   case object AUTHENTICATOR_APP extends MfaType {
     override def asText: String = "Authenticator App"
@@ -45,6 +42,8 @@ object MfaType extends Enum[MfaType] with PlayJsonEnum[MfaType] {
   case object SMS extends MfaType {
     override def asText: String = "Text Message"
   }
+
+  val values: ListSet[MfaType] = ListSet[MfaType](AUTHENTICATOR_APP, SMS)
 }
 
 sealed trait MfaDetail {

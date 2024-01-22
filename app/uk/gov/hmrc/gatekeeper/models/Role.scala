@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import scala.collection.immutable.ListSet
 
-sealed trait Role extends EnumEntry
+sealed trait Role
 
-object Role extends Enum[Role] with PlayJsonEnum[Role] {
-  val values = findValues
-
+object Role {
   final case object DEVELOPER     extends Role
   final case object ADMINISTRATOR extends Role
 
+  val values: ListSet[Role] = ListSet[Role](DEVELOPER, ADMINISTRATOR)
 }
