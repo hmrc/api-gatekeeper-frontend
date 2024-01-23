@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import enumeratum.{Enum, EnumEntry, PlayJsonEnum}
+import scala.collection.immutable.ListSet
 
 import play.api.libs.json.{Json, OFormat}
 
@@ -26,16 +26,21 @@ object TaxRegimeInterests {
   implicit val formatTaxRegimeInterests: OFormat[TaxRegimeInterests] = Json.format[TaxRegimeInterests]
 }
 
-sealed trait EmailTopic extends EnumEntry
+sealed trait EmailTopic
 
-object EmailTopic extends Enum[EmailTopic] with PlayJsonEnum[EmailTopic] {
-
-  val values = findValues
-
+object EmailTopic {
   case object BUSINESS_AND_POLICY extends EmailTopic
   case object TECHNICAL           extends EmailTopic
   case object RELEASE_SCHEDULES   extends EmailTopic
   case object EVENT_INVITES       extends EmailTopic
+
+  val values: ListSet[EmailTopic] = ListSet[EmailTopic](BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES)
+
+  def apply(text: String): Option[EmailTopic] = EmailTopic.values.find(_.toString() == text.toUpperCase)
+
+  import play.api.libs.json.Format
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+  implicit val format: Format[EmailTopic] = SealedTraitJsonFormatting.createFormatFor[EmailTopic]("Email Topic", EmailTopic.apply)
 }
 
 case class EmailPreferences(interests: List[TaxRegimeInterests], topics: Set[EmailTopic])

@@ -7,7 +7,6 @@ object AppDependencies {
   lazy val logbackVersion = "1.1.10"
   lazy val jsoupVersion = "1.12.1"
   lazy val scalaCheckVersion = "1.15.4"
-  lazy val enumeratumVersion = "1.6.2"
   lazy val bootstrapVersion = "7.23.0"
   lazy val seleniumVersion = "4.4.0"
 
@@ -30,7 +29,6 @@ object AppDependencies {
     "org.slf4j"                   %  "jul-to-slf4j"                      % slf4jVersion,
     "ch.qos.logback"              %  "logback-classic"                   % logbackVersion,
     "ch.qos.logback"              %  "logback-core"                      % logbackVersion,
-    "com.beachape"                %% "enumeratum-play-json"              % enumeratumVersion,
     "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
     "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
     "uk.gov.hmrc"                 %% "api-platform-application-domain"   % appDomainVersion,
