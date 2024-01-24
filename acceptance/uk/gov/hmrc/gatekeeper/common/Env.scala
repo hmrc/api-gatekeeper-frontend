@@ -24,24 +24,14 @@ import org.openqa.selenium.firefox.{FirefoxDriver, FirefoxOptions}
 import org.openqa.selenium.remote.RemoteWebDriver
 import org.openqa.selenium.{Dimension, WebDriver}
 
-import uk.gov.hmrc.webdriver.SingletonDriver
-
 trait Env {
   lazy val port = 6001
   lazy val windowSize = new Dimension(1024, 800)
   
   lazy val driver: WebDriver = createWebDriver()
 
-  private lazy val  browser = Properties.propOrElse("browser","chrome")
-  private lazy val accessibilityTest = Properties.propOrElse("accessibility.test","false") == "true"
-
   private def createWebDriver(): WebDriver = {
-    val driver = browser match {
-      case "chrome" => if(accessibilityTest) SingletonDriver.getInstance() else createChromeDriver()
-      case "remote-chrome" => createRemoteChromeDriver()
-      case "firefox" => createFirefoxDriver()
-      case "remote-firefox" => createRemoteFirefoxDriver()
-    }
+    createRemoteChromeDriver()
     driver.manage().deleteAllCookies()
     driver.manage().window().setSize(new Dimension(1280, 720))
     driver
