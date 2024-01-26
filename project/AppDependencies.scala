@@ -46,7 +46,6 @@ object AppDependencies {
     "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.29",
     "org.scalatest"               %% "scalatest"                         % "3.2.17",
     "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
-    "uk.gov.hmrc"                 %% "webdriver-factory"                 % "0.46.0",
     "uk.gov.hmrc"                 %% "api-platform-test-common-domain"   % commonDomainVersion,
   ).map (_ % testScopes)
 }
