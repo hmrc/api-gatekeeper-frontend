@@ -925,6 +925,27 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         )(*)
       }
 
+      "manage gaps in Redirect Uri using the app service" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri3" -> "https://example.com",
+          "redirectUri5" -> "https://example2.com"
+        )
+
+        val result = underTest.manageRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
+        verify(mockApplicationService).manageRedirectUris(
+          eqTo(application.application),
+          eqTo(List(redirectUriToUpdate, RedirectUri.unsafeApply("https://example.com"), RedirectUri.unsafeApply("https://example2.com"))),
+          eqTo("Bobby Example")
+        )(*)
+      }
+
       "clear the Redirect Uri when redirectUris is empty" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()

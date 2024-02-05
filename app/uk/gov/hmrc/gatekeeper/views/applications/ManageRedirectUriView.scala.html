@@ -48,71 +48,11 @@
         @helper.CSRF.formField
 
         <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">
-            <div class="govuk-form-group js-visible">
-                <label class="govuk-label ">
-                    Redirect URI 1
-                    @fieldError(form.errors, "redirectUri1")
-                    <input
-                    class="govuk-input @if(form.errors("redirectUri1").nonEmpty) {govuk-input--error}"
-                    name="redirectUri1"
-                    id="redirectUri1"
-                    type="text"
-                    value="@form.data.getOrElse("redirectUri1", "")"
-                    />
-                </label>
-            </div>
-            <div class="govuk-form-group js-visible">
-                <label class="govuk-label">
-                    Redirect URI 2
-                    @fieldError(form.errors, "redirectUri2")
-                    <input
-                    class="govuk-input @if(form.errors("redirectUri2").nonEmpty) {govuk-input--error}"
-                    name="redirectUri2"
-                    id="redirectUri2"
-                    type="text"
-                    value="@form.data.getOrElse("redirectUri2", "")"
-                    />
-                </label>
-            </div>
-            <div class="govuk-form-group js-visible">
-                <label class="govuk-label">
-                    Redirect URI 3
-                    @fieldError(form.errors, "redirectUri3")
-                    <input
-                    class="govuk-input @if(form.errors("redirectUri3").nonEmpty) {govuk-input--error}"
-                    name="redirectUri3"
-                    id="redirectUri3"
-                    type="text"
-                    value="@form.data.getOrElse("redirectUri3", "")"
-                    />
-                </label>
-            </div>
-            <div class="govuk-form-group js-visible">
-                <label class="govuk-label">
-                    Redirect URI 4
-                    @fieldError(form.errors, "redirectUri4")
-                    <input
-                    class="govuk-input @if(form.errors("redirectUri4").nonEmpty) {govuk-input--error}"
-                    name="redirectUri4"
-                    id="redirectUri4"
-                    type="text"
-                    value="@form.data.getOrElse("redirectUri4", "")"
-                    />
-                </label>
-            </div>
-            <div class="govuk-form-group js-visible">
-                <label class="govuk-label">
-                    Redirect URI 5
-                    @fieldError(form.errors, "redirectUri5")
-                    <input
-                    class="govuk-input @if(form.errors("redirectUri5").nonEmpty) {govuk-input--error}"
-                    name="redirectUri5"
-                    id="redirectUri5"
-                    type="text"
-                    value="@form.data.getOrElse("redirectUri5", "")"
-                    />
-                </label>
-            </div>
+            @errorAwareInput(form, "redirectUri1", "Redirect URI 1")
+            @errorAwareInput(form, "redirectUri2", "Redirect URI 2")
+            @errorAwareInput(form, "redirectUri3", "Redirect URI 3")
+            @errorAwareInput(form, "redirectUri4", "Redirect URI 4")
+            @errorAwareInput(form, "redirectUri5", "Redirect URI 5")
         </div>
 
         <div class="govuk-button-group">
