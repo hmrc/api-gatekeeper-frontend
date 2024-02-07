@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import scala.concurrent.Future
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
 import play.api.test.Helpers._

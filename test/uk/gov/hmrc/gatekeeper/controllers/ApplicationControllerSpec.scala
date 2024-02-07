@@ -22,9 +22,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import akka.stream.Materializer
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
+import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor

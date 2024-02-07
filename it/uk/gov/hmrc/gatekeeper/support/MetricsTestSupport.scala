@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.support
 import scala.jdk.CollectionConverters._
 
 import com.codahale.metrics.MetricRegistry
-import com.kenshoo.play.metrics.Metrics
 import org.scalatest.Suite
 import org.scalatest.matchers.should.Matchers
 
@@ -33,7 +32,7 @@ trait MetricsTestSupport {
   private var metricsRegistry: MetricRegistry = _
 
   def givenCleanMetricRegistry(): Unit = {
-    val registry = app.injector.instanceOf[Metrics].defaultRegistry
+    val registry = app.injector.instanceOf[MetricRegistry]
     for (metric <- registry.getMetrics.keySet().iterator().asScala) {
       registry.remove(metric)
     }

@@ -2,12 +2,12 @@ import play.core.PlayVersion
 import sbt._
 
 object AppDependencies {
-  
+
   lazy val slf4jVersion = "1.7.23"
   lazy val logbackVersion = "1.1.10"
   lazy val jsoupVersion = "1.12.1"
-  lazy val scalaCheckVersion = "1.15.4"
-  lazy val bootstrapVersion = "7.23.0"
+  lazy val scalaCheckVersion = "1.17.0"
+  lazy val bootstrapVersion = "8.4.0"
   lazy val seleniumVersion = "4.4.0"
 
   val apiDomainVersion = "0.11.0"
@@ -17,35 +17,27 @@ object AppDependencies {
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
-    "uk.gov.hmrc"                 %% "bootstrap-frontend-play-28"        % bootstrapVersion,
-    "uk.gov.hmrc"                 %% "play-frontend-hmrc"                % "7.29.0-play-28",
-    "uk.gov.hmrc"                 %% "play-conditional-form-mapping"     % "1.13.0-play-28",
-    "uk.gov.hmrc"                 %% "crypto-json-play-28"               % "7.3.0",
-    "uk.gov.hmrc"                 %% "emailaddress"                      % "3.8.0",
-    "commons-net"                 %  "commons-net"                       % "3.6",
-    "org.slf4j"                   %  "slf4j-api"                         % slf4jVersion,
-    "org.slf4j"                   %  "jcl-over-slf4j"                    % slf4jVersion,
-    "org.slf4j"                   %  "log4j-over-slf4j"                  % slf4jVersion,
-    "org.slf4j"                   %  "jul-to-slf4j"                      % slf4jVersion,
-    "ch.qos.logback"              %  "logback-classic"                   % logbackVersion,
-    "ch.qos.logback"              %  "logback-core"                      % logbackVersion,
-    "org.apache.commons"          %  "commons-csv"                       % "1.9.0",
-    "uk.gov.hmrc"                 %% "internal-auth-client-play-28"      % "1.2.0",
-    "uk.gov.hmrc"                 %% "api-platform-application-domain"   % appDomainVersion,
-    "uk.gov.hmrc"                 %% "api-platform-api-domain"           % apiDomainVersion
+    "uk.gov.hmrc" %% "bootstrap-frontend-play-30" % bootstrapVersion,
+    "uk.gov.hmrc" %% "play-frontend-hmrc-play-30" % "8.4.0",
+    "uk.gov.hmrc" %% "play-conditional-form-mapping-play-30" % "2.0.0",
+    "uk.gov.hmrc" %% "crypto-json-play-30" % "7.6.0",
+    "uk.gov.hmrc" %% "emailaddress" % "3.8.0",
+    "commons-net" % "commons-net" % "3.9.0",
+    "org.apache.commons" % "commons-csv" % "1.10.0",
+    "uk.gov.hmrc" %% "internal-auth-client-play-30" % "1.10.0",
+    "uk.gov.hmrc" %% "api-platform-application-domain" % appDomainVersion,
+    "uk.gov.hmrc" %% "api-platform-api-domain" % apiDomainVersion
   )
 
   lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"                 %% "bootstrap-test-play-28"            % bootstrapVersion,
-    "org.jsoup"                   %  "jsoup"                             % jsoupVersion,
-    "com.github.tomakehurst"      %  "wiremock-jre8-standalone"          % "2.34.0",
-    "org.seleniumhq.selenium"     %  "selenium-java"                     % seleniumVersion,
-    "org.seleniumhq.selenium"     %  "htmlunit-driver"                   % "3.64.0",
-    "org.mockito"                 %% "mockito-scala-scalatest"           % "1.17.29",
-    "org.scalatest"               %% "scalatest"                         % "3.2.17",
-    "org.scalacheck"              %% "scalacheck"                        % scalaCheckVersion,
-    "uk.gov.hmrc"                 %% "api-platform-test-common-domain"   % commonDomainVersion,
-  ).map (_ % testScopes)
+    "uk.gov.hmrc" %% "bootstrap-test-play-30" % bootstrapVersion,
+    "org.jsoup" % "jsoup" % jsoupVersion,
+    "org.seleniumhq.selenium" % "selenium-java" % seleniumVersion,
+    "org.seleniumhq.selenium" % "htmlunit-driver" % "3.64.0",
+    "org.mockito" %% "mockito-scala-scalatest" % "1.17.29",
+    "org.scalacheck" %% "scalacheck" % scalaCheckVersion,
+    "uk.gov.hmrc" %% "api-platform-test-common-domain" % commonDomainVersion,
+  ).map(_ % testScopes)
 }
