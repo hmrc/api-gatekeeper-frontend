@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import akka.stream.Materializer
 import mocks.services.ApplicationServiceMockProvider
+import org.apache.pekko.stream.Materializer
 
 import play.api.http.Status.{FORBIDDEN, OK}
 import play.api.test.Helpers.{contentAsString, contentType, header, running, status}

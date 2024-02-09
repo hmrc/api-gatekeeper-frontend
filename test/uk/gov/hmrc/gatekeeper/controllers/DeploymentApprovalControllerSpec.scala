@@ -20,7 +20,7 @@ import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.test.FakeRequest
 import play.api.test.Helpers._

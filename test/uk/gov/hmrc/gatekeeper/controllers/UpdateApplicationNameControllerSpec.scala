@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import akka.stream.Materializer
 import mocks.services.ApplicationServiceMockProvider
+import org.apache.pekko.stream.Materializer
 import org.mockito.captor.ArgCaptor
 
 import play.api.data.Form

@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.i18n.Messages
 import play.api.mvc.Results.Ok

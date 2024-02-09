@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import akka.stream.Materializer
+import org.apache.pekko.stream.Materializer
 
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
