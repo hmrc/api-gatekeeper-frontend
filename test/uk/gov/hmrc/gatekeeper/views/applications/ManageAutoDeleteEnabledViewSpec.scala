@@ -68,7 +68,12 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
       elementExistsByText(document, "h1", s"Do you want ${application.name} to be deleted if it is inactive?") shouldBe true
-      elementExistsByText(document, "p", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.") shouldBe true
+      elementExistsByText(document, "li", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded") shouldBe true
+      elementExistsByText(
+        document,
+        "li",
+        "Applications pending production request approval for an long time will also be automatically deleted, unless they are excluded."
+      ) shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe true
       labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
@@ -82,7 +87,12 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
       elementExistsByText(document, "h1", s"Do you want ${application.name} to be deleted if it is inactive?") shouldBe true
-      elementExistsByText(document, "p", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded.") shouldBe true
+      elementExistsByText(document, "li", "Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded") shouldBe true
+      elementExistsByText(
+        document,
+        "li",
+        "Applications pending production request approval for an long time will also be automatically deleted, unless they are excluded."
+      ) shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe true
       labelIdentifiedByForAttrContainsText(document, "auto-delete-no", "No") shouldBe true
