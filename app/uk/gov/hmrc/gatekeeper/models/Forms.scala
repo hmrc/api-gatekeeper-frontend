@@ -172,15 +172,23 @@ object Forms {
 
   object RedirectUriForm {
 
-    def fromString(redirectUris: String): List[String] = redirectUris.split("""\s+""").map(_.trim).filterNot(_.isEmpty).toList.distinct
-
-    def toForm(redirectUris: String): RedirectUriForm = {
-      RedirectUriForm(fromString(redirectUris).map(RedirectUri.unsafeApply))
+    def toForm(
+        redirectUri1: Option[String],
+        redirectUri2: Option[String],
+        redirectUri3: Option[String],
+        redirectUri4: Option[String],
+        redirectUri5: Option[String]
+      ): RedirectUriForm = {
+      val data = List(redirectUri1, redirectUri2, redirectUri3, redirectUri4, redirectUri5)
+        .flatMap(_.map(RedirectUri.apply))
+        .collect { case Some(uri) => uri }
+        .distinct
+      RedirectUriForm(data)
     }
 
-    def fromForm(redirectUris: RedirectUriForm): Option[String] = {
-      val data = redirectUris.redirectUris.mkString("\n")
-      Some(data)
+    def fromForm(form: RedirectUriForm): Option[(Option[String], Option[String], Option[String], Option[String], Option[String])] = {
+      val data = form.redirectUris.map(_.toString())
+      Some((data.headOption, data.lift(1), data.lift(2), data.lift(3), data.lift(4)))
     }
 
     def validateUri(uri: String): ValidationResult = {
@@ -190,18 +198,16 @@ object Forms {
     }
 
     val redirectUrisConstraint: Constraint[String] = Constraint({
-      uris => fromString(uris).map(validateUri).fold(Valid)(reduceValidationResults)
-    })
-
-    val redirectUrisAmountConstraint: Constraint[String] = Constraint({
-      uris =>
-        if (fromString(uris).length > 5) Invalid(Seq(ValidationError("redirectUri.max5")))
-        else Valid
+      uri => validateUri(uri)
     })
 
     val form: Form[RedirectUriForm] = Form(
       mapping(
-        "redirectUris" -> text.verifying(redirectUrisConstraint).verifying(redirectUrisAmountConstraint)
+        "redirectUri1" -> optional(text.verifying(redirectUrisConstraint)),
+        "redirectUri2" -> optional(text.verifying(redirectUrisConstraint)),
+        "redirectUri3" -> optional(text.verifying(redirectUrisConstraint)),
+        "redirectUri4" -> optional(text.verifying(redirectUrisConstraint)),
+        "redirectUri5" -> optional(text.verifying(redirectUrisConstraint))
       )(RedirectUriForm.toForm)(RedirectUriForm.fromForm)
     )
   }

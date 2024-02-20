@@ -861,7 +861,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
@@ -874,7 +874,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
@@ -887,7 +887,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> s"${redirectUriToUpdate.toString}\nhttps://example.com\nhttps://otherexample.com")
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri2" -> "https://example.com",
+          "redirectUri3" -> "https://otherexample.com"
+        )
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
@@ -904,7 +908,11 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> s"${redirectUriToUpdate.toString}\nhttps://example.com\nhttps://example.com")
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri2" -> "https://example.com",
+          "redirectUri3" -> "https://example.com"
+        )
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
@@ -917,25 +925,32 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         )(*)
       }
 
-      "error when more than 5 Redirect Uri" in new Setup {
+      "manage gaps in Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-          "redirectUris" -> s"${redirectUriToUpdate.toString}\nhttps://example.com\nhttps://otherexample.com\nhttps://otherexample2.com\nhttps://otherexample3.com\nhttps://otherexample4.com"
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri3" -> "https://example.com",
+          "redirectUri5" -> "https://example2.com"
         )
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
-        status(result) shouldBe BAD_REQUEST
-        verify(mockApplicationService, times(0)).manageRedirectUris(*, *, *)(*)
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
+        verify(mockApplicationService).manageRedirectUris(
+          eqTo(application.application),
+          eqTo(List(redirectUriToUpdate, RedirectUri.unsafeApply("https://example.com"), RedirectUri.unsafeApply("https://example2.com"))),
+          eqTo("Bobby Example")
+        )(*)
       }
 
       "clear the Redirect Uri when redirectUris is empty" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> "")
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
 
         val result = underTest.manageRedirectUriAction(applicationId)(request)
 
@@ -953,7 +968,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         invalidRedirectUris.foreach { invalidRedirectUri =>
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> invalidRedirectUri)
+          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
 
           val result = underTest.manageRedirectUriAction(applicationId)(request)
 

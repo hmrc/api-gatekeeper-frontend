@@ -42,25 +42,23 @@
 ) {
     @errorSummary2(form)
 
-    <h1 class="govuk-heading-l">Manage Redirect Uri</h1>
+    <h1 class="govuk-heading-l">Manage redirect URIs</h1>
 
     @helper.form(action = controllers.routes.ApplicationController.manageRedirectUriAction(application.id)) {
-        <p class="govuk-body"> Redirect URIs tell us where to return your users in your application.</p>
-
         @helper.CSRF.formField
 
         <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">
-            <label class="govuk-label" for="redirectUris" id="redirectUris-label">
-                Enter each Redirect URI on a separate line:
-            </label>
-            <textarea class="govuk-textarea @if(form.errors("redirectUris").nonEmpty) {govuk-input--error}" id="redirectUris" name="redirectUris" rows="5">
-            @form.data.getOrElse("redirectUris", "")
-            </textarea>
+            @errorAwareInput(form, "redirectUri1", "Redirect URI 1")
+            @errorAwareInput(form, "redirectUri2", "Redirect URI 2")
+            @errorAwareInput(form, "redirectUri3", "Redirect URI 3")
+            @errorAwareInput(form, "redirectUri4", "Redirect URI 4")
+            @errorAwareInput(form, "redirectUri5", "Redirect URI 5")
         </div>
 
         <div class="govuk-button-group">
-            <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save</button>
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+            <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save and return</button>
+            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">
+                Cancel</a>
         </div>
     }
 }
