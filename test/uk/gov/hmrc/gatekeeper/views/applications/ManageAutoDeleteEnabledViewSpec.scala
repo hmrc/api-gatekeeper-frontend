@@ -72,7 +72,7 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
       elementExistsByText(
         document,
         "li",
-        "Applications pending production request approval for an long time will also be automatically deleted, unless they are excluded."
+        "Applications pending production request approval for a long time will also be automatically deleted, unless they are excluded."
       ) shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe true
@@ -91,7 +91,7 @@ class ManageAutoDeleteEnabledViewSpec extends CommonViewSpec {
       elementExistsByText(
         document,
         "li",
-        "Applications pending production request approval for an long time will also be automatically deleted, unless they are excluded."
+        "Applications pending production request approval for a long time will also be automatically deleted, unless they are excluded."
       ) shouldBe true
       elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe true
