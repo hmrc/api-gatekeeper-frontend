@@ -77,7 +77,7 @@ lazy val microservice = Project(appName, file("."))
     AcceptanceTest / Keys.fork := false,
     AcceptanceTest / parallelExecution := false,
     AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
-    AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
+    // AcceptanceTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
     AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
     )
@@ -90,7 +90,7 @@ lazy val microservice = Project(appName, file("."))
     SandboxTest / Keys.fork := false,
     SandboxTest / parallelExecution := false,
     SandboxTest / testOptions := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT")),
-    SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
+    // SandboxTest / testOptions += Tests.Cleanup((loader: java.lang.ClassLoader) => loader.loadClass("uk.gov.hmrc.gatekeeper.common.AfterHook").newInstance),
     SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
   )
   .settings(

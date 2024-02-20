@@ -16,69 +16,73 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import org.openqa.selenium.Keys.ENTER
+import org.openqa.selenium.{By, Keys, WebElement}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.common.{NavigationSugar, WebPage}
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage.APIFilter.APIFilterList
 
-object ApplicationsPage extends WebPage with NavigationSugar {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications"
+object ApplicationsPage extends WebPage {
+  override val pageHeading: String = "Applications"
 
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications"
+
+  // def previousLink: WebElement = findElement(By.linkText("Previous"))
+
+  def isForbidden(): Boolean = {
+    getText(By.tagName("h1")) == "You do not have permission to access Gatekeeper"
   }
 
-  def previousLink = find(linkText("Previous")).get
-
-  def isForbidden() = {
-    find(cssSelector("h1")).fold(false)(_.text == "You do not have permission to access Gatekeeper")
-  }
-
-  def nextLink = find(linkText("Next")).get
+  // def nextLink: WebElement = findElement(By.linkText("Next"))
 
   def selectBySubscription(api: APIFilterList) = {
-    singleSel("filter").value = api.name
+    getSelectBox(By.id("filter")).selectByValue(api.name)
   }
 
-  def applicationsNavLink = find(linkText("Applications")).get
+  // def applicationsNavLink: WebElement = findElement(By.linkText("Applications"))
 
-
-  def selectApplications() = {
-    click on applicationsNavLink
+  def clickApplicationsNavLink() = {
+    click(By.linkText("Applications"))
   }
 
   def selectNoofRows(noOfRows: String) = {
-    singleSel("pageSize").value = noOfRows
+    getSelectBox(By.id("pageSize")).selectByValue(noOfRows)
   }
 
   def showPreviousEntries() = {
-    click on previousLink
+    click(By.linkText("Previous"))
   }
 
   def showNextEntries() = {
-    click on nextLink
+    click(By.linkText("Next"))
   }
 
-  def selectByApplicationName(name: String) = {
+  def clickApplicationNameLink(name: String) = {
     // If we use click we sometimes get a selenium error where it can't click on the element.
     // However, if we open using the keyboard, we don't get these problems.
-    val element = find(linkText(name)).get
-    element.underlying.sendKeys(ENTER)
+    val element: WebElement = findElement(By.linkText(name))
+    element.sendKeys(Keys.ENTER)
   }
 
   def selectDeveloperByEmail(email: LaxEmailAddress) = {
-    click on find(linkText(email.text)).get
+    click(By.linkText(email.text))
   }
 
-  def developersNavLink = find(linkText("Developers")).get
+  // def developersNavLink = find(linkText("Developers")).get
 
   def selectDevelopers() = {
-    click on developersNavLink
-    on(DeveloperPage)
+    click(By.linkText("Developers"))
+    //on(DeveloperPage)
   }
 
+  def clickOnReview() = {
+    click(By.id("review"))
+  }
+  
+  def getApplicationName(): String = {
+    getText(By.className("hmrc-header__service-name"))
+  }
 
   object APIFilter {
 

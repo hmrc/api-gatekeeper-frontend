@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.specs
 import scala.collection.immutable.List
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.By
 import org.scalatest.{Assertions, Tag}
 
 import play.api.http.Status._
@@ -97,16 +96,21 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
       DeveloperPage.selectByDeveloperStatus("VERIFIED")
 
       And("I submit my search")
-      DeveloperPage.submit()
+      DeveloperPage.clickSubmit()
 
       Then("I see a list of filtered developers")
 
-      val expectedDeveloper2: Seq[(String, String, String, String)] = List(
+      val expectedDeveloper: Seq[(String, String, String, String)] = List(
         (dev4FirstName, dev4LastName, developer4, statusVerified))
 
-      val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper2.zipWithIndex
+      val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper.zipWithIndex
 
-      assertDevelopersList(allDevs)
+      for ((dev, index) <- allDevs) {
+        DeveloperPage.getDeveloperFirstNameByIndex(index) shouldBe dev._1
+        DeveloperPage.getDeveloperSurnameByIndex(index) shouldBe dev._2
+        DeveloperPage.getDeveloperEmailByIndex(index) shouldBe dev._3
+        DeveloperPage.getDeveloperStatusByIndex(index) shouldBe dev._4
+      }
 
       assertThereAreNoMoreThanNDevelopers(1)
     }
@@ -174,20 +178,19 @@ class ApiGatekeeperDeveloper2Spec extends ApiGatekeeperBaseSpec with Assertions 
     )
   }
 
-  private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]): Unit = {
-    for ((dev, index) <- devList) {
-      webDriver.findElement(By.id(s"dev-fn-$index")).getText() shouldBe dev._1
-      webDriver.findElement(By.id(s"dev-sn-$index")).getText() shouldBe dev._2
-      webDriver.findElement(By.id(s"dev-email-$index")).getText() shouldBe dev._3
-      webDriver.findElement(By.id(s"dev-status-$index")).getText() shouldBe dev._4
-    }
-  }
+  // private def assertDevelopersList(devList: Seq[((String, String, String, String), Int)]): Unit = {
+  //   for ((dev, index) <- devList) {
+  //     webDriver.findElement(By.id(s"dev-fn-$index")).getText() shouldBe dev._1
+  //     webDriver.findElement(By.id(s"dev-sn-$index")).getText() shouldBe dev._2
+  //     webDriver.findElement(By.id(s"dev-email-$index")).getText() shouldBe dev._3
+  //     webDriver.findElement(By.id(s"dev-status-$index")).getText() shouldBe dev._4
+  //   }
+  // }
 
   private def assertThereAreNoMoreThanNDevelopers(count: Int) = assertDeveloperAtRowDoesNotExist(count)
   
   private def assertDeveloperAtRowDoesNotExist(rowIndex: Int) = {
-    val elements = webDriver.findElements(By.id(s"dev-fn-$rowIndex"))
-    elements.size() shouldBe 0
+    DeveloperPage.developerRowExists(rowIndex) shouldBe false
   }
 
 }

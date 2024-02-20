@@ -16,21 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object RemoveMfaSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove"
-
-  override def isCurrentPage: Boolean = {
-    currentUrl.startsWith(url)
-  }
-
-  def finishButton: RemoveMfaSuccessPage.Element = {
-    find(cssSelector("#finish")).get
-  }
+  override val pageHeading: String = "You have removed multi-factor authentication"
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/developer/mfa/remove"
 
   def backToDeveloperDetails(): Unit = {
-    click on finishButton
+   click(By.id("finish"))
   }
 }

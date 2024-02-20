@@ -62,7 +62,7 @@ class ApiGatekeeperRemoveMfaSpec
       assert(DeveloperDetailsPage.mfaHeading() == "Multi-factor authentication")
 
       Then("I can see the Link to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
+      assert(DeveloperDetailsPage.removeMfaLinkText() == "Remove multi-factor authentication")
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()
@@ -97,14 +97,14 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA detail types and names")
-      assert(DeveloperDetailsPage.authAppMfaType.get.text == MfaType.AUTHENTICATOR_APP.asText)
-      assert(DeveloperDetailsPage.authAppMfaName.get.text == "On (Google Auth App)")
-      assert(DeveloperDetailsPage.smsMfaType.get.text == MfaType.SMS.asText)
-      assert(DeveloperDetailsPage.smsMfaName.get.text == "On (****6789)")
+      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AUTHENTICATOR_APP.asText)
+      assert(DeveloperDetailsPage.authAppMfaName() == "On (Google Auth App)")
+      assert(DeveloperDetailsPage.smsMfaType() == MfaType.SMS.asText)
+      assert(DeveloperDetailsPage.smsMfaName() == "On (****6789)")
 
       Then("I can see the link to remove MFA")
-      assert(DeveloperDetailsPage.removeMfaLink.get.text == "Remove multi-factor authentication")
-      assert(DeveloperDetailsPage.removeMfaLink.get.isEnabled)
+      assert(DeveloperDetailsPage.removeMfaLinkText() == "Remove multi-factor authentication")
+      assert(DeveloperDetailsPage.removeMfaLinkIsDisabled() == false)
 
       When("I click on remove MFA")
       DeveloperDetailsPage.removeMfa()

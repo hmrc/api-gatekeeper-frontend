@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.specs
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.By
 import org.scalatest.Tag
 
 import play.api.http.Status._
@@ -59,7 +58,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("My new app")
+      ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -69,8 +68,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)
       verifyText("data-description-public", "")
-      webDriver.findElement(By.cssSelector("dd[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
-      webDriver.findElement(By.cssSelector("dd[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
+      ApplicationPage.getDataPrivacyUrl() shouldBe "http://localhost:22222/privacy"
+      ApplicationPage.getDataTermsUrl() shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
       verifyText("data-subscriptions", "API Simulator 1.0 (Stable)\nHello World 1.0 (Stable)")
       verifyText("data-collaborator-email", "admin@example.com", 0)
@@ -105,7 +104,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("My new app")
+      ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)

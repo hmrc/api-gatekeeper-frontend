@@ -16,29 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object UnblockApplicationPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock"
-
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
-  }
-
-  def textBox = textField("applicationNameConfirmation")
-
-  def writeInTextBox(input: String) = {
-    textBox.value = input
-  }
-
-  def unblockApplicationButton = find(id("unblock-application")).get
+  override val pageHeading: String = "Automated Test Application - Blocked"
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock"
 
   def selectUnblockButton() = {
-    click on unblockApplicationButton
+    click(By.id("unblock-application"))
   }
 
   def completeForm(input: String) = {
-    writeInTextBox(input)
+   writeInTextBox(input, id = "applicationNameConfirmation")
   }
 }

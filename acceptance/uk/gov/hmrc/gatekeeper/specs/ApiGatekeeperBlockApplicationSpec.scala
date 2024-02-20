@@ -59,9 +59,9 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   }
 
   def selectToBlockApplication() = {
-    When("I select the Block Application Button")
+    When("I click the Block Application Button")
     stubUnblockedApplication()
-    ApplicationPage.selectBlockApplication()
+    ApplicationPage.clickBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")
     on(BlockApplicationPage)
@@ -97,7 +97,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     on(ApplicationsPage)
 
     When(s"I select to navigate to the application named $appName")
-    ApplicationsPage.selectByApplicationName(appName)
+    ApplicationsPage.clickApplicationNameLink(appName)
 
     Then(s"I am successfully navigated to the application named $appName")
     on(page)

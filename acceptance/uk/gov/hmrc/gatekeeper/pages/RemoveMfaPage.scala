@@ -16,26 +16,26 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object RemoveMfaPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer/mfa/remove"
+  override val pageHeading: String = "Are you sure you want to remove multi-factor authentication?"
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/developer/mfa/remove"
 
-  override def isCurrentPage: Boolean = {
-    currentUrl.startsWith(url)
-  }
 
-  def removeMfaButton: RemoveMfaPage.Element = {
-    find(cssSelector("#submit")).get
+  def removeMfaButton = {
+    findElement(By.cssSelector("#submit"))
   }
 
   def selectRadioButton(radioId: String) = {
-    val radioButton = find(id(radioId)).get
-    click on radioButton
+    click(By.id(radioId))
   }
 
   def removeMfa(): Unit = {
-    click on removeMfaButton
+    clickSubmit()
   }
 }

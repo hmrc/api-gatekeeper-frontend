@@ -22,17 +22,18 @@ import org.scalatest.matchers.should.Matchers
 import org.scalatest.{GivenWhenThen, Tag}
 
 import play.api.http.Status._
+import uk.gov.hmrc.selenium.webdriver.Driver
 
 import uk.gov.hmrc.gatekeeper.common.SignInSugar
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
 
   import MockDataSugar._
 
   Feature("Gatekeeper Sign in") {
-
     info("In order to manage uplift application requests")
     info("As a gatekeeper")
     info("I would like to sign in")
@@ -45,9 +46,10 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
           .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
           .withStatus(UNAUTHORIZED)))
       setupStrideAuthPage(app)
-      go(ApplicationsPage)
-      goOn(ApplicationsPage)
-
+      //TODO -  Sort this out i.e. hitting page twice
+      ApplicationsPage.goTo()
+      ApplicationsPage.goTo()
+      
       ApplicationsPage.isForbidden() shouldBe true
     }
 
@@ -83,15 +85,13 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       stubApiDefinition()
       signInGatekeeper(app)
 
-      val actualApplicationName = webDriver.findElement(By.className("hmrc-header__service-name")).getText
-      var actualApplicationTitle = webDriver.getTitle
       on(ApplicationsPage)
 
       Then("the application name is API Gatekeeper")
-      actualApplicationName shouldBe "HMRC API Gatekeeper"
+      ApplicationsPage.getApplicationName() shouldBe "HMRC API Gatekeeper"
 
       And("the browser window title is HMRC API Gatekeeper - Applications")
-      actualApplicationTitle = webDriver.getTitle
+      val actualApplicationTitle = Driver.instance.getTitle
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
     }
 
@@ -106,7 +106,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       on(ApplicationsPage)
 
       Then("the cookie banner is displayed at the ")
-      val cookieBanner = webDriver.findElement(By.id("global-cookie-message")).getLocation.toString
+      val cookieBanner = Driver.instance.findElement(By.id("global-cookie-message")).getLocation.toString
       cookieBanner should include("(0, ")
     }
   }

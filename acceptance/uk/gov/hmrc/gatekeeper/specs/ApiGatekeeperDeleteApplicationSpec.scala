@@ -73,15 +73,15 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.selectByApplicationName(applicationName)
+    ApplicationsPage.clickApplicationNameLink(applicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
 
     stubApplicationToDelete()
 
-    When("I select the Delete Application Button")
-    ApplicationPage.selectDeleteApplication()
+    When("I click the Delete Application Button")
+    ApplicationPage.clickDeleteApplicationButton()
 
     Then("I am successfully navigated to the Delete Application page")
     on(DeleteApplicationPage)
@@ -91,8 +91,8 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     When("I fill out the Delete Application Form correctly")
     DeleteApplicationPage.completeForm(applicationName)
 
-    And("I select the Delete Application Button")
-    DeleteApplicationPage.selectDeleteButton()
+    And("I click the Delete Application Button")
+    DeleteApplicationPage.clickDeleteButton()
   }
 
   def stubApplicationToDelete() = {

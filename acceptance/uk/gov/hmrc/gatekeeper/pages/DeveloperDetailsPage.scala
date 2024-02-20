@@ -16,60 +16,64 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 object DeveloperDetailsPage extends WebPage with UrlEncoding with CommonTestData {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developer"
+  override val pageHeading: String = "dixie.fakename@example.com"
 
-  override def isCurrentPage: Boolean = {
-    currentUrl.startsWith(url)
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/developer"
+
+  def firstName(): String = {
+    getText(By.cssSelector("#first-name"))
   }
 
-  def firstName() = {
-    find(cssSelector("#first-name")).get.text
+  def lastName(): String = {
+    getText(By.cssSelector("#last-name"))
   }
 
-  def lastName() = {
-    find(cssSelector("#last-name")).get.text
+  def status(): String = {
+   getText(By.cssSelector("#status"))
   }
 
-  def status() = {
-    find(cssSelector("#status")).get.text
+  def mfaHeading(): String = {
+    getText(By.id("mfa-heading"))
   }
 
-  def mfaHeading() = {
-    find(cssSelector("#mfa-heading")).get.text
+  def removeMfaLinkText(): String = {
+    getText(By.id("remove-2SV"))
   }
 
-  def removeMfaLink = {
-    find(cssSelector("#remove-2SV"))
+  def removeMfaLinkIsDisabled(): Boolean = {
+    findElement(By.id("remove-2SV")).getAttribute("disabled") == "true"
   }
 
-  def authAppMfaType = {
-    find(cssSelector("#mfa-type-0"))
+  def authAppMfaType(): String  = {
+    getText(By.id("mfa-type-0"))
   }
 
-  def authAppMfaName = {
-    find(cssSelector("#mfa-name-0"))
+  def authAppMfaName(): String = {
+    getText(By.id("mfa-name-0"))
   }
 
-  def smsMfaType = {
-    find(cssSelector("#mfa-type-1"))
+  def smsMfaType(): String = {
+    getText(By.id("mfa-type-1"))
   }
 
-  def smsMfaName = {
-    find(cssSelector("#mfa-name-1"))
+  def smsMfaName(): String = {
+    getText(By.id("mfa-name-1"))
   }
 
-  def selectByApplicationName(name: String) = {
-    click on find(linkText(name)).get
+  def selectByApplicationName(name: String): Unit = {
+    click(By.linkText(name))
   }
 
-  def removeMfa() = {
-    click on removeMfaLink.get
+  def removeMfa(): Unit = {
+    click(By.id("remove-2SV"))
   }
 
 }

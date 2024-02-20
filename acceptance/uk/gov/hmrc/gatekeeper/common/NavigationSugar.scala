@@ -16,91 +16,91 @@
 
 package uk.gov.hmrc.gatekeeper.common
 
-import java.time.Duration
+// import java.time.Duration
 
-import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
-import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatest.Assertions
-import org.scalatest.concurrent.Eventually
-import org.scalatest.matchers.should.Matchers
-import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatestplus.selenium.WebBrowser
+// import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
+// import org.openqa.selenium.{By, WebDriver, WebElement}
+// import org.scalatest.Assertions
+// import org.scalatest.concurrent.Eventually
+// import org.scalatest.matchers.should.Matchers
+// import org.scalatest.time.{Millis, Seconds, Span}
+// import org.scalatestplus.selenium.WebBrowser
 
-trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
+// trait NavigationSugar extends WebBrowser with Eventually with Assertions with Matchers {
 
-  implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)), interval = scaled(Span(100, Millis)))
+//   implicit override val patienceConfig: PatienceConfig = PatienceConfig(timeout = scaled(Span(3, Seconds)), interval = scaled(Span(100, Millis)))
 
-  def goOn(page: WebPage)(implicit webDriver: WebDriver) = {
-    go(page)
-    on(page)
-  }
+//   def goOn(page: WebPage)(implicit webDriver: WebDriver) = {
+//     go(page)
+//     on(page)
+//   }
 
-  def go(page: WebLink)(implicit webDriver: WebDriver) = {
-    WebBrowser.go.to(page)
-  }
+//   def go(page: WebLink)(implicit webDriver: WebDriver) = {
+//     WebBrowser.go.to(page)
+//   }
 
-  private def onPage(page: WebPage)(implicit webDriver: WebDriver) = {
-    val element = eventually {
-      webDriver.findElement(By.tagName("body"))
-    }
-    withClue(s"Currently in page: $currentUrl " + find(tagName("h1")).map(_.text).fold(" - ")(h1 => s", with title '$h1' - ")) {
-      assert(page.isCurrentPage, s"Page was not loaded: ${page.url}")
-    }
-    element
-  }
+//   private def onPage(page: WebPage)(implicit webDriver: WebDriver) = {
+//     val element = eventually {
+//       webDriver.findElement(By.tagName("body"))
+//     }
+//     withClue(s"Currently in page: $currentUrl " + find(tagName("h1")).map(_.text).fold(" - ")(h1 => s", with title '$h1' - ")) {
+//       assert(page.isCurrentPage, s"Page was not loaded: ${page.url}")
+//     }
+//     element
+//   }
 
-  def onTechDifficultiesFor(page: WebPage)(implicit webDriver: WebDriver) = {
-    val element = onPage(page)
-    assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
-  }
+//   def onTechDifficultiesFor(page: WebPage)(implicit webDriver: WebDriver) = {
+//     val element = onPage(page)
+//     assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
+//   }
 
-  def on(page: WebPage)(implicit webDriver: WebDriver) = {
-    val element = onPage(page)
-    assert(!element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded with server error: ${page.url}")
-  }
+//   def on(page: WebPage)(implicit webDriver: WebDriver) = {
+//     val element = onPage(page)
+//     assert(!element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded with server error: ${page.url}")
+//   }
 
-  def loadPage()(implicit webDriver: WebDriver) = {
-    val wait = new WebDriverWait(webDriver, Duration.ofSeconds(30))
-    wait.until(
-      new ExpectedCondition[WebElement] {
-        override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
-      }
-    )
-  }
+//   def loadPage()(implicit webDriver: WebDriver) = {
+//     val wait = new WebDriverWait(webDriver, Duration.ofSeconds(30))
+//     wait.until(
+//       new ExpectedCondition[WebElement] {
+//         override def apply(d: WebDriver) = d.findElement(By.tagName("body"))
+//       }
+//     )
+//   }
 
-  def anotherTabIsOpened()(implicit webDriver: WebDriver) = {
-    webDriver.getWindowHandles.size() shouldBe 2
-  }
+//   def anotherTabIsOpened()(implicit webDriver: WebDriver) = {
+//     webDriver.getWindowHandles.size() shouldBe 2
+//   }
 
-  def clickOnLink(attributeName: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.cssSelector(s"[$attributeName]")).click()
-  }
+//   def clickOnLink(attributeName: String)(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.cssSelector(s"[$attributeName]")).click()
+//   }
 
-  def clickOnSubmit()(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id("submit")).click()
-  }
+//   def clickOnSubmit()(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.id("submit")).click()
+//   }
 
-  def clickOnReview(attributeName: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id("review")).click()
-  }
+//   def clickOnReview(attributeName: String)(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.id("review")).click()
+//   }
 
-  def clickOnElement(id: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id(id)).click()
-  }
+//   def clickOnElement(id: String)(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.id(id)).click()
+//   }
 
-  def verifyLinkPresent(attributeName: String, expectedUrl: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.cssSelector(s"[$attributeName]")).getAttribute("href") contains expectedUrl
-  }
+//   def verifyLinkPresent(attributeName: String, expectedUrl: String)(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.cssSelector(s"[$attributeName]")).getAttribute("href") contains expectedUrl
+//   }
 
-  def verifyText(attributeName: String, expected: String, index: Int = 0)(implicit webDriver: WebDriver) = {
-    webDriver.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText should include(expected)
-  }
+//   def verifyText(attributeName: String, expected: String, index: Int = 0)(implicit webDriver: WebDriver) = {
+//     webDriver.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText should include(expected)
+//   }
 
-  def verifyCountOfElementsByAttribute(attributeName: String, expected: Int)(implicit webDriver: WebDriver) = {
-    webDriver.findElements(By.cssSelector(s"[$attributeName]")).size() shouldBe expected
-  }
+//   def verifyCountOfElementsByAttribute(attributeName: String, expected: Int)(implicit webDriver: WebDriver) = {
+//     webDriver.findElements(By.cssSelector(s"[$attributeName]")).size() shouldBe expected
+//   }
 
-  def verifyElementIsVisible(attributeId: String)(implicit webDriver: WebDriver) = {
-    webDriver.findElement(By.id(attributeId)).isDisplayed
-  }
-}
+//   def verifyElementIsVisible(attributeId: String)(implicit webDriver: WebDriver) = {
+//     webDriver.findElement(By.id(attributeId)).isDisplayed
+//   }
+// }

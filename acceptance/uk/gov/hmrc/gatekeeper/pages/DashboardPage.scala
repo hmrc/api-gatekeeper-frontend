@@ -16,29 +16,30 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object DashboardPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/dashboard"
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
+  override val pageHeading: String = "DashboardPage"
+
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/dashboard"
+
+  def isUnauthorised: Boolean = {
+    getText(By.cssSelector("h2")) == "Only Authorised users can access the requested page"
   }
 
-  def isUnauthorised = {
-    find(cssSelector("h2")).fold(false)(_.text == "Only Authorised users can access the requested page")
+  // def developersNavLink = find(linkText("Developers")).get
+
+  // def applicationsNavLink = find(linkText("Applications")).get
+
+  def selectDevelopers(): Unit = {
+    click(By.linkText("Developers"))
   }
 
-  def developersNavLink = find(linkText("Developers")).get
-
-  def applicationsNavLink = find(linkText("Applications")).get
-
-  def selectDevelopers() = {
-    click on developersNavLink
-  }
-
-  def selectApplications() = {
-    click on applicationsNavLink
+  def selectApplications(): Unit = {
+    click(By.linkText("Applications"))
   }
 
 }

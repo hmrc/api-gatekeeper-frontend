@@ -35,8 +35,6 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithStateHistoryTestData
     with UrlEncoding {
 
-
-
   val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com".toLaxEmail, UserId.random, "holly", "golightly", false))
 
   val approveRequest =
@@ -68,7 +66,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
+      ApplicationsPage.clickApplicationNameLink(pendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -80,9 +78,9 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
       stubApplicationToReview()
-      clickOnReview("review")
+      ApplicationsPage.clickOnReview()
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-      clickOnElement("approve-app")
+      ReviewPage(pendingApprovalApplicationId, "Application requiring approval").clickApprove()
 
       stubFor(
         post(
@@ -92,7 +90,7 @@ class ApiGatekeeperApplicationReviewSpec
         .willReturn(aResponse().withStatus(OK))
       )
 
-      clickOnSubmit()
+      ApplicationsPage.clickSubmit()
 
       on(ApplicationToReviewPage)
     }
@@ -110,7 +108,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
+      ApplicationsPage.clickApplicationNameLink(pendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -122,10 +120,10 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
       stubApplicationToReview()
-      clickOnReview("review")
+      ApplicationToReviewPage.clickOnReview()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-      clickOnSubmit()
+      ReviewPage(pendingApprovalApplicationId, "Application requiring approval").clickSubmit()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       verifyText("data-global-error", "Review the application")
@@ -144,7 +142,7 @@ class ApiGatekeeperApplicationReviewSpec
       stubApplication(pendingApprovalApplicationWithSubscriptionData.toJsonString, developers, pendingApprovalStateHistory.toJsonString, pendingApprovalApplicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName(pendingApprovalApplicationName)
+      ApplicationsPage.clickApplicationNameLink(pendingApprovalApplicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationToReviewPage)
@@ -156,15 +154,16 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
       stubApplicationToReview()
-      clickOnReview("review")
+      ApplicationToReviewPage.clickOnReview()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
-      clickOnElement("reject-app")
+      ReviewPage(pendingApprovalApplicationId, "Application requiring approval").rejectApplication()
 
       stubFor(post(urlMatching(s"/application/${pendingApprovalApplicationId.value.toString()}/reject-uplift"))
         .withRequestBody(equalToJson(rejectRequest))
         .willReturn(aResponse().withStatus(200)))
-      clickOnSubmit()
+        
+      ReviewPage(pendingApprovalApplicationId, "Application requiring approval").clickSubmit()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       verifyText("data-global-error", "This field is required")

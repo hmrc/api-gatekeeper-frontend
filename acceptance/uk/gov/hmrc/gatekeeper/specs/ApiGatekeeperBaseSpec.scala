@@ -31,7 +31,6 @@ import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.FindUserIdResponse
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DashboardPage}
 import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -156,25 +155,7 @@ class ApiGatekeeperBaseSpec
     stubFor(get(urlPathEqualTo("/api-definitions/nonopen")).willReturn(aResponse().withStatus(OK).withBody(listOfApiDefinitions)))
   }
 
-  def navigateToApplicationPageAsAdminFor(applicationName: String, page: WebPage, developers: List[RegisteredUser]) = {
-    Given("I have successfully logged in to the API Gatekeeper")
-    stubPaginatedApplicationList()
-
-    stubApiDefinition()
-
-    signInAdminUserGatekeeper(app)
-    on(ApplicationsPage)
-
-    When("I select to navigate to the Applications page")
-    DashboardPage.selectApplications()
-
-    Then("I am successfully navigated to the Applications page where I can view all applications")
-    on(ApplicationsPage)
-
-    When(s"I select to navigate to the application named $applicationName")
-    ApplicationsPage.selectByApplicationName(applicationName)
-
-    Then(s"I am successfully navigated to the application named $applicationName")
-    on(page)
+  def isCurrentPage(page: WebPage): Unit = {
+    page.heading shouldBe page.pageHeading
   }
 }

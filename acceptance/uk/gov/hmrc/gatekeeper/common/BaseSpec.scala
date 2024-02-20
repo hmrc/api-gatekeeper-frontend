@@ -19,7 +19,8 @@ package uk.gov.hmrc.gatekeeper.common
 import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration._
-import org.openqa.selenium.WebDriver
+import org.openqa.selenium.By
+import org.scalatest.concurrent.Eventually
 import org.scalatest.featurespec.AnyFeatureSpec
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, TestData}
@@ -28,15 +29,21 @@ import org.scalatestplus.play.guice.GuiceOneServerPerTest
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.RunningServer
 import play.api.{Application, Mode}
+import uk.gov.hmrc.selenium.webdriver.{Browser, Driver, ScreenshotOnFailure}
 
-trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfterEach with Matchers with NavigationSugar with GuiceOneServerPerTest {
+trait BaseSpec extends AnyFeatureSpec
+  with BeforeAndAfterAll
+  with BeforeAndAfterEach
+  with Matchers
+  with GuiceOneServerPerTest
+  with Eventually
+  with Browser
+  with ScreenshotOnFailure {
 
-  val stubPort = 6003
+  val stubPort = 11111
   val stubHost = "localhost"
 
   override protected def newServerForTest(app: Application, testData: TestData): RunningServer = MyTestServerFactory.start(app)
-
-  implicit val webDriver: WebDriver = Env.driver
 
   val wireMockServer = new WireMockServer(wireMockConfig()
     .port(stubPort))
@@ -84,7 +91,36 @@ trait BaseSpec extends AnyFeatureSpec with BeforeAndAfterAll with BeforeAndAfter
 
   override def beforeEach() = {
     super.beforeEach()
-    webDriver.manage().deleteAllCookies()
+    startBrowser()
+    Driver.instance.manage().deleteAllCookies()
     WireMock.reset()
+  }
+
+  override def afterEach(): Unit = {
+    quitBrowser()
+    super.afterEach()
+  }
+
+  def on(page: WebPage): Unit =
+    eventually {
+      withClue(s"Currently in page: ${Driver.instance.getCurrentUrl()}, when expecting heading '${page.pageHeading}' but found '${page.heading}' - ") {
+        assert(page.isCurrentPage(), s"Page was not loaded: ${page.url}")
+      }
+    }
+
+  protected def verifyCountOfElementsByAttribute(attributeName: String, expected: Int) = {
+    Driver.instance.findElements(By.cssSelector(s"[$attributeName]")).size() shouldBe expected
+  }
+
+  protected def verifyText(attributeName: String, expected: String, index: Int = 0) = {
+    Driver.instance.findElements(By.cssSelector(s"[$attributeName]")).get(index).getText should include(expected)
+  }
+
+  def onTechDifficultiesFor(page: WebPage) = {
+    val element = eventually {
+      Driver.instance.findElement(By.tagName("body"))
+    }
+    
+    assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
   }
 }

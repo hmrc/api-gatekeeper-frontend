@@ -16,34 +16,25 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
 
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 object DeleteApplicationPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d/delete"
+  override val pageHeading: String = "My new app"
 
-  override def isCurrentPage: Boolean = currentUrl == url
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d/delete"
 
-  def radioButton = find(name("collaboratorEmail")).get
-
-  def selectRadioButton() = {
-    click on radioButton
+  def clickRadioButton(): Unit = {
+    click(By.name("collaboratorEmail"))
   }
 
-  def textBox = textField("applicationNameConfirmation")
-
-  def writeInTextBox(input: String) = {
-    textBox.value = input
-  }
-
-  def deleteApplicationButton = find(id("delete-application")).get
-
-  def selectDeleteButton() = {
-    click on deleteApplicationButton
+  def clickDeleteButton() = {
+    click(By.id("delete-application")) 
   }
 
   def completeForm(input: String) = {
-    selectRadioButton()
-    writeInTextBox(input)
+    clickRadioButton()
+    writeInTextBox(input, "applicationNameConfirmation")
   }
 }

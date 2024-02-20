@@ -16,56 +16,72 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import org.openqa.selenium.Keys.ENTER
+import org.openqa.selenium.{By, Keys}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, LaxEmailAddress}
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter.APIFilterList
 
 object DeveloperPage extends WebPage {
-  override val url: String = s"http://localhost:$port/api-gatekeeper/developers"
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
-  }
 
-  def developerEmail(email:LaxEmailAddress) = find(linkText(email.text)).get
+  override val pageHeading: String = "Developers"
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/developers"
 
-  private def searchBox = textField("emailFilter")
+  // def developerEmail(email:LaxEmailAddress): WebElement = 
 
-  private def submitButton = find(id("submit")).get
+  // private def filterBySubscription = singleSel(id("apiVersionFilter"))
 
-  private def filterBySubscription = singleSel(id("apiVersionFilter"))
+  // private def filterByEnvironment = singleSel(id("environmentFilter"))
 
-  private def filterByEnvironment = singleSel(id("environmentFilter"))
-
-  private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
+  // private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
 
   def selectByDeveloperEmail(email: LaxEmailAddress) = {
     // If we use click we sometimes get a selenium error where it can't click on the element.
     // However, if we open using the keyboard, we don't get these problems.
-    val element = developerEmail(email)
-    element.underlying.sendKeys(ENTER)
+    val element = findElement(By.linkText(email.text))
+    element.sendKeys(Keys.ENTER)
   }
 
   def writeInSearchBox(text: String) = {
-    searchBox.value = text
+    writeInTextBox(text, "emailFilter")
   }
 
-  def searchByPartialEmail(partialEmail: String) = {
+  def searchByPartialEmail(partialEmail: String): Unit = {
     writeInSearchBox(partialEmail)
-    click on submitButton
+    clickSubmit()
   }
 
   def selectBySubscription(api: APIFilterList) = {
-    filterBySubscription.value = api.name
+    getSelectBox(By.id("apiVersionFilter")).selectByValue(api.name)
   }
 
   def selectByEnvironment(environment: Environment) = {
-    filterByEnvironment.value = environment.toString
+    getSelectBox(By.id("environmentFilter")).selectByValue(environment.toString)
   }
 
   def selectByDeveloperStatus(status: String) = {
-    filterByDeveloperStatus.value = status
+    getSelectBox(By.id("developerStatusFilter")).selectByValue(status)
+  }
+
+  def getDeveloperFirstNameByIndex(index: Int): String = {
+    getText(By.id(s"dev-fn-$index"))
+  }
+
+  def getDeveloperSurnameByIndex(index: Int): String = {
+    getText(By.id(s"dev-sn-$index"))
+  }
+
+  def getDeveloperEmailByIndex(index: Int): String = {
+    getText(By.id(s"dev-email-$index"))
+  }
+
+  def getDeveloperStatusByIndex(index: Int): String = {
+    getText(By.id(s"dev-status-$index"))
+  }
+
+  def developerRowExists(rowIndex: Int): Boolean = {
+    findElements(By.id(s"dev-fn-$rowIndex")).nonEmpty
   }
 
   object APIFilter  {
