@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -38,7 +38,9 @@ class ApiGatekeeperDeveloperDetailsSpec
     with CommonTestData
     with ApiDefinitionTestData
     with UrlEncoding
-    with XmlServicesStub {
+    with XmlServicesStub
+    with ThirdPartyDeveloperStub
+    with ThirdPartyApplicationStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
@@ -101,20 +103,6 @@ class ApiGatekeeperDeveloperDetailsSpec
       .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
   }
 
-  def stubAPISubscription(apiContext: String) = {
-    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(MockDataSugar.applicationResponse).withStatus(OK)))
-  }
-
-  def stubNoAPISubscription() = {
-    stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(MockDataSugar.applicationResponsewithNoSubscription).withStatus(OK)))
-  }
-
-  def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(MockDataSugar.applicationSubscription).withStatus(OK)))
-  }
-
   def stubDevelopers() = {
     stubFor(get(urlEqualTo("/developers/all"))
       .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
@@ -123,16 +111,6 @@ class ApiGatekeeperDeveloperDetailsSpec
   def stubDevelopersSearch(): Unit = {
     stubFor(post(urlEqualTo("/developers/search"))
       .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
-  }
-
-  def stubDeveloper(user: RegisteredUser) = {
-    stubFor(
-      get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(user.userId.value.toString))
-      .willReturn(
-        aResponse().withStatus(OK).withBody(unverifiedUserJson)
-      )
-    )
   }
 }
 
