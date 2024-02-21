@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
@@ -71,14 +67,6 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()
-  }
-
-  def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/block")).willReturn(aResponse().withStatus(OK)))
-  }
-
-  def stubUnblockedApplication(): Unit = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {

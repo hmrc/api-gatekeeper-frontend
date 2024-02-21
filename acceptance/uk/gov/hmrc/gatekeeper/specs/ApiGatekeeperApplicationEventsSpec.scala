@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformEventsStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -36,6 +36,7 @@ class ApiGatekeeperApplicationEventsSpec
     with XmlServicesStub
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
+    with ApiPlatformEventsStub
     with UrlEncoding {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))

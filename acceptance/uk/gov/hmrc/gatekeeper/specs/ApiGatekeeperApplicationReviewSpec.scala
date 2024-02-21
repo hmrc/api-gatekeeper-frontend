@@ -16,14 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.stubs.ThirdPartyApplicationStub
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -33,24 +30,11 @@ class ApiGatekeeperApplicationReviewSpec
     with ApplicationWithSubscriptionDataTestData 
     with ApplicationResponseTestData 
     with ApplicationWithStateHistoryTestData
-    with UrlEncoding {
+    with UrlEncoding
+    with ThirdPartyApplicationStub {
 
   val developers = List[RegisteredUser](RegisteredUser("holly.golightly@example.com".toLaxEmail, UserId.random, "holly", "golightly", false))
 
-  val approveRequest =
-    s"""
-       |{
-       |  "gatekeeperUserId":"$superUserGatekeeperId"
-       |}
-     """.stripMargin
-
-  val rejectRequest =
-    s"""
-       |{
-       |  "gatekeeperUserId":"$gatekeeperId",
-       |  "reason":"A similar name is already taken by another application"
-       |}
-     """.stripMargin
 
 
   Feature("Approve a request to uplift an application") {
@@ -77,18 +61,12 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview()
+      stubApplicationToReview(pendingApprovalApplicationId)
       ApplicationsPage.clickOnReview()
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       ReviewPage(pendingApprovalApplicationId, "Application requiring approval").clickApprove()
 
-      stubFor(
-        post(
-          urlMatching(s"/application/${pendingApprovalApplicationId.value.toString()}/approve-uplift")
-        )
-        .withRequestBody(equalToJson(approveRequest))
-        .willReturn(aResponse().withStatus(OK))
-      )
+      stubApplicationApproveUplift(pendingApprovalApplicationId, superUserGatekeeperId)
 
       ApplicationsPage.clickSubmit()
 
@@ -119,7 +97,7 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview()
+      stubApplicationToReview(pendingApprovalApplicationId)
       ApplicationToReviewPage.clickOnReview()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
@@ -153,16 +131,14 @@ class ApiGatekeeperApplicationReviewSpec
       verifyText("data-submission-contact-email", "holly.golightly@example.com")
       verifyText("data-submission-contact-telephone", "020 1122 3344")
 
-      stubApplicationToReview()
+      stubApplicationToReview(pendingApprovalApplicationId)
       ApplicationToReviewPage.clickOnReview()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
       ReviewPage(pendingApprovalApplicationId, "Application requiring approval").rejectApplication()
 
-      stubFor(post(urlMatching(s"/application/${pendingApprovalApplicationId.value.toString()}/reject-uplift"))
-        .withRequestBody(equalToJson(rejectRequest))
-        .willReturn(aResponse().withStatus(200)))
-        
+      stubApplicationRejectUplift(pendingApprovalApplicationId, gatekeeperId)
+
       ReviewPage(pendingApprovalApplicationId, "Application requiring approval").clickSubmit()
 
       on(ReviewPage(pendingApprovalApplicationId, "Application requiring approval"))
@@ -170,7 +146,5 @@ class ApiGatekeeperApplicationReviewSpec
     }
   }
 
-  def stubApplicationToReview() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${pendingApprovalApplicationId.value.toString()}")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
-  }
+
 }

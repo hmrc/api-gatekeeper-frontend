@@ -16,20 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.openqa.selenium.By
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.{GivenWhenThen, Tag}
 
-import play.api.http.Status._
 import uk.gov.hmrc.selenium.webdriver.Driver
 
 import uk.gov.hmrc.gatekeeper.common.SignInSugar
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
+import uk.gov.hmrc.gatekeeper.stubs.AuthStub
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
-class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen {
+class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AuthStub {
 
   import MockDataSugar._
 
@@ -41,10 +40,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
     Scenario("Sign in with invalid auth token") {
       stubPaginatedApplicationList()
 
-      stubFor(post(urlPathEqualTo("/auth/authorise"))
-        .willReturn(aResponse()
-          .withHeader("WWW-Authenticate", "MDTP detail=\"InsufficientEnrolments\"")
-          .withStatus(UNAUTHORIZED)))
+    stubAuthorise()
       setupStrideAuthPage(app)
       //TODO -  Sort this out i.e. hitting page twice
       ApplicationsPage.goTo()
@@ -56,29 +52,11 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
     Scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
       stubPaginatedApplicationList()
 
-      stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
-        .willReturn(aResponse().withBody(approvedApplication("application description", true)).withStatus(OK)))
+      stubApplicationResponse(approvedApp1, approvedApplication("application description", true))
+
       stubApiDefinition()
-
-      val authBody =
-        s"""
-           |{
-           | "access_token": {
-           |     "authToken":"Bearer fggjmiJzyVZrR6/e39TimjqHyla3x8kmlTd",
-           |     "expiry":1459365831061
-           |     },
-           |     "expires_in":14400,
-           |     "roles":[{"scope":"api","name":"gatekeeper"}],
-           |     "authority_uri":"/auth/oid/$gatekeeperId",
-           |     "token_type":"Bearer"
-           |}
-      """.stripMargin
-
-      stubFor(post(urlEqualTo("/auth/authenticate/user"))
-        .willReturn(aResponse().withBody(authBody).withStatus(OK)))
-
-      stubFor(get(urlEqualTo("/auth/authenticate/user/authorise?scope=api&role=gatekeeper"))
-        .willReturn(aResponse().withStatus(OK)))
+      stubAuthenticate(gatekeeperId)
+      stubAuthenticateAuthorise()
 
       Given("The developer goes to the Gatekeeper home page")
 
@@ -111,8 +89,4 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
     }
   }
 
-  def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions"))
-      .willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
-  }
 }

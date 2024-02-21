@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
+import scala.io.Source
+
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
@@ -24,9 +26,9 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, MockDataSugar}
 
-trait ThirdPartyApplicationStub extends WireMockExtensions {
+trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithStateHistoryTestData{
     import MockDataSugar._
 
   def stubApplicationList(body: String): Unit = {
@@ -53,19 +55,6 @@ trait ThirdPartyApplicationStub extends WireMockExtensions {
         .withStatus(OK)))
   }
 
-  def stubApplicationSubscription() = {
-    stubFor(
-      get(
-        urlEqualTo("/application/subscriptions")
-      )
-      .willReturn(
-        aResponse()
-          .withBody(MockDataSugar.applicationSubscription)
-          .withStatus(OK)
-      )
-    )
-  }
-
   def stubApiSubscription(apiContext: String) = {
     stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
       .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
@@ -81,4 +70,139 @@ trait ThirdPartyApplicationStub extends WireMockExtensions {
         .withJsonBody(developersJson)
         .withStatus(OK)))
   }
+
+  def stubApplicationApproveUplift(applicationId: ApplicationId, superUserGatekeeperId: String) = {
+      val approveRequest =
+    s"""
+       |{
+       |  "gatekeeperUserId":"$superUserGatekeeperId"
+       |}
+     """.stripMargin
+    stubFor(
+      post(
+        urlMatching(s"/application/${applicationId.value.toString()}/approve-uplift")
+      )
+      .withRequestBody(equalToJson(approveRequest))
+      .willReturn(aResponse().withStatus(OK))
+    )
+  }
+
+  def  stubApplicationRejectUplift(applicationId: ApplicationId, gatekeeperId: String) ={
+
+    val rejectRequest =
+    s"""
+       |{
+       |  "gatekeeperUserId":"$gatekeeperId",
+       |  "reason":"A similar name is already taken by another application"
+       |}
+     """.stripMargin
+
+        stubFor(post(urlMatching(s"/application/${applicationId.value.toString()}/reject-uplift"))
+          .withRequestBody(equalToJson(rejectRequest))
+          .willReturn(aResponse().withStatus(200)))
+      }  
+
+  def stubApplicationsList() = {
+    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
+  }
+
+  def stubPaginatedApplicationList() = {
+    val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
+
+    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
+  }
+  
+  def stubFetchAllApplicationsList(): Unit = {
+    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
+    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
+  }
+
+  def stubApplicationForDeveloper(developerId: String, response: String): Unit = {
+    stubFor(
+      get(urlPathEqualTo(s"/gatekeeper/developer/${developerId}/applications"))
+        .willReturn(
+          aResponse()
+            .withBody(response)
+            .withStatus(OK)
+        )
+    )
+  }
+
+ def stubBlockedApplication(): Unit = {
+    stubFor(
+      get(
+        urlEqualTo(s"/gatekeeper/application/${blockedApplicationId.value.toString()}")
+      )
+      .willReturn(
+        aResponse()
+        .withBody(blockedApplicationWithHistory.toJsonString)
+        .withStatus(OK)
+      )
+    )
+  }
+  def stubApplicationForDeveloperDefault(): Unit = {
+    stubApplicationForDeveloper(developer8Id.toString(), applicationResponseForEmail)
+  }
+
+  def stubApplicationExcludingDeletedForDeveloper(): Unit = {
+    stubFor(
+      get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
+        .willReturn(
+          aResponse()
+            .withBody(applicationResponseForEmail)
+            .withStatus(OK)
+        )
+    )
+  }
+
+  def stubApplicationToDelete(applicationId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+  }
+
+  def stubApplicationForDeleteSuccess(applicationId: ApplicationId) = {
+    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(NO_CONTENT)))
+  }
+
+  def stubApplicationForDeleteFailure(applicationId: ApplicationId) = {
+    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
+  }
+  
+  def stubApplicationForUnblockSuccess(applicationId: ApplicationId) = {
+    stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/unblock")).willReturn(aResponse().withStatus(OK)))
+  }
+
+  def stubApplicationToReview(applicationId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK))) 
+  }
+  
+  def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK)))
+  }
+
+  def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+  }
+
+
+  def stubSubmissionLatestIsNotCompleted(appId: ApplicationId) = {
+    stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withBody("false").withStatus(OK)))
+  }
+
+  def stubSubmissionLatestIsNotFound(appId: ApplicationId) = {
+    stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withStatus(NOT_FOUND)))
+  }
+  
+  def stubApplicationForBlockSuccess() = {
+    stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/block")).willReturn(aResponse().withStatus(OK)))
+  }
+
+  def stubUnblockedApplication(): Unit = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+  }
+
+  def stubApplicationResponse(applicationId: String, responseBody: String) ={
+     stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
+        .willReturn(aResponse().withBody(responseBody).withStatus(OK)))
+  }
+
 }

@@ -16,23 +16,24 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationWithStateHistoryTestData {
+
+class ApiGatekeeperDeleteApplicationSpec
+  extends ApiGatekeeperBaseSpec
+  with ApplicationWithSubscriptionDataTestData
+  with StateHistoryTestData
+  with ApplicationWithStateHistoryTestData {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Delete an application") {
     Scenario("I can delete an application") {
 
-      stubApplicationForDeleteSuccess()
+      stubApplicationForDeleteSuccess(applicationId)
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -44,7 +45,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
 
     Scenario("I cannot delete an application") {
 
-      stubApplicationForDeleteFailure()
+      stubApplicationForDeleteFailure(applicationId)
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -78,7 +79,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
 
-    stubApplicationToDelete()
+    stubApplicationToDelete(applicationId)
 
     When("I click the Delete Application Button")
     ApplicationPage.clickDeleteApplicationButton()
@@ -86,7 +87,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     Then("I am successfully navigated to the Delete Application page")
     on(DeleteApplicationPage)
 
-    stubApplicationToDelete()
+    stubApplicationToDelete(applicationId)
 
     When("I fill out the Delete Application Form correctly")
     DeleteApplicationPage.completeForm(applicationName)
@@ -95,15 +96,5 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec with Appl
     DeleteApplicationPage.clickDeleteButton()
   }
 
-  def stubApplicationToDelete() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
-  }
 
-  def stubApplicationForDeleteSuccess() = {
-    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(NO_CONTENT)))
-  }
-
-  def stubApplicationForDeleteFailure() = {
-    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
-  }
 }

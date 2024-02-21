@@ -16,28 +16,20 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import scala.io.Source
-
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.{Assertions, Tag}
-
-import play.api.http.Status._
-import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.{FindUserIdRequest, FindUserIdResponse}
 import uk.gov.hmrc.gatekeeper.models.MfaType
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
+
 class ApiGatekeeperRemoveMfaSpec
   extends ApiGatekeeperBaseSpec
     with Assertions
     with CommonTestData
-    with WireMockExtensions
+    with ThirdPartyDeveloperStub
     with XmlServicesStub {
 
   import MockDataSugar._
@@ -132,7 +124,7 @@ class ApiGatekeeperRemoveMfaSpec
   def initStubs(): Unit = {
     stubFetchAllApplicationsList()
     stubPaginatedApplicationList()
-    stubApplicationForDeveloper()
+    stubApplicationForDeveloper(developer8Id.toString(), applicationResponseForEmail)
     stubApplicationExcludingDeletedForDeveloper()
     stubApiDefinition()
     stubDevelopers()
@@ -141,7 +133,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubGetAllXmlApis()
     stubGetXmlApiForCategories()
     stubGetXmlOrganisationsForUser(UserId(developer8Id))
-    stubApplicationSubscription()
+    stubApplicationSubscription(MockDataSugar.applicationSubscription)
     stubRemoveMfa()
   }
 
@@ -160,75 +152,4 @@ class ApiGatekeeperRemoveMfaSpec
     on(DeveloperDetailsPage)
   }
 
-  def stubFetchAllApplicationsList(): Unit = {
-    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
-  }
-
-  def stubApplicationForDeveloper(): Unit = {
-    stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${developer8Id.toString()}/applications"))
-        .willReturn(
-          aResponse()
-            .withBody(applicationResponseForEmail)
-            .withStatus(OK)
-        )
-    )
-  }
-
-  def stubApplicationExcludingDeletedForDeveloper(): Unit = {
-    stubFor(
-      get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
-        .willReturn(
-          aResponse()
-            .withBody(applicationResponseForEmail)
-            .withStatus(OK)
-        )
-    )
-  }
-
-  def stubApplicationSubscription(): Unit = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(applicationSubscription).withStatus(OK)))
-  }
-
-  def stubDevelopers(): Unit = {
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
-  }
-
-  def stubDevelopersSearch(): Unit = {
-    stubFor(post(urlEqualTo("/developers/search"))
-      .willReturn(aResponse().withBody(allUsers).withStatus(OK)))
-  }
-
-  def stubDeveloper(): Unit = {
-
-    implicit val format = Json.writes[FindUserIdResponse]
-
-    stubFor(
-      post(urlEqualTo("/developers/find-user-id"))
-        .withJsonRequestBody(FindUserIdRequest(developer8.toLaxEmail))
-        .willReturn(
-          aResponse()
-            .withStatus(OK)
-            .withJsonBody(FindUserIdResponse(UserId(developer8Id)))
-        )
-    )
-
-    stubFor(
-      get(urlPathEqualTo("/developer"))
-        .withQueryParam("developerId", equalTo(encode(developer8Id.toString)))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "application/json")
-            .withStatus(OK)
-            .withBody(user)
-        )
-    )
-  }
-
-  def stubRemoveMfa(): Unit = {
-    stubFor(WireMock.post(urlEqualTo(s"/developer/${developer8Id}/mfa/remove"))
-      .willReturn(aResponse().withStatus(OK).withBody(userWithoutMfaDetails)))
-  }
 }

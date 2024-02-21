@@ -16,25 +16,28 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.stubs.ThirdPartyApplicationStub
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
-class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationWithSubscriptionDataTestData with StateHistoryTestData with ApplicationResponseTestData with ApplicationWithStateHistoryTestData {
+class ApiGatekeeperUnblockApplicationSpec
+  extends ApiGatekeeperBaseSpec
+  with ApplicationWithSubscriptionDataTestData
+  with StateHistoryTestData
+  with ApplicationResponseTestData
+  with ApplicationWithStateHistoryTestData
+  with ThirdPartyApplicationStub {
 
   val developers = List[RegisteredUser](new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Unblock an application") {
     Scenario("I can unblock an application") {
       stubApplication(blockedApplicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(blockedApplicationId).toJsonString, blockedApplicationId)
-      stubApplicationForUnblockSuccess()
+      stubApplicationForUnblockSuccess(blockedApplicationId)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
@@ -72,10 +75,6 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
     UnblockApplicationPage.selectUnblockButton()
   }
 
-  def stubApplicationForUnblockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/${blockedApplicationId.value.toString()}/unblock")).willReturn(aResponse().withStatus(OK)))
-  }
-
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubPaginatedApplicationList()
@@ -98,16 +97,5 @@ class ApiGatekeeperUnblockApplicationSpec extends ApiGatekeeperBaseSpec with App
     on(page)
   }
 
-  def stubBlockedApplication(): Unit = {
-    stubFor(
-      get(
-        urlEqualTo(s"/gatekeeper/application/${blockedApplicationId.value.toString()}")
-      )
-      .willReturn(
-        aResponse()
-        .withBody(blockedApplicationWithHistory.toJsonString)
-        .withStatus(OK)
-      )
-    )
-  }
+ 
 }

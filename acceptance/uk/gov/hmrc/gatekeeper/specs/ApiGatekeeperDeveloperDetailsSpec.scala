@@ -16,10 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.{Assertions, Tag}
-
-import play.api.http.Status._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -54,9 +51,9 @@ class ApiGatekeeperDeveloperDetailsSpec
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       
-      stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-        .withBody(stubApplicationsList()).withStatus(OK)))
-      stubApplicationForDeveloper(unverifiedUser.userId)
+      stubFetchAllApplicationsList() 
+
+      stubApplicationForDeveloper(unverifiedUser.userId.toString(), defaultApplicationResponse.toSeq.toJsonString)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
@@ -65,7 +62,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlApiForCategories()
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationSubscription()
+      stubApplicationSubscription(MockDataSugar.applicationSubscription)
 
       signInGatekeeper(app)
       on(ApplicationsPage)
@@ -97,20 +94,8 @@ class ApiGatekeeperDeveloperDetailsSpec
     }
   }
 
-  def stubApplicationForDeveloper(userId: UserId) = {
-    stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${userId}/applications"))
-      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
-  }
 
-  def stubDevelopers() = {
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
-  }
 
-  def stubDevelopersSearch(): Unit = {
-    stubFor(post(urlEqualTo("/developers/search"))
-      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
-  }
+
 }
 
