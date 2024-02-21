@@ -30,10 +30,6 @@ object DashboardPage extends WebPage {
     getText(By.cssSelector("h2")) == "Only Authorised users can access the requested page"
   }
 
-  // def developersNavLink = find(linkText("Developers")).get
-
-  // def applicationsNavLink = find(linkText("Applications")).get
-
   def selectDevelopers(): Unit = {
     click(By.linkText("Developers"))
   }

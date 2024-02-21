@@ -26,8 +26,6 @@ object BlockApplicationPage extends WebPage {
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d/block"
 
-  // def blockApplicationButton = find(id("block-application")).get
-
   def selectBlockButton(): Unit = {
     click(By.id("block-application"))
   }

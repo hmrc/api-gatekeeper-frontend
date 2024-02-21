@@ -25,13 +25,9 @@ case class BaseApplicationPage(applicationName: String, applicationId: String) e
   
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/$applicationId" //a97541e8-f93d-4d0a-ab0b-862e63204b7d
 
-  // def deleteApplicationButton: WebElement = findElement(By.id("delete-application"))
-
   def clickDeleteApplicationButton() = {
     click(By.id("delete-application"))
   }
-
-  // def blockApplicationButton: WebElement = findElement(By.id("block-application"))
 
   def clickBlockApplication() = {
      click(By.id("block-application"))

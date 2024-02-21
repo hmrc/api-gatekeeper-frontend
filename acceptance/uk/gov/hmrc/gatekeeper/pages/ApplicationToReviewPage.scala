@@ -26,14 +26,9 @@ object ApplicationToReviewPage extends WebPage {
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
 
-
-  // def deleteApplicationButton =   click(By.id("delete-application")).get
-
   def selectDeleteApplication() = {
     click(By.id("delete-application"))
   }
-
-  // def blockApplicationButton = find(id("block-application")).get
 
   def selectBlockApplication() = {
     click(By.id("block-application"))

@@ -28,14 +28,6 @@ object DeveloperPage extends WebPage {
   
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/developers"
 
-  // def developerEmail(email:LaxEmailAddress): WebElement = 
-
-  // private def filterBySubscription = singleSel(id("apiVersionFilter"))
-
-  // private def filterByEnvironment = singleSel(id("environmentFilter"))
-
-  // private def filterByDeveloperStatus = singleSel(id("developerStatusFilter"))
-
   def selectByDeveloperEmail(email: LaxEmailAddress) = {
     // If we use click we sometimes get a selenium error where it can't click on the element.
     // However, if we open using the keyboard, we don't get these problems.

@@ -37,7 +37,6 @@ trait WebPage extends PageObject {
 
   def goTo(): Unit = {
     get(url)
-    // waitForElementToBePresent(By.cssSelector("div[class='govuk-width-container']"))
      waitForElementToBePresent(By.tagName("body"))
   }
 
@@ -79,34 +78,3 @@ trait WebPage extends PageObject {
     .withTimeout(Duration.ofSeconds(3))
     .pollingEvery(Duration.ofSeconds(1))
 }
-
-// case class Link(href: String, text: String)
-
-// trait WebLink extends Page with WebBrowser {
-//   self : Matchers =>
-
-//   implicit val webDriver: WebDriver = Env.driver
-
-//   override def toString = this.getClass.getSimpleName
-// }
-
-// trait WebPage extends WebLink with Matchers {
-
-//   lazy val port = Env.port
-
-//   def isCurrentPage: Boolean
-
-//   def heading = tagName("h1").element.text
-
-//   def bodyText = tagName("body").element.text
-
-//   def waitUntilElement(implicit webDriver: WebDriver, element: By) = {
-//     val wait = new WebDriverWait(webDriver, Duration.ofSeconds(30))
-//     wait.until(
-//       new ExpectedCondition[WebElement] {
-//         override def apply(d: WebDriver) = d.findElement(element)
-//       }
-//     )
-//   }
-
-// }

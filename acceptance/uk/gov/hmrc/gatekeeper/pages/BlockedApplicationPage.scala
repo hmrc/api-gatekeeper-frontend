@@ -26,20 +26,13 @@ object BlockedApplicationPage extends WebPage {
   
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217"
 
-
-  // def deleteApplicationButton = find(id("delete-application")).get
-
   def selectDeleteApplication() = {
      click(By.id("delete-application"))
   }
 
-  // def blockApplicationButton = find(id("block-application")).get
-
   def selectBlockApplication() = {
     click(By.id("block-application"))
   }
-
-  // def unblockApplicationButton = find(id("unblock-application")).get
 
   def selectUnblockApplication() = {
     click(By.id("unblock-application"))

@@ -28,19 +28,13 @@ object ApplicationsPage extends WebPage {
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications"
 
-  // def previousLink: WebElement = findElement(By.linkText("Previous"))
-
   def isForbidden(): Boolean = {
     getText(By.tagName("h1")) == "You do not have permission to access Gatekeeper"
   }
 
-  // def nextLink: WebElement = findElement(By.linkText("Next"))
-
   def selectBySubscription(api: APIFilterList) = {
     getSelectBox(By.id("filter")).selectByValue(api.name)
   }
-
-  // def applicationsNavLink: WebElement = findElement(By.linkText("Applications"))
 
   def clickApplicationsNavLink() = {
     click(By.linkText("Applications"))
@@ -69,11 +63,8 @@ object ApplicationsPage extends WebPage {
     click(By.linkText(email.text))
   }
 
-  // def developersNavLink = find(linkText("Developers")).get
-
   def selectDevelopers() = {
     click(By.linkText("Developers"))
-    //on(DeveloperPage)
   }
 
   def clickOnReview() = {
