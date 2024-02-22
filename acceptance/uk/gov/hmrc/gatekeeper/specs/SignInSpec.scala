@@ -42,7 +42,9 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
     stubAuthorise()
       setupStrideAuthPage(app)
-      //TODO -  Sort this out i.e. hitting page twice
+      //Hitting the application page twice is what this test has always done.
+      // it look funky and can maybe be improved but it works. I think the 1st hit triggers the 
+      // call to set stride auth and the 2nd as auth as has been done.. Allows us into apps page.
       ApplicationsPage.goTo()
       ApplicationsPage.goTo()
       

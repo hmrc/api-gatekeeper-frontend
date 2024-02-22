@@ -33,8 +33,6 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 
   def http: HttpClient
 
-  // implicit def readsList[T] = Json.readsList()
-
   def fetchUnapproved()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     http.GET[List[APIApprovalSummary]](s"$serviceBaseUrl/services/unapproved", Seq.empty, Seq.empty).map(_.map(_.copy(environment = Some(environment))))
   }

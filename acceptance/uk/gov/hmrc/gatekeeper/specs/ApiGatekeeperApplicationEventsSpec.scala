@@ -60,7 +60,7 @@ class ApiGatekeeperApplicationEventsSpec
       ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
-      //on(ApplicationPage)
+      on(ApplicationPage)
 
       // TODO...
       When("I select to navigate to the application changes page")

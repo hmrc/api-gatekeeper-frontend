@@ -49,9 +49,6 @@ case class DevelopersSearchForm(
   )
 
 object DevelopersSearchForm {
-  // def apply(e: Option[String], a: Option[String], env: Option[String], d: Option[String]): DevelopersSearchForm = new DevelopersSearchForm(e,a,env,d)
-
-  // def unapply(form: DevelopersSearchForm): Option[(Option[String], Option[String], Option[String], Option[String])] = Some((form.maybeEmailFilter, form.maybeApiVersionFilter, form.maybeEnvironmentFilter, form.maybeDeveloperStatusFilter))
 
   lazy val form = Form(
     mapping(

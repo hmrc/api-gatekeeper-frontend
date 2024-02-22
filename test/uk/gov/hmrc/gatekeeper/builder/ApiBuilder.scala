@@ -29,7 +29,6 @@ trait ApiBuilder {
     def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
     def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
-    // def withAccess(newAccessType: ApiAccessType) = versionData.copy(access = versionData.access.copy(`type` = newAccessType))
     def withAccess(newAccess: ApiAccess) = versionData.copy(access = newAccess)
     def publicAccess                     = this.withAccess(ApiAccess.PUBLIC)
     def privateAccess                    = this.withAccess(ApiAccess.Private(false))
