@@ -17,6 +17,6 @@
 package uk.gov.hmrc.gatekeeper.common
 
 object Env {
-  val port = 6001
+  val port = 9684
 }
 
