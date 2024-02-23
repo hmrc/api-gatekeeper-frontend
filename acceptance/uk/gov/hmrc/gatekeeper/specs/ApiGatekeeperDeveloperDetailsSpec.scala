@@ -16,16 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatest.{Assertions, Tag}
-
-import play.api.http.Status._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -38,7 +35,9 @@ class ApiGatekeeperDeveloperDetailsSpec
     with CommonTestData
     with ApiDefinitionTestData
     with UrlEncoding
-    with XmlServicesStub {
+    with XmlServicesStub
+    with ThirdPartyDeveloperStub
+    with ThirdPartyApplicationStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
@@ -52,9 +51,9 @@ class ApiGatekeeperDeveloperDetailsSpec
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       
-      stubFor(get(urlEqualTo("/application")).willReturn(aResponse()
-        .withBody(stubApplicationsList()).withStatus(OK)))
-      stubApplicationForDeveloper(unverifiedUser.userId)
+      stubFetchAllApplicationsList() 
+
+      stubApplicationForDeveloper(unverifiedUser.userId.toString(), defaultApplicationResponse.toSeq.toJsonString)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()
@@ -63,7 +62,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlApiForCategories()
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationSubscription()
+      stubApplicationSubscription(MockDataSugar.applicationSubscription)
 
       signInGatekeeper(app)
       on(ApplicationsPage)
@@ -95,44 +94,8 @@ class ApiGatekeeperDeveloperDetailsSpec
     }
   }
 
-  def stubApplicationForDeveloper(userId: UserId) = {
-    stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${userId}/applications"))
-      .willReturn(aResponse().withBody(defaultApplicationResponse.toSeq.toJsonString).withStatus(OK)))
-  }
 
-  def stubAPISubscription(apiContext: String) = {
-    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(MockDataSugar.applicationResponse).withStatus(OK)))
-  }
 
-  def stubNoAPISubscription() = {
-    stubFor(get(urlEqualTo("/application?noSubscriptions=true"))
-      .willReturn(aResponse().withBody(MockDataSugar.applicationResponsewithNoSubscription).withStatus(OK)))
-  }
 
-  def stubApplicationSubscription() = {
-    stubFor(get(urlEqualTo("/application/subscriptions")).willReturn(aResponse().withBody(MockDataSugar.applicationSubscription).withStatus(OK)))
-  }
-
-  def stubDevelopers() = {
-    stubFor(get(urlEqualTo("/developers/all"))
-      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
-  }
-
-  def stubDevelopersSearch(): Unit = {
-    stubFor(post(urlEqualTo("/developers/search"))
-      .willReturn(aResponse().withBody(MockDataSugar.allUsers).withStatus(OK)))
-  }
-
-  def stubDeveloper(user: RegisteredUser) = {
-    stubFor(
-      get(urlPathEqualTo("/developer"))
-      .withQueryParam("developerId", equalTo(user.userId.value.toString))
-      .willReturn(
-        aResponse().withStatus(OK).withBody(unverifiedUserJson)
-      )
-    )
-  }
 }
 

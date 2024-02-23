@@ -17,39 +17,64 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import java.time.Duration
+import scala.jdk.CollectionConverters._
 
-import org.openqa.selenium.support.ui.{ExpectedCondition, WebDriverWait}
+import org.openqa.selenium.support.ui.{ExpectedConditions, FluentWait, Select, Wait}
 import org.openqa.selenium.{By, WebDriver, WebElement}
-import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.selenium.{Page, WebBrowser}
 
-case class Link(href: String, text: String)
+import uk.gov.hmrc.selenium.component.PageObject
+import uk.gov.hmrc.selenium.webdriver.Driver
 
-trait WebLink extends Page with WebBrowser {
-  self : Matchers =>
+trait WebPage extends PageObject {
 
-  implicit val webDriver: WebDriver = Env.driver
+  def url: String
 
-  override def toString = this.getClass.getSimpleName
-}
+  def pageHeading: String
 
-trait WebPage extends WebLink with Matchers {
+  // These two should be moved someplace sensible and renamed
+  def heading = getText(By.tagName("h1"))
+  def bodyText = getText(By.tagName("body"))
 
-  lazy val port = Env.port
-
-  def isCurrentPage: Boolean
-
-  def heading = tagName("h1").element.text
-
-  def bodyText = tagName("body").element.text
-
-  def waitUntilElement(implicit webDriver: WebDriver, element: By) = {
-    val wait = new WebDriverWait(webDriver, Duration.ofSeconds(30))
-    wait.until(
-      new ExpectedCondition[WebElement] {
-        override def apply(d: WebDriver) = d.findElement(element)
-      }
-    )
+  def goTo(): Unit = {
+    get(url)
+     waitForElementToBePresent(By.tagName("body"))
   }
 
+  def isCurrentPage(): Boolean = {
+    this.heading == this.pageHeading
+  }
+
+  def clickSubmit(): Unit = {
+    click(By.id("submit"))
+  }
+
+  protected def writeInTextBox(input: String, id: String) = {
+    sendKeys(By.cssSelector(s"input[id='$id']"), input)
+  }
+
+  protected def getSelectBoxSelectedItemValue(id: By): String = {
+    getSelectBox(id)
+      .getFirstSelectedOption
+      .getAttribute("value")
+  }
+
+  protected def getSelectBox(id: By): Select = {
+    new Select(findElements(id).head)
+  }
+
+  protected def findElements(location: By): List[WebElement] = {
+    Driver.instance.findElements(location).asScala.toList
+  }
+
+  protected def findElement(location: By): WebElement = {
+    Driver.instance.findElement(location)
+  }
+
+  private def waitForElementToBePresent(locator: By): WebElement = {
+    fluentWait.until(ExpectedConditions.presenceOfElementLocated(locator))
+  }
+
+  private def fluentWait: Wait[WebDriver] = new FluentWait[WebDriver](Driver.instance)
+    .withTimeout(Duration.ofSeconds(3))
+    .pollingEvery(Duration.ofSeconds(1))
 }

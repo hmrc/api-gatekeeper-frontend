@@ -16,32 +16,34 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
+import org.openqa.selenium.By
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 case class ApplicationEventsPage(applicationId: ApplicationId) extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/${applicationId.value.toString}/events"
+  override val pageHeading: String = "Application changes"
 
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/${applicationId.value.toString}/events"
+
+  override def clickSubmit(): Unit = {
+    click(By.id("filterResults"))
+  }
+  
+  def selectEventTag(tag: String) = {
+    selectByValue(By.id("eventTagFilter"), tag)
   }
 
-  private def submitButton = find(id("filterResults")).get
-
-  private def eventTagFilter  = singleSel("eventTagFilter")
-  private def actorTypeFilter = singleSel("actorTypeFilter")
-
-  def submit() = clickOn(submitButton)
-
-  def selectTypeOfChange(tag: String) = {
-    eventTagFilter.value = tag
+  def selectActorType(actorType: String) = {
+    selectByValue(By.id("actorTypeFilter"), actorType)
+  }
+  
+  def getSelectedEventTag(): String = {
+    getSelectBoxSelectedItemValue(By.id("eventTagFilter"))
   }
 
-  def selectActorType(tag: String) = {
-    actorTypeFilter.value = tag
+  def getSelectedActorType(): String = {
+    getSelectBoxSelectedItemValue(By.id("actorTypeFilter"))
   }
-
-  def getTypeOfChange = eventTagFilter.value
-  def getActorType    = actorTypeFilter.value
 }

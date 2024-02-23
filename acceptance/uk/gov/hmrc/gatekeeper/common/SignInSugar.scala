@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.common
 
 import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.WebDriver
 
 import play.api.Application
 import play.api.http.Status.{OK, SEE_OTHER}
@@ -25,7 +24,7 @@ import play.api.http.Status.{OK, SEE_OTHER}
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.utils.MockCookies
 
-trait SignInSugar extends NavigationSugar {
+trait SignInSugar {
   val gatekeeperId: String = "joe.test"
   val superUserGatekeeperId: String = "maxpower"
   val adminUserGatekeeperId: String = "supermaxpower"
@@ -105,7 +104,7 @@ trait SignInSugar extends NavigationSugar {
     """.stripMargin
 
 
-  def signInGatekeeper(app: Application)(implicit webDriver: WebDriver) = {
+  def signInGatekeeper(app: Application) = {
 
     val responseJson =
       s"""{
@@ -116,11 +115,11 @@ trait SignInSugar extends NavigationSugar {
     setupAuthCall(requestJsonForUser, responseJson)
     setupStrideAuthPage(app)
 
-    go(ApplicationsPage)// 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
-    go(ApplicationsPage)// now we have a valid session cookie we should be fine and normal auth stub should work as normal
+    ApplicationsPage.goTo() // 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
+    ApplicationsPage.goTo() // now we have a valid session cookie we should be fine and normal auth stub should work as normal
   }
 
-  def signInSuperUserGatekeeper(app: Application)(implicit webDriver: WebDriver) = {
+  def signInSuperUserGatekeeper(app: Application) = {
 
     val responseJson =
       s"""{
@@ -132,12 +131,12 @@ trait SignInSugar extends NavigationSugar {
     setupAuthCall(requestJsonForSuperUser, responseJson)
     setupStrideAuthPage(app)
 
-    go(ApplicationsPage)// 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
-    go(ApplicationsPage)// now we have a valid session cookie we should be fine and normal auth stub should work as normal
+    ApplicationsPage.goTo() // 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
+    ApplicationsPage.goTo() // now we have a valid session cookie we should be fine and normal auth stub should work as normal
 
   }
 
-  def signInAdminUserGatekeeper(app: Application)(implicit webDriver: WebDriver) = {
+  def signInAdminUserGatekeeper(app: Application) = {
 
     val responseJson =
       s"""{
@@ -150,8 +149,8 @@ trait SignInSugar extends NavigationSugar {
     setupAuthCall(requestJsonForAdmin, responseJson)
     setupStrideAuthPage(app)
 
-    go(ApplicationsPage)// 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
-    go(ApplicationsPage)// now we have a valid session cookie we should be fine and normal auth stub should work as normal
+    ApplicationsPage.goTo() // 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
+    ApplicationsPage.goTo() // now we have a valid session cookie we should be fine and normal auth stub should work as normal
   }
 
   private def setupAuthCall(requestJson: String, responseJson: String) = {

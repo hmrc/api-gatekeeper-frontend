@@ -16,25 +16,35 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
 
-object ApplicationPage extends WebPage {
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/a97541e8-f93d-4d0a-ab0b-862e63204b7d"
+case class BaseApplicationPage(applicationName: String, applicationId: String) extends WebPage {
+  override val pageHeading: String = applicationName
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/$applicationId" //a97541e8-f93d-4d0a-ab0b-862e63204b7d
 
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
+  def clickDeleteApplicationButton() = {
+    click(By.id("delete-application"))
   }
 
-  def deleteApplicationButton = find(id("delete-application")).get
-
-  def selectDeleteApplication() = {
-    click on deleteApplicationButton
+  def clickBlockApplication() = {
+     click(By.id("block-application"))
   }
 
-  def blockApplicationButton = find(id("block-application")).get
+  def getDataPrivacyUrl(): String ={
+    getText(By.cssSelector("dd[data-privacy-url=''] > a")) 
+  }
 
-  def selectBlockApplication() = {
-    click on blockApplicationButton
+  def getDataTermsUrl(): String ={
+    getText(By.cssSelector("dd[data-terms-url=''] > a")) 
+  }
+
+  def isNotFound(): Boolean = {
+    getText(By.tagName("h1")) ==  "This page can’t be found"
   }
 }
+
+object ApplicationPage extends BaseApplicationPage("My new app", "a97541e8-f93d-4d0a-ab0b-862e63204b7d")
+

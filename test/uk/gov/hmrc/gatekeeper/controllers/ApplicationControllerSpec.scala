@@ -1239,7 +1239,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val result = addToken(underTest.manageRateLimitTier(applicationId))(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        // verify(underTest.authConnector).authorise(eqTo(Enrolment(adminRole)), *)(*, *)
 
       }
 

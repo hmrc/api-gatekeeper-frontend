@@ -16,28 +16,39 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
+import org.openqa.selenium.By
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
-trait DynamicPage extends WebPage {
-  val pageHeading: String
 
-  override def isCurrentPage: Boolean = find(tagName("h1")).fold(false)({
-    e => e.text == pageHeading
-  })
+case class ReviewPage(applicationId: ApplicationId, applicationName: String) extends WebPage {
+
+  override val pageHeading: String = "Application requiring approval"
+  override val heading = applicationName
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/review?id=${applicationId.value.toString()}"
+
+  def clickApprove()={
+    click(By.id("approve-app"))
+  }
+
+  def rejectApplication() = {
+    click(By.id("reject-app"))
+  }
 }
 
-case class ReviewPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
-  override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/review?id=${applicationId.value.toString()}"
+case class ApprovedPage(applicationId: ApplicationId, applicationName: String) extends WebPage {
+
+  override val pageHeading: String = "ApprovedPage"
+
+  override val heading = applicationName
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/approved?id=${applicationId.value.toString()}"
 }
 
-case class ApprovedPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
-  override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/approved?id=${applicationId.value.toString()}"
-}
+case class ResendVerificationPage(applicationId: ApplicationId, applicationName: String) extends WebPage {
+  
+  override val pageHeading: String = "ResendVerificationPage"
 
-case class ResendVerificationPage(applicationId: ApplicationId, applicationName: String) extends DynamicPage {
-  override val pageHeading = applicationName
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/${applicationId.value.toString()}/resend-verification"
+  override val heading = applicationName
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/${applicationId.value.toString()}/resend-verification"
 }

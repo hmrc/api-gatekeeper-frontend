@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformEventsStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -36,6 +36,7 @@ class ApiGatekeeperApplicationEventsSpec
     with XmlServicesStub
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
+    with ApiPlatformEventsStub
     with UrlEncoding {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
@@ -48,7 +49,7 @@ class ApiGatekeeperApplicationEventsSpec
       stubApiDefinition()
       signInGatekeeper(app)
 
-      on(ApplicationsPage)
+      ApplicationsPage.goTo()
 
       val allEvents = makeSomeEvents()
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
@@ -56,20 +57,20 @@ class ApiGatekeeperApplicationEventsSpec
       stubEvents(applicationId, allEvents)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("My new app")
+      ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
       // TODO...
       When("I select to navigate to the application changes page")
-      go(ApplicationEventsPage(applicationId))
+      ApplicationEventsPage(applicationId).goTo()
 
       Then("I am successfully navigated to the application changes page")
       on(ApplicationEventsPage(applicationId))
 
       And("The filter is set to ALL")
-      ApplicationEventsPage(applicationId).getTypeOfChange shouldBe ""
+      ApplicationEventsPage(applicationId).getSelectedEventTag() shouldBe ""
       Thread.sleep(2000)
 
       And("I can the events")
@@ -82,11 +83,11 @@ class ApiGatekeeperApplicationEventsSpec
 
       When("I choose the Team members filter")
       stubFilteredEventsByEventTag(applicationId, "TEAM_MEMBER", List(event1, event2, event3))
-      ApplicationEventsPage(applicationId).selectTypeOfChange("TEAM_MEMBER")
-      ApplicationEventsPage(applicationId).getTypeOfChange shouldBe "TEAM_MEMBER"
+      ApplicationEventsPage(applicationId).selectEventTag("TEAM_MEMBER")
+      ApplicationEventsPage(applicationId).getSelectedActorType() shouldBe ""
 
       And("I submit the filter")
-      ApplicationEventsPage(applicationId).submit()
+      ApplicationEventsPage(applicationId).clickSubmit()
       Thread.sleep(2500)
 
       Then("I can only see the 3 events")
@@ -99,10 +100,10 @@ class ApiGatekeeperApplicationEventsSpec
       When("I choose the Actor Type filter")
       stubFilteredEventsByBoth(applicationId, "TEAM_MEMBER", "COLLABORATOR", List(event2))
       ApplicationEventsPage(applicationId).selectActorType("COLLABORATOR")
-      ApplicationEventsPage(applicationId).getActorType shouldBe "COLLABORATOR"
+      ApplicationEventsPage(applicationId).getSelectedActorType() shouldBe "COLLABORATOR"
 
       And("I submit the filter")
-      ApplicationEventsPage(applicationId).submit()
+      ApplicationEventsPage(applicationId).clickSubmit()
       Thread.sleep(2500)
 
       Then("I can only see the 1 events")

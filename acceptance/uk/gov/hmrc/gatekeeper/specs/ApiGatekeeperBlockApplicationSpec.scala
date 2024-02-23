@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-
-import play.api.http.Status._
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
@@ -59,9 +55,9 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   }
 
   def selectToBlockApplication() = {
-    When("I select the Block Application Button")
+    When("I click the Block Application Button")
     stubUnblockedApplication()
-    ApplicationPage.selectBlockApplication()
+    ApplicationPage.clickBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")
     on(BlockApplicationPage)
@@ -71,14 +67,6 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()
-  }
-
-  def stubApplicationForBlockSuccess() = {
-    stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/block")).willReturn(aResponse().withStatus(OK)))
-  }
-
-  def stubUnblockedApplication(): Unit = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
@@ -97,7 +85,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     on(ApplicationsPage)
 
     When(s"I select to navigate to the application named $appName")
-    ApplicationsPage.selectByApplicationName(appName)
+    ApplicationsPage.clickApplicationNameLink(appName)
 
     Then(s"I am successfully navigated to the application named $appName")
     on(page)

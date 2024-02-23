@@ -16,31 +16,25 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object BlockedApplicationPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217"
-
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
-  }
-
-  def deleteApplicationButton = find(id("delete-application")).get
+  override val pageHeading: String = "My new app"
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217"
 
   def selectDeleteApplication() = {
-    click on deleteApplicationButton
+     click(By.id("delete-application"))
   }
-
-  def blockApplicationButton = find(id("block-application")).get
 
   def selectBlockApplication() = {
-    click on blockApplicationButton
+    click(By.id("block-application"))
   }
 
-  def unblockApplicationButton = find(id("unblock-application")).get
-
   def selectUnblockApplication() = {
-    click on unblockApplicationButton
+    click(By.id("unblock-application"))
   }
 }

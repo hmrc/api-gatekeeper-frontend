@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object UnblockApplicationSuccessPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock"
-
-  override def isCurrentPage: Boolean = {
-    currentUrl == url && bodyText.contains("Application unblocked")
-  }
+  override val pageHeading: String = "Application unblocked"
+  
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217/unblock"
 }

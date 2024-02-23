@@ -16,20 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import org.openqa.selenium.By
 import org.scalatest.Tag
 
-import play.api.http.Status._
-
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
-import uk.gov.hmrc.gatekeeper.stubs.XmlServicesStub
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, MockDataSugar, StateHistoryTestData}
 
-class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHistoryTestData
-  with ApplicationWithSubscriptionDataTestData with ApplicationResponseTestData with XmlServicesStub {
+class ApiGatekeeperApplicationSpec
+  extends ApiGatekeeperBaseSpec
+  with StateHistoryTestData
+  with ApplicationWithSubscriptionDataTestData
+  with ApplicationResponseTestData
+  with XmlServicesStub
+  with ThirdPartyDeveloperStub
+  with ThirdPartyApplicationStub {
 
   val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.mfaEnabled))
 
@@ -59,7 +60,7 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("My new app")
+      ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -69,8 +70,8 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       verifyText("data-rate-limit", "Bronze")
       verifyText("data-description-private", applicationDescription)
       verifyText("data-description-public", "")
-      webDriver.findElement(By.cssSelector("dd[data-privacy-url=''] > a")).getText shouldBe "http://localhost:22222/privacy"
-      webDriver.findElement(By.cssSelector("dd[data-terms-url=''] > a")).getText shouldBe "http://localhost:22222/terms"
+      ApplicationPage.getDataPrivacyUrl() shouldBe "http://localhost:22222/privacy"
+      ApplicationPage.getDataTermsUrl() shouldBe "http://localhost:22222/terms"
       verifyText("data-access-type", "Standard")
       verifyText("data-subscriptions", "API Simulator 1.0 (Stable)\nHello World 1.0 (Stable)")
       verifyText("data-collaborator-email", "admin@example.com", 0)
@@ -105,16 +106,16 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.selectByApplicationName("My new app")
+      ApplicationsPage.clickApplicationNameLink("My new app")
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
-      stubDeveloper()
+      stubDeveloperGetUnverified()
       stubGetAllXmlApis()
       stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationForDeveloper(unverifiedUser.userId)
+      stubApplicationForDeveloper(unverifiedUser.userId.value.toString(), MockDataSugar.applicationForDeveloperResponse)
 
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
@@ -124,64 +125,4 @@ class ApiGatekeeperApplicationSpec extends ApiGatekeeperBaseSpec with StateHisto
     }
   }
 
-  def stubDeveloper() = {
-    stubFor(
-      get(urlPathEqualTo("/developer"))
-        .willReturn(
-          aResponse().withStatus(OK).withBody(unverifiedUserJson)
-        )
-    )
-  }
-
-  def stubApplicationForDeveloper(userId: UserId) = {
-    stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${userId}/applications"))
-        .willReturn(aResponse().withBody(
-          """[
-            |  {
-            |    "id": "b42c4a8f-3df3-451f-92ea-114ff039110e",
-            |    "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
-            |    "gatewayId": "12345",
-            |    "name": "application for test",
-            |    "deployedTo": "PRODUCTION",
-            |    "collaborators": [
-            |      {
-            |        "userId": "8e6657be-3b86-42b7-bcdf-855bee3bf941",
-            |        "emailAddress": "a@b.com",
-            |        "role": "ADMINISTRATOR"
-            |      }
-            |    ],
-            |    "createdOn": 1678792287460,
-            |    "lastAccess": 1678792287460,
-            |    "grantLength": 547,
-            |    "redirectUris": [
-            |      "http://red1",
-            |      "http://red2"
-            |    ],
-            |    "access": {
-            |      "redirectUris": [
-            |        "http://isobel.name",
-            |        "http://meghan.biz"
-            |      ],
-            |      "overrides": [],
-            |      "accessType": "STANDARD"
-            |    },
-            |    "state": {
-            |      "name": "PRODUCTION",
-            |      "updatedOn": 1678793142888
-            |    },
-            |    "rateLimitTier": "BRONZE",
-            |    "blocked": false,
-            |    "trusted": false,
-            |    "serverToken": "2faa09169cf8f464ce13b80a14718b15",
-            |    "subscriptions": [],
-            |    "ipAllowlist": {
-            |      "required": false,
-            |      "allowlist": []
-            |    }
-            |  }
-            |]""".stripMargin
-        ).withStatus(OK))
-    )
-  }
 }

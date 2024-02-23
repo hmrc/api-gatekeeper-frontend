@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.gatekeeper.pages
 
-import uk.gov.hmrc.gatekeeper.common.WebPage
+import org.openqa.selenium.By
+
+import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 
 object ApplicationToReviewPage extends WebPage {
 
-  override val url: String = s"http://localhost:$port/api-gatekeeper/applications/df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
+  override val pageHeading: String = "Application requiring approval"
 
-  override def isCurrentPage: Boolean = {
-    currentUrl == url
-  }
-
-  def deleteApplicationButton = find(id("delete-application")).get
+  override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/df0c32b6-bbb7-46eb-ba50-e6e5459162ff"
 
   def selectDeleteApplication() = {
-    click on deleteApplicationButton
+    click(By.id("delete-application"))
   }
 
-  def blockApplicationButton = find(id("block-application")).get
-
   def selectBlockApplication() = {
-    click on blockApplicationButton
+    click(By.id("block-application"))
+  }
+
+  def clickOnReview() = {
+    click(By.id("review"))
   }
 }

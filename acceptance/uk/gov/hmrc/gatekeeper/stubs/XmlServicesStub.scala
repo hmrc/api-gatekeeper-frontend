@@ -24,8 +24,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.xmlApis
 
 trait XmlServicesStub {
-
-
   def stubGetAllXmlApis(): Unit = {
     stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis"))
       .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
@@ -40,6 +38,4 @@ trait XmlServicesStub {
     stubFor(get(urlEqualTo("/api-platform-xml-services/xml/apis/filtered"))
       .willReturn(aResponse().withBody(xmlApis).withStatus(OK)))
   }
-
-
 }
