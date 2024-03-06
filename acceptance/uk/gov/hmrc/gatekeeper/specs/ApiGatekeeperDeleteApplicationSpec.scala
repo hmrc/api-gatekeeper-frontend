@@ -41,7 +41,7 @@ class ApiGatekeeperDeleteApplicationSpec
   Feature("Delete an application") {
     Scenario("I can delete an application") {
 
-      stubApplicationForDeleteSuccess(applicationId)
+     stubApplicationForDeleteSuccess
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -53,7 +53,7 @@ class ApiGatekeeperDeleteApplicationSpec
 
     Scenario("I cannot delete an application") {
 
-      stubApplicationForDeleteFailure(applicationId)
+      stubApplicationForDeleteFailure
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
