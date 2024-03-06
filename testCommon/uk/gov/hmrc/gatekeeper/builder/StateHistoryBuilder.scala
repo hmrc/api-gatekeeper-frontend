@@ -16,14 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{State, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, ApplicationId}
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 trait StateHistoryBuilder {
+  self: FixedClock =>
 
-  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: LocalDateTime = LocalDateTime.now()): StateHistory = {
+  def buildStateHistory(applicationId: ApplicationId, state: State, actor: Actor = Actors.Unknown, changedAt: Instant = instant): StateHistory = {
     StateHistory(applicationId, state, actor, changedAt = changedAt)
   }
 }

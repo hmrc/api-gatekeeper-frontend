@@ -102,11 +102,6 @@ trait ApplicationConnectorMockProvider {
       def fails()    = when(aMock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockFailureResult))
     }
 
-    object DeleteApplication {
-      def succeeds() = when(aMock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
-      def fails()    = when(aMock.deleteApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUpdateFailureResult))
-    }
-
     object CreatePrivOrROPCApp {
       def returns(result: CreatePrivOrROPCAppResult) = when(aMock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
     }

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.review
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 import mocks.config.AppConfigMock
 import org.jsoup.Jsoup
@@ -46,7 +46,7 @@ class ReviewViewSpec extends CommonViewSpec {
         "Test Application",
         "Test Application",
         None,
-        SubmissionDetails("Test Name", "test@example.com", LocalDateTime.now()),
+        SubmissionDetails("Test Name", "test@example.com", Instant.now()),
         None,
         None,
         None,

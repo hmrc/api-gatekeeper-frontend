@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -28,7 +28,7 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
     "application is approved" should {
       val now           = LocalDateTime.now()
       val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-      val app           = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, now)))
+      val app           = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, Instant.now())))
       val appResponse   = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {

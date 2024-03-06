@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
@@ -276,16 +276,16 @@ class ApplicationController @Inject() (
   }
 
   private def buildResponsibleIndividualHistoryItems(termsOfUseAcceptances: List[TermsOfUseAcceptance]): List[ResponsibleIndividualHistoryItem] = {
-    def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+    def formatInstant(instant: Instant) = instant.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
     termsOfUseAcceptances match {
       case Nil                       => List.empty
       case first :: Nil              =>
-        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.text, formatDateTime(first.dateTime), "Present"))
+        List(ResponsibleIndividualHistoryItem(first.responsibleIndividual.fullName.value, first.responsibleIndividual.emailAddress.text, formatInstant(first.dateTime), "Present"))
       case first :: second :: others => List(ResponsibleIndividualHistoryItem(
           first.responsibleIndividual.fullName.value,
           first.responsibleIndividual.emailAddress.text,
-          formatDateTime(first.dateTime),
-          formatDateTime(second.dateTime)
+          formatInstant(first.dateTime),
+          formatInstant(second.dateTime)
         )) ++
           buildResponsibleIndividualHistoryItems(second :: others)
     }
@@ -579,7 +579,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
         if (app.application.name.trim() == form.applicationNameConfirmation) {
-          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, form.collaboratorEmail.get).map {
+          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, LaxEmailAddress(form.collaboratorEmail.get)).map {
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
           }

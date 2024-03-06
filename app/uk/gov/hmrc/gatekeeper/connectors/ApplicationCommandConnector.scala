@@ -63,6 +63,7 @@ class ApplicationCommandConnector @Inject() (
     val extraHeaders                                                        = Seq.empty[(String, String)]
     import cats.syntax.either._
 
+    println("GOT HERE AT LEAST")
     http.PATCH[DispatchRequest, HttpResponse](url, request, extraHeaders)
       .map(response =>
         response.status match {

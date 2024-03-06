@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
 import scala.concurrent.Future
 
 import mocks.connectors._
@@ -30,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationState
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment}
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
@@ -49,7 +49,8 @@ trait ControllerSetupBase
     with DeploymentApprovalServiceMockProvider
     with CollaboratorTracker
     with CommandConnectorMockProvider
-    with ApplicationBuilder {
+    with ApplicationBuilder
+    with FixedClock {
 
   val mockDeveloperConnector = mock[DeveloperConnector]
 
@@ -61,10 +62,10 @@ trait ControllerSetupBase
     Environment.PRODUCTION,
     None,
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
-    LocalDateTime.now(),
-    Some(LocalDateTime.now()),
+    now,
+    Some(now),
     access = Access.Standard(),
-    state = ApplicationState(updatedOn = LocalDateTime.now())
+    state = ApplicationState(updatedOn = instant)
   )
   val application      = ApplicationWithHistory(basicApplication, List.empty)
   val applicationId    = application.application.id

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.developers
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 import org.jsoup.Jsoup
 
@@ -50,7 +50,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(admin(LaxEmailAddress("email@example.com")), admin(LaxEmailAddress("other@example.com"))),
-        state = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now())
+        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
       )
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
@@ -66,7 +66,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(admin(LaxEmailAddress("email@example.com"))),
-        state = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now())
+        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
       )
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 

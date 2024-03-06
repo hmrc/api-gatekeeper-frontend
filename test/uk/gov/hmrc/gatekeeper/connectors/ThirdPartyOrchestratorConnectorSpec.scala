@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.LocalDateTime
+import java.time.{LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -89,7 +89,7 @@ class ThirdPartyOrchestratorConnectorSpec
         privacyPolicyLocation = PrivacyPolicyLocations.InDesktopSoftware,
         termsOfUseAcceptances = List(TermsOfUseAcceptance(
           responsibleIndividual = ResponsibleIndividual(FullName("Bob Fleming"), LaxEmailAddress("bob@example.com")),
-          dateTime = LocalDateTime.parse("2022-10-08T12:24:31.123"),
+          dateTime = LocalDateTime.parse("2022-10-08T12:24:31.123").toInstant(ZoneOffset.UTC),
           submissionId = SubmissionId.random,
           submissionInstance = 0
         ))
@@ -112,14 +112,14 @@ class ThirdPartyOrchestratorConnectorSpec
       deployedTo = Environment.PRODUCTION,
       description = Some("Petes test application description"),
       collaborators = Set(buildCollaborator(userId1)),
-      createdOn = LocalDateTime.parse("2022-12-23T12:24:31.123"),
-      lastAccess = Some(LocalDateTime.parse("2023-10-02T12:24:31.123")),
+      createdOn = LocalDateTime.parse("2022-12-23T12:24:31.123").toInstant(ZoneOffset.UTC),
+      lastAccess = Some(LocalDateTime.parse("2023-10-02T12:24:31.123").toInstant(ZoneOffset.UTC)),
       grantLength = 18,
       lastAccessTokenUsage = None,
       termsAndConditionsUrl = None,
       privacyPolicyUrl = None,
       access = standardAccess,
-      state = ApplicationState(name = State.TESTING, updatedOn = LocalDateTime.parse("2022-10-08T12:24:31.123")),
+      state = ApplicationState(name = State.TESTING, updatedOn = LocalDateTime.parse("2022-10-08T12:24:31.123").toInstant(ZoneOffset.UTC)),
       rateLimitTier = RateLimitTier.BRONZE,
       checkInformation = None,
       blocked = false,

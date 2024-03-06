@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.LocalDateTime
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -47,7 +46,7 @@ object ApplicationConnector {
   implicit val termsOfUseInvitationResponseReads: Reads[TermsOfUseInvitationResponse] = Json.reads[TermsOfUseInvitationResponse]
 }
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with ApplicationUpdateFormatters {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
   import ApplicationConnector._
 
   protected val httpClient: HttpClient
@@ -169,38 +168,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(true, _)))) => ValidateApplicationNameFailureInvalidResult
         case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(_, true)))) => ValidateApplicationNameFailureDuplicateResult
         case Left(err)                                                                                          => throw err
-      })
-  }
-
-  def updateApplicationName(
-      applicationId: ApplicationId,
-      instigator: UserId,
-      timestamp: LocalDateTime,
-      gatekeeperUser: String,
-      newName: String
-    )(implicit hc: HeaderCarrier
-    ): Future[ApplicationUpdateResult] = {
-    val payload = ChangeProductionApplicationName(instigator, timestamp, gatekeeperUser, newName)
-    http.PATCH[ChangeProductionApplicationName, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), payload)
-      .map(_ match {
-        case Right(_)  => ApplicationUpdateSuccessResult
-        case Left(err) => throw err
-      })
-  }
-
-  def deleteApplication(applicationId: ApplicationId, request: DeleteApplicationByGatekeeper)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.PATCH[DeleteApplicationByGatekeeper, Either[UpstreamErrorResponse, HttpResponse]](baseApplicationUrl(applicationId), request)
-      .map(_ match {
-        case Right(result) => ApplicationUpdateSuccessResult
-        case Left(_)       => ApplicationUpdateFailureResult
-      })
-  }
-
-  def unsubscribeFromApi(applicationId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    http.DELETE[Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/subscription?context=${apiContext.value}&version=${versionNbr.value}")
-      .map(_ match {
-        case Right(result) => ApplicationUpdateSuccessResult
-        case Left(err)     => throw err
       })
   }
 

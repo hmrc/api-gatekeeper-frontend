@@ -70,7 +70,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState(updatedOn = LocalDateTime.now())
+      state = ApplicationState(updatedOn = instant)
     )
 
     val stdApp2 = buildApplication(
@@ -84,7 +84,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState(updatedOn = LocalDateTime.now())
+      state = ApplicationState(updatedOn = instant)
     )
 
     val privilegedApp = buildApplication(
@@ -98,7 +98,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Privileged(),
-      state = ApplicationState(updatedOn = LocalDateTime.now())
+      state = ApplicationState(updatedOn = instant)
     )
 
     val ropcApp                = buildApplication(
@@ -112,7 +112,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       LocalDateTime.now(),
       Some(LocalDateTime.now()),
       access = Access.Ropc(),
-      state = ApplicationState(updatedOn = LocalDateTime.now())
+      state = ApplicationState(updatedOn = instant)
     )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"

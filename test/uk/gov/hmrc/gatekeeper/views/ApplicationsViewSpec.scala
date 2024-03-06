@@ -32,7 +32,7 @@
 
 package uk.gov.hmrc.gatekeeper.views
 
-import java.time.{LocalDateTime, Period}
+import java.time.{Instant, LocalDateTime, Period}
 
 import org.jsoup.Jsoup
 
@@ -81,7 +81,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = Instant.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -94,7 +94,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = Instant.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -107,7 +107,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = Instant.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -120,7 +120,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = Instant.now())
       )
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"

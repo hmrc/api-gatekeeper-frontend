@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import cats.data.NonEmptyList
@@ -39,7 +38,8 @@ class ApplicationCommandConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
-    with ApplicationBuilder {
+    with ApplicationBuilder
+    with FixedClock {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
@@ -60,7 +60,7 @@ class ApplicationCommandConnectorSpec
     val emailAddressToRemove = "toRemove@example.com".toLaxEmail
     val gatekeeperUserName   = "maxpower"
     val collaborator         = Collaborators.Administrator(UserId.random, emailAddressToRemove)
-    val command              = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, LocalDateTime.now())
+    val command              = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, instant)
 
     val adminsToEmail = Set("admin1@example.com", "admin2@example.com").map(_.toLaxEmail)
     val url           = s"/applications/${applicationId.value.toString()}/dispatch"

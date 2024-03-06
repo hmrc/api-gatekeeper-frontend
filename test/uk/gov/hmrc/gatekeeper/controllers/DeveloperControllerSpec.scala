@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.apache.pekko.stream.Materializer
@@ -61,10 +60,10 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         Environment.PRODUCTION,
         None,
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        now,
+        Some(now),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = instant)
       )
     }
 
