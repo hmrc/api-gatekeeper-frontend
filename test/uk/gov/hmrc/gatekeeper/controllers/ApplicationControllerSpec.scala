@@ -1454,8 +1454,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
 
-          println(s"****** Environment.PRODUCTION.toString = ${Environment.PRODUCTION.toString}")
-
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
