@@ -697,32 +697,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       }
     }
 
-    /** updateGrantLengthCommandWillSucceed
-      *
-      * val result = await(underTest.updateGrantLength(stdApp1, GrantLength.THREE_MONTHS, gatekeeperUserId)) result shouldBe ApplicationUpdateSuccessResult
-      *
-      * inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) { case ApplicationCommands.ChangeGrantLength(aUser, _, length) => aUser shouldBe gatekeeperUserId length
-      * shouldBe GrantLength.THREE_MONTHS } }
-      */
-
-    //   "propagate ApplicationDeleteFailureResult from connector" in new Setup {
-    //     val emailAddress  = "email@example.com"
-    //     val application   = stdApp1.copy(deployedTo = Environment.SANDBOX)
-    //     val reasons       = "Application deleted by Gatekeeper user"
-    //     val requestCaptor = ArgCaptor[DeleteApplicationByGatekeeper]
-
-    //     ApplicationConnectorMock.Sandbox.DeleteApplication.fails()
-
-    //     val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
-
-    //     result shouldBe ApplicationUpdateFailureResult
-
-    //     verify(underTest).applicationConnectorFor(application)
-    //     verify(mockSandboxApplicationConnector).deleteApplication(eqTo(application.id), requestCaptor)(*)
-    //     requestCaptor.value.gatekeeperUser shouldBe gatekeeperUserId
-    //     requestCaptor.value.requestedByEmailAddress shouldBe emailAddress
-    //     requestCaptor.value.reasons shouldBe reasons
-    //   }
   }
 
   "blockApplication" should {
