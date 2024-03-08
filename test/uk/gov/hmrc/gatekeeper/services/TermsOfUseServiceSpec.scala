@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.{LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
@@ -30,8 +30,6 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 
 class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
-  val timestamp             = LocalDateTime.now(ZoneOffset.UTC)
-  val dateTime              = LocalDateTime.now
   val email1_2              = "bob1.2@example.com"
   val email2                = "bob2@example.com"
   val name                  = "Bob Example"
@@ -39,9 +37,9 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val version1_2            = "1.2"
   val version2              = "2"
   val appWithNoAgreements   = DefaultApplication
-  val checkInfoAgreement    = TermsOfUseAgreement(LaxEmailAddress(email1_2), dateTime, version1_2)
+  val checkInfoAgreement    = TermsOfUseAgreement(LaxEmailAddress(email1_2), instant, version1_2)
   val checkInformation      = CheckInformation(termsOfUseAgreements = List(checkInfoAgreement))
-  val stdAppAgreement       = TermsOfUseAcceptance(responsibleIndividual, timestamp, SubmissionId.random)
+  val stdAppAgreement       = TermsOfUseAcceptance(responsibleIndividual, instant, SubmissionId.random)
 
   val importantSubmissionData    =
     ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
@@ -59,15 +57,15 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
     }
     "return correctly populated agreement if details found in CheckInformation" in {
       val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements)
-      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email1_2, formatDateTime(dateTime), version1_2))
+      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email1_2, formatDateTime(now), version1_2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData" in {
       val maybeAgreement = underTest.getAgreementDetails(appWithStdAppAgreements)
-      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(timestamp), version2))
+      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(now), version2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData AND in CheckInformation" in {
       val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData))))
-      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(timestamp), version2))
+      maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(now), version2))
     }
     "return None if non-standard app is checked" in {
       val maybeAgreement = underTest.getAgreementDetails(nonStdApp)

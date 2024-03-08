@@ -158,14 +158,6 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   def stubApplicationToDelete(applicationId: ApplicationId) = {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
-
-  def stubApplicationForDeleteSuccess(applicationId: ApplicationId) = {
-    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(NO_CONTENT)))
-  }
-
-  def stubApplicationForDeleteFailure(applicationId: ApplicationId) = {
-    stubFor(patch(urlEqualTo(s"/application/${applicationId.value.toString()}")).willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR)))
-  }
   
   def stubApplicationForUnblockSuccess(applicationId: ApplicationId) = {
     stubFor(post(urlEqualTo(s"/application/${applicationId.value.toString()}/unblock")).willReturn(aResponse().withStatus(OK)))

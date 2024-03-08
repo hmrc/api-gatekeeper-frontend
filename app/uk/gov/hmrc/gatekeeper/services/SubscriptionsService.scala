@@ -35,12 +35,12 @@ class SubscriptionsService @Inject() (
     with ClockNow {
 
   def subscribeToApi(application: GKApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
-    val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, now())
+    val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, instant())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 
   def unsubscribeFromApi(application: GKApplicationResponse, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
-    val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, now())
+    val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, instant())
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 }

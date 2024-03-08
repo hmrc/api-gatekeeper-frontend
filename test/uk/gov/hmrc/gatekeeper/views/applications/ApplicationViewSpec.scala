@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, LocalDateTime}
 
 import org.jsoup.Jsoup
 
@@ -59,7 +59,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       createdOn = LocalDateTime.now(),
       lastAccess = Some(LocalDateTime.now()),
       access = Access.Standard(),
-      state = ApplicationState(updatedOn = LocalDateTime.now()),
+      state = ApplicationState(updatedOn = Instant.now()),
       rateLimitTier = RateLimitTier.BRONZE,
       checkInformation = None,
       blocked = false,

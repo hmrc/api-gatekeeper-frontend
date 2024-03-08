@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.developers
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import org.jsoup.Jsoup
@@ -147,14 +147,14 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
         name = Some("appName1"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.TESTING, updatedOn = LocalDateTime.now())
+        state = ApplicationState(State.TESTING, updatedOn = Instant.now())
       )
       val testApplication2 = buildApplication(
         clientId = ClientId("a-client-id"),
         name = Some("appName2"),
         deployedTo = Environment.PRODUCTION,
         collaborators = Set(Collaborators.Developer(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.PRODUCTION, updatedOn = LocalDateTime.now())
+        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
       )
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))

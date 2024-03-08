@@ -47,7 +47,7 @@ class TeamMemberService @Inject() (
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set.empty)
-      cmd            = ApplicationCommands.AddCollaborator(user, collaborator, now())
+      cmd            = ApplicationCommands.AddCollaborator(user, collaborator, instant())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }
@@ -63,7 +63,7 @@ class TeamMemberService @Inject() (
 
     for {
       adminsToEmail <- getAdminsToEmail(app.collaborators, excludes = Set(teamMemberToRemove))
-      cmd            = ApplicationCommands.RemoveCollaborator(user, collaborator, now())
+      cmd            = ApplicationCommands.RemoveCollaborator(user, collaborator, instant())
       response      <- commandConnector.dispatch(app.id, cmd, adminsToEmail)
     } yield response.map(_ => ())
   }

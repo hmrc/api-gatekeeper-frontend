@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.time.{LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
@@ -76,7 +76,7 @@ object ApplicationSubmission {
   def getSubmittedOn(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
       submission  <- getLastSubmission(stateHistory)
-      submittedOn <- Some(dateFormatter.format(submission.changedAt))
+      submittedOn <- Some(dateFormatter.format(submission.changedAt.atOffset(ZoneOffset.UTC)))
     } yield submittedOn
   }
 }
@@ -90,7 +90,7 @@ object ApplicationReview {
       .lastOption
 
   def getApprovedOn(history: Seq[StateHistory]): Option[String] =
-    getLastApproval(history).map(approval => dateFormatter.format(approval.changedAt))
+    getLastApproval(history).map(approval => dateFormatter.format(approval.changedAt.atOffset(ZoneOffset.UTC)))
 
   def getApprovedBy(history: Seq[StateHistory]): Option[String] = getLastApproval(history).map(_.actor.id)
 

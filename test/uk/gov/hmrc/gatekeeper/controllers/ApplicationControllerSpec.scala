@@ -41,6 +41,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -61,7 +62,8 @@ class ApplicationControllerSpec
     extends ControllerBaseSpec
     with WithCSRFAddToken
     with TitleChecker
-    with CollaboratorTracker {
+    with CollaboratorTracker
+    with FixedClock {
 
   implicit val materializer: Materializer = app.materializer
 
@@ -304,7 +306,7 @@ class ApplicationControllerSpec
           createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           access = Access.Standard(),
-          state = ApplicationState(updatedOn = LocalDateTime.now()),
+          state = ApplicationState(updatedOn = instant),
           moreApplication = MoreApplication(allowAutoDelete = false)
         )
 
@@ -1442,17 +1444,15 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Environment.PRODUCTION,
             None,
             collaborators,
-            LocalDateTime.now(),
-            Some(LocalDateTime.now()),
+            now,
+            Some(now),
             access = Access.Standard(),
-            state = ApplicationState(updatedOn = LocalDateTime.now())
+            state = ApplicationState(updatedOn = instant)
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.FetchApplications.returns(existingApp)
-
-          println(s"****** Environment.PRODUCTION.toString = ${Environment.PRODUCTION.toString}")
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1479,10 +1479,10 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             Environment.PRODUCTION,
             None,
             collaborators,
-            LocalDateTime.now(),
-            Some(LocalDateTime.now()),
+            now,
+            Some(now),
             access = Access.Standard(),
-            state = ApplicationState(updatedOn = LocalDateTime.now())
+            state = ApplicationState(updatedOn = instant)
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1519,7 +1519,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState(updatedOn = LocalDateTime.now())
+            state = ApplicationState(updatedOn = instant)
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1555,7 +1555,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             LocalDateTime.now(),
             Some(LocalDateTime.now()),
             access = Access.Standard(),
-            state = ApplicationState(updatedOn = LocalDateTime.now())
+            state = ApplicationState(updatedOn = instant)
           )
 
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
@@ -1805,7 +1805,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED, updatedOn = LocalDateTime.now()))
+        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED, updatedOn = instant))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import java.util.UUID
 
 import play.api.data.Form
@@ -89,15 +89,7 @@ object PreconditionFailedException extends Throwable
 
 class FetchApplicationsFailed(cause: Throwable) extends Throwable(cause)
 
-object FetchApplicationSubscriptionsFailed extends Throwable
-
 class InconsistentDataState(message: String) extends RuntimeException(message)
-
-object TeamMemberAlreadyExists extends Throwable
-
-object TeamMemberLastAdmin extends Throwable
-
-object ApplicationNotFound extends Throwable
 
 case class ApproveUpliftRequest(gatekeeperUserId: String)
 
@@ -139,7 +131,7 @@ object UpliftAction extends Enumeration {
   implicit val format: Format[UpliftAction] = Json.formatEnum(UpliftAction)
 }
 
-case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: LocalDateTime)
+case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: Instant)
 
 case class ApprovalDetails(submittedOn: LocalDateTime, approvedBy: String, approvedOn: LocalDateTime)
 
@@ -166,7 +158,7 @@ object ApplicationReviewDetails {
   implicit val format2: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
 }
 
-case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: LocalDateTime, verified: Boolean)
+case class ApprovedApplication(details: ApplicationReviewDetails, admins: List[RegisteredUser], approvedBy: String, approvedOn: Instant, verified: Boolean)
 
 object ApprovedApplication {
   implicit val format1: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
@@ -205,26 +197,6 @@ case class ValidateApplicationNameRequest(applicationName: String, selfApplicati
 
 object ValidateApplicationNameRequest {
   implicit val format: OFormat[ValidateApplicationNameRequest] = Json.format[ValidateApplicationNameRequest]
-}
-
-trait ApplicationUpdate {
-  def timestamp: LocalDateTime
-}
-
-trait GatekeeperApplicationUpdate extends ApplicationUpdate {
-  def gatekeeperUser: String
-}
-
-case class ChangeProductionApplicationName(instigator: UserId, timestamp: LocalDateTime, gatekeeperUser: String, newName: String)            extends ApplicationUpdate
-case class DeleteApplicationByGatekeeper(gatekeeperUser: String, requestedByEmailAddress: String, reasons: String, timestamp: LocalDateTime) extends ApplicationUpdate
-
-trait ApplicationUpdateFormatters {
-
-  implicit val changeNameFormatter: OWrites[ChangeProductionApplicationName] = Json.writes[ChangeProductionApplicationName]
-    .transform((obj: JsObject) => obj + ("updateType" -> JsString("changeProductionApplicationName")))
-
-  implicit val deleteApplicationByGatekeeperFormatter: OWrites[DeleteApplicationByGatekeeper] = Json.writes[DeleteApplicationByGatekeeper]
-    .transform((obj: JsObject) => obj + ("updateType" -> JsString("deleteApplicationByGatekeeper")))
 }
 
 sealed trait UpdateApplicationNameResult

@@ -207,7 +207,7 @@ class ApplicationService @Inject() (
       application.id,
       ApplicationCommands.ChangeIpAllowlist(
         Actors.GatekeeperUser(gatekeeperUser),
-        now(),
+        instant(),
         required,
         currentIpAllowlist,
         newIpAllowlist
@@ -234,7 +234,7 @@ class ApplicationService @Inject() (
         Actors.GatekeeperUser(gatekeeperUser),
         oldRedirectUris,
         redirectUris,
-        now()
+        instant()
       ),
       Set.empty[LaxEmailAddress]
     )
@@ -249,24 +249,23 @@ class ApplicationService @Inject() (
       application: GKApplicationResponse,
       adminEmail: LaxEmailAddress,
       gatekeeperUser: String,
-      name: String
+      newName: String
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    if (application.name.equalsIgnoreCase(name)) {
+    if (application.name.equalsIgnoreCase(newName)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {
-        case Some(instigator) => {
-          val timestamp = now()
-          applicationConnectorFor(application).updateApplicationName(application.id, instigator, timestamp, gatekeeperUser, name)
-        }
+        case Some(instigator) =>
+          commandConnector.dispatch(application.id, ApplicationCommands.ChangeProductionApplicationName(gatekeeperUser, instigator, instant(), newName), Set.empty[LaxEmailAddress])
+            .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
         case None             => Future.successful(ApplicationUpdateFailureResult)
       }
     }
   }
 
   def updateGrantLength(application: GKApplicationResponse, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, now(), grantLength), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, instant(), grantLength), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
@@ -279,27 +278,31 @@ class ApplicationService @Inject() (
     ): Future[ApplicationUpdateResult] = {
 
     val appCmdResult = allowAutoDelete match {
-      case true  => commandConnector.dispatch(applicationId, ApplicationCommands.AllowApplicationAutoDelete(gatekeeperUser, reason, now()), Set.empty[LaxEmailAddress])
-      case false => commandConnector.dispatch(applicationId, ApplicationCommands.BlockApplicationAutoDelete(gatekeeperUser, reason, now()), Set.empty[LaxEmailAddress])
+      case true  => commandConnector.dispatch(applicationId, ApplicationCommands.AllowApplicationAutoDelete(gatekeeperUser, reason, instant()), Set.empty[LaxEmailAddress])
+      case false => commandConnector.dispatch(applicationId, ApplicationCommands.BlockApplicationAutoDelete(gatekeeperUser, reason, instant()), Set.empty[LaxEmailAddress])
     }
 
     appCmdResult.map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def updateRateLimitTier(application: GKApplicationResponse, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, now(), tier), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, instant(), tier), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def deleteApplication(
       application: GKApplicationResponse,
-      gatekeeperUserId: String,
-      requestByEmailAddress: String
+      gatekeeperUser: String,
+      requestByEmailAddress: LaxEmailAddress
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    val reasons       = "Application deleted by Gatekeeper user"
-    val deleteRequest = DeleteApplicationByGatekeeper(gatekeeperUserId, requestByEmailAddress, reasons, now())
-    applicationConnectorFor(application).deleteApplication(application.id, deleteRequest)
+    val reasons = "Application deleted by Gatekeeper user"
+    commandConnector.dispatch(
+      application.id,
+      ApplicationCommands.DeleteApplicationByGatekeeper(gatekeeperUser, requestByEmailAddress, reasons, instant()),
+      Set.empty[LaxEmailAddress]
+    )
+      .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def blockApplication(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {

@@ -45,7 +45,6 @@ class PayloadEncryptionSpec extends HmrcSpec {
 
       encrypted1 should not be encrypted2
 
-      // thisShouldWork
       encryption2.decrypt[EncryptMe](encrypted2)
 
       intercept[SecurityException] {

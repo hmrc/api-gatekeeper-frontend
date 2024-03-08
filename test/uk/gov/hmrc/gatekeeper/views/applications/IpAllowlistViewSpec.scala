@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -54,7 +54,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now()),
+        state = ApplicationState(updatedOn = Instant.now()),
         ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
       )
   }

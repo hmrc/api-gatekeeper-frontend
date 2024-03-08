@@ -16,6 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
+import cats.data.NonEmptyList
+import com.github.tomakehurst.wiremock.client.WireMock._
+
+import play.api.http.Status._
+import play.api.libs.json.Json
+
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
@@ -33,7 +41,7 @@ class ApiGatekeeperDeleteApplicationSpec
   Feature("Delete an application") {
     Scenario("I can delete an application") {
 
-      stubApplicationForDeleteSuccess(applicationId)
+     stubApplicationForDeleteSuccess
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -45,7 +53,7 @@ class ApiGatekeeperDeleteApplicationSpec
 
     Scenario("I cannot delete an application") {
 
-      stubApplicationForDeleteFailure(applicationId)
+      stubApplicationForDeleteFailure
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -96,5 +104,39 @@ class ApiGatekeeperDeleteApplicationSpec
     DeleteApplicationPage.clickDeleteButton()
   }
 
+  def stubApplicationToDelete() = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+  }
 
+  def stubApplicationForDeleteSuccess() = {
+    val gkAppResponse = GKApplicationResponse(
+      id = applicationId,
+      clientId = defaultApplication.clientId,
+      gatewayId = defaultApplication.gatewayId,
+      name = defaultApplication.name,
+      deployedTo = defaultApplication.deployedTo,
+      description = defaultApplication.description,
+      collaborators = defaultApplication.collaborators,
+      createdOn = defaultApplication.createdOn,
+      lastAccess = defaultApplication.lastAccess,
+      grantLength = defaultApplication.grantLength,
+      termsAndConditionsUrl = defaultApplication.termsAndConditionsUrl,
+      privacyPolicyUrl = defaultApplication.privacyPolicyUrl,
+      access = defaultApplication.access,
+      state = defaultApplication.state,
+      rateLimitTier = defaultApplication.rateLimitTier,
+      checkInformation = defaultApplication.checkInformation,
+      blocked = defaultApplication.blocked,
+      ipAllowlist = defaultApplication.ipAllowlist,
+      moreApplication = defaultApplication.moreApplication
+    )
+    val response = DispatchSuccessResult(gkAppResponse)
+    stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString())))
+  }
+
+  def stubApplicationForDeleteFailure() = {
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+    val response: NonEmptyList[CommandFailure] = NonEmptyList.one(CommandFailures.ApplicationNotFound)
+    stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(BAD_REQUEST).withBody(Json.toJson(response).toString())))
+  }
 }

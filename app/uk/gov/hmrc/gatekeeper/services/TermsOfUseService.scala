@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import javax.inject.Singleton
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
@@ -32,10 +32,10 @@ object TermsOfUseService {
 @Singleton
 class TermsOfUseService {
 
-  def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
+  def formatInstant(instant: Instant) = instant.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
 
   private def getAgreementDetailsFromCheckInformation(checkInformation: CheckInformation): List[TermsOfUseAgreementDisplayDetails] = {
-    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatDateTime(toua.timeStamp), toua.version))
+    checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatInstant(toua.timeStamp), toua.version))
   }
 
   private def getAgreementFromCheckInformation(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
@@ -49,7 +49,7 @@ class TermsOfUseService {
     std.importantSubmissionData.fold[List[TermsOfUseAgreementDisplayDetails]](List.empty)(isd =>
       isd.termsOfUseAcceptances
         .map((toua: TermsOfUseAcceptance) =>
-          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.text, formatDateTime(toua.dateTime), "2")
+          TermsOfUseAgreementDisplayDetails(toua.responsibleIndividual.emailAddress.text, formatInstant(toua.dateTime), "2")
         )
     )
   }

@@ -42,7 +42,8 @@ class ApplicationConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
-    with ApplicationBuilder {
+    with ApplicationBuilder
+    with FixedClock {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
@@ -218,7 +219,7 @@ class ApplicationConnectorSpec
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = LocalDateTime.now())
+        state = ApplicationState(updatedOn = instant)
       ))
       val payload      = Json.toJson(applications).toString
 
@@ -320,9 +321,9 @@ class ApplicationConnectorSpec
       ApplicationId.random,
       State.PENDING_GATEKEEPER_APPROVAL,
       Actors.AppCollaborator(collaborators.head.emailAddress),
-      changedAt = LocalDateTime.now.truncatedTo(ChronoUnit.MILLIS)
+      changedAt = instant
     )
-    val applicationState                 = ApplicationState(State.TESTING, updatedOn = LocalDateTime.now)
+    val applicationState                 = ApplicationState(State.TESTING, updatedOn = instant)
     val application                      = buildApplication(
       applicationId,
       ClientId("clientid1"),
@@ -372,7 +373,7 @@ class ApplicationConnectorSpec
   "fetchStateHistory" should {
     "retrieve state history for app id" in new Setup {
       val url          = s"/gatekeeper/application/${applicationId.value.toString()}/stateHistory"
-      val stateHistory = StateHistory(ApplicationId.random, State.PENDING_GATEKEEPER_APPROVAL, Actors.Unknown, changedAt = LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS))
+      val stateHistory = StateHistory(ApplicationId.random, State.PENDING_GATEKEEPER_APPROVAL, Actors.Unknown, changedAt = instant)
       val response     = Json.toJson(List(stateHistory)).toString
 
       stubFor(
@@ -448,36 +449,6 @@ class ApplicationConnectorSpec
 
       intercept[UpstreamErrorResponse] {
         await(connector.updateScopes(applicationId, scopesRequest))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
-  "unsubscribeFromApi" should {
-    val apiContext = ApiContext.random
-    val url        = s"/application/${applicationId.value.toString()}/subscription?context=${apiContext.value}&version=${apiVersion1.value}"
-
-    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      stubFor(
-        delete(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-          )
-      )
-      await(connector.unsubscribeFromApi(applicationId, apiContext, apiVersion1)) shouldBe ApplicationUpdateSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      stubFor(
-        delete(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.unsubscribeFromApi(applicationId, apiContext, apiVersion1))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
