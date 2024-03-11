@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
@@ -256,6 +257,7 @@ class DummyDeveloperConnector extends DeveloperConnector {
 
   def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier) = Future.successful(List.empty)
 
+  @nowarn("msg=parameter hc in method fetchAll is never used")
   def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(List.empty)
 
   def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
