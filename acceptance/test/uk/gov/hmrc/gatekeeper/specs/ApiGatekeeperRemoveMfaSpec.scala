@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import org.scalatest.{Assertions, Tag}
+import org.scalatest.Assertions
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -40,7 +40,7 @@ class ApiGatekeeperRemoveMfaSpec
 
   Feature("Remove MFA") {
 
-    Scenario("Ensure a super user can remove MFA from a developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a super user can remove MFA from a developer") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()
@@ -78,7 +78,7 @@ class ApiGatekeeperRemoveMfaSpec
       on(DeveloperDetailsPage)
     }
 
-    Scenario("Ensure a non-super user CAN remove MFA from a developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a non-super user CAN remove MFA from a developer") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       initStubs()

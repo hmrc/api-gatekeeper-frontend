@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import org.scalatest.Tag
-
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
@@ -39,7 +37,7 @@ class ApiGatekeeperApplicationSpec
     info("I WANT The SDST (Software Developer Support Team) to be able to search for applications")
     info("SO THAT The SDST can review the status of the applications")
 
-    Scenario("Ensure a user can view a list of Applications", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can view a list of Applications") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()

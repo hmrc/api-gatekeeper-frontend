@@ -17,8 +17,8 @@
 package uk.gov.hmrc.gatekeeper.specs
 
 import org.openqa.selenium.By
+import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.{GivenWhenThen, Tag}
 
 import uk.gov.hmrc.selenium.webdriver.Driver
 
@@ -51,7 +51,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       ApplicationsPage.isForbidden() shouldBe true
     }
 
-    Scenario("Ensure developer is on Gatekeeper in Prod and they know it", Tag("NonSandboxTest")) {
+    Scenario("Ensure developer is on Gatekeeper in Prod and they know it") {
       stubPaginatedApplicationList()
 
       stubApplicationResponse(approvedApp1, approvedApplication("application description", true))
@@ -75,7 +75,7 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       actualApplicationTitle shouldBe "HMRC API Gatekeeper - Applications"
     }
 
-    ignore("Cookie banner is displayed on the top of the page when user visits the website first time", Tag("NonSandboxTest")) {
+    ignore("Cookie banner is displayed on the top of the page when user visits the website first time") {
       stubPaginatedApplicationList()
 
       stubApiDefinition()

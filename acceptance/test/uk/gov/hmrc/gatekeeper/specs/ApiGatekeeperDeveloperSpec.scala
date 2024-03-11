@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import scala.collection.immutable.List
-
-import org.scalatest.{Assertions, Tag}
+import org.scalatest.Assertions
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -42,7 +40,7 @@ class ApiGatekeeperDeveloperSpec
 
   Feature("API Filter for Email Recipients") {
 
-    Scenario("Ensure a user can view the list of registered developers", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can view the list of registered developers") {
 
       val developers = List(
         RegisteredUser(

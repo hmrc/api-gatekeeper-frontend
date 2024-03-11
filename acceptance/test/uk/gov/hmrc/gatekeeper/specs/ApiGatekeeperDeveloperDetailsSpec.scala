@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
-import org.scalatest.{Assertions, Tag}
+import org.scalatest.Assertions
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -46,7 +46,7 @@ class ApiGatekeeperDeveloperDetailsSpec
 
   Feature("Developer details page") {
 
-    Scenario("Ensure a user can select an individual developer", Tag("NonSandboxTest")) {
+    Scenario("Ensure a user can select an individual developer") {
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
