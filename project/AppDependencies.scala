@@ -1,4 +1,3 @@
-import play.core.PlayVersion
 import sbt._
 
 object AppDependencies {
@@ -10,9 +9,9 @@ object AppDependencies {
   lazy val bootstrapVersion  = "8.4.0"
   lazy val seleniumVersion   = "4.4.0"
 
-  val apiDomainVersion    = "0.11.0"
-  val commonDomainVersion = "0.10.0"
-  val appDomainVersion    = "0.38.0"
+  val apiDomainVersion    = "0.15.0"
+  val commonDomainVersion = "0.13.0"
+  val appDomainVersion    = "0.40.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
@@ -29,14 +28,12 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion
   )
 
-  lazy val testScopes = Seq(Test.name, IntegrationTest.name, "acceptance").mkString(",")
-
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"          % bootstrapVersion,
     "org.jsoup"               % "jsoup"                           % jsoupVersion,
     "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.16.0",
-    "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.29",
+    "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion
-  ).map(_ % testScopes)
+  ).map(_ % "test")
 }
