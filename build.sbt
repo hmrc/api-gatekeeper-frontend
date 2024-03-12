@@ -2,33 +2,24 @@ import com.typesafe.sbt.digest.Import._
 import com.typesafe.sbt.uglify.Import._
 import com.typesafe.sbt.web.Import._
 import net.ground5hark.sbt.concat.Import._
-import play.routes.compiler.InjectedRoutesGenerator
-import play.sbt.routes.RoutesKeys.routesGenerator
-import sbt.Keys.{baseDirectory, unmanagedSourceDirectories, _}
-import sbt._
+import uk.gov.hmrc.DefaultBuildSettings
 import uk.gov.hmrc.DefaultBuildSettings._
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin
-import uk.gov.hmrc.sbtdistributables.SbtDistributablesPlugin._
-import bloop.integrations.sbt.BloopDefaults
 
 lazy val appName = "api-gatekeeper-frontend"
 
 Global / bloopAggregateSourceDependencies := true
 Global / bloopExportJarClassifiers := Some(Set("sources"))
 
-lazy val AcceptanceTest = config("acceptance") extend Test
-lazy val SandboxTest = config("sandbox") extend Test
-
-scalaVersion := "2.13.12"
-
+ThisBuild / scalaVersion := "2.13.12"
+ThisBuild / majorVersion := 0
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-
 ThisBuild / semanticdbEnabled := true
 ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 
 lazy val microservice = Project(appName, file("."))
   .enablePlugins(PlayScala, SbtDistributablesPlugin)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(
     Concat.groups := Seq(
       "javascripts/apis-app.js" -> group(
@@ -46,57 +37,24 @@ lazy val microservice = Project(appName, file("."))
       uglify
     )
   )
-  .settings(scalaSettings: _*)
   .settings(
-    name:= appName,
     libraryDependencies ++= AppDependencies(),
     retrieveManaged := true,
-    routesGenerator := InjectedRoutesGenerator,
-    shellPrompt := (_ => "> "),
-    majorVersion := 0,
-
-    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
-    Test / unmanagedSourceDirectories += baseDirectory.value / "test"
+    shellPrompt := (_ => "> ")
   )
-  .configs(IntegrationTest)
-  .settings(inConfig(IntegrationTest)(BloopDefaults.configSettings))
-  .settings(integrationTestSettings())
-  .settings(inConfig(IntegrationTest)(scalafixConfigSettings(IntegrationTest)))
   .settings(
-    IntegrationTest / parallelExecution := false,
-    IntegrationTest / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-eT")),
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
-    IntegrationTest / unmanagedSourceDirectories += baseDirectory.value / "it"
-    )
-  .configs(AcceptanceTest)
-  .settings(inConfig(AcceptanceTest)(Defaults.testSettings): _*)
-  .settings(inConfig(AcceptanceTest)(BloopDefaults.configSettings))
-  .settings(inConfig(AcceptanceTest)(scalafixConfigSettings(AcceptanceTest)))
-  .settings(
-    AcceptanceTest / Keys.fork := false,
-    AcceptanceTest / parallelExecution := false,
-    AcceptanceTest / testOptions := Seq(Tests.Argument("-l", "SandboxTest", "-eT")),
-    AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "testCommon",
-    AcceptanceTest / unmanagedSourceDirectories += baseDirectory.value / "acceptance"
-    )
-  .settings(headerSettings(AcceptanceTest) ++ automateHeaderSettings(AcceptanceTest))
-
-  .configs(SandboxTest)
-  .settings(inConfig(SandboxTest)(Defaults.testSettings): _*)
-  .settings(inConfig(SandboxTest)(BloopDefaults.configSettings))
-  .settings(
-    SandboxTest / Keys.fork := false,
-    SandboxTest / parallelExecution := false,
-    SandboxTest / testOptions := Seq(Tests.Argument("-l", "NonSandboxTest"), Tests.Argument("-n", "SandboxTest", "-eT")),
-    SandboxTest / unmanagedSourceDirectories += baseDirectory(_ / "acceptance").value
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    Test / unmanagedSourceDirectories += baseDirectory.value / "testCommon"
   )
+  .settings(ScoverageSettings())
   .settings(
     routesImport ++= Seq(
       "uk.gov.hmrc.gatekeeper.controllers.binders._",
       "uk.gov.hmrc.gatekeeper.models._",
       "uk.gov.hmrc.apiplatform.modules.apis.domain.models._"
-    ),
+    )
+  )
+  .settings(
     TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
@@ -108,38 +66,42 @@ lazy val microservice = Project(appName, file("."))
     )
   )
   .settings(
-    resolvers ++= Seq(
-      Resolver.typesafeRepo("releases")
-    )
-  )
-  .disablePlugins(sbt.plugins.JUnitXmlReportPlugin)
-  .settings(
     scalacOptions ++= Seq(
       "-Wconf:cat=unused&src=views/.*\\.scala:s",
-      "-Wconf:cat=unused&src=.*RoutesPrefix\\.scala:s",
-      "-Wconf:cat=unused&src=.*Routes\\.scala:s",
-      "-Wconf:cat=unused&src=.*ReverseRoutes\\.scala:s"
+      // https://www.scala-lang.org/2021/01/12/configuring-and-suppressing-warnings.html
+      // suppress warnings in generated routes files
+      "-Wconf:src=routes/.*:s"
     )
   )
 
-coverageMinimumStmtTotal := 85.5
-coverageFailOnMinimum := true
-coverageExcludedPackages := Seq(
-  "<empty>",
-  """.*\.controllers\.binders""",
-  """uk\.gov\.hmrc\.BuildInfo""" ,
-  """.*\.Routes""" ,
-  """.*\.RoutesPrefix""" ,
-  """.*\.Reverse[^.]*""",
-  """uk\.gov\.hmrc\.apiplatform\.modules\.common\..*""",
-  """uk\.gov\.hmrc\.apiplatform\.modules\.commands\.applications\.domain\.models\..*"""
-).mkString(";")
+lazy val it = (project in file("it"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(
+    name := "integration-tests",
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    DefaultBuildSettings.itSettings(),
+    addTestReportOption(Test, "int-test-reports")
+  )
+
+lazy val acceptance = (project in file("acceptance"))
+  .enablePlugins(PlayScala)
+  .dependsOn(microservice % "test->test")
+  .settings(
+    name := "acceptance-tests",
+    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+    DefaultBuildSettings.itSettings(),
+    addTestReportOption(Test, "acceptance-reports")
+  )
+
 
 commands ++= Seq(
-  Command.command("run-all-tests") { state => "test" :: "it:test" :: "acceptance:test" :: "sandbox:test" :: state },
+  Command.command("cleanAll") { state => "clean" :: "it/clean" :: "acceptance/clean" :: state },
+  Command.command("fmtAll") { state => "scalafmtAll" :: "it/scalafmtAll" :: "acceptance/scalafmtAll" :: state },
+  Command.command("fixAll") { state => "scalafixAll" :: "it/scalafixAll" :: "acceptance/scalafixAll" :: state },
+  Command.command("testAll") { state => "test" :: "it/test" :: "acceptance/test" :: state },
 
-  Command.command("clean-and-test") { state => "clean" :: "compile" :: "run-all-tests" :: state },
-
-  // Coverage does not need compile !
-  Command.command("pre-commit") { state => "clean" :: "scalafmtAll" :: "scalafixAll" :: "coverage" :: "run-all-tests" :: "coverageReport" :: "coverageOff" :: state }
+  Command.command("run-all-tests") { state => "testAll" :: state },
+  Command.command("clean-and-test") { state => "cleanAll" :: "compile" :: "run-all-tests" :: state },
+  Command.command("pre-commit") { state => "cleanAll" :: "fmtAll" :: "fixAll" :: "coverage" :: "testAll" :: "coverageOff" :: "coverageAggregate" :: state }
 )
