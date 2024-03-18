@@ -6,7 +6,7 @@ object AppDependencies {
   lazy val logbackVersion    = "1.1.10"
   lazy val jsoupVersion      = "1.12.1"
   lazy val scalaCheckVersion = "1.17.0"
-  lazy val bootstrapVersion  = "8.4.0"
+  lazy val bootstrapVersion  = "8.5.0"
   lazy val seleniumVersion   = "4.4.0"
 
   val apiDomainVersion    = "0.15.0"
@@ -31,7 +31,7 @@ object AppDependencies {
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"          % bootstrapVersion,
     "org.jsoup"               % "jsoup"                           % jsoupVersion,
-    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.16.0",
+    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.22.0",
     "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion
