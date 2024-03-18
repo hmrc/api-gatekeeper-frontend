@@ -1,5 +1,5 @@
 $hmrc-assets-path: "/api-gatekeeper/assets/lib/hmrc-frontend/hmrc/";
-$govuk-assets-path: "/api-gatekeeper/assets/lib/govuk-frontend/govuk/assets/";
+$govuk-assets-path: "/api-gatekeeper/assets/lib/govuk-frontend/dist/govuk/assets/";
 
 // Partials
 @import "partials/developers.scss";
@@ -8,4 +8,4 @@ $govuk-assets-path: "/api-gatekeeper/assets/lib/govuk-frontend/govuk/assets/";
 @import "partials/ad-hoc.scss";
 @import "partials/slider.scss";
 @import "lib/hmrc-frontend/hmrc/all";
-@import "lib/govuk-frontend/govuk/all";
+@import "lib/govuk-frontend/dist/govuk/all";
