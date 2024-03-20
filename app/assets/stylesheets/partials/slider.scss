@@ -4,10 +4,6 @@
   $disabled-colour: #70777b;
   $enabled-colour: #245ea0;
 
-  label {
-    display: inline-block;
-  }
-
   fieldset {
     border: 0px;
 
@@ -25,6 +21,7 @@
           padding: .25rem .75rem;
           user-select: none;
           z-index: 1;
+          max-width: none;
         }
 
         input[type=radio] {
