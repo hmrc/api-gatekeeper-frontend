@@ -76,7 +76,7 @@
                 <div class="govuk-form-group govuk-!-margin-bottom-0">
                   <div class="slider">
                     <fieldset id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-toggle">
-                      <div class="slider__radios">
+                      <div class="slider__radios slider__radios--font-fix">
                         @helper.form(action = routes.SubscriptionController.subscribeToApi(model.applicationId, apiSubscription.context, version.version.versionNbr), Symbol("class") -> "form") {
                           @helper.CSRF.formField
                           <input class="slider__on slider__on-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-on" name="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-subscribed" type="radio" value="true" @if(version.subscribed) {checked disabled} else {}>
