@@ -80,7 +80,7 @@
 
 @navigation = @{
   Seq(
-    NavigationItem(content = Text("APIs"), href = Some(routes.ApiDefinitionController.apis().url)),
+    NavigationItem(content = Text("APIs"), href = Some(applicationConfig.gatekeeperApisUrl)),
     NavigationItem(content = Text("Applications"), href = Some(routes.ApplicationController.applicationsPage(None).url)),
     NavigationItem(content = Text("Developers"), href = Some(routes.DevelopersController.blankDevelopersPage().url)),
     NavigationItem(content = Text("Terms of use"), href = Some(routes.TermsOfUseController.page().url)),
