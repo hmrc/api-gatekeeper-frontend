@@ -466,7 +466,7 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.getDays())))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.period.getDays())))
       Future.successful(Ok(manageGrantLengthView(app.application, form)))
     }
   }
@@ -474,7 +474,7 @@ class ApplicationController @Inject() (
   def updateGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateGrantLengthForm) = {
-        val grantLength = GrantLength.unsafeApply(form.grantLength.get)
+        val grantLength = GrantLength.apply(form.grantLength.get).get
         applicationService.updateGrantLength(app.application, grantLength, loggedIn.userFullName.get) map { _ =>
           Ok(manageGrantLengthSuccessView(app.application, grantLength.toString))
         }

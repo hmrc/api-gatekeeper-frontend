@@ -16,14 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.{Instant, LocalDateTime, Period}
+import java.time.{Instant, LocalDateTime}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators.Administrator
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
@@ -44,7 +44,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       collaborators: Set[Collaborator] = Set.empty,
       createdOn: LocalDateTime = LocalDateTime.now(),
       lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
-      grantLength: Period = Period.ofDays(GrantLength.EIGHTEEN_MONTHS.days),
+      grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS,
       termsAndConditionsUrl: Option[String] = None,
       privacyPolicyUrl: Option[String] = None,
       access: Access = Access.Standard(),

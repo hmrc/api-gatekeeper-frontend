@@ -16,12 +16,11 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GrantLength, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, PrivacyPolicyLocations, ResponsibleIndividual, TermsAndConditionsLocations}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -48,7 +47,7 @@ class ApplicationHelperSpec extends HmrcSpec with ApplicationBuilder {
     Environment.PRODUCTION,
     createdOn = LocalDateTime.now(),
     lastAccess = Some(LocalDateTime.now()),
-    grantLength = Period.ofDays(GrantLength.ONE_DAY.days),
+    grantLength = GrantLength.ONE_DAY,
     access = standardAccess,
     rateLimitTier = RateLimitTier.BRONZE,
     blocked = false
