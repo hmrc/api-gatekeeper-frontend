@@ -129,5 +129,5 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val apiGatekeeperEmailUrl             = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"
   val apiGatekeeperEmailUsersUrl        = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email/users"
 
-  val showNoRefreshTokenGrantLength = getConfigDefaulted("application.grantlength.norefreshtoken.shown", true)
+  val showNoRefreshTokenGrantLength = getConfigDefaulted("application.grantlength.norefreshtoken.shown", false)
 }
