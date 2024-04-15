@@ -464,10 +464,18 @@ class ApplicationController @Inject() (
     }
   }
 
+  private def getGrantLengths(): List[GrantLength] = {
+    if (appConfig.showNoRefreshTokenGrantLength) {
+      GrantLength.values.toList
+    } else {
+      GrantLength.values.filterNot((g: GrantLength) => g == GrantLength.FOUR_HOURS).toList
+    }
+  }
+
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.period.getDays())))
-      Future.successful(Ok(manageGrantLengthView(app.application, form)))
+      Future.successful(Ok(manageGrantLengthView(app.application, form, getGrantLengths())))
     }
   }
 
@@ -481,7 +489,7 @@ class ApplicationController @Inject() (
       }
 
       def handleFormError(form: Form[UpdateGrantLengthForm]) = {
-        Future.successful(BadRequest(manageGrantLengthView(app.application, form)))
+        Future.successful(BadRequest(manageGrantLengthView(app.application, form, getGrantLengths())))
       }
 
       UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)

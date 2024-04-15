@@ -72,6 +72,7 @@ trait AppConfig {
 
   def apiGatekeeperEmailUrl: String
   def apiGatekeeperEmailUsersUrl: String
+  def showNoRefreshTokenGrantLength: Boolean
 }
 
 @Singleton
@@ -127,4 +128,6 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   private val apiGatekeeperEmailBaseUrl = baseUrl("api-gatekeeper-email-frontend")
   val apiGatekeeperEmailUrl             = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"
   val apiGatekeeperEmailUsersUrl        = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email/users"
+
+  val showNoRefreshTokenGrantLength = getConfigDefaulted("application.grantlength.norefreshtoken.shown", true)
 }
