@@ -536,7 +536,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateGrantLength.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -564,7 +564,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 

@@ -114,7 +114,7 @@ class ThirdPartyOrchestratorConnectorSpec
       collaborators = Set(buildCollaborator(userId1)),
       createdOn = LocalDateTime.parse("2022-12-23T12:24:31.123").toInstant(ZoneOffset.UTC),
       lastAccess = Some(LocalDateTime.parse("2023-10-02T12:24:31.123").toInstant(ZoneOffset.UTC)),
-      grantLength = 18,
+      grantLength = GrantLength.EIGHTEEN_MONTHS,
       lastAccessTokenUsage = None,
       termsAndConditionsUrl = None,
       privacyPolicyUrl = None,

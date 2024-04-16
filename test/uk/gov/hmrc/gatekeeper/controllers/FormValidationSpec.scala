@@ -76,7 +76,7 @@ class FormValidationSpec extends AsyncHmrcSpec {
   "UpdateGrantLengthForm" should {
 
     "validate a properly filled form" in {
-      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> GrantLength.EIGHTEEN_MONTHS.days.toString))
+      val boundForm = UpdateGrantLengthForm.form.bind(Map("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString))
       boundForm.errors shouldBe List()
       boundForm.globalErrors shouldBe List()
     }

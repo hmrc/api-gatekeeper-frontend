@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import java.time.{LocalDateTime, Period}
+import java.time.LocalDateTime
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
@@ -34,7 +34,7 @@ case class GKApplicationResponse(
     collaborators: Set[Collaborator],
     createdOn: LocalDateTime,
     lastAccess: Option[LocalDateTime],
-    grantLength: Period,
+    grantLength: GrantLength,
     termsAndConditionsUrl: Option[String],
     privacyPolicyUrl: Option[String],
     access: Access,
@@ -63,7 +63,7 @@ object GKApplicationResponse {
       (JsPath \ "collaborators").read[Set[Collaborator]] and
       (JsPath \ "createdOn").read[LocalDateTime] and
       (JsPath \ "lastAccess").readNullable[LocalDateTime] and
-      (JsPath \ "grantLength").read[Period] and
+      (JsPath \ "grantLength").read[GrantLength] and
       (JsPath \ "termsAndConditionsUrl").readNullable[String] and
       (JsPath \ "privacyAndPolicyUrl").readNullable[String] and
       (JsPath \ "access").read[Access] and
