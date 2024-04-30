@@ -24,35 +24,29 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
-import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.AppCollaborator
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
-import uk.gov.hmrc.gatekeeper.models.UpliftAction.{APPROVE, REJECT}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
-import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -79,7 +73,6 @@ class ApplicationController @Inject() (
     blockApplicationSuccessView: BlockApplicationSuccessView,
     unblockApplicationView: UnblockApplicationView,
     unblockApplicationSuccessView: UnblockApplicationSuccessView,
-    reviewView: ReviewView,
     approvedView: ApprovedView,
     createApplicationView: CreateApplicationView,
     createApplicationSuccessView: CreateApplicationSuccessView,
@@ -673,126 +666,6 @@ class ApplicationController @Inject() (
     versions.groupBy(_.status.displayText)
   }
 
-  def reviewPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    withApp(appId) { app =>
-      redirectIfIsSandboxApp(app) {
-        fetchApplicationReviewDetails(appId) map (details => Ok(reviewView(HandleUpliftForm.form, details)))
-      }
-    }
-  }
-
-  private def fetchApplicationReviewDetails(appId: ApplicationId)(implicit hc: HeaderCarrier, request: LoggedInRequest[_]): Future[ApplicationReviewDetails] = {
-    for {
-      app        <- applicationService.fetchApplication(appId)
-      submission <- lastSubmission(app)
-    } yield applicationReviewDetails(app.application, submission)
-  }
-
-  def approvedApplicationPage(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    withApp(appId) { app =>
-      def lastApproval(app: ApplicationWithHistory): StateHistory = {
-        app.history.filter(_.state.isPendingRequesterVerification)
-          .sortWith(StateHistoryHelper.ascendingDateForAppId)
-          .lastOption.getOrElse(throw new InconsistentDataState("pending requester verification state history item not found"))
-      }
-
-      def administrators(app: ApplicationWithHistory): Future[List[RegisteredUser]] = {
-        val emails: Set[LaxEmailAddress] = app.application.admins.map(_.emailAddress)
-        developerService.fetchDevelopersByEmails(emails)
-      }
-
-      def application(app: GKApplicationResponse, approved: StateHistory, admins: List[RegisteredUser], submissionDetails: SubmissionDetails) = {
-        val verified = app.state.name.isApproved
-        val details  = applicationReviewDetails(app, submissionDetails)(request)
-
-        ApprovedApplication(details, admins, approved.actor.id, approved.changedAt, verified)
-      }
-
-      redirectIfIsSandboxApp(app) {
-
-        for {
-          submission                      <- lastSubmission(app)
-          admins                          <- administrators(app)
-          approval                         = lastApproval(app)
-          approvedApp: ApprovedApplication = application(app.application, approval, admins, submission)
-        } yield Ok(approvedView(approvedApp))
-      }
-    }
-  }
-
-  private def lastSubmission(app: ApplicationWithHistory)(implicit hc: HeaderCarrier): Future[SubmissionDetails] = {
-    val submission: StateHistory = app.history.filter(_.state.isPendingGatekeeperApproval)
-      .sortWith(StateHistoryHelper.ascendingDateForAppId)
-      .lastOption.getOrElse(throw new InconsistentDataState("pending gatekeeper approval state history item not found"))
-
-    submission.actor match {
-      case AppCollaborator(email) =>
-        developerService.fetchUser(email).map(s =>
-          SubmissionDetails(s"${s.firstName} ${s.lastName}", s.email.text, submission.changedAt)
-        )
-      case _                      => throw new InconsistentDataState("last submission has no collaborator actor")
-    }
-  }
-
-  private def applicationReviewDetails(app: GKApplicationResponse, submission: SubmissionDetails)(implicit request: LoggedInRequest[_]) = {
-    val currentRateLimitTierToDisplay = if (request.role.isSuperUser) Some(app.rateLimitTier) else None
-
-    val contactDetails = for {
-      checkInformation <- app.checkInformation
-      contactDetails   <- checkInformation.contactDetails
-    } yield contactDetails
-
-    val reviewContactName      = contactDetails.map(_.fullname)
-    val reviewContactEmail     = contactDetails.map(_.email)
-    val reviewContactTelephone = contactDetails.map(_.telephoneNumber)
-    val applicationDetails     = app.checkInformation.flatMap(_.applicationDetails)
-
-    ApplicationReviewDetails(
-      app.id,
-      app.name,
-      app.description.getOrElse(""),
-      currentRateLimitTierToDisplay,
-      submission,
-      reviewContactName,
-      reviewContactEmail,
-      reviewContactTelephone,
-      applicationDetails,
-      app.termsAndConditionsUrl,
-      app.privacyPolicyUrl
-    )
-  }
-
-  def handleUplift(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    withApp(appId) { app =>
-      redirectIfIsSandboxApp(app) {
-        val requestForm = HandleUpliftForm.form.bindFromRequest()
-
-        def errors(errors: Form[HandleUpliftForm]) =
-          fetchApplicationReviewDetails(appId) map (details => BadRequest(reviewView(errors, details)))
-
-        def recovery: PartialFunction[Throwable, play.api.mvc.Result] = {
-          case PreconditionFailedException => {
-            logger.warn("Rejecting the uplift failed as the application might have already been rejected.", PreconditionFailedException)
-            Redirect(routes.ApplicationController.applicationsPage(None))
-          }
-        }
-
-        def addApplicationWithValidForm(validForm: HandleUpliftForm) = {
-          UpliftAction.from(validForm.action) match {
-            case Some(APPROVE) =>
-              applicationService.approveUplift(app.application, loggedIn.userFullName.get) map (_ => Redirect(routes.ApplicationController.applicationPage(appId))) recover recovery
-            case Some(REJECT)  =>
-              applicationService.rejectUplift(app.application, loggedIn.userFullName.get, validForm.reason.get) map (_ =>
-                Redirect(routes.ApplicationController.applicationPage(appId))
-              ) recover recovery
-
-          }
-        }
-        requestForm.fold(errors, addApplicationWithValidForm)
-      }
-    }
-  }
-
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       val result = Redirect(routes.ApplicationController.applicationPage(appId))
@@ -811,10 +684,6 @@ class ApplicationController @Inject() (
         Future.successful(result)
       }
     }
-  }
-
-  private def redirectIfIsSandboxApp(app: ApplicationWithHistory)(body: => Future[Result]) = {
-    if (app.application.deployedTo == Environment.SANDBOX) Future.successful(Redirect(routes.ApplicationController.applicationsPage(Some("SANDBOX")))) else body
   }
 
   def createPrivOrROPCApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>

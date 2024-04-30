@@ -61,24 +61,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def approveUplift(applicationId: ApplicationId, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    http.POST[ApproveUpliftRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/approve-uplift", ApproveUpliftRequest(gatekeeperUserId))
-      .map(_ match {
-        case Right(_)                                                  => ApproveUpliftSuccessful
-        case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
-        case Left(err)                                                 => throw err
-      })
-  }
-
-  def rejectUplift(applicationId: ApplicationId, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    http.POST[RejectUpliftRequest, Either[UpstreamErrorResponse, Unit]](s"${baseApplicationUrl(applicationId)}/reject-uplift", RejectUpliftRequest(gatekeeperUserId, rejectionReason))
-      .map(_ match {
-        case Right(_)                                                  => RejectUpliftSuccessful
-        case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
-        case Left(err)                                                 => throw err
-      })
-  }
-
   def resendVerification(applicationId: ApplicationId, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
     http.POST[ResendVerificationRequest, Either[UpstreamErrorResponse, Unit]](
       s"${baseApplicationUrl(applicationId)}/resend-verification",
