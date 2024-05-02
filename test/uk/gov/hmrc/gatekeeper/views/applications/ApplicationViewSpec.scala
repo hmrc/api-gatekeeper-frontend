@@ -191,7 +191,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val applicationPendingCheck = application.pendingGKApproval
 
       val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(applicationPendingCheck),
+        DefaultApplicationViewModel.withApplication(applicationPendingCheck).withHasSubmissions(true),
         strideUserRequest,
         Flash.emptyCookie
       )
@@ -205,6 +205,26 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val checkingText = "A production application that one of its admins has submitted for checking"
       elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
       elementIdentifiedByIdContainsText(document, "a", "review", "Check application") shouldBe true
+    }
+
+    "show application information, with no link to check application when no submissions" in new Setup {
+      val applicationPendingCheck = application.pendingGKApproval
+
+      val result = applicationView.render(
+        DefaultApplicationViewModel.withApplication(applicationPendingCheck),
+        strideUserRequest,
+        Flash.emptyCookie
+      )
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      elementExistsByAttr(document, "span", "data-status") shouldBe true
+      elementExistsByAttr(document, "span", "data-status-info") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "span", "data-status", "Pending gatekeeper check") shouldBe true
+      val checkingText = "A production application that one of its admins has submitted for checking"
+      elementIdentifiedByAttrContainsText(document, "span", "data-status-info", checkingText) shouldBe true
+      elementIdentifiedByIdContainsText(document, "a", "review", "Check application") shouldBe false
     }
 
     "show application information, including superuser specific actions, when logged in as superuser" in new Setup {

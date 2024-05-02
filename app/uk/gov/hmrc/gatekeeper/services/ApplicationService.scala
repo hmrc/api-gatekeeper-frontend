@@ -313,14 +313,6 @@ class ApplicationService @Inject() (
     applicationConnectorFor(application).unblockApplication(application.id, UnblockApplicationRequest(gatekeeperUserId))
   }
 
-  def approveUplift(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApproveUpliftSuccessful] = {
-    applicationConnectorFor(application).approveUplift(application.id, gatekeeperUserId)
-  }
-
-  def rejectUplift(application: GKApplicationResponse, gatekeeperUserId: String, rejectionReason: String)(implicit hc: HeaderCarrier): Future[RejectUpliftSuccessful] = {
-    applicationConnectorFor(application).rejectUplift(application.id, gatekeeperUserId, rejectionReason)
-  }
-
   def createPrivOrROPCApp(
       appEnv: Environment,
       appName: String,

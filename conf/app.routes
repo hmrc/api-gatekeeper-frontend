@@ -1,8 +1,6 @@
 # microservice specific routes
 
 
-GET         /review                                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.reviewPage(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
-
 POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
@@ -24,7 +22,6 @@ GET         /applications/:id                                                 uk
 
 GET         /applications/:id/events                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController.page(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
-POST        /applications/:id/handle-uplift                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUplift(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 GET         /applications/:id/resend-verification                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.resendVerification(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 GET         /applications/:id/access/scopes                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageScopes(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)

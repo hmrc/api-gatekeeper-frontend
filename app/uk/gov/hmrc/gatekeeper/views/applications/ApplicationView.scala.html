@@ -291,8 +291,6 @@
           @{ if (application.state.isPendingGatekeeperApproval){
             if (model.hasSubmissions) {
               <a href={model.gatekeeperApprovalsUrl} class="govuk-link" role="button" id="review">Check application</a>
-            } else {
-              <a href={routes.ApplicationController.reviewPage(applicationId).url} class="govuk-link" role="button" id="review">Check application</a>
             }
           } else if (application.state.isPendingRequesterVerification) {
             <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>

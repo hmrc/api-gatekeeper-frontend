@@ -55,7 +55,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageRedirectUriView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
-import uk.gov.hmrc.gatekeeper.views.html.review.ReviewView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class ApplicationControllerSpec
@@ -83,7 +82,6 @@ class ApplicationControllerSpec
   private lazy val blockApplicationSuccessView   = app.injector.instanceOf[BlockApplicationSuccessView]
   private lazy val unblockApplicationView        = app.injector.instanceOf[UnblockApplicationView]
   private lazy val unblockApplicationSuccessView = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val reviewView                    = app.injector.instanceOf[ReviewView]
   private lazy val approvedView                  = app.injector.instanceOf[ApprovedView]
   private lazy val createApplicationView         = app.injector.instanceOf[CreateApplicationView]
   private lazy val createApplicationSuccessView  = app.injector.instanceOf[CreateApplicationSuccessView]
@@ -167,7 +165,6 @@ class ApplicationControllerSpec
         blockApplicationSuccessView,
         unblockApplicationView,
         unblockApplicationSuccessView,
-        reviewView,
         approvedView,
         createApplicationView,
         createApplicationSuccessView,
@@ -1309,22 +1306,6 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
-      }
-    }
-
-    "handleUplift" should {
-      "call backend with correct application id and gatekeeper id when application is approved" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenTheAppWillBeReturned()
-
-        val appCaptor          = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
-        val gatekeeperIdCaptor = ArgumentCaptor.forClass(classOf[String])
-        when(mockApplicationService.approveUplift(appCaptor.capture(), gatekeeperIdCaptor.capture())(*))
-          .thenReturn(successful(ApproveUpliftSuccessful))
-        await(underTest.handleUplift(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("action", "APPROVE"))))
-        appCaptor.getValue shouldBe basicApplication
-        gatekeeperIdCaptor.getValue shouldBe "Bobby Example"
-
       }
     }
 

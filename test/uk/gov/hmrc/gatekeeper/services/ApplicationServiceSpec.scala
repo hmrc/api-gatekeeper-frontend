@@ -644,39 +644,6 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "approveUplift" should {
-    "approve the uplift in the correct environment" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
-
-      when(mockProductionApplicationConnector.approveUplift(*[ApplicationId], *)(*))
-        .thenReturn(successful(ApproveUpliftSuccessful))
-
-      val result = await(underTest.approveUplift(application, gatekeeperUserId))
-
-      result shouldBe ApproveUpliftSuccessful
-
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockProductionApplicationConnector).approveUplift(eqTo(application.id), eqTo(gatekeeperUserId))(*)
-    }
-  }
-
-  "rejectUplift" should {
-    "reject the uplift in the correct environment" in new Setup {
-      val application     = stdApp1.copy(deployedTo = Environment.SANDBOX)
-      val rejectionReason = "Rejected"
-
-      when(mockSandboxApplicationConnector.rejectUplift(*[ApplicationId], *, *)(*))
-        .thenReturn(successful(RejectUpliftSuccessful))
-
-      val result = await(underTest.rejectUplift(application, gatekeeperUserId, rejectionReason))
-
-      result shouldBe RejectUpliftSuccessful
-
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockSandboxApplicationConnector).rejectUplift(eqTo(application.id), eqTo(gatekeeperUserId), eqTo(rejectionReason))(*)
-    }
-  }
-
   "deleteApplication" should {
     "delete the application in the correct environment" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
