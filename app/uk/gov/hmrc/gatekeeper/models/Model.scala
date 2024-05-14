@@ -111,16 +111,6 @@ sealed trait RejectUpliftSuccessful
 
 case object RejectUpliftSuccessful extends RejectUpliftSuccessful
 
-case class ResendVerificationRequest(gatekeeperUserId: String)
-
-object ResendVerificationRequest {
-  implicit val format: OFormat[ResendVerificationRequest] = Json.format[ResendVerificationRequest]
-}
-
-sealed trait ResendVerificationSuccessful
-
-case object ResendVerificationSuccessful extends ResendVerificationSuccessful
-
 // TODO - Remove Enumeration
 object UpliftAction extends Enumeration {
   type UpliftAction = Value

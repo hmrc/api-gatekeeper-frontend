@@ -68,39 +68,6 @@ class ApplicationConnectorSpec
   // To solve issue with LocalDateTime serialisation without a timezone id.
   private def compareByString[A](a1: A, a2: A) = a1.toString shouldBe a2.toString
 
-  "resend verification email" should {
-    val gatekeeperId = "loggedin.gatekeeper"
-    val body         = Json.toJson(ResendVerificationRequest(gatekeeperId)).toString
-    val url          = s"/application/${applicationId.value.toString()}/resend-verification"
-
-    "send Verification request and return OK if the resend was successful on the backend" in new Setup {
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(NO_CONTENT)
-          )
-      )
-
-      await(connector.resendVerification(applicationId, gatekeeperId)) shouldBe ResendVerificationSuccessful
-    }
-
-    "handle 412 precondition failed" in new Setup {
-      stubFor(
-        post(urlEqualTo(url))
-          .withRequestBody(equalTo(body))
-          .willReturn(
-            aResponse()
-              .withStatus(PRECONDITION_FAILED)
-          )
-      )
-      intercept[PreconditionFailedException.type] {
-        await(connector.resendVerification(applicationId, gatekeeperId))
-      }
-    }
-  }
-
   "fetchAllApplicationsBySubscription" should {
     val url = s"/application?subscribesTo=some-context&version=some-version"
 

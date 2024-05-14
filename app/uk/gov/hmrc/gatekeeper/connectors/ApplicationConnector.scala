@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.Status._
 import play.api.libs.json.{OWrites, Reads}
 import uk.gov.hmrc.http.{HttpClient, _}
 
@@ -60,18 +59,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId}"
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
-
-  def resendVerification(applicationId: ApplicationId, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    http.POST[ResendVerificationRequest, Either[UpstreamErrorResponse, Unit]](
-      s"${baseApplicationUrl(applicationId)}/resend-verification",
-      ResendVerificationRequest(gatekeeperUserId)
-    )
-      .map(_ match {
-        case Right(_)                                                  => ResendVerificationSuccessful
-        case Left(UpstreamErrorResponse(_, PRECONDITION_FAILED, _, _)) => throw PreconditionFailedException
-        case Left(err)                                                 => throw err
-      })
-  }
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
     http.GET[ApplicationWithHistory](baseTpaGatekeeperUrl(applicationId))
