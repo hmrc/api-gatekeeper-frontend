@@ -286,11 +286,12 @@ class ApplicationController @Inject() (
 
   def resendVerification(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      for {
-        _ <- applicationService.resendVerification(app.application, loggedIn.userFullName.get)
-      } yield {
-        Redirect(routes.ApplicationController.applicationPage(appId))
-          .flashing("success" -> "Verification email has been sent")
+      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      applicationService.resendVerification(app.application, loggedIn.userFullName.get) map {
+        case ApplicationUpdateSuccessResult =>
+          result.flashing("success" -> "Verification email has been sent")
+        case _                              =>
+          result.flashing("failed" -> "Verification email has not been sent")
       }
     }
   }

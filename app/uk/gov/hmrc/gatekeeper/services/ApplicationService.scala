@@ -44,8 +44,9 @@ class ApplicationService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def resendVerification(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ResendVerificationSuccessful] = {
-    applicationConnectorFor(application).resendVerification(application.id, gatekeeperUserId)
+  def resendVerification(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
+    commandConnector.dispatch(application.id, ApplicationCommands.ResendRequesterEmailVerification(gatekeeperUserId, instant()), Set.empty[LaxEmailAddress])
+      .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def fetchStateHistory(applicationId: ApplicationId, environment: Environment)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
