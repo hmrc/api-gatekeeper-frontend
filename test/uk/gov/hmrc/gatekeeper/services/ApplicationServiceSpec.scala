@@ -22,7 +22,6 @@ import scala.concurrent.Future.successful
 
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider, CommandConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
-import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -262,19 +261,17 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "resendVerification" should {
-    "call applicationConnector with appropriate parameters" in new Setup {
+    "call commandConnector with appropriate parameters" in new Setup {
       val userName = "userName"
 
-      val gatekeeperIdCaptor = ArgCaptor[String]
-      val appIdCaptor        = ArgCaptor[ApplicationId]
-
-      when(mockProductionApplicationConnector.resendVerification(appIdCaptor, gatekeeperIdCaptor)(*))
-        .thenReturn(successful(ResendVerificationSuccessful))
+      CommandConnectorMock.IssueCommand.succeeds()
 
       await(underTest.resendVerification(stdApp1, userName))
 
-      gatekeeperIdCaptor.value shouldBe userName
-      appIdCaptor.value shouldBe stdApp1.id
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
+        case ApplicationCommands.ResendRequesterEmailVerification(aUser, _) =>
+          aUser shouldBe userName
+      }
     }
   }
 
