@@ -32,10 +32,6 @@
         <appender-ref ref="ACCESS_LOG_FILE" />
     </logger>
 
-    <logger name="com.ning.http.client.providers.netty" additivity="false">
-        <appender-ref ref="STDOUT_IGNORE_NETTY" />
-    </logger>
-
     <logger name="com.google.inject" level="WARN"/>
 
     <logger name="org.apache" level="WARN"/>
