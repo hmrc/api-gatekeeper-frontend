@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
+@import uk.gov.hmrc.gatekeeper.views.helper.application.GrantLengthDisplayer
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -49,7 +50,7 @@
     The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
   </p>
 
-  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{application.grantLength}</strong>.</p>
+  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{GrantLengthDisplayer.display(application.grantLength)}</strong>.</p>
 
   @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     @helper.CSRF.formField
@@ -69,7 +70,7 @@
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" id="@g" name="grantLength" value="@{g.period.getDays}" type="radio">
               <label class="govuk-label govuk-radios__label" for="@g">
-                @g
+              @{GrantLengthDisplayer.display(g)}
               </label>
             </div>
           }
