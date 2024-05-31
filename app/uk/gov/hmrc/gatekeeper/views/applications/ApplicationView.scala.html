@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.gatekeeper.views.helper.application._
 @import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.views.helper.EmailsFormatter
+@import uk.gov.hmrc.gatekeeper.views.helper.application.GrantLengthDisplayer
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -399,7 +400,7 @@
         Application grant Length
       </dt>
       <dd class="govuk-summary-list__value" grant-length>
-        @{application.grantLength.toString}
+        @{GrantLengthDisplayer.display(application.grantLength)}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
