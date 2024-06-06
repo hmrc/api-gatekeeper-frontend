@@ -23,7 +23,7 @@ object GrantLengthDisplayer {
 
   def display(grantLength: GrantLength): String = {
     grantLength match {
-      case FOUR_HOURS => "4-hours no refresh token"
+      case FOUR_HOURS => "4 hours + no refresh token"
       case _          => show(grantLength)
     }
   }

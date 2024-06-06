@@ -19,10 +19,12 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
+@import uk.gov.hmrc.gatekeeper.views.helper.application.GrantLengthDisplayer
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: GKApplicationResponse, grantLength: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: GKApplicationResponse, grantLength: GrantLength)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage application grant length success",
@@ -45,7 +47,7 @@
     </h1>
     <div class="govuk-panel__body">
       The application grant length is now
-      <br><span class="govuk-body govuk-!-font-weight-bold" style="color:#ffffff;">@grantLength</span>
+      <br><span class="govuk-body govuk-!-font-weight-bold" style="color:#ffffff;">@{GrantLengthDisplayer.display(grantLength)}</span>
     </div>
   </div>
 

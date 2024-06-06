@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 class GrantLengthDisplayerSpec extends AsyncHmrcSpec {
   "display" should {
     "return text for 4 hour grant length when Grant length is 4 hours" in {
-      GrantLengthDisplayer.display(GrantLength.FOUR_HOURS) shouldBe "4-hours no refresh token"
+      GrantLengthDisplayer.display(GrantLength.FOUR_HOURS) shouldBe "4 hours + no refresh token"
     }
 
     "return text for 18 month grant length when Grant length is 18 months" in {
