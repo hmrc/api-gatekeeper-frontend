@@ -478,7 +478,7 @@ class ApplicationController @Inject() (
       def handleValidForm(form: UpdateGrantLengthForm) = {
         val grantLength = GrantLength.apply(form.grantLength.get).get
         applicationService.updateGrantLength(app.application, grantLength, loggedIn.userFullName.get) map { _ =>
-          Ok(manageGrantLengthSuccessView(app.application, grantLength.toString))
+          Ok(manageGrantLengthSuccessView(app.application, grantLength))
         }
       }
 
