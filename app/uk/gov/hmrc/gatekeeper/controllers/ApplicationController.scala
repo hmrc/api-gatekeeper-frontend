@@ -710,19 +710,15 @@ class ApplicationController @Inject() (
     }
 
     def validateApplicationName(environment: Environment, applicationName: String): Future[FieldValidationResult[String]] = {
-      environment match {
-        case Environment.PRODUCTION => applicationService.validateNewApplicationName(environment, applicationName).map(_ match {
-            case ValidateApplicationNameSuccessResult          => applicationName.valid
-            case failure: ValidateApplicationNameFailureResult => {
-              failure match {
-                case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error".invalidNec
-                case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error".invalidNec
-              }
-            }
-          })
-        case _                      => successful(applicationName.valid)
-      }
-
+      applicationService.validateNewApplicationName(environment, applicationName).map(_ match {
+        case ValidateApplicationNameSuccessResult          => applicationName.valid
+        case failure: ValidateApplicationNameFailureResult => {
+          failure match {
+            case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error".invalidNec
+            case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error".invalidNec
+          }
+        }
+      })
     }
 
     def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {

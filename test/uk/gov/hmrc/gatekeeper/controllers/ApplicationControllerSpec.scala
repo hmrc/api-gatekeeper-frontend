@@ -1496,7 +1496,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.ValidateNewApplicationName.duplicate()
+          ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1517,7 +1517,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.ValidateNewApplicationName.duplicate()
+          ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
