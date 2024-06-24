@@ -250,10 +250,10 @@ class ApplicationService @Inject() (
       application: GKApplicationResponse,
       adminEmail: LaxEmailAddress,
       gatekeeperUser: String,
-      newName: String
+      newName: ValidatedApplicationName
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    if (application.name.equalsIgnoreCase(newName)) {
+    if (application.name.equalsIgnoreCase(newName.value)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {

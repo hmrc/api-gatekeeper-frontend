@@ -1411,7 +1411,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
           status(result) shouldBe BAD_REQUEST
 
-          assertIncludesOneError(result, "Provide an application name")
+          assertIncludesOneError(result, "Application name must be between 2 and 50 characters and only use ASCII characters excluding")
 
         }
 

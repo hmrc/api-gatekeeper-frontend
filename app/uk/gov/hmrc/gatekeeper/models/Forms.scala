@@ -28,7 +28,7 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{RedirectUri, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
@@ -446,7 +446,7 @@ object Forms {
 
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
-        "applicationName" -> text.verifying("application.name.required", _.nonEmpty)
+        "applicationName" -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid)
       )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
     )
   }
