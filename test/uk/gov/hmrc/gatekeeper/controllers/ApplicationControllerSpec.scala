@@ -1416,24 +1416,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         }
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
-          val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp   = buildApplication(
-            ApplicationId.random,
-            ClientId.random,
-            "gatewayId",
-            Some("I Already Exist"),
-            Environment.PRODUCTION,
-            None,
-            collaborators,
-            now,
-            Some(now),
-            access = Access.Standard(),
-            state = ApplicationState(updatedOn = instant)
-          )
-
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.ValidateNewApplicationName.duplicate()
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1447,28 +1432,71 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
           status(result) shouldBe BAD_REQUEST
 
-          assertIncludesOneError(result, "Provide an application name that does not already exist")
+          assertIncludesOneError(result, "An application with this name already exists")
+        }
+
+        "show the correct error message when the new prod app name contains disallowed strings" in new Setup {
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          ApplicationServiceMock.ValidateNewApplicationName.invalid()
+
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "HMRC"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail.text)
+            )
+          )
+
+          status(result) shouldBe BAD_REQUEST
+
+          assertIncludesOneError(result, "The application name is invalid - must not include HMRC or HM Revenue and Customs")
+        }
+
+        "show the correct error message when the new prod app name is not long enough" in new Setup {
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "P"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail.text)
+            )
+          )
+
+          status(result) shouldBe BAD_REQUEST
+
+          assertIncludesOneError(result, "Application name must be between 2 and 50 characters and only use ASCII characters excluding")
+        }
+
+        "show the correct error message when the new prod app name contains disallowed characters" in new Setup {
+          DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              ("environment", Environment.PRODUCTION.toString),
+              ("accessType", privilegedAccessType.toString),
+              ("applicationName", "Pete£"),
+              ("applicationDescription", description),
+              ("adminEmail", adminEmail.text)
+            )
+          )
+
+          status(result) shouldBe BAD_REQUEST
+
+          assertIncludesOneError(result, "Application name must be between 2 and 50 characters and only use ASCII characters excluding")
         }
 
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
-          val collaborators = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp   = buildApplication(
-            ApplicationId.random,
-            ClientId.random,
-            "gatewayId",
-            Some("I Already Exist"),
-            Environment.PRODUCTION,
-            None,
-            collaborators,
-            now,
-            Some(now),
-            access = Access.Standard(),
-            state = ApplicationState(updatedOn = instant)
-          )
-
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.ValidateNewApplicationName.duplicate()
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1487,25 +1515,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         }
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
-          val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-
-          val existingApp = buildApplication(
-            ApplicationId.random,
-            ClientId.random,
-            "gatewayId",
-            Some("I Already Exist"),
-            Environment.SANDBOX,
-            None,
-            collaborators,
-            LocalDateTime.now(),
-            Some(LocalDateTime.now()),
-            access = Access.Standard(),
-            state = ApplicationState(updatedOn = instant)
-          )
-
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.ValidateNewApplicationName.duplicate()
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1524,24 +1536,9 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         }
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
-          val collaborators: Set[Collaborator] = Set("sample@example.com".toLaxEmail.asAdministratorCollaborator)
-          val existingApp                      = buildApplication(
-            ApplicationId.random,
-            ClientId.random,
-            "gatewayId",
-            Some("I Already Exist"),
-            Environment.SANDBOX,
-            None,
-            collaborators,
-            LocalDateTime.now(),
-            Some(LocalDateTime.now()),
-            access = Access.Standard(),
-            state = ApplicationState(updatedOn = instant)
-          )
-
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApplicationServiceMock.FetchApplications.returns(existingApp)
+          ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.PRODUCTION, clientId, totp, privAccess))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1641,7 +1638,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           "show the success page for a priv app in production" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1670,7 +1667,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           "show the success page for a priv app in sandbox" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1698,7 +1695,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           "show the success page for an ROPC app in production" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
@@ -1724,7 +1721,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
           "show the success page for an ROPC app in sandbox" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplications.returns()
+            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(

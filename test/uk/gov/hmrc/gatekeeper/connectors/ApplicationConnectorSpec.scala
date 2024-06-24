@@ -464,7 +464,7 @@ class ApplicationConnectorSpec
   "validateApplicationName" should {
     "return success result if name is valid" in new Setup {
       val name    = "my new name"
-      val request = ValidateApplicationNameRequest(name, applicationId)
+      val request = ValidateApplicationNameRequest(name, Some(applicationId))
 
       stubFor(
         post(urlPathEqualTo("/application/name/validate"))
@@ -476,12 +476,12 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameSuccessResult
+      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameSuccessResult
     }
 
     "return failure result if name is invalid" in new Setup {
       val name    = "my new name"
-      val request = ValidateApplicationNameRequest(name, applicationId)
+      val request = ValidateApplicationNameRequest(name, Some(applicationId))
 
       stubFor(
         post(urlPathEqualTo("/application/name/validate"))
@@ -493,12 +493,12 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameFailureInvalidResult
+      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureInvalidResult
     }
 
     "return failure result if name is duplicate" in new Setup {
       val name    = "my new name"
-      val request = ValidateApplicationNameRequest(name, applicationId)
+      val request = ValidateApplicationNameRequest(name, Some(applicationId))
 
       stubFor(
         post(urlPathEqualTo("/application/name/validate"))
@@ -510,7 +510,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(applicationId, name)) shouldBe ValidateApplicationNameFailureDuplicateResult
+      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureDuplicateResult
     }
   }
 }

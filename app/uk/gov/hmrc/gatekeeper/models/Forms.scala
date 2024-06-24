@@ -294,7 +294,7 @@ object Forms {
     mapping(
       environment            -> of[Environment],
       accessType             -> optional(text).verifying("access.type.required", s => s.isDefined),
-      applicationName        -> text.verifying("application.name.required", _.nonEmpty),
+      applicationName        -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
       adminEmail             -> emailValidator()
     )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply)

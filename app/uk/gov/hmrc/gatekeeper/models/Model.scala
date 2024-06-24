@@ -183,7 +183,7 @@ sealed trait UpdateScopesResult
 case object UpdateScopesSuccessResult       extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
 
-case class ValidateApplicationNameRequest(applicationName: String, selfApplicationId: ApplicationId)
+case class ValidateApplicationNameRequest(applicationName: String, selfApplicationId: Option[ApplicationId])
 
 object ValidateApplicationNameRequest {
   implicit val format: OFormat[ValidateApplicationNameRequest] = Json.format[ValidateApplicationNameRequest]

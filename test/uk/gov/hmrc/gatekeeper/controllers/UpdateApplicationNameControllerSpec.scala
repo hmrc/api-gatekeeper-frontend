@@ -137,6 +137,17 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
     }
 
+    "redisplay the name entry page if the name has disallowed characters" in new Setup {
+      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationServiceMock.ValidateApplicationName.succeeds()
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "sgfjkgfkfk£"))
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
+    }
+
     "redisplay the name entry page if the name is a duplicate" in new Setup {
       ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
       ApplicationServiceMock.ValidateApplicationName.duplicate()

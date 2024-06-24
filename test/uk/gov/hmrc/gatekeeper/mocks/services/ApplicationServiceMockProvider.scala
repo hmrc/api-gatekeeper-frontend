@@ -132,6 +132,16 @@ trait ApplicationServiceMockProvider {
         when(mockApplicationService.validateApplicationName(*[GKApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
     }
 
+    object ValidateNewApplicationName {
+      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+
+      def invalid() =
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+
+      def duplicate() =
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+    }
+
     object UpdateApplicationName {
 
       def succeeds() =
