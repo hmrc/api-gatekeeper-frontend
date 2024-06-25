@@ -113,7 +113,7 @@ class UpdateApplicationNameController @Inject() (
   def updateApplicationNameAdminEmailAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameAdminEmailForm) = {
-        val newApplicationName = ValidatedApplicationName(request.session.get(newAppNameSessionKey).get).get // Already validated by the form
+        val newApplicationName = ValidatedApplicationName.unsafeApply(request.session.get(newAppNameSessionKey).get) // Already validated by the form
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
         applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
