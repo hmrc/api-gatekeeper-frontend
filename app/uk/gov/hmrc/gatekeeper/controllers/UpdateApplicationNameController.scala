@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc._
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -112,14 +113,14 @@ class UpdateApplicationNameController @Inject() (
   def updateApplicationNameAdminEmailAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameAdminEmailForm) = {
-        val newApplicationName = request.session.get(newAppNameSessionKey).get
+        val newApplicationName = ValidatedApplicationName.unsafeApply(request.session.get(newAppNameSessionKey).get) // Already validated by the form
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
         applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
-            val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName))
+            val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName.value))
               .withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.updatefailed.error"))
             Ok(manageApplicationNameView(app.application, formWithErrors))
           }

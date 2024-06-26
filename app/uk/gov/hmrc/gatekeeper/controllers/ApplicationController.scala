@@ -709,12 +709,16 @@ class ApplicationController @Inject() (
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 
-    def validateApplicationName(environment: Environment, applicationName: String, apps: Seq[GKApplicationResponse]): FieldValidationResult[String] = {
-      val isValid = environment match {
-        case Environment.PRODUCTION => !apps.exists(app => (app.deployedTo == Environment.PRODUCTION) && (app.name == applicationName))
-        case _                      => true
-      }
-      if (isValid) applicationName.valid else "application.name.already.exists".invalidNec
+    def validateApplicationName(environment: Environment, applicationName: String): Future[FieldValidationResult[String]] = {
+      applicationService.validateNewApplicationName(environment, applicationName).map(_ match {
+        case ValidateApplicationNameSuccessResult          => applicationName.valid
+        case failure: ValidateApplicationNameFailureResult => {
+          failure match {
+            case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error".invalidNec
+            case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error".invalidNec
+          }
+        }
+      })
     }
 
     def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {
@@ -737,19 +741,11 @@ class ApplicationController @Inject() (
           }
       }
 
-      def validateValues(apps: Seq[GKApplicationResponse], user: Option[User]): ValidationResult[(String, RegisteredUser)] =
-        (
-          validateApplicationName(form.environment, form.applicationName, apps).withField("applicationName"),
-          validateUserSuitability(user).withField("adminEmail")
+      def handleValues(validationResult: ValidationResult[(String, RegisteredUser)], accessType: AccessType): Future[Result] =
+        validationResult.fold[Future[Result]](
+          errs => successful(viewWithFormErrors(errs)),
+          goodData => createApp(goodData._2, accessType)
         )
-          .mapN((n, u) => (n, u))
-
-      def handleValues(apps: Seq[GKApplicationResponse], user: Option[User], accessType: AccessType): Future[Result] =
-        validateValues(apps, user)
-          .fold[Future[Result]](
-            errs => successful(viewWithFormErrors(errs)),
-            goodData => createApp(goodData._2, accessType)
-          )
 
       def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivOrROPCAppForm] =
         errs.foldLeft(createPrivOrROPCAppForm.fill(form))((f, e) => f.withError(e._1, e._2))
@@ -760,13 +756,11 @@ class ApplicationController @Inject() (
       val accessType =
         form.accessType.flatMap(AccessType.apply).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
-      val fApps = applicationService.fetchApplications
-      val fUser = developerService.seekUser(LaxEmailAddress(form.adminEmail))
-
       for {
-        apps   <- fApps
-        user   <- fUser
-        result <- handleValues(apps, user, accessType)
+        appNameValidationResult <- validateApplicationName(form.environment, form.applicationName)
+        userValidationResult    <- developerService.seekUser(LaxEmailAddress(form.adminEmail)).map(validateUserSuitability)
+        overallValidationResult  = (appNameValidationResult.withField("applicationName"), userValidationResult.withField("adminEmail")).mapN((n, u) => (n, u))
+        result                  <- handleValues(overallValidationResult, accessType)
       } yield result
     }
 

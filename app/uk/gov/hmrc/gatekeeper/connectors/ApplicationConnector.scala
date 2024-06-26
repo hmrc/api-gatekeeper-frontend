@@ -127,7 +127,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def validateApplicationName(applicationId: ApplicationId, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+  def validateApplicationName(applicationId: Option[ApplicationId], name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](
       s"$serviceBaseUrl/application/name/validate",
       ValidateApplicationNameRequest(name, applicationId)

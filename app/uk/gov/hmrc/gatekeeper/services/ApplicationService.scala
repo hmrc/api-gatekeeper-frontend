@@ -243,17 +243,21 @@ class ApplicationService @Inject() (
   }
 
   def validateApplicationName(application: GKApplicationResponse, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
-    applicationConnectorFor(application).validateApplicationName(application.id, name)
+    applicationConnectorFor(application).validateApplicationName(Some(application.id), name)
+  }
+
+  def validateNewApplicationName(environment: Environment, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
+    applicationConnectorFor(Some(environment)).validateApplicationName(None, name)
   }
 
   def updateApplicationName(
       application: GKApplicationResponse,
       adminEmail: LaxEmailAddress,
       gatekeeperUser: String,
-      newName: String
+      newName: ValidatedApplicationName
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    if (application.name.equalsIgnoreCase(newName)) {
+    if (application.name.equalsIgnoreCase(newName.value)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {
@@ -330,8 +334,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def applicationConnectorFor(application: GKApplicationResponse): ApplicationConnector =
-    if (application.deployedTo == Environment.PRODUCTION) productionApplicationConnector else sandboxApplicationConnector
+  def applicationConnectorFor(application: GKApplicationResponse): ApplicationConnector = applicationConnectorFor(Some(application.deployedTo))
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
     if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector

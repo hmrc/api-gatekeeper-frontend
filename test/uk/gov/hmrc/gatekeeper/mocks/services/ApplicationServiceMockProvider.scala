@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
@@ -132,15 +132,25 @@ trait ApplicationServiceMockProvider {
         when(mockApplicationService.validateApplicationName(*[GKApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
     }
 
+    object ValidateNewApplicationName {
+      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+
+      def invalid() =
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+
+      def duplicate() =
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+    }
+
     object UpdateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[String])(*)).thenReturn(successful(
+        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
           ApplicationUpdateSuccessResult
         ))
 
       def fails() =
-        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[String])(*)).thenReturn(successful(
+        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
           ApplicationUpdateFailureResult
         ))
     }
