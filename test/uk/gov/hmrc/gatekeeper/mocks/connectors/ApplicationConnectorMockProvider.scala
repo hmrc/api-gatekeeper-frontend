@@ -92,16 +92,6 @@ trait ApplicationConnectorMockProvider {
       def succeeds() = when(aMock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
     }
 
-    object UnblockApplication {
-      def succeeds() = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
-      def fails()    = when(aMock.unblockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationUnblockFailureResult))
-    }
-
-    object BlockApplication {
-      def succeeds() = when(aMock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
-      def fails()    = when(aMock.blockApplication(*[ApplicationId], *)(*)).thenReturn(successful(ApplicationBlockFailureResult))
-    }
-
     object CreatePrivOrROPCApp {
       def returns(result: CreatePrivOrROPCAppResult) = when(aMock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
     }

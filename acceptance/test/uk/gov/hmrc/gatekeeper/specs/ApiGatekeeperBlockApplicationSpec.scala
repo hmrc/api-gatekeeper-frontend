@@ -31,7 +31,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   Feature("Block an application") {
     Scenario("I can block an application") {
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(applicationId).toJsonString, applicationId)
-      stubApplicationForBlockSuccess()
+      stubApplicationForBlockSuccess(applicationId, defaultApplication)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)

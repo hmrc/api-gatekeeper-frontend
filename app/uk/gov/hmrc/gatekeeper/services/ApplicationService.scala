@@ -311,11 +311,15 @@ class ApplicationService @Inject() (
   }
 
   def blockApplication(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    applicationConnectorFor(application).blockApplication(application.id, BlockApplicationRequest(gatekeeperUserId))
+    val cmd = ApplicationCommands.BlockApplication(gatekeeperUserId, instant())
+    commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
+      .map(_.fold(_ => ApplicationBlockFailureResult, _ => ApplicationBlockSuccessResult))
   }
 
   def unblockApplication(application: GKApplicationResponse, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    applicationConnectorFor(application).unblockApplication(application.id, UnblockApplicationRequest(gatekeeperUserId))
+    val cmd = ApplicationCommands.UnblockApplication(gatekeeperUserId, instant())
+    commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
+      .map(_.fold(_ => ApplicationUnblockFailureResult, _ => ApplicationUnblockSuccessResult))
   }
 
   def createPrivOrROPCApp(
