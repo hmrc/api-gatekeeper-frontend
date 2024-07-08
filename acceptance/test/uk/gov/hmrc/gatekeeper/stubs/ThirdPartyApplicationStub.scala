@@ -166,7 +166,11 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
 
   def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: GKApplicationResponse) = {
     val response = DispatchSuccessResult(gkAppResponse)
-    stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString())))
+    stubFor(
+      patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch"))
+        .withRequestBody(containing("unblockApplication"))
+        .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString()))
+    )
   }
 
   def stubApplicationToReview(applicationId: ApplicationId) = {
@@ -193,7 +197,11 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
 
   def stubApplicationForBlockSuccess(applicationId: ApplicationId, gkAppResponse: GKApplicationResponse) = {
     val response = DispatchSuccessResult(gkAppResponse)
-    stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString())))
+    stubFor(
+      patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch"))
+        .withRequestBody(containing("blockApplication"))
+        .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString()))
+    )
   }
 
   def stubUnblockedApplication(): Unit = {
