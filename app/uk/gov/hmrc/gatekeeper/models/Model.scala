@@ -262,18 +262,6 @@ object UnblockApplicationForm {
   implicit val format: OFormat[UnblockApplicationForm] = Json.format[UnblockApplicationForm]
 }
 
-final case class BlockApplicationRequest(gatekeeperUserId: String)
-
-object BlockApplicationRequest {
-  implicit val format: OFormat[BlockApplicationRequest] = Json.format[BlockApplicationRequest]
-}
-
-final case class UnblockApplicationRequest(gatekeeperUserId: String)
-
-object UnblockApplicationRequest {
-  implicit val format: OFormat[UnblockApplicationRequest] = Json.format[UnblockApplicationRequest]
-}
-
 case class DeleteCollaboratorRequest(
     email: String,
     adminsToEmail: Set[String],

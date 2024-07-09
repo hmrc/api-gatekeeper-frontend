@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
@@ -663,67 +663,57 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   }
 
-  "blockApplication" should {
-    "block the application in the correct environment" in new Setup {
-      val application             = stdApp1.copy(deployedTo = Environment.PRODUCTION)
-      val blockApplicationRequest = BlockApplicationRequest(gatekeeperUserId)
+  "BlockApplication" should {
+    "block the application" in new Setup {
+      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
 
-      ApplicationConnectorMock.Prod.BlockApplication.succeeds()
+      CommandConnectorMock.IssueCommand.succeeds()
 
       val result = await(underTest.blockApplication(application, gatekeeperUserId))
 
       result shouldBe ApplicationBlockSuccessResult
 
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockProductionApplicationConnector).blockApplication(eqTo(application.id), eqTo(blockApplicationRequest))(*)
-      verify(mockSandboxApplicationConnector, never).blockApplication(*[ApplicationId], *)(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(application.id)) {
+        case ApplicationCommands.BlockApplication(aUser, _) =>
+          aUser shouldBe gatekeeperUserId
+      }
     }
 
-    "propagate ApplicationBlockFailureResult from connector" in new Setup {
-      val application             = stdApp1.copy(deployedTo = Environment.SANDBOX)
-      val blockApplicationRequest = BlockApplicationRequest(gatekeeperUserId)
+    "propagate failure from connector" in new Setup {
+      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
 
-      ApplicationConnectorMock.Sandbox.BlockApplication.fails()
+      CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
       val result = await(underTest.blockApplication(application, gatekeeperUserId))
 
       result shouldBe ApplicationBlockFailureResult
-
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockSandboxApplicationConnector).blockApplication(eqTo(application.id), eqTo(blockApplicationRequest))(*)
-      verify(mockProductionApplicationConnector, never).blockApplication(*[ApplicationId], *)(*)
     }
   }
 
-  "unblockApplication" should {
+  "UnblockApplication" should {
     "unblock the application in the correct environment" in new Setup {
-      val application               = stdApp1.copy(deployedTo = Environment.PRODUCTION)
-      val unblockApplicationRequest = UnblockApplicationRequest(gatekeeperUserId)
+      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
 
-      ApplicationConnectorMock.Prod.UnblockApplication.succeeds()
+      CommandConnectorMock.IssueCommand.succeeds()
 
       val result = await(underTest.unblockApplication(application, gatekeeperUserId))
 
       result shouldBe ApplicationUnblockSuccessResult
 
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockProductionApplicationConnector).unblockApplication(eqTo(application.id), eqTo(unblockApplicationRequest))(*)
-      verify(mockSandboxApplicationConnector, times(0)).unblockApplication(*[ApplicationId], *)(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(application.id)) {
+        case ApplicationCommands.UnblockApplication(aUser, _) =>
+          aUser shouldBe gatekeeperUserId
+      }
     }
 
-    "propagate ApplicationUnblockFailureResult from connector" in new Setup {
-      val application               = stdApp1.copy(deployedTo = Environment.SANDBOX)
-      val unblockApplicationRequest = UnblockApplicationRequest(gatekeeperUserId)
+    "propagate failure from connector" in new Setup {
+      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
 
-      ApplicationConnectorMock.Sandbox.UnblockApplication.fails()
+      CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
       val result = await(underTest.unblockApplication(application, gatekeeperUserId))
 
       result shouldBe ApplicationUnblockFailureResult
-
-      verify(underTest).applicationConnectorFor(application)
-      verify(mockSandboxApplicationConnector).unblockApplication(eqTo(application.id), eqTo(unblockApplicationRequest))(*)
-      verify(mockProductionApplicationConnector, never).unblockApplication(*[ApplicationId], *)(*)
     }
   }
 

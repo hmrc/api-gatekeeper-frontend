@@ -42,7 +42,7 @@ class ApiGatekeeperUnblockApplicationSpec
         stateHistories.withApplicationId(blockedApplicationId).toJsonString,
         blockedApplicationId
       )
-      stubApplicationForUnblockSuccess(blockedApplicationId)
+      stubApplicationForUnblockSuccess(blockedApplicationId, defaultApplication)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)

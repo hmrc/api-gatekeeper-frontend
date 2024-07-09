@@ -140,22 +140,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def blockApplication(applicationId: ApplicationId, blockApplicationRequest: BlockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    http.POST[BlockApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/block", blockApplicationRequest)
-      .map(_ match {
-        case Right(result) => ApplicationBlockSuccessResult
-        case Left(_)       => ApplicationBlockFailureResult
-      })
-  }
-
-  def unblockApplication(applicationId: ApplicationId, unblockApplicationRequest: UnblockApplicationRequest)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    http.POST[UnblockApplicationRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/unblock", unblockApplicationRequest)
-      .map(_ match {
-        case Right(result) => ApplicationUnblockSuccessResult
-        case Left(_)       => ApplicationUnblockFailureResult
-      })
-  }
-
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
     http.POST[CreatePrivOrROPCAppRequest, Either[UpstreamErrorResponse, CreatePrivOrROPCAppSuccessResult]](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest)
       .map(_ match {
