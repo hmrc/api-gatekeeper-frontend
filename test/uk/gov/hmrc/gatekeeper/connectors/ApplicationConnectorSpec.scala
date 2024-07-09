@@ -317,40 +317,6 @@ class ApplicationConnectorSpec
     }
   }
 
-  "updateScopes" should {
-    val scopesRequest = UpdateScopesRequest(Set("hello", "read:individual-benefits"))
-    val request       = Json.toJson(scopesRequest).toString
-    val url           = s"/application/${applicationId.value.toString()}/access/scopes"
-
-    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(request))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-          )
-      )
-
-      await(connector.updateScopes(applicationId, scopesRequest)) shouldBe UpdateScopesSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .withRequestBody(equalTo(request))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateScopes(applicationId, scopesRequest))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
   "createPrivOrROPCApp" should {
     val url = s"/application"
 

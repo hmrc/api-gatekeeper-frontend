@@ -353,7 +353,7 @@ class ApplicationController @Inject() (
   def updateScopes(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
-        applicationService.updateScopes(app.application, scopes).map {
+        applicationService.updateScopes(app.application, scopes, loggedIn.userFullName.get).map {
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
             BadRequest(manageScopesView(app.application, form))

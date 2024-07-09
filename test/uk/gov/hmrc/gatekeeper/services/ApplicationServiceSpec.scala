@@ -519,51 +519,56 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "updateScopes" should {
+  "UpdateScopes" should {
     "call the service to update the scopes for an app with Privileged access" in new Setup {
-      ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
+      CommandConnectorMock.IssueCommand.succeeds()
       ApiScopeConnectorMock.Prod.FetchAll.returns(
         ApiScope("hello", "test name", "test description"),
         ApiScope("individual-benefits", "test name", "test description")
       )
 
-      val result = await(underTest.updateScopes(privilegedApp, Set("hello", "individual-benefits")))
+      val result = await(underTest.updateScopes(privilegedApp, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesSuccessResult
 
-      verify(mockProductionApplicationConnector).updateScopes(eqTo(privilegedApp.id), eqTo(UpdateScopesRequest(Set("hello", "individual-benefits"))))(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(privilegedApp.id)) {
+        case ApplicationCommands.ChangeApplicationScopes(aUser, scopes, _) =>
+          aUser shouldBe gatekeeperUserId
+          scopes shouldBe Set("hello", "individual-benefits")
+      }
     }
 
     "call the service to update the scopes for an app with ROPC access" in new Setup {
-      ApplicationConnectorMock.Prod.UpdateScopes.succeeds()
+      CommandConnectorMock.IssueCommand.succeeds()
       ApiScopeConnectorMock.Prod.FetchAll.returns(
         ApiScope("hello", "test name", "test description"),
         ApiScope("individual-benefits", "test name", "test description")
       )
 
-      val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
+      val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesSuccessResult
 
-      verify(mockProductionApplicationConnector).updateScopes(eqTo(ropcApp.id), eqTo(UpdateScopesRequest(Set("hello", "individual-benefits"))))(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(ropcApp.id)) {
+        case ApplicationCommands.ChangeApplicationScopes(aUser, scopes, _) =>
+          aUser shouldBe gatekeeperUserId
+          scopes shouldBe Set("hello", "individual-benefits")
+      }
     }
 
     "fail when called with invalid scopes" in new Setup {
+      CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
       ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("hello", "test name", "test description"))
 
-      val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits")))
+      val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesInvalidScopesResult
-
-      verify(mockProductionApplicationConnector, never).updateScopes(*[ApplicationId], *)(*)
     }
 
     "fail when called for an app with Standard access" in new Setup {
-      val result = await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits")))
+      val result = await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesInvalidScopesResult
-
-      verify(mockProductionApplicationConnector, never).updateScopes(*[ApplicationId], *)(*)
     }
   }
 

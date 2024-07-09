@@ -119,14 +119,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def updateScopes(applicationId: ApplicationId, updateScopesRequest: UpdateScopesRequest)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
-    http.PUT[UpdateScopesRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/access/scopes", updateScopesRequest)
-      .map(_ match {
-        case Right(result) => UpdateScopesSuccessResult
-        case Left(err)     => throw err
-      })
-  }
-
   def validateApplicationName(applicationId: Option[ApplicationId], name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](
       s"$serviceBaseUrl/application/name/validate",

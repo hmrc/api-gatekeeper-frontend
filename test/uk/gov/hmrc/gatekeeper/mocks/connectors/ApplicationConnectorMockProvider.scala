@@ -88,10 +88,6 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: GKApplicationResponse*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
-    object UpdateScopes {
-      def succeeds() = when(aMock.updateScopes(*[ApplicationId], *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
-    }
-
     object CreatePrivOrROPCApp {
       def returns(result: CreatePrivOrROPCAppResult) = when(aMock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
     }

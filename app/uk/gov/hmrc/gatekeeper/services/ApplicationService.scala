@@ -176,7 +176,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def updateScopes(application: GKApplicationResponse, scopes: Set[String])(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
+  def updateScopes(application: GKApplicationResponse, scopes: Set[String], gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[UpdateScopesResult] = {
 
     application.access match {
       case _: Access.Privileged | _: Access.Ropc => {
@@ -187,7 +187,11 @@ class ApplicationService @Inject() (
           } yield hasInvalidScopes
         ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
-          else applicationConnectorFor(application).updateScopes(application.id, UpdateScopesRequest(scopes))
+          else {
+            val cmd = ApplicationCommands.ChangeApplicationScopes(gatekeeperUserId, scopes, instant())
+            commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
+              .map(_.fold(_ => UpdateScopesInvalidScopesResult, _ => UpdateScopesSuccessResult))
+          }
         )
       }
       case _: Access.Standard                    => Future.successful(UpdateScopesInvalidScopesResult)
