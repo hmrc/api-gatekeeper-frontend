@@ -437,7 +437,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService)
-          .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")))(*)
+          .updateScopes(eqTo(application.application), eqTo(Set("hello", "individual-benefits")), eqTo("Bobby Example"))(*)
 
       }
 
@@ -450,7 +450,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateScopes(*, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
@@ -475,7 +475,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateScopes(*, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
       }
     }
 

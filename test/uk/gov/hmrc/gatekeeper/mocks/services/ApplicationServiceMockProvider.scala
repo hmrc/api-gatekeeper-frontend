@@ -58,8 +58,8 @@ trait ApplicationServiceMockProvider {
     }
 
     object UpdateScopes {
-      def succeeds()               = when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
-      def failsWithInvalidScopes() = when(mockApplicationService.updateScopes(*, *)(*)).thenReturn(successful(UpdateScopesInvalidScopesResult))
+      def succeeds()               = when(mockApplicationService.updateScopes(*, *, *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
+      def failsWithInvalidScopes() = when(mockApplicationService.updateScopes(*, *, *)(*)).thenReturn(successful(UpdateScopesInvalidScopesResult))
     }
 
     object ManageIpAllowlist {

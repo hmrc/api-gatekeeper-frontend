@@ -173,12 +173,6 @@ sealed trait UpdateOverridesResult
 case object UpdateOverridesSuccessResult                                                   extends UpdateOverridesResult
 case class UpdateOverridesFailureResult(overrideFlagErrors: Set[OverrideFlag] = Set.empty) extends UpdateOverridesResult
 
-case class UpdateScopesRequest(scopes: Set[String])
-
-object UpdateScopesRequest {
-  implicit val format: OFormat[UpdateScopesRequest] = Json.format[UpdateScopesRequest]
-}
-
 sealed trait UpdateScopesResult
 case object UpdateScopesSuccessResult       extends UpdateScopesResult
 case object UpdateScopesInvalidScopesResult extends UpdateScopesResult
