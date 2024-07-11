@@ -1191,7 +1191,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             OverrideFlag.SuppressIvForOrganisations(Set("address", "openid:mdtp")),
             OverrideFlag.SuppressIvForIndividuals(Set("email", "openid:hmrc-enrolments")),
             OverrideFlag.OriginOverride("ngc")
-          ))
+          )),
+          eqTo("Bobby Example")
         )(*)
 
       }
@@ -1210,7 +1211,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateOverrides(*, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
 
       }
 
@@ -1225,7 +1226,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateOverrides(*, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
       }
     }
 

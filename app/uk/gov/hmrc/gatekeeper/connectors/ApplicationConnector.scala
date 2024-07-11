@@ -110,15 +110,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       }
   }
 
-  def updateOverrides(applicationId: ApplicationId, updateOverridesRequest: UpdateOverridesRequest)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
-    http.PUT[UpdateOverridesRequest, Either[UpstreamErrorResponse, HttpResponse]](s"${baseApplicationUrl(applicationId)}/access/overrides", updateOverridesRequest)
-      .map(_ match {
-        case Right(_)                                                                           => UpdateOverridesSuccessResult
-        case Left(UpstreamErrorResponse(_, status, _, _)) if (HttpErrorFunctions.is4xx(status)) => UpdateOverridesFailureResult()
-        case Left(err)                                                                          => throw err
-      })
-  }
-
   def validateApplicationName(applicationId: Option[ApplicationId], name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](
       s"$serviceBaseUrl/application/name/validate",
