@@ -27,7 +27,7 @@ import play.api.libs.json.{Json, OFormat}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType, OverrideFlag}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -283,37 +283,6 @@ class ApplicationConnectorSpec
           )
       )
       compareByString(await(connector.fetchStateHistory(applicationId)), List(stateHistory))
-    }
-  }
-
-  "updateOverrides" should {
-    val overridesRequest = UpdateOverridesRequest(Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello", "read:individual-benefits"))))
-    val url              = s"/application/${applicationId.value.toString()}/access/overrides"
-
-    "send Authorisation and return OK if the request was successful on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-          )
-      )
-
-      await(connector.updateOverrides(applicationId, overridesRequest)) shouldBe UpdateOverridesSuccessResult
-    }
-
-    "fail if the request failed on the backend" in new Setup {
-      stubFor(
-        put(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.updateOverrides(applicationId, overridesRequest))
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 

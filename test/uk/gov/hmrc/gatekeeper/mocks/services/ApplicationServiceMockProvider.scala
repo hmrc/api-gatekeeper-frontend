@@ -71,7 +71,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object UpdateOverrides {
-      def succeeds() = when(mockApplicationService.updateOverrides(*, *)(*)).thenReturn(successful(UpdateOverridesSuccessResult))
+      def succeeds() = when(mockApplicationService.updateOverrides(*, *, *)(*)).thenReturn(successful(UpdateOverridesSuccessResult))
     }
 
     object UpdateRateLimitTier {

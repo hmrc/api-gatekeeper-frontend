@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.services
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future.successful
 
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider, CommandConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
@@ -476,46 +475,48 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "updateOverrides" should {
+  "UpdateOverrides" should {
     "call the service to update the overrides for an app with Standard access" in new Setup {
-      when(mockProductionApplicationConnector.updateOverrides(*[ApplicationId], *)(*))
-        .thenReturn(successful(UpdateOverridesSuccessResult))
+      CommandConnectorMock.IssueCommand.succeeds()
       ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
-      val result = await(underTest.updateOverrides(stdApp1, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("test.key")))))
+      val validOverrides: Set[OverrideFlag] = Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("test.key")))
+      val result                            = await(underTest.updateOverrides(stdApp1, validOverrides, gatekeeperUserId))
 
       result shouldBe UpdateOverridesSuccessResult
 
-      verify(mockProductionApplicationConnector).updateOverrides(
-        eqTo(stdApp1.id),
-        eqTo(UpdateOverridesRequest(Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("test.key")))))
-      )(*)
+      inside(CommandConnectorMock.IssueCommand.verifyCommand(stdApp1.id)) {
+        case ApplicationCommands.ChangeApplicationAccessOverrides(aUser, overrides, _) =>
+          aUser shouldBe gatekeeperUserId
+          overrides shouldBe validOverrides
+      }
     }
 
-    "fail when called with invalid scopes" in new Setup {
+    "fail when called with invalid overrides" in new Setup {
       ApiScopeConnectorMock.Prod.FetchAll.returns(ApiScope("test.key", "test name", "test description"))
 
-      val result = await(underTest.updateOverrides(stdApp1, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("test.key", "invalid.key")))))
+      val invalidOverrides: Set[OverrideFlag] = Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("test.key", "invalid.key")))
+      val result                              = await(underTest.updateOverrides(stdApp1, invalidOverrides, gatekeeperUserId))
 
       result shouldBe UpdateOverridesFailureResult(Set(OverrideFlag.SuppressIvForAgents(Set("test.key", "invalid.key"))))
 
-      verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *)(*)
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "fail when called for an app with Privileged access" in new Setup {
-      intercept[RuntimeException] {
-        await(underTest.updateOverrides(privilegedApp, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello")))))
-      }
+      val result = await(underTest.updateOverrides(privilegedApp, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello"))), gatekeeperUserId))
 
-      verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *)(*)
+      result shouldBe UpdateOverridesFailureResult()
+
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "fail when called for an app with ROPC access" in new Setup {
-      intercept[RuntimeException] {
-        await(underTest.updateOverrides(ropcApp, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello")))))
-      }
+      val result = await(underTest.updateOverrides(ropcApp, Set(OverrideFlag.PersistLogin, OverrideFlag.SuppressIvForAgents(Set("hello"))), gatekeeperUserId))
 
-      verify(mockProductionApplicationConnector, never).updateOverrides(*[ApplicationId], *)(*)
+      result shouldBe UpdateOverridesFailureResult()
+
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
   }
 
@@ -563,12 +564,16 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val result = await(underTest.updateScopes(ropcApp, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesInvalidScopesResult
+
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
     "fail when called for an app with Standard access" in new Setup {
       val result = await(underTest.updateScopes(stdApp1, Set("hello", "individual-benefits"), gatekeeperUserId))
 
       result shouldBe UpdateScopesInvalidScopesResult
+
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
   }
 

@@ -313,7 +313,7 @@ class ApplicationController @Inject() (
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {
-        applicationService.updateOverrides(app.application, overrides).map {
+        applicationService.updateOverrides(app.application, overrides, loggedIn.userFullName.get).map {
           case UpdateOverridesFailureResult(overrideFlagErrors) =>
             var form = accessOverridesForm.fill(overrides)
 

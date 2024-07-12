@@ -141,7 +141,7 @@ class ApplicationService @Inject() (
     applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
-  def updateOverrides(application: GKApplicationResponse, overrides: Set[OverrideFlag])(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
+  def updateOverrides(application: GKApplicationResponse, overrides: Set[OverrideFlag], gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[UpdateOverridesResult] = {
     def findOverrideTypesWithInvalidScopes(overrides: Set[OverrideFlag], validScopes: Set[String]): Future[Set[OverrideFlag]] = {
       def containsInvalidScopes(validScopes: Set[String], scopes: Set[String]) = {
         !scopes.forall(validScopes)
@@ -159,7 +159,7 @@ class ApplicationService @Inject() (
     }
 
     application.access match {
-      case _: Access.Standard => {
+      case _: Access.Standard                    => {
         (
           for {
             validScopes                    <- apiScopeConnectorFor(application).fetchAll()
@@ -169,10 +169,13 @@ class ApplicationService @Inject() (
           if (overrideTypes.nonEmpty) {
             Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
-            applicationConnectorFor(application).updateOverrides(application.id, UpdateOverridesRequest(overrides))
+            val cmd = ApplicationCommands.ChangeApplicationAccessOverrides(gatekeeperUserId, overrides, instant())
+            commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
+              .map(_.fold(_ => UpdateOverridesFailureResult(), _ => UpdateOverridesSuccessResult))
           }
         )
       }
+      case _: Access.Privileged | _: Access.Ropc => Future.successful(UpdateOverridesFailureResult())
     }
   }
 
