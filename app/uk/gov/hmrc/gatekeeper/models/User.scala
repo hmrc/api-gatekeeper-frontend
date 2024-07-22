@@ -54,7 +54,6 @@ case class RegisteredUser(
     lastName: String,
     verified: Boolean,
     organisation: Option[String] = None,
-    mfaEnabled: Boolean = false,
     mfaDetails: List[MfaDetail] = List.empty,
     emailPreferences: EmailPreferences = EmailPreferences.noPreferences
   ) extends User {}
@@ -75,7 +74,7 @@ object RegisteredUser {
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
       (JsPath \ "organisation").readNullable[String] and
-      (JsPath \ "mfaEnabled").read[Boolean] and
+      // (JsPath \ "mfaEnabled").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
   )(RegisteredUser.apply _)

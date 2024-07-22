@@ -112,7 +112,6 @@ trait DeveloperServiceMockProvider {
           "first",
           "last",
           verified = verified,
-          mfaEnabled = mfaEnabled,
           mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)
         ))))
       }
@@ -133,7 +132,6 @@ trait DeveloperServiceMockProvider {
           "first",
           "last",
           verified = verified,
-          mfaEnabled = mfaEnabled,
           mfaDetails = mfaEnabledToMfaDetails(mfaEnabled)
         )))
     }

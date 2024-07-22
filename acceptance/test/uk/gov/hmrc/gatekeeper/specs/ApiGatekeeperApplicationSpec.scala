@@ -30,7 +30,7 @@ class ApiGatekeeperApplicationSpec
     with ThirdPartyDeveloperStub
     with ThirdPartyApplicationStub {
 
-  val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.mfaEnabled))
+  val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
 
   Feature("Application List for Search Functionality") {
     info("AS A Product Owner")
