@@ -34,6 +34,8 @@ object AppDependencies {
     "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.30.0",
     "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
-    "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion
+    "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion,
+    "uk.gov.hmrc"         %% "ui-test-runner"  % "0.30.0"
+
   ).map(_ % "test")
 }
