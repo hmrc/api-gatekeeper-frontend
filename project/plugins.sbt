@@ -16,5 +16,4 @@ addSbtPlugin("ch.epfl.scala"       % "sbt-scalafix"          % "0.11.1")
 addSbtPlugin("ch.epfl.scala"       % "sbt-bloop"             % "1.5.15")
 addSbtPlugin("uk.gov.hmrc"         % "sbt-test-report"       % "1.0.0")
 
-
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
