@@ -16,40 +16,32 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.util.UUID
-import scala.util.Try
-import scala.util.matching.Regex
+// sealed trait DeveloperIdentifier {
+//   def asText: String = DeveloperIdentifier.asText(this)
+// }
+// case class EmailIdentifier(val email: LaxEmailAddress) extends DeveloperIdentifier
+// case class UuidIdentifier(val userId: UserId) extends DeveloperIdentifier
 
-import play.api.libs.json.{Json, OFormat}
+// // object EmailIdentifier {
+// //   private[this] val simplestEmailRegex: Regex = """^.+@.+\..+$""".r
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+// //   def parse(text: String): Option[EmailIdentifier] =
+// //     simplestEmailRegex.findFirstIn(text).map(t => EmailIdentifier(LaxEmailAddress(t)))
 
-sealed trait DeveloperIdentifier {
-  def asText: String = DeveloperIdentifier.asText(this)
-}
-case class EmailIdentifier(val email: LaxEmailAddress) extends DeveloperIdentifier
-case class UuidIdentifier(val userId: UserId) extends DeveloperIdentifier
+// //   implicit val format: OFormat[EmailIdentifier] = Json.format[EmailIdentifier]
+// // }
 
-object EmailIdentifier {
-  private[this] val simplestEmailRegex: Regex = """^.+@.+\..+$""".r
+// object UuidIdentifier {
 
-  def parse(text: String): Option[EmailIdentifier] =
-    simplestEmailRegex.findFirstIn(text).map(t => EmailIdentifier(LaxEmailAddress(t)))
+//   def parse(text: String): Option[UuidIdentifier] =
+//     Try(UUID.fromString(text)).toOption.map(u => UuidIdentifier(UserId(u)))
+// }
 
-  implicit val format: OFormat[EmailIdentifier] = Json.format[EmailIdentifier]
-}
+// object DeveloperIdentifier {
+//   def apply(text: String): Option[DeveloperIdentifier] = EmailIdentifier.parse(text) orElse UuidIdentifier.parse(text)
 
-object UuidIdentifier {
-
-  def parse(text: String): Option[UuidIdentifier] =
-    Try(UUID.fromString(text)).toOption.map(u => UuidIdentifier(UserId(u)))
-}
-
-object DeveloperIdentifier {
-  def apply(text: String): Option[DeveloperIdentifier] = EmailIdentifier.parse(text) orElse UuidIdentifier.parse(text)
-
-  def asText(id: DeveloperIdentifier) = id match {
-    case EmailIdentifier(email) => email.text
-    case UuidIdentifier(id)     => id.value.toString
-  }
-}
+//   def asText(id: DeveloperIdentifier) = id match {
+//     case EmailIdentifier(email) => email.text
+//     case UuidIdentifier(id)     => id.value.toString
+//   }
+// }

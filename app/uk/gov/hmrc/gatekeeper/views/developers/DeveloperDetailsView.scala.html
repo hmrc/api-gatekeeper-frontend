@@ -127,7 +127,7 @@
     @if(MfaDetailHelper.isMfaVerified(developer.mfaDetails)) {
         @if(loggedInRequest.role.isUser) {
             <p class="govuk-body">
-                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}"
+                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId)}"
                 class="govuk-link">Remove multi-factor authentication</a>
             </p><br><br>
         }
@@ -183,7 +183,7 @@
     <br>
     @if(loggedInRequest.role.isSuperUser) {
         <a id="delete-developer"
-           href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
+           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId)}"
            class="govuk-button govuk-button--secondary">Remove developer
         </a>
     }

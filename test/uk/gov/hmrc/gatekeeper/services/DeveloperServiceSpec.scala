@@ -181,7 +181,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     }
 
     def removeMfaReturnWillReturn(user: RegisteredUser) = {
-      when(mockDeveloperConnector.removeMfa(*, *)(*)).thenReturn(successful(user))
+      when(mockDeveloperConnector.removeMfa(*[UserId], *)(*)).thenReturn(successful(user))
     }
   }
 
@@ -366,13 +366,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val result = await(underTest.fetchDeveloper(developer.userId, FetchDeletedApplications.Include))
 
       result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne))
-      verify(mockDeveloperConnector).fetchById(eqTo(UuidIdentifier(developer.userId)))(*)
+      verify(mockDeveloperConnector).fetchByUserId(eqTo(developer.userId))(*)
       verify(mockProductionApplicationConnector).fetchApplicationsByUserId(eqTo(developer.userId))(*)
     }
 
     "remove MFA" in new Setup {
       val developer            = aUser("Fred")
-      val developerId          = UuidIdentifier(developer.userId)
+      val developerId          = developer.userId
       val loggedInUser: String = "admin-user"
       removeMfaReturnWillReturn(developer)
 
@@ -405,16 +405,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
-    "fetch the developer when requested by email as developerId" in new Setup {
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
+    // "fetch the developer when requested by email as developerId" in new Setup {
+    //   fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
 
-      await(underTest.fetchDeveloper(EmailIdentifier(user.email), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
-    }
+    //   await(underTest.fetchDeveloper(EmailIdentifier(user.email), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+    // }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
 
-      await(underTest.fetchDeveloper(UuidIdentifier(user.userId), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
 
     "returns UpstreamErrorResponse when call to GetXmlServicesForUser fails" in new Setup {
@@ -424,7 +424,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       XmlServiceMock.GetXmlServicesForUser.returnsError(user)
 
       intercept[UpstreamErrorResponse](
-        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+        await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail()
@@ -439,7 +439,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       XmlServiceMock.GetXmlOrganisationsForUser.returnsError()
 
       intercept[UpstreamErrorResponse](
-        await(underTest.fetchDeveloper(UuidIdentifier(user.userId), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
+        await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
       ) match {
         case (e: UpstreamErrorResponse) => succeed
         case _                          => fail()
@@ -450,7 +450,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
   "developerService.deleteDeveloper" should {
     val gatekeeperUserId = "gate.keeper"
     val user             = aUser("Fred")
-    val developerId      = UuidIdentifier(user.userId)
+    val developerId      = user.userId
 
     "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
 

@@ -25,12 +25,13 @@ import com.google.inject.name.Named
 
 import play.api.Logging
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.{Json, OFormat, OWrites, Reads}
+import play.api.libs.json.{Json, OWrites}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindOrCreateUserIdRequest, FindUserIdRequest, FindUserIdResponse}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
@@ -42,11 +43,6 @@ trait DeveloperConnector {
   def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]]
 
   def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User]
-
-  final def fetchById(developerId: DeveloperIdentifier)(implicit hc: HeaderCarrier): Future[User] = developerId match {
-    case EmailIdentifier(email) => fetchByEmail(email)
-    case UuidIdentifier(userId) => fetchByUserId(userId)
-  }
 
   def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User]
 
@@ -78,21 +74,21 @@ trait DeveloperConnector {
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
 
-  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
+  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
 }
 
 object DeveloperConnector {
-  case class FindUserIdRequest(email: LaxEmailAddress)
-  implicit val FindUserIdRequestWrite: OWrites[FindUserIdRequest] = Json.writes[FindUserIdRequest]
+  // case class FindUserIdRequest(email: LaxEmailAddress)
+  // implicit val FindUserIdRequestWrite: OWrites[FindUserIdRequest] = Json.writes[FindUserIdRequest]
 
-  case class FindUserIdResponse(userId: UserId)
-  implicit val FindUserIdResponseReads: Reads[FindUserIdResponse] = Json.reads[FindUserIdResponse]
+  // case class FindUserIdResponse(userId: UserId)
+  // implicit val FindUserIdResponseReads: Reads[FindUserIdResponse] = Json.reads[FindUserIdResponse]
 
   case class RemoveMfaRequest(removedBy: String)
   implicit val RemoveMfaRequestWrites: OWrites[RemoveMfaRequest] = Json.writes[RemoveMfaRequest]
 
-  case class GetOrCreateUserIdRequest(email: LaxEmailAddress)
-  implicit val getOrCreateUserIdRequestFormat: OFormat[GetOrCreateUserIdRequest] = Json.format[GetOrCreateUserIdRequest]
+  // case class GetOrCreateUserIdRequest(email: LaxEmailAddress)
+  // implicit val getOrCreateUserIdRequestFormat: OFormat[GetOrCreateUserIdRequest] = Json.format[GetOrCreateUserIdRequest]
 }
 
 @Singleton
@@ -112,7 +108,7 @@ class HttpDeveloperConnector @Inject() (
   }
 
   private def fetchOrCreateUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[CoreUserDetails] = {
-    http.POST[GetOrCreateUserIdRequest, FindUserIdResponse](s"${appConfig.developerBaseUrl}/developers/user-id", GetOrCreateUserIdRequest(email))
+    http.POST[FindOrCreateUserIdRequest, FindUserIdResponse](s"${appConfig.developerBaseUrl}/developers/user-id", FindOrCreateUserIdRequest(email))
       .map(userIdResponse => CoreUserDetails(email, userIdResponse.userId))
   }
 
@@ -226,10 +222,9 @@ class HttpDeveloperConnector @Inject() (
       }
   }
 
-  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
+  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     for {
-      user         <- fetchById(developerId)
-      userResponse <- http.POST[RemoveMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${user.userId.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
+      userResponse <- http.POST[RemoveMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${userId.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
     } yield userResponse
   }
 
@@ -285,8 +280,8 @@ class DummyDeveloperConnector extends DeveloperConnector {
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
     Future.successful(DeveloperDeleteSuccessResult)
 
-  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =
-    Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), UserId.random, "Bob", "Smith", true))
+  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =
+    Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
 
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 }

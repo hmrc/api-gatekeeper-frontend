@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
@@ -57,7 +58,6 @@ class HttpDeveloperConnectorSpec
   }
 
   def mockFetchUserId(email: LaxEmailAddress, userId: UserId) = {
-    import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector._
     implicit val writer = Json.writes[FindUserIdResponse]
 
     stubFor(
@@ -179,7 +179,7 @@ class HttpDeveloperConnectorSpec
     "remove MFA for a developer" in new Setup {
       val emailAddress = "someone@example.com"
       val user         = RegisteredUser(emailAddress.toLaxEmail, UserId.random, "Firstname", "Lastname", true)
-      val developerId  = UuidIdentifier(user.userId)
+      val developerId  = user.userId
 
       mockSeekRegisteredUser(user)
       val loggedInUser: String = "admin-user"

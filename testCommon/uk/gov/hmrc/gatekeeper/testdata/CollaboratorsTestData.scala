@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
 trait CollaboratorsTestData extends CommonTestData with CollaboratorTracker {
@@ -24,11 +24,11 @@ trait CollaboratorsTestData extends CommonTestData with CollaboratorTracker {
   val collaboratorsAdminAndUnverifiedDev: Set[Collaborator] = Set(
     administratorEmail.asAdministratorCollaborator,
     developerEmail.asDeveloperCollaborator,
-    unverifiedUser.email.asDeveloperCollaborator
+    Collaborators.Developer(unverifiedUser.userId, unverifiedUser.email)
   )
 
   val collaboratorsDevAndUnverifiedAdmin: Set[Collaborator] = Set(
     developerEmail.asDeveloperCollaborator,
-    unverifiedUser.email.asAdministratorCollaborator
+    Collaborators.Administrator(unverifiedUser.userId, unverifiedUser.email)
   )
 }

@@ -24,7 +24,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
@@ -73,18 +73,18 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDeveloper {
-      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful(developer))
+      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(developer.user.userId), *)(*)).thenReturn(successful(developer))
     }
 
     object RemoveMfa {
-      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(successful(user))
-      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
+      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(successful(user))
+      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(failed(t))
     }
 
     object DeleteDeveloper {
 
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
-        when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*))
+        when(mockDeveloperService.deleteDeveloper(eqTo(developer.user.userId), *)(*))
           .thenReturn(successful((result, developer)))
     }
 

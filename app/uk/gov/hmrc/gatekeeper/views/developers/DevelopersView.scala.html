@@ -119,7 +119,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
       @for((user, index) <- users.zipWithIndex) {
         <tr class="govuk-table__row">
           <td id="dev-email-@index" class="govuk-table__cell">
-            <a href="@{routes.DeveloperController.developerPage(UuidIdentifier(user.userId))}">@user.email.text</a>
+            <a href="@{routes.DeveloperController.developerPage(user.userId)}">@user.email.text</a>
           </td>
           <td class="govuk-table__cell" id="dev-fn-@index">@user.firstName</td>
           <td class="govuk-table__cell" id="dev-sn-@index">@user.lastName</td>

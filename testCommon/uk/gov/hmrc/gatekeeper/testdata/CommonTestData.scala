@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, User
 import uk.gov.hmrc.gatekeeper.models._
 
 trait CommonTestData {
+
   val applicationId                = ApplicationId(UUID.fromString("a97541e8-f93d-4d0a-ab0b-862e63204b7d"))
   val blockedApplicationId         = ApplicationId(UUID.fromString("fa38d130-7c8e-47d8-abc0-0374c7f73217"))
   val pendingApprovalApplicationId = ApplicationId(UUID.fromString("df0c32b6-bbb7-46eb-ba50-e6e5459162ff"))

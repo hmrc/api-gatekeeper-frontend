@@ -43,8 +43,7 @@ trait DeveloperConnectorMockProvider {
     object FetchById {
 
       def handles(user: User) = {
-        when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*)).thenReturn(successful(user))
-        when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*)).thenReturn(successful(user))
+        when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
       }
     }
 

@@ -157,10 +157,7 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] =
-    fetchDeveloper(UuidIdentifier(userId), includingDeleted)
-
-  def fetchDeveloper(developerId: DeveloperIdentifier, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
+  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
 
     def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[GKApplicationResponse]] = {
       includingDeleted match {
@@ -170,11 +167,11 @@ class DeveloperService @Inject() (
     }
 
     for {
-      user                   <- developerConnector.fetchById(developerId)
+      user                   <- developerConnector.fetchByUserId(userId)
       xmlServiceNames        <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
-      xmlOrganisations       <- xmlService.findOrganisationsByUserId(user.userId)
-      sandboxApplications    <- fetchApplicationsByUserId(sandboxApplicationConnector, user.userId, includingDeleted)
-      productionApplications <- fetchApplicationsByUserId(productionApplicationConnector, user.userId, includingDeleted)
+      xmlOrganisations       <- xmlService.findOrganisationsByUserId(userId)
+      sandboxApplications    <- fetchApplicationsByUserId(sandboxApplicationConnector, userId, includingDeleted)
+      productionApplications <- fetchApplicationsByUserId(productionApplicationConnector, userId, includingDeleted)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations)
   }
 
@@ -220,11 +217,11 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferencesPaginated(None, Some(apis.distinct), None, privateapimatch = false, offset, limit)
   }
 
-  def removeMfa(developerId: DeveloperIdentifier, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
-    developerConnector.removeMfa(developerId, loggedInUser)
+  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
+    developerConnector.removeMfa(userId, loggedInUser)
   }
 
-  def deleteDeveloper(developerId: DeveloperIdentifier, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
+  def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
     def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: GKApplicationResponse): Future[Set[LaxEmailAddress]] = {
       if (app.deployedTo == Environment.SANDBOX) {
@@ -252,7 +249,7 @@ class DeveloperService @Inject() (
       } yield result
     }
 
-    fetchDeveloper(developerId, FetchDeletedApplications.Exclude).flatMap { developer =>
+    fetchDeveloper(userId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email                               = developer.email
       val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
 

@@ -540,7 +540,7 @@
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" data-collaborator-email>
                   @if(model.developers.exists(dev => dev.email == collaborator.emailAddress)) {
-                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(UuidIdentifier(collaborator.userId))}">@collaborator.emailAddress.text</a>
+                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(collaborator.userId)}">@collaborator.emailAddress.text</a>
                   } else {
                     @collaborator.emailAddress.text
                   }

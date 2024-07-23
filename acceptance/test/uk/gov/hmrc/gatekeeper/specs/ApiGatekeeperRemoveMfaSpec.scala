@@ -124,7 +124,7 @@ class ApiGatekeeperRemoveMfaSpec
   def initStubs(): Unit = {
     stubFetchAllApplicationsList()
     stubPaginatedApplicationList()
-    stubApplicationForDeveloper(developer8Id.toString(), applicationResponseForEmail)
+    stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
     stubApplicationExcludingDeletedForDeveloper()
     stubApiDefinition()
     stubDevelopers()
