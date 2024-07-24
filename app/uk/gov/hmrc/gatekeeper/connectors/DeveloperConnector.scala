@@ -77,19 +77,6 @@ trait DeveloperConnector {
   def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
 }
 
-object DeveloperConnector {
-  // case class FindUserIdRequest(email: LaxEmailAddress)
-  // implicit val FindUserIdRequestWrite: OWrites[FindUserIdRequest] = Json.writes[FindUserIdRequest]
-
-  // case class FindUserIdResponse(userId: UserId)
-  // implicit val FindUserIdResponseReads: Reads[FindUserIdResponse] = Json.reads[FindUserIdResponse]
-
-  case class RemoveMfaRequest(removedBy: String)
-  implicit val RemoveMfaRequestWrites: OWrites[RemoveMfaRequest] = Json.writes[RemoveMfaRequest]
-
-  // case class GetOrCreateUserIdRequest(email: LaxEmailAddress)
-  // implicit val getOrCreateUserIdRequestFormat: OFormat[GetOrCreateUserIdRequest] = Json.format[GetOrCreateUserIdRequest]
-}
 
 @Singleton
 class HttpDeveloperConnector @Inject() (
@@ -127,7 +114,7 @@ class HttpDeveloperConnector @Inject() (
 
   def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = {
     for {
-      user <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"${userId.value} was not found, unexpectedly"))
+      user <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"$userId was not found, unexpectedly"))
     } yield user
   }
 
@@ -224,7 +211,7 @@ class HttpDeveloperConnector @Inject() (
 
   def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     for {
-      userResponse <- http.POST[RemoveMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/${userId.value}/mfa/remove", RemoveMfaRequest(loggedInUser))
+      userResponse <- http.POST[RemoveAllMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/$userId/mfa/remove", RemoveAllMfaRequest(loggedInUser))
     } yield userResponse
   }
 
