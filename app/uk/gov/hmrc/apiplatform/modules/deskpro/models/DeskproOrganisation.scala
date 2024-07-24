@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.apiplatform.modules.deskpro.models
 
-import play.api.libs.json.OFormat
-import play.api.libs.json.Json
+import play.api.libs.json.{Json, OFormat}
 
 case class DeskproOrganisation(id: Int, name: String)
 

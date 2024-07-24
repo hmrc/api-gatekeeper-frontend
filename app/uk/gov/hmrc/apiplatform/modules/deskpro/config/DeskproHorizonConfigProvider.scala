@@ -17,18 +17,20 @@
 package uk.gov.hmrc.apiplatform.modules.deskpro.config
 
 import javax.inject.{Inject, Provider, Singleton}
+
 import play.api.Configuration
 
 case class DeskproHorizonConfig(
-  deskproHorizonUrl: String,
-  deskproHorizonApiKey: String
-)
+    deskproHorizonUrl: String,
+    deskproHorizonApiKey: String
+  )
 
 @Singleton
 class DeskproHorizonConfigProvider @Inject() (configuration: Configuration) extends Provider[DeskproHorizonConfig] {
+
   override def get(): DeskproHorizonConfig = {
-    val deskproHorizonUrl: String          = configuration.get[String]("deskpro-horizon.uri")
-    val deskproHorizonApiKey: String       = configuration.getOptional[String]("deskpro-horizon.api-key").map(key => s"key $key").getOrElse("")
+    val deskproHorizonUrl: String    = configuration.get[String]("deskpro-horizon.uri")
+    val deskproHorizonApiKey: String = configuration.getOptional[String]("deskpro-horizon.api-key").map(key => s"key $key").getOrElse("")
 
     DeskproHorizonConfig(deskproHorizonUrl, deskproHorizonApiKey)
   }

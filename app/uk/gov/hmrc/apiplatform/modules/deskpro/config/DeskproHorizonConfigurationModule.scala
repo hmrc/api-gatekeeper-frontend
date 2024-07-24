@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.config
 import com.google.inject.AbstractModule
 
 class DeskproHorizonConfigurationModule extends AbstractModule {
+
   override def configure() = {
     bind(classOf[DeskproHorizonConfig]).toProvider(classOf[DeskproHorizonConfigProvider])
   }

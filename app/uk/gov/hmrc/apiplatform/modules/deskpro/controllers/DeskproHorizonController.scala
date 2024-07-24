@@ -17,22 +17,32 @@
 package uk.gov.hmrc.apiplatform.modules.deskpro.controllers
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
 import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import play.api.mvc.MessagesControllerComponents
-import play.api.mvc.{Action, AnyContent}
+
 import play.api.libs.json.Json
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+
+import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
+import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 
 @Singleton
-class DeskproHorizonController @Inject()(
-  connector: DeskproHorizonConnector,
-  mcc: MessagesControllerComponents
-)(implicit val ec: ExecutionContext) extends FrontendController(mcc) {
+class DeskproHorizonController @Inject() (
+    connector: DeskproHorizonConnector,
+    mcc: MessagesControllerComponents,
+    strideAuthorisationService: StrideAuthorisationService,
+    val ldapAuthorisationService: LdapAuthorisationService
+  )(implicit override val ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    with GatekeeperAuthorisationActions {
 
-  def getOrganisations(): Action[AnyContent] = Action.async { implicit request =>
-    import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse._
-
+  def getOrganisations: Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     connector.getOrganisations().map(response => Ok(Json.toJson(response)))
   }
+
+  def getOrganisationsRaw: Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    connector.getOrganisationsRaw().map(response => Ok(Json.parse(response.body)))
+  }
+
 }

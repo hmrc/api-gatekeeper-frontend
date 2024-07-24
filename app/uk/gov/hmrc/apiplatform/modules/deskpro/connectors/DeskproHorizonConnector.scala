@@ -17,23 +17,27 @@
 package uk.gov.hmrc.apiplatform.modules.deskpro.connectors
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.StringContextOps
+import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.http.HeaderNames.AUTHORIZATION
-import scala.concurrent.Future
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse
 
 @Singleton
-class DeskproHorizonConnector @Inject()(http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
+class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
+
   def getOrganisations()(implicit hc: HeaderCarrier): Future[DeskproOrganisationsResponse] = {
+    getOrganisationsRaw().map(_.json.as[DeskproOrganisationsResponse])
+  }
+
+  def getOrganisationsRaw()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.get(url"${config.deskproHorizonUrl}/api/v2/organizations")
       .withProxy
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
-      .execute[DeskproOrganisationsResponse]
+      .execute[HttpResponse]
   }
 }
