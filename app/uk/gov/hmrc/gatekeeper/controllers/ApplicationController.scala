@@ -122,7 +122,10 @@ class ApplicationController @Inject() (
   }
 
   private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
-    val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
+    def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
+      s"${role.displayText}:${emailAddress.text}"
+    }
+    val csvColumnDefinitions                                                              = Seq[ColumnDefinition[GKApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
@@ -135,7 +138,8 @@ class ApplicationController @Inject() (
       ColumnDefinition("Has IP Allow List", (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
-      ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString()))
+      ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString())),
+      ColumnDefinition("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|"))
     )
 
     val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"

@@ -299,7 +299,10 @@ class ApplicationControllerSpec
           Some("App Name"),
           deployedTo = Environment.SANDBOX,
           description = None,
-          collaborators = Set.empty,
+          collaborators = Set(
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+          ),
           createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
           lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
           access = Access.Standard(),
@@ -314,8 +317,8 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
-Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Collaborator
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,Administrator:some@something.com|Developer:another@somethingelse.com
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
