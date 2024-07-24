@@ -3,5 +3,6 @@
 
 ->         /api-gatekeeper/hmrc-frontend            hmrcfrontend.Routes
 ->         /api-gatekeeper/ldap                     ldap.Routes
+->         /api-gatekeeper/deskpro                  deskpro.Routes
 ->         /api-gatekeeper                          app.Routes
 ->         /                                        health.Routes
