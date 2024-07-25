@@ -1,2 +1,1 @@
-GET        /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations
-GET        /organisations/raw        uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisationsRaw
+GET        /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations(full: Boolean ?= false)

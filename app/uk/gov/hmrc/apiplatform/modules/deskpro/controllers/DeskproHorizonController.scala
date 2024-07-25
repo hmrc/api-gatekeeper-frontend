@@ -23,6 +23,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
@@ -37,12 +38,7 @@ class DeskproHorizonController @Inject() (
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions {
 
-  def getOrganisations: Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    connector.getOrganisations().map(response => Ok(Json.toJson(response)))
+  def getOrganisations(full: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    connector.getOrganisations().map(response => Ok(if (full) Json.parse(response.body) else Json.toJson(response.json.as[DeskproOrganisationsResponse])))
   }
-
-  def getOrganisationsRaw: Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    connector.getOrganisationsRaw().map(response => Ok(Json.parse(response.body)))
-  }
-
 }

@@ -25,16 +25,11 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
 
-  def getOrganisations()(implicit hc: HeaderCarrier): Future[DeskproOrganisationsResponse] = {
-    getOrganisationsRaw().map(_.json.as[DeskproOrganisationsResponse])
-  }
-
-  def getOrganisationsRaw()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  def getOrganisations()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.get(url"${config.deskproHorizonUrl}/api/v2/organizations")
       .withProxy
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
