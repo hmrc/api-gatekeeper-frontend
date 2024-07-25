@@ -16,13 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 
 trait CommonTestData {
@@ -48,7 +49,7 @@ trait CommonTestData {
     firstName = MockDataSugar.dev8FirstName,
     lastName = MockDataSugar.dev8LastName,
     verified = false,
-    mfaDetails = List(AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "Some app", LocalDateTime.now(), verified = true))
+    mfaDetails = List(AuthenticatorAppMfaDetail(MfaId.random, "Some app", Instant.now(), verified = true))
   )
 
   val unverifiedUserJson = Json.toJson(unverifiedUser).toString

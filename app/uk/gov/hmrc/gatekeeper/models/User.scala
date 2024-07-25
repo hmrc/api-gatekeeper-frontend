@@ -18,11 +18,10 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
-import uk.gov.hmrc.gatekeeper.models.MfaId.format
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
@@ -59,13 +58,6 @@ case class RegisteredUser(
   ) extends User {}
 
 object RegisteredUser {
-  implicit val authenticatorAppMfaDetailFormat: OFormat[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
-  implicit val smsMfaDetailFormat: OFormat[SmsMfaDetail]                                  = Json.format[SmsMfaDetail]
-
-  implicit val mfaDetailFormat: OFormat[MfaDetail] = Union.from[MfaDetail]("mfaType")
-    .and[AuthenticatorAppMfaDetailSummary](MfaType.AUTHENTICATOR_APP.toString)
-    .and[SmsMfaDetail](MfaType.SMS.toString)
-    .format
 
   val registeredUserReads: Reads[RegisteredUser] = (
     (JsPath \ "email").read[LaxEmailAddress] and
@@ -74,7 +66,6 @@ object RegisteredUser {
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
       (JsPath \ "organisation").readNullable[String] and
-      // (JsPath \ "mfaEnabled").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
   )(RegisteredUser.apply _)

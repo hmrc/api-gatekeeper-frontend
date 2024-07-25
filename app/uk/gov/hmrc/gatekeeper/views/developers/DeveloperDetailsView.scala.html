@@ -24,6 +24,7 @@
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -114,7 +115,7 @@
         @for((mfaDetail, idx) <- developer.mfaDetails.filter(_.verified).zipWithIndex) {
             <div class="govuk-summary-list__row">
                 <dt class="govuk-body govuk-summary-list__key" id="mfa-type-@idx">
-                    @mfaDetail.mfaType.asText
+                    @mfaDetail.mfaType.displayText
                 </dt>
                 <dd class="govuk-summary-list__value" id="mfa-name-@idx">
                     On (@{mfaDetail.name})

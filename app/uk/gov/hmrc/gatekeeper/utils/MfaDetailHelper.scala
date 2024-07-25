@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.MfaDetail
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain
 
 object MfaDetailHelper {
 
-  def isMfaVerified(mfaDetails: List[MfaDetail]): Boolean = {
+  def isMfaVerified(mfaDetails: List[domain.models.MfaDetail]): Boolean = {
     mfaDetails.exists(x => x.verified)
   }
 }
