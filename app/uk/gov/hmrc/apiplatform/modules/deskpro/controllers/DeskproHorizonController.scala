@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddOrganisationForm, DeskproOrganisationsResponse}
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddOrganisationForm, AddPersonForm, DeskproOrganisationsResponse, DeskproPeopleResponse}
 import uk.gov.hmrc.apiplatform.modules.deskpro.views.html.DeskproHorizonView
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -42,7 +42,7 @@ class DeskproHorizonController @Inject() (
     with GatekeeperAuthorisationActions {
 
   def page() = anyAuthenticatedUserAction { implicit request =>
-    successful(Ok(deskproHorizonView(AddOrganisationForm.form)))
+    successful(Ok(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form)))
   }
 
   def getOrganisations(full: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
@@ -52,10 +52,22 @@ class DeskproHorizonController @Inject() (
   def createOrganisation(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddOrganisationForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(formWithErrors)))
+        successful(BadRequest(deskproHorizonView(formWithErrors, AddPersonForm.form)))
       },
       formData => connector.createOrganisation(formData.name).map(response => Ok(Json.parse(response.body)))
     )
+  }
 
+  def getPeople(full: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    connector.getPeople().map(response => Ok(if (full) Json.parse(response.body) else Json.toJson(response.json.as[DeskproPeopleResponse])))
+  }
+
+  def createPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    AddPersonForm.form.bindFromRequest().fold(
+      formWithErrors => {
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, formWithErrors)))
+      },
+      formData => connector.createPerson(formData.name, formData.email).map(response => Ok(Json.parse(response.body)))
+    )
   }
 }

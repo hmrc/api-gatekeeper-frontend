@@ -2,3 +2,6 @@ GET        /                         uk.gov.hmrc.apiplatform.modules.deskpro.con
 
 GET        /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations(full: Boolean ?= false)
 POST       /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createOrganisation()
+
+GET        /people                   uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getPeople(full: Boolean ?= false)
+POST       /people                   uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createPerson()

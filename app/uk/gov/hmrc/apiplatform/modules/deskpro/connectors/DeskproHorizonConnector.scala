@@ -26,7 +26,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproCreateOrganisationRequest
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproCreateOrganisationRequest, DeskproCreatePersonRequest}
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
@@ -43,6 +43,22 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .post(url"${config.deskproHorizonUrl}/api/v2/organizations")
       .withProxy
       .withBody(Json.toJson(DeskproCreateOrganisationRequest(name)))
+      .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
+      .execute[HttpResponse]
+  }
+
+  def getPeople()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http.get(url"${config.deskproHorizonUrl}/api/v2/people")
+      .withProxy
+      .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
+      .execute[HttpResponse]
+  }
+
+  def createPerson(name: String, email: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http
+      .post(url"${config.deskproHorizonUrl}/api/v2/people")
+      .withProxy
+      .withBody(Json.toJson(DeskproCreatePersonRequest(name, email)))
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
   }

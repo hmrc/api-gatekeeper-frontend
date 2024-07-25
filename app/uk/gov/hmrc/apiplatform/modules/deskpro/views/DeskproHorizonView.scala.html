@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components._
 @import uk.gov.hmrc.apiplatform.modules.deskpro.controllers.routes
 @import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddOrganisationForm
+@import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddPersonForm
 @import play.api.data.Form
 @import play.api.mvc.RequestHeader
 
@@ -25,13 +26,15 @@
   govukInput : GovukInput
 )
 
-@(form: Form[AddOrganisationForm])(implicit request: RequestHeader)
+@(addOrganisationForm: Form[AddOrganisationForm], addPersonForm: Form[AddPersonForm])(implicit request: RequestHeader, messages: Messages)
 
 <title>Deskpro Spike</title>
 
 <h1 class="govuk-heading-l">Deskpro Horizon Organisations and People</h1>
 
-@helper.form(action = routes.DeskproHorizonController.getOrganisations(false), Symbol("class") -> "form") {
+<h2 class="govuk-heading-m">Organisations</h2>
+
+@helper.form(action = routes.DeskproHorizonController.getOrganisations(), Symbol("class") -> "form") {
   @govukButton(
     Button(
       content = Text("View Organisations")
@@ -46,18 +49,66 @@
     Input(
       id = "org-name",
       name = "name",
-      value = form("name").value,
+      value = addOrganisationForm("name").value,
       label = Label(
         classes = "govuk-label--s",
         content = Text("What's your org name?")
       ),
-      classes = "govuk-!-width-full"
+      classes = "govuk-!-width-full",
+      errorMessage = addOrganisationForm.error("name").map(e => ErrorMessage(content = Text(messages(e.message))))
     )
   )
 
   @govukButton(
     Button(
       content = Text("Add Organisation")
+    )
+  )
+}
+
+<h2 class="govuk-heading-m">People</h2>
+
+@helper.form(action = routes.DeskproHorizonController.getPeople(), Symbol("class") -> "form") {
+  @govukButton(
+    Button(
+      content = Text("View People")
+    )
+  )
+}
+
+@helper.form(action = routes.DeskproHorizonController.createPerson(), Symbol("class") -> "form") {
+  @helper.CSRF.formField
+
+  @govukInput(
+    Input(
+      id = "person-name",
+      name = "name",
+      value = addPersonForm("name").value,
+      label = Label(
+        classes = "govuk-label--s",
+        content = Text("What's your name?")
+      ),
+      classes = "govuk-!-width-full",
+      errorMessage = addPersonForm.error("name").map(e => ErrorMessage(content = Text(messages(e.message))))
+    )
+  )
+  @govukInput(
+    Input(
+      id = "person-email",
+      name = "email",
+      value = addPersonForm("email").value,
+      label = Label(
+        classes = "govuk-label--s",
+        content = Text("What's your email?")
+      ),
+      classes = "govuk-!-width-full",
+      errorMessage = addPersonForm.error("email").map(e => ErrorMessage(content = Text(messages(e.message))))
+    )
+  )
+
+  @govukButton(
+    Button(
+      content = Text("Add Person")
     )
   )
 }
