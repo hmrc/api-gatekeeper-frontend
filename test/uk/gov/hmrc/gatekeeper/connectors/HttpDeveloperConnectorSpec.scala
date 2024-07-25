@@ -32,8 +32,8 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.dto.RemoveAllMfaRequest
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._
@@ -186,7 +186,7 @@ class HttpDeveloperConnectorSpec
 
       stubFor(
         post(urlEqualTo(s"/developer/${user.userId.value}/mfa/remove"))
-          .withJsonRequestBody(RemoveMfaRequest(loggedInUser))
+          .withJsonRequestBody(RemoveAllMfaRequest(loggedInUser))
           .willReturn(
             aResponse()
               .withStatus(OK)

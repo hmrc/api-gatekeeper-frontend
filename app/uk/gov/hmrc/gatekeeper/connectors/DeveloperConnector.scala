@@ -19,13 +19,15 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
+
 import cats.data.OptionT
 import com.google.inject.name.Named
+
 import play.api.Logging
 import play.api.http.Status.NO_CONTENT
-import play.api.libs.json.{Json, OWrites}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindOrCreateUserIdRequest, FindUserIdRequest, FindUserIdResponse}
@@ -75,7 +77,6 @@ trait DeveloperConnector {
   def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
 }
 
-
 @Singleton
 class HttpDeveloperConnector @Inject() (
     appConfig: AppConfig,
@@ -84,7 +85,6 @@ class HttpDeveloperConnector @Inject() (
   )(implicit ec: ExecutionContext
   ) extends DeveloperConnector
     with SendsSecretRequest with Logging {
-  
 
   private def fetchUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[CoreUserDetails]] = {
     http.POST[FindUserIdRequest, Option[FindUserIdResponse]](s"${appConfig.developerBaseUrl}/developers/find-user-id", FindUserIdRequest(email))
