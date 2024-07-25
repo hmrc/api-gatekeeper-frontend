@@ -43,9 +43,9 @@ class DeveloperService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ClockNow {
 
-  def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[User]] = {
+  def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[AbstractUser]] = {
 
-    val unsortedResults: Future[List[User]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
+    val unsortedResults: Future[List[AbstractUser]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
       case (emailFilter, None)                        => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
       case (maybePartialEmailFilter, Some(apiFilter)) => {
         for {
@@ -120,15 +120,15 @@ class DeveloperService @Inject() (
   def filterUsersBy(filter: StatusFilter)(developers: List[Developer]): List[Developer] = {
     filter match {
       case AnyStatus => developers
-      case _         => developers.filter(d => filter == User.status(d.user))
+      case _         => developers.filter(d => filter == AbstractUser.status(d.user))
     }
   }
 
-  def getDevelopersWithApps(apps: List[GKApplicationResponse], users: List[User]): List[Developer] = {
+  def getDevelopersWithApps(apps: List[GKApplicationResponse], users: List[AbstractUser]): List[Developer] = {
 
-    def isACollaboratorForApp(user: User)(app: GKApplicationResponse): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
+    def isACollaboratorForApp(user: AbstractUser)(app: GKApplicationResponse): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
-    def collaboratingApps(user: User): List[GKApplicationResponse] = {
+    def collaboratingApps(user: AbstractUser): List[GKApplicationResponse] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
@@ -145,15 +145,15 @@ class DeveloperService @Inject() (
     developerConnector.fetchAllPaginated(offset, limit)
   }
 
-  def seekUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]] = {
+  def seekUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = {
     developerConnector.seekUserByEmail(email)
   }
 
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
     developerConnector.fetchOrCreateUser(email)
   }
 
-  def fetchUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
     developerConnector.fetchByEmail(email)
   }
 

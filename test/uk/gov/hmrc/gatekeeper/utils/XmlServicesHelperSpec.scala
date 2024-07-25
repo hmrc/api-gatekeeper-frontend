@@ -21,8 +21,9 @@ import org.scalatest.wordspec.AnyWordSpec
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
-import uk.gov.hmrc.gatekeeper.models.{EmailPreferences, EmailTopic, RegisteredUser, TaxRegimeInterests}
 
 class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHelper {
 

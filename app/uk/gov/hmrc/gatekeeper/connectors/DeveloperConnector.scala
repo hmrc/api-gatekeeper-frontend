@@ -40,13 +40,13 @@ import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 trait DeveloperConnector {
   def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
-  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]]
+  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]]
 
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User]
+  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser]
 
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User]
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[AbstractUser]
 
-  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User]
+  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser]
 
   def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
 
@@ -99,7 +99,7 @@ class HttpDeveloperConnector @Inject() (
   private def seekRegisteredUser(id: UserId)(implicit hc: HeaderCarrier): OptionT[Future, RegisteredUser] =
     OptionT(http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> id.value.toString)))
 
-  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]] = {
+  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = {
     import cats.implicits._
     (
       for {
@@ -109,13 +109,13 @@ class HttpDeveloperConnector @Inject() (
     ).value
   }
 
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
     for {
       user <- seekRegisteredUser(userId).getOrElse(throw new IllegalArgumentException(s"$userId was not found, unexpectedly"))
     } yield user
   }
 
-  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
     for {
       optional       <- fetchUserId(email)
       coreUserDetails = optional.getOrElse(throw new IllegalArgumentException("Email was not found, unexpectedly"))
@@ -123,7 +123,7 @@ class HttpDeveloperConnector @Inject() (
     } yield user
   }
 
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = {
+  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
     for {
       coreUserDetails <- fetchOrCreateUserId(email)
       user            <- seekRegisteredUser(coreUserDetails.id).getOrElse(UnregisteredUser(email, coreUserDetails.id))
@@ -225,11 +225,11 @@ class HttpDeveloperConnector @Inject() (
 
 @Singleton
 class DummyDeveloperConnector extends DeveloperConnector {
-  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[User]] = Future.successful(Some(UnregisteredUser(email, UserId.random)))
+  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = Future.successful(Some(UnregisteredUser(email, UserId.random)))
 
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[User] = Future.successful(UnregisteredUser(email, UserId.random))
+  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = Future.successful(UnregisteredUser(email, UserId.random))
 
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[User] =
+  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[AbstractUser] =
     Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
 
   def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email, UserId.random))

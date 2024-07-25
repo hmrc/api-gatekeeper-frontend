@@ -721,7 +721,7 @@ class ApplicationController @Inject() (
       })
     }
 
-    def validateUserSuitability(user: Option[User]): FieldValidationResult[RegisteredUser] = user match {
+    def validateUserSuitability(user: Option[AbstractUser]): FieldValidationResult[RegisteredUser] = user match {
       case None                                                                          => "admin.email.is.not.registered".invalidNec
       case Some(UnregisteredUser(_, _))                                                  => "admin.email.is.not.registered".invalidNec
       case Some(user: RegisteredUser) if !user.verified                                  => "admin.email.is.not.verified".invalidNec
@@ -730,7 +730,7 @@ class ApplicationController @Inject() (
     }
 
     def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-      def createApp(user: User, accessType: AccessType) = {
+      def createApp(user: AbstractUser, accessType: AccessType) = {
         val collaborators = List(Collaborators.Administrator(user.userId, LaxEmailAddress(form.adminEmail)))
 
         applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))

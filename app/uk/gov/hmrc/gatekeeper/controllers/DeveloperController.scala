@@ -71,6 +71,7 @@ class DeveloperController @Inject() (
   }
 
   def removeMfaPage(developerIdentifier: UserId): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    // TODO.. the removeMFA view doesnt neeed full developer with all apps and all xml orgs.. we just need user id and email
     developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).map(developer => Ok(removeMfaView(developer, RemoveMfaConfirmationForm.form)))
   }
 

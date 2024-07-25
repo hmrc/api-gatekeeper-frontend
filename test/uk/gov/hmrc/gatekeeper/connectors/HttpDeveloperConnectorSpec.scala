@@ -89,7 +89,7 @@ class HttpDeveloperConnectorSpec
 
     def aUserResponse(email: LaxEmailAddress, id: UserId = UserId.random) = RegisteredUser(email, id, "first", "last", verified = false)
 
-    def verifyUserResponse(userResponse: User, expectedEmail: LaxEmailAddress, expectedFirstName: String, expectedLastName: String) = {
+    def verifyUserResponse(userResponse: AbstractUser, expectedEmail: LaxEmailAddress, expectedFirstName: String, expectedLastName: String) = {
       userResponse.email shouldBe expectedEmail
       userResponse.firstName shouldBe expectedFirstName
       userResponse.lastName shouldBe expectedLastName

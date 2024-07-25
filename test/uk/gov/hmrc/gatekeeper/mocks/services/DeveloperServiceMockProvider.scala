@@ -55,7 +55,7 @@ trait DeveloperServiceMockProvider {
 
     object GetDevelopersWithApps {
 
-      def returnsFor(apps: GKApplicationResponse*)(users: User*)(developers: Developer*) =
+      def returnsFor(apps: GKApplicationResponse*)(users: AbstractUser*)(developers: Developer*) =
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps.toList), eqTo(users.toList)))
           .thenReturn(developers.toList)
     }
@@ -101,7 +101,7 @@ trait DeveloperServiceMockProvider {
     }
 
     object SearchDevelopers {
-      def returns(users: User*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
+      def returns(users: AbstractUser*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
     }
 
     object SeekRegisteredUser {
@@ -169,6 +169,6 @@ trait DeveloperServiceMockProvider {
     }
   }
 
-  def aUser(email: LaxEmailAddress, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
+  def aUser(email: LaxEmailAddress, verified: Boolean = false): AbstractUser = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
 
 }

@@ -64,7 +64,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
       .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
   }
 
-  def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
+  def stubApplicationsCollaborators(developers: Seq[AbstractUser]): Unit = {
     val developersJson = developers.map(u => u.email)
     val request        = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"), Some("partialEmail"))
 
