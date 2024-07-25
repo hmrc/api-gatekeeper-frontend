@@ -1,1 +1,4 @@
+GET        /                         uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.page
+
 GET        /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations(full: Boolean ?= false)
+POST       /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createOrganisation()

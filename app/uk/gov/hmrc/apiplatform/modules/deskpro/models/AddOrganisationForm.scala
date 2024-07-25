@@ -16,22 +16,16 @@
 
 package uk.gov.hmrc.apiplatform.modules.deskpro.models
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.data.Form
+import play.api.data.Forms._
 
-case class DeskproOrganisation(id: Int, name: String)
+final case class AddOrganisationForm(name: String)
 
-object DeskproOrganisation {
-  implicit val format: OFormat[DeskproOrganisation] = Json.format[DeskproOrganisation]
-}
+object AddOrganisationForm {
 
-case class DeskproOrganisationsResponse(data: List[DeskproOrganisation])
-
-object DeskproOrganisationsResponse {
-  implicit val format: OFormat[DeskproOrganisationsResponse] = Json.format[DeskproOrganisationsResponse]
-}
-
-case class DeskproCreateOrganisationRequest(name: String)
-
-object DeskproCreateOrganisationRequest {
-  implicit val format: OFormat[DeskproCreateOrganisationRequest] = Json.format[DeskproCreateOrganisationRequest]
+  def form: Form[AddOrganisationForm] = Form(
+    mapping(
+      "name" -> nonEmptyText
+    )(AddOrganisationForm.apply)(AddOrganisationForm.unapply)
+  )
 }

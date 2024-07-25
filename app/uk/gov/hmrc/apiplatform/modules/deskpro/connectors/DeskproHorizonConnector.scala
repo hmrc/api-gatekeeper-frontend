@@ -20,11 +20,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.HeaderNames.AUTHORIZATION
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproCreateOrganisationRequest
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
@@ -32,6 +34,15 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
   def getOrganisations()(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http.get(url"${config.deskproHorizonUrl}/api/v2/organizations")
       .withProxy
+      .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
+      .execute[HttpResponse]
+  }
+
+  def createOrganisation(name: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http
+      .post(url"${config.deskproHorizonUrl}/api/v2/organizations")
+      .withProxy
+      .withBody(Json.toJson(DeskproCreateOrganisationRequest(name)))
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
   }

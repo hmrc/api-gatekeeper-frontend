@@ -1,0 +1,63 @@
+@*
+ * Copyright 2024 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.apiplatform.modules.deskpro.controllers.routes
+@import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddOrganisationForm
+@import play.api.data.Form
+@import play.api.mvc.RequestHeader
+
+@this(
+  govukButton : GovukButton,
+  govukInput : GovukInput
+)
+
+@(form: Form[AddOrganisationForm])(implicit request: RequestHeader)
+
+<title>Deskpro Spike</title>
+
+<h1 class="govuk-heading-l">Deskpro Horizon Organisations and People</h1>
+
+@helper.form(action = routes.DeskproHorizonController.getOrganisations(false), Symbol("class") -> "form") {
+  @govukButton(
+    Button(
+      content = Text("View Organisations")
+    )
+  )
+}
+
+@helper.form(action = routes.DeskproHorizonController.createOrganisation(), Symbol("class") -> "form") {
+  @helper.CSRF.formField
+
+  @govukInput(
+    Input(
+      id = "org-name",
+      name = "name",
+      value = form("name").value,
+      label = Label(
+        classes = "govuk-label--s",
+        content = Text("What's your org name?")
+      ),
+      classes = "govuk-!-width-full"
+    )
+  )
+
+  @govukButton(
+    Button(
+      content = Text("Add Organisation")
+    )
+  )
+}
