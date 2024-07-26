@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproCreateOrganisationRequest, DeskproCreatePersonRequest, DeskproPerson}
 import play.api.libs.json.JsObject
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembershipResponse
-import play.api.libs.json.JsArray
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembership
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
@@ -67,7 +67,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .execute[HttpResponse]
   }
 
-  def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[HttpResponse]  = {
+  def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]]  = {
     http
       .post(url"${config.deskproHorizonUrl}/api/v2/organizations/$orgId/members")
       .setHeader(
@@ -81,6 +81,12 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
         )
       )
       .execute[HttpResponse]
+      .map { response =>
+        response.json("data") match {
+          case data: JsObject => Some(data.as[DeskproOrganisationMembership])
+          case _ => None
+        }
+      }
   }
 
   def getMemberships(orgId: Int)(implicit hc: HeaderCarrier): Future[DeskproOrganisationMembershipResponse] = {

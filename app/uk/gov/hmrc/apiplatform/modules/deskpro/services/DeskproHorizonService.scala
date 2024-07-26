@@ -22,6 +22,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 import scala.concurrent.ExecutionContext
 
 import cats.data.OptionT
+import scala.concurrent.Future
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembership
 
 @Singleton
 class DeskproHorizonService @Inject()(
@@ -29,10 +31,10 @@ class DeskproHorizonService @Inject()(
 )(
   implicit ec: ExecutionContext
 ) {
-  def addMembership(orgId: Int, email: String)(implicit hc: HeaderCarrier) = {
-    for {
-      person <- OptionT(connector.getPerson(email))
-      _      <- OptionT.liftF(connector.addMembership(orgId, person.id))
-    } yield (())
+  def addMembership(orgId: Int, email: String)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]] = {
+    (for {
+      person     <- OptionT(connector.getPerson(email))
+      membership <- OptionT(connector.addMembership(orgId, person.id))
+    } yield membership).value
   }
 }

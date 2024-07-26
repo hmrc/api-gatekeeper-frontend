@@ -87,8 +87,7 @@ class DeskproHorizonController @Inject() (
         successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, formWithErrors)))
       },
       formData => {
-        service.addMembership(formData.orgId, formData.email)
-        successful(Ok(Json.parse("""{"that": "worked"}""")))
+        service.addMembership(formData.orgId, formData.email).map(response => Ok(Json.toJson(response)))
       }
     )
   }
