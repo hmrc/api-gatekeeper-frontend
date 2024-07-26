@@ -18,7 +18,7 @@
 @import uk.gov.hmrc.apiplatform.modules.deskpro.controllers.routes
 @import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddOrganisationForm
 @import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddPersonForm
-@import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
+@import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddMembershipForm, ViewMembershipForm}
 @import play.api.data.Form
 @import play.api.mvc.RequestHeader
 
@@ -30,7 +30,8 @@
 @(
   addOrganisationForm: Form[AddOrganisationForm],
   addPersonForm: Form[AddPersonForm],
-  addMembershipForm: Form[AddMembershipForm]
+  addMembershipForm: Form[AddMembershipForm],
+  viewMembershipForm: Form[ViewMembershipForm]
 )(implicit request: RequestHeader, messages: Messages)
 
 <title>Deskpro Spike</title>
@@ -81,8 +82,6 @@
   )
 }
 
-
-
 @helper.form(action = routes.DeskproHorizonController.createPerson(), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
@@ -121,6 +120,30 @@
 }
 
 <h2 class="govuk-heading-m">Membership</h2>
+
+@helper.form(action = routes.DeskproHorizonController.getMemberships(), Symbol("class") -> "form") {
+  @helper.CSRF.formField
+
+  @govukInput(
+    Input(
+      id = "org-id",
+      name = "orgId",
+      value = viewMembershipForm("orgId").value,
+      label = Label(
+        classes = "govuk-label--s",
+        content = Text("What's your org id?")
+      ),
+      classes = "govuk-!-width-full",
+      errorMessage = viewMembershipForm.error("orgId").map(e => ErrorMessage(content = Text(messages(e.message))))
+    )
+  )
+
+  @govukButton(
+    Button(
+      content = Text("View Membership")
+    )
+  )
+}
 
 @helper.form(action = routes.DeskproHorizonController.createMembership(), Symbol("class") -> "form") {
   @helper.CSRF.formField
