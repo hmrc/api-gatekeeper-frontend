@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.deskpro.views.html.DeskproHorizonView
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
 
 @Singleton
 class DeskproHorizonController @Inject() (
@@ -42,7 +43,7 @@ class DeskproHorizonController @Inject() (
     with GatekeeperAuthorisationActions {
 
   def page() = anyAuthenticatedUserAction { implicit request =>
-    successful(Ok(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form)))
+    successful(Ok(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form)))
   }
 
   def getOrganisations(full: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
@@ -52,7 +53,7 @@ class DeskproHorizonController @Inject() (
   def createOrganisation(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddOrganisationForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(formWithErrors, AddPersonForm.form)))
+        successful(BadRequest(deskproHorizonView(formWithErrors, AddPersonForm.form, AddMembershipForm.form)))
       },
       formData => connector.createOrganisation(formData.name).map(response => Ok(Json.parse(response.body)))
     )
@@ -65,9 +66,18 @@ class DeskproHorizonController @Inject() (
   def createPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddPersonForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, formWithErrors)))
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, formWithErrors, AddMembershipForm.form)))
       },
       formData => connector.createPerson(formData.name, formData.email).map(response => Ok(Json.parse(response.body)))
+    )
+  }
+
+  def createMembership(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    AddMembershipForm.form.bindFromRequest().fold(
+      formWithErrors => {
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, formWithErrors)))
+      },
+      formData => connector.addMembership(formData.orgId, formData.personId).map(response => Ok(Json.parse(response.body)))
     )
   }
 }

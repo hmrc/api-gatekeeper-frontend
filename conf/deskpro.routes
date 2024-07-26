@@ -1,7 +1,9 @@
-GET        /                         uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.page
+GET         /                                    uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.page
 
-GET        /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations(full: Boolean ?= false)
-POST       /organisations            uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createOrganisation()
+GET         /organisations                       uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getOrganisations(full: Boolean ?= false)
+POST        /organisations                       uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createOrganisation()
 
-GET        /people                   uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getPeople(full: Boolean ?= false)
-POST       /people                   uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createPerson()
+GET         /people                              uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getPeople(full: Boolean ?= false)
+POST        /people                              uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createPerson()
+
+POST        /members                             uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createMembership()

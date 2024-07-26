@@ -19,6 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.http.HeaderNames.CONTENT_TYPE
 import play.api.http.HeaderNames.AUTHORIZATION
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
@@ -60,6 +61,22 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .withProxy
       .withBody(Json.toJson(DeskproCreatePersonRequest(name, email)))
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
+      .execute[HttpResponse]
+  }
+
+  def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[HttpResponse]  = {
+    http
+      .post(url"${config.deskproHorizonUrl}/api/v2/organizations/$orgId/members")
+      .setHeader(
+        CONTENT_TYPE -> "application/x-www-form-urlencoded",
+        AUTHORIZATION -> config.deskproHorizonApiKey
+      )
+      .withProxy
+      .withBody(
+        Map(
+          "person" -> Seq(personId.toString)
+        )
+      )
       .execute[HttpResponse]
   }
 }
