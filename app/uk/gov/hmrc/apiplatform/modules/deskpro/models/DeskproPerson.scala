@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.models
 
 import play.api.libs.json.{Json, OFormat}
 
-case class DeskproPerson(id: Int, name: String)
+case class DeskproPerson(id: Int, name: String, emails: List[String])
 
 object DeskproPerson {
   implicit val format: OFormat[DeskproPerson] = Json.format[DeskproPerson]
@@ -30,7 +30,7 @@ object DeskproPeopleResponse {
   implicit val format: OFormat[DeskproPeopleResponse] = Json.format[DeskproPeopleResponse]
 }
 
-case class DeskproCreatePersonRequest(name: String, primary_email: String)
+case class DeskproCreatePersonRequest(name: String, email: String)
 
 object DeskproCreatePersonRequest {
   implicit val format: OFormat[DeskproCreatePersonRequest] = Json.format[DeskproCreatePersonRequest]
