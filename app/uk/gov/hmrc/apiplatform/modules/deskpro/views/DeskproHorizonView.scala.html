@@ -121,7 +121,7 @@
 
 <h2 class="govuk-heading-m">Membership</h2>
 
-@helper.form(action = routes.DeskproHorizonController.getMemberships(), Symbol("class") -> "form") {
+@helper.form(action = routes.DeskproHorizonController.getMembers(), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
   @govukInput(

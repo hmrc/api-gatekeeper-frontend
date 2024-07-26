@@ -110,13 +110,13 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       }
   }
 
-    def getPerson(id: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproPerson]] = {
+  def getPerson(id: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproPerson]] = {
     http
       .get(url"${config.deskproHorizonUrl}/api/v2/people/$id")
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
       .map { response =>
-        response.json("data")(0) match {
+        response.json("data") match {
           case data: JsObject => Some(data.as[DeskproPerson])
           case _ => None
         }

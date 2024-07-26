@@ -93,13 +93,13 @@ class DeskproHorizonController @Inject() (
     )
   }
 
-  def getMemberships(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+  def getMembers(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     ViewMembershipForm.form.bindFromRequest().fold(
       formWithErrors => {
         successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, formWithErrors)))
       },
       formData => {
-        connector.getMemberships(formData.orgId).map(response => Ok(Json.toJson(response)))
+        service.getMembers(formData.orgId).map(response => Ok(Json.toJson(response)))
       }
     )
   }

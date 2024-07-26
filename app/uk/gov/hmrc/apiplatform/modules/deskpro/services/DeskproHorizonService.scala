@@ -24,6 +24,7 @@ import scala.concurrent.ExecutionContext
 import cats.data.OptionT
 import scala.concurrent.Future
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembership
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproPerson
 
 @Singleton
 class DeskproHorizonService @Inject()(
@@ -36,5 +37,14 @@ class DeskproHorizonService @Inject()(
       person     <- OptionT(connector.getPerson(email))
       membership <- OptionT(connector.addMembership(orgId, person.id))
     } yield membership).value
+  }
+
+  def getMembers(orgId: Int)(implicit hc: HeaderCarrier): Future[List[DeskproPerson]] = {
+    for {
+      members <- connector.getMemberships(orgId)
+      people  = members.data.map(member => connector.getPerson(member.person))
+      p <- Future.sequence(people)
+      p2 = p.flatten
+    } yield p2
   }
 }
