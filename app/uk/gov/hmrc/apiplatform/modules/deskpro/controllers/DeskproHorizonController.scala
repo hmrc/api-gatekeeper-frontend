@@ -30,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproPerson
 import uk.gov.hmrc.apiplatform.modules.deskpro.services.DeskproHorizonService
 
 @Singleton
@@ -92,5 +91,9 @@ class DeskproHorizonController @Inject() (
         successful(Ok(Json.parse("""{"that": "worked"}""")))
       }
     )
+  }
+
+  def getMemberships(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    connector.getMemberships(4).map(response => Ok(Json.toJson(response)))
   }
 }

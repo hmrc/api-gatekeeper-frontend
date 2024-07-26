@@ -35,3 +35,15 @@ case class DeskproCreateOrganisationRequest(name: String)
 object DeskproCreateOrganisationRequest {
   implicit val format: OFormat[DeskproCreateOrganisationRequest] = Json.format[DeskproCreateOrganisationRequest]
 }
+
+case class DeskproOrganisationMembership(id: Int, person: Int, organization: Int)
+
+object DeskproOrganisationMembership {
+  implicit val format: OFormat[DeskproOrganisationMembership] = Json.format[DeskproOrganisationMembership]
+}
+
+case class DeskproOrganisationMembershipResponse(data: List[DeskproOrganisationMembership])
+
+object DeskproOrganisationMembershipResponse {
+  implicit val format: OFormat[DeskproOrganisationMembershipResponse] = Json.format[DeskproOrganisationMembershipResponse]
+}
