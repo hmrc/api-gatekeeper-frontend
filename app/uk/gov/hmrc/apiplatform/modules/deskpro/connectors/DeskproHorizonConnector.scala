@@ -27,7 +27,9 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproCreateOrganisationRequest, DeskproCreatePersonRequest}
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproCreateOrganisationRequest, DeskproCreatePersonRequest, DeskproPerson}
+import play.api.libs.json.JsNull
+import play.api.libs.json.JsObject
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
@@ -78,5 +80,18 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
         )
       )
       .execute[HttpResponse]
+  }
+
+  def getPerson(email: String)(implicit hc: HeaderCarrier): Future[Option[DeskproPerson]] = {
+    http
+      .get(url"${config.deskproHorizonUrl}/api/v2/people?emails=$email")
+      .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
+      .execute[HttpResponse]
+      .map { response =>
+        response.json("data")(0) match {
+          case data: JsObject => Some(data.as[DeskproPerson])
+          case _ => None
+        }
+      }
   }
 }

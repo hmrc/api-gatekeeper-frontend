@@ -5,5 +5,6 @@ POST        /organisations                       uk.gov.hmrc.apiplatform.modules
 
 GET         /people                              uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getPeople(full: Boolean ?= false)
 POST        /people                              uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createPerson()
+GET         /person                              uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.getPerson()
 
 POST        /members                             uk.gov.hmrc.apiplatform.modules.deskpro.controllers.DeskproHorizonController.createMembership()

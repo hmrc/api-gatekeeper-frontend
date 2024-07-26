@@ -81,6 +81,8 @@
   )
 }
 
+
+
 @helper.form(action = routes.DeskproHorizonController.createPerson(), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
@@ -138,15 +140,15 @@
   )
   @govukInput(
     Input(
-      id = "person-id",
-      name = "personId",
-      value = addMembershipForm("personId").value,
+      id = "person-email",
+      name = "email",
+      value = addMembershipForm("email").value,
       label = Label(
         classes = "govuk-label--s",
-        content = Text("What's the person ID?")
+        content = Text("What's the person email?")
       ),
       classes = "govuk-!-width-full",
-      errorMessage = addMembershipForm.error("personId").map(e => ErrorMessage(content = Text(messages(e.message))))
+      errorMessage = addMembershipForm.error("email").map(e => ErrorMessage(content = Text(messages(e.message))))
     )
   )
 

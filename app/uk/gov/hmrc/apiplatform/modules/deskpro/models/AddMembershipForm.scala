@@ -19,14 +19,14 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.models
 import play.api.data.Form
 import play.api.data.Forms._
 
-final case class AddMembershipForm(orgId: Int, personId: Int)
+final case class AddMembershipForm(orgId: Int, email: String)
 
 object AddMembershipForm {
 
   def form: Form[AddMembershipForm] = Form(
     mapping(
-      "orgId"    -> number,
-      "personId" -> number
+      "orgId" -> number,
+      "email" -> email
     )(AddMembershipForm.apply)(AddMembershipForm.unapply)
   )
 }

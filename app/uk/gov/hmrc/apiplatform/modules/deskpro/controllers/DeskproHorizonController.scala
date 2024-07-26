@@ -30,10 +30,13 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproPerson
+import uk.gov.hmrc.apiplatform.modules.deskpro.services.DeskproHorizonService
 
 @Singleton
 class DeskproHorizonController @Inject() (
     connector: DeskproHorizonConnector,
+    service: DeskproHorizonService,
     mcc: MessagesControllerComponents,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService,
@@ -63,6 +66,13 @@ class DeskproHorizonController @Inject() (
     connector.getPeople().map(response => Ok(if (full) Json.parse(response.body) else Json.toJson(response.json.as[DeskproPeopleResponse])))
   }
 
+  def getPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    connector.getPerson("petey@example.com").map {
+      case Some(person) => Ok(Json.toJson(person))
+      case None => BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form))
+    }
+  }
+
   def createPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddPersonForm.form.bindFromRequest().fold(
       formWithErrors => {
@@ -77,7 +87,10 @@ class DeskproHorizonController @Inject() (
       formWithErrors => {
         successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, formWithErrors)))
       },
-      formData => connector.addMembership(formData.orgId, formData.personId).map(response => Ok(Json.parse(response.body)))
+      formData => {
+        service.addMembership(formData.orgId, formData.email)
+        successful(Ok(Json.parse("""{"that": "worked"}""")))
+      }
     )
   }
 }
