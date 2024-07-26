@@ -124,11 +124,6 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  // private def warnOnEmailId(source: String)(id: DeveloperIdentifier): DeveloperIdentifier = id match {
-  //   case EmailIdentifier(_) => logger.warn(s"Still using emails as identifier - source:$source"); id
-  //   case _                  => id
-  // }
-
   implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
 
     override def bind(key: String, value: String): Either[String, UserId] = {

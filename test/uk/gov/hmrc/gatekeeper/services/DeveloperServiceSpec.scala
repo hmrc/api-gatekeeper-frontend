@@ -161,7 +161,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
-    // def verifyTheActor(actor: Actor)(cmd: ApplicationCommand)                           = cmd.actor shouldBe actor
     def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommands.RemoveCollaborator)     = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
     def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
 
@@ -405,12 +404,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
     }
-
-    // "fetch the developer when requested by email as developerId" in new Setup {
-    //   fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
-
-    //   await(underTest.fetchDeveloper(EmailIdentifier(user.email), FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne))
-    // }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
