@@ -96,8 +96,8 @@
                 XML email preferences
             </dt>
             <dd class="govuk-summary-list__value" id="xmlEmailPreferences">
-            @if(developer.xmlEmailPrefServices.nonEmpty) {
-                @for(e <- developer.xmlEmailPrefServices.toList.sorted) {@e <br>}
+            @if(developer.xmlServiceNames.nonEmpty) {
+                @for(e <- developer.xmlServiceNames.toList.sorted) {@e <br>}
             } else { None }
             </dd>
         </div>

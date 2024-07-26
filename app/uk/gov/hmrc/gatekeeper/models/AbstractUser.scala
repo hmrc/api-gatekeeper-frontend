@@ -93,10 +93,6 @@ case class Developer(
 
   lazy val userId = user.userId
 
-  lazy val xmlEmailPrefServices = xmlServiceNames
-
-  lazy val xmlOrgs = xmlOrganisations
-
   lazy val mfaDetails: List[MfaDetail] = user match {
     case UnregisteredUser(_, _) => List.empty
     case r: RegisteredUser      => r.mfaDetails

@@ -85,9 +85,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
         case _                => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
-      if (developer.xmlEmailPrefServices.isEmpty) {
+      if (developer.xmlServiceNames.isEmpty) {
         document.getElementById("xmlEmailPreferences").text shouldBe "None"
-      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
+      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlServiceNames.mkString(" ")
 
       if (developer.xmlOrganisations.isEmpty) {
         document.getElementById("xml-organisation").text shouldBe "None"
