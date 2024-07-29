@@ -22,6 +22,7 @@ import play.api.data.Forms._
 final case class ViewMembershipsForm(email: String)
 
 object ViewMembershipsForm {
+
   def form: Form[ViewMembershipsForm] = Form(
     mapping(
       "email" -> email

@@ -22,6 +22,7 @@ import play.api.data.Forms._
 final case class ViewMembersForm(orgId: Int)
 
 object ViewMembersForm {
+
   def form: Form[ViewMembersForm] = Form(
     mapping(
       "orgId" -> number

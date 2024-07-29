@@ -17,23 +17,21 @@
 package uk.gov.hmrc.apiplatform.modules.deskpro.services
 
 import javax.inject.{Inject, Singleton}
-import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
-import uk.gov.hmrc.http.HeaderCarrier
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
-import scala.concurrent.Future
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembership
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproPerson
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisation
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationsResponse
+
+import uk.gov.hmrc.http.HeaderCarrier
+
+import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproOrganisation, DeskproOrganisationMembership, DeskproOrganisationsResponse, DeskproPerson}
 
 @Singleton
-class DeskproHorizonService @Inject()(
-  connector: DeskproHorizonConnector
-)(
-  implicit ec: ExecutionContext
-) {
+class DeskproHorizonService @Inject() (
+    connector: DeskproHorizonConnector
+  )(implicit ec: ExecutionContext
+  ) {
+
   def addMembership(orgId: Int, email: String)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]] = {
     (for {
       person     <- OptionT(connector.getPerson(email))
@@ -44,19 +42,19 @@ class DeskproHorizonService @Inject()(
   def getMembersOfOrganisation(orgId: Int)(implicit hc: HeaderCarrier): Future[List[DeskproPerson]] = {
     for {
       members <- connector.getMemberships(orgId)
-      people  = members.data.map(member => connector.getPerson(member.person))
-      p <- Future.sequence(people)
-      p2 = p.flatten
+      people   = members.data.map(member => connector.getPerson(member.person))
+      p       <- Future.sequence(people)
+      p2       = p.flatten
     } yield p2
   }
 
   def getMembershipsOfPerson(email: String)(implicit hc: HeaderCarrier): Future[List[DeskproOrganisation]] = {
     for {
-      person              <- connector.getPerson(email)
-      organisations       <- connector.getOrganisations().map(response => response.json.as[DeskproOrganisationsResponse].data)
-      allMemberships      <- Future.sequence(organisations.map(org => connector.getMemberships(org.id)))
-      personMemberships    = person.map(p => allMemberships.flatMap(_.data).filter(_.person == p.id)).getOrElse(List.empty)
-      personOrganisations  = personMemberships.flatMap(m => organisations.filter(o => o.id == m.organization))
+      person             <- connector.getPerson(email)
+      organisations      <- connector.getOrganisations().map(response => response.json.as[DeskproOrganisationsResponse].data)
+      allMemberships     <- Future.sequence(organisations.map(org => connector.getMemberships(org.id)))
+      personMemberships   = person.map(p => allMemberships.flatMap(_.data).filter(_.person == p.id)).getOrElse(List.empty)
+      personOrganisations = personMemberships.flatMap(m => organisations.filter(o => o.id == m.organization))
     } yield (personOrganisations)
   }
 }

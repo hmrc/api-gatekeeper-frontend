@@ -24,15 +24,12 @@ import play.api.libs.json.Json
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.connectors.DeskproHorizonConnector
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddOrganisationForm, AddPersonForm, DeskproOrganisationsResponse, DeskproPeopleResponse}
+import uk.gov.hmrc.apiplatform.modules.deskpro.models._
+import uk.gov.hmrc.apiplatform.modules.deskpro.services.DeskproHorizonService
 import uk.gov.hmrc.apiplatform.modules.deskpro.views.html.DeskproHorizonView
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
-import uk.gov.hmrc.apiplatform.modules.deskpro.services.DeskproHorizonService
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.ViewMembersForm
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.ViewMembershipsForm
 
 @Singleton
 class DeskproHorizonController @Inject() (
@@ -70,7 +67,7 @@ class DeskproHorizonController @Inject() (
   def getPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     connector.getPerson("petey@example.com").map {
       case Some(person) => Ok(Json.toJson(person))
-      case None => BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form))
+      case None         => BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form))
     }
   }
 

@@ -19,18 +19,20 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.HeaderNames.CONTENT_TYPE
-import play.api.http.HeaderNames.AUTHORIZATION
-import play.api.libs.json.Json
+import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE}
+import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 
 import uk.gov.hmrc.apiplatform.modules.deskpro.config.DeskproHorizonConfig
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.{DeskproCreateOrganisationRequest, DeskproCreatePersonRequest, DeskproPerson}
-import play.api.libs.json.JsObject
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembershipResponse
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.DeskproOrganisationMembership
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.{
+  DeskproCreateOrganisationRequest,
+  DeskproCreatePersonRequest,
+  DeskproOrganisationMembership,
+  DeskproOrganisationMembershipResponse,
+  DeskproPerson
+}
 
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
@@ -67,11 +69,11 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .execute[HttpResponse]
   }
 
-  def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]]  = {
+  def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]] = {
     http
       .post(url"${config.deskproHorizonUrl}/api/v2/organizations/$orgId/members")
       .setHeader(
-        CONTENT_TYPE -> "application/x-www-form-urlencoded",
+        CONTENT_TYPE  -> "application/x-www-form-urlencoded",
         AUTHORIZATION -> config.deskproHorizonApiKey
       )
       .withProxy
@@ -84,7 +86,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .map { response =>
         response.json("data") match {
           case data: JsObject => Some(data.as[DeskproOrganisationMembership])
-          case _ => None
+          case _              => None
         }
       }
   }
@@ -105,7 +107,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .map { response =>
         response.json("data")(0) match {
           case data: JsObject => Some(data.as[DeskproPerson])
-          case _ => None
+          case _              => None
         }
       }
   }
@@ -118,7 +120,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       .map { response =>
         response.json("data") match {
           case data: JsObject => Some(data.as[DeskproPerson])
-          case _ => None
+          case _              => None
         }
       }
   }
