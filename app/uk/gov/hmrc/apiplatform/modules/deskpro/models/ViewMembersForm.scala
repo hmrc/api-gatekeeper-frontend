@@ -19,12 +19,12 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.models
 import play.api.data.Form
 import play.api.data.Forms._
 
-final case class ViewMembershipForm(orgId: Int)
+final case class ViewMembersForm(orgId: Int)
 
-object ViewMembershipForm {
-  def form: Form[ViewMembershipForm] = Form(
+object ViewMembersForm {
+  def form: Form[ViewMembersForm] = Form(
     mapping(
       "orgId" -> number
-    )(ViewMembershipForm.apply)(ViewMembershipForm.unapply)
+    )(ViewMembersForm.apply)(ViewMembersForm.unapply)
   )
 }

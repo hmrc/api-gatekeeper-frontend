@@ -18,7 +18,7 @@
 @import uk.gov.hmrc.apiplatform.modules.deskpro.controllers.routes
 @import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddOrganisationForm
 @import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddPersonForm
-@import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddMembershipForm, ViewMembershipForm}
+@import uk.gov.hmrc.apiplatform.modules.deskpro.models.{AddMembershipForm, ViewMembersForm, ViewMembershipsForm}
 @import play.api.data.Form
 @import play.api.mvc.RequestHeader
 
@@ -31,12 +31,13 @@
   addOrganisationForm: Form[AddOrganisationForm],
   addPersonForm: Form[AddPersonForm],
   addMembershipForm: Form[AddMembershipForm],
-  viewMembershipForm: Form[ViewMembershipForm]
+  viewMembersForm: Form[ViewMembersForm],
+  viewMembershipsForm: Form[ViewMembershipsForm]
 )(implicit request: RequestHeader, messages: Messages)
 
-<title>Deskpro Spike</title>
+<title>Deskpro Horizon</title>
 
-<h1 class="govuk-heading-l">Deskpro Horizon Organisations and People</h1>
+<h1 class="govuk-heading-l">Deskpro Horizon</h1>
 
 <h2 class="govuk-heading-m">Organisations</h2>
 
@@ -121,26 +122,50 @@
 
 <h2 class="govuk-heading-m">Membership</h2>
 
-@helper.form(action = routes.DeskproHorizonController.getMembers(), Symbol("class") -> "form") {
+@helper.form(action = routes.DeskproHorizonController.getMembersOfOrganisation(), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
   @govukInput(
     Input(
       id = "org-id",
       name = "orgId",
-      value = viewMembershipForm("orgId").value,
+      value = viewMembersForm("orgId").value,
       label = Label(
         classes = "govuk-label--s",
         content = Text("What's your org id?")
       ),
       classes = "govuk-!-width-full",
-      errorMessage = viewMembershipForm.error("orgId").map(e => ErrorMessage(content = Text(messages(e.message))))
+      errorMessage = viewMembersForm.error("orgId").map(e => ErrorMessage(content = Text(messages(e.message))))
     )
   )
 
   @govukButton(
     Button(
-      content = Text("View Membership")
+      content = Text("View Members")
+    )
+  )
+}
+
+@helper.form(action = routes.DeskproHorizonController.getMembershipsOfPerson(), Symbol("class") -> "form") {
+  @helper.CSRF.formField
+
+  @govukInput(
+    Input(
+      id = "person-email",
+      name = "email",
+      value = viewMembershipsForm("email").value,
+      label = Label(
+        classes = "govuk-label--s",
+        content = Text("What's your email?")
+      ),
+      classes = "govuk-!-width-full",
+      errorMessage = viewMembershipsForm.error("email").map(e => ErrorMessage(content = Text(messages(e.message))))
+    )
+  )
+
+  @govukButton(
+    Button(
+      content = Text("View Memberships")
     )
   )
 }

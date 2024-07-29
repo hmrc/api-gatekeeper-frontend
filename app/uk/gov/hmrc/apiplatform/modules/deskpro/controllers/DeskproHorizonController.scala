@@ -31,7 +31,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.apiplatform.modules.deskpro.models.AddMembershipForm
 import uk.gov.hmrc.apiplatform.modules.deskpro.services.DeskproHorizonService
-import uk.gov.hmrc.apiplatform.modules.deskpro.models.ViewMembershipForm
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.ViewMembersForm
+import uk.gov.hmrc.apiplatform.modules.deskpro.models.ViewMembershipsForm
 
 @Singleton
 class DeskproHorizonController @Inject() (
@@ -46,7 +47,7 @@ class DeskproHorizonController @Inject() (
     with GatekeeperAuthorisationActions {
 
   def page() = anyAuthenticatedUserAction { implicit request =>
-    successful(Ok(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembershipForm.form)))
+    successful(Ok(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form)))
   }
 
   def getOrganisations(full: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
@@ -56,7 +57,7 @@ class DeskproHorizonController @Inject() (
   def createOrganisation(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddOrganisationForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(formWithErrors, AddPersonForm.form, AddMembershipForm.form, ViewMembershipForm.form)))
+        successful(BadRequest(deskproHorizonView(formWithErrors, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form)))
       },
       formData => connector.createOrganisation(formData.name).map(response => Ok(Json.parse(response.body)))
     )
@@ -69,14 +70,14 @@ class DeskproHorizonController @Inject() (
   def getPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     connector.getPerson("petey@example.com").map {
       case Some(person) => Ok(Json.toJson(person))
-      case None => BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembershipForm.form))
+      case None => BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form))
     }
   }
 
   def createPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddPersonForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, formWithErrors, AddMembershipForm.form, ViewMembershipForm.form)))
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, formWithErrors, AddMembershipForm.form, ViewMembersForm.form, ViewMembershipsForm.form)))
       },
       formData => connector.createPerson(formData.name, formData.email).map(response => Ok(Json.parse(response.body)))
     )
@@ -85,7 +86,7 @@ class DeskproHorizonController @Inject() (
   def createMembership(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     AddMembershipForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, formWithErrors, ViewMembershipForm.form)))
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, formWithErrors, ViewMembersForm.form, ViewMembershipsForm.form)))
       },
       formData => {
         service.addMembership(formData.orgId, formData.email).map(response => Ok(Json.toJson(response)))
@@ -93,13 +94,24 @@ class DeskproHorizonController @Inject() (
     )
   }
 
-  def getMembers(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    ViewMembershipForm.form.bindFromRequest().fold(
+  def getMembersOfOrganisation(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    ViewMembersForm.form.bindFromRequest().fold(
       formWithErrors => {
-        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, formWithErrors)))
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, formWithErrors, ViewMembershipsForm.form)))
       },
       formData => {
-        service.getMembers(formData.orgId).map(response => Ok(Json.toJson(response)))
+        service.getMembersOfOrganisation(formData.orgId).map(response => Ok(Json.toJson(response)))
+      }
+    )
+  }
+
+  def getMembershipsOfPerson(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    ViewMembershipsForm.form.bindFromRequest().fold(
+      formWithErrors => {
+        successful(BadRequest(deskproHorizonView(AddOrganisationForm.form, AddPersonForm.form, AddMembershipForm.form, ViewMembersForm.form, formWithErrors)))
+      },
+      formData => {
+        service.getMembershipsOfPerson(formData.email).map(response => Ok(Json.toJson(response)))
       }
     )
   }
