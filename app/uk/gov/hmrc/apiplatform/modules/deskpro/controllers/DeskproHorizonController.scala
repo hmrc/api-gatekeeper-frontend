@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 
+// $COVERAGE-OFF$
 @Singleton
 class DeskproHorizonController @Inject() (
     connector: DeskproHorizonConnector,
@@ -113,3 +114,4 @@ class DeskproHorizonController @Inject() (
     )
   }
 }
+// $COVERAGE-ON$

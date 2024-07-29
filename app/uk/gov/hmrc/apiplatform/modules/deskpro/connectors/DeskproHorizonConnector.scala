@@ -19,7 +19,7 @@ package uk.gov.hmrc.apiplatform.modules.deskpro.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.HeaderNames.{AUTHORIZATION, CONTENT_TYPE}
+import play.api.http.HeaderNames.AUTHORIZATION
 import play.api.libs.json.{JsObject, Json}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -34,6 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.deskpro.models.{
   DeskproPerson
 }
 
+// $COVERAGE-OFF$
 @Singleton
 class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHorizonConfig)(implicit val ec: ExecutionContext) {
 
@@ -72,16 +73,9 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
   def addMembership(orgId: Int, personId: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproOrganisationMembership]] = {
     http
       .post(url"${config.deskproHorizonUrl}/api/v2/organizations/$orgId/members")
-      .setHeader(
-        CONTENT_TYPE  -> "application/x-www-form-urlencoded",
-        AUTHORIZATION -> config.deskproHorizonApiKey
-      )
       .withProxy
-      .withBody(
-        Map(
-          "person" -> Seq(personId.toString)
-        )
-      )
+      .withBody(Map("person" -> Seq(personId.toString)))
+      .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
       .map { response =>
         response.json("data") match {
@@ -125,3 +119,4 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
       }
   }
 }
+// $COVERAGE-ON$
