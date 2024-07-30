@@ -88,6 +88,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
   def getMemberships(orgId: Int)(implicit hc: HeaderCarrier): Future[DeskproOrganisationMembershipResponse] = {
     http
       .get(url"${config.deskproHorizonUrl}/api/v2/organizations/$orgId/members")
+      .withProxy
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
       .map(_.json.as[DeskproOrganisationMembershipResponse])
@@ -96,6 +97,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
   def getPerson(email: String)(implicit hc: HeaderCarrier): Future[Option[DeskproPerson]] = {
     http
       .get(url"${config.deskproHorizonUrl}/api/v2/people?emails=$email")
+      .withProxy
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
       .map { response =>
@@ -109,6 +111,7 @@ class DeskproHorizonConnector @Inject() (http: HttpClientV2, config: DeskproHori
   def getPerson(id: Int)(implicit hc: HeaderCarrier): Future[Option[DeskproPerson]] = {
     http
       .get(url"${config.deskproHorizonUrl}/api/v2/people/$id")
+      .withProxy
       .setHeader(AUTHORIZATION -> config.deskproHorizonApiKey)
       .execute[HttpResponse]
       .map { response =>
