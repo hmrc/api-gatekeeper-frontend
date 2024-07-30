@@ -21,7 +21,7 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.models.{DeveloperIdentifier, EmailIdentifier, TopicOptionChoice}
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 package object binders extends ApplicationLogger {
 
@@ -124,43 +124,36 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  private def warnOnEmailId(source: String)(id: DeveloperIdentifier): DeveloperIdentifier = id match {
-    case EmailIdentifier(_) => logger.warn(s"Still using emails as identifier - source:$source"); id
-    case _                  => id
-  }
+  implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
 
-  implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[DeveloperIdentifier] = new PathBindable[DeveloperIdentifier] {
-
-    override def bind(key: String, value: String): Either[String, DeveloperIdentifier] = {
+    override def bind(key: String, value: String): Either[String, UserId] = {
       for {
         text <- textBinder.bind(key, value)
-        id   <- DeveloperIdentifier(value).toRight(s"Cannot accept $text as a developer identifier")
-        _     = warnOnEmailId(s"developerIdentifierBinder BIND $key")(id)
+        id   <- UserId.apply(value).toRight(s"Cannot accept $text as a UserId")
       } yield id
     }
 
-    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      DeveloperIdentifier.asText(warnOnEmailId((s"developerIdentifierBinder UNBIND $key"))(developerId))
+    override def unbind(key: String, userId: UserId): String = {
+      textBinder.unbind("developerId", userId.value.toString)
     }
   }
 
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[DeveloperIdentifier] = new QueryStringBindable[DeveloperIdentifier] {
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, DeveloperIdentifier]] = {
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
       for {
-        textOrBindError <- textBinder.bind("developerId", params).orElse(textBinder.bind("email", params))
+        textOrBindError <- textBinder.bind("developerId", params)
       } yield textOrBindError match {
         case Right(idText) =>
           for {
-            id <- DeveloperIdentifier(idText).toRight(s"Cannot accept $idText as a developer identifier")
-            _   = warnOnEmailId(s"queryStringBindable BIND $key")(id)
+            id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a userId")
           } yield id
-        case _             => Left("Unable to bind a developer identifier")
+        case _             => Left("Unable to bind a UserId")
       }
     }
 
-    override def unbind(key: String, developerId: DeveloperIdentifier): String = {
-      textBinder.unbind("developerId", DeveloperIdentifier.asText(warnOnEmailId(s"queryStringBindable UNBIND $key")(developerId)))
+    override def unbind(key: String, userId: UserId): String = {
+      textBinder.unbind("developerId", userId.value.toString)
     }
   }
 

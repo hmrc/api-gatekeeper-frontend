@@ -24,6 +24,7 @@
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -95,8 +96,8 @@
                 XML email preferences
             </dt>
             <dd class="govuk-summary-list__value" id="xmlEmailPreferences">
-            @if(developer.xmlEmailPrefServices.nonEmpty) {
-                @for(e <- developer.xmlEmailPrefServices.toList.sorted) {@e <br>}
+            @if(developer.xmlServiceNames.nonEmpty) {
+                @for(e <- developer.xmlServiceNames.toList.sorted) {@e <br>}
             } else { None }
             </dd>
         </div>
@@ -114,7 +115,7 @@
         @for((mfaDetail, idx) <- developer.mfaDetails.filter(_.verified).zipWithIndex) {
             <div class="govuk-summary-list__row">
                 <dt class="govuk-body govuk-summary-list__key" id="mfa-type-@idx">
-                    @mfaDetail.mfaType.asText
+                    @mfaDetail.mfaType.displayText
                 </dt>
                 <dd class="govuk-summary-list__value" id="mfa-name-@idx">
                     On (@{mfaDetail.name})
@@ -127,13 +128,13 @@
     @if(MfaDetailHelper.isMfaVerified(developer.mfaDetails)) {
         @if(loggedInRequest.role.isUser) {
             <p class="govuk-body">
-                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(UuidIdentifier(developer.user.userId))}"
+                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId)}"
                 class="govuk-link">Remove multi-factor authentication</a>
             </p><br><br>
         }
     }
 
-    <h2 class="govuk-heading-m" id="mfa-heading">Associated applications</h2>
+    <h2 class="govuk-heading-m" id="associated-apps">Associated applications</h2>
     <dl class="govuk-summary-list">
         @if(developer.applications.isEmpty) {
             <div class="govuk-summary-list__row">
@@ -183,7 +184,7 @@
     <br>
     @if(loggedInRequest.role.isSuperUser) {
         <a id="delete-developer"
-           href="@{routes.DeveloperController.deleteDeveloperPage(UuidIdentifier(developer.user.userId))}"
+           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId)}"
            class="govuk-button govuk-button--secondary">Remove developer
         </a>
     }

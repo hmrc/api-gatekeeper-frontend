@@ -20,7 +20,7 @@ import org.scalatest.Assertions
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.models.MfaType
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
@@ -89,9 +89,9 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA detail types and names")
-      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AUTHENTICATOR_APP.asText)
+      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AUTHENTICATOR_APP.displayText)
       assert(DeveloperDetailsPage.authAppMfaName() == "On (Google Auth App)")
-      assert(DeveloperDetailsPage.smsMfaType() == MfaType.SMS.asText)
+      assert(DeveloperDetailsPage.smsMfaType() == MfaType.SMS.displayText)
       assert(DeveloperDetailsPage.smsMfaName() == "On (****6789)")
 
       Then("I can see the link to remove MFA")
@@ -124,7 +124,7 @@ class ApiGatekeeperRemoveMfaSpec
   def initStubs(): Unit = {
     stubFetchAllApplicationsList()
     stubPaginatedApplicationList()
-    stubApplicationForDeveloper(developer8Id.toString(), applicationResponseForEmail)
+    stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
     stubApplicationExcludingDeletedForDeveloper()
     stubApiDefinition()
     stubDevelopers()

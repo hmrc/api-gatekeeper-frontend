@@ -64,7 +64,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
       .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
   }
 
-  def stubApplicationsCollaborators(developers: Seq[User]): Unit = {
+  def stubApplicationsCollaborators(developers: Seq[AbstractUser]): Unit = {
     val developersJson = developers.map(u => u.email)
     val request        = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"), Some("partialEmail"))
 
@@ -121,7 +121,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
   }
 
-  def stubApplicationForDeveloper(developerId: String, response: String): Unit = {
+  def stubApplicationForDeveloper(developerId: UserId, response: String): Unit = {
     stubFor(
       get(urlPathEqualTo(s"/gatekeeper/developer/${developerId}/applications"))
         .willReturn(
@@ -146,7 +146,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubApplicationForDeveloperDefault(): Unit = {
-    stubApplicationForDeveloper(developer8Id.toString(), applicationResponseForEmail)
+    stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
   }
 
   def stubApplicationExcludingDeletedForDeveloper(): Unit = {

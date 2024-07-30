@@ -24,7 +24,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
+import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -43,8 +43,8 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
   }
 
   protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
-    implicit val format = Json.writes[DeveloperConnector.FindUserIdResponse]
-    val responseJson    = Json.stringify(Json.toJson(DeveloperConnector.FindUserIdResponse(userId)))
+    implicit val format = Json.writes[FindUserIdResponse]
+    val responseJson    = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
     stubFor(post(urlEqualTo("/developers/find-user-id"))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
@@ -108,15 +108,15 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
 
   def stubDeveloper(): Unit = {
 
-    implicit val format = Json.writes[DeveloperConnector.FindUserIdResponse]
+    implicit val format = Json.writes[FindUserIdResponse]
 
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))
-        .withJsonRequestBody(DeveloperConnector.FindUserIdRequest(developer8.toLaxEmail))
+        .withJsonRequestBody(FindUserIdRequest(developer8.toLaxEmail))
         .willReturn(
           aResponse()
             .withStatus(OK)
-            .withJsonBody(DeveloperConnector.FindUserIdResponse(UserId(developer8Id)))
+            .withJsonBody(FindUserIdResponse(UserId(developer8Id)))
         )
     )
 

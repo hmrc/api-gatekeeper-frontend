@@ -27,6 +27,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, State}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
@@ -50,16 +51,17 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       SmsMfaDetail(
         name = "****6789",
         mobileNumber = "0123456789",
-        createdOn = LocalDateTime.now,
+        createdOn = Instant.now,
         verified = true
       )
 
     val smsMfaDetailUnverified = smsMfaDetailVerified.copy(verified = false)
 
-    val authAppMfaDetailVerified: AuthenticatorAppMfaDetailSummary =
-      AuthenticatorAppMfaDetailSummary(
+    val authAppMfaDetailVerified: AuthenticatorAppMfaDetail =
+      AuthenticatorAppMfaDetail(
+        id = MfaId.random,
         name = "Google Auth App",
-        createdOn = LocalDateTime.now,
+        createdOn = Instant.now,
         verified = true
       )
 
@@ -83,9 +85,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
         case _                => "unregistered"
       })
       document.getElementById("userId").text shouldBe developer.user.userId.value.toString
-      if (developer.xmlEmailPrefServices.isEmpty) {
+      if (developer.xmlServiceNames.isEmpty) {
         document.getElementById("xmlEmailPreferences").text shouldBe "None"
-      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlEmailPrefServices.mkString(" ")
+      } else document.getElementById("xmlEmailPreferences").text shouldBe developer.xmlServiceNames.mkString(" ")
 
       if (developer.xmlOrganisations.isEmpty) {
         document.getElementById("xml-organisation").text shouldBe "None"
@@ -216,8 +218,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       result.contentType should include("text/html")
 
       document.getElementById("mfa-heading").text shouldBe "Multi-factor authentication"
-      document.getElementById("mfa-type-0").text shouldBe MfaType.AUTHENTICATOR_APP.asText
-      document.getElementById("mfa-type-1").text shouldBe MfaType.SMS.asText
+      document.getElementById("mfa-type-0").text shouldBe MfaType.AUTHENTICATOR_APP.displayText
+      document.getElementById("mfa-type-1").text shouldBe MfaType.SMS.displayText
       document.getElementById("mfa-name-0").text shouldBe s"On (${authAppMfaDetailVerified.name})"
       document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.name})"
       document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"

@@ -493,7 +493,7 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
     headers(result).get("Location") shouldBe Some(expectedLocation)
   }
 
-  def verifyUserTable(responseBody: String, users: List[User], showZeroUsers: Boolean = false): Unit = {
+  def verifyUserTable(responseBody: String, users: List[AbstractUser], showZeroUsers: Boolean = false): Unit = {
     if (users.nonEmpty) {
       responseBody should include(s"""<div class="govuk-body">${users.size} results</div>""")
 

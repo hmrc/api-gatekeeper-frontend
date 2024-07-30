@@ -22,8 +22,10 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 class DeveloperStatusFilterSpec extends HmrcSpec {
 
-  def aUser(name: String, verified: Option[Boolean]): User = {
-    verified.fold[User](UnregisteredUser(s"$name@example.com".toLaxEmail, UserId.random))(v => RegisteredUser(s"$name@example.com".toLaxEmail, UserId.random, "Fred", "Example", v))
+  def aUser(name: String, verified: Option[Boolean]): AbstractUser = {
+    verified.fold[AbstractUser](UnregisteredUser(s"$name@example.com".toLaxEmail, UserId.random))(v =>
+      RegisteredUser(s"$name@example.com".toLaxEmail, UserId.random, "Fred", "Example", v)
+    )
   }
 
   "DeveloperStatusFilter parsing" should {

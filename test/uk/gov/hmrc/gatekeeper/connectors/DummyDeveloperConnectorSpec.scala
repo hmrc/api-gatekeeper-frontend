@@ -68,7 +68,7 @@ class DummyDeveloperConnectorSpec
 
   "removeMfa" should {
     "return an RegisteredCollaborator" in {
-      await(underTest.removeMfa(UuidIdentifier(UserId.random), loggedInUser)) shouldBe a[RegisteredUser]
+      await(underTest.removeMfa(UserId.random, loggedInUser)) shouldBe a[RegisteredUser]
     }
   }
 }

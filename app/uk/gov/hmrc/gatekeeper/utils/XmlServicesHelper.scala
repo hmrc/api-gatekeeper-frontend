@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import uk.gov.hmrc.gatekeeper.models.TaxRegimeInterests
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.TaxRegimeInterests
 import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
 
 trait XmlServicesHelper {

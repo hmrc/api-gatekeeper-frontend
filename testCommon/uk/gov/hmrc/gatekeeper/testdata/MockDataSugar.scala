@@ -426,12 +426,12 @@ object MockDataSugar {
        |    "mfaDetails":[
        |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
        |    "name":"Google Auth App",
-       |    "createdOn":"2022-07-19T07:07:45.661",
+       |    "createdOn":"2022-07-19T07:07:45.661Z",
        |    "verified":true,
        |    "mfaType":"AUTHENTICATOR_APP"},
        |    {"id":"12b240e-ee7a-40ae-8eeb-b2a151da00de",
        |    "name":"****6789",
-       |    "createdOn":"2022-08-26T13:42:39.441",
+       |    "createdOn":"2022-08-26T13:42:39.441Z",
        |    "mobileNumber": "0123456789",
        |    "verified":true,
        |    "mfaType":"SMS"}
@@ -456,12 +456,12 @@ object MockDataSugar {
        |    "mfaDetails":[
        |    {"id":"f64b240e-ee7a-40ae-8eeb-b2a151da00cd",
        |    "name":"Google Auth App",
-       |    "createdOn":"2022-07-19T07:07:45.661",
+       |    "createdOn":"2022-07-19T07:07:45.661Z",
        |    "verified":true,
        |    "mfaType":"AUTHENTICATOR_APP"},
        |    {"id":"12b240e-ee7a-40ae-8eeb-b2a151da00de",
        |    "name":"****6789",
-       |    "createdOn":"2022-08-26T13:42:39.441",
+       |    "createdOn":"2022-08-26T13:42:39.441Z",
        |    "mobileNumber": "0123456789",
        |    "verified":true,
        |    "mfaType":"SMS"}

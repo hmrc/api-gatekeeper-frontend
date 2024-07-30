@@ -31,8 +31,9 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.dto.RemoveAllMfaRequest
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector.RemoveMfaRequest
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._
@@ -57,7 +58,6 @@ class HttpDeveloperConnectorSpec
   }
 
   def mockFetchUserId(email: LaxEmailAddress, userId: UserId) = {
-    import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector._
     implicit val writer = Json.writes[FindUserIdResponse]
 
     stubFor(
@@ -89,7 +89,7 @@ class HttpDeveloperConnectorSpec
 
     def aUserResponse(email: LaxEmailAddress, id: UserId = UserId.random) = RegisteredUser(email, id, "first", "last", verified = false)
 
-    def verifyUserResponse(userResponse: User, expectedEmail: LaxEmailAddress, expectedFirstName: String, expectedLastName: String) = {
+    def verifyUserResponse(userResponse: AbstractUser, expectedEmail: LaxEmailAddress, expectedFirstName: String, expectedLastName: String) = {
       userResponse.email shouldBe expectedEmail
       userResponse.firstName shouldBe expectedFirstName
       userResponse.lastName shouldBe expectedLastName
@@ -179,14 +179,14 @@ class HttpDeveloperConnectorSpec
     "remove MFA for a developer" in new Setup {
       val emailAddress = "someone@example.com"
       val user         = RegisteredUser(emailAddress.toLaxEmail, UserId.random, "Firstname", "Lastname", true)
-      val developerId  = UuidIdentifier(user.userId)
+      val developerId  = user.userId
 
       mockSeekRegisteredUser(user)
       val loggedInUser: String = "admin-user"
 
       stubFor(
         post(urlEqualTo(s"/developer/${user.userId.value}/mfa/remove"))
-          .withJsonRequestBody(RemoveMfaRequest(loggedInUser))
+          .withJsonRequestBody(RemoveAllMfaRequest(loggedInUser))
           .willReturn(
             aResponse()
               .withStatus(OK)

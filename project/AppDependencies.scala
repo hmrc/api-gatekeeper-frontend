@@ -10,8 +10,8 @@ object AppDependencies {
   lazy val seleniumVersion   = "4.4.0"
 
   val apiDomainVersion    = "0.15.0"
-  val commonDomainVersion = "0.13.0"
   val appDomainVersion    = "0.54.0"
+  val tpdDomainVersion    = "0.5.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
@@ -25,15 +25,16 @@ object AppDependencies {
     "org.apache.commons" % "commons-csv"                           % "1.10.0",
     "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "1.10.0",
     "uk.gov.hmrc"       %% "api-platform-application-domain"       % appDomainVersion,
-    "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion
+    "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion,
+    "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion
   )
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"          % bootstrapVersion,
     "org.jsoup"               % "jsoup"                           % jsoupVersion,
-    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.30.0",
+    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.31.0",
     "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
-    "uk.gov.hmrc"            %% "api-platform-test-common-domain" % commonDomainVersion
+    "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"    % tpdDomainVersion
   ).map(_ % "test")
 }

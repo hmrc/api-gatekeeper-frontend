@@ -3,11 +3,11 @@
 
 POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
-GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
-POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: uk.gov.hmrc.gatekeeper.models.DeveloperIdentifier)
+GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId)
+GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperPage(developerIdentifier: uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId)
+POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperAction(developerIdentifier: uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId)
+GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId)
+POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId)
 
 GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage()
 POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage()

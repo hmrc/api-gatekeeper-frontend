@@ -71,7 +71,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
 
       val emailAddress = "someone@example.com".toLaxEmail
       val user         = RegisteredUser(emailAddress, UserId.random, "Firstname", "Lastname", true)
-      val developerId  = UuidIdentifier(user.userId)
+      val developerId  = user.userId
 
       val apps      = List(anApplicationWithCollaborators(Set(
         Collaborators.Administrator(UserId.random, emailAddress),
@@ -170,7 +170,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe SEE_OTHER
-        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId.userId.value}")
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId}")
         verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
       }
 

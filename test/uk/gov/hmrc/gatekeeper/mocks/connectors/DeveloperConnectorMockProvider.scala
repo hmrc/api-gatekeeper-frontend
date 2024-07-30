@@ -33,18 +33,17 @@ trait DeveloperConnectorMockProvider {
   object DeveloperConnectorMock {
 
     object FetchByEmail {
-      def handles(user: User) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*)).thenReturn(successful(user))
+      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*)).thenReturn(successful(user))
     }
 
     object FetchByUserId {
-      def handles(user: User) = when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
+      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
     }
 
     object FetchById {
 
-      def handles(user: User) = {
-        when(mockDeveloperConnector.fetchById(eqTo(UuidIdentifier(user.userId)))(*)).thenReturn(successful(user))
-        when(mockDeveloperConnector.fetchById(eqTo(EmailIdentifier(user.email)))(*)).thenReturn(successful(user))
+      def handles(user: AbstractUser) = {
+        when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
       }
     }
 

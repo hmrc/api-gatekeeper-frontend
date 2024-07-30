@@ -20,10 +20,11 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developerEmailAddress: String, developerIdentifier: DeveloperIdentifier)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developerEmailAddress: String, userId: UserId)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Remove multi-factor authentication",
@@ -44,6 +45,6 @@
   </div>
 
   <p class="govuk-body govuk-!-margin-bottom-9">
-    <a id="finish" href="@{routes.DeveloperController.developerPage(developerIdentifier)}" class="govuk-link">Back to developer details</a>
+    <a id="finish" href="@{routes.DeveloperController.developerPage(userId)}" class="govuk-link">Back to developer details</a>
   </p>
 }

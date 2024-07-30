@@ -113,7 +113,7 @@ class ApiGatekeeperApplicationSpec
       stubGetAllXmlApis()
       stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationForDeveloper(unverifiedUser.userId.value.toString(), MockDataSugar.applicationForDeveloperResponse)
+      stubApplicationForDeveloper(unverifiedUser.userId, MockDataSugar.applicationForDeveloperResponse)
 
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)

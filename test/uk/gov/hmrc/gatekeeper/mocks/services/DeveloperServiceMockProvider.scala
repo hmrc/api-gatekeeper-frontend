@@ -16,15 +16,15 @@
 
 package mocks.services
 
-import java.time.LocalDateTime
-import java.util.UUID
+import java.time.Instant
 import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.{AuthenticatorAppMfaDetail, MfaId}
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
@@ -36,7 +36,7 @@ trait DeveloperServiceMockProvider {
 
   object DeveloperServiceMock {
 
-    val mfaDetail = AuthenticatorAppMfaDetailSummary(MfaId(UUID.randomUUID()), "name", LocalDateTime.now, verified = true)
+    val mfaDetail = AuthenticatorAppMfaDetail(MfaId.random, "name", Instant.now, verified = true)
 
     def mfaEnabledToMfaDetails(mfaEnabled: Boolean) = {
       if (mfaEnabled) {
@@ -48,12 +48,14 @@ trait DeveloperServiceMockProvider {
 
       def returnsFor(apiFilter: ApiFilter[String], apps: GKApplicationResponse*)(developers: Developer*) =
         when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
-      def returnsFor(statusFilter: StatusFilter)(developers: Developer*)                                 = when(mockDeveloperService.filterUsersBy(eqTo(statusFilter))(*)).thenReturn(developers.toList)
+
+      def returnsFor(statusFilter: StatusFilter)(developers: Developer*) =
+        when(mockDeveloperService.filterUsersBy(eqTo(statusFilter))(*)).thenReturn(developers.toList)
     }
 
     object GetDevelopersWithApps {
 
-      def returnsFor(apps: GKApplicationResponse*)(users: User*)(developers: Developer*) =
+      def returnsFor(apps: GKApplicationResponse*)(users: AbstractUser*)(developers: Developer*) =
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps.toList), eqTo(users.toList)))
           .thenReturn(developers.toList)
     }
@@ -73,18 +75,18 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDeveloper {
-      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*)).thenReturn(successful(developer))
+      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(developer.user.userId), *)(*)).thenReturn(successful(developer))
     }
 
     object RemoveMfa {
-      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(successful(user))
-      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*, *)(*)).thenReturn(failed(t))
+      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(successful(user))
+      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(failed(t))
     }
 
     object DeleteDeveloper {
 
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
-        when(mockDeveloperService.deleteDeveloper(eqTo(UuidIdentifier(developer.user.userId)), *)(*))
+        when(mockDeveloperService.deleteDeveloper(eqTo(developer.user.userId), *)(*))
           .thenReturn(successful((result, developer)))
     }
 
@@ -99,7 +101,7 @@ trait DeveloperServiceMockProvider {
     }
 
     object SearchDevelopers {
-      def returns(users: User*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
+      def returns(users: AbstractUser*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
     }
 
     object SeekRegisteredUser {
@@ -167,6 +169,6 @@ trait DeveloperServiceMockProvider {
     }
   }
 
-  def aUser(email: LaxEmailAddress, verified: Boolean = false): User = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
+  def aUser(email: LaxEmailAddress, verified: Boolean = false): AbstractUser = RegisteredUser(email, idOf(email), "first", "last", verified = verified)
 
 }

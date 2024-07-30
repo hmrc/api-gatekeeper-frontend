@@ -31,7 +31,7 @@ trait XmlServicesStub {
   }
 
   def stubGetXmlOrganisationsForUser(userId: UserId): Unit = {
-    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+    stubFor(get(urlEqualTo(s"/api-platform-xml-services/organisations?userId=$userId&sortBy=ORGANISATION_NAME"))
       .willReturn(aResponse().withBody("[]").withStatus(OK)))
   }
 

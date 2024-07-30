@@ -18,29 +18,29 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
-import uk.gov.hmrc.gatekeeper.models.MfaId.format
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
 case class CoreUserDetails(email: LaxEmailAddress, id: UserId)
 
-sealed trait User {
+sealed trait AbstractUser {
   def email: LaxEmailAddress
   def userId: UserId
   def firstName: String
   def lastName: String
-  lazy val sortField = User.asSortField(lastName, firstName)
+  lazy val sortField = AbstractUser.asSortField(lastName, firstName)
   lazy val fullName  = s"${firstName} ${lastName}"
 }
 
-object User {
+object AbstractUser {
   def asSortField(lastName: String, firstName: String): String = s"${lastName.trim().toLowerCase()} ${firstName.trim().toLowerCase()}"
 
-  def status(user: User): StatusFilter = user match {
+  def status(user: AbstractUser): StatusFilter = user match {
     case u: RegisteredUser if (u.verified) => VerifiedStatus
     case u: RegisteredUser                 => UnverifiedStatus
     case _: UnregisteredUser               => UnregisteredStatus
@@ -56,16 +56,9 @@ case class RegisteredUser(
     organisation: Option[String] = None,
     mfaDetails: List[MfaDetail] = List.empty,
     emailPreferences: EmailPreferences = EmailPreferences.noPreferences
-  ) extends User {}
+  ) extends AbstractUser {}
 
 object RegisteredUser {
-  implicit val authenticatorAppMfaDetailFormat: OFormat[AuthenticatorAppMfaDetailSummary] = Json.format[AuthenticatorAppMfaDetailSummary]
-  implicit val smsMfaDetailFormat: OFormat[SmsMfaDetail]                                  = Json.format[SmsMfaDetail]
-
-  implicit val mfaDetailFormat: OFormat[MfaDetail] = Union.from[MfaDetail]("mfaType")
-    .and[AuthenticatorAppMfaDetailSummary](MfaType.AUTHENTICATOR_APP.toString)
-    .and[SmsMfaDetail](MfaType.SMS.toString)
-    .format
 
   val registeredUserReads: Reads[RegisteredUser] = (
     (JsPath \ "email").read[LaxEmailAddress] and
@@ -74,7 +67,6 @@ object RegisteredUser {
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
       (JsPath \ "organisation").readNullable[String] and
-      // (JsPath \ "mfaEnabled").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
   )(RegisteredUser.apply _)
@@ -84,21 +76,22 @@ object RegisteredUser {
 
 }
 
-case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends User {
+case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends AbstractUser {
   val firstName = "n/a"
   val lastName  = "n/a"
 }
 
-case class Developer(user: User, applications: List[GKApplicationResponse], xmlServiceNames: Set[String] = Set.empty, xmlOrganisations: List[XmlOrganisation] = List.empty) {
+case class Developer(
+    user: AbstractUser,
+    applications: List[GKApplicationResponse],
+    xmlServiceNames: Set[String] = Set.empty,
+    xmlOrganisations: List[XmlOrganisation] = List.empty
+  ) {
   lazy val fullName = user.fullName
 
   lazy val email = user.email
 
   lazy val userId = user.userId
-
-  lazy val xmlEmailPrefServices = xmlServiceNames
-
-  lazy val xmlOrgs = xmlOrganisations
 
   lazy val mfaDetails: List[MfaDetail] = user match {
     case UnregisteredUser(_, _) => List.empty
@@ -136,11 +129,11 @@ case class Developer(user: User, applications: List[GKApplicationResponse], xmlS
   }
 
   lazy val sortField: String = user match {
-    case UnregisteredUser(_, _) => User.asSortField(lastName, firstName)
+    case UnregisteredUser(_, _) => AbstractUser.asSortField(lastName, firstName)
     case r: RegisteredUser      => r.sortField
   }
 
-  lazy val status: StatusFilter = User.status(user)
+  lazy val status: StatusFilter = AbstractUser.status(user)
 
   lazy val id: String = user.userId.value.toString
 }

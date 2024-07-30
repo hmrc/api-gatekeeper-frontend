@@ -53,7 +53,7 @@ class ApiGatekeeperDeveloperDetailsSpec
 
       stubFetchAllApplicationsList()
 
-      stubApplicationForDeveloper(unverifiedUser.userId.toString(), defaultApplicationResponse.toSeq.toJsonString)
+      stubApplicationForDeveloper(unverifiedUser.userId, defaultApplicationResponse.toSeq.toJsonString)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
       stubDevelopers()

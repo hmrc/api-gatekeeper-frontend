@@ -188,7 +188,7 @@ class XmlServicesConnectorSpec
 
     "return APIs when userId exists on an organisation" in new Setup {
       stubFor(
-        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+        get(urlEqualTo(s"$url?userId=$userId&sortBy=ORGANISATION_NAME"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -200,7 +200,7 @@ class XmlServicesConnectorSpec
 
     "return no APIs when userId does not exist in backend" in new Setup {
       stubFor(
-        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+        get(urlEqualTo(s"$url?userId=$userId&sortBy=ORGANISATION_NAME"))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -212,7 +212,7 @@ class XmlServicesConnectorSpec
 
     "return UpstreamErrorResponse when backend returns 400" in new Setup {
       stubFor(
-        get(urlEqualTo(s"$url?userId=${userId.value}&sortBy=ORGANISATION_NAME"))
+        get(urlEqualTo(s"$url?userId=$userId&sortBy=ORGANISATION_NAME"))
           .willReturn(
             aResponse()
               .withStatus(BAD_REQUEST)
