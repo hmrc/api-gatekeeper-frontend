@@ -276,6 +276,7 @@ object MockDataSugar {
        |        "allowlist" : []
        |    },
        |    "grantLength": 547,
+       |    "redirectUris": [],
        |    "moreApplication": {
        |        "allowAutoDelete": true
        |      }

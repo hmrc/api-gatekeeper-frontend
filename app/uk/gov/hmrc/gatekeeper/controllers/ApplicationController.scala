@@ -139,6 +139,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString())),
+      ColumnDefinition("Number of Redirect URIs", (app => app.redirectUris.size.toString)),
       ColumnDefinition("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|"))
     )
 

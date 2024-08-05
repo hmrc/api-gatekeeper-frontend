@@ -53,6 +53,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
+      redirectUris: List[RedirectUri] = List.empty,
       moreApplication: MoreApplication = MoreApplication(true)
     ): GKApplicationResponse =
     GKApplicationResponse(
@@ -74,6 +75,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       checkInformation,
       blocked,
       ipAllowlist,
+      redirectUris,
       moreApplication
     )
   // scalastyle:on parameter.number
