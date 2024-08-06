@@ -73,7 +73,7 @@ object GKApplicationResponse {
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       (JsPath \ "blocked").readWithDefault[Boolean](false) and
       (JsPath \ "ipAllowlist").read[IpAllowlist] and
-      (JsPath \ "redirectUris").read[List[RedirectUri]] and
+      (JsPath \ "redirectUris").readWithDefault[List[RedirectUri]](List.empty) and
       (JsPath \ "moreApplication").readWithDefault[MoreApplication](MoreApplication(true))
   )(GKApplicationResponse.apply _)
 
