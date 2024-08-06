@@ -43,6 +43,7 @@ case class GKApplicationResponse(
     checkInformation: Option[CheckInformation],
     blocked: Boolean,
     ipAllowlist: IpAllowlist,
+    redirectUris: List[RedirectUri] = List.empty,
     moreApplication: MoreApplication
   ) {
 
@@ -72,6 +73,7 @@ object GKApplicationResponse {
       (JsPath \ "checkInformation").readNullable[CheckInformation] and
       (JsPath \ "blocked").readWithDefault[Boolean](false) and
       (JsPath \ "ipAllowlist").read[IpAllowlist] and
+      (JsPath \ "redirectUris").read[List[RedirectUri]] and
       (JsPath \ "moreApplication").readWithDefault[MoreApplication](MoreApplication(true))
   )(GKApplicationResponse.apply _)
 
