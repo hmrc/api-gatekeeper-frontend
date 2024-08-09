@@ -19,7 +19,8 @@ package uk.gov.hmrc.gatekeeper.connectors
 import org.scalatest.BeforeAndAfterEach
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -33,7 +34,7 @@ class AuthConnectorSpec
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val mockAppConfig = mock[AppConfig]
-    val httpClient    = app.injector.instanceOf[HttpClient]
+    val httpClient    = app.injector.instanceOf[HttpClientV2]
 
     val connector = new AuthConnector(httpClient, mockAppConfig)
 

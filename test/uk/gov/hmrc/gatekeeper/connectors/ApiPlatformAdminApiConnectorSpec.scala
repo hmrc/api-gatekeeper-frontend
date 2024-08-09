@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HeaderNames}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -39,7 +40,7 @@ class ApiPlatformAdminApiConnectorSpec
 
   trait Setup {
     val hc: HeaderCarrier = HeaderCarrier()
-    val httpClient        = app.injector.instanceOf[HttpClient]
+    val httpClient        = app.injector.instanceOf[HttpClientV2]
     val authToken         = "1234"
 
     val mockConnectorConfig: ApiPlatformAdminApiConnector.Config = mock[ApiPlatformAdminApiConnector.Config]

@@ -19,8 +19,9 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.json.{OWrites, Reads}
-import uk.gov.hmrc.http.{HttpClient, _}
+import play.api.libs.json.{Json, OWrites, Reads}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -48,11 +49,12 @@ object ApplicationConnector {
 abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
   import ApplicationConnector._
 
-  protected val httpClient: HttpClient
   val environment: Environment
   val serviceBaseUrl: String
 
-  def http: HttpClient
+  def http: HttpClientV2
+
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
   def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/application/${applicationId}"
 
@@ -61,60 +63,59 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
   def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    http.GET[ApplicationWithHistory](baseTpaGatekeeperUrl(applicationId))
+    configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}")).execute[ApplicationWithHistory]
   }
 
   def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    http.GET[List[StateHistory]](s"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")
+    configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")).execute[List[StateHistory]]
   }
 
   def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")).execute[List[GKApplicationResponse]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/developer/${userId}/applications")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/developer/${userId}/applications")).execute[List[GKApplicationResponse]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")).execute[List[GKApplicationResponse]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application?noSubscriptions=true")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?noSubscriptions=true")).execute[List[GKApplicationResponse]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    http.GET[List[GKApplicationResponse]](s"$serviceBaseUrl/application")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application")).execute[List[GKApplicationResponse]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def fetchAllApplicationsWithStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
-    http.GET[List[ApplicationStateHistory]](s"$serviceBaseUrl/gatekeeper/applications/stateHistory")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/stateHistory")).execute[List[ApplicationStateHistory]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
   def validateApplicationName(applicationId: Option[ApplicationId], name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
-    http.POST[ValidateApplicationNameRequest, Either[UpstreamErrorResponse, ValidateApplicationNameResponse]](
-      s"$serviceBaseUrl/application/name/validate",
-      ValidateApplicationNameRequest(name, applicationId)
-    )
+    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application/name/validate"))
+      .withBody(Json.toJson(ValidateApplicationNameRequest(name, applicationId)))
+      .execute[Either[UpstreamErrorResponse, ValidateApplicationNameResponse]]
       .map(_ match {
         case Right(ValidateApplicationNameResponse(None))                                                       => ValidateApplicationNameSuccessResult
         case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(true, _)))) => ValidateApplicationNameFailureInvalidResult
@@ -124,7 +125,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
-    http.POST[CreatePrivOrROPCAppRequest, Either[UpstreamErrorResponse, CreatePrivOrROPCAppSuccessResult]](s"$serviceBaseUrl/application", createPrivOrROPCAppRequest)
+    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application"))
+      .withBody(Json.toJson(createPrivOrROPCAppRequest))
+      .execute[Either[UpstreamErrorResponse, CreatePrivOrROPCAppSuccessResult]]
       .map(_ match {
         case Right(result) => result
         case Left(_)       => CreatePrivOrROPCAppFailureResult
@@ -132,21 +135,23 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
-    http.GET[PaginatedApplicationResponse](s"$serviceBaseUrl/applications", params.toSeq)
+    http.get(url"$serviceBaseUrl/applications?${params.toSeq}").execute[PaginatedApplicationResponse]
   }
 
   def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptionsResponse]] = {
-    http.GET[List[ApplicationWithSubscriptionsResponse]](s"$serviceBaseUrl/gatekeeper/applications/subscriptions")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[ApplicationWithSubscriptionsResponse]]
   }
 
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
 
-    http.POST[SearchCollaboratorsRequest, List[LaxEmailAddress]](s"$serviceBaseUrl/collaborators", request)
+    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/collaborators"))
+      .withBody(Json.toJson(request))
+      .execute[List[LaxEmailAddress]]
   }
 
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[Boolean]](s"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")).execute[Option[Boolean]]
       .map(_ match {
         case Some(_) => true
         case None    => false
@@ -154,7 +159,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   }
 
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    http.GET[Option[TermsOfUseInvitationResponse]](s"$serviceBaseUrl/terms-of-use/application/${applicationId}")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/terms-of-use/application/${applicationId}")).execute[Option[TermsOfUseInvitationResponse]]
       .map(_ match {
         case Some(_) => true
         case None    => false
@@ -165,8 +170,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 @Singleton
 class SandboxApplicationConnector @Inject() (
     val appConfig: AppConfig,
-    val httpClient: HttpClient,
-    val proxiedHttpClient: ProxiedHttpClient
+    val http: HttpClientV2
   )(implicit override val ec: ExecutionContext
   ) extends ApplicationConnector {
 
@@ -176,16 +180,19 @@ class SandboxApplicationConnector @Inject() (
   val bearerToken    = appConfig.applicationSandboxBearerToken
   val apiKey         = appConfig.applicationSandboxApiKey
 
-  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder =
+    EbridgeConfigurator.configure(useProxy, bearerToken, apiKey)(requestBuilder)
 }
 
 @Singleton
-class ProductionApplicationConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit override val ec: ExecutionContext)
-    extends ApplicationConnector {
+class ProductionApplicationConnector @Inject() (
+    val appConfig: AppConfig,
+    val http: HttpClientV2
+  )(implicit override val ec: ExecutionContext
+  ) extends ApplicationConnector {
 
   val environment    = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.applicationProductionBaseUrl
 
-  val http = httpClient
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder
 }

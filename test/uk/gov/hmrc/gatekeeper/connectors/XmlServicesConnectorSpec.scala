@@ -24,7 +24,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -44,7 +45,7 @@ class XmlServicesConnectorSpec
     val authToken                  = "Bearer Token"
     implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient                                 = app.injector.instanceOf[HttpClient]
+    val httpClient                                 = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: XmlServicesConnector.Config = mock[XmlServicesConnector.Config]
     when(mockAppConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 

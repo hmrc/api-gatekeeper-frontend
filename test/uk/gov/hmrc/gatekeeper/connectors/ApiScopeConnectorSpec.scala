@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -37,7 +38,7 @@ class ApiScopeConnectorSpec
   class Setup(proxyEnabled: Boolean = false) {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClientV2]
 
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.apiScopeProductionBaseUrl).thenReturn(wireMockUrl)

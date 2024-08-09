@@ -25,7 +25,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -50,7 +51,7 @@ class HttpDeveloperConnectorSpec
 
     val mockAppConfig         = mock[AppConfig]
     val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")
-    val httpClient            = app.injector.instanceOf[HttpClient]
+    val httpClient            = app.injector.instanceOf[HttpClientV2]
 
     when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
 

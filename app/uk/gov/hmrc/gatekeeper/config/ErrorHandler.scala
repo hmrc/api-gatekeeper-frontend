@@ -17,10 +17,11 @@
 package uk.gov.hmrc.gatekeeper.config
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Configuration
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.Request
+import play.api.mvc.{Request, RequestHeader}
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
@@ -30,11 +31,12 @@ class ErrorHandler @Inject() (
     val messagesApi: MessagesApi,
     val configuration: Configuration,
     errorTemplate: ErrorTemplate
-  )(implicit val appConfig: AppConfig
+  )(implicit val appConfig: AppConfig,
+    val ec: ExecutionContext
   ) extends FrontendErrorHandler {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: Request[_]) = {
-    errorTemplate(pageTitle, heading, message)
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader) = {
+    Future.successful(errorTemplate(pageTitle, heading, message))
   }
 
   def notFoundTemplate(message: String)(implicit request: Request[_]) =

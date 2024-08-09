@@ -21,18 +21,20 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 
 abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
-  protected val httpClient: HttpClient
   val environment: Environment
   val serviceBaseUrl: String
 
-  def http: HttpClient
+  def http: HttpClientV2
+
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
   private def for5xx(ex: Throwable): PartialFunction[Throwable, Nothing] = (err: Throwable) =>
     err match {
@@ -40,13 +42,13 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
     }
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[ApiScope]] = {
-    http.GET[List[ApiScope]](s"$serviceBaseUrl/scope")
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/scope")).execute[List[ApiScope]]
       .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
   }
 }
 
 @Singleton
-class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient, val proxiedHttpClient: ProxiedHttpClient)(implicit val ec: ExecutionContext)
+class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
   val environment    = Environment.SANDBOX
@@ -55,16 +57,16 @@ class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val httpClie
   val bearerToken    = appConfig.apiScopeSandboxBearerToken
   val apiKey         = appConfig.apiScopeSandboxApiKey
 
-  val http: HttpClient = if (useProxy) proxiedHttpClient.withHeaders(bearerToken, apiKey) else httpClient
-
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder =
+    EbridgeConfigurator.configure(useProxy, bearerToken, apiKey)(requestBuilder)
 }
 
 @Singleton
-class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val httpClient: HttpClient)(implicit val ec: ExecutionContext)
+class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
   val environment    = Environment.PRODUCTION
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
 
-  val http = httpClient
+  def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder
 }

@@ -501,22 +501,20 @@ class ApplicationController @Inject() (
         val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
         val reasonNotFound    = "Reason not found"
         event match {
-          case None        => NotFound(errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound))
-          case Some(event) => Ok(manageAutoDeleteDisabledView(
+          case None        => errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound).map(NotFound(_))
+          case Some(event) => Future.successful(Ok(manageAutoDeleteDisabledView(
               app.application,
               event.metaData.mkString,
               event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
               AutoDeletePreviouslyDisabledForm.form
-            ))
+            )))
         }
       }
 
       def handleAutoDeleteDisabled(application: GKApplicationResponse) = {
-        for {
-          event <- eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
-                     .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
-          view   = getView(event)
-        } yield view
+        eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
+          .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
+          .flatMap(getView(_))
       }
 
       if (app.application.moreApplication.allowAutoDelete) {
@@ -524,7 +522,6 @@ class ApplicationController @Inject() (
       } else {
         handleAutoDeleteDisabled(app.application)
       }
-
     }
   }
 

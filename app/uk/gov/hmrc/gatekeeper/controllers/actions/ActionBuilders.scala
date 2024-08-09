@@ -50,7 +50,7 @@ trait ActionBuilders extends ApplicationLogger {
     applicationService.fetchApplication(appId).flatMap(appWithHistory =>
       appWithHistory.application.access match {
         case access: Access.Standard => f(appWithHistory, access)
-        case _                       => Future.successful(BadRequest(errorHandler.badRequestTemplate("Application must have standard access for this call")))
+        case _                       => errorHandler.badRequestTemplate("Application must have standard access for this call").map(BadRequest(_))
       }
     )
   }
@@ -65,7 +65,7 @@ trait ActionBuilders extends ApplicationLogger {
     ): Future[Result] = {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(appWithSubsData) => f(appWithSubsData)
-      case None                  => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+      case None                  => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
 
@@ -81,7 +81,7 @@ trait ActionBuilders extends ApplicationLogger {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
         applicationService.fetchStateHistory(appId, value.application.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
-      case None        => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+      case None        => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
 
@@ -115,7 +115,7 @@ trait ActionBuilders extends ApplicationLogger {
 
         applicationWithSubscriptionDataAndFieldDefinitions.flatMap(appSubsData => action(appSubsData))
       }
-      case None                      => Future.successful(NotFound(errorHandler.notFoundTemplate("Application not found")))
+      case None                      => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
 }

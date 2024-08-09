@@ -25,8 +25,10 @@ import com.google.inject.name.Named
 
 import play.api.Logging
 import play.api.http.Status.NO_CONTENT
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, HttpResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
@@ -80,24 +82,31 @@ trait DeveloperConnector {
 @Singleton
 class HttpDeveloperConnector @Inject() (
     appConfig: AppConfig,
-    http: HttpClient,
+    http: HttpClientV2,
     @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption
   )(implicit ec: ExecutionContext
   ) extends DeveloperConnector
     with SendsSecretRequest with Logging {
 
   private def fetchUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[CoreUserDetails]] = {
-    http.POST[FindUserIdRequest, Option[FindUserIdResponse]](s"${appConfig.developerBaseUrl}/developers/find-user-id", FindUserIdRequest(email))
+    http.post(url"${appConfig.developerBaseUrl}/developers/find-user-id")
+      .withBody(Json.toJson(FindUserIdRequest(email)))
+      .execute[Option[FindUserIdResponse]]
       .map(_.map(userIdResponse => CoreUserDetails(email, userIdResponse.userId)))
   }
 
   private def fetchOrCreateUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[CoreUserDetails] = {
-    http.POST[FindOrCreateUserIdRequest, FindUserIdResponse](s"${appConfig.developerBaseUrl}/developers/user-id", FindOrCreateUserIdRequest(email))
+    http.post(url"${appConfig.developerBaseUrl}/developers/user-id")
+      .withBody(Json.toJson(FindOrCreateUserIdRequest(email)))
+      .execute[FindUserIdResponse]
       .map(userIdResponse => CoreUserDetails(email, userIdResponse.userId))
   }
 
-  private def seekRegisteredUser(id: UserId)(implicit hc: HeaderCarrier): OptionT[Future, RegisteredUser] =
-    OptionT(http.GET[Option[RegisteredUser]](s"${appConfig.developerBaseUrl}/developer", Seq("developerId" -> id.value.toString)))
+  private def seekRegisteredUser(id: UserId)(implicit hc: HeaderCarrier): OptionT[Future, RegisteredUser] = {
+    val queryParams = Seq("developerId" -> id.value.toString)
+    OptionT(http.get(url"${appConfig.developerBaseUrl}/developer?$queryParams")
+      .execute[Option[RegisteredUser]])
+  }
 
   def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = {
     import cats.implicits._
@@ -131,7 +140,9 @@ class HttpDeveloperConnector @Inject() (
   }
 
   def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    http.POST[Iterable[LaxEmailAddress], List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/get-by-emails", emails)
+    http.post(url"${appConfig.developerBaseUrl}/developers/get-by-emails")
+      .withBody(Json.toJson(emails))
+      .execute[List[RegisteredUser]]
   }
 
   def fetchByEmailPreferences(
@@ -149,7 +160,8 @@ class HttpDeveloperConnector @Inject() (
       Seq("topic" -> topic.toString) ++ regimes ++
         maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams
 
-    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/email-preferences", queryParams)
+    http.get(url"${appConfig.developerBaseUrl}/developers/email-preferences?$queryParams")
+      .execute[List[RegisteredUser]]
   }
 
   def fetchByEmailPreferencesPaginated(
@@ -182,19 +194,23 @@ class HttpDeveloperConnector @Inject() (
       }
     }
 
-    http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/email-preferences-paginated", prepareQueryParams)
+    http.get(url"${appConfig.developerBaseUrl}/developers/email-preferences-paginated?$prepareQueryParams")
+      .execute[UserPaginatedResponse]
   }
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    http.GET[List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/all")
+    http.get(url"${appConfig.developerBaseUrl}/developers/all").execute[List[RegisteredUser]]
   }
 
   def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
-    http.GET[UserPaginatedResponse](s"${appConfig.developerBaseUrl}/developers/all-paginated?offset=$offset&limit=$limit")
+    http.get(url"${appConfig.developerBaseUrl}/developers/all-paginated?offset=$offset&limit=$limit")
+      .execute[UserPaginatedResponse]
   }
 
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
-    http.POST[DeleteDeveloperRequest, HttpResponse](s"${appConfig.developerBaseUrl}/developer/delete", deleteDeveloperRequest)
+    http.post(url"${appConfig.developerBaseUrl}/developer/delete")
+      .withBody(Json.toJson(deleteDeveloperRequest))
+      .execute[HttpResponse]
       .map(response =>
         response.status match {
           case NO_CONTENT => DeveloperDeleteSuccessResult
@@ -208,7 +224,7 @@ class HttpDeveloperConnector @Inject() (
 
   def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     for {
-      userResponse <- http.POST[RemoveAllMfaRequest, RegisteredUser](s"${appConfig.developerBaseUrl}/developer/$userId/mfa/remove", RemoveAllMfaRequest(loggedInUser))
+      userResponse <- http.post(url"${appConfig.developerBaseUrl}/developer/$userId/mfa/remove").withBody(Json.toJson(RemoveAllMfaRequest(loggedInUser))).execute[RegisteredUser]
     } yield userResponse
   }
 
@@ -218,7 +234,7 @@ class HttpDeveloperConnector @Inject() (
     val payload = SearchParameters(maybeEmail, Some(status.value))
 
     secretRequest(payload) { request =>
-      http.POST[SecretRequest, List[RegisteredUser]](s"${appConfig.developerBaseUrl}/developers/search", request)
+      http.post(url"${appConfig.developerBaseUrl}/developers/search").withBody(Json.toJson(request)).execute[List[RegisteredUser]]
     }
   }
 }

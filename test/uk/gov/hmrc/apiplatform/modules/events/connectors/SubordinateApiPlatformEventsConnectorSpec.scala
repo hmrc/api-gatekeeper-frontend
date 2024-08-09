@@ -22,7 +22,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
@@ -41,7 +42,7 @@ class SubordinateApiPlatformEventsConnectorSpec
     val authToken                  = "Bearer Token"
     implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-    val httpClient                                             = app.injector.instanceOf[HttpClient]
+    val httpClient                                             = app.injector.instanceOf[HttpClientV2]
     val mockConfig: PrincipalApiPlatformEventsConnector.Config = mock[PrincipalApiPlatformEventsConnector.Config]
     when(mockConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
