@@ -24,7 +24,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.{HttpClient, _}
+import uk.gov.hmrc.http._
+import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -61,7 +62,7 @@ class SubscriptionFieldsConnectorSpec
 
   trait Setup {
     implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
-    val httpClient                    = app.injector.instanceOf[HttpClient]
+    val httpClient                    = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: AppConfig      = mock[AppConfig]
     when(mockAppConfig.subscriptionFieldsProductionBaseUrl).thenReturn(wireMockUrl)
 
@@ -70,18 +71,20 @@ class SubscriptionFieldsConnectorSpec
 
   "urlSubscriptionFieldValues" should {
     "return simple url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(
-        ClientId("1"),
-        ApiContext("path"),
-        ApiVersionNbr("1")
-      ) shouldBe "base/field/application/1/context/path/version/1"
+      val url = url"${SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
+          ClientId("1"),
+          ApiContext("path"),
+          ApiVersionNbr("1")
+        )}"
+      url.toString shouldBe "http://example.com/field/application/1/context/path/version/1"
     }
     "return complex encoded url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldValues("base")(
-        ClientId("1 2"),
-        ApiContext("path1/path2"),
-        ApiVersionNbr("1.0 demo")
-      ) shouldBe "base/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
+      val url = url"${SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
+          ClientId("1 2"),
+          ApiContext("path1/path2"),
+          ApiVersionNbr("1.0 demo")
+        )}"
+      url.toString shouldBe "http://example.com/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
     }
   }
 

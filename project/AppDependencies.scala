@@ -2,12 +2,9 @@ import sbt._
 
 object AppDependencies {
 
-  lazy val slf4jVersion      = "1.7.23"
-  lazy val logbackVersion    = "1.1.10"
   lazy val jsoupVersion      = "1.12.1"
   lazy val scalaCheckVersion = "1.17.0"
-  lazy val bootstrapVersion  = "8.5.0"
-  lazy val seleniumVersion   = "4.4.0"
+  lazy val bootstrapVersion  = "9.2.0"
 
   val apiDomainVersion    = "0.15.0"
   val appDomainVersion    = "0.54.0"
@@ -23,7 +20,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "emailaddress"                          % "3.8.0",
     "commons-net"        % "commons-net"                           % "3.9.0",
     "org.apache.commons" % "commons-csv"                           % "1.10.0",
-    "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "1.10.0",
+    "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "3.0.0",
     "uk.gov.hmrc"       %% "api-platform-application-domain"       % appDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion

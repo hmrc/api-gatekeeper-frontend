@@ -22,16 +22,18 @@ import scala.util.control.NonFatal
 
 import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
 
 @Singleton
-class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClient)(implicit ec: ExecutionContext) extends ApplicationLogger {
+class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends ApplicationLogger {
 
   def publishByServiceName(serviceName: String)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
-    handleResult(http.POSTEmpty[PublishResponse](s"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName"))
+    handleResult(http.post(url"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName")
+      .execute[PublishResponse])
 
   private def handleResult[A](result: Future[A]): Future[Either[Throwable, A]] = {
     result.map(x => Right(x))

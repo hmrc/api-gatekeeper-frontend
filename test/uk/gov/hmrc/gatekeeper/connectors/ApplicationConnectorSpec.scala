@@ -25,7 +25,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.{Json, OFormat}
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
@@ -58,7 +59,7 @@ class ApplicationConnectorSpec
     implicit val accessFormat: OFormat[AppAccess]                        = Json.format[AppAccess]
     implicit val createFormat: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
 
-    val httpClient               = app.injector.instanceOf[HttpClient]
+    val httpClient               = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
 
