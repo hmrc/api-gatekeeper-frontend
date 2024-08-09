@@ -14,8 +14,8 @@ object AppDependencies {
 
   lazy val dependencies = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30"            % bootstrapVersion,
-    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "9.0.0",
-    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "2.0.0",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "10.6.0",
+    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.1.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "7.6.0",
     "uk.gov.hmrc"       %% "emailaddress"                          % "3.8.0",
     "commons-net"        % "commons-net"                           % "3.9.0",
@@ -29,7 +29,7 @@ object AppDependencies {
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"          % bootstrapVersion,
     "org.jsoup"               % "jsoup"                           % jsoupVersion,
-    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.31.0",
+    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.33.0",
     "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"    % tpdDomainVersion
