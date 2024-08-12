@@ -167,7 +167,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
 
       result.contentType should include("text/html")
 
-      elementExistsByText(document, "h2", "Associated XML organisations") shouldBe true
+      elementExistsByText(document, "h2", "Associated XML vendors") shouldBe true
       elementExistsByText(document, "h2", "Associated applications") shouldBe true
       elementExistsByText(document, "a", "appName1") shouldBe true
       elementExistsByText(document, "a", "appName2") shouldBe true
