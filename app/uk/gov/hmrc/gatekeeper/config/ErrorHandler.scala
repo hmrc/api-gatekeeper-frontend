@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Configuration
 import play.api.i18n.{Messages, MessagesApi}
-import play.api.mvc.{Request, RequestHeader}
+import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
@@ -39,14 +39,14 @@ class ErrorHandler @Inject() (
     Future.successful(errorTemplate(pageTitle, heading, message))
   }
 
-  def notFoundTemplate(message: String)(implicit request: Request[_]) =
+  def notFoundTemplate(message: String)(implicit request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.pageNotFound404.title"),
       Messages("global.error.pageNotFound404.heading"),
       Messages(message)
     )
 
-  def badRequestTemplate(message: String)(implicit request: Request[_]) =
+  def badRequestTemplate(message: String)(implicit request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.badRequest400.title"),
       Messages("global.error.badRequest400.heading"),
