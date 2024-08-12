@@ -23,6 +23,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
+import play.api.http.HeaderNames
 import play.api.libs.json.{Json, OFormat}
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -50,8 +51,10 @@ class ApplicationConnectorSpec
   val applicationId = ApplicationId.random
   val administrator = Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail)
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
+  val bearerToken   = "proxyBearerToken"
+  val apiKey        = "apiKey"
+  val authToken     = "Bearer Token"
 
-  val authToken                  = "Bearer Token"
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
@@ -62,8 +65,14 @@ class ApplicationConnectorSpec
     val httpClient               = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
+    when(mockAppConfig.applicationSandboxBaseUrl).thenReturn(wireMockUrl)
+    when(mockAppConfig.applicationSandboxUseProxy).thenReturn(true)
+    when(mockAppConfig.applicationSandboxBearerToken).thenReturn(bearerToken)
+    when(mockAppConfig.applicationSandboxApiKey).thenReturn(apiKey)
 
-    val connector = new ProductionApplicationConnector(mockAppConfig, httpClient) {}
+    val productionConnector = new ProductionApplicationConnector(mockAppConfig, httpClient) {}
+
+    val sandboxConnector = new SandboxApplicationConnector(mockAppConfig, httpClient) {}
   }
 
   // To solve issue with LocalDateTime serialisation without a timezone id.
@@ -81,7 +90,7 @@ class ApplicationConnectorSpec
               .withBody("[]")
           )
       )
-      await(connector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe List.empty
+      await(productionConnector.fetchAllApplicationsBySubscription("some-context", "some-version")) shouldBe List.empty
     }
 
     "propagate fetchAllApplicationsBySubscription exception" in new Setup {
@@ -94,7 +103,7 @@ class ApplicationConnectorSpec
       )
 
       intercept[FetchApplicationsFailed] {
-        await(connector.fetchAllApplicationsBySubscription("some-context", "some-version"))
+        await(productionConnector.fetchAllApplicationsBySubscription("some-context", "some-version"))
       }
     }
   }
@@ -130,7 +139,38 @@ class ApplicationConnectorSpec
               .withBody(payload)
           )
       )
-      val result = await(connector.fetchAllApplications())
+      val result = await(productionConnector.fetchAllApplications())
+      result.head.id shouldBe applications.toList.head.id
+    }
+
+    "retrieve all applications from sandbox" in new Setup {
+      val applications = List(buildApplication(
+        applicationId,
+        ClientId("clientid1"),
+        "gatewayId1",
+        Some("application1"),
+        Environment.PRODUCTION,
+        None,
+        collaborators,
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
+        access = Access.Standard(),
+        state = ApplicationState(updatedOn = instant)
+      ))
+      val payload      = Json.toJson(applications).toString
+
+      stubFor(
+        get(urlEqualTo(url))
+          .withHeader(HeaderNames.AUTHORIZATION, equalTo(s"Bearer $bearerToken"))
+          .withHeader(HeaderNames.ACCEPT, equalTo("application/hmrc.vnd.1.0+json"))
+          .withHeader("x-api-key", equalTo(apiKey))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload)
+          )
+      )
+      val result = await(sandboxConnector.fetchAllApplications())
       result.head.id shouldBe applications.toList.head.id
     }
 
@@ -144,7 +184,7 @@ class ApplicationConnectorSpec
       )
 
       intercept[FetchApplicationsFailed] {
-        await(connector.fetchAllApplications())
+        await(productionConnector.fetchAllApplications())
       }
     }
   }
@@ -173,7 +213,7 @@ class ApplicationConnectorSpec
               .withBody(payload)
           )
       )
-      val result = await(connector.fetchApplicationsWithSubscriptions())
+      val result = await(productionConnector.fetchApplicationsWithSubscriptions())
       result.head.id shouldBe applications.head.id
     }
   }
@@ -204,7 +244,7 @@ class ApplicationConnectorSpec
               .withBody(payload)
           )
       )
-      val result = await(connector.fetchAllApplicationsWithStateHistories())
+      val result = await(productionConnector.fetchAllApplicationsWithStateHistories())
       result shouldBe applicationsWithStateHistories
     }
   }
@@ -249,7 +289,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      val result = await(connector.fetchApplication(applicationId))
+      val result = await(productionConnector.fetchApplication(applicationId))
 
       compareByString(result, appWithHistory)
     }
@@ -264,7 +304,7 @@ class ApplicationConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(connector.fetchApplication(applicationId))
+        await(productionConnector.fetchApplication(applicationId))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
@@ -283,7 +323,7 @@ class ApplicationConnectorSpec
               .withBody(response)
           )
       )
-      compareByString(await(connector.fetchStateHistory(applicationId)), List(stateHistory))
+      compareByString(await(productionConnector.fetchStateHistory(applicationId)), List(stateHistory))
     }
   }
 
@@ -314,7 +354,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.createPrivOrROPCApp(createPrivOrROPCAppRequest)) shouldBe createPrivOrROPCAppResponse
+      await(productionConnector.createPrivOrROPCApp(createPrivOrROPCAppRequest)) shouldBe createPrivOrROPCAppResponse
     }
   }
 
@@ -336,7 +376,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.searchApplications(params)) shouldBe expectedResponse
+      await(productionConnector.searchApplications(params)) shouldBe expectedResponse
     }
 
     "throw the error when the service returns an error" in new Setup {
@@ -351,7 +391,7 @@ class ApplicationConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(connector.searchApplications(params))
+        await(productionConnector.searchApplications(params))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
@@ -374,7 +414,7 @@ class ApplicationConnectorSpec
               .withBody(response)
           )
       )
-      await(connector.searchCollaborators(apiContext, apiVersion1, None)) shouldBe List(email.toLaxEmail)
+      await(productionConnector.searchCollaborators(apiContext, apiVersion1, None)) shouldBe List(email.toLaxEmail)
     }
 
     "return emails with emailFilter" in new Setup {
@@ -393,7 +433,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.searchCollaborators(apiContext, apiVersion1, Some(partialEmailMatch))) shouldBe List(email)
+      await(productionConnector.searchCollaborators(apiContext, apiVersion1, Some(partialEmailMatch))) shouldBe List(email)
     }
   }
 
@@ -412,7 +452,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameSuccessResult
+      await(productionConnector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameSuccessResult
     }
 
     "return failure result if name is invalid" in new Setup {
@@ -429,7 +469,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureInvalidResult
+      await(productionConnector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureInvalidResult
     }
 
     "return failure result if name is duplicate" in new Setup {
@@ -446,7 +486,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(connector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureDuplicateResult
+      await(productionConnector.validateApplicationName(Some(applicationId), name)) shouldBe ValidateApplicationNameFailureDuplicateResult
     }
   }
 }
