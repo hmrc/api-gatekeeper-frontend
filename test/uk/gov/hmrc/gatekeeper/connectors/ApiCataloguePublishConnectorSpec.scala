@@ -23,7 +23,8 @@ import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
@@ -38,7 +39,7 @@ class ApiCataloguePublishConnectorSpec
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val httpClient: HttpClient = app.injector.instanceOf[HttpClient]
+    val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 
     val mockApiCataloguePublishConnectorConfig: ApiCataloguePublishConnector.Config = mock[ApiCataloguePublishConnector.Config]
     when(mockApiCataloguePublishConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)

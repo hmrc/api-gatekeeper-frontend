@@ -23,7 +23,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, InternalServerException}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, InternalServerException}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -51,7 +52,7 @@ class ApplicationCommandConnectorSpec
 
   class Setup(proxyEnabled: Boolean = false) {
 
-    val httpClient = app.injector.instanceOf[HttpClient]
+    val httpClient = app.injector.instanceOf[HttpClientV2]
     val config     = ApmConnector.Config(wireMockUrl)
     val connector  = new ApplicationCommandConnector(httpClient, config) {}
   }

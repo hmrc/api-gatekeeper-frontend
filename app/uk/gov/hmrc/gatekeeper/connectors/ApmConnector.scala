@@ -19,8 +19,10 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, MappedApiDefinitions}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -40,49 +42,55 @@ object ApmConnector {
 }
 
 @Singleton
-class ApmConnector @Inject() (http: HttpClient, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
+class ApmConnector @Inject() (http: HttpClientV2, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
   import ApmConnectorJsonFormatters._
   import ApmConnector._
 
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionData]] =
-    http.GET[Option[ApplicationWithSubscriptionData]](s"${config.serviceBaseUrl}/applications/${applicationId}")
+    http.get(url"${config.serviceBaseUrl}/applications/${applicationId}")
+      .execute[Option[ApplicationWithSubscriptionData]]
 
   def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
-    http.GET[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]](s"${config.serviceBaseUrl}/subscription-fields?environment=$environment")
+    http.get((url"${config.serviceBaseUrl}/subscription-fields?environment=$environment"))
+      .execute[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]]
   }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[MappedApiDefinitions](
-      url = s"${config.serviceBaseUrl}/api-definitions",
-      queryParams = Seq(
-        applicationIdQueryParam -> applicationId.value.toString(),
-        restrictedQueryParam    -> "false"
-      ),
-      headers = Seq.empty[(String, String)]
-    ).map(_.wrapped.values.toList)
+    val queryParams = Seq(
+      applicationIdQueryParam -> applicationId.value.toString(),
+      restrictedQueryParam    -> "false"
+    )
+    http.get(url"${config.serviceBaseUrl}/api-definitions?$queryParams")
+      .execute[MappedApiDefinitions]
+      .map(_.wrapped.values.toList)
   }
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
-    http.GET[List[CombinedApi]](s"${config.serviceBaseUrl}/combined-rest-xml-apis")
+    http.get(url"${config.serviceBaseUrl}/combined-rest-xml-apis")
+      .execute[List[CombinedApi]]
   }
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
-    http.GET[List[Box]](s"${config.serviceBaseUrl}/push-pull-notifications/boxes")
+    http.get(url"${config.serviceBaseUrl}/push-pull-notifications/boxes")
+      .execute[List[Box]]
   }
 
   def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[List[ApiDefinition]](s"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
+    http.get(url"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
+      .execute[List[ApiDefinition]]
   }
 
   def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.GET[MappedApiDefinitions](s"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
+    http.get(url"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
+      .execute[MappedApiDefinitions]
       .map(_.wrapped.values.toList)
   }
 
   // TODO - better return type
   // TODO - better error handling for expected errors
   def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
-    val url = s"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}"
-    http.PATCH[ApplicationCommand, Either[UpstreamErrorResponse, Unit]](url, cmd)
+    http.patch(url"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}")
+      .withBody(Json.toJson(cmd))
+      .execute[Either[UpstreamErrorResponse, Unit]]
   }
 }

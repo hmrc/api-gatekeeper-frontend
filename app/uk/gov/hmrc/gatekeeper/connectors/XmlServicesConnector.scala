@@ -22,14 +22,15 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logging
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, NotFoundException, UpstreamErrorResponse}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 
 @Singleton
-class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit ec: ExecutionContext) extends Logging {
+class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 
@@ -45,11 +46,12 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit
     }
 
   def getAllApis()(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
-    http.GET[List[XmlApi]](s"$baseUrl/xml/apis")
+    http.get(url"$baseUrl/xml/apis").execute[List[XmlApi]]
   }
 
   def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
-    http.GET[List[XmlApi]](s"$baseUrl/xml/apis/filtered", queryParams = categories.map("categoryFilter" -> _), Seq.empty)
+    val queryParams = categories.map("categoryFilter" -> _)
+    http.get(url"$baseUrl/xml/apis/filtered?$queryParams").execute[List[XmlApi]]
       .recover(handleUpstream404s[List[XmlApi]](List.empty[XmlApi]))
   }
 
@@ -57,9 +59,9 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClient)(implicit
     val userIdParams = Seq("userId" -> userId.value.toString)
     val sortByParams = Seq("sortBy" -> "ORGANISATION_NAME")
 
-    val params = userIdParams ++ sortByParams
+    val queryParams = userIdParams ++ sortByParams
 
-    http.GET[List[XmlOrganisation]](url = s"$baseUrl/organisations", queryParams = params, Seq.empty)
+    http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
 }
