@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import org.apache.pekko.stream.Materializer
 
@@ -31,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
+import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
@@ -40,6 +41,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                    = app.injector.instanceOf[ForbiddenView]
   private lazy val developersView                   = app.injector.instanceOf[DevelopersView]
+  private lazy val removeEmailPref                  = app.injector.instanceOf[RemoveEmailPreferences]
 
   Helpers.running(app) {
 
@@ -57,6 +59,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         mockApiDefinitionService,
         mcc,
         developersView,
+        removeEmailPref,
         errorTemplateView,
         StrideAuthorisationServiceMock.aMock,
         LdapAuthorisationServiceMock.aMock
@@ -90,6 +93,52 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         contentAsString(result) should include("Developers")
 
+      }
+    }
+
+    "removeEmailPreferencesPage" should {
+      "show input box when opened" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+        val result = developersController.removeEmailPreferencesPage()(aSuperUserLoggedInRequest)
+
+        contentAsString(result) should include("Remove service from all developers email preferences")
+
+      }
+
+      "show errors on incorrect values submission" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+
+        val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "")))
+
+        contentAsString(result) should include("Provide a service name")
+      }
+
+      "show success panel on correct submission" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+
+        val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
+
+        contentAsString(result) should include("mtd-vat-1 deleted from all developers")
+      }
+
+      "show failure panel on error" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
+
+        val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
+
+        contentAsString(result) should include("Sorry, we’re experiencing technical difficulties")
+      }
+
+      "be unauthorized if normal USER" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        val result = developersController.removeEmailPreferencesPage()(aLoggedInRequest)
+
+        status(result) shouldBe FORBIDDEN
       }
     }
 

@@ -472,4 +472,15 @@ object Forms {
       )(RemoveMfaConfirmationForm.apply)(RemoveMfaConfirmationForm.unapply)
     )
   }
+
+  final case class RemoveEmailPreferencesForm(serviceName: String = "")
+
+  object RemoveEmailPreferencesForm {
+
+    val form: Form[RemoveEmailPreferencesForm] = Form(
+      mapping(
+        "serviceName" -> text.verifying("serviceName.required", _.nonEmpty)
+      )(RemoveEmailPreferencesForm.apply)(RemoveEmailPreferencesForm.unapply)
+    )
+  }
 }

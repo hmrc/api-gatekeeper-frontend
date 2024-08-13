@@ -40,6 +40,10 @@ trait DeveloperConnectorMockProvider {
       def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
     }
 
+    object RemoveEmailPreferencesByService {
+      def returns(response: EmailPreferencesDeleteResult) = when(mockDeveloperConnector.removeEmailPreferencesByService(*)(*)).thenReturn(successful(response))
+    }
+
     object FetchById {
 
       def handles(user: AbstractUser) = {

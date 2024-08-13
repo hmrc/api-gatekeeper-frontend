@@ -214,6 +214,10 @@ sealed trait DeveloperDeleteResult
 case object DeveloperDeleteSuccessResult extends DeveloperDeleteResult
 case object DeveloperDeleteFailureResult extends DeveloperDeleteResult
 
+sealed trait EmailPreferencesDeleteResult
+case object EmailPreferencesDeleteSuccessResult extends EmailPreferencesDeleteResult
+case object EmailPreferencesDeleteFailureResult extends EmailPreferencesDeleteResult
+
 sealed trait CreatePrivOrROPCAppResult
 
 case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)

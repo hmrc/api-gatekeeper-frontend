@@ -512,6 +512,32 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     }
   }
 
+  "developerService removeEmailPreferencesByService" should {
+    "successfuly remove email preferences" in new Setup {
+      private val service = "mtd-vat-1"
+
+      DeveloperConnectorMock.RemoveEmailPreferencesByService.returns(EmailPreferencesDeleteSuccessResult)
+
+      val result = await(underTest.removeEmailPreferencesByService(service))
+
+      result shouldBe EmailPreferencesDeleteSuccessResult
+
+      verify(mockDeveloperConnector).removeEmailPreferencesByService(service)
+    }
+
+    "return error when remove email preferences fails" in new Setup {
+      private val service = "mtd-vat-1"
+
+      DeveloperConnectorMock.RemoveEmailPreferencesByService.returns(EmailPreferencesDeleteFailureResult)
+
+      val result = await(underTest.removeEmailPreferencesByService(service))
+
+      result shouldBe EmailPreferencesDeleteFailureResult
+
+      verify(mockDeveloperConnector).removeEmailPreferencesByService(service)
+    }
+  }
+
   "developerService searchDevelopers" should {
     "find users" in new Setup {
       private val user        = aUser("fred")

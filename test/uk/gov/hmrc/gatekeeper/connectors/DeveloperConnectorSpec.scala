@@ -39,7 +39,7 @@ import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._
 
-class HttpDeveloperConnectorSpec
+class DeveloperConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with BeforeAndAfterEach
@@ -55,7 +55,7 @@ class HttpDeveloperConnectorSpec
 
     when(mockAppConfig.developerBaseUrl).thenReturn(wireMockUrl)
 
-    val connector = new HttpDeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
+    val connector = new DeveloperConnector(mockAppConfig, httpClient, mockPayloadEncryption)
   }
 
   def mockFetchUserId(email: LaxEmailAddress, userId: UserId) = {
@@ -249,6 +249,30 @@ class HttpDeveloperConnectorSpec
       wireMockVerify(postRequestedFor(urlPathEqualTo(url)))
 
       result shouldBe List(user)
+    }
+
+    "Delete Email Preferences" should {
+      val serviceName = "mtd-vat-1"
+      val url         = s"/developers/email-preferences/$serviceName"
+
+      "successfully remove email preferences" in new Setup {
+        stubFor(
+          delete(urlPathEqualTo(url))
+            .willReturn(aResponse().withStatus(NO_CONTENT))
+        )
+        val result = await(connector.removeEmailPreferencesByService(serviceName))
+        wireMockVerify(deleteRequestedFor(urlPathEqualTo(url)))
+        result shouldBe EmailPreferencesDeleteSuccessResult
+      }
+      "fail to remove email preferences" in new Setup {
+        stubFor(
+          delete(urlPathEqualTo(url))
+            .willReturn(aResponse().withStatus(INTERNAL_SERVER_ERROR))
+        )
+        val result = await(connector.removeEmailPreferencesByService(serviceName))
+        wireMockVerify(deleteRequestedFor(urlPathEqualTo(url)))
+        result shouldBe EmailPreferencesDeleteFailureResult
+      }
     }
 
     "Search by Email Preferences" should {
