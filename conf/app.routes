@@ -11,6 +11,7 @@ POST        /developer/mfa/remove                                             uk
 
 GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage()
 POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage()
+GET         /developers/csv                                                   uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersCsv()
 
 GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
 GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
