@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.Instant
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -29,7 +30,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService}
-import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
+import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -53,6 +55,21 @@ class DevelopersController @Inject() (
 
   def blankDevelopersPage() = anyAuthenticatedUserAction { implicit request =>
     combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
+  }
+
+  def developersCsv() = atLeastSuperUserAction { implicit request =>
+    {
+
+      val csvColumnDefinitions = Seq[ColumnDefinition[RegisteredUser]](
+        ColumnDefinition("First Name", (app => app.firstName)),
+        ColumnDefinition("Last Name", (app => app.lastName)),
+        ColumnDefinition("Email", (app => app.email.text))
+      )
+      developerService.fetchUsers
+        .map(users => CsvHelper.toCsvString(csvColumnDefinitions, users.filter(_.verified)))
+        .map(Ok(_).withHeaders(CONTENT_DISPOSITION -> s"attachment; filename=developers-${Instant.now()}.csv").as("text/csv"))
+    }
+
   }
 
   def developersPage() = anyAuthenticatedUserAction { implicit request =>

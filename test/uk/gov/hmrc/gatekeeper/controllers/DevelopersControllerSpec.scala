@@ -93,6 +93,30 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       }
     }
 
+    "developersCsv" should {
+
+      "exports as csv" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenNoDataSuppliedDelegateServices()
+
+        private val emailAddress = "developer@example.com"
+        private val user         = RegisteredUser(emailAddress.toLaxEmail, idOf(emailAddress), "first", "last", verified = true)
+
+        DeveloperServiceMock.FetchUsers.returns(user)
+
+        val result = developersController.developersCsv()(aLoggedInRequest)
+        contentAsString(result) should be(s"First Name,Last Name,Email\nfirst,last,$emailAddress\n")
+      }
+
+      "fails without auth" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        givenNoDataSuppliedDelegateServices()
+
+        val result = developersController.developersCsv()(aLoggedInRequest)
+        status(result) should be(FORBIDDEN)
+      }
+    }
+
     "developersPage" should {
 
       "show no results when initially opened" in new Setup {
