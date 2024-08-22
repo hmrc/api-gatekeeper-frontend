@@ -1,0 +1,119 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+@import uk.gov.hmrc.gatekeeper.models.PaginatedApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import java.time.format.DateTimeFormatter
+@import include.pagination
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(paginatedApplications: PaginatedApplicationResponse, isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(
+implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
+
+@pageUrl(extra: (String, String)) = @{
+  val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
+  val uri = routes.ApplicationController.applicationsPage(None).url
+
+  s"$uri?$qs"
+}
+
+@sortClass(sort: Option[String], prefix: String) = @{
+  sort match {
+    case Some(str) if str == s"${prefix}_ASC" => "sorted_asc"
+    case Some(str) if str == s"${prefix}_DESC" => "sorted_desc"
+    case _ => "unsorted"
+  }
+}
+
+@main(title = s"${applicationConfig.title} - Applications") {
+  @defining(DateTimeFormatter.ofPattern("dd.MM.yyyy")) { dateFormatter =>
+
+    <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
+
+    <br />
+    <br />
+    @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort", "showExport").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: showExport :: _ =>
+      <form name="application-filters" action="@routes.ApplicationController.applicationsPage(None).url" method="get">
+        <input class="govuk-visually-hidden" type="hidden" name="page" value="1" />
+        <input class="govuk-visually-hidden" type="hidden" name="includeDeleted" value="true" />
+
+        <table id="applications-table" class="govuk-table">
+          <caption class="govuk-visually-hidden">Applications table</caption>
+          <thead class="govuk-table__head">
+            <tr class="govuk-table__row">
+              <th tabindex="0" scope="col" class="govuk-table__header @sortClass(sort, "NAME")">
+                <a class="govuk-link govuk-link--no-visited-state" href="@pageUrl("sort" -> (if (sort == Some("NAME_ASC")) "NAME_DESC" else "NAME_ASC"))">Name</a>
+              </th>
+              <!-- Bizarrely the labels use SUBMITTED but when this is passed to TPA it sorts on createdData ! -->
+              <th tabindex="0" scope="col" class="govuk-table__header @sortClass(sort, "SUBMITTED")">
+                <a class="govuk-link govuk-link--no-visited-state" href="@pageUrl("sort" -> (if (sort == Some("SUBMITTED_ASC")) "SUBMITTED_DESC" else "SUBMITTED_ASC"))">Created</a>
+              </th>
+              <th scope="col" class="govuk-table__header" tabindex="0">Environment</th>
+              <th scope="col" class="govuk-table__header" tabindex="0">Status</th>
+            </tr>
+          </thead>
+          <tbody class="govuk-table__body">
+            @for((application, index) <- paginatedApplications.applications.zipWithIndex) {
+              <tr class="govuk-table__row">
+                <td class="govuk-table__cell" id="app-name-@index">
+                  <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
+                </td>
+                <td class="govuk-table__cell" id="app-created-@index">
+                  @{dateFormatter.format(application.createdOn)}
+                </td>
+                <td class="govuk-table__cell" id="app-env-@index">
+                  @application.deployedTo.displayText
+                </td>
+                <td id="app-status-@index" class="govuk-table__cell">
+                  @defining(application.state.name match {
+                  case PRODUCTION => ("status status--verified", "Active")
+                  case PRE_PRODUCTION => ("status status--verified", "Active")
+                  case DELETED => ("status status--not-verified", "Deleted")
+                  case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
+                  case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+                  case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                  case _ => ("status", "Created")
+                  }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        @if(paginatedApplications.applications.isEmpty) {
+          <p class="govuk-body">No applications for your selected filter</p>
+        }
+
+        @if(paginatedApplications.applications.nonEmpty) {
+          @defining( (paginatedApplications.page, paginatedApplications.pageSize, paginatedApplications.matching, paginatedApplications.applications.size, paginatedApplications.total) ) { case (page, pageSize, matching, numDocs, total) =>
+            @pagination(page, pageSize, matching, total, numDocs, routes.ApplicationController.applicationsPage(None).url, params)
+          }
+        }
+      </form>
+    }
+    <br />
+    <p class="govuk-body">
+      <a class="govuk-link govuk-link--no-visited-state" href="#applications-title">Back to Top</a>
+    </p>
+    <br />
+  }
+}
