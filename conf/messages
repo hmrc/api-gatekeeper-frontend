@@ -23,6 +23,7 @@ access.type.required=Tell us what access type
 application.name.required=Application name must be between 2 and 50 characters and only use ASCII characters excluding <>/\\"''`
 application.description.required=Provide an application description
 admin.email.required=Select one of the admin email addresses
+serviceName.required=Provide a service name
 email.required=Provide an email address
 email.not.valid=Provide a valid email address
 application.name.already.exists=Provide an application name that does not already exist

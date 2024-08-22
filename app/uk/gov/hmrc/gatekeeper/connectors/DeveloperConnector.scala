@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import cats.data.OptionT
@@ -39,54 +38,13 @@ import uk.gov.hmrc.gatekeeper.encryption._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 
-trait DeveloperConnector {
-  def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
-
-  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]]
-
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser]
-
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[AbstractUser]
-
-  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser]
-
-  def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
-
-  def fetchAll()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]]
-
-  def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse]
-
-  def fetchByEmailPreferences(
-      topic: TopicOptionChoice,
-      maybeApis: Option[Seq[String]] = None,
-      maybeApiCategory: Option[Set[ApiCategory]] = None,
-      privateapimatch: Boolean = false
-    )(implicit hc: HeaderCarrier
-    ): Future[List[RegisteredUser]]
-
-  def fetchByEmailPreferencesPaginated(
-      topic: Option[TopicOptionChoice] = None,
-      maybeApis: Option[Seq[String]] = None,
-      maybeApiCategory: Option[Set[ApiCategory]] = None,
-      privateapimatch: Boolean = false,
-      offset: Int,
-      limit: Int
-    )(implicit hc: HeaderCarrier
-    ): Future[UserPaginatedResponse]
-
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult]
-
-  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser]
-}
-
 @Singleton
-class HttpDeveloperConnector @Inject() (
+class DeveloperConnector @Inject() (
     appConfig: AppConfig,
     http: HttpClientV2,
     @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption
   )(implicit ec: ExecutionContext
-  ) extends DeveloperConnector
-    with SendsSecretRequest with Logging {
+  ) extends SendsSecretRequest with Logging {
 
   private def fetchUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[CoreUserDetails]] = {
     http.post(url"${appConfig.developerBaseUrl}/developers/find-user-id")
@@ -207,6 +165,20 @@ class HttpDeveloperConnector @Inject() (
       .execute[UserPaginatedResponse]
   }
 
+  def removeEmailPreferencesByService(serviceName: String)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
+    http.delete(url"${appConfig.developerBaseUrl}/developers/email-preferences/${serviceName}")
+      .execute[HttpResponse]
+      .map(response =>
+        response.status match {
+          case NO_CONTENT => EmailPreferencesDeleteSuccessResult
+          case _          => EmailPreferencesDeleteFailureResult
+        }
+      )
+      .recover {
+        case _ => EmailPreferencesDeleteFailureResult
+      }
+  }
+
   def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier): Future[DeveloperDeleteResult] = {
     http.post(url"${appConfig.developerBaseUrl}/developer/delete")
       .withBody(Json.toJson(deleteDeveloperRequest))
@@ -237,51 +209,4 @@ class HttpDeveloperConnector @Inject() (
       http.post(url"${appConfig.developerBaseUrl}/developers/search").withBody(Json.toJson(request)).execute[List[RegisteredUser]]
     }
   }
-}
-
-@Singleton
-class DummyDeveloperConnector extends DeveloperConnector {
-  def seekUserByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = Future.successful(Some(UnregisteredUser(email, UserId.random)))
-
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = Future.successful(UnregisteredUser(email, UserId.random))
-
-  def fetchByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[AbstractUser] =
-    Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
-
-  def fetchByEmail(email: LaxEmailAddress)(implicit hc: HeaderCarrier) = Future.successful(UnregisteredUser(email, UserId.random))
-
-  def fetchByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier) = Future.successful(List.empty)
-
-  @nowarn("msg=parameter hc in method fetchAll is never used")
-  def fetchAll()(implicit hc: HeaderCarrier) = Future.successful(List.empty)
-
-  def fetchAllPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
-    Future.successful(UserPaginatedResponse(0, List.empty))
-  }
-
-  def fetchByEmailPreferences(
-      topic: TopicOptionChoice,
-      maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Set[ApiCategory]] = None,
-      privateapimatch: Boolean = false
-    )(implicit hc: HeaderCarrier
-    ) = Future.successful(List.empty)
-
-  def fetchByEmailPreferencesPaginated(
-      topic: Option[TopicOptionChoice],
-      maybeApis: Option[Seq[String]] = None,
-      maybeApiCategories: Option[Set[ApiCategory]] = None,
-      privateapimatch: Boolean = false,
-      offset: Int,
-      limit: Int
-    )(implicit hc: HeaderCarrier
-    ) = Future.successful(UserPaginatedResponse(0, List.empty))
-
-  def deleteDeveloper(deleteDeveloperRequest: DeleteDeveloperRequest)(implicit hc: HeaderCarrier) =
-    Future.successful(DeveloperDeleteSuccessResult)
-
-  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] =
-    Future.successful(RegisteredUser(LaxEmailAddress("bob.smith@example.com"), userId, "Bob", "Smith", true))
-
-  def searchDevelopers(email: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = Future.successful(List.empty)
 }

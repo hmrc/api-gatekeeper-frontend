@@ -29,15 +29,7 @@ import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.SubscriptionFie
 class ConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
-
-    val developerConnectorBinding = if (configuration.getOptional[Boolean]("isExternalTestEnvironment").getOrElse(false)) {
-      bind[DeveloperConnector].to[DummyDeveloperConnector]
-    } else {
-      bind[DeveloperConnector].to[HttpDeveloperConnector]
-    }
-
     Seq(
-      developerConnectorBinding,
       bind[SubscriptionFieldsConnector]
         .qualifiedWith(Names.named("SANDBOX"))
         .to[SandboxSubscriptionFieldsConnector],

@@ -18,9 +18,11 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import java.time.Instant
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.mvc.MessagesControllerComponents
+import play.api.data.Form
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -28,11 +30,12 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
-import uk.gov.hmrc.gatekeeper.views.html.developers.DevelopersView
+import uk.gov.hmrc.gatekeeper.views.html.developers.{DevelopersView, _}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -42,6 +45,7 @@ class DevelopersController @Inject() (
     val apiDefinitionService: ApiDefinitionService,
     mcc: MessagesControllerComponents,
     developersView: DevelopersView,
+    removeEmailPreferencesView: RemoveEmailPreferences,
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -113,4 +117,20 @@ class DevelopersController @Inject() (
     } yield Ok(developersView(users, usersToEmailCopyText(verifiedUsers), getApiVersionsDropDownValues(apiVersions), form))
   }
 
+  def removeEmailPreferencesPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    successful(Ok(removeEmailPreferencesView(RemoveEmailPreferencesForm.form, false)))
+  }
+
+  def removeEmailPreferencesAction(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    def handleValidForm(form: RemoveEmailPreferencesForm): Future[Result]         = {
+      developerService.removeEmailPreferencesByService(form.serviceName) map {
+        case EmailPreferencesDeleteSuccessResult => Ok(removeEmailPreferencesView(RemoveEmailPreferencesForm.form.fill(form), true))
+        case EmailPreferencesDeleteFailureResult => technicalDifficulties
+      }
+    }
+    def handleInvalidForm(form: Form[RemoveEmailPreferencesForm]): Future[Result] = {
+      successful(BadRequest(removeEmailPreferencesView(form, false)))
+    }
+    RemoveEmailPreferencesForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+  }
 }

@@ -180,7 +180,7 @@ class DeveloperService @Inject() (
   }
 
   def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[ApiCategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = maybeApiCategory.map(Set(_)))
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategories = maybeApiCategory.map(Set(_)))
   }
 
   def fetchDevelopersByEmailPreferencesPaginated(
@@ -192,11 +192,11 @@ class DeveloperService @Inject() (
       limit: Int
     )(implicit hc: HeaderCarrier
     ): Future[UserPaginatedResponse] = {
-    developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis, maybeApiCategory = maybeApiCategory, privateApiMatch, offset, limit)
+    developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis, maybeApiCategories = maybeApiCategory, privateApiMatch, offset, limit)
   }
 
   def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: ApiCategory)(implicit hc: HeaderCarrier) = {
-    developerConnector.fetchByEmailPreferences(topic, maybeApiCategory = Some(Set(apiCategory)))
+    developerConnector.fetchByEmailPreferences(topic, maybeApiCategories = Some(Set(apiCategory)))
   }
 
   def fetchDevelopersBySpecificAPIEmailPreferences(
@@ -219,6 +219,10 @@ class DeveloperService @Inject() (
 
   def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(userId, loggedInUser)
+  }
+
+  def removeEmailPreferencesByService(serviceName: String)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
+    developerConnector.removeEmailPreferencesByService(serviceName)
   }
 
   def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
