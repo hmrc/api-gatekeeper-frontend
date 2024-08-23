@@ -16,25 +16,30 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
+
 import mocks.connectors.ApplicationConnectorMockProvider
 import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.apache.pekko.stream.Materializer
+
 import play.api.mvc.Result
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.mocks.services.OrganisationServiceMockProvider
+import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
+import uk.gov.hmrc.gatekeeper.views.html.applications._
 
 class OrganisationControllerSpec
     extends ControllerBaseSpec
@@ -45,9 +50,9 @@ class OrganisationControllerSpec
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView             = app.injector.instanceOf[ErrorTemplate]
-  private lazy val organisationView              = app.injector.instanceOf[OrganisationView]
-  private lazy val errorHandler                  = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val organisationView  = app.injector.instanceOf[OrganisationView]
+  private lazy val errorHandler      = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
@@ -56,12 +61,18 @@ class OrganisationControllerSpec
         with ApplicationConnectorMockProvider
         with ApmServiceMockProvider
         with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule {
+        with LdapAuthorisationServiceMockModule
+        with OrganisationServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
+
+      val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
+      val organisationName     = "Organisation Name"
+      val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
+      val organisationId       = OrganisationId("1")
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
@@ -70,34 +81,38 @@ class OrganisationControllerSpec
         mockApplicationService,
         mcc,
         organisationView,
+        mockOrganisationService,
         errorTemplateView,
         mockApmService,
         errorHandler,
         LdapAuthorisationServiceMock.aMock
       )
-
-      def givenThePaginatedApplicationsWillBeReturned = {
-        ApplicationServiceMock.SearchApplications.returns()
-        FetchAllApiDefinitions.inAny.returns()
-        ApmServiceMock.FetchNonOpenApiDefinitions.returns()
-      }
-
     }
 
-    "applicationsPage" should {
-      "on request with no specified environment all sandbox applications supplied" in new Setup {
+    "organisationPage" should {
+      "on request get applications for organisation" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenThePaginatedApplicationsWillBeReturned
+        OrganisationServiceMock.FetchApplicationsForOrganisation.returns(organisationId)(organisationWithApps)
 
-        val eventualResult: Future[Result] = underTest.organisationPage(ApplicationId.random)(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
-        titleOf(eventualResult) shouldBe "Unit Test Title - Applications"
+        titleOf(eventualResult) shouldBe s"Unit Test Title - $organisationName"
         val responseBody = Helpers.contentAsString(eventualResult)
-        responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
+        responseBody should include(organisationName)
+        responseBody should include(applicationResponse.name.toString())
+      }
 
-//        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), *)(*)
-//        verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
+      "on organisation not found show error" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        OrganisationServiceMock.FetchApplicationsForOrganisation.returnsNotFound()
+
+        val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
+
+        status(eventualResult) shouldBe NOT_FOUND
+        titleOf(eventualResult) shouldBe s"Page not found - 404"
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody should include("Organisation not found")
       }
     }
   }

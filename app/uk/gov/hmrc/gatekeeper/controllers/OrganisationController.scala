@@ -16,7 +16,13 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.time.LocalDateTime
+import javax.inject.{Inject, Singleton}
+import scala.concurrent.ExecutionContext
+
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.UpstreamErrorResponse
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -24,21 +30,19 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId
 import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-
-import java.time.LocalDateTime
-import javax.inject.{Inject, Singleton}
-import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.gatekeeper.views.html.applications._
 
 @Singleton
-class OrganisationController @Inject()(
+class OrganisationController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val applicationService: ApplicationService,
     mcc: MessagesControllerComponents,
     organisationView: OrganisationView,
+    organisationService: OrganisationService,
     override val errorTemplate: ErrorTemplate,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
@@ -53,10 +57,7 @@ class OrganisationController @Inject()(
 
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  //todo what is gonna be the ordId?
-  def organisationPage(orgId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
-    val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+  def organisationPage(orgId: OrganisationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
@@ -64,8 +65,9 @@ class OrganisationController @Inject()(
         routes.ApplicationController.applicationPage(appId).url
       }
 
-    for {
-      paginatedApplicationResponse <- applicationService.searchApplications(None, params)
-    } yield Ok(organisationView(paginatedApplicationResponse, request.role.isSuperUser, params, buildAppUrlFn))
+    organisationService.fetchOrganisationWithApplications(orgId)
+      .map(organisationWithApps => Ok(organisationView(organisationWithApps, buildAppUrlFn))) recoverWith {
+      case UpstreamErrorResponse(_, NOT_FOUND, _, _) => errorHandler.notFoundTemplate("Organisation not found").map(NotFound(_))
+    }
   }
 }
