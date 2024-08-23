@@ -21,8 +21,10 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
@@ -111,9 +113,9 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env      = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
-    val params   = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    val env                       = Environment.apply(environment.getOrElse("SANDBOX"))
+    val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+    val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
       params.get("status").exists(statusParam => Set("ALL", "DELETED", "all", "deleted").contains(statusParam))
     }
@@ -147,8 +149,10 @@ class ApplicationController @Inject() (
       else Seq.empty
     ) ++ (
       if (showDeletionDataColumns)
-        Seq(ColumnDefinition[GKApplicationResponse]("Deleted by", app => app.moreApplication.lastActionActor.toString),
-        ColumnDefinition[GKApplicationResponse]("When deleted", app => if (app.state.name.equals(State.DELETED)) app.state.updatedOn.toString else "N/A"))
+        Seq(
+          ColumnDefinition[GKApplicationResponse]("Deleted by", app => app.moreApplication.lastActionActor.toString),
+          ColumnDefinition[GKApplicationResponse]("When deleted", app => if (app.state.name.equals(State.DELETED)) app.state.updatedOn.toString else "N/A")
+        )
       else Seq.empty
     )
 

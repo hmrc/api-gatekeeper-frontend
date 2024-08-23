@@ -104,7 +104,7 @@ class ApplicationControllerSpec
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
-       val aLoggedInRequestForDeletedApps          = FakeRequest(GET, "?status=ALL").withSession(csrfToken, authToken, userToken).withCSRFToken
+      val aLoggedInRequestForDeletedApps     = FakeRequest(GET, "?status=ALL").withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
@@ -371,7 +371,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         LdapAuthorisationServiceMock.Auth.succeeds
 
-        val applicationResponse = buildApplication(
+        val applicationResponse       = buildApplication(
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           "the-gateway-id",
