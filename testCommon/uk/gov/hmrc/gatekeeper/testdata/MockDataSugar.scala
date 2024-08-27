@@ -181,7 +181,8 @@ object MockDataSugar {
        |    },
        |    "grantLength": 547,
        |    "moreApplication": {
-       |        "allowAutoDelete": true
+       |        "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN"
        |      }
        |  },
        |    {
@@ -229,7 +230,8 @@ object MockDataSugar {
        |    },
        |    "grantLength": 547,
        |    "moreApplication": {
-       |        "allowAutoDelete": true
+       |        "allowAutoDelete": true,
+       |        "lastActionActor": "UNKNOWN"
        |      }
        |  }]
     """.stripMargin
@@ -278,7 +280,8 @@ object MockDataSugar {
        |    "grantLength": 547,
        |    "redirectUris": [],
        |    "moreApplication": {
-       |        "allowAutoDelete": true
+       |        "allowAutoDelete": true,
+       |        "lastActionActor": "UNKNOWN"
        |      }
        |  }]
     """.stripMargin
@@ -337,7 +340,8 @@ object MockDataSugar {
        |    },
        |    "grantLength": 547,
        |    "moreApplication": {
-       |        "allowAutoDelete": true
+       |        "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN"
        |      }
        |  }]
     """.stripMargin
@@ -568,7 +572,8 @@ object MockDataSugar {
        |    },
        |    "grantLength": 547,
        |    "moreApplication": {
-       |        "allowAutoDelete": true
+       |        "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN"
        |      }
        |  },
        |  "history": [

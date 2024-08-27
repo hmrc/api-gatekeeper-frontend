@@ -113,26 +113,19 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env      = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
-    val params   = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
-
+    val env                       = Environment.apply(environment.getOrElse("SANDBOX"))
+    val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+    val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
+    def showDeletionData: Boolean = {
+      params.get("status").exists(statusParam => Set("ALL", "DELETED", "all", "deleted").contains(statusParam))
+    }
     applicationService.searchApplications(env, params)
-      .map(applicationResponse => Ok(toCsvContent(applicationResponse, request.role.isUser)))
+      .map(applicationResponse => Ok(toCsvContent(applicationResponse, request.role.isUser, showDeletionData)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean): String = {
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean, showDeletionDataColumns: Boolean = false): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
       s"${role.displayText}:${emailAddress.text}"
-    }
-
-    val collaboratorsColumnDefinition = {
-      if (isStrideUser) {
-        Seq[ColumnDefinition[GKApplicationResponse]](ColumnDefinition(
-          "Collaborator",
-          app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")
-        ))
-      } else Seq.empty
     }
 
     val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
@@ -150,7 +143,18 @@ class ApplicationController @Inject() (
       ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString())),
       ColumnDefinition("Number of Redirect URIs", (app => app.redirectUris.size.toString))
-    ) ++ collaboratorsColumnDefinition
+    ) ++ (
+      if (isStrideUser)
+        Seq(ColumnDefinition[GKApplicationResponse]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")))
+      else Seq.empty
+    ) ++ (
+      if (showDeletionDataColumns)
+        Seq(
+          ColumnDefinition[GKApplicationResponse]("Deleted by", app => app.moreApplication.lastActionActor.toString),
+          ColumnDefinition[GKApplicationResponse]("When deleted", app => if (app.state.name.equals(State.DELETED)) app.state.updatedOn.toString else "N/A")
+        )
+      else Seq.empty
+    )
 
     val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"
 
