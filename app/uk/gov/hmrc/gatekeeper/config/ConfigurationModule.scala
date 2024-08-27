@@ -38,6 +38,7 @@ class ConfigurationModule extends Module {
         .to[ProductionSubscriptionFieldsConnector],
       bind[ApmConnector.Config].toProvider[LiveApmConnectorConfigProvider],
       bind[ThirdPartyOrchestratorConnector.Config].toProvider[ThirdPartyOrchestratorConnectorConfigProvider],
+      bind[ApiPlatformDeskproConnector.Config].toProvider[ApiPlatformDeskproConnectorConfigProvider],
       bind[ApiPlatformAdminApiConnector.Config].toProvider[ApiPlatformAdminApiConnectorConfigProvider],
       bind[ApiCataloguePublishConnector.Config].toProvider[ApiCataloguePublishConnectorConfigProvider],
       bind[XmlServicesConnector.Config].toProvider[XmlServicesConnectorConfigProvider],

@@ -27,12 +27,11 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
+import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
-class ThirdPartyOrchestratorConnectorSpec
+class ApiPlatformDeskproConnectorSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
@@ -44,20 +43,19 @@ class ThirdPartyOrchestratorConnectorSpec
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 
-    val mockConnectorConfig: ThirdPartyOrchestratorConnector.Config = mock[ThirdPartyOrchestratorConnector.Config]
+    val mockConnectorConfig: ApiPlatformDeskproConnector.Config = mock[ApiPlatformDeskproConnector.Config]
     when(mockConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val applicationId = ApplicationId.random
+    val organisationId: OrganisationId = OrganisationId("1")
+    val organisation                   = DeskproOrganisation(organisationId, "test org", List(DeskproPerson("Bob", "bob@example.com".toLaxEmail)))
 
-    val application = ApplicationResponseBuilder.buildApplication(applicationId, ClientId.random, UserId.random)
-
-    val underTest = new ThirdPartyOrchestratorConnector(httpClient, mockConnectorConfig)
+    val underTest = new ApiPlatformDeskproConnector(mockConnectorConfig, httpClient)
   }
 
-  "getApplication" should {
-    "return application" in new Setup {
-      val url     = s"/applications/${applicationId}"
-      val payload = Json.toJson(application)
+  "getOrganisation" should {
+    "return organisation" in new Setup {
+      val url     = s"/organisation/1"
+      val payload = Json.toJson(organisation)
 
       stubFor(
         get(urlEqualTo(url))
@@ -68,34 +66,9 @@ class ThirdPartyOrchestratorConnectorSpec
           )
       )
 
-      val result = await(underTest.getApplication(applicationId))
-      result should not be None
+      val result = await(underTest.getOrganisation(organisationId))
 
-      result.map { app =>
-        app.id shouldBe application.id
-      }
-    }
-  }
-
-  "getApplicationsByEmails" should {
-    "return applications" in new Setup {
-      val url     = s"/developer/applications"
-      val email   = "test@email.com".toLaxEmail
-      val payload = Json.toJson(List(application))
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(ApplicationsByRequest(List(email)))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      val result = await(underTest.getApplicationsByEmails(List(email)))
-
-      result shouldBe List(application)
+      result shouldBe organisation
     }
   }
 

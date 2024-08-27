@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
@@ -26,11 +27,23 @@ import uk.gov.hmrc.http.{HeaderCarrier, _}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
+case class ApplicationsByRequest(emails: List[LaxEmailAddress])
+
+object ApplicationsByRequest {
+  implicit val format: OFormat[ApplicationsByRequest] = Json.format[ApplicationsByRequest]
+}
+
 @Singleton
 class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationResponse]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationResponse]]
+  }
+
+  def getApplicationsByEmails(emails: List[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[ApplicationResponse]] = {
+    http.post(url"${config.serviceBaseUrl}/developer/applications")
+      .withBody(Json.toJson(ApplicationsByRequest(emails)))
+      .execute[List[ApplicationResponse]]
   }
 }
 

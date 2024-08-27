@@ -1,0 +1,94 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import java.time.format.DateTimeFormatter
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
+@import java.time.format.DateTimeFormatterBuilder
+@import java.time.ZoneId
+@import java.time.temporal.ChronoField
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(organisationWithApps: OrganisationWithApps, gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
+
+@main(title = s"${applicationConfig.title} - ${organisationWithApps.organisationName}") {
+  @defining(new DateTimeFormatterBuilder()
+  .appendPattern("dd MMM yyyy")
+  .parseDefaulting(ChronoField.NANO_OF_DAY, 0)
+  .toFormatter()
+  .withZone(ZoneId.of("Europe/London"))) { dateFormatter =>
+
+    <h1 class="govuk-heading-l" id="applications-title">
+        <span class="govuk-caption-l">Organisations</span>
+        @organisationWithApps.organisationName
+    </h1>
+
+    <br />
+    <br />
+    <table id="applications-table" class="govuk-table">
+      <caption class="govuk-table__caption govuk-table__caption--m">Applications</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row">
+          <th tabindex="0" scope="col" class="govuk-table__header">Name</th>
+          <th tabindex="0" scope="col" class="govuk-table__header">Created</th>
+          <th scope="col" class="govuk-table__header" tabindex="0">Environment</th>
+          <th scope="col" class="govuk-table__header" tabindex="0">Status</th>
+          <th scope="col" class="govuk-table__header" tabindex="0">Last API Call</th>
+        </tr>
+      </thead>
+      <tbody class="govuk-table__body">
+        @for((application, index) <- organisationWithApps.applications.zipWithIndex) {
+          <tr class="govuk-table__row">
+            <td class="govuk-table__cell" id="app-name-@index">
+              <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
+            </td>
+            <td class="govuk-table__cell" id="app-created-@index">
+              @{dateFormatter.format(application.createdOn)}
+            </td>
+            <td class="govuk-table__cell" id="app-env-@index">
+              @application.deployedTo.displayText
+            </td>
+            <td id="app-status-@index" class="govuk-table__cell">
+              @defining(application.state.name match {
+              case PRODUCTION => ("status status--verified", "Active")
+              case PRE_PRODUCTION => ("status status--verified", "Active")
+              case DELETED => ("status status--not-verified", "Deleted")
+              case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
+              case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+              case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+              case _ => ("status", "Created")
+              }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+            </td>
+            <td id="last-call-@index" class="govuk-table__cell">
+              @{application.lastAccess.map(lastApi => dateFormatter.format(lastApi)).getOrElse("")}
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @if(organisationWithApps.applications.isEmpty) {
+      <p class="govuk-body">This organisation does not have any applications.</p>
+    }
+  }
+}
