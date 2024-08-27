@@ -118,14 +118,24 @@ class ApplicationController @Inject() (
     val params   = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
 
     applicationService.searchApplications(env, params)
-      .map(applicationResponse => Ok(toCsvContent(applicationResponse)))
+      .map(applicationResponse => Ok(toCsvContent(applicationResponse, request.role.isUser)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse): String = {
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
       s"${role.displayText}:${emailAddress.text}"
     }
-    val csvColumnDefinitions                                                              = Seq[ColumnDefinition[GKApplicationResponse]](
+
+    val collaboratorsColumnDefinition = {
+      if (isStrideUser) {
+        Seq[ColumnDefinition[GKApplicationResponse]](ColumnDefinition(
+          "Collaborator",
+          app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")
+        ))
+      } else Seq.empty
+    }
+
+    val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
       ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
@@ -139,9 +149,8 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString())),
-      ColumnDefinition("Number of Redirect URIs", (app => app.redirectUris.size.toString)),
-      ColumnDefinition("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|"))
-    )
+      ColumnDefinition("Number of Redirect URIs", (app => app.redirectUris.size.toString))
+    ) ++ collaboratorsColumnDefinition
 
     val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"
 

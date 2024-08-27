@@ -289,7 +289,7 @@ class ApplicationControllerSpec
     }
 
     "applicationsPageExportCsv" should {
-      "return csv data" in new Setup {
+      "return csv data including Collaborator column for Stride user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val applicationResponse = buildApplication(
@@ -320,6 +320,45 @@ class ApplicationControllerSpec
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Number of Redirect URIs,Collaborator
 App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,1,Administrator:some@something.com|Developer:another@somethingelse.com
+"""
+
+        val responseBody = Helpers.contentAsString(eventualResult)
+        responseBody shouldBe expectedCsvContent
+
+      }
+
+      "return csv data excluding Collaborator column for LDAP user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        LdapAuthorisationServiceMock.Auth.succeeds
+
+        val applicationResponse = buildApplication(
+          ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
+          ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
+          "the-gateway-id",
+          Some("App Name"),
+          deployedTo = Environment.SANDBOX,
+          description = None,
+          collaborators = Set(
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+          ),
+          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
+          lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+          access = Access.Standard(),
+          state = ApplicationState(updatedOn = instant),
+          redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
+          moreApplication = MoreApplication(allowAutoDelete = false)
+        )
+
+        ApplicationServiceMock.SearchApplications.returns(applicationResponse)
+
+        val eventualResult: Future[Result] = underTest.applicationsPageCsv()(aLoggedInRequest)
+
+        status(eventualResult) shouldBe OK
+
+        val expectedCsvContent = """page: 1 of 1 from 1 results
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Number of Redirect URIs
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,1
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
