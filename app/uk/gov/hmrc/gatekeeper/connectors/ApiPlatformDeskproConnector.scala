@@ -25,6 +25,9 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import play.api.libs.json.Json
+import play.api.libs.json.OFormat
 
 @Singleton
 class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
@@ -32,8 +35,20 @@ class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector
   def getOrganisation(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[DeskproOrganisation] = {
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
   }
+
+  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[List[DeskproOrganisation]] = {
+    http.post(url"${config.serviceBaseUrl}/organisation/query")
+      .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
+      .execute[List[DeskproOrganisation]]
+  }
 }
 
 object ApiPlatformDeskproConnector {
   case class Config(serviceBaseUrl: String)
+
+  case class GetOrganisationsForUserRequest(email: LaxEmailAddress)
+
+  object GetOrganisationsForUserRequest {
+    implicit val format: OFormat[GetOrganisationsForUserRequest] = Json.format[GetOrganisationsForUserRequest]
+  }
 }
