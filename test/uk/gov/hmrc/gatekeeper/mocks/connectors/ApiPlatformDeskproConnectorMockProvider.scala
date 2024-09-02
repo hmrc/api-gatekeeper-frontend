@@ -20,6 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
@@ -34,5 +35,8 @@ trait ApiPlatformDeskproConnectorMockProvider {
       def returns(org: DeskproOrganisation) = when(apiPlatformDeskproConnector.getOrganisation(*[OrganisationId])(*)).thenReturn(successful(org))
     }
 
+    object GetOrganisationsForUser {
+      def returns(orgs: List[DeskproOrganisation]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress])(*)).thenReturn(successful(orgs))
+    }
   }
 }

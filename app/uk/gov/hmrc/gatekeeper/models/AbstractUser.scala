@@ -23,6 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplica
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
@@ -85,7 +86,8 @@ case class Developer(
     user: AbstractUser,
     applications: List[GKApplicationResponse],
     xmlServiceNames: Set[String] = Set.empty,
-    xmlOrganisations: List[XmlOrganisation] = List.empty
+    xmlOrganisations: List[XmlOrganisation] = List.empty,
+    deskproOrganisations: List[DeskproOrganisation] = List.empty
   ) {
   lazy val fullName = user.fullName
 

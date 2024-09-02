@@ -22,7 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -37,7 +37,8 @@ class ApiGatekeeperDeveloperDetailsSpec
     with UrlEncoding
     with XmlServicesStub
     with ThirdPartyDeveloperStub
-    with ThirdPartyApplicationStub {
+    with ThirdPartyApplicationStub
+    with ApiPlatformDeskproStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   info("AS A Gatekeeper superuser")
@@ -63,6 +64,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationSubscription(MockDataSugar.applicationSubscription)
+      stubGetOrganisationsForUser(unverifiedUser.email)
 
       signInGatekeeper(app)
       on(ApplicationsPage)

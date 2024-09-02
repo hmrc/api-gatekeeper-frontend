@@ -73,13 +73,12 @@
         </div>
         <div class="govuk-summary-list__row">
             <dt class="govuk-summary-list__key">
-                Organisation
+                Organisations
             </dt>
-            <dd class="govuk-summary-list__value" id="organisation">
-            @(developer.organisation match {
-                case Some(text) => text
-                case None => ""
-            })
+            <dd class="govuk-summary-list__value" id="organisations">
+            @for(org <- developer.deskproOrganisations) {
+                <a href="@{routes.OrganisationController.organisationPage(org.organisationId)}" class="govuk-link">@org.organisationName</a><br>
+            }
             </dd>
         </div>
 

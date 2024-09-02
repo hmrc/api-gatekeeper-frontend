@@ -26,12 +26,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.GetOrganisationsForUserRequest
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 class ApiPlatformDeskproConnectorSpec
     extends AsyncHmrcSpec
@@ -83,7 +83,7 @@ class ApiPlatformDeskproConnectorSpec
 
       stubFor(
         post(urlEqualTo(url))
-        .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
+          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
           .willReturn(
             aResponse()
               .withStatus(OK)

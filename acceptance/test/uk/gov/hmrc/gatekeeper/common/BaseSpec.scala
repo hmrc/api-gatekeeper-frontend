@@ -65,6 +65,8 @@ trait BaseSpec extends AnyFeatureSpec
         "microservice.services.api-definition-production.port"          -> stubPort,
         "microservice.services.api-platform-microservice.host"          -> stubHost,
         "microservice.services.api-platform-microservice.port"          -> stubPort,
+        "microservice.services.api-platform-deskpro.host"               -> stubHost,
+        "microservice.services.api-platform-deskpro.port"               -> stubPort,
         "microservice.services.third-party-developer.host"              -> stubHost,
         "microservice.services.third-party-developer.port"              -> stubPort,
         "microservice.services.api-platform-xml-services.host"          -> stubHost,

@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.specs
 
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
-import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, MockDataSugar, StateHistoryTestData}
 
 class ApiGatekeeperApplicationSpec
@@ -28,7 +28,8 @@ class ApiGatekeeperApplicationSpec
     with ApplicationResponseTestData
     with XmlServicesStub
     with ThirdPartyDeveloperStub
-    with ThirdPartyApplicationStub {
+    with ThirdPartyApplicationStub
+    with ApiPlatformDeskproStub {
 
   val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
 
@@ -114,6 +115,7 @@ class ApiGatekeeperApplicationSpec
       stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId, MockDataSugar.applicationForDeveloperResponse)
+      stubGetOrganisationsForUser(unverifiedUser.email)
 
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
