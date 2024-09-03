@@ -86,6 +86,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       assert(DeveloperDetailsPage.firstName() == unverifiedUser.firstName)
       assert(DeveloperDetailsPage.lastName() == unverifiedUser.lastName)
       assert(DeveloperDetailsPage.status() == "not yet verified")
+      assert(DeveloperDetailsPage.organisations() == "Deskpro Organisation 1\nDeskpro Organisation 2")
       assert(DeveloperDetailsPage.mfaHeading() == "Multi-factor authentication")
 
       When("I select an associated application")

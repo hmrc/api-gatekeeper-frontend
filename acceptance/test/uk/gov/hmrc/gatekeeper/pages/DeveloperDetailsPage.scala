@@ -40,6 +40,10 @@ object DeveloperDetailsPage extends WebPage with UrlEncoding with CommonTestData
     getText(By.cssSelector("#status"))
   }
 
+  def organisations(): String = {
+    getText(By.id("organisations"))
+  }
+
   def mfaHeading(): String = {
     getText(By.id("mfa-heading"))
   }

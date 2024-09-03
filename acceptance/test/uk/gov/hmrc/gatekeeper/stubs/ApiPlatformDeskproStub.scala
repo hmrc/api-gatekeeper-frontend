@@ -27,7 +27,8 @@ trait ApiPlatformDeskproStub {
   val responseBody =
     s"""
        |[
-       |  {"organisationId":"1","organisationName":"Deskpro Organisation 1","people":[]}
+       |  {"organisationId":"1","organisationName":"Deskpro Organisation 1","people":[]},
+       |  {"organisationId":"2","organisationName":"Deskpro Organisation 2","people":[]}
        |] 
       """.stripMargin
 
