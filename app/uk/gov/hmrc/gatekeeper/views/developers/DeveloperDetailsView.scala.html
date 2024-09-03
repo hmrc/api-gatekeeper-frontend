@@ -25,10 +25,17 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+@import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
+
+@renderOrganisations(orgList: List[DeskproOrganisation]) = {
+    @for(org <- orgList) {
+        <a href="@{routes.OrganisationController.organisationPage(org.organisationId)}" class="govuk-link">@org.organisationName</a><br>
+    }
+}
 
 @main(
   title = s"${applicationConfig.title} - Developer Details",
@@ -76,13 +83,10 @@
                 Organisations
             </dt>
             <dd class="govuk-summary-list__value" id="organisations">
-            @if(developer.deskproOrganisations.isDefined) {
-                @for(org <- developer.deskproOrganisations.get) {
-                    <a href="@{routes.OrganisationController.organisationPage(org.organisationId)}" class="govuk-link">@org.organisationName</a><br>
-                }
-            } else {    
-                Unavailable
-            }            
+            @(developer.deskproOrganisations match {
+                case Some(orgList) => renderOrganisations(orgList)
+                case None          => "Unavailable"
+            })   
             </dd>
         </div>
 
