@@ -95,5 +95,23 @@ class ApiPlatformDeskproConnectorSpec
 
       result shouldBe organisationsForUser
     }
+
+    "return empty list if error" in new Setup {
+      val url              = "/organisation/query"
+      val userEmailAddress = LaxEmailAddress("bobfleming@example.com")
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
+      )
+
+      val result = await(underTest.getOrganisationsForUser(userEmailAddress))
+
+      result shouldBe List.empty[DeskproOrganisation]
+    }
   }
 }

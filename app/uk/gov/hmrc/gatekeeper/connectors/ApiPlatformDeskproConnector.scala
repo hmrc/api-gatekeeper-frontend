@@ -39,7 +39,15 @@ class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector
     http.post(url"${config.serviceBaseUrl}/organisation/query")
       .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
       .execute[List[DeskproOrganisation]]
+      .recover(handleUpstreamErrors[List[DeskproOrganisation]](List.empty[DeskproOrganisation]))
   }
+
+  private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) =>
+    err match {
+      case _: NotFoundException     => returnIfError
+      case e: UpstreamErrorResponse => returnIfError
+      case e: Throwable             => throw e
+    }
 }
 
 object ApiPlatformDeskproConnector {
