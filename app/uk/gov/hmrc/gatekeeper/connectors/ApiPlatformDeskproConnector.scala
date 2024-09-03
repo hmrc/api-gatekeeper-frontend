@@ -29,7 +29,11 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
 @Singleton
-class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
+class ApiPlatformDeskproConnector @Inject() (
+    config: ApiPlatformDeskproConnector.Config,
+    http: HttpClientV2
+  )(implicit ec: ExecutionContext
+  ) extends Logging {
 
   def getOrganisation(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[DeskproOrganisation] = {
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
@@ -42,12 +46,14 @@ class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector
       .recover(handleUpstreamErrors[Option[List[DeskproOrganisation]]](None))
   }
 
-  private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) =>
+  private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
+    logger.warn("Exception occurred when calling Deskpro", err)
     err match {
-      case _: NotFoundException     => returnIfError
+      case e: HttpException         => returnIfError
       case e: UpstreamErrorResponse => returnIfError
       case e: Throwable             => throw e
     }
+  }
 }
 
 object ApiPlatformDeskproConnector {

@@ -105,7 +105,7 @@ class ApiPlatformDeskproConnectorSpec
           .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
           .willReturn(
             aResponse()
-              .withStatus(NOT_FOUND)
+              .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
 
