@@ -77,9 +77,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       elementExistsByText(document, "h1", developer.email.text) shouldBe true
       document.getElementById("first-name").text shouldBe developer.firstName
       document.getElementById("last-name").text shouldBe developer.lastName
-      document.getElementById("organisations").text shouldBe (developer.deskproOrganisations.size match {
-        case 1 => developer.deskproOrganisations.head.organisationName
-        case 0 => ""
+      document.getElementById("organisations").text shouldBe (developer.deskproOrganisations match {
+        case Some(orgs) if orgs.size > 0 => orgs.head.organisationName
+        case Some(orgs)                  => ""
+        case None                        => "Unavailable"
       })
       document.getElementById("status").text shouldBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
@@ -122,7 +123,16 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       val verifiedDeveloper = Developer(
         user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
         applications = List.empty,
-        deskproOrganisations = List(DeskproOrganisation(uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1"), "Deskpro Organisaion 1", List.empty))
+        deskproOrganisations = Some(List(DeskproOrganisation(uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1"), "Deskpro Organisaion 1", List.empty)))
+      )
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show verified developer details with no organisations when logged in as superuser" in new Setup {
+      val verifiedDeveloper = Developer(
+        user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
+        applications = List.empty,
+        deskproOrganisations = Some(List.empty)
       )
       testDeveloperDetails(verifiedDeveloper)
     }

@@ -87,7 +87,7 @@ case class Developer(
     applications: List[GKApplicationResponse],
     xmlServiceNames: Set[String] = Set.empty,
     xmlOrganisations: List[XmlOrganisation] = List.empty,
-    deskproOrganisations: List[DeskproOrganisation] = List.empty
+    deskproOrganisations: Option[List[DeskproOrganisation]] = None
   ) {
   lazy val fullName = user.fullName
 

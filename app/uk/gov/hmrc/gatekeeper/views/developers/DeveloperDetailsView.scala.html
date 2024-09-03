@@ -76,9 +76,13 @@
                 Organisations
             </dt>
             <dd class="govuk-summary-list__value" id="organisations">
-            @for(org <- developer.deskproOrganisations) {
-                <a href="@{routes.OrganisationController.organisationPage(org.organisationId)}" class="govuk-link">@org.organisationName</a><br>
-            }
+            @if(developer.deskproOrganisations.isDefined) {
+                @for(org <- developer.deskproOrganisations.get) {
+                    <a href="@{routes.OrganisationController.organisationPage(org.organisationId)}" class="govuk-link">@org.organisationName</a><br>
+                }
+            } else {    
+                Unavailable
+            }            
             </dd>
         </div>
 

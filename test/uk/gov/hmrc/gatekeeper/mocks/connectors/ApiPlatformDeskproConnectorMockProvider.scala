@@ -36,7 +36,7 @@ trait ApiPlatformDeskproConnectorMockProvider {
     }
 
     object GetOrganisationsForUser {
-      def returns(orgs: List[DeskproOrganisation]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress])(*)).thenReturn(successful(orgs))
+      def returns(orgs: Option[List[DeskproOrganisation]]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress])(*)).thenReturn(successful(orgs))
     }
   }
 }

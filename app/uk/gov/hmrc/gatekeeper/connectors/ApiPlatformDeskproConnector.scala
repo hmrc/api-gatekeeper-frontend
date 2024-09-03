@@ -35,11 +35,11 @@ class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
   }
 
-  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[List[DeskproOrganisation]] = {
+  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[List[DeskproOrganisation]]] = {
     http.post(url"${config.serviceBaseUrl}/organisation/query")
       .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
-      .execute[List[DeskproOrganisation]]
-      .recover(handleUpstreamErrors[List[DeskproOrganisation]](List.empty[DeskproOrganisation]))
+      .execute[Option[List[DeskproOrganisation]]]
+      .recover(handleUpstreamErrors[Option[List[DeskproOrganisation]]](None))
   }
 
   private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) =>

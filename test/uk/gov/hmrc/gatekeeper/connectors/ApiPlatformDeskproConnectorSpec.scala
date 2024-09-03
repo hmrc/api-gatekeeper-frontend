@@ -93,7 +93,7 @@ class ApiPlatformDeskproConnectorSpec
 
       val result = await(underTest.getOrganisationsForUser(userEmailAddress))
 
-      result shouldBe organisationsForUser
+      result shouldBe Some(organisationsForUser)
     }
 
     "return empty list if error" in new Setup {
@@ -111,7 +111,7 @@ class ApiPlatformDeskproConnectorSpec
 
       val result = await(underTest.getOrganisationsForUser(userEmailAddress))
 
-      result shouldBe List.empty[DeskproOrganisation]
+      result shouldBe None
     }
   }
 }
