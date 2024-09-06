@@ -30,7 +30,9 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.deskproOrganisation
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
@@ -75,9 +77,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       elementExistsByText(document, "h1", developer.email.text) shouldBe true
       document.getElementById("first-name").text shouldBe developer.firstName
       document.getElementById("last-name").text shouldBe developer.lastName
-      document.getElementById("organisation").text shouldBe (developer.organisation match {
-        case Some(text) => text
-        case None       => ""
+      document.getElementById("organisations").text shouldBe (developer.deskproOrganisations match {
+        case Some(orgs) if orgs.size > 0 => orgs.head.organisationName
+        case Some(orgs)                  => ""
+        case None                        => "Unavailable"
       })
       document.getElementById("status").text shouldBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
@@ -113,6 +116,24 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
 
     "show verified developer details when logged in as superuser" in new Setup {
       val verifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), List.empty)
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show verified developer details with organisation when logged in as superuser" in new Setup {
+      val verifiedDeveloper = Developer(
+        user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
+        applications = List.empty,
+        deskproOrganisations = Some(List(DeskproOrganisation(uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1"), "Deskpro Organisaion 1", List.empty)))
+      )
+      testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show verified developer details with no organisations when logged in as superuser" in new Setup {
+      val verifiedDeveloper = Developer(
+        user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
+        applications = List.empty,
+        deskproOrganisations = Some(List.empty)
+      )
       testDeveloperDetails(verifiedDeveloper)
     }
 

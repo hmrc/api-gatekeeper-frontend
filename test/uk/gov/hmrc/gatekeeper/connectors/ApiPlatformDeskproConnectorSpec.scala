@@ -26,8 +26,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.GetOrganisationsForUserRequest
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -48,6 +50,7 @@ class ApiPlatformDeskproConnectorSpec
 
     val organisationId: OrganisationId = OrganisationId("1")
     val organisation                   = DeskproOrganisation(organisationId, "test org", List(DeskproPerson("Bob", "bob@example.com".toLaxEmail)))
+    val organisationsForUser           = List(DeskproOrganisation(organisationId, "test org 1", List.empty), DeskproOrganisation(OrganisationId("2"), "test org 2", List.empty))
 
     val underTest = new ApiPlatformDeskproConnector(mockConnectorConfig, httpClient)
   }
@@ -72,4 +75,43 @@ class ApiPlatformDeskproConnectorSpec
     }
   }
 
+  "getOrganisationsForUser" should {
+    "return organisation" in new Setup {
+      val url              = "/organisation/query"
+      val userEmailAddress = LaxEmailAddress("bobfleming@example.com")
+      val payload          = Json.toJson(organisationsForUser)
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
+      )
+
+      val result = await(underTest.getOrganisationsForUser(userEmailAddress))
+
+      result shouldBe Some(organisationsForUser)
+    }
+
+    "return empty list if error" in new Setup {
+      val url              = "/organisation/query"
+      val userEmailAddress = LaxEmailAddress("bobfleming@example.com")
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      val result = await(underTest.getOrganisationsForUser(userEmailAddress))
+
+      result shouldBe None
+    }
+  }
 }

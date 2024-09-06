@@ -25,6 +25,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
 
 object MockDataSugar {
@@ -100,6 +101,9 @@ object MockDataSugar {
   val xmlApis          = Json.toJson(Seq(xmlApiOne)).toString
   val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
   val xmlOrganisations = Json.toJson(List(orgOne)).toString
+
+  val deskproOrganisationId = uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1")
+  val deskproOrganisation   = DeskproOrganisation(deskproOrganisationId, "Deskpro organisation 1", List.empty)
 
   val approvedApplications =
     s"""

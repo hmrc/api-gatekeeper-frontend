@@ -20,20 +20,48 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
+import play.api.libs.json.{Json, OFormat}
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
 @Singleton
-class ApiPlatformDeskproConnector @Inject() (config: ApiPlatformDeskproConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
+class ApiPlatformDeskproConnector @Inject() (
+    config: ApiPlatformDeskproConnector.Config,
+    http: HttpClientV2
+  )(implicit ec: ExecutionContext
+  ) extends Logging {
 
   def getOrganisation(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[DeskproOrganisation] = {
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
+  }
+
+  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[List[DeskproOrganisation]]] = {
+    http.post(url"${config.serviceBaseUrl}/organisation/query")
+      .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
+      .execute[Option[List[DeskproOrganisation]]]
+      .recover(handleUpstreamErrors[Option[List[DeskproOrganisation]]](None))
+  }
+
+  private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
+    logger.warn("Exception occurred when calling Deskpro", err)
+    err match {
+      case e: HttpException         => returnIfError
+      case e: UpstreamErrorResponse => returnIfError
+      case e: Throwable             => throw e
+    }
   }
 }
 
 object ApiPlatformDeskproConnector {
   case class Config(serviceBaseUrl: String)
+
+  case class GetOrganisationsForUserRequest(email: LaxEmailAddress)
+
+  object GetOrganisationsForUserRequest {
+    implicit val format: OFormat[GetOrganisationsForUserRequest] = Json.format[GetOrganisationsForUserRequest]
+  }
 }
