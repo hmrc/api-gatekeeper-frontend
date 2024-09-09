@@ -477,11 +477,7 @@ class ApplicationController @Inject() (
   }
 
   private def getGrantLengths(): List[GrantLength] = {
-    if (appConfig.showNoRefreshTokenGrantLength) {
-      GrantLength.values.toList
-    } else {
-      GrantLength.values.filterNot((g: GrantLength) => g == GrantLength.FOUR_HOURS).toList
-    }
+    GrantLength.values.toList
   }
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
