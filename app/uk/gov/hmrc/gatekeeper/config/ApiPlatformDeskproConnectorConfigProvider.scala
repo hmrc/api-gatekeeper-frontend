@@ -27,6 +27,7 @@ class ApiPlatformDeskproConnectorConfigProvider @Inject() (config: ServicesConfi
 
   override def get(): ApiPlatformDeskproConnector.Config =
     ApiPlatformDeskproConnector.Config(
-      serviceBaseUrl = config.baseUrl("api-platform-deskpro")
+      serviceBaseUrl = config.baseUrl("api-platform-deskpro"),
+      authToken = config.getString("internal-auth.token")
     )
 }

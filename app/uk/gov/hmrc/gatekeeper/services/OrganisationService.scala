@@ -33,7 +33,7 @@ class OrganisationService @Inject() (
 
   def fetchOrganisationWithApplications(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[OrganisationWithApps] = {
     for {
-      organisation <- apiPlatformDeskproConnector.getOrganisation(organisationId)
+      organisation <- apiPlatformDeskproConnector.getOrganisation(organisationId, hc)
       applications <- tpoConnector.getApplicationsByEmails(organisation.people.map(_.email))
     } yield OrganisationWithApps(organisation.organisationName, applications)
   }

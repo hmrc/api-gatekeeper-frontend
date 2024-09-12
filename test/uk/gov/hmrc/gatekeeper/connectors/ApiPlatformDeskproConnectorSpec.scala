@@ -69,7 +69,7 @@ class ApiPlatformDeskproConnectorSpec
           )
       )
 
-      val result = await(underTest.getOrganisation(organisationId))
+      val result = await(underTest.getOrganisation(organisationId, hc))
 
       result shouldBe organisation
     }
@@ -91,7 +91,7 @@ class ApiPlatformDeskproConnectorSpec
           )
       )
 
-      val result = await(underTest.getOrganisationsForUser(userEmailAddress))
+      val result = await(underTest.getOrganisationsForUser(userEmailAddress, hc))
 
       result shouldBe Some(organisationsForUser)
     }
@@ -109,7 +109,7 @@ class ApiPlatformDeskproConnectorSpec
           )
       )
 
-      val result = await(underTest.getOrganisationsForUser(userEmailAddress))
+      val result = await(underTest.getOrganisationsForUser(userEmailAddress, hc))
 
       result shouldBe None
     }
