@@ -94,7 +94,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
+        state = ApplicationState(name = State.PENDING_GATEKEEPER_APPROVAL, updatedOn = Instant.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -107,7 +107,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
+        state = ApplicationState(name = State.PENDING_REQUESTER_VERIFICATION, updatedOn = Instant.now())
       ),
       buildApplication(
         ApplicationId.random,
@@ -120,8 +120,21 @@ class ApplicationsViewSpec extends CommonViewSpec {
         LocalDateTime.now(),
         Some(LocalDateTime.now()),
         access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
-      )
+        state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
+      ),
+      buildApplication(
+        ApplicationId.random,
+        ClientId("clientid1"),
+        "gatewayId1",
+        Some("Blocked Production App"),
+        Environment.PRODUCTION,
+        Some("Blocked Production App"),
+        collaborators,
+        LocalDateTime.now(),
+        Some(LocalDateTime.now()),
+        access = Access.Standard(),
+        state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
+      ).copy(blocked = true)
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
@@ -168,16 +181,18 @@ class ApplicationsViewSpec extends CommonViewSpec {
     }
 
     "Called with application" should {
-      "Display all four applications in all four states" in new Setup {
-        applicationViewWithApplication().body should include("Testing App")
-        applicationViewWithApplication().body should include("Pending Gatekeeper Approval App")
-        applicationViewWithApplication().body should include("Pending Requester Verification App")
-        applicationViewWithApplication().body should include("Production App")
+      "Display all five applications in all five states" in new Setup {
+        applicationViewWithApplicationDocument.select(s"#app-name-0").text() shouldBe "Testing App"
+        applicationViewWithApplicationDocument.select(s"#app-name-1").text() shouldBe "Pending Gatekeeper Approval App"
+        applicationViewWithApplicationDocument.select(s"#app-name-2").text() shouldBe "Pending Requester Verification App"
+        applicationViewWithApplicationDocument.select(s"#app-name-3").text() shouldBe "Production App"
+        applicationViewWithApplicationDocument.select(s"#app-name-4").text() shouldBe "Blocked Production App"
 
-        applicationViewWithApplication().body should include("Created")
-        applicationViewWithApplication().body should include("Pending gatekeeper check")
-        applicationViewWithApplication().body should include("Pending submitter verification")
-        applicationViewWithApplication().body should include("Active")
+        applicationViewWithApplicationDocument.select(s"#app-status-0").text() shouldBe "Created"
+        applicationViewWithApplicationDocument.select(s"#app-status-1").text() shouldBe "Pending gatekeeper check"
+        applicationViewWithApplicationDocument.select(s"#app-status-2").text() shouldBe "Pending submitter verification"
+        applicationViewWithApplicationDocument.select(s"#app-status-3").text() shouldBe "Active"
+        applicationViewWithApplicationDocument.select(s"#app-status-4").text() shouldBe "Blocked"
       }
 
       "Display filter by status entries in correct order" in new Setup {
@@ -191,6 +206,9 @@ class ApplicationsViewSpec extends CommonViewSpec {
         status.get(0).child(4).text() shouldBe "Pending gatekeeper check"
         status.get(0).child(5).text() shouldBe "Pending submitter verification"
         status.get(0).child(6).text() shouldBe "Active"
+        status.get(0).child(7).text() shouldBe "Deleted"
+        status.get(0).child(8).text() shouldBe "Blocked"
+        status.get(0).childrenSize() shouldBe 9
       }
 
       "Access type filter entries in correct order" in new Setup {
@@ -200,6 +218,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
         status.get(0).child(1).text() shouldBe "Standard"
         status.get(0).child(2).text() shouldBe "ROPC"
         status.get(0).child(3).text() shouldBe "Privileged"
+        status.get(0).childrenSize() shouldBe 4
       }
     }
 

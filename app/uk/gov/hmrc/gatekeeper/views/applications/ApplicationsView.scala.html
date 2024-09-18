@@ -110,6 +110,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
               <option @if(status == Some("PENDING_SUBMITTER_VERIFICATION")){selected} value="PENDING_SUBMITTER_VERIFICATION">Pending submitter verification</option>
               <option @if(status == Some("ACTIVE")){selected} value="ACTIVE">Active</option>
               <option @if(status == Some("DELETED")){selected} value="DELETED">Deleted</option>
+              <option @if(status == Some("BLOCKED")){selected} value="BLOCKED">Blocked</option>
             </select>
           </div>
         </div>
@@ -178,7 +179,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
                   @application.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
-                  @defining(application.state.name match {
+                  @defining( if(application.blocked) ("status status--not-verified", "Blocked") else application.state.name match {
                   case PRODUCTION => ("status status--verified", "Active")
                   case PRE_PRODUCTION => ("status status--verified", "Active")
                   case DELETED => ("status status--not-verified", "Deleted")
