@@ -32,11 +32,11 @@ trait ApiPlatformDeskproConnectorMockProvider {
   object ApiPlatformDeskproConnectorMock {
 
     object GetOrganisation {
-      def returns(org: DeskproOrganisation) = when(apiPlatformDeskproConnector.getOrganisation(*[OrganisationId])(*)).thenReturn(successful(org))
+      def returns(org: DeskproOrganisation) = when(apiPlatformDeskproConnector.getOrganisation(*[OrganisationId], *)).thenReturn(successful(org))
     }
 
     object GetOrganisationsForUser {
-      def returns(orgs: Option[List[DeskproOrganisation]]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress])(*)).thenReturn(successful(orgs))
+      def returns(orgs: Option[List[DeskproOrganisation]]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress], *)).thenReturn(successful(orgs))
     }
   }
 }

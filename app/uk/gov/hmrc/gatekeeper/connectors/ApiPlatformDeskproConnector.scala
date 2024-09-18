@@ -35,11 +35,13 @@ class ApiPlatformDeskproConnector @Inject() (
   )(implicit ec: ExecutionContext
   ) extends Logging {
 
-  def getOrganisation(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[DeskproOrganisation] = {
+  def getOrganisation(organisationId: OrganisationId, hc: HeaderCarrier): Future[DeskproOrganisation] = {
+    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
   }
 
-  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[List[DeskproOrganisation]]] = {
+  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress, hc: HeaderCarrier): Future[Option[List[DeskproOrganisation]]] = {
+    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.post(url"${config.serviceBaseUrl}/organisation/query")
       .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
       .execute[Option[List[DeskproOrganisation]]]
@@ -57,7 +59,7 @@ class ApiPlatformDeskproConnector @Inject() (
 }
 
 object ApiPlatformDeskproConnector {
-  case class Config(serviceBaseUrl: String)
+  case class Config(serviceBaseUrl: String, authToken: String)
 
   case class GetOrganisationsForUserRequest(email: LaxEmailAddress)
 
