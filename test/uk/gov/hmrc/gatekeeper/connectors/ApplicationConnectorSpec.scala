@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -124,8 +124,8 @@ class ApplicationConnectorSpec
         Environment.PRODUCTION,
         None,
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = instant)
       ))
@@ -152,8 +152,8 @@ class ApplicationConnectorSpec
         Environment.PRODUCTION,
         None,
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = instant)
       ))
@@ -271,8 +271,8 @@ class ApplicationConnectorSpec
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-      Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
+      Instant.now().truncatedTo(ChronoUnit.MILLIS),
+      Some(Instant.now().truncatedTo(ChronoUnit.MILLIS)),
       access = Access.Standard(),
       state = applicationState
     )

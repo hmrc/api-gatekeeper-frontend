@@ -17,7 +17,6 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.time.{Instant, LocalDateTime}
-import java.util.UUID
 
 import play.api.data.Form
 import play.api.libs.json._
@@ -32,7 +31,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 
 case class BearerToken(authToken: String, expiry: LocalDateTime) {
   override val toString = authToken
@@ -47,22 +45,24 @@ object GatekeeperSessionKeys {
   val AuthToken    = SessionKeys.authToken
 }
 
+// TODO
+
 case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory, subscriptionsWithFieldDefinitions: List[Subscription])
 
 case class ApplicationAndSubscriptionVersion(application: ApplicationWithHistory, subscription: Subscription, version: VersionSubscription)
 
 case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: List[Subscription])
 
-case class ApplicationWithHistory(application: GKApplicationResponse, history: List[StateHistory])
+case class ApplicationWithHistory(application: ApplicationWithCollaborators, history: List[StateHistory])
 
-case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionData, stateHistory: List[StateHistory])
+case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory])
 
 object ApiDefinitionFields {
   type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
 }
 
 case class ApplicationWithSubscriptionDataAndFieldDefinitions(
-    applicationWithSubscriptionData: ApplicationWithSubscriptionData,
+    applicationWithSubscriptionData: ApplicationWithSubscriptionFields,
     apiDefinitionFields: ApiDefinitionFields.Alias,
     allPossibleSubs: List[ApiDefinition]
   )
@@ -72,11 +72,10 @@ object ApplicationWithHistory {
   implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
   implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
   implicit val format7: OFormat[ApprovedApplication]      = Json.format[ApprovedApplication]
-  implicit val format8: OFormat[GKApplicationResponse]    = Json.format[GKApplicationResponse]
   implicit val format9: OFormat[ApplicationWithHistory]   = Json.format[ApplicationWithHistory]
 }
 
-case class ApplicationWithUpliftRequest(id: UUID, name: String, submittedOn: LocalDateTime, state: State)
+case class ApplicationWithUpliftRequest(id: ApplicationId, name: String, submittedOn: LocalDateTime, state: State)
 
 object ApplicationWithUpliftRequest {
 

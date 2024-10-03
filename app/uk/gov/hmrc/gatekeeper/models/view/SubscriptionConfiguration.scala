@@ -19,9 +19,10 @@ package uk.gov.hmrc.gatekeeper.models.view
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionDataAndFieldDefinitions
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
-import uk.gov.hmrc.gatekeeper.models.{ApplicationWithSubscriptionDataAndFieldDefinitions, _}
 
 case class SubscriptionVersion(apiName: String, apiContext: ApiContext, versionNbr: ApiVersionNbr, displayedStatus: String, fields: List[SubscriptionField])
 
@@ -33,7 +34,7 @@ object SubscriptionVersion {
         def toSubscriptionFields(fieldNames: Map[FieldName, SubscriptionFieldDefinition]): List[SubscriptionField] = {
           fieldNames.map(fieldName => {
             val subscriptionFieldDefinition = fieldName._2
-            val fieldValue                  = app.applicationWithSubscriptionData.subscriptionFieldValues(contextMap._1)(versionMap._1)(fieldName._1)
+            val fieldValue                  = app.applicationWithSubscriptionData.fieldValues(contextMap._1)(versionMap._1)(fieldName._1)
 
             SubscriptionField(fieldName._1, subscriptionFieldDefinition.shortDescription, subscriptionFieldDefinition.description, subscriptionFieldDefinition.hint, fieldValue)
           }).toList

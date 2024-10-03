@@ -22,7 +22,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CoreApplication}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -41,7 +41,7 @@ class ApiGatekeeperDeleteApplicationSpec
   Feature("Delete an application") {
     Scenario("I can delete an application") {
 
-      stubApplicationForDeleteSuccess
+      stubApplicationForDeleteSuccess()
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -53,7 +53,7 @@ class ApiGatekeeperDeleteApplicationSpec
 
     Scenario("I cannot delete an application") {
 
-      stubApplicationForDeleteFailure
+      stubApplicationForDeleteFailure()
 
       When("I navigate to the Delete Page for an application")
       navigateThroughDeleteApplication()
@@ -82,7 +82,7 @@ class ApiGatekeeperDeleteApplicationSpec
     stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.clickApplicationNameLink(applicationName)
+    ApplicationsPage.clickApplicationNameLink(applicationName.value)
 
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
@@ -98,7 +98,7 @@ class ApiGatekeeperDeleteApplicationSpec
     stubApplicationToDelete(applicationId)
 
     When("I fill out the Delete Application Form correctly")
-    DeleteApplicationPage.completeForm(applicationName)
+    DeleteApplicationPage.completeForm(applicationName.value)
 
     And("I click the Delete Application Button")
     DeleteApplicationPage.clickDeleteButton()
@@ -108,27 +108,30 @@ class ApiGatekeeperDeleteApplicationSpec
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
+  // TODO - bollocks
   def stubApplicationForDeleteSuccess() = {
-    val gkAppResponse = GKApplicationResponse(
-      id = applicationId,
-      clientId = defaultApplication.clientId,
-      gatewayId = defaultApplication.gatewayId,
-      name = defaultApplication.name,
-      deployedTo = defaultApplication.deployedTo,
-      description = defaultApplication.description,
-      collaborators = defaultApplication.collaborators,
-      createdOn = defaultApplication.createdOn,
-      lastAccess = defaultApplication.lastAccess,
-      grantLength = defaultApplication.grantLength,
-      termsAndConditionsUrl = defaultApplication.termsAndConditionsUrl,
-      privacyPolicyUrl = defaultApplication.privacyPolicyUrl,
-      access = defaultApplication.access,
-      state = defaultApplication.state,
-      rateLimitTier = defaultApplication.rateLimitTier,
-      checkInformation = defaultApplication.checkInformation,
-      blocked = defaultApplication.blocked,
-      ipAllowlist = defaultApplication.ipAllowlist,
-      moreApplication = defaultApplication.moreApplication
+    val gkAppResponse = ApplicationWithCollaborators(
+      CoreApplication(
+        id = applicationId,
+        clientId = defaultApplication.clientId,
+        gatewayId = defaultApplication.details.gatewayId,
+        name = defaultApplication.details.name,
+        deployedTo = defaultApplication.details.deployedTo,
+        description = defaultApplication.details.description,
+        createdOn = defaultApplication.details.createdOn,
+        lastAccess = defaultApplication.details.lastAccess,
+        lastAccessTokenUsage = defaultApplication.details.lastAccess,
+        grantLength = defaultApplication.details.grantLength,
+        access = defaultApplication.access,
+        state = defaultApplication.state,
+        rateLimitTier = defaultApplication.details.rateLimitTier,
+        checkInformation = defaultApplication.details.checkInformation,
+        blocked = defaultApplication.details.blocked,
+        ipAllowlist = defaultApplication.details.ipAllowlist,
+        allowAutoDelete = defaultApplication.details.allowAutoDelete,
+        lastActionActor = defaultApplication.details.lastActionActor
+      ),
+      collaborators = defaultApplication.collaborators
     )
     val response      = DispatchSuccessResult(gkAppResponse)
     stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString())))

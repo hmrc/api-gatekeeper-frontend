@@ -25,6 +25,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.mvc._
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector, QueryableValues}
@@ -59,7 +60,7 @@ object ApplicationEventsController {
       )
     }
   }
-  case class QueryModel(applicationId: ApplicationId, applicationName: String, queryableValues: QueryableValues, events: Seq[EventModel])
+  case class QueryModel(applicationId: ApplicationId, applicationName: ApplicationName, queryableValues: QueryableValues, events: Seq[EventModel])
 
   case class QueryForm(eventTag: Option[String], actorType: Option[String])
 
@@ -103,14 +104,14 @@ class ApplicationEventsController @Inject() (
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
-          qv     <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
-          events <- eventsConnector.query(appId, application.deployedTo, None, None)
+          qv     <- eventsConnector.fetchQueryableValues(appId, application.details.deployedTo)
+          events <- eventsConnector.query(appId, application.details.deployedTo, None, None)
           models  = events.map(EventModel.apply)
         } yield {
           Ok(applicationEventsView(
             QueryModel(
               applicationWithHistory.application.id,
-              application.name,
+              application.details.name,
               qv,
               models
             ),
@@ -121,9 +122,9 @@ class ApplicationEventsController @Inject() (
 
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
-          qv       <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
+          qv       <- eventsConnector.fetchQueryableValues(appId, application.details.deployedTo)
           queryForm = QueryForm.form.fill(form)
-          events   <- eventsConnector.query(appId, application.deployedTo, form.eventTag, form.actorType)
+          events   <- eventsConnector.query(appId, application.details.deployedTo, form.eventTag, form.actorType)
           models    = events.map(EventModel.apply)
         } yield {
           Ok(applicationEventsView(

@@ -24,11 +24,11 @@ import org.apache.pekko.stream.Materializer
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration.{EditSubscriptionConfigurationView, ListSubscriptionConfigurationView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -208,7 +208,7 @@ class SubscriptionConfigurationControllerSpec
 
       val expectedFields = Map(fields.head._1 -> newValue)
 
-      SubscriptionFieldsServiceMock.SaveFieldValues.verifyParams(applicationWithSubscriptionData.application, apiContext, apiVersion, expectedFields)
+      SubscriptionFieldsServiceMock.SaveFieldValues.verifyParams(applicationWithSubscriptionData.details, apiContext, apiVersion, expectedFields)
     }
 
     "save gives validation errors" in new EditSaveFormData {

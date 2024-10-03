@@ -28,12 +28,11 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -54,7 +53,7 @@ class ApmConnectorSpec
 
     val applicationId = ApplicationId.random
 
-    val application = DefaultApplication.copy(id = applicationId)
+    val application = DefaultApplication.modify(_.copy(id = applicationId))
 
     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 
@@ -68,10 +67,10 @@ class ApmConnectorSpec
 
   "fetchApplicationById" should {
     "return ApplicationWithSubscriptionData" in new Setup {
-      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionData] = Json.writes[ApplicationWithSubscriptionData]
+      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionFields] = Json.writes[ApplicationWithSubscriptionFields]
 
       val url                             = s"/applications/${applicationId.value.toString()}"
-      val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application, Set.empty, Map.empty)
+      val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application.details, application.collaborators, Set.empty, Map.empty)
       val payload                         = Json.toJson(applicationWithSubscriptionData)
 
       stubFor(
@@ -87,7 +86,7 @@ class ApmConnectorSpec
       result should not be None
 
       result.map { appWithSubsData =>
-        appWithSubsData.application.id shouldBe application.id
+        appWithSubsData.details.id shouldBe application.id
       }
     }
   }

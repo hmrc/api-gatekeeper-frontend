@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -70,36 +70,36 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")).execute[List[StateHistory]]
   }
 
-  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")).execute[List[GKApplicationResponse]]
+  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")).execute[List[ApplicationWithCollaborators]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/developer/${userId}/applications")).execute[List[GKApplicationResponse]]
+  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/developer/${userId}/applications")).execute[List[ApplicationWithCollaborators]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")).execute[List[GKApplicationResponse]]
+  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")).execute[List[ApplicationWithCollaborators]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?noSubscriptions=true")).execute[List[GKApplicationResponse]]
+  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?noSubscriptions=true")).execute[List[ApplicationWithCollaborators]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
   }
 
-  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[GKApplicationResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application")).execute[List[GKApplicationResponse]]
+  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application")).execute[List[ApplicationWithCollaborators]]
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }

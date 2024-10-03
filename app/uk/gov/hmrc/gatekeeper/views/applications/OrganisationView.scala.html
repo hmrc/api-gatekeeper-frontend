@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -60,13 +60,13 @@
         @for((application, index) <- organisationWithApps.applications.zipWithIndex) {
           <tr class="govuk-table__row">
             <td class="govuk-table__cell" id="app-name-@index">
-              <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
+              <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.details.deployedTo)">@application.name</a>
             </td>
             <td class="govuk-table__cell" id="app-created-@index">
-              @{dateFormatter.format(application.createdOn)}
+              @{dateFormatter.format(application.details.createdOn)}
             </td>
             <td class="govuk-table__cell" id="app-env-@index">
-              @application.deployedTo.displayText
+              @application.details.deployedTo.displayText
             </td>
             <td id="app-status-@index" class="govuk-table__cell">
               @defining(application.state.name match {
@@ -80,7 +80,7 @@
               }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
             </td>
             <td id="last-call-@index" class="govuk-table__cell">
-              @{application.lastAccess.map(lastApi => dateFormatter.format(lastApi)).getOrElse("")}
+              @{application.details.lastAccess.map(lastApi => dateFormatter.format(lastApi)).getOrElse("")}
             </td>
           </tr>
         }
