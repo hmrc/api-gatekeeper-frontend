@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.mocks
 
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 object ApplicationResponseBuilder {
 
-  def buildApplication(applicationId: ApplicationId, clientId: ClientId, userId1: UserId): ApplicationResponse = {
+  def buildApplication(applicationId: ApplicationId, clientId: ClientId, userId1: UserId): ApplicationWithCollaborators = {
     val standardAccess = Access.Standard(
       importantSubmissionData = Some(ImportantSubmissionData(
         organisationUrl = Some("https://www.example.com"),
@@ -51,28 +51,28 @@ object ApplicationResponseBuilder {
       )
     }
 
-    ApplicationResponse(
-      id = applicationId,
-      clientId = clientId,
-      gatewayId = "gateway-id",
-      name = ApplicationName("Petes test application"),
-      deployedTo = Environment.PRODUCTION,
-      description = Some("Petes test application description"),
-      collaborators = Set(buildCollaborator(userId1)),
-      createdOn = LocalDateTime.parse("2022-12-23T12:24:31.123").toInstant(ZoneOffset.UTC),
-      lastAccess = Some(LocalDateTime.parse("2023-10-02T12:24:31.123").toInstant(ZoneOffset.UTC)),
-      grantLength = GrantLength.EIGHTEEN_MONTHS,
-      lastAccessTokenUsage = None,
-      termsAndConditionsUrl = None,
-      privacyPolicyUrl = None,
-      access = standardAccess,
-      state = ApplicationState(name = State.TESTING, updatedOn = LocalDateTime.parse("2022-10-08T12:24:31.123").toInstant(ZoneOffset.UTC)),
-      rateLimitTier = RateLimitTier.BRONZE,
-      checkInformation = None,
-      blocked = false,
-      trusted = false,
-      ipAllowlist = IpAllowlist(false, Set.empty),
-      moreApplication = MoreApplication(false)
+    ApplicationWithCollaborators(
+      CoreApplication(
+        id = applicationId,
+        clientId = clientId,
+        gatewayId = "gateway-id",
+        name = ApplicationName("Petes test application"),
+        deployedTo = Environment.PRODUCTION,
+        description = Some("Petes test application description"),
+        createdOn = Instant.parse("2022-12-23T12:24:31.123Z"),
+        lastAccess = Some(Instant.parse("2023-10-02T12:24:31.123Z")),
+        grantLength = GrantLength.EIGHTEEN_MONTHS,
+        lastAccessTokenUsage = None,
+        access = standardAccess,
+        state = ApplicationState(name = State.TESTING, updatedOn = Instant.parse("2022-10-08T12:24:31.123Z")),
+        rateLimitTier = RateLimitTier.BRONZE,
+        checkInformation = None,
+        blocked = false,
+        ipAllowlist = IpAllowlist(false, Set.empty),
+        allowAutoDelete = false,
+        lastActionActor = ActorType.UNKNOWN
+      ),
+      collaborators = Set(buildCollaborator(userId1))
     )
   }
 

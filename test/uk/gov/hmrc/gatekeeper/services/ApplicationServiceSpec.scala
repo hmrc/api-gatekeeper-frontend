@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider, CommandConnectorMockProvider}
@@ -78,8 +78,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -92,8 +92,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -106,8 +106,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Privileged(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -120,8 +120,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Ropc(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -135,7 +135,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX))
+    val allSandboxApplications                         = allProductionApplications.map(_.modify(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX)))
     val testContext                                    = ApiContext("test-context")
     val unknownContext                                 = ApiContext("unknown-context")
     val superContext                                   = ApiContext("super-context")
@@ -161,9 +161,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.PRODUCTION), Map.empty))
 
-      val app1 = result.applications.find(sa => sa.name == "application1").get
-      val app2 = result.applications.find(sa => sa.name == "application2").get
-      val app3 = result.applications.find(sa => sa.name == "application3").get
+      val app1 = result.applications.find(sa => sa.name == ApplicationName("application1")).get
+      val app2 = result.applications.find(sa => sa.name == ApplicationName("application2")).get
+      val app3 = result.applications.find(sa => sa.name == ApplicationName("application3")).get
 
       app1 shouldBe stdApp1
       app2 shouldBe stdApp2
@@ -175,13 +175,13 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.SANDBOX), Map.empty))
 
-      val app1 = result.applications.find(sa => sa.name == "application1").get
-      val app2 = result.applications.find(sa => sa.name == "application2").get
-      val app3 = result.applications.find(sa => sa.name == "application3").get
+      val app1 = result.applications.find(sa => sa.name == ApplicationName("application1")).get
+      val app2 = result.applications.find(sa => sa.name == ApplicationName("application2")).get
+      val app3 = result.applications.find(sa => sa.name == ApplicationName("application3")).get
 
-      app1.deployedTo shouldBe Environment.SANDBOX
-      app2.deployedTo shouldBe Environment.SANDBOX
-      app3.deployedTo shouldBe Environment.SANDBOX
+      app1.isSandbox shouldBe true
+      app2.isSandbox shouldBe true
+      app3.isSandbox shouldBe true
     }
 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
@@ -189,13 +189,13 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       val result: PaginatedApplicationResponse = await(underTest.searchApplications(None, Map.empty))
 
-      val app1 = result.applications.find(sa => sa.name == "application1").get
-      val app2 = result.applications.find(sa => sa.name == "application2").get
-      val app3 = result.applications.find(sa => sa.name == "application3").get
+      val app1 = result.applications.find(sa => sa.name == ApplicationName("application1")).get
+      val app2 = result.applications.find(sa => sa.name == ApplicationName("application2")).get
+      val app3 = result.applications.find(sa => sa.name == ApplicationName("application3")).get
 
-      app1.deployedTo shouldBe Environment.SANDBOX
-      app2.deployedTo shouldBe Environment.SANDBOX
-      app3.deployedTo shouldBe Environment.SANDBOX
+      app1.isSandbox shouldBe true
+      app2.isSandbox shouldBe true
+      app3.isSandbox shouldBe true
     }
   }
 
@@ -385,7 +385,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       ApplicationConnectorMock.Prod.FetchAllApplications.returns(allProductionApplications: _*)
       ApplicationConnectorMock.Sandbox.FetchAllApplications.returns(allProductionApplications: _*)
 
-      val result: Seq[GKApplicationResponse] = await(underTest.fetchApplications)
+      val result: Seq[ApplicationWithCollaborators] = await(underTest.fetchApplications)
       result shouldEqual allProductionApplications
 
       verify(mockProductionApplicationConnector).fetchAllApplications()(*)
@@ -579,9 +579,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "manageIpAllowlist" should {
     "issue the command to update the ip allowlist" in new Setup {
-      val existingIpAllowlist        = IpAllowlist(required = false, Set("192.168.1.0/24"))
-      val app: GKApplicationResponse = stdApp1.copy(ipAllowlist = existingIpAllowlist)
-      val newIpAllowlist             = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
+      val existingIpAllowlist               = IpAllowlist(required = false, Set("192.168.1.0/24"))
+      val app: ApplicationWithCollaborators = stdApp1.modify(_.copy(ipAllowlist = existingIpAllowlist))
+      val newIpAllowlist                    = IpAllowlist(required = true, Set("192.168.1.0/24", "192.168.2.0/24"))
       CommandConnectorMock.IssueCommand.succeeds()
 
       val result = await(underTest.manageIpAllowlist(app, newIpAllowlist.required, newIpAllowlist.allowlist, gatekeeperUserId))
@@ -656,7 +656,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       CommandConnectorMock.IssueCommand.succeeds()
 
       val emailAddress = "email@example.com".toLaxEmail
-      val application  = stdApp1.copy(deployedTo = Environment.PRODUCTION)
+      val application  = stdApp1.modify(_.copy(deployedTo = Environment.PRODUCTION))
       val reasons      = "Application deleted by Gatekeeper user"
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
@@ -675,7 +675,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "BlockApplication" should {
     "block the application" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.PRODUCTION))
 
       CommandConnectorMock.IssueCommand.succeeds()
 
@@ -690,7 +690,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate failure from connector" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.SANDBOX))
 
       CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
@@ -702,7 +702,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "UnblockApplication" should {
     "unblock the application in the correct environment" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.PRODUCTION))
 
       CommandConnectorMock.IssueCommand.succeeds()
 
@@ -717,7 +717,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate failure from connector" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.SANDBOX))
 
       CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
@@ -729,7 +729,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "applicationConnectorFor" should {
     "return the production application connector for an application deployed to production" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.PRODUCTION))
 
       val result = underTest.applicationConnectorFor(application)
 
@@ -737,7 +737,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "return the sandbox application connector for an application deployed to sandbox" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.SANDBOX))
 
       val result = underTest.applicationConnectorFor(application)
 
@@ -747,7 +747,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "apiScopeConnectorFor" should {
     "return the production api scope connector for an application deployed to production" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.PRODUCTION)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.PRODUCTION))
 
       val result = underTest.apiScopeConnectorFor(application)
 
@@ -755,7 +755,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "return the sandbox api scope connector for an application deployed to sandbox" in new Setup {
-      val application = stdApp1.copy(deployedTo = Environment.SANDBOX)
+      val application = stdApp1.modify(_.copy(deployedTo = Environment.SANDBOX))
 
       val result = underTest.apiScopeConnectorFor(application)
 

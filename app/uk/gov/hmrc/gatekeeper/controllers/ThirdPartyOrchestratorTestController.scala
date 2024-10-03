@@ -39,6 +39,6 @@ class ThirdPartyOrchestratorTestController @Inject() (
   def page(applicationId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     for {
       application <- tpoConnector.getApplication(applicationId)
-    } yield Ok(application.fold("Application not found")(app => s"Application name: ${app.name}, deployed to: ${app.deployedTo}"))
+    } yield Ok(application.fold("Application not found")(app => s"Application name: ${app.name}, deployed to: ${app.details.deployedTo}"))
   }
 }

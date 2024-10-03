@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -70,8 +70,8 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )

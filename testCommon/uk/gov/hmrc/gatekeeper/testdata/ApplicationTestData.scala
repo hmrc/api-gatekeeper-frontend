@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowlist, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -39,8 +39,8 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
     .withIpAllowlist(IpAllowlist())
     .unblocked
     .withRateLimitTier(RateLimitTier.BRONZE)
-    .withCreatedOn(LocalDateTime.parse("2016-04-08T10:24:40.651"))
-    .withLastAccess(LocalDateTime.parse("2019-07-01T00:00:00.000"))
+    .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))
+    .withLastAccess(Instant.parse("2019-07-01T00:00:00.000Z"))
 
   val blockedApplication = defaultApplication.withId(blockedApplicationId).withBlocked(true)
 

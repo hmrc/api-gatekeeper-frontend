@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreApplication
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
@@ -42,7 +42,7 @@ trait SubscriptionFieldsServiceMockProvider {
         when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(*))
           .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
 
-      def verifyParams(application: GKApplicationResponse, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias) =
+      def verifyParams(application: CoreApplication, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias) =
         verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
     }
   }

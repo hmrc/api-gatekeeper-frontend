@@ -23,11 +23,11 @@ import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 
 trait ActionBuilders extends ApplicationLogger {
@@ -58,7 +58,7 @@ trait ActionBuilders extends ApplicationLogger {
   def withAppAndSubsData(
       appId: ApplicationId
     )(
-      f: ApplicationWithSubscriptionData => Future[Result]
+      f: ApplicationWithSubscriptionFields => Future[Result]
     )(implicit request: MessagesRequest[_],
       ec: ExecutionContext,
       hc: HeaderCarrier
@@ -80,7 +80,7 @@ trait ActionBuilders extends ApplicationLogger {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
-        applicationService.fetchStateHistory(appId, value.application.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+        applicationService.fetchStateHistory(appId, value.details.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       case None        => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
@@ -108,7 +108,7 @@ trait ActionBuilders extends ApplicationLogger {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(applicationWithSubs) => {
         val applicationWithSubscriptionDataAndFieldDefinitions = for {
-          allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.application.deployedTo)
+          allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.details.deployedTo)
           apiDefinitions     = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
           allPossibleSubs   <- apmService.fetchAllPossibleSubscriptions(appId)
         } yield ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, apiDefinitions, allPossibleSubs)

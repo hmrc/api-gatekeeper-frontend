@@ -61,17 +61,17 @@ class TeamMembersControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
+        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
+        basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
+        basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
 

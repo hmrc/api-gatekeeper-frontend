@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.models.view
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.gatekeeper.models.SubscriptionWithoutFields
 
 case class SubscriptionViewModel(
     applicationId: ApplicationId,
-    applicationName: String,
+    applicationName: ApplicationName,
     subscriptions: List[SubscriptionWithoutFields]
   )

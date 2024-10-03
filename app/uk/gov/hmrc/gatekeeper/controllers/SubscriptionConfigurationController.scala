@@ -58,7 +58,7 @@ class SubscriptionConfigurationController @Inject() (
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
-          Future.successful(Ok(listSubscriptionConfiguration(app.applicationWithSubscriptionData.application, SubscriptionVersion(app))))
+          Future.successful(Ok(listSubscriptionConfiguration(app.applicationWithSubscriptionData.asAppWithCollaborators, SubscriptionVersion(app))))
         }
     }
   }
@@ -74,7 +74,7 @@ class SubscriptionConfigurationController @Inject() (
           val form = EditApiMetadataForm.form
             .fill(EditApiMetadataForm(fields = subscriptionFields.map(sf => SubscriptionFieldValueForm(sf.name, sf.value)).toList))
 
-          Future.successful(Ok(editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, form)))
+          Future.successful(Ok(editSubscriptionConfiguration(app.applicationWithSubscriptionData.asAppWithCollaborators, subscriptionFieldsForContextAndVersion, form)))
         }
     }
   }
@@ -98,7 +98,7 @@ class SubscriptionConfigurationController @Inject() (
             val subscriptionFieldsForContextAndVersion: SubscriptionVersion =
               subscriptionVersionsForApp.filter(sv => sv.apiContext == apiContext && sv.versionNbr == versionNbr).head
 
-            val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.application, subscriptionFieldsForContextAndVersion, errorForm)
+            val view = editSubscriptionConfiguration(app.applicationWithSubscriptionData.asAppWithCollaborators, subscriptionFieldsForContextAndVersion, errorForm)
 
             BadRequest(view)
           }
@@ -106,7 +106,7 @@ class SubscriptionConfigurationController @Inject() (
           def doSaveConfigurations(form: EditApiMetadataForm) = {
             val fields: Fields.Alias = EditApiMetadataForm.toFields(form)
 
-            subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.application, apiContext, versionNbr, fields)
+            subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.details, apiContext, versionNbr, fields)
               .map({
                 case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
                 case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
@@ -27,7 +27,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
@@ -42,11 +41,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       deployedTo: Environment = Environment.SANDBOX,
       description: Option[String] = None,
       collaborators: Set[Collaborator] = Set.empty,
-      createdOn: LocalDateTime = LocalDateTime.now(),
-      lastAccess: Option[LocalDateTime] = Some(LocalDateTime.now()),
+      createdOn: Instant = instant,
+      lastAccess: Option[Instant] = Some(instant),
       grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS,
-      termsAndConditionsUrl: Option[String] = None,
-      privacyPolicyUrl: Option[String] = None,
       access: Access = Access.Standard(),
       state: ApplicationState = ApplicationState(State.PRODUCTION, updatedOn = instant),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
@@ -55,29 +52,37 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       ipAllowlist: IpAllowlist = IpAllowlist(),
       redirectUris: List[RedirectUri] = List.empty,
       moreApplication: MoreApplication = MoreApplication(true)
-    ): GKApplicationResponse =
-    GKApplicationResponse(
-      id,
-      clientId,
-      gatewayId,
-      name.getOrElse(s"$id-name"),
-      deployedTo,
-      Some(description.getOrElse(s"$id-description")),
-      collaborators,
-      createdOn,
-      lastAccess,
-      grantLength,
-      termsAndConditionsUrl,
-      privacyPolicyUrl,
-      access,
-      state,
-      rateLimitTier,
-      checkInformation,
-      blocked,
-      ipAllowlist,
-      redirectUris,
-      moreApplication
+    ): ApplicationWithCollaborators = {
+
+    val access2 = access match {
+      case a: Access.Standard => a.copy(redirectUris = redirectUris)
+      case _                  => access
+    }
+
+    ApplicationWithCollaborators(
+      CoreApplication(
+        id,
+        clientId,
+        gatewayId,
+        ApplicationName(name.getOrElse(s"${id.value}-name")),
+        deployedTo,
+        Some(description.getOrElse(s"${id.value}-description")),
+        createdOn,
+        lastAccess,
+        grantLength,
+        lastAccessTokenUsage = lastAccess,
+        access2,
+        state,
+        rateLimitTier,
+        checkInformation,
+        blocked,
+        ipAllowlist,
+        moreApplication.allowAutoDelete,
+        lastActionActor = moreApplication.lastActionActor
+      ),
+      collaborators
     )
+  }
   // scalastyle:on parameter.number
 
   val DefaultApplication = buildApplication(
@@ -88,11 +93,11 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     )
   )
 
-  def anApplicationWithHistory(applicationResponse: GKApplicationResponse = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
+  def anApplicationWithHistory(applicationResponse: ApplicationWithCollaborators = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
     ApplicationWithHistory(applicationResponse, stateHistories)
   }
 
-  def anApplication(createdOn: LocalDateTime = LocalDateTime.now(), lastAccess: LocalDateTime = LocalDateTime.now()): GKApplicationResponse = {
+  def anApplication(createdOn: Instant = instant, lastAccess: Instant = instant): ApplicationWithCollaborators = {
     buildApplication(
       ApplicationId.random,
       ClientId("clientid"),
@@ -103,15 +108,15 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       Set.empty,
       createdOn,
       Some(lastAccess),
-      termsAndConditionsUrl = Some("termsUrl"),
-      privacyPolicyUrl = Some("privacyPolicyUrl"),
+      // termsAndConditionsUrl = Some("termsUrl"),
+      // privacyPolicyUrl = Some("privacyPolicyUrl"),
       access = Access.Privileged(),
       state = ApplicationState(updatedOn = instant)
     )
   }
 
-  def anApplicationResponseWith(checkInformation: CheckInformation): GKApplicationResponse = {
-    anApplication().copy(checkInformation = Some(checkInformation))
+  def anApplicationResponseWith(checkInformation: CheckInformation): ApplicationWithCollaborators = {
+    anApplication().modify(_.copy(checkInformation = Some(checkInformation)))
   }
 
   def aCheckInformation(): CheckInformation = {
@@ -143,16 +148,17 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       apiContext: ApiContext = ApiContext.random,
       apiVersion: ApiVersionNbr = ApiVersionNbr.random,
       fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
-    ): ApplicationWithSubscriptionData = {
-    ApplicationWithSubscriptionData(
-      DefaultApplication,
+    ): ApplicationWithSubscriptionFields = {
+    ApplicationWithSubscriptionFields(
+      DefaultApplication.details,
+      DefaultApplication.collaborators,
       buildSubscriptions(apiContext, apiVersion),
       buildSubscriptionFieldValues(apiContext, apiVersion, fields)
     )
   }
 
   implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
-    def withApplication(application: GKApplicationResponse) = applicationViewModel.copy(application = application)
+    def withApplication(application: ApplicationWithCollaborators) = applicationViewModel.copy(application = application)
 
     def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
 
@@ -182,19 +188,19 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
   }
 
-  implicit class ApplicationExtension(app: GKApplicationResponse) {
-    def deployedToProduction = app.copy(deployedTo = Environment.PRODUCTION)
-    def deployedToSandbox    = app.copy(deployedTo = Environment.SANDBOX)
+  implicit class ApplicationExtension(app: ApplicationWithCollaborators) {
+    def deployedToProduction = app.modify(_.copy(deployedTo = Environment.PRODUCTION))
+    def deployedToSandbox    = app.modify(_.copy(deployedTo = Environment.SANDBOX))
 
     def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
-    def withId(id: ApplicationId)        = app.copy(id = id)
-    def withClientId(clientId: ClientId) = app.copy(clientId = clientId)
-    def withGatewayId(gatewayId: String) = app.copy(gatewayId = gatewayId)
+    def withId(id: ApplicationId)        = app.modify(_.copy(id = id))
+    def withClientId(clientId: ClientId) = app.modify(_.copy(clientId = clientId))
+    def withGatewayId(gatewayId: String) = app.modify(_.copy(gatewayId = gatewayId))
 
-    def withName(name: String)               = app.copy(name = name)
-    def withDescription(description: String) = app.copy(description = Some(description))
+    def withName(name: ApplicationName)      = app.modify(_.copy(name = name))
+    def withDescription(description: String) = app.modify(_.copy(description = Some(description)))
 
     def withAdmin(developer: RegisteredUser) = {
       val app1 = app.withoutCollaborator(developer.email)
@@ -206,31 +212,31 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
 
-    def withAccess(access: Access) = app.copy(access = access)
-    def asStandard                 = app.copy(access = Access.Standard())
-    def asPrivileged               = app.copy(access = Access.Privileged())
-    def asROPC                     = app.copy(access = Access.Ropc())
+    def withAccess(access: Access) = app.withAccess(access)
+    def asStandard                 = app.withAccess(Access.Standard())
+    def asPrivileged               = app.withAccess(Access.Privileged())
+    def asROPC                     = app.withAccess(Access.Ropc())
 
-    def withState(state: ApplicationState) = app.copy(state = state)
-    def inProduction                       = app.copy(state = app.state.inProduction)
-    def inTesting                          = app.copy(state = app.state.inTesting)
-    def pendingGKApproval                  = app.copy(state = app.state.pendingGKApproval)
-    def pendingVerification                = app.copy(state = app.state.pendingVerification)
+    def withState(state: ApplicationState) = app.withState(state)
+    // def inProduction                       = app.copy(state = app.state.inProduction)
+    // def inTesting                          = app.copy(state = app.state.inTesting)
+    // def pendingGKApproval                  = app.copy(state = app.state.pendingGKApproval)
+    // def pendingVerification                = app.copy(state = app.state.pendingVerification)
 
-    def withBlocked(isBlocked: Boolean) = app.copy(blocked = isBlocked)
-    def blocked                         = app.copy(blocked = true)
-    def unblocked                       = app.copy(blocked = false)
+    def withBlocked(isBlocked: Boolean) = app.modify(_.copy(blocked = isBlocked))
+    def blocked                         = app.modify(_.copy(blocked = true))
+    def unblocked                       = app.modify(_.copy(blocked = false))
 
-    def withCheckInformation(checkInfo: CheckInformation) = app.copy(checkInformation = Some(checkInfo))
-    def withEmptyCheckInformation                         = app.copy(checkInformation = Some(CheckInformation()))
-    def noCheckInformation                                = app.copy(checkInformation = None)
+    def withCheckInformation(checkInfo: CheckInformation) = app.modify(_.copy(checkInformation = Some(checkInfo)))
+    def withEmptyCheckInformation                         = app.modify(_.copy(checkInformation = Some(CheckInformation())))
+    def noCheckInformation                                = app.modify(_.copy(checkInformation = None))
 
-    def withIpAllowlist(ipAllowlist: IpAllowlist) = app.copy(ipAllowlist = ipAllowlist)
+    def withIpAllowlist(ipAllowlist: IpAllowlist) = app.modify(_.copy(ipAllowlist = ipAllowlist))
 
-    def withCreatedOn(createdOnDate: LocalDateTime)   = app.copy(createdOn = createdOnDate)
-    def withLastAccess(lastAccessDate: LocalDateTime) = app.copy(lastAccess = Some(lastAccessDate))
+    def withCreatedOn(createdOnDate: Instant)   = app.modify(_.copy(createdOn = createdOnDate))
+    def withLastAccess(lastAccessDate: Instant) = app.modify(_.copy(lastAccess = Some(lastAccessDate)))
 
-    def withRateLimitTier(rateLimitTier: RateLimitTier) = app.copy(rateLimitTier = rateLimitTier)
+    def withRateLimitTier(rateLimitTier: RateLimitTier) = app.modify(_.copy(rateLimitTier = rateLimitTier))
 
     def toSeq = Seq(app)
   }

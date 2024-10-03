@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
-case class PaginatedApplicationResponse(applications: List[GKApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
+case class PaginatedApplicationResponse(applications: List[ApplicationWithCollaborators], page: Int, pageSize: Int, total: Int, matching: Int) {
   val maxPage = PaginationHelper.maxPage(matching, pageSize)
 }
 

@@ -17,32 +17,11 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.util.UUID
-import scala.util.Random
 
 import play.api.libs.json.{Format, Json}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-
-case class FieldName(value: String) extends AnyVal
-
-object FieldName {
-
-  implicit val ordering: Ordering[FieldName] = new Ordering[FieldName] {
-    override def compare(x: FieldName, y: FieldName): Int = x.value.compareTo(y.value)
-  }
-
-  def random = FieldName(Random.alphanumeric.take(8).mkString) // scalastyle:ignore
-}
-
-case class FieldValue(value: String) extends AnyVal {
-  def isEmpty = value.isEmpty
-}
-
-object FieldValue {
-  def empty = FieldValue("")
-
-  def random = FieldValue(Random.alphanumeric.take(8).mkString) // scalastyle:ignore
-}
 
 object SubscriptionFields {
 

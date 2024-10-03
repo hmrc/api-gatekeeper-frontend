@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -41,7 +41,7 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
     val request                                                    = FakeRequest().withCSRFToken
     val manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView = app.injector.instanceOf[ManageAutoDeleteDisabledView]
 
-    val application: GKApplicationResponse =
+    val application: ApplicationWithCollaborators =
       buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
@@ -53,8 +53,8 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now()),
         moreApplication = MoreApplication(allowAutoDelete = false)

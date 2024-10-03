@@ -76,7 +76,7 @@ class SubscriptionController @Inject() (
         allPossibleSubs       <- apmService.fetchAllPossibleSubscriptions(appId)
         subscriptions          = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)
         sortedSubscriptions    = subscriptions.sortWith(_.name.toLowerCase < _.name.toLowerCase)
-        subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.application.id, appWithSubsData.application.name, sortedSubscriptions)
+        subscriptionsViewModel = SubscriptionViewModel(appWithSubsData.id, appWithSubsData.name, sortedSubscriptions)
       } yield Ok(manageSubscriptionsView(subscriptionsViewModel))
     }
   }
