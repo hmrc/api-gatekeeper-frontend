@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, StateHistory, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
@@ -56,7 +56,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object FetchApplicationsWithSubscriptions {
-      def returns(apps: ApplicationWithSubscriptionsResponse*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationWithSubscriptions*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
     }
 
     object UpdateScopes {

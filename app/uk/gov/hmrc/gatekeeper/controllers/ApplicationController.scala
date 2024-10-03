@@ -171,22 +171,22 @@ class ApplicationController @Inject() (
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
-  private def toCsvContent(response: List[ApplicationWithSubscriptionsResponse], env: Option[Environment]): String = {
+  private def toCsvContent(response: List[ApplicationWithSubscriptions], env: Option[Environment]): String = {
 
-    val identifiers: Seq[ApiIdentifier]                                         = response.map(_.apiIdentifiers).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
-    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]] =
+    val identifiers: Seq[ApiIdentifier]                                 = response.map(_.subscriptions).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
+    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptions]] =
       identifiers.map(apiIdentity =>
         ColumnDefinition(
           apiIdentity.asText("."),
-          (app: ApplicationWithSubscriptionsResponse) => app.apiIdentifiers.contains(apiIdentity).toString
+          (app: ApplicationWithSubscriptions) => app.subscriptions.contains(apiIdentity).toString
         )
       )
 
-    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]](
-      ColumnDefinition("Name", app => app.name),
-      ColumnDefinition("App ID", app => app.id.value.toString),
+    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptions]](
+      ColumnDefinition("Name", app => app.details.name.toString),
+      ColumnDefinition("App ID", app => app.id.toString),
       ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
-      ColumnDefinition("Last API call", app => app.lastAccess.fold("")(_.toString))
+      ColumnDefinition("Last API call", app => app.details.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
     toCsvString(csvColumnDefinitions, response)
@@ -195,8 +195,9 @@ class ApplicationController @Inject() (
   def applicationWithSubscriptionsCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env: Option[Environment] = Environment.apply(environment.getOrElse("SANDBOX"))
 
-    applicationService.fetchApplicationsWithSubscriptions(env)
-      .map(applicationResponse => Ok(toCsvContent(applicationResponse, env)))
+    for {
+      appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
+    } yield Ok(toCsvContent(appsWithSubs, env))
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>

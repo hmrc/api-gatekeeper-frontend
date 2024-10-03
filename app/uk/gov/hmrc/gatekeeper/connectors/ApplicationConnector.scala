@@ -23,7 +23,7 @@ import play.api.libs.json.{Json, OWrites, Reads}
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -138,8 +138,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/applications?${params.toSeq}")).execute[PaginatedApplicationResponse]
   }
 
-  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptionsResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[ApplicationWithSubscriptionsResponse]]
+  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptions]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[ApplicationWithSubscriptions]]
   }
 
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {

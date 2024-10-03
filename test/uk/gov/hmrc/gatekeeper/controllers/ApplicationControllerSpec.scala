@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,7 +41,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -61,7 +60,7 @@ class ApplicationControllerSpec
     with WithCSRFAddToken
     with TitleChecker
     with CollaboratorTracker
-    with FixedClock {
+    with ApplicationWithCollaboratorsFixtures {
 
   implicit val materializer: Materializer = app.materializer
 
@@ -427,37 +426,41 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       "return csv data" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val response  =
-          ApplicationWithSubscriptionsResponse(
-            ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
-            "My App",
-            Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+        val response1 = standardApp
+          .modify(_.copy(
+            id = applicationIdOne,
+            name = appNameOne
+          ))
+          .withSubscriptions(
             Set(
               ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
               ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
               ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
             )
           )
-        val response2 = ApplicationWithSubscriptionsResponse(
-          ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f2f")),
-          "My Other App",
-          None,
-          Set(
-            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
-            ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
+        val response2 = standardApp
+          .modify(_.copy(
+            id = applicationIdTwo,
+            name = appNameTwo,
+            lastAccess = None
+          ))
+          .withSubscriptions(
+            Set(
+              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+              ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
+            )
           )
-        )
 
-        ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response, response2)
+        ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response1, response2)
 
         val eventualResult: Future[Result] = underTest.applicationWithSubscriptionsCsv()(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent =
-          """Name,App ID,Environment,Last API call,api-documentation-test-service.1.5,hello.1.0,hello.2.0,individual-tax.1.0
-My App,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,SANDBOX,2002-02-03T12:01:02,true,true,true,false
-My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
+          s"""Name,App ID,Environment,Last API call,api-documentation-test-service.1.5,hello.1.0,hello.2.0,individual-tax.1.0
+$appNameOne,$applicationIdOne,SANDBOX,${nowAsText},true,true,true,false
+$appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
