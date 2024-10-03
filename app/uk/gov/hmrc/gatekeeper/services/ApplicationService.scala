@@ -137,7 +137,7 @@ class ApplicationService @Inject() (
     applicationConnectorFor(env).searchApplications(params)
   }
 
-  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptionsResponse]] = {
+  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptions]] = {
     applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
