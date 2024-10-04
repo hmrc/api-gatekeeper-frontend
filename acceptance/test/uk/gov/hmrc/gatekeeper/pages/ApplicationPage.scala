@@ -34,11 +34,11 @@ case class BaseApplicationPage(applicationName: String, applicationId: String) e
   }
 
   def getDataPrivacyUrl(): String = {
-    getText(By.cssSelector("dd[data-privacy-url=''] > a"))
+    getText(By.id("privacy-url"))
   }
 
   def getDataTermsUrl(): String = {
-    getText(By.cssSelector("dd[data-terms-url=''] > a"))
+    getText(By.id("terms-url"))
   }
 
   def isNotFound(): Boolean = {

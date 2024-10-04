@@ -108,8 +108,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       Set.empty,
       createdOn,
       Some(lastAccess),
-      // termsAndConditionsUrl = Some("termsUrl"),
-      // privacyPolicyUrl = Some("privacyPolicyUrl"),
       access = Access.Privileged(),
       state = ApplicationState(updatedOn = instant)
     )

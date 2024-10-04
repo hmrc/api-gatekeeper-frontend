@@ -368,14 +368,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldNam
       <dt class="govuk-summary-list__key">
         Privacy policy URL
       </dt>
-      <dd class="govuk-summary-list__value" data-privacy-url="">
-        @{
-          application.privacyPolicyLocation match {
-            case PrivacyPolicyLocations.Url(url) => renderExternalUrl(url)
-            case PrivacyPolicyLocations.InDesktopSoftware => "In Desktop Software"
-            case _ => ""
-          }
-        }
+      <dd id="privacy-url" class="govuk-summary-list__value" data-privacy-url="">
+        @{ApplicationViewModel.describePrivacyPolicy(application.access)}
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
@@ -384,14 +378,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldNam
       <dt class="govuk-summary-list__key">
         Terms and conditions URL
       </dt>
-      <dd class="govuk-summary-list__value" data-terms-url="">
-        @{
-          application.termsAndConditionsLocation match {
-            case TermsAndConditionsLocations.Url(url) => renderExternalUrl(url)
-            case TermsAndConditionsLocations.InDesktopSoftware => "In Desktop Software"
-            case _ => ""
-          }
-        }
+      <dd id="terms-url" class="govuk-summary-list__value" data-terms-url="">
+        @{ApplicationViewModel.describeTnC(application.access)}
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
