@@ -1460,7 +1460,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
       val privAccess           = AppAccess(AccessType.PRIVILEGED, List.empty)
-      val ropcAccess           = AppAccess(AccessType.ROPC, List.empty)
+      val ropcAppAccess        = AppAccess(AccessType.ROPC, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
@@ -1799,7 +1799,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAppAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1825,7 +1825,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAppAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
