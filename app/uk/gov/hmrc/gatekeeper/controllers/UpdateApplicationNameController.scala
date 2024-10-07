@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc._
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -61,7 +61,7 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNamePage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.application.name))
+      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.application.name.value))
       Future.successful(Ok(manageApplicationNameView(app.application, form)))
     }
   }
@@ -69,7 +69,7 @@ class UpdateApplicationNameController @Inject() (
   def updateApplicationNameAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameForm) = {
-        if (form.applicationName.equalsIgnoreCase(app.application.name)) {
+        if (app.application.name.equalsIgnoreCase(ApplicationName(form.applicationName))) {
           val formWithErrors = UpdateApplicationNameForm.form.fill(form)
             .withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.unchanged.error"))
           Future.successful(Ok(manageApplicationNameView(app.application, formWithErrors)))

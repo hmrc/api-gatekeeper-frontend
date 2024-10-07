@@ -21,6 +21,7 @@ import java.util.UUID
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
@@ -33,9 +34,9 @@ trait CommonTestData {
   val pendingApprovalApplicationId = ApplicationId(UUID.fromString("df0c32b6-bbb7-46eb-ba50-e6e5459162ff"))
 
   val applicationDescription         = "application description"
-  val applicationName                = "My new app"
-  val blockedApplicationName         = "Automated Test Application - Blocked"
-  val pendingApprovalApplicationName = "Application requiring approval"
+  val applicationName                = ApplicationName("My new app")
+  val blockedApplicationName         = ApplicationName("Automated Test Application - Blocked")
+  val pendingApprovalApplicationName = ApplicationName("Application requiring approval")
 
   val administratorEmail = "admin@example.com".toLaxEmail
 

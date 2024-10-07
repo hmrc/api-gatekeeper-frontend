@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -66,14 +66,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       )
 
       def givenNoDataSuppliedDelegateServices(): Unit = {
-        givenDelegateServicesSupply(List.empty[GKApplicationResponse], noDevs)
+        givenDelegateServicesSupply(List.empty[ApplicationWithCollaborators], noDevs)
       }
 
-      def givenDelegateServicesSupply(apps: List[GKApplicationResponse], developers: List[Developer]): Unit = {
+      def givenDelegateServicesSupply(apps: List[ApplicationWithCollaborators], developers: List[Developer]): Unit = {
         val apiFilter         = ApiFilter(Some(""))
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter      = StatusFilter(None)
-        val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified, developer.organisation))
+        val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified))
         ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
         FetchAllApiDefinitions.inAny.returns()
         DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps: _*)(developers: _*)

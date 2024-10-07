@@ -16,6 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
+import java.time.Instant
+
+import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
@@ -56,7 +61,32 @@ class ApiGatekeeperApplicationSpec
       signInGatekeeper(app)
 
       on(ApplicationsPage)
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
+
+      val defaultCheckInformation: CheckInformation =
+        CheckInformation(
+          contactDetails = Some(
+            ContactDetails(
+              fullname = FullName("Holly Golightly"),
+              email = LaxEmailAddress("holly.golightly@example.com"),
+              telephoneNumber = "020 1122 3344"
+            )
+          ),
+          confirmedName = true,
+          providedPrivacyPolicyURL = true,
+          providedTermsAndConditionsURL = true,
+          applicationDetails = Some(""),
+          termsOfUseAgreements = List(
+            TermsOfUseAgreement(
+              emailAddress = LaxEmailAddress("test@example.com"),
+              timeStamp = Instant.ofEpochSecond(1459868573962L),
+              version = "1.0"
+            )
+          )
+        )
+
+      val testApp = applicationWithSubscriptionData.modify(_.copy(checkInformation = Some(defaultCheckInformation)))
+
+      stubApplication(testApp.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.clickApplicationNameLink("My new app")

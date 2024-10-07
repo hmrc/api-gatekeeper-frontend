@@ -18,9 +18,9 @@ package uk.gov.hmrc.gatekeeper.models.organisations
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 
-case class OrganisationWithApps(organisationName: String, applications: List[ApplicationResponse])
+case class OrganisationWithApps(organisationName: String, applications: List[ApplicationWithCollaborators])
 
 object OrganisationWithApps {
   implicit val format: OFormat[OrganisationWithApps] = Json.format[OrganisationWithApps]

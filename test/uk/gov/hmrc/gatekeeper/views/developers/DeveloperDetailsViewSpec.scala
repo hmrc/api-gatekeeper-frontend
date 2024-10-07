@@ -140,7 +140,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
     "show developer with organisation when logged in as superuser" in new Setup {
       val verifiedDeveloper =
         Developer(
-          RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true, Some("test organisation")),
+          RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
           List.empty,
           xmlServiceNames,
           xmlOrganisations

@@ -22,7 +22,7 @@ import cats.data.NonEmptyList
 import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
@@ -45,7 +45,7 @@ trait CommandConnectorMockProvider {
         when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(mockResult.asSuccess)
       }
 
-      def succeedsReturning(app: GKApplicationResponse)(implicit ec: ExecutionContext) = {
+      def succeedsReturning(app: ApplicationWithCollaborators)(implicit ec: ExecutionContext) = {
         when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(DispatchSuccessResult(app).asSuccess)
       }
 

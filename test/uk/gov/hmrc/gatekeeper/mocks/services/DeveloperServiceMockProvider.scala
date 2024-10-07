@@ -22,7 +22,7 @@ import scala.concurrent.Future.{failed, successful}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.{AuthenticatorAppMfaDetail, MfaId}
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
@@ -46,7 +46,7 @@ trait DeveloperServiceMockProvider {
 
     object FilterUsersBy {
 
-      def returnsFor(apiFilter: ApiFilter[String], apps: GKApplicationResponse*)(developers: Developer*) =
+      def returnsFor(apiFilter: ApiFilter[String], apps: ApplicationWithCollaborators*)(developers: Developer*) =
         when(mockDeveloperService.filterUsersBy(eqTo(apiFilter), eqTo(apps.toList))(*)).thenReturn(developers.toList)
 
       def returnsFor(statusFilter: StatusFilter)(developers: Developer*) =
@@ -55,7 +55,7 @@ trait DeveloperServiceMockProvider {
 
     object GetDevelopersWithApps {
 
-      def returnsFor(apps: GKApplicationResponse*)(users: AbstractUser*)(developers: Developer*) =
+      def returnsFor(apps: ApplicationWithCollaborators*)(users: AbstractUser*)(developers: Developer*) =
         when(mockDeveloperService.getDevelopersWithApps(eqTo(apps.toList), eqTo(users.toList)))
           .thenReturn(developers.toList)
     }

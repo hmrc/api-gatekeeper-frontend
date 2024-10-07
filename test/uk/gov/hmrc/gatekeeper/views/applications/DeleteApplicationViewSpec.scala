@@ -57,8 +57,8 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
           Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now())
       )

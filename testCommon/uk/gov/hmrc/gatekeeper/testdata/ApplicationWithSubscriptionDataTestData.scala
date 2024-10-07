@@ -16,21 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 
 trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {
-  val applicationWithSubscriptionData = ApplicationWithSubscriptionData(defaultApplication, defaultSubscriptions, Map.empty)
+  val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(defaultApplication.details, defaultApplication.collaborators, defaultSubscriptions, Map.empty)
 
-  val blockedApplicationWithSubscriptionData = ApplicationWithSubscriptionData(blockedApplication, defaultSubscriptions, Map.empty)
+  val blockedApplicationWithSubscriptionData = ApplicationWithSubscriptionFields(blockedApplication.details, blockedApplication.collaborators, defaultSubscriptions, Map.empty)
 
-  val pendingApprovalApplicationWithSubscriptionData = ApplicationWithSubscriptionData(pendingApprovalApplication, defaultSubscriptions, Map.empty)
+  val pendingApprovalApplicationWithSubscriptionData =
+    ApplicationWithSubscriptionFields(pendingApprovalApplication.details, pendingApprovalApplication.collaborators, defaultSubscriptions, Map.empty)
 
-  implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionData) {
-    import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters._
-
-    implicit val ApplicationWithSubscriptionDataFormat: OFormat[ApplicationWithSubscriptionData] = Json.format[ApplicationWithSubscriptionData]
+  implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionFields) {
 
     def toJson       = Json.toJson(applicationWithSubscriptionData)
     def toJsonString = Json.toJson(applicationWithSubscriptionData).toString
