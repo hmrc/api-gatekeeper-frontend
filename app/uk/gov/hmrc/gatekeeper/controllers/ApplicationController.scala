@@ -139,7 +139,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Gateway ID", (app => app.details.gatewayId)),
-      ColumnDefinition("Environment", (app => app.details.deployedTo.toString)),
+      ColumnDefinition("Environment", (app => app.deployedTo.toString)),
       ColumnDefinition("Status", (app => app.state.name.displayText)),
       ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
@@ -528,7 +528,7 @@ class ApplicationController @Inject() (
       }
 
       def handleAutoDeleteDisabled(application: ApplicationWithCollaborators) = {
-        eventsConnector.query(application.id, application.details.deployedTo, Some("APP_LIFECYCLE"), None)
+        eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
           .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
           .flatMap(getView(_))
       }

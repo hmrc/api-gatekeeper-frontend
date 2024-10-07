@@ -88,7 +88,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       state = ApplicationState(updatedOn = instant)
     )
 
-    val privilegedApp = buildApplication(
+    val privilegedAppGK = buildApplication(
       ApplicationId.random,
       ClientId("clientid3"),
       "gatewayId3",
@@ -102,7 +102,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       state = ApplicationState(updatedOn = instant)
     )
 
-    val ropcApp                = buildApplication(
+    val ropcAppGK              = buildApplication(
       ApplicationId.random,
       ClientId("clientid4"),
       "gatewayId4",

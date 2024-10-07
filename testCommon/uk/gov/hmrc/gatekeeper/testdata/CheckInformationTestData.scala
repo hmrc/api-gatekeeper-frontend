@@ -16,33 +16,27 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import java.time.Instant
-
-import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-
 trait CheckInformationTestData {
 
-  val defaultCheckInformation: CheckInformation =
-    CheckInformation(
-      contactDetails = Some(
-        ContactDetails(
-          fullname = FullName("Holly Golightly"),
-          email = LaxEmailAddress("holly.golightly@example.com"),
-          telephoneNumber = "020 1122 3344"
-        )
-      ),
-      confirmedName = true,
-      providedPrivacyPolicyURL = true,
-      providedTermsAndConditionsURL = true,
-      applicationDetails = Some(""),
-      termsOfUseAgreements = List(
-        TermsOfUseAgreement(
-          emailAddress = LaxEmailAddress("test@example.com"),
-          timeStamp = Instant.ofEpochSecond(1459868573962L),
-          version = "1.0"
-        )
-      )
-    )
+  // val defaultCheckInformation: CheckInformation =
+  //   CheckInformation(
+  //     contactDetails = Some(
+  //       ContactDetails(
+  //         fullname = FullName("Holly Golightly"),
+  //         email = LaxEmailAddress("holly.golightly@example.com"),
+  //         telephoneNumber = "020 1122 3344"
+  //       )
+  //     ),
+  //     confirmedName = true,
+  //     providedPrivacyPolicyURL = true,
+  //     providedTermsAndConditionsURL = true,
+  //     applicationDetails = Some(""),
+  //     termsOfUseAgreements = List(
+  //       TermsOfUseAgreement(
+  //         emailAddress = LaxEmailAddress("test@example.com"),
+  //         timeStamp = Instant.ofEpochSecond(1459868573962L),
+  //         version = "1.0"
+  //       )
+  //     )
+  //   )
 }

@@ -705,7 +705,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe NOT_FOUND
         contentAsString(result) should include("Reason not found")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.details.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the error page when auto delete disabled and no events found and GK user is super user" in new Setup {
@@ -718,7 +718,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe NOT_FOUND
         contentAsString(result) should include("Reason not found")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.details.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the manage auto delete disabled page when an event exists and GK user is admin" in new Setup {
@@ -731,7 +731,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe OK
         contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.details.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the manage auto delete disabled page when an event exists and GK user is super user" in new Setup {
@@ -744,7 +744,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe OK
         contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.details.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the forbidden page for a normal user" in new Setup {

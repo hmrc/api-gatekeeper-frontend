@@ -18,11 +18,12 @@ package uk.gov.hmrc.gatekeeper.testdata
 
 import java.time.Instant
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowlist, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessTestData
+trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures
     with CheckInformationTestData {
 
   val defaultApplication = DefaultApplication
@@ -34,7 +35,7 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
     .deployedToProduction
     .withCollaborators(collaboratorsAdminAndUnverifiedDev)
     .withState(productionState)
-    .withAccess(standardAccess)
+    .withAccess(standardAccessOne)
     .withCheckInformation(defaultCheckInformation)
     .withIpAllowlist(IpAllowlist())
     .unblocked

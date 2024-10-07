@@ -153,7 +153,7 @@
                     <dt class="govuk-summary-list__value" id="app-@idx">
                         <a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a>
                     </dt>
-                    <dd class="govuk-summary-list__value" id="app-name-@idx">@app.details.deployedTo.displayText</dd>
+                    <dd class="govuk-summary-list__value" id="app-name-@idx">@app.deployedTo.displayText</dd>
                     <dd class="govuk-summary-list__value" id="collaborator-@idx">
                         @app.collaborators.filter(_.emailAddress == developer.email).map(_ match {
                             case _: Collaborators.Administrator => "Admin"
