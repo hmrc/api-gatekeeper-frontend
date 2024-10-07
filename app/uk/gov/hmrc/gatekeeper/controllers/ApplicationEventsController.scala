@@ -104,8 +104,8 @@ class ApplicationEventsController @Inject() (
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
-          qv     <- eventsConnector.fetchQueryableValues(appId, application.details.deployedTo)
-          events <- eventsConnector.query(appId, application.details.deployedTo, None, None)
+          qv     <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
+          events <- eventsConnector.query(appId, application.deployedTo, None, None)
           models  = events.map(EventModel.apply)
         } yield {
           Ok(applicationEventsView(
@@ -122,9 +122,9 @@ class ApplicationEventsController @Inject() (
 
       def handleValidForm(form: QueryForm): Future[Result] = {
         for {
-          qv       <- eventsConnector.fetchQueryableValues(appId, application.details.deployedTo)
+          qv       <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
           queryForm = QueryForm.form.fill(form)
-          events   <- eventsConnector.query(appId, application.details.deployedTo, form.eventTag, form.actorType)
+          events   <- eventsConnector.query(appId, application.deployedTo, form.eventTag, form.actorType)
           models    = events.map(EventModel.apply)
         } yield {
           Ok(applicationEventsView(

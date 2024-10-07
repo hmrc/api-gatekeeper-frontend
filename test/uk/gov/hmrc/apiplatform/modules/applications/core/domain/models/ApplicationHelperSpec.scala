@@ -27,8 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 class ApplicationHelperSpec extends HmrcSpec with ApplicationBuilder {
-  val url            = "http://example.com"
-  val standardAccess = Access.Standard()
+  val url = "http://example.com"
 
   val importantSubmissionData = ImportantSubmissionData(
     None,

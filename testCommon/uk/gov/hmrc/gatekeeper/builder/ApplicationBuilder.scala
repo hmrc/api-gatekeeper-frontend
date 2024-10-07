@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
-trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock {
+trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures {
 
   // scalastyle:off parameter.number
   def buildApplication(
@@ -188,8 +188,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   }
 
   implicit class ApplicationExtension(app: ApplicationWithCollaborators) {
-    def deployedToProduction = app.modify(_.copy(deployedTo = Environment.PRODUCTION))
-    def deployedToSandbox    = app.modify(_.copy(deployedTo = Environment.SANDBOX))
+    def deployedToProduction = app.withEnvironment(Environment.PRODUCTION)
+    def deployedToSandbox    = app.withEnvironment(Environment.SANDBOX)
 
     def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)

@@ -20,11 +20,12 @@ import java.time.Instant
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, RateLimitTier}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessTestData with ApplicationStateTestData {
+trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessFixtures with ApplicationStateTestData {
 
   val defaultApplicationResponse = DefaultApplication
     .withId(applicationId)
@@ -35,7 +36,7 @@ trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsT
     .deployedToProduction
     .withCollaborators(collaboratorsDevAndUnverifiedAdmin)
     .withState(stateForFetchAppResponseByEmail)
-    .withAccess(standardAccess)
+    .withAccess(standardAccessOne)
     .unblocked
     .withRateLimitTier(RateLimitTier.BRONZE)
     .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))

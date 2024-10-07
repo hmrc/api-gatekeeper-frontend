@@ -116,7 +116,7 @@ class ApiGatekeeperDeleteApplicationSpec
         clientId = defaultApplication.clientId,
         gatewayId = defaultApplication.details.gatewayId,
         name = defaultApplication.details.name,
-        deployedTo = defaultApplication.details.deployedTo,
+        deployedTo = defaultApplication.deployedTo,
         description = defaultApplication.details.description,
         createdOn = defaultApplication.details.createdOn,
         lastAccess = defaultApplication.details.lastAccess,

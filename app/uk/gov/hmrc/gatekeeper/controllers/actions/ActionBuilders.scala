@@ -80,7 +80,7 @@ trait ActionBuilders extends ApplicationLogger {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(value) =>
         logger.info(s"FETCHED VALUE - $value")
-        applicationService.fetchStateHistory(appId, value.details.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+        applicationService.fetchStateHistory(appId, value.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
       case None        => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
@@ -108,7 +108,7 @@ trait ActionBuilders extends ApplicationLogger {
     apmService.fetchApplicationById(appId).flatMap {
       case Some(applicationWithSubs) => {
         val applicationWithSubscriptionDataAndFieldDefinitions = for {
-          allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.details.deployedTo)
+          allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.deployedTo)
           apiDefinitions     = filterApiDefinitions(allApiDefinitions, applicationWithSubs.subscriptions)
           allPossibleSubs   <- apmService.fetchAllPossibleSubscriptions(appId)
         } yield ApplicationWithSubscriptionDataAndFieldDefinitions(applicationWithSubs, apiDefinitions, allPossibleSubs)

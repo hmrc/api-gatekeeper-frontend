@@ -347,7 +347,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def applicationConnectorFor(application: ApplicationWithCollaborators): ApplicationConnector = applicationConnectorFor(Some(application.details.deployedTo))
+  def applicationConnectorFor(application: ApplicationWithCollaborators): ApplicationConnector = applicationConnectorFor(Some(application.deployedTo))
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
     if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector

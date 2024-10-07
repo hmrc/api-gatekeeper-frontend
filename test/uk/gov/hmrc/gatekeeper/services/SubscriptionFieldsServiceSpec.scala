@@ -31,8 +31,8 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
 
   private val apiIdentifier = apiIdentifierOne
 
-  val productionApplication = standardApp.modify(_.copy(deployedTo = Environment.PRODUCTION, clientId = clientIdTwo))
-  val sandboxApplication    = standardApp.modify(_.copy(deployedTo = Environment.SANDBOX, clientId = clientIdTwo))
+  val productionApplication = standardApp.withEnvironment(Environment.PRODUCTION) // , clientId = clientIdTwo))
+  val sandboxApplication    = standardApp.withEnvironment(Environment.SANDBOX)    // , clientId = clientIdTwo))
 
   trait Setup extends SubscriptionsBuilder {
     val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector       = mock[SandboxSubscriptionFieldsConnector]

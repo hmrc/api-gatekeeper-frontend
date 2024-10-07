@@ -60,13 +60,13 @@
         @for((application, index) <- organisationWithApps.applications.zipWithIndex) {
           <tr class="govuk-table__row">
             <td class="govuk-table__cell" id="app-name-@index">
-              <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.details.deployedTo)">@application.name</a>
+              <a class="govuk-link govuk-link--no-visited-state" href="@gatekeeperApprovalsUrlFn(application.id, application.deployedTo)">@application.name</a>
             </td>
             <td class="govuk-table__cell" id="app-created-@index">
               @{dateFormatter.format(application.details.createdOn)}
             </td>
             <td class="govuk-table__cell" id="app-env-@index">
-              @application.details.deployedTo.displayText
+              @application.deployedTo.displayText
             </td>
             <td id="app-status-@index" class="govuk-table__cell">
               @defining(application.state.name match {
