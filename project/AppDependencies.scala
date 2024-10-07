@@ -8,7 +8,7 @@ object AppDependencies {
 
   val apiDomainVersion    = "0.15.0"
   val tpdDomainVersion    = "0.10.0"
-  val appDomainVersion    = "0.61.4"
+  val appDomainVersion    = "0.61.5"
   val commonDomainVersion    = "0.17.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
@@ -34,7 +34,6 @@ object AppDependencies {
     "org.mockito"            %% "mockito-scala-scalatest"                   % "1.17.30",
     "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"              % tpdDomainVersion,
-    // "uk.gov.hmrc"            %% "api-platform-common-domain-fixtures"       % commonDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion
   ).map(_ % "test")
 }

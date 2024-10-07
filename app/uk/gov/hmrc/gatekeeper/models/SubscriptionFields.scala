@@ -20,7 +20,7 @@ import java.util.UUID
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{FieldName, FieldValue}
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 object SubscriptionFields {
