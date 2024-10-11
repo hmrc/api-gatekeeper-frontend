@@ -179,7 +179,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
                   @application.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
-                  @defining( if(application.blocked) ("status status--not-verified", "Blocked") else application.state.name match {
+                  @defining( if(application.blocked && application.state.name != DELETED) ("status status--not-verified", "Blocked") else application.state.name match {
                   case PRODUCTION => ("status status--verified", "Active")
                   case PRE_PRODUCTION => ("status status--verified", "Active")
                   case DELETED => ("status status--not-verified", "Deleted")
