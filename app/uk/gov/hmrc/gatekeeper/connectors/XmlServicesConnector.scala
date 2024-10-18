@@ -20,7 +20,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
-import play.api.http.Status.NOT_FOUND
+import play.api.http.Status.{NOT_FOUND, NO_CONTENT}
+import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse, _}
@@ -28,6 +29,12 @@ import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
 import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.{
+  RemoveAllCollaboratorsForUserIdFailureResult,
+  RemoveAllCollaboratorsForUserIdRequest,
+  RemoveAllCollaboratorsForUserIdResult,
+  RemoveAllCollaboratorsForUserIdSuccessResult
+}
 
 @Singleton
 class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
@@ -64,6 +71,18 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
     http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
+  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
+    val request = RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser)
+    http.post(url"$baseUrl/organisations/remove-collaborators")
+      .withBody(Json.toJson(request))
+      .execute[HttpResponse]
+      .map(response =>
+        response.status match {
+          case NO_CONTENT => RemoveAllCollaboratorsForUserIdSuccessResult
+          case _          => RemoveAllCollaboratorsForUserIdFailureResult
+        }
+      )
+  }
 }
 
 object XmlServicesConnector {

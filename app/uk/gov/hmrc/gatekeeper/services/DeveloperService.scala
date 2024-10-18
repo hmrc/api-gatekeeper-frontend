@@ -263,6 +263,7 @@ class DeveloperService @Inject() (
         for {
           _      <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(developer))
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
+          _      <- xmlService.removeCollaboratorsForUserId(userId, gatekeeperUserName)
         } yield (result, developer)
       } else {
         Future.successful((DeveloperDeleteFailureResult, developer))

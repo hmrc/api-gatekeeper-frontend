@@ -168,6 +168,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
+    def removeXmlCollaboratorsForUserIdWillSucceed(userId: UserId, gatekeeperUser: String) = {
+      when(mockXmlService.removeCollaboratorsForUserId(eqTo(userId), eqTo(gatekeeperUser))(*))
+        .thenReturn(successful(RemoveAllCollaboratorsForUserIdSuccessResult))
+    }
+
     def verifyIsGatekeeperUser(gatekeeperUserName: String)(cmd: ApplicationCommands.RemoveCollaborator)     = cmd.actor shouldBe Actors.GatekeeperUser(gatekeeperUserName)
     def verifyIsAppCollaborator(emailAddress: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.actor shouldBe Actors.AppCollaborator(emailAddress)
 
@@ -457,6 +462,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
+      removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
@@ -473,6 +479,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List(app1, app2, app3))
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
+      removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
@@ -491,6 +498,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
+      removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
