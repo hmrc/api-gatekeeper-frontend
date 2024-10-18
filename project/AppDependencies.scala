@@ -8,7 +8,7 @@ object AppDependencies {
 
   val apiDomainVersion    = "0.15.0"
   val tpdDomainVersion    = "0.10.0"
-  val appDomainVersion    = "0.61.7"
+  val appDomainVersion    = "0.61.16"
   val commonDomainVersion    = "0.17.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies

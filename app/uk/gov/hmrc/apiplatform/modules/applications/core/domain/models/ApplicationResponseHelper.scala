@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
@@ -30,14 +29,8 @@ object ApplicationResponseHelper {
 
   implicit class LocationsSyntax(application: ApplicationWithCollaborators) {
 
-    lazy val privacyPolicyLocation: PrivacyPolicyLocation = application.access match {
-      case s: Access.Standard => s.privacyPolicyLocation.getOrElse(PrivacyPolicyLocations.NoneProvided)
-      case _                  => PrivacyPolicyLocations.NoneProvided
-    }
+    def privacyPolicyLocation: PrivacyPolicyLocation = application.privacyPolicyLocation.getOrElse(PrivacyPolicyLocations.NoneProvided)
 
-    lazy val termsAndConditionsLocation: TermsAndConditionsLocation = application.access match {
-      case s: Access.Standard => s.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocations.NoneProvided)
-      case _                  => TermsAndConditionsLocations.NoneProvided
-    }
+    def termsAndConditionsLocation: TermsAndConditionsLocation = application.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocations.NoneProvided)
   }
 }

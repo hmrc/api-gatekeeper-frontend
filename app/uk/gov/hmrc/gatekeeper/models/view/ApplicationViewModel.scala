@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.models.view
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory}
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -44,21 +43,13 @@ object ApplicationViewModel {
 
   def describeTnC(access: Access): String =
     access match {
-      case a: Access.Standard => a.termsAndConditionsLocation match {
-          case Some(TermsAndConditionsLocations.Url(url))          => url
-          case Some(TermsAndConditionsLocations.InDesktopSoftware) => "In Desktop Software"
-          case _                                                   => ""
-        }
+      case a: Access.Standard => a.termsAndConditionsLocation.describe()
       case _                  => ""
     }
 
   def describePrivacyPolicy(access: Access): String =
     access match {
-      case a: Access.Standard => a.privacyPolicyLocation match {
-          case Some(PrivacyPolicyLocations.Url(url))          => url
-          case Some(PrivacyPolicyLocations.InDesktopSoftware) => "In Desktop Software"
-          case _                                              => ""
-        }
+      case a: Access.Standard => a.privacyPolicyLocation.describe()
       case _                  => ""
     }
 

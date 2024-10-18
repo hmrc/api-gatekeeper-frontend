@@ -76,7 +76,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications = List(standardApp, privilegedApp, standardApp3)
-    val allSandboxApplications    = allProductionApplications.map(_.withEnvironment(Environment.SANDBOX))
+    val allSandboxApplications    = allProductionApplications.map(_.inSandbox())
 
     def updateGrantLengthCommandWillSucceed = {
       CommandConnectorMock.IssueCommand.succeeds()
@@ -110,9 +110,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val app2 = result.applications.find(sa => sa.name == privilegedApp.name).value
       val app3 = result.applications.find(sa => sa.name == standardApp3.name).value
 
-      app1 shouldBe standardApp.withEnvironment(Environment.SANDBOX)
-      app2 shouldBe privilegedApp.withEnvironment(Environment.SANDBOX)
-      app3 shouldBe standardApp3.withEnvironment(Environment.SANDBOX)
+      app1 shouldBe standardApp.inSandbox()
+      app2 shouldBe privilegedApp.inSandbox()
+      app3 shouldBe standardApp3.inSandbox()
     }
 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
@@ -614,7 +614,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate failure from connector" in new Setup {
-      val application = standardApp.withEnvironment(Environment.SANDBOX)
+      val application = standardApp.inSandbox()
 
       CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
@@ -641,7 +641,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "propagate failure from connector" in new Setup {
-      val application = standardApp.withEnvironment(Environment.SANDBOX)
+      val application = standardApp.inSandbox()
 
       CommandConnectorMock.IssueCommand.failsWith(CommandFailures.GenericFailure("Bang"))
 
@@ -661,7 +661,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "return the sandbox application connector for an application deployed to sandbox" in new Setup {
-      val application = standardApp.withEnvironment(Environment.SANDBOX)
+      val application = standardApp.inSandbox()
 
       val result = underTest.applicationConnectorFor(application)
 
@@ -679,7 +679,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "return the sandbox api scope connector for an application deployed to sandbox" in new Setup {
-      val application = standardApp.withEnvironment(Environment.SANDBOX)
+      val application = standardApp.inSandbox()
 
       val result = underTest.apiScopeConnectorFor(application)
 
