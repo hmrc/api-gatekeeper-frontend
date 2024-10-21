@@ -228,7 +228,7 @@ class XmlServicesConnectorSpec
   }
 
   "removeCollaboratorsForUserId" should {
-    val url            = "/api-platform-xml-services/organisations/remove-collaborators"
+    val url            = "/api-platform-xml-services/organisations/all/remove-collaborators"
     val userId         = UserId.random
     val gatekeeperUser = "gatekeeperuser@hmrc.gov.uk"
 

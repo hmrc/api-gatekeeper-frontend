@@ -73,7 +73,7 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
 
   def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
     val request = RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser)
-    http.post(url"$baseUrl/organisations/remove-collaborators")
+    http.post(url"$baseUrl/organisations/all/remove-collaborators")
       .withBody(Json.toJson(request))
       .execute[HttpResponse]
       .map(response =>
