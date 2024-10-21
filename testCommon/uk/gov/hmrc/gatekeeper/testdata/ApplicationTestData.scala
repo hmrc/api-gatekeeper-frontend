@@ -23,8 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowl
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures
-    with CheckInformationTestData {
+trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures {
 
   val defaultApplication = DefaultApplication
     .withId(applicationId)
