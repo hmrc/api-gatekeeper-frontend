@@ -6,7 +6,7 @@ object AppDependencies {
   lazy val scalaCheckVersion = "1.17.0"
   lazy val bootstrapVersion  = "9.2.0"
 
-  val apiDomainVersion    = "0.15.0"
+  val apiDomainVersion    = "0.19.1"
   val tpdDomainVersion    = "0.10.0"
   val appDomainVersion    = "0.61.16"
   val commonDomainVersion    = "0.17.0"
