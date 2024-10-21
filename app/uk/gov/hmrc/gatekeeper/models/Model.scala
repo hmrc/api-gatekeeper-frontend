@@ -46,8 +46,6 @@ object GatekeeperSessionKeys {
   val AuthToken    = SessionKeys.authToken
 }
 
-// TODO
-
 case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory, subscriptionsWithFieldDefinitions: List[Subscription])
 
 case class ApplicationAndSubscriptionVersion(application: ApplicationWithHistory, subscription: Subscription, version: VersionSubscription)

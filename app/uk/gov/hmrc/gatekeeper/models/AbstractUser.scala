@@ -54,7 +54,6 @@ case class RegisteredUser(
     firstName: String,
     lastName: String,
     verified: Boolean,
-    // organisation: Option[String] = None,
     mfaDetails: List[MfaDetail] = List.empty,
     emailPreferences: EmailPreferences = EmailPreferences.noPreferences
   ) extends AbstractUser {}
@@ -67,7 +66,6 @@ object RegisteredUser {
       (JsPath \ "firstName").read[String] and
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
-      // (JsPath \ "organisation").readNullable[String] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
   )(RegisteredUser.apply _)
