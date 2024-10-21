@@ -23,8 +23,8 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector
-import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, RemoveAllCollaboratorsForUserIdResult}
 import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
 
 class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
@@ -52,4 +52,7 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit
     xmlServicesConnector.findOrganisationsByUserId(userId)
   }
 
+  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
+    xmlServicesConnector.removeCollaboratorsForUserId(userId, gatekeeperUser)
+  }
 }

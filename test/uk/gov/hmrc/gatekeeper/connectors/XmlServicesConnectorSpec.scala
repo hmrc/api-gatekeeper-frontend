@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.{RemoveAllCollaboratorsForUserIdFailureResult, RemoveAllCollaboratorsForUserIdRequest, RemoveAllCollaboratorsForUserIdSuccessResult}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class XmlServicesConnectorSpec
@@ -226,4 +227,33 @@ class XmlServicesConnectorSpec
     }
   }
 
+  "removeCollaboratorsForUserId" should {
+    val url            = "/api-platform-xml-services/organisations/all/remove-collaborators"
+    val userId         = UserId.random
+    val gatekeeperUser = "gatekeeperuser@hmrc.gov.uk"
+
+    "return RemoveAllCollaboratorsForUserIdSuccessResult when successful" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser))
+          .willReturn(
+            aResponse()
+              .withStatus(NO_CONTENT)
+          )
+      )
+      await(connector.removeCollaboratorsForUserId(userId, gatekeeperUser)) shouldBe RemoveAllCollaboratorsForUserIdSuccessResult
+    }
+
+    "return RemoveAllCollaboratorsForUserIdFailureResult when backend returns 400" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+          )
+      )
+      await(connector.removeCollaboratorsForUserId(userId, gatekeeperUser)) shouldBe RemoveAllCollaboratorsForUserIdFailureResult
+    }
+  }
 }

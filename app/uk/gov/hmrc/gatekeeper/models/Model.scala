@@ -347,3 +347,13 @@ class UpdateApiDefinitionsFailed extends Throwable
 
 case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)
 case class SendEmailPreferencesChoice(sendEmailPreferences: EmailPreferencesChoice)
+
+case class RemoveAllCollaboratorsForUserIdRequest(userId: UserId, gatekeeperUserId: String)
+
+object RemoveAllCollaboratorsForUserIdRequest {
+  implicit val formatRemoveAllCollaboratorsForUserIdRequest: OFormat[RemoveAllCollaboratorsForUserIdRequest] = Json.format[RemoveAllCollaboratorsForUserIdRequest]
+}
+
+sealed trait RemoveAllCollaboratorsForUserIdResult
+case object RemoveAllCollaboratorsForUserIdSuccessResult extends RemoveAllCollaboratorsForUserIdResult
+case object RemoveAllCollaboratorsForUserIdFailureResult extends RemoveAllCollaboratorsForUserIdResult
