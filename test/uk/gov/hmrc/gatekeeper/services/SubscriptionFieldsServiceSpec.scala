@@ -31,8 +31,8 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
 
   private val apiIdentifier = apiIdentifierOne
 
-  val productionApplication = standardApp.withEnvironment(Environment.PRODUCTION) // , clientId = clientIdTwo))
-  val sandboxApplication    = standardApp.inSandbox()                             // , clientId = clientIdTwo))
+  val productionApplication = standardApp.withEnvironment(Environment.PRODUCTION)
+  val sandboxApplication    = standardApp.inSandbox()
 
   trait Setup extends SubscriptionsBuilder {
     val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector       = mock[SandboxSubscriptionFieldsConnector]
@@ -41,7 +41,6 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val service = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
-    // val underTest: SubscriptionFieldsService = spy(service)
   }
 
   "When application is deployedTo production then principal connector is called" should {
