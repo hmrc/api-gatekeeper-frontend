@@ -194,10 +194,6 @@ class ApplicationConnectorSpec
 
     "retrieve all applications" in new Setup {
       val applications = List(standardApp.withSubscriptions(
-        // List(ApplicationWithSubscriptions(
-        // ApplicationId.random,
-        // "My App",
-        // Some(LocalDateTime.parse("2002-02-03T12:01:02")),
         Set(
           ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
           ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
