@@ -25,10 +25,11 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, MoreApplication}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.gatekeeper.models.Forms.IpAllowlistForm.allowlistedIpsConstraint
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.AutoDeleteSuccessView
@@ -39,7 +40,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
     val request                                      = FakeRequest()
     val autoDeleteSuccessView: AutoDeleteSuccessView = app.injector.instanceOf[AutoDeleteSuccessView]
 
-    val application: GKApplicationResponse =
+    val application: ApplicationWithCollaborators =
       buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
@@ -51,8 +52,8 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now())
       )
@@ -70,7 +71,7 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
     }
 
     "show Auto Delete success page when auto deletion was disabled for the application" in new Setup {
-      val result: Appendable = autoDeleteSuccessView(application.copy(moreApplication = MoreApplication(false)), false)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = autoDeleteSuccessView(application.modify(_.copy(allowAutoDelete = false)), false)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

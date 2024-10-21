@@ -34,7 +34,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
       stubApplicationForBlockSuccess(applicationId, defaultApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName.value, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -53,7 +53,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
       )
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName.value, BlockedApplicationPage)
 
       Then("I cannot see the block button")
       BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
@@ -69,7 +69,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
     on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    BlockApplicationPage.completeForm(applicationName)
+    BlockApplicationPage.completeForm(applicationName.value)
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()

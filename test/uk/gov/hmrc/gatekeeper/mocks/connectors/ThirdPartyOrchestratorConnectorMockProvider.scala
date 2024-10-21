@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
 
@@ -33,7 +33,7 @@ trait ThirdPartyOrchestratorConnectorMockProvider {
 
     object GetApplicationsByEmails {
 
-      def returns(emails: List[LaxEmailAddress])(application: ApplicationResponse*) = when(thirdPartyOrchestratorConnectorMock.getApplicationsByEmails(eqTo(emails))(*))
+      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(thirdPartyOrchestratorConnectorMock.getApplicationsByEmails(eqTo(emails))(*))
         .thenReturn(successful(application.toList))
     }
 

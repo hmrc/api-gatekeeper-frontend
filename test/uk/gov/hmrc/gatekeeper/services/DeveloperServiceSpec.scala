@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, GKApplicationResponse}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -51,7 +51,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     RegisteredUser(email, idOf(email), "Fred", "Example", verified, emailPreferences = emailPreferences)
   }
 
-  def aDeveloper(name: String, apps: List[GKApplicationResponse] = List.empty, verified: Boolean = true, orgs: Option[List[DeskproOrganisation]] = None) = {
+  def aDeveloper(name: String, apps: List[ApplicationWithCollaborators] = List.empty, verified: Boolean = true, orgs: Option[List[DeskproOrganisation]] = None) = {
     val email = s"$name@example.com".toLaxEmail
     Developer(
       user = RegisteredUser(email, idOf(email), name, s"${name}son", verified),
@@ -60,7 +60,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     )
   }
 
-  def anUnregisteredDeveloper(name: String, apps: List[GKApplicationResponse] = List.empty) = {
+  def anUnregisteredDeveloper(name: String, apps: List[ApplicationWithCollaborators] = List.empty) = {
     val email = s"$name@example.com".toLaxEmail
     Developer(
       UnregisteredUser(email, idOf(email)),
@@ -68,7 +68,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     )
   }
 
-  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): GKApplicationResponse = {
+  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationWithCollaborators = {
     buildApplication(
       ApplicationId.random,
       ClientId("clientId"),
@@ -77,16 +77,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       deployedTo,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )
   }
 
-  def aProdApp(name: String, collaborators: Set[Collaborator]): GKApplicationResponse = anApp(name, collaborators, deployedTo = Environment.PRODUCTION)
+  def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.PRODUCTION)
 
-  def aSandboxApp(name: String, collaborators: Set[Collaborator]): GKApplicationResponse = anApp(name, collaborators, deployedTo = Environment.SANDBOX)
+  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.SANDBOX)
 
   val prodAppId = ApplicationId.random
 
@@ -132,8 +132,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     def fetchDeveloperWillReturn(
         user: RegisteredUser,
         includeDeleted: FetchDeletedApplications,
-        productionApps: List[GKApplicationResponse] = List.empty,
-        sandboxApps: List[GKApplicationResponse] = List.empty
+        productionApps: List[ApplicationWithCollaborators] = List.empty,
+        sandboxApps: List[ApplicationWithCollaborators] = List.empty
       ) = {
       DeveloperConnectorMock.FetchByEmail.handles(user)
       DeveloperConnectorMock.FetchByUserId.handles(user)
@@ -179,7 +179,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     def verifyCollaboratorRemovedEmailIs(email: LaxEmailAddress)(cmd: ApplicationCommands.RemoveCollaborator) = cmd.collaborator.emailAddress == email
 
     def verifyCollaboratorRemovedFromApp(
-        app: GKApplicationResponse,
+        app: ApplicationWithCollaborators,
         userToRemove: LaxEmailAddress,
         gatekeeperUserName: String,
         adminsToEmail: Set[LaxEmailAddress]

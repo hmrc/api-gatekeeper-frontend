@@ -16,30 +16,21 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 object ApplicationResponseHelper {
 
-  implicit class AdminsSyntax(application: GKApplicationResponse) {
+  implicit class AdminsSyntax(application: ApplicationWithCollaborators) {
 
     def isSoleAdmin(emailAddress: LaxEmailAddress): Boolean =
       application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
   }
 
-  implicit class LocationsSyntax(application: GKApplicationResponse) {
+  implicit class LocationsSyntax(application: ApplicationWithCollaborators) {
 
-    lazy val privacyPolicyLocation: PrivacyPolicyLocation = application.access match {
-      case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, privacyPolicyLocation, _))) => privacyPolicyLocation
-      case Access.Standard(_, _, Some(url), _, _, _)                                                           => PrivacyPolicyLocations.Url(url)
-      case _                                                                                                   => PrivacyPolicyLocations.NoneProvided
-    }
+    def privacyPolicyLocation: PrivacyPolicyLocation = application.privacyPolicyLocation.getOrElse(PrivacyPolicyLocations.NoneProvided)
 
-    lazy val termsAndConditionsLocation: TermsAndConditionsLocation = application.access match {
-      case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, termsAndConditionsLocation, _, _))) => termsAndConditionsLocation
-      case Access.Standard(_, Some(url), _, _, _, _)                                                                => TermsAndConditionsLocations.Url(url)
-      case _                                                                                                        => TermsAndConditionsLocations.NoneProvided
-    }
+    def termsAndConditionsLocation: TermsAndConditionsLocation = application.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocations.NoneProvided)
   }
 }

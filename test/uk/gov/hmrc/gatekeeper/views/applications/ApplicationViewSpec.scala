@@ -56,8 +56,8 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       deployedTo = Environment.PRODUCTION,
       description = None,
       collaborators = Set.empty,
-      createdOn = LocalDateTime.now(),
-      lastAccess = Some(LocalDateTime.now()),
+      createdOn = Instant.now(),
+      lastAccess = Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = Instant.now()),
       rateLimitTier = RateLimitTier.BRONZE,
@@ -188,7 +188,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information, including link to check application" in new Setup {
-      val applicationPendingCheck = application.pendingGKApproval
+      val applicationPendingCheck = application.modifyState(s => s.pendingGKApproval)
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationPendingCheck).withHasSubmissions(true),
@@ -208,7 +208,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information, with no link to check application when no submissions" in new Setup {
-      val applicationPendingCheck = application.pendingGKApproval
+      val applicationPendingCheck = application.modifyState(s => s.pendingGKApproval)
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationPendingCheck),
@@ -336,7 +336,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show 'Block Application' button when logged in as admin" in new Setup {
-      val activeApplication = application.inProduction
+      val activeApplication = application.modifyState(s => s.inProduction)
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(activeApplication),
@@ -352,7 +352,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "hide 'Block Application' button when logged in as non-admin" in new Setup {
-      val activeApplication = application.inProduction
+      val activeApplication = application.modifyState(s => s.inProduction)
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(activeApplication),
@@ -382,7 +382,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
     }
 
     "show application information, pending verification status should have link to resend email" in new Setup {
-      val applicationPendingVerification = application.pendingVerification
+      val applicationPendingVerification = application.modifyState(s => s.pendingVerification)
 
       val result = applicationView.render(
         DefaultApplicationViewModel.withApplication(applicationPendingVerification),

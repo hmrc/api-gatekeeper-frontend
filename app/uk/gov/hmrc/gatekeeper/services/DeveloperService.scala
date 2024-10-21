@@ -24,9 +24,9 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, GKApplicationResponse}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -82,7 +82,7 @@ class DeveloperService @Inject() (
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }
 
-  def filterUsersBy(filter: ApiFilter[String], apps: List[GKApplicationResponse])(users: List[Developer]): List[Developer] = {
+  def filterUsersBy(filter: ApiFilter[String], apps: List[ApplicationWithCollaborators])(users: List[Developer]): List[Developer] = {
 
     val registeredEmails = users.map(_.user.email)
 
@@ -92,16 +92,16 @@ class DeveloperService @Inject() (
 
     def asUnregisteredUser(c: KEY): UnregisteredUser = UnregisteredUser(c._1, c._2)
 
-    def linkAppsAndCollaborators(apps: List[GKApplicationResponse]): Map[KEY, Set[GKApplicationResponse]] = {
-      apps.foldLeft(Map.empty[KEY, Set[GKApplicationResponse]])((uMap, appResp) =>
+    def linkAppsAndCollaborators(apps: List[ApplicationWithCollaborators]): Map[KEY, Set[ApplicationWithCollaborators]] = {
+      apps.foldLeft(Map.empty[KEY, Set[ApplicationWithCollaborators]])((uMap, appResp) =>
         appResp.collaborators.foldLeft(uMap)((m, c) => {
-          val userApps = m.getOrElse(asKey(c), Set.empty[GKApplicationResponse]) + appResp
+          val userApps = m.getOrElse(asKey(c), Set.empty[ApplicationWithCollaborators]) + appResp
           m + (asKey(c) -> userApps)
         })
       )
     }
 
-    lazy val unregisteredCollaborators: Map[KEY, Set[GKApplicationResponse]] =
+    lazy val unregisteredCollaborators: Map[KEY, Set[ApplicationWithCollaborators]] =
       linkAppsAndCollaborators(apps).view.filterKeys(k => !registeredEmails.contains(k._1)).toMap
 
     lazy val unregistered: Set[Developer] =
@@ -125,11 +125,11 @@ class DeveloperService @Inject() (
     }
   }
 
-  def getDevelopersWithApps(apps: List[GKApplicationResponse], users: List[AbstractUser]): List[Developer] = {
+  def getDevelopersWithApps(apps: List[ApplicationWithCollaborators], users: List[AbstractUser]): List[Developer] = {
 
-    def isACollaboratorForApp(user: AbstractUser)(app: GKApplicationResponse): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
+    def isACollaboratorForApp(user: AbstractUser)(app: ApplicationWithCollaborators): Boolean = app.collaborators.find(_.emailAddress == user.email).isDefined
 
-    def collaboratingApps(user: AbstractUser): List[GKApplicationResponse] = {
+    def collaboratingApps(user: AbstractUser): List[ApplicationWithCollaborators] = {
       apps.filter(isACollaboratorForApp(user))
     }
 
@@ -160,7 +160,7 @@ class DeveloperService @Inject() (
 
   def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
 
-    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[GKApplicationResponse]] = {
+    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationWithCollaborators]] = {
       includingDeleted match {
         case FetchDeletedApplications.Include => connector.fetchApplicationsByUserId(userId)
         case FetchDeletedApplications.Exclude => connector.fetchApplicationsExcludingDeletedByUserId(userId)
@@ -229,8 +229,8 @@ class DeveloperService @Inject() (
 
   def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
-    def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: GKApplicationResponse): Future[Set[LaxEmailAddress]] = {
-      if (app.deployedTo == Environment.SANDBOX) {
+    def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: ApplicationWithCollaborators): Future[Set[LaxEmailAddress]] = {
+      if (app.isSandbox) {
         Future.successful(Set.empty)
       } else {
         val appAdmins = app.admins.filterNot(_.emailAddress == filterOutThisEmail).map(_.emailAddress)
@@ -242,7 +242,7 @@ class DeveloperService @Inject() (
       }
     }
 
-    def removeTeamMemberFromApp(developer: Developer)(app: GKApplicationResponse): Future[Unit] = {
+    def removeTeamMemberFromApp(developer: Developer)(app: ApplicationWithCollaborators): Future[Unit] = {
       val collaborator = app.collaborators.find(_.emailAddress == developer.email).get // Safe as we know we're a dev on this app
 
       for {

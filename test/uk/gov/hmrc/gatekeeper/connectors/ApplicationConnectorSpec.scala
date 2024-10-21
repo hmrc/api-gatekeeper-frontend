@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
+import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -45,7 +45,7 @@ class ApplicationConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding
     with ApplicationBuilder
-    with FixedClock {
+    with ApplicationWithCollaboratorsFixtures {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
@@ -124,8 +124,8 @@ class ApplicationConnectorSpec
         Environment.PRODUCTION,
         None,
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = instant)
       ))
@@ -152,8 +152,8 @@ class ApplicationConnectorSpec
         Environment.PRODUCTION,
         None,
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = instant)
       ))
@@ -193,10 +193,7 @@ class ApplicationConnectorSpec
     val url = "/gatekeeper/applications/subscriptions"
 
     "retrieve all applications" in new Setup {
-      val applications = List(ApplicationWithSubscriptionsResponse(
-        ApplicationId.random,
-        "My App",
-        Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+      val applications = List(standardApp.withSubscriptions(
         Set(
           ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
           ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
@@ -271,8 +268,8 @@ class ApplicationConnectorSpec
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS),
-      Some(LocalDateTime.now().truncatedTo(ChronoUnit.MILLIS)),
+      Instant.now().truncatedTo(ChronoUnit.MILLIS),
+      Some(Instant.now().truncatedTo(ChronoUnit.MILLIS)),
       access = Access.Standard(),
       state = applicationState
     )

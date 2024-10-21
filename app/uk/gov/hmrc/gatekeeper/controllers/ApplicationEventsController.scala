@@ -25,6 +25,7 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.mvc._
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector, QueryableValues}
@@ -59,7 +60,7 @@ object ApplicationEventsController {
       )
     }
   }
-  case class QueryModel(applicationId: ApplicationId, applicationName: String, queryableValues: QueryableValues, events: Seq[EventModel])
+  case class QueryModel(applicationId: ApplicationId, applicationName: ApplicationName, queryableValues: QueryableValues, events: Seq[EventModel])
 
   case class QueryForm(eventTag: Option[String], actorType: Option[String])
 
@@ -110,7 +111,7 @@ class ApplicationEventsController @Inject() (
           Ok(applicationEventsView(
             QueryModel(
               applicationWithHistory.application.id,
-              application.name,
+              application.details.name,
               qv,
               models
             ),

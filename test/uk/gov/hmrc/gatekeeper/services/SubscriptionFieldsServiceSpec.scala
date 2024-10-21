@@ -20,14 +20,19 @@ import scala.concurrent.Future.successful
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
-class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
+class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
+
+  private val apiIdentifier = apiIdentifierOne
+
+  val productionApplication = standardApp.withEnvironment(Environment.PRODUCTION)
+  val sandboxApplication    = standardApp.inSandbox()
 
   trait Setup extends SubscriptionsBuilder {
     val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector       = mock[SandboxSubscriptionFieldsConnector]
@@ -35,22 +40,10 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val service                              = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
-    val underTest: SubscriptionFieldsService = spy(service)
+    val service = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
   }
 
-  val apiVersionNbr         = ApiVersionNbr.random
-  private val apiIdentifier = ApiIdentifier(ApiContext.random, apiVersionNbr)
-
   "When application is deployedTo production then principal connector is called" should {
-    val application    = mock[GKApplicationResponse]
-    val newApplication = mock[GKApplicationResponse]
-
-    when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn(Environment.PRODUCTION)
-
-    when(newApplication.clientId).thenReturn(ClientId("client-id"))
-    when(newApplication.deployedTo).thenReturn(Environment.PRODUCTION)
 
     "saveFieldValues" in new Setup {
       when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
@@ -58,24 +51,16 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
+      await(service.saveFieldValues(productionApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
       verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
-    val application    = mock[GKApplicationResponse]
-    val newApplication = mock[GKApplicationResponse]
-
-    when(application.clientId).thenReturn(ClientId("client-id"))
-    when(application.deployedTo).thenReturn(Environment.SANDBOX)
-
-    when(newApplication.clientId).thenReturn(ClientId("client-id"))
-    when(newApplication.deployedTo).thenReturn(Environment.SANDBOX)
 
     "saveFieldValues" in new Setup {
       when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
@@ -83,14 +68,15 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec {
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
-      await(service.saveFieldValues(newApplication, apiIdentifier.context, apiIdentifier.versionNbr, fields))
+      await(service.saveFieldValues(sandboxApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(newApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(sandboxApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
 
       verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
+
   "fetchAllProductionFieldValues" in new Setup {
     val expectedResult = List.empty
 

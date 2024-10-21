@@ -22,11 +22,6 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefini
 
 trait APIDefinitionFormatters {
 
-  implicit val formatFieldValue: Format[FieldValue]     = Json.valueFormat[FieldValue]
-  implicit val formatFieldName: Format[FieldName]       = Json.valueFormat[FieldName]
-  implicit val keyReadsFieldName: KeyReads[FieldName]   = key => JsSuccess(FieldName(key))
-  implicit val keyWritesFieldName: KeyWrites[FieldName] = _.value
-
   implicit val formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
   implicit val formatSubscriptionFieldValue: OFormat[SubscriptionFieldValue]           = Json.format[SubscriptionFieldValue]
   implicit val formatSubscriptionFields: OFormat[SubscriptionFieldsWrapper]            = Json.format[SubscriptionFieldsWrapper]

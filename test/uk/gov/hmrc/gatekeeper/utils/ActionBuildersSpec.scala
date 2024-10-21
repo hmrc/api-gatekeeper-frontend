@@ -29,13 +29,13 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{LoggedInRequest, _}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.gatekeeper.models.FieldName
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
@@ -160,7 +160,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
       ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
-      ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(applicationWithSubscriptionData.application.id, State.PRODUCTION))
+      ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(applicationWithSubscriptionData.id, State.PRODUCTION))
 
       val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)(_ =>
         Future.successful(Ok(expectedResult))
@@ -170,7 +170,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       contentAsString(result) shouldBe expectedResult
 
       ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId, applicationWithSubscriptionData.application.deployedTo)
+      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId, applicationWithSubscriptionData.deployedTo)
     }
   }
 }
