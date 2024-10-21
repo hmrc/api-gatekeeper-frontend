@@ -177,7 +177,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
                   @{dateFormatter.format(application.details.createdOn.atOffset(ZoneOffset.UTC).toLocalDateTime())}
                 </td>
                 <td class="govuk-table__cell" id="app-env-@index">
-                  @application.deployedTo.displayText
+                  @application.details.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
                   @defining( if(application.details.blocked && application.state.name != DELETED) ("status status--not-verified", "Blocked") else application.state.name match {
