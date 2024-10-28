@@ -36,7 +36,7 @@ object DeveloperPage extends WebPage {
   }
 
   def writeInSearchBox(text: String) = {
-    writeInTextBox(text, "emailFilter")
+    writeInTextBox(text, "textFilter")
   }
 
   def searchByPartialEmail(partialEmail: String): Unit = {

@@ -403,7 +403,7 @@ class ApplicationConnectorSpec
     "return emails" in new Setup {
       val email    = "user@example.com"
       val response = Json.toJson(List(email)).toString
-      val request  = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, None)
+      val request  = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1)
 
       stubFor(
         post(urlPathEqualTo(url))
@@ -414,26 +414,7 @@ class ApplicationConnectorSpec
               .withBody(response)
           )
       )
-      await(productionConnector.searchCollaborators(apiContext, apiVersion1, None)) shouldBe List(email.toLaxEmail)
-    }
-
-    "return emails with emailFilter" in new Setup {
-      val partialEmailMatch = "user@example"
-      val email             = "user@example.com".toLaxEmail
-      val response          = Json.toJson(List(email)).toString
-      val request           = ApplicationConnector.SearchCollaboratorsRequest(apiContext, apiVersion1, Some(partialEmailMatch))
-
-      stubFor(
-        post(urlPathEqualTo(url))
-          .withJsonRequestBody(request)
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(response)
-          )
-      )
-
-      await(productionConnector.searchCollaborators(apiContext, apiVersion1, Some(partialEmailMatch))) shouldBe List(email)
+      await(productionConnector.searchCollaborators(apiContext, apiVersion1)) shouldBe List(email.toLaxEmail)
     }
   }
 

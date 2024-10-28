@@ -66,7 +66,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
 
   def stubApplicationsCollaborators(developers: Seq[AbstractUser]): Unit = {
     val developersJson = developers.map(u => u.email)
-    val request        = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"), Some("partialEmail"))
+    val request        = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"))
 
     stubFor(post(urlEqualTo("/collaborators"))
       .withJsonRequestBody(request)

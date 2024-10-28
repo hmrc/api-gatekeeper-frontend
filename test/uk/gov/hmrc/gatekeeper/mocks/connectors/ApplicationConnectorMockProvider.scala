@@ -44,10 +44,10 @@ trait ApplicationConnectorMockProvider {
     }
 
     object SearchCollaborators {
-      def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)).thenReturn(successful(emails.toList))
+      def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)).thenReturn(successful(emails.toList))
 
-      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(collaboratorEmails: LaxEmailAddress*) =
-        when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion), eqTo(partialEmailMatch))(*))
+      def returnsFor(apiContext: ApiContext, apiVersion: ApiVersionNbr)(collaboratorEmails: LaxEmailAddress*): Any =
+        when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion))(*))
           .thenReturn(successful(collaboratorEmails.toList))
     }
 

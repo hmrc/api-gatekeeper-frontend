@@ -37,7 +37,7 @@ object ApplicationConnector {
   implicit val validateApplicationNameResponseErrorDetailsReads: Reads[ValidateApplicationNameResponseErrorDetails] = Json.reads[ValidateApplicationNameResponseErrorDetails]
   implicit val validateApplicationNameResponseReads: Reads[ValidateApplicationNameResponse]                         = Json.reads[ValidateApplicationNameResponse]
 
-  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])
+  case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr)
 
   implicit val writes: OWrites[SearchCollaboratorsRequest] = Json.writes[SearchCollaboratorsRequest]
 
@@ -142,8 +142,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[ApplicationWithSubscriptionsResponse]]
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr, partialEmailMatch: Option[String])(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
-    val request = SearchCollaboratorsRequest(apiContext, apiVersion, partialEmailMatch)
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
+    val request = SearchCollaboratorsRequest(apiContext, apiVersion)
 
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/collaborators"))
       .withBody(Json.toJson(request))

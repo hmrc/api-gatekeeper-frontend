@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class DevelopersSearchFilter(
-    maybeEmailFilter: Option[String] = None,
+    maybeTextFilter: Option[String] = None,
     maybeApiFilter: Option[ApiContextVersion] = None,
     environmentFilter: ApiSubscriptionInEnvironmentFilter = AnyEnvironment,
     developerStatusFilter: DeveloperStatusFilter = AllStatus

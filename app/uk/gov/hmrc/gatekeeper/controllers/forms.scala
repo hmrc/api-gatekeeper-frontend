@@ -42,7 +42,7 @@ object HandleUpliftForm {
 }
 
 case class DevelopersSearchForm(
-    maybeEmailFilter: Option[String] = None,
+    maybeTextFilter: Option[String] = None,
     maybeApiVersionFilter: Option[String] = None,
     maybeEnvironmentFilter: Option[String] = None,
     maybeDeveloperStatusFilter: Option[String] = None
@@ -52,7 +52,7 @@ object DevelopersSearchForm {
 
   lazy val form = Form(
     mapping(
-      "emailFilter"           -> optional(nonEmptyText),
+      "textFilter"            -> optional(nonEmptyText),
       "apiVersionFilter"      -> optional(nonEmptyText),
       "environmentFilter"     -> optional(nonEmptyText),
       "developerStatusFilter" -> optional(nonEmptyText)

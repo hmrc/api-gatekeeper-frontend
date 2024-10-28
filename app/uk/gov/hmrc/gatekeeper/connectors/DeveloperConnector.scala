@@ -31,7 +31,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, _}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
-import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindOrCreateUserIdRequest, FindUserIdRequest, FindUserIdResponse}
+import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindOrCreateUserIdRequest, FindUserIdRequest, FindUserIdResponse, SearchParameters}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.dto.RemoveAllMfaRequest
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption._
@@ -200,10 +200,8 @@ class DeveloperConnector @Inject() (
     } yield userResponse
   }
 
-  def searchDevelopers(maybeEmail: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
-    import uk.gov.hmrc.gatekeeper.models.SearchParameters
-
-    val payload = SearchParameters(maybeEmail, Some(status.value))
+  def searchDevelopers(textSearch: Option[String], status: DeveloperStatusFilter)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+    val payload = SearchParameters(None, Some(status.value), textSearch)
 
     secretRequest(payload) { request =>
       http.post(url"${appConfig.developerBaseUrl}/developers/search").withBody(Json.toJson(request)).execute[List[RegisteredUser]]

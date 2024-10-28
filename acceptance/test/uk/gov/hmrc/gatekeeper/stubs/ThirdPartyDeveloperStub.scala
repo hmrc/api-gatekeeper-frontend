@@ -73,7 +73,7 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
   def stubDevelopersSearch(emailFilter: String, developers: Seq[RegisteredUser]): Unit = {
     val developersListJson: String = Json.toJson(developers).toString
 
-    val body = java.net.URLEncoder.encode("emailFilter=" + emailFilter, "UTF-8")
+    val body = java.net.URLEncoder.encode("textFilter=" + emailFilter, "UTF-8")
     stubFor(
       get(urlPathEqualTo("/developers"))
         .withRequestBody(equalTo(body))
