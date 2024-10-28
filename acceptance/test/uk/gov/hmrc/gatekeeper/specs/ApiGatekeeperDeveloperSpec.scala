@@ -44,10 +44,10 @@ class ApiGatekeeperDeveloperSpec
 
       val developers = List(
         RegisteredUser(
-          email = developer4.toLaxEmail,
+          email = developer6.toLaxEmail,
           userId = UserId.random,
-          firstName = dev4FirstName,
-          lastName = dev4LastName,
+          firstName = dev6FirstName,
+          lastName = dev6LastName,
           verified = true
         ),
         RegisteredUser(
@@ -70,7 +70,7 @@ class ApiGatekeeperDeveloperSpec
 
       stubGetDevelopersByEmails(developers)
 
-      stubDevelopersSearch("partialEmail", developers)
+      stubDevelopersSearch("example.com", developers)
 
       signInGatekeeper(app)
       on(ApplicationsPage)
@@ -82,7 +82,7 @@ class ApiGatekeeperDeveloperSpec
       on(DeveloperPage)
 
       When("I enter a partial email to filter by")
-      DeveloperPage.writeInSearchBox("partialEmail")
+      DeveloperPage.writeInSearchBox("example.com")
 
       And("I pick a an API definition")
       DeveloperPage.selectBySubscription(APIFilter.EMPLOYERSPAYE)
@@ -99,7 +99,7 @@ class ApiGatekeeperDeveloperSpec
       Then("I see a list of filtered developers")
 
       val expectedDeveloper: Seq[(String, String, String, String)] = List(
-        (dev4FirstName, dev4LastName, developer4, statusVerified)
+        (dev6FirstName, dev6LastName, developer6, statusVerified)
       )
 
       val allDevs: Seq[((String, String, String, String), Int)] = expectedDeveloper.zipWithIndex

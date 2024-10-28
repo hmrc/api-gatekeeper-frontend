@@ -559,7 +559,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       private val emailFilter = "example"
       DeveloperConnectorMock.SearchDevelopers.returns(user)
 
-      val filter = DevelopersSearchFilter(maybeEmailFilter = Some(emailFilter))
+      val filter = DevelopersSearchFilter(maybeTextFilter = Some(emailFilter))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -585,8 +585,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(user1, user2)
 
-      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
+      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion)
+      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion)
     }
 
     "find by api context and version where same email in production and sandbox" in new Setup {
@@ -613,13 +613,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       private val email2 = user2.email
       private val email3 = user3.email
 
-      val emailFilter = "emailFilter"
+      val emailFilter = email1.text.substring(5)
 
-      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))(email1, email2, email3)
-      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))()
+      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion)(email1, email2, email3)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion)()
       DeveloperConnectorMock.FetchByEmails.returnsFor(Set(email1, email2, email3))(user1, user2)
 
-      val filter = DevelopersSearchFilter(maybeEmailFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
+      val filter = DevelopersSearchFilter(maybeTextFilter = Some(emailFilter), maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)))
 
       val result = await(underTest.searchDevelopers(filter))
 
@@ -640,26 +640,25 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
     "find by api context, version and developer status" in new Setup {
 
-      val user1 = aUser("user1", verified = true)
-      val user2 = aUser("user2", verified = true)
+      val user1 = aUser("user1")
+      val user2 = aUser("user2")
       val user3 = aUser("user3", verified = false)
-      val user4 = aUser("user4", verified = true)
+      val user4 = aUser("user4")
 
       private val email1 = user1.email
       private val email2 = user2.email
       private val email3 = user3.email
       private val email4 = user4.email
 
-      val emailFilter = "emailFilter"
+      val emailFilter = "example.com"
 
-      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))(email1, email2, email3, email4)
-      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion, Some(emailFilter))()
+      ApplicationConnectorMock.Prod.SearchCollaborators.returnsFor(apiContext, apiVersion)(email1, email2, email3, email4)
+      ApplicationConnectorMock.Sandbox.SearchCollaborators.returnsFor(apiContext, apiVersion)()
 
       DeveloperConnectorMock.FetchByEmails.returns(user1, user2, user3)
 
       val filter = DevelopersSearchFilter(
-        maybeEmailFilter =
-          Some(emailFilter),
+        maybeTextFilter = Some(emailFilter),
         maybeApiFilter = Some(ApiContextVersion(apiContext, apiVersion)),
         developerStatusFilter = DeveloperStatusFilter.VerifiedStatus
       )
@@ -702,8 +701,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(productionUser)
 
-      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
+      verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -722,8 +721,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr], *)(*)
-      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion, None)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)
+      verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion)
     }
   }
 

@@ -187,7 +187,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         DeveloperServiceMock.SearchDevelopers.returns()
 
         val request = aLoggedInRequest.withFormUrlEncodedBody(
-          "emailFilter"           -> EMPTY,
+          "textFilter"            -> EMPTY,
           "apiVersionFilter"      -> EMPTY,
           "environmentFilter"     -> EMPTY,
           "developerStatusFilter" -> EMPTY
@@ -210,7 +210,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> partialEmailAddress)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> partialEmailAddress)
         val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(emailAddress)
@@ -227,7 +227,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         DeveloperServiceMock.SearchDevelopers.returns()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> searchFilter)
+        val request = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> searchFilter)
         val result  = developersController.developersPage()(request)
 
         contentAsString(result) should include(s"""value="$searchFilter"""")
@@ -330,7 +330,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         DeveloperServiceMock.SearchDevelopers.returns(aUser(email1.toLaxEmail), aUser(email2.toLaxEmail))
 
-        implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("emailFilter" -> "not relevant")
+        implicit val request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> "not relevant")
         val result                                                    = developersController.developersPage()(request)
 
         contentAsString(result) should include("Showing 2 entries")

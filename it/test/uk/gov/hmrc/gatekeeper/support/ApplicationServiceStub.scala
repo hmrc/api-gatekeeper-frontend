@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 trait ApplicationServiceStub extends WireMockExtensions {
 
   def primeApplicationServiceSuccessWithUsers(users: Seq[RegisteredUser]): Unit = {
-    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("api1"), ApiVersionNbr("1.0"), None)
+    val request = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("api1"), ApiVersionNbr("1.0"))
 
     stubFor(post(urlEqualTo("/collaborators"))
       .withJsonRequestBody(request)

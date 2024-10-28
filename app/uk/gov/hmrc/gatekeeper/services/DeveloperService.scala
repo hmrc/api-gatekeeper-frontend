@@ -44,16 +44,24 @@ class DeveloperService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ClockNow {
 
+  private def matchTextFilter(user: RegisteredUser, maybeTextFilter: Option[String]): Boolean = {
+    maybeTextFilter.fold(true)(text =>
+      user.userId.value.toString.toLowerCase().contains(text) ||
+        user.email.text.toLowerCase().contains(text) ||
+        s"${user.firstName} ${user.lastName}".toLowerCase.contains(text.toLowerCase)
+    )
+  }
+
   def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[AbstractUser]] = {
 
-    val unsortedResults: Future[List[AbstractUser]] = (filter.maybeEmailFilter, filter.maybeApiFilter) match {
-      case (emailFilter, None)                        => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
-      case (maybePartialEmailFilter, Some(apiFilter)) => {
+    val unsortedResults: Future[List[AbstractUser]] = (filter.maybeTextFilter, filter.maybeApiFilter) match {
+      case (emailFilter, None)                => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
+      case (maybeTextFilter, Some(apiFilter)) => {
         for {
-          collaboratorEmails             <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, maybePartialEmailFilter, apiFilter)
-          users                          <- developerConnector.fetchByEmails(collaboratorEmails)
-          filteredRegisteredUsers        <- Future.successful(users.filter(user => collaboratorEmails.contains(user.email)))
-          filteredByDeveloperStatusUsers <- Future.successful(filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch))
+          collaboratorEmails            <- getCollaboratorsByApplicationEnvironments(filter.environmentFilter, apiFilter)
+          users                         <- developerConnector.fetchByEmails(collaboratorEmails)
+          filteredRegisteredUsers        = users.filter(user => matchTextFilter(user, maybeTextFilter))
+          filteredByDeveloperStatusUsers = filteredRegisteredUsers.filter(filter.developerStatusFilter.isMatch)
         } yield filteredByDeveloperStatusUsers
       }
     }
@@ -65,7 +73,6 @@ class DeveloperService @Inject() (
 
   private def getCollaboratorsByApplicationEnvironments(
       environmentFilter: ApiSubscriptionInEnvironmentFilter,
-      maybePartialEmailFilter: Option[String],
       apiFilter: ApiContextVersion
     )(implicit hc: HeaderCarrier
     ): Future[Set[LaxEmailAddress]] = {
@@ -77,7 +84,7 @@ class DeveloperService @Inject() (
     }
 
     val allCollaboratorEmailsFutures: List[Future[List[LaxEmailAddress]]] = environmentApplicationConnectors
-      .map(_.searchCollaborators(apiFilter.context, apiFilter.versionNbr, maybePartialEmailFilter))
+      .map(_.searchCollaborators(apiFilter.context, apiFilter.versionNbr))
 
     combine(allCollaboratorEmailsFutures).map(_.toSet)
   }

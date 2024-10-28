@@ -35,18 +35,18 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
     @helper.CSRF.formField
     <input class="govuk-visually-hidden" type="hidden" name="page" value="1"/>
     <div class="dev-filter-row">
-      @defining(form("emailFilter").value) { emailFilterValue =>
+      @defining(form("textFilter").value) { textFilterValue =>
         <div class="govuk-form-group govuk-!-width-one-half">
-          <label class="govuk-label govuk-!-font-weight-bold" for="emailFilter">
+          <label class="govuk-label govuk-!-font-weight-bold" for="textFilter">
             Search
           </label>
           <input
             class="govuk-input"
-            id="emailFilter"
-            name="emailFilter"
-            value="@emailFilterValue"
+            id="textFilter"
+            name="textFilter"
+            value="@textFilterValue"
             type="text"
-            placeholder="Partial Email"
+            placeholder="Partial Email, Name or User Id"
           />
         </div>
       }
