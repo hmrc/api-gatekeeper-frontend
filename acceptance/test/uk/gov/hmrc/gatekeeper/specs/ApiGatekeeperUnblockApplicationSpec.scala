@@ -45,7 +45,7 @@ class ApiGatekeeperUnblockApplicationSpec
       stubApplicationForUnblockSuccess(blockedApplicationId, defaultApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName.value, BlockedApplicationPage)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -58,7 +58,7 @@ class ApiGatekeeperUnblockApplicationSpec
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(applicationId).toJsonString, applicationId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName.value, ApplicationPage)
 
       Then("I cannot see the unblock button")
       ApplicationPage.bodyText.contains("Unblock application") shouldBe false
@@ -74,7 +74,7 @@ class ApiGatekeeperUnblockApplicationSpec
     on(UnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    UnblockApplicationPage.completeForm(blockedApplicationName)
+    UnblockApplicationPage.completeForm(blockedApplicationName.value)
 
     And("I select the Unblock Application Button")
     UnblockApplicationPage.selectUnblockButton()

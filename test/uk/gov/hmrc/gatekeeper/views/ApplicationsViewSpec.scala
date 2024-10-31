@@ -69,7 +69,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
       Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
     )
 
-    val applications    = List[GKApplicationResponse](
+    val applications    = List[ApplicationWithCollaborators](
       buildApplication(
         ApplicationId.random,
         ClientId("clientid1"),
@@ -78,8 +78,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Environment.PRODUCTION,
         Some("Testing App"),
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now())
       ),
@@ -91,8 +91,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Environment.PRODUCTION,
         Some("Pending Gatekeeper Approval App"),
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(name = State.PENDING_GATEKEEPER_APPROVAL, updatedOn = Instant.now())
       ),
@@ -104,8 +104,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Environment.PRODUCTION,
         Some("Pending Requester Verification App"),
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(name = State.PENDING_REQUESTER_VERIFICATION, updatedOn = Instant.now())
       ),
@@ -117,8 +117,8 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Environment.PRODUCTION,
         Some("Production App"),
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
       ),
@@ -130,11 +130,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
         Environment.PRODUCTION,
         Some("Blocked Production App"),
         collaborators,
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
-      ).copy(blocked = true)
+      ).modify(_.copy(blocked = true))
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 

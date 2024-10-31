@@ -18,16 +18,16 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.{LocalDateTime, ZoneOffset}
+import java.time.{Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, StateHistory, StateHistoryHelper}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CheckInformation, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ApplicationPublicDescription {
 
-  def apply(application: GKApplicationResponse): Option[String] = {
+  def apply(application: ApplicationWithCollaborators): Option[String] = {
     for {
-      checkInformation <- application.checkInformation
+      checkInformation <- application.details.checkInformation
       description      <- checkInformation.applicationDetails
     } yield description
   }
@@ -37,24 +37,24 @@ object ApplicationFormatter {
   val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
 
-  def getCreatedOn(app: GKApplicationResponse): String = {
-    dateFormatter.format(app.createdOn)
+  def getCreatedOn(app: ApplicationWithCollaborators): String = {
+    dateFormatter.format(app.details.createdOn.atOffset(ZoneOffset.UTC))
   }
 
   // Caution: defaulting now = LocalDateTime.now() will not use UTC
-  def getLastAccess(app: GKApplicationResponse)(now: LocalDateTime): String = {
-    app.lastAccess match {
+  def getLastAccess(app: ApplicationWithCollaborators)(now: LocalDateTime): String = {
+    app.details.lastAccess match {
       case Some(lastAccess) =>
-        if (ChronoUnit.SECONDS.between(app.createdOn, lastAccess) == 0) {
+        val lastAccessDate = lastAccess.atOffset(ZoneOffset.UTC).toLocalDate()
+        if (ChronoUnit.SECONDS.between(app.details.createdOn, lastAccess) == 0) {
           "No API called"
-        } else if (ChronoUnit.DAYS.between(initialLastAccessDate.toLocalDate, lastAccess.toLocalDate) > 0) {
-          dateFormatter.format(lastAccess)
+        } else if (ChronoUnit.DAYS.between(initialLastAccessDate, lastAccessDate.atStartOfDay()) > 0) {
+          dateFormatter.format(lastAccessDate)
         } else {
-          s"More than ${ChronoUnit.MONTHS.between(lastAccess, now)} months ago"
+          s"More than ${ChronoUnit.MONTHS.between(lastAccessDate, now)} months ago"
         }
       case None             => "No API called"
     }
-
   }
 }
 

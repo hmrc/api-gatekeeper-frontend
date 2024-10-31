@@ -6,9 +6,9 @@ object AppDependencies {
   lazy val scalaCheckVersion = "1.17.0"
   lazy val bootstrapVersion  = "9.2.0"
 
-  val apiDomainVersion    = "0.15.0"
   val tpdDomainVersion    = "0.11.0"
-  val appDomainVersion    = "0.57.0"
+  val apiDomainVersion    = "0.19.1"
+  val appDomainVersion    = "0.61.16"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
@@ -27,11 +27,12 @@ object AppDependencies {
   )
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
-    "uk.gov.hmrc"            %% "bootstrap-test-play-30"          % bootstrapVersion,
-    "org.jsoup"               % "jsoup"                           % jsoupVersion,
-    "uk.gov.hmrc"            %% "ui-test-runner"                  % "0.33.0",
-    "org.mockito"            %% "mockito-scala-scalatest"         % "1.17.30",
-    "org.scalacheck"         %% "scalacheck"                      % scalaCheckVersion,
-    "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"    % tpdDomainVersion
+    "uk.gov.hmrc"            %% "bootstrap-test-play-30"                    % bootstrapVersion,
+    "org.jsoup"               % "jsoup"                                     % jsoupVersion,
+    "uk.gov.hmrc"            %% "ui-test-runner"                            % "0.33.0",
+    "org.mockito"            %% "mockito-scala-scalatest"                   % "1.17.30",
+    "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
+    "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"              % tpdDomainVersion,
+    "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion
   ).map(_ % "test")
 }

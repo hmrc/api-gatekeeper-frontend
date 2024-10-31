@@ -62,8 +62,8 @@ trait ControllerSetupBase
     Environment.PRODUCTION,
     None,
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator),
-    now,
-    Some(now),
+    instant,
+    Some(instant),
     access = Access.Standard(),
     state = ApplicationState(updatedOn = instant)
   )

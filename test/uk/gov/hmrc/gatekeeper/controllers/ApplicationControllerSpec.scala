@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -41,14 +41,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUse
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -62,7 +60,7 @@ class ApplicationControllerSpec
     with WithCSRFAddToken
     with TitleChecker
     with CollaboratorTracker
-    with FixedClock {
+    with ApplicationWithCollaboratorsFixtures {
 
   implicit val materializer: Materializer = app.materializer
 
@@ -109,17 +107,17 @@ class ApplicationControllerSpec
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
       val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
+        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
         List.empty
       )
 
       val privilegedApplication = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Privileged(scopes = Set("openid", "email"))),
+        basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email"))),
         List.empty
       )
 
       val ropcApplication               = ApplicationWithHistory(
-        basicApplication.copy(access = Access.Ropc(scopes = Set("openid", "email"))),
+        basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
       val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
@@ -129,7 +127,7 @@ class ApplicationControllerSpec
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
-      val basicAppWithAutoDeleteFalse   = basicApplication.copy(moreApplication = MoreApplication(allowAutoDelete = false))
+      val basicAppWithAutoDeleteFalse   = basicApplication.modify(_.copy(allowAutoDelete = false))
       val basicAppWithAutoDeleteFalseId = basicAppWithAutoDeleteFalse.id
       val appWithAutoDeleteFalse        = ApplicationWithHistory(basicAppWithAutoDeleteFalse, List.empty)
       val events                        = List(DisplayEvent(
@@ -304,8 +302,8 @@ class ApplicationControllerSpec
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
             Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
           ),
-          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
-          lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+          createdOn = Instant.parse("2001-02-03T12:01:02Z"),
+          lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
@@ -320,7 +318,7 @@ class ApplicationControllerSpec
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Number of Redirect URIs,Collaborator
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,1,Administrator:some@something.com|Developer:another@somethingelse.com
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,false,1,Administrator:some@something.com|Developer:another@somethingelse.com
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -343,8 +341,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
             Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
           ),
-          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
-          lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+          createdOn = Instant.parse("2001-02-03T12:01:02Z"),
+          lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
@@ -359,7 +357,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Number of Redirect URIs
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,1
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,false,1
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -382,8 +380,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
             Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
           ),
-          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
-          lastAccess = Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+          createdOn = Instant.parse("2001-02-03T12:01:02Z"),
+          lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           moreApplication = MoreApplication(allowAutoDelete = false)
@@ -399,8 +397,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
             Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
           ),
-          createdOn = LocalDateTime.parse("2001-02-03T12:01:02"),
-          lastAccess = Some(LocalDateTime.parse("2002-02-03T13:02:01")),
+          createdOn = Instant.parse("2001-02-03T12:01:02Z"),
+          lastAccess = Some(Instant.parse("2002-02-03T13:02:01Z")),
           access = Access.Standard(),
           state = ApplicationState(name = State.DELETED, updatedOn = instant),
           moreApplication = MoreApplication(allowAutoDelete = false, lastActionActor = ActorType.GATEKEEPER)
@@ -414,8 +412,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         val expectedCsvContent = """page: 1 of 1 from 2 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Auto delete,Number of Redirect URIs,Collaborator,Deleted by,When deleted
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T12:01:02,false,0,Administrator:some@something.com|Developer:another@somethingelse.com,UNKNOWN,N/A
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Deleted,BRONZE,STANDARD,false,false,2001-02-03T12:01:02,2002-02-03T13:02:01,false,0,Administrator:some@something.com|Developer:another@somethingelse.com,GATEKEEPER,2020-01-02T03:04:05.006Z
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,false,0,Administrator:some@something.com|Developer:another@somethingelse.com,UNKNOWN,N/A
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Deleted,BRONZE,STANDARD,false,false,2001-02-03T12:01:02Z,2002-02-03T13:02:01Z,false,0,Administrator:some@something.com|Developer:another@somethingelse.com,GATEKEEPER,2020-01-02T03:04:05.006Z
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -428,37 +426,41 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       "return csv data" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val response  =
-          ApplicationWithSubscriptionsResponse(
-            ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
-            "My App",
-            Some(LocalDateTime.parse("2002-02-03T12:01:02")),
+        val response1 = standardApp
+          .modify(_.copy(
+            id = applicationIdOne,
+            name = appNameOne
+          ))
+          .withSubscriptions(
             Set(
               ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
               ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
               ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
             )
           )
-        val response2 = ApplicationWithSubscriptionsResponse(
-          ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f2f")),
-          "My Other App",
-          None,
-          Set(
-            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
-            ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
+        val response2 = standardApp
+          .modify(_.copy(
+            id = applicationIdTwo,
+            name = appNameTwo,
+            lastAccess = None
+          ))
+          .withSubscriptions(
+            Set(
+              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+              ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
+            )
           )
-        )
 
-        ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response, response2)
+        ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response1, response2)
 
         val eventualResult: Future[Result] = underTest.applicationWithSubscriptionsCsv()(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent =
-          """Name,App ID,Environment,Last API call,api-documentation-test-service.1.5,hello.1.0,hello.2.0,individual-tax.1.0
-My App,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,SANDBOX,2002-02-03T12:01:02,true,true,true,false
-My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
+          s"""Name,App ID,Environment,Last API call,api-documentation-test-service.1.5,hello.1.0,hello.2.0,individual-tax.1.0
+$appNameOne,$applicationIdOne,SANDBOX,${nowAsText},true,true,true,false
+$appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -472,7 +474,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenTheAppWillBeReturned()
 
-        val appCaptor          = ArgCaptor[GKApplicationResponse]
+        val appCaptor          = ArgCaptor[ApplicationWithCollaborators]
         val gatekeeperIdCaptor = ArgCaptor[String]
         when(mockApplicationService.resendVerification(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
@@ -1417,7 +1419,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(application)
 
-        val appCaptor     = ArgumentCaptor.forClass(classOf[GKApplicationResponse])
+        val appCaptor     = ArgumentCaptor.forClass(classOf[ApplicationWithCollaborators])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
@@ -1458,7 +1460,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
       val privAccess           = AppAccess(AccessType.PRIVILEGED, List.empty)
-      val ropcAccess           = AppAccess(AccessType.ROPC, List.empty)
+      val ropcAppAccess        = AppAccess(AccessType.ROPC, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
@@ -1797,7 +1799,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAppAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1823,7 +1825,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAccess))
+            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAppAccess))
 
             val result = addToken(underTest.createPrivOrROPCApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1853,7 +1855,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       "return the application details without subscription fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
         val application2                    = DefaultApplication
-        val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
+        val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application2.details, application2.collaborators, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
 
@@ -1866,7 +1868,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
         DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
-        when(mockTermsOfUseService.getAgreementDetails(applicationWithSubscriptionData.application)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
+        when(mockTermsOfUseService.getAgreementDetails(applicationWithSubscriptionData.details)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
           "ri@example.com",
           "12 March 2023",
           "2"
@@ -1875,7 +1877,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name)
+        contentAsString(result) should include(application2.name.value)
         contentAsString(result) should include("Manage")
         contentAsString(result) should include("v2 agreed by ri@example.com on 12 March 2023")
         contentAsString(result) should include("Delete application")
@@ -1884,8 +1886,8 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = DefaultApplication.copy(state = ApplicationState(State.DELETED, updatedOn = instant))
-        val applicationWithSubscriptionData = ApplicationWithSubscriptionData(application2, Set.empty, Map.empty)
+        val application2                    = DefaultApplication.withState(ApplicationState(State.DELETED, updatedOn = instant))
+        val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application2.details, application2.collaborators, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
 
@@ -1902,7 +1904,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
         val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name)
+        contentAsString(result) should include(application2.name.value)
         contentAsString(result) shouldNot include("Manage")
         contentAsString(result) shouldNot include("Delete application")
         contentAsString(result) shouldNot include("Block application")
@@ -1939,7 +1941,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name.value)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1949,14 +1951,14 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
       }
 
       "call the service to block application when a valid form is submitted for an admin even when app name has trailing spaces" in new Setup {
-        val applicationWithSpaces           = basicApplication.copy(name = application.application.name + "  ")
+        val applicationWithSpaces           = basicApplication.modify(_.copy(name = ApplicationName(application.application.name.value + "  ")))
         val applicationWithSpacesAndHistory = ApplicationWithHistory(applicationWithSpaces, List.empty)
         ApplicationServiceMock.FetchApplication.returns(applicationWithSpacesAndHistory)
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name.value)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1984,7 +1986,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name.value)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -2025,7 +2027,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UnblockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name.value)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
@@ -2053,7 +2055,7 @@ My Other App,c702a8f8-9b7c-4ddb-8228-e812f26a2f2f,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.application.name.value)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 

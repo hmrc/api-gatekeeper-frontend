@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateGrantLengthForm
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -25,7 +25,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: GKApplicationResponse, form: Form[UpdateGrantLengthForm], grantLengthsToDisplay: List[GrantLength])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[UpdateGrantLengthForm], grantLengthsToDisplay: List[GrantLength])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage grant length",
@@ -50,7 +50,7 @@
     The application grant length is the amount of time an application is authorised to interact with HMRC on the users behalf.
   </p>
 
-  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{GrantLengthDisplayer.display(application.grantLength)}</strong>.</p>
+  <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{GrantLengthDisplayer.display(application.details.grantLength)}</strong>.</p>
 
   @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
     @helper.CSRF.formField

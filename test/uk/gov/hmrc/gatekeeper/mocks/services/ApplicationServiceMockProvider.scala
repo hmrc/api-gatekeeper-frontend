@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{GKApplicationResponse, StateHistory, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, StateHistory, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
@@ -35,9 +35,9 @@ trait ApplicationServiceMockProvider {
   object ApplicationServiceMock {
 
     object FetchApplications {
-      def returns(apps: GKApplicationResponse*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
 
-      def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: GKApplicationResponse*) =
+      def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: ApplicationWithCollaborators*) =
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(*)).thenReturn(successful(apps.toList))
     }
 
@@ -50,11 +50,13 @@ trait ApplicationServiceMockProvider {
     }
 
     object SearchApplications {
-      def returns(apps: GKApplicationResponse*) = when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+
+      def returns(apps: ApplicationWithCollaborators*) =
+        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
     }
 
     object FetchApplicationsWithSubscriptions {
-      def returns(apps: ApplicationWithSubscriptionsResponse*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationWithSubscriptions*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
     }
 
     object UpdateScopes {
@@ -123,13 +125,15 @@ trait ApplicationServiceMockProvider {
     }
 
     object ValidateApplicationName {
-      def succeeds() = when(mockApplicationService.validateApplicationName(*[GKApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+
+      def succeeds() =
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
 
       def invalid() =
-        when(mockApplicationService.validateApplicationName(*[GKApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
 
       def duplicate() =
-        when(mockApplicationService.validateApplicationName(*[GKApplicationResponse], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
     }
 
     object ValidateNewApplicationName {
@@ -145,12 +149,12 @@ trait ApplicationServiceMockProvider {
     object UpdateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
           ApplicationUpdateSuccessResult
         ))
 
       def fails() =
-        when(mockApplicationService.updateApplicationName(*[GKApplicationResponse], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
           ApplicationUpdateFailureResult
         ))
     }

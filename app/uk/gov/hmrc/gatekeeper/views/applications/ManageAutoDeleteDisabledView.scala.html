@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -24,7 +24,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(application: GKApplicationResponse, reason: String, reasonDate: String, form: Form[AutoDeletePreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, reason: String, reasonDate: String, form: Form[AutoDeletePreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"${applicationConfig.title} - Do you want your application to be deleted?",

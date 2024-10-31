@@ -43,44 +43,44 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   val importantSubmissionData    =
     ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
-  val appWithCheckInfoAgreements = DefaultApplication.copy(checkInformation = Some(checkInformation))
-  val appWithStdAppAgreements    = appWithNoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
-  val nonStdApp                  = appWithNoAgreements.copy(access = Access.Privileged())
+  val appWithCheckInfoAgreements = DefaultApplication.modify(_.copy(checkInformation = Some(checkInformation)))
+  val appWithStdAppAgreements    = appWithNoAgreements.withAccess(Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
+  val nonStdApp                  = appWithNoAgreements.withAccess(Access.Privileged())
   val underTest                  = new TermsOfUseService()
 
   def formatDateTime(localDateTime: LocalDateTime) = localDateTime.format(DateTimeFormatter.ofPattern("d MMMM yyyy"))
 
   "getAgreementDetails" should {
     "return None if no agreements found" in {
-      val maybeAgreement = underTest.getAgreementDetails(appWithNoAgreements)
+      val maybeAgreement = underTest.getAgreementDetails(appWithNoAgreements.details)
       maybeAgreement shouldBe None
     }
     "return correctly populated agreement if details found in CheckInformation" in {
-      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements)
+      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.details)
       maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email1_2, formatDateTime(now), version1_2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData" in {
-      val maybeAgreement = underTest.getAgreementDetails(appWithStdAppAgreements)
+      val maybeAgreement = underTest.getAgreementDetails(appWithStdAppAgreements.details)
       maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(now), version2))
     }
     "return correctly populated agreement if details found in ImportantSubmissionData AND in CheckInformation" in {
-      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.copy(access = Access.Standard(importantSubmissionData = Some(importantSubmissionData))))
+      val maybeAgreement = underTest.getAgreementDetails(appWithCheckInfoAgreements.withAccess(Access.Standard(importantSubmissionData = Some(importantSubmissionData))).details)
       maybeAgreement shouldBe Some(TermsOfUseAgreementDisplayDetails(email2, formatDateTime(now), version2))
     }
     "return None if non-standard app is checked" in {
-      val maybeAgreement = underTest.getAgreementDetails(nonStdApp)
+      val maybeAgreement = underTest.getAgreementDetails(nonStdApp.details)
       maybeAgreement shouldBe None
     }
     "return None if ImportantSubmissionData is missing" in {
       val maybeAgreement =
-        underTest.getAgreementDetails(appWithStdAppAgreements.copy(access = appWithStdAppAgreements.access.asInstanceOf[Access.Standard].copy(importantSubmissionData = None)))
+        underTest.getAgreementDetails(appWithStdAppAgreements.modifyStdAccess(_.copy(importantSubmissionData = None)).details)
       maybeAgreement shouldBe None
     }
     "return None if ImportantSubmissionData.termsOfUseAcceptances is empty" in {
       val importantSubmissionData = appWithStdAppAgreements.access.asInstanceOf[Access.Standard].importantSubmissionData.get
-      val maybeAgreement          = underTest.getAgreementDetails(appWithStdAppAgreements.copy(access =
-        appWithStdAppAgreements.access.asInstanceOf[Access.Standard].copy(importantSubmissionData = Some(importantSubmissionData.copy(termsOfUseAcceptances = List.empty)))
-      ))
+      val maybeAgreement          = underTest.getAgreementDetails(
+        appWithStdAppAgreements.details.modifyStdAccess(_.copy(importantSubmissionData = Some(importantSubmissionData.copy(termsOfUseAcceptances = List.empty))))
+      )
       maybeAgreement shouldBe None
     }
   }

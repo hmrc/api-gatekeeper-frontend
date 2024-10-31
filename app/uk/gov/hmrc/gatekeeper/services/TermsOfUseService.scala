@@ -21,7 +21,7 @@ import java.time.{Instant, ZoneOffset}
 import javax.inject.Singleton
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, GKApplicationResponse, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, CoreApplication, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.TermsOfUseAcceptance
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
@@ -38,7 +38,7 @@ class TermsOfUseService {
     checkInformation.termsOfUseAgreements.map((toua: TermsOfUseAgreement) => TermsOfUseAgreementDisplayDetails(toua.emailAddress.text, formatInstant(toua.timeStamp), toua.version))
   }
 
-  private def getAgreementFromCheckInformation(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromCheckInformation(application: CoreApplication): Option[TermsOfUseAgreementDisplayDetails] = {
     application.checkInformation match {
       case Some(chkInfo) => getAgreementDetailsFromCheckInformation(chkInfo).lastOption
       case _             => None
@@ -54,13 +54,13 @@ class TermsOfUseService {
     )
   }
 
-  private def getAgreementFromStandardApp(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] = {
+  private def getAgreementFromStandardApp(application: CoreApplication): Option[TermsOfUseAgreementDisplayDetails] = {
     application.access match {
       case std: Access.Standard => getAgreementDetailsFromStandardApp(std).lastOption
       case _                    => None
     }
   }
 
-  def getAgreementDetails(application: GKApplicationResponse): Option[TermsOfUseAgreementDisplayDetails] =
+  def getAgreementDetails(application: CoreApplication): Option[TermsOfUseAgreementDisplayDetails] =
     getAgreementFromStandardApp(application).fold(getAgreementFromCheckInformation(application))(Some(_))
 }

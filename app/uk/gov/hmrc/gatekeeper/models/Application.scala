@@ -16,26 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.LocalDateTime
-
 import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
 
-case class PaginatedApplicationResponse(applications: List[GKApplicationResponse], page: Int, pageSize: Int, total: Int, matching: Int) {
+case class PaginatedApplicationResponse(applications: List[ApplicationWithCollaborators], page: Int, pageSize: Int, total: Int, matching: Int) {
   val maxPage = PaginationHelper.maxPage(matching, pageSize)
 }
 
 object PaginatedApplicationResponse {
   implicit val format: OFormat[PaginatedApplicationResponse] = Json.format[PaginatedApplicationResponse]
-}
-
-case class ApplicationWithSubscriptionsResponse(id: ApplicationId, name: String, lastAccess: Option[LocalDateTime], apiIdentifiers: Set[ApiIdentifier])
-
-object ApplicationWithSubscriptionsResponse {
-  implicit val format: Format[ApplicationWithSubscriptionsResponse] = Json.format[ApplicationWithSubscriptionsResponse]
 }
 
 case class TotpSecrets(production: String)
