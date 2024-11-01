@@ -127,7 +127,6 @@ object SubmissionDetails {
   implicit val format: OFormat[SubmissionDetails] = Json.format[SubmissionDetails]
 }
 
-// TODO remove this ?
 case class ApplicationReviewDetails(
     id: ApplicationId,
     name: String,

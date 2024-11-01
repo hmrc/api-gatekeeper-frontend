@@ -108,11 +108,6 @@ case class Developer(
     case r: RegisteredUser      => r.lastName
   }
 
-  // lazy val organisation: Option[String] = user match {
-  //   case UnregisteredUser(_, _) => None
-  //   case r: RegisteredUser      => r.organisation
-  // }
-
   lazy val verified: Boolean = user match {
     case UnregisteredUser(_, _) => false
     case r: RegisteredUser      => r.verified

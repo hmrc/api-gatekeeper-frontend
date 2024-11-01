@@ -125,7 +125,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.modify(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX)))
+    val allSandboxApplications                         = allProductionApplications.map(_.withId(ApplicationId.random).inSandbox())
     val testContext                                    = ApiContext("test-context")
     val unknownContext                                 = ApiContext("unknown-context")
     val superContext                                   = ApiContext("super-context")

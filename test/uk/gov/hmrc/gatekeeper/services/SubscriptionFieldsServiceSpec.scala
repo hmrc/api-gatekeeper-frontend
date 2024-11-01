@@ -21,7 +21,7 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Environment, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -31,7 +31,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
 
   private val apiIdentifier = apiIdentifierOne
 
-  val productionApplication = standardApp.withEnvironment(Environment.PRODUCTION)
+  val productionApplication = standardApp
   val sandboxApplication    = standardApp.inSandbox()
 
   trait Setup extends SubscriptionsBuilder {

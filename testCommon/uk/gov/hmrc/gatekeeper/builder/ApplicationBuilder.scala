@@ -217,10 +217,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     def asROPC                     = app.withAccess(Access.Ropc())
 
     def withState(state: ApplicationState) = app.withState(state)
-    // def inProduction                       = app.copy(state = app.state.inProduction)
-    // def inTesting                          = app.copy(state = app.state.inTesting)
-    // def pendingGKApproval                  = app.copy(state = app.state.pendingGKApproval)
-    // def pendingVerification                = app.copy(state = app.state.pendingVerification)
 
     def withBlocked(isBlocked: Boolean) = app.modify(_.copy(blocked = isBlocked))
     def blocked                         = app.modify(_.copy(blocked = true))

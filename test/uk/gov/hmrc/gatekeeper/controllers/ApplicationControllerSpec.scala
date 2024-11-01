@@ -427,10 +427,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         val response1 = standardApp
-          .modify(_.copy(
-            id = applicationIdOne,
-            name = appNameOne
-          ))
+          .withId(applicationIdOne)
+          .withName(appNameOne)
           .withSubscriptions(
             Set(
               ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
@@ -439,9 +437,9 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
             )
           )
         val response2 = standardApp
+          .withId(applicationIdTwo)
+          .withName(appNameTwo)
           .modify(_.copy(
-            id = applicationIdTwo,
-            name = appNameTwo,
             lastAccess = None
           ))
           .withSubscriptions(

@@ -580,7 +580,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       CommandConnectorMock.IssueCommand.succeeds()
 
       val emailAddress = "email@example.com".toLaxEmail
-      val application  = standardApp.withEnvironment(Environment.PRODUCTION)
+      val application  = standardApp
       val reasons      = "Application deleted by Gatekeeper user"
 
       val result = await(underTest.deleteApplication(application, gatekeeperUserId, emailAddress))
@@ -599,7 +599,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "BlockApplication" should {
     "block the application" in new Setup {
-      val application = standardApp.withEnvironment(Environment.PRODUCTION)
+      val application = standardApp
 
       CommandConnectorMock.IssueCommand.succeeds()
 
@@ -626,7 +626,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "UnblockApplication" should {
     "unblock the application in the correct environment" in new Setup {
-      val application = standardApp.withEnvironment(Environment.PRODUCTION)
+      val application = standardApp
 
       CommandConnectorMock.IssueCommand.succeeds()
 
@@ -653,7 +653,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "applicationConnectorFor" should {
     "return the production application connector for an application deployed to production" in new Setup {
-      val application = standardApp.withEnvironment(Environment.PRODUCTION)
+      val application = standardApp
 
       val result = underTest.applicationConnectorFor(application)
 
@@ -671,7 +671,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   "apiScopeConnectorFor" should {
     "return the production api scope connector for an application deployed to production" in new Setup {
-      val application = standardApp.withEnvironment(Environment.PRODUCTION)
+      val application = standardApp
 
       val result = underTest.apiScopeConnectorFor(application)
 
