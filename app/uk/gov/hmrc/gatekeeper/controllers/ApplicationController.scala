@@ -123,35 +123,41 @@ class ApplicationController @Inject() (
       .map(applicationResponse => Ok(toCsvContent(applicationResponse, request.role.isUser, showDeletionData)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean, showDeletionDataColumns: Boolean = false): String = {
+  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean, showDeletionDataColumns: Boolean): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
       s"${role.displayText}:${emailAddress.text}"
     }
 
-    val csvColumnDefinitions = Seq[ColumnDefinition[GKApplicationResponse]](
-      ColumnDefinition("Name", (app => app.name)),
+    val nbrOfRedirectUris = (app: ApplicationWithCollaborators) =>
+      app.access match {
+        case Access.Standard(redirectUris, _, _, _, _, _) => redirectUris.length
+        case _                                            => 0
+      }
+
+    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithCollaborators]](
+      ColumnDefinition("Name", (app => app.name.value)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
-      ColumnDefinition("Gateway ID", (app => app.gatewayId)),
+      ColumnDefinition("Gateway ID", (app => app.details.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo.toString)),
       ColumnDefinition("Status", (app => app.state.name.displayText)),
-      ColumnDefinition("Rate limit tier", (app => app.rateLimitTier.toString())),
+      ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
-      ColumnDefinition("Blocked", (app => app.blocked.toString())),
-      ColumnDefinition("Has IP Allow List", (app => app.ipAllowlist.allowlist.nonEmpty.toString())),
-      ColumnDefinition("Submitted/Created on", (app => app.createdOn.toString())),
-      ColumnDefinition("Last API call", (app => app.lastAccess.fold("")(_.toString))),
-      ColumnDefinition("Auto delete", (app => app.moreApplication.allowAutoDelete.toString())),
-      ColumnDefinition("Number of Redirect URIs", (app => app.redirectUris.size.toString))
+      ColumnDefinition("Blocked", (app => app.details.blocked.toString())),
+      ColumnDefinition("Has IP Allow List", (app => app.details.ipAllowlist.allowlist.nonEmpty.toString())),
+      ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
+      ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
+      ColumnDefinition("Auto delete", (app => app.details.allowAutoDelete.toString())),
+      ColumnDefinition("Number of Redirect URIs", (nbrOfRedirectUris(_).toString))
     ) ++ (
       if (isStrideUser)
-        Seq(ColumnDefinition[GKApplicationResponse]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")))
+        Seq(ColumnDefinition[ApplicationWithCollaborators]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")))
       else Seq.empty
     ) ++ (
       if (showDeletionDataColumns)
         Seq(
-          ColumnDefinition[GKApplicationResponse]("Deleted by", app => app.moreApplication.lastActionActor.toString),
-          ColumnDefinition[GKApplicationResponse]("When deleted", app => if (app.state.name.equals(State.DELETED)) app.state.updatedOn.toString else "N/A")
+          ColumnDefinition[ApplicationWithCollaborators]("Deleted by", app => app.details.lastActionActor.toString()),
+          ColumnDefinition[ApplicationWithCollaborators]("When deleted", app => if (app.state.isDeleted) app.state.updatedOn.toString else "N/A")
         )
       else Seq.empty
     )
@@ -165,22 +171,22 @@ class ApplicationController @Inject() (
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
-  private def toCsvContent(response: List[ApplicationWithSubscriptionsResponse], env: Option[Environment]): String = {
+  private def toCsvContent(response: List[ApplicationWithSubscriptions], env: Option[Environment]): String = {
 
-    val identifiers: Seq[ApiIdentifier]                                         = response.map(_.apiIdentifiers).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
-    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]] =
+    val identifiers: Seq[ApiIdentifier]                                 = response.map(_.subscriptions).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
+    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptions]] =
       identifiers.map(apiIdentity =>
         ColumnDefinition(
           apiIdentity.asText("."),
-          (app: ApplicationWithSubscriptionsResponse) => app.apiIdentifiers.contains(apiIdentity).toString
+          (app: ApplicationWithSubscriptions) => app.subscriptions.contains(apiIdentity).toString
         )
       )
 
-    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptionsResponse]](
-      ColumnDefinition("Name", app => app.name),
-      ColumnDefinition("App ID", app => app.id.value.toString),
+    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptions]](
+      ColumnDefinition("Name", app => app.details.name.toString),
+      ColumnDefinition("App ID", app => app.id.toString),
       ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
-      ColumnDefinition("Last API call", app => app.lastAccess.fold("")(_.toString))
+      ColumnDefinition("Last API call", app => app.details.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
     toCsvString(csvColumnDefinitions, response)
@@ -189,15 +195,16 @@ class ApplicationController @Inject() (
   def applicationWithSubscriptionsCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env: Option[Environment] = Environment.apply(environment.getOrElse("SANDBOX"))
 
-    applicationService.fetchApplicationsWithSubscriptions(env)
-      .map(applicationResponse => Ok(toCsvContent(applicationResponse, env)))
+    for {
+      appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
+    } yield Ok(toCsvContent(appsWithSubs, env))
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withAppAndSubscriptionsAndStateHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
-      val app                                                                 = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.application
+      val app                                                                 = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.asAppWithCollaborators
       val subscriptions: Set[ApiIdentifier]                                   = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions
-      val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptionFieldValues
+      val subscriptionFieldValues: Map[ApiContext, Map[ApiVersionNbr, Alias]] = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.fieldValues
       val stateHistory                                                        = applicationWithSubscriptionsAndStateHistory.stateHistory
       val gatekeeperApprovalsUrl                                              = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}"
       val termsOfUseInvitationUrl                                             = s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/${appId}/send-new-terms-of-use"
@@ -245,11 +252,11 @@ class ApplicationController @Inject() (
         }
       }
 
-      def checkEligibleForTermsOfUseInvite(app: GKApplicationResponse, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
+      def checkEligibleForTermsOfUseInvite(app: ApplicationWithCollaborators, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
           case std: Access.Standard
-              if (app.state.name == State.PRODUCTION &&
-                app.deployedTo == Environment.PRODUCTION &&
+              if (app.state.isInProduction &&
+                app.isProduction &&
                 !hasSubmissions &&
                 !hasTermsOfUseInvite) => true
           case _ => false
@@ -268,7 +275,7 @@ class ApplicationController @Inject() (
         seqOfSubscriptions              = subscribedVersions.flatMap(asListOfList).sortWith(_._1 < _._1)   // TODO
         subscriptionsThatHaveFieldDefns = subscribedWithFields.flatMap(asListOfList).sortWith(_._1 < _._1) // TODO
         responsibleIndividualHistory    = getResponsibleIndividualHistory(app.access)
-        maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app)
+        maybeTermsOfUseAcceptance       = termsOfUseService.getAgreementDetails(app.details)
         isEligibleForTermsOfUseInvite   = checkEligibleForTermsOfUseInvite(app, doesApplicationHaveSubmissions, doesApplicationHaveTermsOfUseInvite)
       } yield Ok(applicationView(ApplicationViewModel(
         collaborators,
@@ -398,7 +405,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       Future.successful(Ok(manageIpAllowlistView(
         app.application,
-        IpAllowlistForm.form.fill(IpAllowlistForm(app.application.ipAllowlist.required, app.application.ipAllowlist.allowlist))
+        IpAllowlistForm.form.fill(IpAllowlistForm(app.application.details.ipAllowlist.required, app.application.details.ipAllowlist.allowlist))
       )))
     }
   }
@@ -452,7 +459,7 @@ class ApplicationController @Inject() (
 
   def manageRateLimitTier(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.rateLimitTier.toString))
+      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.details.rateLimitTier.toString))
       Future.successful(Ok(manageRateLimitView(app.application, form)))
     }
   }
@@ -482,7 +489,7 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.grantLength.period.getDays())))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.details.grantLength.period.getDays())))
       Future.successful(Ok(manageGrantLengthView(app.application, form, getGrantLengths())))
     }
   }
@@ -520,13 +527,13 @@ class ApplicationController @Inject() (
         }
       }
 
-      def handleAutoDeleteDisabled(application: GKApplicationResponse) = {
+      def handleAutoDeleteDisabled(application: ApplicationWithCollaborators) = {
         eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
           .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
           .flatMap(getView(_))
       }
 
-      if (app.application.moreApplication.allowAutoDelete) {
+      if (app.application.details.allowAutoDelete) {
         Future.successful(Ok(manageAutoDeleteEnabledView(app.application, AutoDeletePreviouslyEnabledForm.form)))
       } else {
         handleAutoDeleteDisabled(app.application)
@@ -591,7 +598,7 @@ class ApplicationController @Inject() (
   def deleteApplicationAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        if (app.application.name.trim() == form.applicationNameConfirmation) {
+        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
           applicationService.deleteApplication(app.application, loggedIn.userFullName.get, LaxEmailAddress(form.collaboratorEmail.get)).map {
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
@@ -620,7 +627,7 @@ class ApplicationController @Inject() (
   def blockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
-        if (app.application.name.trim() == form.applicationNameConfirmation) {
+        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
           applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
             case ApplicationBlockFailureResult => technicalDifficulties
@@ -649,7 +656,7 @@ class ApplicationController @Inject() (
   def unblockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
-        if (app.application.name.trim() == form.applicationNameConfirmation) {
+        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
           applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
             case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
             case ApplicationUnblockFailureResult => technicalDifficulties

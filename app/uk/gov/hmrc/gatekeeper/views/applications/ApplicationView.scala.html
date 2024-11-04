@@ -32,7 +32,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import java.time.{Clock, LocalDateTime}
+@import java.time.{Clock, LocalDateTime, Instant}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
 
@@ -197,7 +197,7 @@
 
   <h1 class="govuk-heading-l">@application.name</h1>
 
-  @if(application.blocked){
+  @if(application.details.blocked){
     <div id="termsOfUseWarning" class="govuk-warning-text">
       <span class="govuk-warning-text__icon" aria-hidden="true">!</span>
       <strong class="govuk-warning-text__text">
@@ -261,7 +261,7 @@
         Gateway ID
       </dt>
       <dd class="govuk-summary-list__value" data-gateway-id>
-        @application.gatewayId
+        @application.details.gatewayId
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
@@ -271,10 +271,10 @@
             Application name
         </dt>
         <dd class="govuk-summary-list__value" data-name-id>
-            @application.name
+            @application.name.value
         </dd>
         <dd class="govuk-summary-list__actions">
-        @if(application.deployedTo == Environment.PRODUCTION && application.state.name.isApproved) {
+        @if(application.isProduction && application.state.name.isApproved) {
             <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId).url}" class="button--link" role="button">Manage</a>
         }
         </dd>
@@ -289,7 +289,7 @@
         <span class="govuk-hint" data-status-info>@application.state.name.additionalInformation</span>
       </dd>
       <dd class="govuk-summary-list__actions">
-          @{ if (application.state.isPendingGatekeeperApproval){
+          @{ if (application.isPendingGatekeeperApproval){
             if (model.hasSubmissions) {
               <a href={model.gatekeeperApprovalsUrl} class="govuk-link" role="button" id="review">Check application</a>
             }
@@ -324,7 +324,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @application.rateLimitTier.displayText
+        @application.details.rateLimitTier.displayText
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -339,8 +339,8 @@
         Description (private)
       </dt>
       <dd class="govuk-summary-list__value" data-description-private>
-        @if(application.description.nonEmpty) {
-          @application.description
+        @if(application.details.description.nonEmpty) {
+          @application.details.description
         } else {
           No description added
         }
@@ -367,14 +367,8 @@
       <dt class="govuk-summary-list__key">
         Privacy policy URL
       </dt>
-      <dd class="govuk-summary-list__value" data-privacy-url="">
-        @{
-          application.privacyPolicyLocation match {
-            case PrivacyPolicyLocations.Url(url) => renderExternalUrl(url)
-            case PrivacyPolicyLocations.InDesktopSoftware => "In Desktop Software"
-            case _ => ""
-          }
-        }
+      <dd id="privacy-url" class="govuk-summary-list__value" data-privacy-url="">
+        @{ApplicationViewModel.describePrivacyPolicy(application.access)}
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
@@ -383,14 +377,8 @@
       <dt class="govuk-summary-list__key">
         Terms and conditions URL
       </dt>
-      <dd class="govuk-summary-list__value" data-terms-url="">
-        @{
-          application.termsAndConditionsLocation match {
-            case TermsAndConditionsLocations.Url(url) => renderExternalUrl(url)
-            case TermsAndConditionsLocations.InDesktopSoftware => "In Desktop Software"
-            case _ => ""
-          }
-        }
+      <dd id="terms-url" class="govuk-summary-list__value" data-terms-url="">
+        @{ApplicationViewModel.describeTnC(application.access)}
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
@@ -400,7 +388,7 @@
         Application grant Length
       </dt>
       <dd class="govuk-summary-list__value" grant-length>
-        @{GrantLengthDisplayer.display(application.grantLength)}
+        @{GrantLengthDisplayer.display(application.details.grantLength)}
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -438,7 +426,7 @@
         Application deleted if inactive
       </dt>
       <dd class="govuk-summary-list__value" data-application-deleted-if-active>
-        @{if (application.moreApplication.allowAutoDelete) "Yes" else "No"}
+        @{if (application.details.allowAutoDelete) "Yes" else "No"}
       </dd>
       @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -453,10 +441,10 @@
         IP allow list
       </dt>
       <dd class="govuk-summary-list__value govuk-hint" data-access-type>
-        @if(application.ipAllowlist.allowlist.isEmpty) {
+        @if(application.details.ipAllowlist.allowlist.isEmpty) {
           No IP allow list
         } else {
-          @if(application.ipAllowlist.required) {
+          @if(application.details.ipAllowlist.required) {
             Mandatory and active
           } else {
             Active
@@ -470,7 +458,7 @@
           </a>
         </dd>
       } else {
-        @if(application.ipAllowlist.allowlist.nonEmpty) {
+        @if(application.details.ipAllowlist.allowlist.nonEmpty) {
           <dd class="govuk-summary-list__actions">
             <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id)}" class="govuk-link">View</a>
           </dd>
@@ -611,17 +599,17 @@
         Submission contact
       </dt>
       <dd class="govuk-summary-list__value">
-        @{ApplicationReview.getReviewContactName(application.checkInformation) match {
+        @{ApplicationReview.getReviewContactName(application.details.checkInformation) match {
           case Some(name) => <p class="govuk-body" data-submission-contact-name="">{name}</p>
           case None => <p data-submission-contact-name="" class="govuk-body">No contact name given</p>
           }
         }
-        @{ApplicationReview.getReviewContactEmail(application.checkInformation) match {
+        @{ApplicationReview.getReviewContactEmail(application.details.checkInformation) match {
             case Some(email) => <p class="govuk-body" data-submission-contact-email="">{email}</p>
             case None => <p data-submission-contact-email="" class="govuk-body">No contact email given</p>
           }
         }
-        @{ApplicationReview.getReviewContactTelephone(application.checkInformation) match {
+        @{ApplicationReview.getReviewContactTelephone(application.details.checkInformation) match {
             case Some(telephone) => <p class="govuk-body" data-submission-contact-telephone="">{telephone}</p>
             case None => <p data-submission-contact-telephone="" class="govuk-body">No contact telephone number given</p>
           }
@@ -687,10 +675,10 @@
     <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
   @if(request.role.isAdmin && !application.state.isDeleted) {
-    @if(application.state.name.isApproved && !application.blocked) {
+    @if(application.state.name.isApproved && !application.details.blocked) {
       <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
     }
-    @if(application.state.name.isApproved && application.blocked) {
+    @if(application.state.name.isApproved && application.details.blocked) {
       <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
   }

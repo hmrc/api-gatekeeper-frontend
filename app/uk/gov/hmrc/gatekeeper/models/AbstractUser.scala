@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.models
 import play.api.libs.functional.syntax._
 import play.api.libs.json._
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
@@ -54,7 +54,6 @@ case class RegisteredUser(
     firstName: String,
     lastName: String,
     verified: Boolean,
-    organisation: Option[String] = None,
     mfaDetails: List[MfaDetail] = List.empty,
     emailPreferences: EmailPreferences = EmailPreferences.noPreferences
   ) extends AbstractUser {}
@@ -67,7 +66,6 @@ object RegisteredUser {
       (JsPath \ "firstName").read[String] and
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
-      (JsPath \ "organisation").readNullable[String] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
   )(RegisteredUser.apply _)
@@ -84,7 +82,7 @@ case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends Abst
 
 case class Developer(
     user: AbstractUser,
-    applications: List[GKApplicationResponse],
+    applications: List[ApplicationWithCollaborators],
     xmlServiceNames: Set[String] = Set.empty,
     xmlOrganisations: List[XmlOrganisation] = List.empty,
     deskproOrganisations: Option[List[DeskproOrganisation]] = None
@@ -108,11 +106,6 @@ case class Developer(
   lazy val lastName: String = user match {
     case UnregisteredUser(_, _) => "n/a"
     case r: RegisteredUser      => r.lastName
-  }
-
-  lazy val organisation: Option[String] = user match {
-    case UnregisteredUser(_, _) => None
-    case r: RegisteredUser      => r.organisation
   }
 
   lazy val verified: Boolean = user match {

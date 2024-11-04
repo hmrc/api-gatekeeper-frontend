@@ -38,13 +38,13 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
         ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.format(now))
       }
       "review contact name return Some" in {
-        ApplicationReview.getReviewContactName(appResponse.checkInformation) shouldBe Some("contactFullName")
+        ApplicationReview.getReviewContactName(appResponse.details.checkInformation) shouldBe Some("contactFullName")
       }
       "review contact email return Some" in {
-        ApplicationReview.getReviewContactEmail(appResponse.checkInformation) shouldBe Some("contactemail")
+        ApplicationReview.getReviewContactEmail(appResponse.details.checkInformation) shouldBe Some("contactemail")
       }
       "review contact telephone return Some" in {
-        ApplicationReview.getReviewContactTelephone(appResponse.checkInformation) shouldBe Some("contactTelephone")
+        ApplicationReview.getReviewContactTelephone(appResponse.details.checkInformation) shouldBe Some("contactTelephone")
       }
     }
     "application is not approved" should {
@@ -58,13 +58,13 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
         ApplicationReview.getApprovedOn(appWithHistory.history) shouldBe None
       }
       "review contact name return None" in {
-        ApplicationReview.getReviewContactName(app.checkInformation) shouldBe None
+        ApplicationReview.getReviewContactName(app.details.checkInformation) shouldBe None
       }
       "review contact email return None" in {
-        ApplicationReview.getReviewContactEmail(app.checkInformation) shouldBe None
+        ApplicationReview.getReviewContactEmail(app.details.checkInformation) shouldBe None
       }
       "review contact telephone return None" in {
-        ApplicationReview.getReviewContactTelephone(app.checkInformation) shouldBe None
+        ApplicationReview.getReviewContactTelephone(app.details.checkInformation) shouldBe None
       }
     }
   }

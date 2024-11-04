@@ -23,7 +23,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GKApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
@@ -164,7 +164,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
-  def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: GKApplicationResponse) = {
+  def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: ApplicationWithCollaborators) = {
     val response = DispatchSuccessResult(gkAppResponse)
     stubFor(
       patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch"))
@@ -195,7 +195,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubFor(get(urlPathMatching(s"/submissions/latestiscompleted/.*")).willReturn(aResponse().withStatus(NOT_FOUND)))
   }
 
-  def stubApplicationForBlockSuccess(applicationId: ApplicationId, gkAppResponse: GKApplicationResponse) = {
+  def stubApplicationForBlockSuccess(applicationId: ApplicationId, gkAppResponse: ApplicationWithCollaborators) = {
     val response = DispatchSuccessResult(gkAppResponse)
     stubFor(
       patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch"))

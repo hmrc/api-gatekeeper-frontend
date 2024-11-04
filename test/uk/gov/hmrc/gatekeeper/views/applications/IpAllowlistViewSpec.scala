@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, GKApplicationResponse, IpAllowlist}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, IpAllowlist}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -39,7 +39,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
     val request                          = FakeRequest()
     val ipAllowlistView: IpAllowlistView = app.injector.instanceOf[IpAllowlistView]
 
-    val application: GKApplicationResponse =
+    val application: ApplicationWithCollaborators =
       buildApplication(
         ApplicationId.random,
         ClientId("clientid"),
@@ -51,8 +51,8 @@ class IpAllowlistViewSpec extends CommonViewSpec {
           Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
           Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
         ),
-        LocalDateTime.now(),
-        Some(LocalDateTime.now()),
+        Instant.now(),
+        Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now()),
         ipAllowlist = IpAllowlist(allowlist = Set("1.1.1.1/24"))
@@ -71,7 +71,8 @@ class IpAllowlistViewSpec extends CommonViewSpec {
     }
 
     "show IP allowlist information when the allowlist is required" in new Setup {
-      val result: Appendable = ipAllowlistView(application.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24"))))(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable =
+        ipAllowlistView(application.modify(_.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24")))))(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

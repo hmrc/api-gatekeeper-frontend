@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.LocalDateTime
+import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.connectors.CommandConnectorMockProvider
@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -67,8 +68,8 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -81,13 +82,13 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Standard(),
       state = ApplicationState(updatedOn = instant)
     )
 
-    val privilegedApp = buildApplication(
+    val privilegedAppGK = buildApplication(
       ApplicationId.random,
       ClientId("clientid3"),
       "gatewayId3",
@@ -95,13 +96,13 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Privileged(),
       state = ApplicationState(updatedOn = instant)
     )
 
-    val ropcApp                = buildApplication(
+    val ropcAppGK              = buildApplication(
       ApplicationId.random,
       ClientId("clientid4"),
       "gatewayId4",
@@ -109,8 +110,8 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
       Environment.PRODUCTION,
       None,
       collaborators,
-      LocalDateTime.now(),
-      Some(LocalDateTime.now()),
+      Instant.now(),
+      Some(Instant.now()),
       access = Access.Ropc(),
       state = ApplicationState(updatedOn = instant)
     )
@@ -124,7 +125,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val version = apiIdentifier.versionNbr
 
     val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.copy(id = ApplicationId.random, deployedTo = Environment.SANDBOX))
+    val allSandboxApplications                         = allProductionApplications.map(_.withId(ApplicationId.random).inSandbox())
     val testContext                                    = ApiContext("test-context")
     val unknownContext                                 = ApiContext("unknown-context")
     val superContext                                   = ApiContext("super-context")

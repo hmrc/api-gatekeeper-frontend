@@ -21,10 +21,10 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithSubscriptionData
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
 trait ApmConnectorMockProvider {
@@ -41,7 +41,7 @@ trait ApmConnectorMockProvider {
 
     object FetchApplicationById {
 
-      def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionData]) =
+      def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionFields]) =
         when(aMock.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
     }
 
