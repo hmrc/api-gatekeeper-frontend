@@ -335,7 +335,7 @@ object APIApprovalSummary {
   implicit val format: OFormat[APIApprovalSummary] = Json.format[APIApprovalSummary]
 }
 
-case class ApproveServiceRequest(serviceName: String)
+case class ApproveServiceRequest(serviceName: String, actor: Actors.GatekeeperUser)
 
 object ApproveServiceRequest {
   implicit val format: OFormat[ApproveServiceRequest] = Json.format[ApproveServiceRequest]

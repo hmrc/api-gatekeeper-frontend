@@ -27,7 +27,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiVersionNbr, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -121,7 +121,8 @@ class ApiPublisherConnectorSpec
   "approveService" should {
     val serviceName           = "ServiceName" + UUID.randomUUID()
     val url                   = s"/service/$serviceName/approve"
-    val approveServiceRequest = ApproveServiceRequest(serviceName)
+    val actor                 = Actors.GatekeeperUser("GK User")
+    val approveServiceRequest = ApproveServiceRequest(serviceName, actor)
 
     "return ok for approve service" in new Setup {
       stubFor(
@@ -133,7 +134,7 @@ class ApiPublisherConnectorSpec
           )
       )
 
-      await(connector.approveService(serviceName)) shouldBe ((): Unit)
+      await(connector.approveService(serviceName, actor)) shouldBe ((): Unit)
     }
 
     "fail when approve service returns an internal server error" in new Setup {
@@ -147,7 +148,7 @@ class ApiPublisherConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(connector.approveService(serviceName))
+        await(connector.approveService(serviceName, actor))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }

@@ -47,8 +47,9 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
-    val serviceName = "ServiceName" + UUID.randomUUID()
-    val mockedURl   = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
+    val serviceName    = "ServiceName" + UUID.randomUUID()
+    val mockedURl      = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
+    val gatekeeperUser = Actors.GatekeeperUser("Bobby Example")
 
     val underTest = new DeploymentApprovalController(
       forbiddenView,
@@ -157,7 +158,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment), eqTo(gatekeeperUser))(*)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -178,7 +179,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment), eqTo(gatekeeperUser))(*)
       verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo(serviceName))(*)
     }
 

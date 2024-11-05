@@ -45,8 +45,8 @@ class DeploymentApprovalService @Inject() (
     connectorFor(environment).fetchApprovalSummary(serviceName)
   }
 
-  def approveService(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[Unit] = {
-    connectorFor(environment).approveService(serviceName)
+  def approveService(serviceName: String, environment: Environment, actor: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): Future[Unit] = {
+    connectorFor(environment).approveService(serviceName, actor)
   }
 
   def connectorFor(environment: Environment) = if (environment == Environment.PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
