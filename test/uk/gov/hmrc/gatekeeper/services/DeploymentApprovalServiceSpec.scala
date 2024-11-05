@@ -82,22 +82,23 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   }
 
   "approveService" should {
+    val gatekeeperUser: Actors.GatekeeperUser = Actors.GatekeeperUser("GK User")
     "approve the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.SANDBOX))
+      await(underTest.approveService(serviceName, Environment.SANDBOX, gatekeeperUser))
 
-      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName))(*)
-      verify(mockProductionApiPublisherConnector, never).approveService(*)(*)
+      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser))(*)
+      verify(mockProductionApiPublisherConnector, never).approveService(*, *)(*)
     }
 
     "approve the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.PRODUCTION))
+      await(underTest.approveService(serviceName, Environment.PRODUCTION, gatekeeperUser))
 
-      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName))(*)
-      verify(mockSandboxApiPublisherConnector, never).approveService(*)(*)
+      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser))(*)
+      verify(mockSandboxApiPublisherConnector, never).approveService(*, *)(*)
     }
   }
 

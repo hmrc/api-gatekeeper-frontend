@@ -46,7 +46,7 @@ trait DeploymentApprovalServiceMockProvider {
     object ApproveService {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.approveService(*, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.approveService(*, *, *)(*)).thenReturn(successful(()))
     }
   }
 }

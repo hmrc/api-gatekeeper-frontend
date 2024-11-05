@@ -69,7 +69,7 @@ class DeploymentApprovalController @Inject() (
       fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(deploymentReview(errors, details)))
 
     def doCalls(serviceName: String, environment: Environment): Future[Unit] = {
-      deploymentApprovalService.approveService(serviceName, environment)
+      deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get)
         .flatMap(_ =>
           environment match {
             case Environment.PRODUCTION => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
