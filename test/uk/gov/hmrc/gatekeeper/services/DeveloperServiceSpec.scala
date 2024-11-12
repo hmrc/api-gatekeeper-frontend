@@ -20,14 +20,11 @@ import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
-
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
-
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
-
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborator}
@@ -38,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.MarkPersonInactiveSuccess
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ApiPlatformDeskproConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
@@ -463,11 +461,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
+      ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
 
@@ -480,6 +480,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
+      ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
@@ -489,6 +490,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
     }
 
     "remove the user from their apps without emailing other verified admins on each sandbox app before deleting the user" in new Setup {
@@ -499,6 +501,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
+      ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
@@ -508,6 +511,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set.empty)
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
     }
 
     "fail if the developer is the sole admin on any of their associated apps" in new Setup {
@@ -523,6 +527,22 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       result shouldBe DeveloperDeleteFailureResult
 
       verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+      verify(apiPlatformDeskproConnector, never).markPersonInactive(*[LaxEmailAddress], *)
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
+    }
+
+    "delete the developer successfully if the call to deskpro failed" in new Setup {
+
+      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
+      deleteDeveloperWillSucceed
+      removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
+      ApiPlatformDeskproConnectorMock.MarkPersonInactive.fails()
+
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+      result shouldBe DeveloperDeleteSuccessResult
+
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
   }
