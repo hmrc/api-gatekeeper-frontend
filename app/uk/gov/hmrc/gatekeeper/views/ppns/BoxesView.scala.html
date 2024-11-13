@@ -16,10 +16,12 @@
 
  @import uk.gov.hmrc.gatekeeper.config.AppConfig
  @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+ @import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+ @import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
  @this(main: MainView, applicationConfig: AppConfig)
 
- @(sandboxBoxes: (Int, Int, Int), productionBoxes: (Int, Int, Int))(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+ @(sandboxBoxes: (Int, Int, Int), productionBoxes: (Int, Int, Int), appBoxMap: List[(ApplicationId, List[Box])])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
  @main(title = s"${applicationConfig.title} - PPNS Boxes") {
   <h1>Sandbox Box Count: @sandboxBoxes._1</h1>
@@ -28,4 +30,23 @@
   <h1>Production Box Count: @productionBoxes._1</h1>
   <h1>Production Push Box Count: @productionBoxes._2</h1>
   <h1>Production Pull Box Count: @productionBoxes._3</h1>
+
+  <table id="application-boxes-table" class="govuk-table" width="100%">
+    <caption class="govuk-visually-hidden">Developer View table</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th tabindex="0" scope="col" class="govuk-table__header">ApplicationId</th>
+        <th tabindex="0" scope="col" class="govuk-table__header">Number of Boxes</th>
+       </tr>
+      </thead>
+      <tbody>
+  @for(i <- appBoxMap) {
+            <tr class="govuk-table__row">
+                <td id="@i._1" class="govuk-table__cell">@i._1</td>
+                <td  class="govuk-table__cell">@i._2.size</td>
+             </tr>     
+  }
+    </tbody>  
+   </table>    
+
  }
