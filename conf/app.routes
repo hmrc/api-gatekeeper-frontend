@@ -140,3 +140,4 @@ GET         /emails/email-preferences/selected-user-topic                     uk
 GET         /emails/email-preferences/selected-user-tax-regime                uk.gov.hmrc.gatekeeper.controllers.EmailsPreferencesController.selectedUserTaxRegime(selectedCategories: Option[Set[ApiCategory]], offset: Int ?=0, limit: Int ?=15)
 
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
+GET         /boxes                                                            uk.gov.hmrc.gatekeeper.controllers.BoxesController.page()

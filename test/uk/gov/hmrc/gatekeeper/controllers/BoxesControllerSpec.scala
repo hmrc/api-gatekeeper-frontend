@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
 import uk.gov.hmrc.gatekeeper.services.ApmService
+import uk.gov.hmrc.gatekeeper.views.html.ppns.BoxesView
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
@@ -39,12 +40,14 @@ class BoxesControllerSpec extends ControllerBaseSpec {
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
       val apmService: ApmService = mock[ApmService]
+      private lazy val boxesView = app.injector.instanceOf[BoxesView]
 
       val controller = new BoxesController(
         mcc,
         apmService,
         StrideAuthorisationServiceMock.aMock,
-        LdapAuthorisationServiceMock.aMock
+        LdapAuthorisationServiceMock.aMock,
+        boxesView
       )
     }
 
