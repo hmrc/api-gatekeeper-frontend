@@ -17,13 +17,15 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify, _}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.client.HttpClientV2
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, LaxEmailAddressData}
 import uk.gov.hmrc.apiplatform.modules.common.utils._

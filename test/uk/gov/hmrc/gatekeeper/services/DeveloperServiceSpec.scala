@@ -20,11 +20,14 @@ import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
+
 import mocks.connectors._
 import mocks.services.XmlServiceMockProvider
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborator}
@@ -35,7 +38,6 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.MarkPersonInactiveSuccess
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ApiPlatformDeskproConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation

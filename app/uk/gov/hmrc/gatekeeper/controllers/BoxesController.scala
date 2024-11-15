@@ -63,15 +63,15 @@ class BoxesController @Inject() (
 
   def page(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     def getMetrics(boxes: List[Box], env: Environment) = {
-      val envBoxes             = boxes.filter(_.environment == Environment.SANDBOX)
-      val pushBoxes: List[Box] = envBoxes.filter(_.subscriber.map(_.subscriptionType == SubscriptionType.API_PUSH_SUBSCRIBER).getOrElse(false))
-      val pullBoxes: List[Box] = envBoxes.filterNot(_.subscriber.map(_.subscriptionType == SubscriptionType.API_PUSH_SUBSCRIBER).getOrElse(false))
+      val envBoxes             = boxes.filter(_.environment == env)
+      val pushBoxes: List[Box] = envBoxes.filter(_.subscriber.exists(_.subscriptionType == SubscriptionType.API_PUSH_SUBSCRIBER))
+      val pullBoxes: List[Box] = envBoxes.filterNot(_.subscriber.exists(_.subscriptionType == SubscriptionType.API_PUSH_SUBSCRIBER))
       (envBoxes.size, pushBoxes.size, pullBoxes.size)
     }
 
     apmService.fetchAllBoxes().map(boxes => {
       val sandboxMetrics: (Int, Int, Int)             = getMetrics(boxes, Environment.SANDBOX)
-      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.SANDBOX)
+      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.PRODUCTION)
       val appBoxMap: List[(ApplicationId, List[Box])] = boxes.filter(_.applicationId.isDefined).groupBy(_.applicationId.get).toList.sortBy(_._2.size).reverse
 
       Ok(boxesView(sandboxMetrics, productionMetrics, appBoxMap))
