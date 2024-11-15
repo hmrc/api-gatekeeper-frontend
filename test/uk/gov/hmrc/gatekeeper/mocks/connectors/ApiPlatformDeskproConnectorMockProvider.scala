@@ -21,6 +21,7 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
@@ -37,6 +38,12 @@ trait ApiPlatformDeskproConnectorMockProvider {
 
     object GetOrganisationsForUser {
       def returns(orgs: Option[List[DeskproOrganisation]]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress], *)).thenReturn(successful(orgs))
+    }
+
+    object MarkPersonInactive {
+      def suceeds() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveSuccess))
+
+      def fails() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveFailed))
     }
   }
 }
