@@ -43,7 +43,9 @@
       <tbody>
       @for(i <- appBoxMap) {
             <tr class="govuk-table__row">
-                <td id="@i._1" class="govuk-table__cell">@{routes.ApplicationController.applicationPage(i._1)}</td>
+                <td id="@i._1" class="govuk-table__cell">
+                    <a href="@{routes.ApplicationController.applicationPage(i._1)}">@i._1</a>
+                </td>
                 <td  class="govuk-table__cell">@i._2.size</td>
              </tr>     
       }
