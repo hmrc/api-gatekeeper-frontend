@@ -155,7 +155,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         DeveloperServiceMock.FetchUsers.returns(user1)
 
         val result = developersController.developersCsv()(aLoggedInRequest)
-        contentAsString(result) should be(s"UserId\n${userId1.toString}\n")
+        contentAsString(result) should be(s"UserId,SMS MFA Active,Authenticator MFA Active\n${userId1.toString},false,false\n")
       }
 
       "fails without auth" in new Setup {
