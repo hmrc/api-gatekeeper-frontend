@@ -16,6 +16,7 @@
 
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 @import uk.gov.hmrc.gatekeeper.models.TotpSecrets
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -23,12 +24,12 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationId: ApplicationId, applicationName: String, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
+@(applicationId: ApplicationId, applicationName: ApplicationName, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
 
-  <h1 class="govuk-heading-l">@applicationName</h1>
+  <h1 class="govuk-heading-l">@applicationName.value</h1>
 
   <div class="govuk-panel govuk-panel--confirmation">
     <h2 class="govuk-panel__title">Application added</h2>
@@ -58,7 +59,7 @@
         Application name
       </dt>
       <dd class="govuk-summary-list__value">
-        @applicationName
+        @applicationName.value
       </dd>
     </div>
     <div class="govuk-summary-list__row">

@@ -329,14 +329,14 @@ class ApplicationConnectorSpec
 
     "successfully create an application" in new Setup {
 
-      val appName        = "My new app"
+      val appName        = ApplicationName("My new app")
       val appDescription = "An application description"
       val admin          = List(administrator)
       val access         = AppAccess(AccessType.PRIVILEGED, List())
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, appName, appDescription, admin, access)
+      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, appName.value, appDescription, admin, access)
       val request                     = Json.toJson(createPrivOrROPCAppRequest).toString
       val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, ClientId("client ID"), totpSecrets, appAccess)
       val response                    = Json.toJson(createPrivOrROPCAppResponse).toString

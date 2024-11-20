@@ -543,7 +543,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val totpSecrets = Some(TotpSecrets("secret"))
     val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
 
-    val name        = "New app"
+    val name        = ApplicationName("New app")
     val appId       = ApplicationId.random
     val clientId    = ClientId("client ID")
     val description = "App description"
@@ -553,11 +553,11 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       ApplicationConnectorMock.Prod.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivOrROPCApp(environment, name, description, admin, appAccess))
+      val result = await(underTest.createPrivOrROPCApp(environment, name.value, description, admin, appAccess))
 
       result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockProductionApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name, description, admin, appAccess)))(*)
+      verify(mockProductionApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name.value, description, admin, appAccess)))(*)
       verify(mockSandboxApplicationConnector, never).createPrivOrROPCApp(*)(*)
     }
 
@@ -566,11 +566,11 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       ApplicationConnectorMock.Sandbox.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivOrROPCApp(environment, name, description, admin, appAccess))
+      val result = await(underTest.createPrivOrROPCApp(environment, name.value, description, admin, appAccess))
 
       result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name, description, admin, appAccess)))(*)
+      verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name.value, description, admin, appAccess)))(*)
       verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
     }
   }
