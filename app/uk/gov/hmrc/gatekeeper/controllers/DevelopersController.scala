@@ -65,9 +65,7 @@ class DevelopersController @Inject() (
     {
 
       val csvColumnDefinitions = Seq[ColumnDefinition[RegisteredUser]](
-        ColumnDefinition("First Name", (app => app.firstName)),
-        ColumnDefinition("Last Name", (app => app.lastName)),
-        ColumnDefinition("Email", (app => app.email.text))
+        ColumnDefinition("UserId", (dev => dev.userId.toString()))
       )
       developerService.fetchUsers
         .map(users => CsvHelper.toCsvString(csvColumnDefinitions, users.filter(_.verified)))
