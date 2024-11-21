@@ -239,7 +239,7 @@ object CreatePrivOrROPCAppSuccessResult {
   import play.api.libs.functional.syntax._
 
   private val newLayoutReads: Reads[CreatePrivOrROPCAppSuccessResult] = (
-    (JsPath \ "application").read[CoreApplication] and
+    (JsPath \ "details").read[CoreApplication] and
       (JsPath \ "totp").readNullable[String].map(_.map(TotpSecrets(_)))
   )(unpack)
 

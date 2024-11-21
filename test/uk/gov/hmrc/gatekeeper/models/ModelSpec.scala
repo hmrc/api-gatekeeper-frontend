@@ -141,7 +141,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       val totp         = "totp-secret"
       val jsonResponse =
         s"""{
-           |  "application": ${Json.toJson(privilegedCoreApp).toString()},
+           |  "details": ${Json.toJson(privilegedCoreApp).toString()},
            |  "totp": "$totp"
            |}""".stripMargin
 
@@ -159,7 +159,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       val totp         = "totp-secret"
       val jsonResponse =
         s"""{
-           |  "application": ${Json.toJson(privilegedCoreApp).toString()}
+           |  "details": ${Json.toJson(privilegedCoreApp).toString()}
            |}""".stripMargin
 
       val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]

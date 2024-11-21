@@ -337,7 +337,7 @@ class ApplicationConnectorSpec
       val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.clientId, totpSecrets, appAccess)
       val response                    =
         s"""{
-           |  "application": ${Json.toJson(app).toString()},
+           |  "details": ${Json.toJson(app).toString()},
            |  "totp": "secret"
            |}""".stripMargin
 
