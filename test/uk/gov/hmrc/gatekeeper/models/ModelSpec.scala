@@ -18,6 +18,8 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.Instant
 
+import play.api.libs.json.Json
+
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
@@ -110,4 +112,64 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
     }
   }
 
+  "CreatePrivOrROPCAppSuccessResult" should {
+    "read the flat layout (old style)" in {
+      val totp         = "totp-secret"
+      val jsonResponse =
+        s"""{
+           |  "id": "${privilegedCoreApp.id}",
+           |  "name": "${privilegedCoreApp.name}",
+           |  "deployedTo": "${privilegedCoreApp.deployedTo}",
+           |  "clientId": "${privilegedCoreApp.clientId}",
+           |  "access": ${Json.toJson(privilegedCoreApp.access).toString()},
+           |  "totp": {
+           |    "production": "$totp"
+           |  }
+           |}""".stripMargin
+
+      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+
+      result.id shouldBe privilegedCoreApp.id
+      result.name shouldBe privilegedCoreApp.name
+      result.deployedTo shouldBe privilegedCoreApp.deployedTo
+      result.clientId shouldBe privilegedCoreApp.clientId
+      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.totp shouldBe Some(TotpSecrets(totp))
+    }
+
+    "read the CoreApplication and TOTP secret" in {
+      val totp         = "totp-secret"
+      val jsonResponse =
+        s"""{
+           |  "application": ${Json.toJson(privilegedCoreApp).toString()},
+           |  "totp": "$totp"
+           |}""".stripMargin
+
+      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+
+      result.id shouldBe privilegedCoreApp.id
+      result.name shouldBe privilegedCoreApp.name
+      result.deployedTo shouldBe privilegedCoreApp.deployedTo
+      result.clientId shouldBe privilegedCoreApp.clientId
+      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.totp shouldBe Some(TotpSecrets(totp))
+    }
+
+    "read the CoreApplication without TOTP secret" in {
+      val totp         = "totp-secret"
+      val jsonResponse =
+        s"""{
+           |  "application": ${Json.toJson(privilegedCoreApp).toString()}
+           |}""".stripMargin
+
+      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+
+      result.id shouldBe privilegedCoreApp.id
+      result.name shouldBe privilegedCoreApp.name
+      result.deployedTo shouldBe privilegedCoreApp.deployedTo
+      result.clientId shouldBe privilegedCoreApp.clientId
+      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.totp shouldBe None
+    }
+  }
 }

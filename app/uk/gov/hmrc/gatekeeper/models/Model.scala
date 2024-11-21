@@ -232,18 +232,18 @@ object CreatePrivOrROPCAppSuccessResult {
     case _                           => throw new IllegalStateException("Should only be here with a Priviledged or ROPC app")
   }
 
-  private def unpack: (CoreApplication, TotpSecrets) => CreatePrivOrROPCAppSuccessResult = (app, totp) => {
-    CreatePrivOrROPCAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, Some(totp), asAppAccess(app.access))
+  private def unpack: (CoreApplication, Option[TotpSecrets]) => CreatePrivOrROPCAppSuccessResult = (app, totp) => {
+    CreatePrivOrROPCAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, totp, asAppAccess(app.access))
   }
 
   import play.api.libs.functional.syntax._
 
   private val newLayoutReads: Reads[CreatePrivOrROPCAppSuccessResult] = (
     (JsPath \ "application").read[CoreApplication] and
-      (JsPath \ "totp").read[TotpSecrets]
+      (JsPath \ "totp").readNullable[String].map(_.map(TotpSecrets(_)))
   )(unpack)
 
-  implicit val rds5: Reads[CreatePrivOrROPCAppSuccessResult] = newLayoutReads.orElse(Json.reads[CreatePrivOrROPCAppSuccessResult])
+  implicit val reads: Reads[CreatePrivOrROPCAppSuccessResult] = newLayoutReads.orElse(Json.reads[CreatePrivOrROPCAppSuccessResult])
 }
 
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
