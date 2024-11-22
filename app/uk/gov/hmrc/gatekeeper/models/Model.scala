@@ -24,6 +24,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access.{Privileged, Ropc}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
@@ -218,14 +219,33 @@ case object EmailPreferencesDeleteFailureResult extends EmailPreferencesDeleteRe
 
 sealed trait CreatePrivOrROPCAppResult
 
-case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: String, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
+case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: ApplicationName, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
     extends CreatePrivOrROPCAppResult
 
 object CreatePrivOrROPCAppSuccessResult {
-  implicit val rds1: Reads[TotpSecrets]                      = Json.reads[TotpSecrets]
-  implicit val rds4: Reads[AppAccess]                        = Json.reads[AppAccess]
-  implicit val rds5: Reads[CreatePrivOrROPCAppSuccessResult] = Json.reads[CreatePrivOrROPCAppSuccessResult]
+  implicit val rds1: Reads[TotpSecrets] = Json.reads[TotpSecrets]
+  implicit val rds4: Reads[AppAccess]   = Json.reads[AppAccess]
+
+  private def asAppAccess(access: Access): AppAccess = access match {
+    case Privileged(totpIds, scopes) => AppAccess(access.accessType, scopes.toList)
+    case Ropc(scopes)                => AppAccess(access.accessType, scopes.toList)
+    case _                           => throw new IllegalStateException("Should only be here with a Priviledged or ROPC app")
+  }
+
+  private def unpack: (CoreApplication, Option[TotpSecrets]) => CreatePrivOrROPCAppSuccessResult = (app, totp) => {
+    CreatePrivOrROPCAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, totp, asAppAccess(app.access))
+  }
+
+  import play.api.libs.functional.syntax._
+
+  private val newLayoutReads: Reads[CreatePrivOrROPCAppSuccessResult] = (
+    (JsPath \ "details").read[CoreApplication] and
+      (JsPath \ "totp").readNullable[String].map(_.map(TotpSecrets(_)))
+  )(unpack)
+
+  implicit val reads: Reads[CreatePrivOrROPCAppSuccessResult] = newLayoutReads.orElse(Json.reads[CreatePrivOrROPCAppSuccessResult])
 }
+
 case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
 
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)

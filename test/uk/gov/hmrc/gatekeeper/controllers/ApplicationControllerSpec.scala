@@ -1449,7 +1449,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
     }
 
     "createPrivOrROPCApp" should {
-      val appName              = "My New App"
+      val appName              = ApplicationName("My New App")
       val privilegedAccessType = AccessType.PRIVILEGED
       val ropcAccessType       = AccessType.ROPC
       val description          = "An application description"
@@ -1468,7 +1468,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", ""),
               ("accessType", privilegedAccessType.toString),
-              ("applicationName", appName),
+              ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
             )
@@ -1486,7 +1486,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", ""),
-              ("applicationName", appName),
+              ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
             )
@@ -1598,7 +1598,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+            applicationId,
+            ApplicationName("I Already Exist"),
+            Environment.SANDBOX,
+            clientId,
+            totp,
+            privAccess
+          ))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1619,7 +1626,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.SANDBOX, clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+            applicationId,
+            ApplicationName("I Already Exist"),
+            Environment.SANDBOX,
+            clientId,
+            totp,
+            privAccess
+          ))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1640,7 +1654,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, "I Already Exist", Environment.PRODUCTION, clientId, totp, privAccess))
+          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+            applicationId,
+            ApplicationName("I Already Exist"),
+            Environment.PRODUCTION,
+            clientId,
+            totp,
+            privAccess
+          ))
 
           val result = addToken(underTest.createPrivOrROPCApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
@@ -1665,7 +1686,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
-              ("applicationName", appName),
+              ("applicationName", appName.value),
               ("applicationDescription", ""),
               ("adminEmail", adminEmail.text)
             )
@@ -1684,7 +1705,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
-              ("applicationName", appName),
+              ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "")
             )
@@ -1702,7 +1723,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
               ("accessType", privilegedAccessType.toString),
-              ("applicationName", appName),
+              ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "notAValidEmailAddress")
             )
@@ -1725,7 +1746,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName),
+                ("applicationName", appName.value),
                 ("applicationDescription", description),
                 ("adminEmail", email)
               )
@@ -1746,7 +1767,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName),
+                ("applicationName", appName.value),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1754,7 +1775,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName)
+            contentAsString(result) should include(appName.value)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1775,7 +1796,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.SANDBOX.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName),
+                ("applicationName", appName.value),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1783,7 +1804,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName)
+            contentAsString(result) should include(appName.value)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1803,7 +1824,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", ropcAccessType.toString),
-                ("applicationName", appName),
+                ("applicationName", appName.value),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1811,7 +1832,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName)
+            contentAsString(result) should include(appName.value)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Production")
@@ -1829,7 +1850,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.SANDBOX.toString),
                 ("accessType", ropcAccessType.toString),
-                ("applicationName", appName),
+                ("applicationName", appName.value),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1837,7 +1858,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName)
+            contentAsString(result) should include(appName.value)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include(applicationId.value.toString())
             contentAsString(result) should include("Sandbox")
