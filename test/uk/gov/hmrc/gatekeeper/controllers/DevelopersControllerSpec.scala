@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
+import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
@@ -30,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
@@ -150,12 +152,28 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         private val userId1     = UserId.random
         private val mfaDetails1 = List.empty
-        private val user1       = RegisteredUser(LaxEmailAddress("developer@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1)
+        private val user1       = RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1)
 
-        DeveloperServiceMock.FetchUsers.returns(user1)
+        private val userId2     = UserId.random
+        private val mfaDetails2 = List(
+          SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev2's phone", instant, "01234 567890", true),
+          AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev2's app", instant, false)
+        )
+        private val user2       = RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2)
+
+        private val userId3     = UserId.random
+        private val mfaDetails3 = List(
+          SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev3's phone", instant, "01234 567890", false),
+          AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev3's app", instant, true)
+        )
+        private val user3       = RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3)
+
+        DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
 
         val result = developersController.developersCsv()(aLoggedInRequest)
-        contentAsString(result) should be(s"UserId,SMS MFA Active,Authenticator MFA Active\n${userId1.toString},false,false\n")
+        contentAsString(result) should be(
+          s"UserId,SMS MFA Active,Authenticator MFA Active\n${userId1.toString},false,false\n${userId2.toString},true,false\n${userId3.toString},false,true\n"
+        )
       }
 
       "fails without auth" in new Setup {
