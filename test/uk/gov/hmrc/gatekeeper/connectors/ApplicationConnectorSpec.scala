@@ -24,7 +24,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.HeaderNames
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.Json
 import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
@@ -58,10 +58,6 @@ class ApplicationConnectorSpec
   implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
-    implicit val totpFormat: OFormat[TotpSecrets]                        = Json.format[TotpSecrets]
-    implicit val accessFormat: OFormat[AppAccess]                        = Json.format[AppAccess]
-    implicit val createFormat: OFormat[CreatePrivOrROPCAppSuccessResult] = Json.format[CreatePrivOrROPCAppSuccessResult]
-
     val httpClient               = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
@@ -329,17 +325,21 @@ class ApplicationConnectorSpec
 
     "successfully create an application" in new Setup {
 
-      val appName        = "My new app"
-      val appDescription = "An application description"
+      val appDescription = "My app description"
+      val app            = privilegedCoreApp.copy(description = Some(appDescription))
       val admin          = List(administrator)
       val access         = AppAccess(AccessType.PRIVILEGED, List())
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, appName, appDescription, admin, access)
+      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, app.name.value, appDescription, admin, access)
       val request                     = Json.toJson(createPrivOrROPCAppRequest).toString
-      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, ClientId("client ID"), totpSecrets, appAccess)
-      val response                    = Json.toJson(createPrivOrROPCAppResponse).toString
+      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.clientId, totpSecrets, appAccess)
+      val response                    =
+        s"""{
+           |  "details": ${Json.toJson(app).toString()},
+           |  "totp": "secret"
+           |}""".stripMargin
 
       stubFor(
         post(urlEqualTo(url))

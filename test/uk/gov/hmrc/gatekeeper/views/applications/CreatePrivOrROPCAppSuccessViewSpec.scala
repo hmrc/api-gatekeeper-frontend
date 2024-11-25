@@ -21,6 +21,7 @@ import org.jsoup.Jsoup
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,7 +38,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
   "CreatePrivOrROPCAppSuccess page" when {
 
     val appId      = ApplicationId.random
-    val appName    = "This is my app name"
+    val appName    = ApplicationName("This is my app name")
     val env        = Environment.PRODUCTION
     val clientId   = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
@@ -57,7 +58,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName) shouldBe true
+        elementExistsByText(document, "h1", appName.value) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
         elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
@@ -81,7 +82,7 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName) shouldBe true
+        elementExistsByText(document, "h1", appName.value) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
         elementExistsByText(document, "div", s"Application name $appName") shouldBe true
