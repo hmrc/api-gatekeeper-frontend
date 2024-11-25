@@ -148,13 +148,14 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenNoDataSuppliedDelegateServices()
 
-        private val emailAddress = "developer@example.com"
-        private val user         = RegisteredUser(emailAddress.toLaxEmail, idOf(emailAddress), "first", "last", verified = true)
+        private val userId1     = UserId.random
+        private val mfaDetails1 = List.empty
+        private val user1       = RegisteredUser(LaxEmailAddress("developer@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1)
 
-        DeveloperServiceMock.FetchUsers.returns(user)
+        DeveloperServiceMock.FetchUsers.returns(user1)
 
         val result = developersController.developersCsv()(aLoggedInRequest)
-        contentAsString(result) should be(s"First Name,Last Name,Email\nfirst,last,$emailAddress\n")
+        contentAsString(result) should be(s"UserId\n${userId1.toString}\n")
       }
 
       "fails without auth" in new Setup {
