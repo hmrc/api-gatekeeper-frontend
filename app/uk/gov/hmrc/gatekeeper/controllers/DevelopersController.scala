@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
@@ -64,9 +65,15 @@ class DevelopersController @Inject() (
   def developersCsv() = atLeastSuperUserAction { implicit request =>
     {
 
-      val csvColumnDefinitions = Seq[ColumnDefinition[RegisteredUser]](
-        ColumnDefinition("UserId", (dev => dev.userId.toString()))
+      def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean = {
+        user.mfaDetails.exists(mfa => (mfa.verified && mfa.mfaType == mfaType))
+      }
+      val csvColumnDefinitions                                             = Seq[ColumnDefinition[RegisteredUser]](
+        ColumnDefinition("UserId", (dev => dev.userId.toString())),
+        ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
+        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString()))
       )
+
       developerService.fetchUsers
         .map(users => CsvHelper.toCsvString(csvColumnDefinitions, users.filter(_.verified)))
         .map(Ok(_).withHeaders(CONTENT_DISPOSITION -> s"attachment; filename=developers-${Instant.now()}.csv").as("text/csv"))
