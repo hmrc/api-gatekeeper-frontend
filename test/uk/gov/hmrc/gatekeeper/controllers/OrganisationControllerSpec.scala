@@ -93,6 +93,7 @@ class OrganisationControllerSpec
       "on request get applications for organisation" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         OrganisationServiceMock.FetchApplicationsForOrganisation.returns(organisationId)(organisationWithApps)
+        ApmServiceMock.FetchNonOpenApiDefinitions.returns()
 
         val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
 
