@@ -58,10 +58,10 @@ class OrganisationViewSpec extends CommonViewSpec {
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     val organisationViewWithApplication: () => HtmlFormat.Appendable =
-      () => organisationView(organisationWithApps, getApprovalsUrl)
+      () => organisationView(organisationWithApps, getApprovalsUrl, Map.empty, Map.empty)
 
     val organisationViewWithNoApplication: () => HtmlFormat.Appendable =
-      () => organisationView(organisationWithApps.copy(applications = List.empty), getApprovalsUrl)
+      () => organisationView(organisationWithApps.copy(applications = List.empty), getApprovalsUrl, Map.empty, Map.empty)
   }
 
   "OrganisationView" should {
