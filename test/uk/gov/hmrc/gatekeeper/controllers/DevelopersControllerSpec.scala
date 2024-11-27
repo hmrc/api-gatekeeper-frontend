@@ -36,6 +36,9 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
+import uk.gov.hmrc.gatekeeper.models.xml.VendorId
+import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 
@@ -59,6 +62,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         forbiddenView,
         mockDeveloperService,
         mockApiDefinitionService,
+        mockXmlService,
         mcc,
         developersView,
         removeEmailPref,
@@ -168,11 +172,17 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val user3       = RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3)
 
+        private val xmlOrg1     = XmlOrganisation(OrganisationId(UUID.randomUUID()), VendorId(1), "xml org name 1")
+        private val xmlOrg2     = XmlOrganisation(OrganisationId(UUID.randomUUID()), VendorId(2), "xml org name 2")
+
         DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
+        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId1, List(xmlOrg1))
+        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId2, List.empty)
+        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId3, List(xmlOrg1, xmlOrg2))
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(
-          s"UserId,SMS MFA Active,Authenticator MFA Active\n${userId1.toString},false,false\n${userId2.toString},true,false\n${userId3.toString},false,true\n"
+          s"UserId,SMS MFA Active,Authenticator MFA Active,XML Vendors\n${userId1.toString},false,false,1\n${userId2.toString},true,false,0\n${userId3.toString},false,true,2\n"
         )
       }
 

@@ -38,12 +38,19 @@ import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.developers.{DevelopersView, _}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.services.XmlService
+import scala.concurrent.Await
+import scala.util.Try
+import scala.concurrent.duration.Duration
+import java.util.concurrent.TimeUnit
+import scala.util.Success
 
 @Singleton
 class DevelopersController @Inject() (
     val forbiddenView: ForbiddenView,
     developerService: DeveloperService,
     val apiDefinitionService: ApiDefinitionService,
+    xmlService: XmlService,
     mcc: MessagesControllerComponents,
     developersView: DevelopersView,
     removeEmailPreferencesView: RemoveEmailPreferences,
@@ -68,10 +75,25 @@ class DevelopersController @Inject() (
       def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean = {
         user.mfaDetails.exists(mfa => (mfa.verified && mfa.mfaType == mfaType))
       }
+      def getNumberOfXmlOrganisations(user: RegisteredUser): Int = {
+        // (
+        //   for {
+        //     orgList <- xmlService.findOrganisationsByUserId(user.userId)
+        //   } yield orgList
+        // )
+        // .map(list => list.size)
+        //.value
+        //xmlService.findOrganisationsByUserId(user.userId).map(list => list.size)
+        Try(Await.result(xmlService.findOrganisationsByUserId(user.userId), Duration(10, TimeUnit.SECONDS))) match {
+          case Success(list) => list.size
+          case _             => 0
+        }
+      }
       val csvColumnDefinitions                                             = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
-        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString()))
+        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
+        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev).toString()))
       )
 
       developerService.fetchUsers
