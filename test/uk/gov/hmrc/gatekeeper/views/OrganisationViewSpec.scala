@@ -52,8 +52,8 @@ class OrganisationViewSpec extends CommonViewSpec {
 
     val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
     val organisationName     = "Organisation Name"
-    val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
     val organisationId       = OrganisationId("1")
+    val organisationWithApps = OrganisationWithApps(organisationId, organisationName, List(applicationResponse))
 
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
@@ -66,6 +66,12 @@ class OrganisationViewSpec extends CommonViewSpec {
 
   "OrganisationView" should {
 
+    "Display the subscription filters" in new Setup {
+      organisationViewWithApplication().body should include("<option selected value>All applications</option>")
+      organisationViewWithApplication().body should include("""<option  value="ANY">One or more subscriptions</option>""")
+      organisationViewWithApplication().body should include("""<option  value="NONE">No subscriptions</option>""")
+    }
+
     "Display an application" in new Setup {
       organisationViewWithApplication().body should include(organisationName)
       organisationViewWithApplication().body should include(applicationResponse.name.toString())
@@ -75,7 +81,7 @@ class OrganisationViewSpec extends CommonViewSpec {
     }
     "Display no application" in new Setup {
       organisationViewWithNoApplication().body should include(organisationName)
-      organisationViewWithNoApplication().body should include("This organisation does not have any applications.")
+      organisationViewWithNoApplication().body should include("No applications")
     }
 
   }

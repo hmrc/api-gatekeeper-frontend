@@ -51,7 +51,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec {
 
         val result = await(organisationService.fetchOrganisationWithApplications(organisationId, Map.empty))
 
-        result shouldBe OrganisationWithApps(organisationName, List(applicationResponse))
+        result shouldBe OrganisationWithApps(organisationId, organisationName, List(applicationResponse))
       }
     }
   }

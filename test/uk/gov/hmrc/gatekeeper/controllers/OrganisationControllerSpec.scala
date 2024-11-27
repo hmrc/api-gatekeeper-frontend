@@ -71,8 +71,8 @@ class OrganisationControllerSpec
 
       val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
       val organisationName     = "Organisation Name"
-      val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
       val organisationId       = OrganisationId("1")
+      val organisationWithApps = OrganisationWithApps(organisationId, organisationName, List(applicationResponse))
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 

@@ -54,27 +54,22 @@
               Filter by API Subscription
               </label>
               <select class="govuk-select full-width" id="filter" name="apiSubscription">
-                  <option
-                  @if(apiSubscription == None) {selected} value>All applications</option>
-                  <option
-                  @if(apiSubscription == Some("ANY")) {selected} value="ANY">One or more subscriptions</option>
-                  <option
-                  @if(apiSubscription == Some("NONE")) {selected} value="NONE">No subscriptions</option>
+                  <option @if(apiSubscription == None) {selected} value>All applications</option>
+                  <option @if(apiSubscription == Some("ANY")) {selected} value="ANY">One or more subscriptions</option>
+                  <option @if(apiSubscription == Some("NONE")) {selected} value="NONE">No subscriptions</option>
 
                   @for((status, versions) <- apis) {
-                      <optgroup label="@{
-                          status
-                      }">
+                      <optgroup label="@{status}">
                       @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
                           @defining(s"${version.apiIdentifier.context.value}--${version.apiIdentifier.versionNbr.value}") { value =>
                               <option @if(apiSubscription == Some(value)) {selected} value="@value">
                               @version.name (@version.apiIdentifier.versionNbr.value)
                           </option>
-                          }
                       }
-                      </optgroup>
-                  }
-  </select>
+                    }
+                  </optgroup>
+              }
+    </select>
   </div>
   </div>
 
