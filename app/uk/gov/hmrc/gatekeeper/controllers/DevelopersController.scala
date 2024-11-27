@@ -33,17 +33,12 @@ import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationWithCollaborators
+import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService, XmlService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.developers.{DevelopersView, _}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.services.XmlService
-import scala.concurrent.Await
-import scala.util.Try
-import scala.concurrent.duration.Duration
-import java.util.concurrent.TimeUnit
-import scala.util.Success
 
 @Singleton
 class DevelopersController @Inject() (
@@ -75,29 +70,24 @@ class DevelopersController @Inject() (
       def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean = {
         user.mfaDetails.exists(mfa => (mfa.verified && mfa.mfaType == mfaType))
       }
-      def getNumberOfXmlOrganisations(user: RegisteredUser): Int = {
-        // (
-        //   for {
-        //     orgList <- xmlService.findOrganisationsByUserId(user.userId)
-        //   } yield orgList
-        // )
-        // .map(list => list.size)
-        //.value
-        //xmlService.findOrganisationsByUserId(user.userId).map(list => list.size)
-        Try(Await.result(xmlService.findOrganisationsByUserId(user.userId), Duration(10, TimeUnit.SECONDS))) match {
-          case Success(list) => list.size
-          case _             => 0
-        }
+      def getNumberOfXmlOrganisations(user: RegisteredUser, orgs: List[XmlOrganisationWithCollaborators]): Int = {
+        orgs.filter(org => org.collaborators.exists(coll => coll.userId == user.userId)).size
       }
-      val csvColumnDefinitions                                             = Seq[ColumnDefinition[RegisteredUser]](
+      def csvColumnDefinitions(orgs: List[XmlOrganisationWithCollaborators]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
         ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
-        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev).toString()))
+        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString()))
       )
 
-      developerService.fetchUsers
-        .map(users => CsvHelper.toCsvString(csvColumnDefinitions, users.filter(_.verified)))
+      (
+        for {
+          allUsers <- developerService.fetchUsers()
+          users     = allUsers.filter(_.verified)
+          orgs     <- xmlService.getAllOrganisations()
+        } yield (users, orgs)
+      )
+        .map(usersAndOrgs => CsvHelper.toCsvString(csvColumnDefinitions(usersAndOrgs._2), usersAndOrgs._1))
         .map(Ok(_).withHeaders(CONTENT_DISPOSITION -> s"attachment; filename=developers-${Instant.now()}.csv").as("text/csv"))
     }
 

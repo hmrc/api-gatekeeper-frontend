@@ -33,12 +33,10 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, OrganisationId, VendorId, XmlOrganisationWithCollaborators}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
-import uk.gov.hmrc.gatekeeper.models.xml.VendorId
-import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
 
 class DevelopersControllerSpec extends ControllerBaseSpec {
 
@@ -172,13 +170,21 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val user3       = RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3)
 
-        private val xmlOrg1     = XmlOrganisation(OrganisationId(UUID.randomUUID()), VendorId(1), "xml org name 1")
-        private val xmlOrg2     = XmlOrganisation(OrganisationId(UUID.randomUUID()), VendorId(2), "xml org name 2")
+        private val xmlOrg1 = XmlOrganisationWithCollaborators(
+          OrganisationId(UUID.randomUUID()), 
+          VendorId(1), 
+          "xml org name 1", 
+          List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+        )
+        private val xmlOrg2 = XmlOrganisationWithCollaborators(
+          OrganisationId(UUID.randomUUID()),
+          VendorId(2),
+          "xml org name 2",
+          List(Collaborator(userId1, LaxEmailAddress("developer1@example.com")), Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+        )
 
         DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
-        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId1, List(xmlOrg1))
-        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId2, List.empty)
-        XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(userId3, List(xmlOrg1, xmlOrg2))
+        XmlServiceMock.GetAllXmlOrganisations.returns(List(xmlOrg1, xmlOrg2))
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(

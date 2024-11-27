@@ -145,7 +145,7 @@ class DeveloperService @Inject() (
     })
   }
 
-  def fetchUsers(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchUsers()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchAll().map(_.sortBy(_.sortField))
   }
 

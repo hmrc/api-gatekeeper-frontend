@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
+import uk.gov.hmrc.gatekeeper.models.xml.{XmlOrganisation, XmlOrganisationWithCollaborators}
 import uk.gov.hmrc.gatekeeper.services.XmlService
 
 trait XmlServiceMockProvider {
@@ -50,6 +50,12 @@ trait XmlServiceMockProvider {
 
       def returnsError() =
         when(mockXmlService.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+    }
+
+    object GetAllXmlOrganisations {
+
+      def returns(xmlOrganisations: List[XmlOrganisationWithCollaborators]) =
+        when(mockXmlService.getAllOrganisations()(*)).thenReturn(successful(xmlOrganisations))
     }
   }
 
