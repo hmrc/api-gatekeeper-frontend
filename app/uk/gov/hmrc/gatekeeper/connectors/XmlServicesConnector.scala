@@ -28,7 +28,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
-import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation, XmlOrganisationWithCollaborators}
+import uk.gov.hmrc.gatekeeper.models.xml.{XmlApi, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.models.{
   RemoveAllCollaboratorsForUserIdFailureResult,
   RemoveAllCollaboratorsForUserIdRequest,
@@ -71,11 +71,11 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
     http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
-  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisationWithCollaborators]] = {
+  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     val sortByParams = Seq("sortBy" -> "VENDOR_ID")
     val queryParams  = sortByParams
 
-    http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisationWithCollaborators]]
+    http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
   def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {

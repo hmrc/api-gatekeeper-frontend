@@ -32,20 +32,14 @@ object VendorId {
   implicit val formatVendorId: Format[VendorId] = Json.valueFormat[VendorId]
 }
 
-case class XmlOrganisation(organisationId: OrganisationId, vendorId: VendorId, name: String)
-
-object XmlOrganisation {
-  implicit val formatOrganisation: OFormat[XmlOrganisation] = Json.format[XmlOrganisation]
-}
-
 case class Collaborator(userId: UserId, email: LaxEmailAddress)
 
 object Collaborator {
   implicit val formatCollaborator: OFormat[Collaborator] = Json.format[Collaborator]
 }
 
-case class XmlOrganisationWithCollaborators(organisationId: OrganisationId, vendorId: VendorId, name: String, collaborators: List[Collaborator])
+case class XmlOrganisation(organisationId: OrganisationId, vendorId: VendorId, name: String, collaborators: List[Collaborator])
 
-object XmlOrganisationWithCollaborators {
-  implicit val formatOrganisationWithCollaborators: OFormat[XmlOrganisationWithCollaborators] = Json.format[XmlOrganisationWithCollaborators]
+object XmlOrganisation {
+  implicit val formatOrganisation: OFormat[XmlOrganisation] = Json.format[XmlOrganisation]
 }

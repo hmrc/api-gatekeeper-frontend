@@ -44,7 +44,7 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
 
     val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
 
-    val xmlOrganisations = List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID())))
+    val xmlOrganisations = List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty))
 
     val buildXmlServicesFeUrl: (OrganisationId) => String = (organisationId) =>
       s"/api-gatekeeper-xml-services/organisations/${organisationId.value}"

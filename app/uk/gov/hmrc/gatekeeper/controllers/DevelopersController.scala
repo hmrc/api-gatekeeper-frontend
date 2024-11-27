@@ -35,7 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationWithCollaborators
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService, XmlService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
@@ -69,23 +69,23 @@ class DevelopersController @Inject() (
   def developersCsv() = atLeastSuperUserAction { implicit request =>
     {
 
-      def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean                                     = {
+      def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean                    = {
         user.mfaDetails.exists(mfa => (mfa.verified && mfa.mfaType == mfaType))
       }
-      def getNumberOfXmlOrganisations(user: RegisteredUser, orgs: List[XmlOrganisationWithCollaborators]): Int = {
+      def getNumberOfXmlOrganisations(user: RegisteredUser, orgs: List[XmlOrganisation]): Int = {
         orgs.filter(org => org.collaborators.exists(coll => coll.userId == user.userId)).size
       }
-      def topicSubscribedTo(user: RegisteredUser, topic: EmailTopic): Boolean                                  = {
+      def topicSubscribedTo(user: RegisteredUser, topic: EmailTopic): Boolean                 = {
         user.emailPreferences.topics.contains(topic)
       }
-      def categoriesSubscribedTo(user: RegisteredUser): Int                                                    = {
+      def categoriesSubscribedTo(user: RegisteredUser): Int                                   = {
         user.emailPreferences.interests.count(r => r.services.isEmpty)
       }
-      def individualApisSubscribedTo(user: RegisteredUser): Int                                                = {
+      def individualApisSubscribedTo(user: RegisteredUser): Int                               = {
         user.emailPreferences.interests.map(r => r.services.size).sum
       }
 
-      def csvColumnDefinitions(orgs: List[XmlOrganisationWithCollaborators]) = Seq[ColumnDefinition[RegisteredUser]](
+      def csvColumnDefinitions(orgs: List[XmlOrganisation]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
         ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),

@@ -99,7 +99,7 @@ object MockDataSugar {
   )
 
   val xmlApis          = Json.toJson(Seq(xmlApiOne)).toString
-  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
   val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
   val deskproOrganisationId = uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1")
