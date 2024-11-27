@@ -35,6 +35,6 @@ class OrganisationService @Inject() (
     for {
       organisation <- apiPlatformDeskproConnector.getOrganisation(organisationId, hc)
       applications <- tpoConnector.getApplicationsByEmails(organisation.people.map(_.email), params)
-    } yield OrganisationWithApps(organisation.organisationName, applications)
+    } yield OrganisationWithApps(organisation.organisationId, organisation.organisationName, applications)
   }
 }
