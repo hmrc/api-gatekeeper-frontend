@@ -31,6 +31,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, TaxRegimeInterests}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, OrganisationId, VendorId, XmlOrganisationWithCollaborators}
@@ -154,26 +156,38 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         private val userId1     = UserId.random
         private val mfaDetails1 = List.empty
-        private val user1       = RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1)
+        private val emailPref1  = EmailPreferences(
+          List(
+            TaxRegimeInterests("VAT", Set("hello-world")),
+            TaxRegimeInterests("MTD", Set("mtd-api", "other-api"))
+          ),
+          Set.empty
+        )
+        private val user1       =
+          RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1, emailPreferences = emailPref1)
 
         private val userId2     = UserId.random
         private val mfaDetails2 = List(
           SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev2's phone", instant, "01234 567890", true),
           AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev2's app", instant, false)
         )
-        private val user2       = RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2)
+        private val emailPref2  = EmailPreferences(List(TaxRegimeInterests("VAT", Set.empty)), Set.empty)
+        private val user2       =
+          RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2, emailPreferences = emailPref2)
 
         private val userId3     = UserId.random
         private val mfaDetails3 = List(
           SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev3's phone", instant, "01234 567890", false),
           AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev3's app", instant, true)
         )
-        private val user3       = RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3)
+        private val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
+        private val user3       =
+          RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3, emailPreferences = emailPref3)
 
         private val xmlOrg1 = XmlOrganisationWithCollaborators(
-          OrganisationId(UUID.randomUUID()), 
-          VendorId(1), 
-          "xml org name 1", 
+          OrganisationId(UUID.randomUUID()),
+          VendorId(1),
+          "xml org name 1",
           List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
         )
         private val xmlOrg2 = XmlOrganisationWithCollaborators(
@@ -188,7 +202,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(
-          s"UserId,SMS MFA Active,Authenticator MFA Active,XML Vendors\n${userId1.toString},false,false,1\n${userId2.toString},true,false,0\n${userId3.toString},false,true,2\n"
+          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors\n" +
+            s"${userId1.toString},false,false,false,false,false,false,0,3,1\n" +
+            s"${userId2.toString},true,false,false,false,false,false,1,0,0\n" +
+            s"${userId3.toString},false,true,true,true,true,true,0,0,2\n"
         )
       }
 

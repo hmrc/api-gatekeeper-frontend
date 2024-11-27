@@ -29,6 +29,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
@@ -67,16 +69,32 @@ class DevelopersController @Inject() (
   def developersCsv() = atLeastSuperUserAction { implicit request =>
     {
 
-      def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean = {
+      def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean                                     = {
         user.mfaDetails.exists(mfa => (mfa.verified && mfa.mfaType == mfaType))
       }
       def getNumberOfXmlOrganisations(user: RegisteredUser, orgs: List[XmlOrganisationWithCollaborators]): Int = {
         orgs.filter(org => org.collaborators.exists(coll => coll.userId == user.userId)).size
       }
+      def topicSubscribedTo(user: RegisteredUser, topic: EmailTopic): Boolean                                  = {
+        user.emailPreferences.topics.contains(topic)
+      }
+      def categoriesSubscribedTo(user: RegisteredUser): Int                                                    = {
+        user.emailPreferences.interests.count(r => r.services.isEmpty)
+      }
+      def individualApisSubscribedTo(user: RegisteredUser): Int                                                = {
+        user.emailPreferences.interests.map(r => r.services.size).sum
+      }
+
       def csvColumnDefinitions(orgs: List[XmlOrganisationWithCollaborators]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
         ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
+        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, BUSINESS_AND_POLICY).toString())),
+        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, TECHNICAL).toString())),
+        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, RELEASE_SCHEDULES).toString())),
+        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EVENT_INVITES).toString())),
+        ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
+        ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
         ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString()))
       )
 
