@@ -51,6 +51,12 @@ trait XmlServiceMockProvider {
       def returnsError() =
         when(mockXmlService.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
+
+    object GetAllXmlOrganisations {
+
+      def returns(xmlOrganisations: List[XmlOrganisation]) =
+        when(mockXmlService.getAllOrganisations()(*)).thenReturn(successful(xmlOrganisations))
+    }
   }
 
 }

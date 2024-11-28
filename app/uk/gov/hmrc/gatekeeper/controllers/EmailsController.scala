@@ -191,7 +191,7 @@ class EmailsController @Inject() (
   }
 
   def emailAllUsersPage(): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    developerService.fetchUsers
+    developerService.fetchUsers()
       .map((users: List[RegisteredUser]) => {
         val filteredUsers = users.filter(_.verified)
         Ok(emailsAllUsersView(filteredUsers, usersToEmailCopyText(filteredUsers)))

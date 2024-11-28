@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, _}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, OrganisationId, VendorId, XmlApi, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.models.{RemoveAllCollaboratorsForUserIdFailureResult, RemoveAllCollaboratorsForUserIdRequest, RemoveAllCollaboratorsForUserIdSuccessResult}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -186,7 +186,7 @@ class XmlServicesConnectorSpec
   "findOrganisationsByUserId" should {
     val url    = "/api-platform-xml-services/organisations"
     val userId = UserId.random
-    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
 
     "return APIs when userId exists on an organisation" in new Setup {
       stubFor(
@@ -221,6 +221,38 @@ class XmlServicesConnectorSpec
           )
       )
       intercept[UpstreamErrorResponse](await(connector.findOrganisationsByUserId(userId))) match {
+        case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => succeed
+        case _                                           => fail()
+      }
+    }
+  }
+
+  "getAllOrganisations" should {
+    val url    = "/api-platform-xml-services/organisations"
+    val coll   = Collaborator(UserId.random, LaxEmailAddress("developer@example.com"))
+    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List(coll))
+
+    "return organisations" in new Setup {
+      stubFor(
+        get(urlEqualTo(s"$url?sortBy=VENDOR_ID"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(List(orgOne)).toString)
+          )
+      )
+      await(connector.getAllOrganisations()) shouldBe List(orgOne)
+    }
+
+    "return UpstreamErrorResponse when backend returns 400" in new Setup {
+      stubFor(
+        get(urlEqualTo(s"$url?sortBy=VENDOR_ID"))
+          .willReturn(
+            aResponse()
+              .withStatus(BAD_REQUEST)
+          )
+      )
+      intercept[UpstreamErrorResponse](await(connector.getAllOrganisations())) match {
         case UpstreamErrorResponse(_, BAD_REQUEST, _, _) => succeed
         case _                                           => fail()
       }

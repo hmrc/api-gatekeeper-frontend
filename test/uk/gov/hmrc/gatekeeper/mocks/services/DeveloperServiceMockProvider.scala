@@ -63,7 +63,7 @@ trait DeveloperServiceMockProvider {
     object FetchUsers {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchUsers(*))
+        when(mockDeveloperService.fetchUsers()(*))
           .thenReturn(successful(users.toList))
     }
 

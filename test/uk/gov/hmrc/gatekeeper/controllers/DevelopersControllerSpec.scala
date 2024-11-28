@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailT
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, TaxRegimeInterests}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -61,6 +62,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         forbiddenView,
         mockDeveloperService,
         mockApiDefinitionService,
+        mockXmlService,
         mcc,
         developersView,
         removeEmailPref,
@@ -182,14 +184,28 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         private val user3       =
           RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3, emailPreferences = emailPref3)
 
+        private val xmlOrg1 = XmlOrganisation(
+          OrganisationId(UUID.randomUUID()),
+          VendorId(1),
+          "xml org name 1",
+          List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+        )
+        private val xmlOrg2 = XmlOrganisation(
+          OrganisationId(UUID.randomUUID()),
+          VendorId(2),
+          "xml org name 2",
+          List(Collaborator(userId1, LaxEmailAddress("developer1@example.com")), Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+        )
+
         DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
+        XmlServiceMock.GetAllXmlOrganisations.returns(List(xmlOrg1, xmlOrg2))
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(
-          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails\n" +
-            s"${userId1.toString},false,false,false,false,false,false,0,3\n" +
-            s"${userId2.toString},true,false,false,false,false,false,1,0\n" +
-            s"${userId3.toString},false,true,true,true,true,true,0,0\n"
+          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors\n" +
+            s"${userId1.toString},false,false,false,false,false,false,0,3,1\n" +
+            s"${userId2.toString},true,false,false,false,false,false,1,0,0\n" +
+            s"${userId3.toString},false,true,true,true,true,true,0,0,2\n"
         )
       }
 

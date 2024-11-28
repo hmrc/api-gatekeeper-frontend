@@ -18,6 +18,8 @@ package uk.gov.hmrc.gatekeeper.models.xml
 
 import play.api.libs.json.{Format, Json, OFormat}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+
 case class OrganisationId(value: java.util.UUID) extends AnyVal
 
 object OrganisationId {
@@ -30,7 +32,13 @@ object VendorId {
   implicit val formatVendorId: Format[VendorId] = Json.valueFormat[VendorId]
 }
 
-case class XmlOrganisation(organisationId: OrganisationId, vendorId: VendorId, name: String)
+case class Collaborator(userId: UserId, email: LaxEmailAddress)
+
+object Collaborator {
+  implicit val formatCollaborator: OFormat[Collaborator] = Json.format[Collaborator]
+}
+
+case class XmlOrganisation(organisationId: OrganisationId, vendorId: VendorId, name: String, collaborators: List[Collaborator])
 
 object XmlOrganisation {
   implicit val formatOrganisation: OFormat[XmlOrganisation] = Json.format[XmlOrganisation]

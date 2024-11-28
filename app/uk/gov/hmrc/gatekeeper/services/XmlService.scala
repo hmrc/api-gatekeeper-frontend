@@ -52,6 +52,10 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit
     xmlServicesConnector.findOrganisationsByUserId(userId)
   }
 
+  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+    xmlServicesConnector.getAllOrganisations()
+  }
+
   def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
     xmlServicesConnector.removeCollaboratorsForUserId(userId, gatekeeperUser)
   }

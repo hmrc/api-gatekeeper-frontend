@@ -71,6 +71,13 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
     http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
+  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+    val sortByParams = Seq("sortBy" -> "VENDOR_ID")
+    val queryParams  = sortByParams
+
+    http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
+  }
+
   def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
     val request = RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser)
     http.post(url"$baseUrl/organisations/all/remove-collaborators")

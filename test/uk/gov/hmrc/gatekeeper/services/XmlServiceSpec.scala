@@ -124,7 +124,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
     }
 
     "findOrganisationsByUserId" should {
-      val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()))
+      val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
 
       "Return List of Organisations when call to get xml apis is successful" in new Setup {
         XmlServicesConnectorMock.GetOrganisations.returnsOrganisations(user.userId, List(orgOne))
