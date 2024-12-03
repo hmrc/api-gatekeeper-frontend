@@ -50,6 +50,7 @@ object ApplicationEventsController {
         case Actors.AppCollaborator(email) => email.text
         case Actors.GatekeeperUser(user)   => s"(GK) $user"
         case Actors.ScheduledJob(jobId)    => s"Job($jobId)"
+        case Actors.Process(processName)   => s"Process($processName)"
         case Actors.Unknown                => "Unknown"
       }
       EventModel(
