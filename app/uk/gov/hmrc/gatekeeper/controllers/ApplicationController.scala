@@ -143,6 +143,14 @@ class ApplicationController @Inject() (
       ColumnDefinition("Status", (app => app.state.name.displayText)),
       ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),
       ColumnDefinition("Access type", (app => app.access.accessType.toString())),
+      ColumnDefinition(
+        "Overrides",
+        app =>
+          app.access match {
+            case Access.Standard(_, _, _, overrides, _, _) => overrides.mkString(",")
+            case _                                         => ""
+          }
+      ),
       ColumnDefinition("Blocked", (app => app.details.blocked.toString())),
       ColumnDefinition("Has IP Allow List", (app => app.details.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
