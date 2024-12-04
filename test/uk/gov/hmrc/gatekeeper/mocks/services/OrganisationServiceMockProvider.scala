@@ -35,9 +35,10 @@ trait OrganisationServiceMockProvider {
     object FetchApplicationsForOrganisation {
 
       def returns(organisationId: OrganisationId)(organisationWithApps: OrganisationWithApps) =
-        when(mockOrganisationService.fetchOrganisationWithApplications(eqTo(organisationId))(*)).thenReturn(successful(organisationWithApps))
+        when(mockOrganisationService.fetchOrganisationWithApplications(eqTo(organisationId), *[Map[String, String]])(*)).thenReturn(successful(organisationWithApps))
 
-      def returnsNotFound() = when(mockOrganisationService.fetchOrganisationWithApplications(*[OrganisationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
+      def returnsNotFound() =
+        when(mockOrganisationService.fetchOrganisationWithApplications(*[OrganisationId], *[Map[String, String]])(*)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
 
     }
 
