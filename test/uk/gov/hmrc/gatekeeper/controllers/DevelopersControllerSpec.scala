@@ -164,7 +164,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           Set.empty
         )
         private val user1       =
-          RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1, emailPreferences = emailPref1)
+          RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1, emailPreferences = emailPref1, failedLogins = 1, registrationTime = Some(Instants.aYearAgo), lastLogin = Some(Instants.aYearAgo))
 
         private val userId2     = UserId.random
         private val mfaDetails2 = List(
@@ -173,7 +173,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val emailPref2  = EmailPreferences(List(TaxRegimeInterests("VAT", Set.empty)), Set.empty)
         private val user2       =
-          RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2, emailPreferences = emailPref2)
+          RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2, emailPreferences = emailPref2, registrationTime = Some(Instants.aYearAgo))
 
         private val userId3     = UserId.random
         private val mfaDetails3 = List(
@@ -182,7 +182,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
         private val user3       =
-          RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3, emailPreferences = emailPref3)
+          RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3, emailPreferences = emailPref3, registrationTime = Some(Instants.aYearAgo))
 
         private val xmlOrg1 = XmlOrganisation(
           OrganisationId(UUID.randomUUID()),
@@ -202,10 +202,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(
-          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors\n" +
-            s"${userId1.toString},false,false,false,false,false,false,0,3,1\n" +
-            s"${userId2.toString},true,false,false,false,false,false,1,0,0\n" +
-            s"${userId3.toString},false,true,true,true,true,true,0,0,2\n"
+          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors,Failed login attempts,Last Login,Developer Hub Registration Date\n" +
+            s"${userId1.toString},false,false,false,false,false,false,0,3,1,1,2019-01-02T03:04:05.006Z,2019-01-02T03:04:05.006Z\n" +
+            s"${userId2.toString},true,false,false,false,false,false,1,0,0,0,,2019-01-02T03:04:05.006Z\n" +
+            s"${userId3.toString},false,true,true,true,true,true,0,0,2,0,,2019-01-02T03:04:05.006Z\n"
         )
       }
 
