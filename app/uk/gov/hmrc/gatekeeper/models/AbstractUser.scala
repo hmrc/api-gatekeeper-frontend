@@ -16,11 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
+import java.time.Instant
+
 import play.api.libs.functional.syntax._
-import play.api.libs.json._
+import play.api.libs.json.{Reads, _}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User.{DefaultInstantReads, DefaultInstantWrites}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
@@ -55,7 +58,10 @@ case class RegisteredUser(
     lastName: String,
     verified: Boolean,
     mfaDetails: List[MfaDetail] = List.empty,
-    emailPreferences: EmailPreferences = EmailPreferences.noPreferences
+    emailPreferences: EmailPreferences = EmailPreferences.noPreferences,
+    registrationTime: Option[Instant] = None,
+    failedLogins: Int = 0,
+    lastLogin: Option[Instant] = None
   ) extends AbstractUser {}
 
 object RegisteredUser {
@@ -67,12 +73,14 @@ object RegisteredUser {
       (JsPath \ "lastName").read[String] and
       (JsPath \ "verified").read[Boolean] and
       ((JsPath \ "mfaDetails").read[List[MfaDetail]] or Reads.pure(List.empty[MfaDetail])) and
-      ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences))
+      ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences)) and
+      (JsPath \ "registrationTime").readNullable[Instant] and
+      (JsPath \ "failedLogins").readWithDefault[Int](0) and
+      (JsPath \ "lastLogin").readNullable[Instant]
   )(RegisteredUser.apply _)
 
   val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
   implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
-
 }
 
 case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends AbstractUser {
