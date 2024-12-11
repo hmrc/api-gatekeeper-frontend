@@ -146,159 +146,195 @@ object MockDataSugar {
   val applicationResponse =
     s"""
        |  [{
-       |    "id": "$approvedApp1",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |    "deployedTo": "PRODUCTION",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer",
-       |      "userId": "$developerId",
-       |      "role": "ADMINISTRATOR"
-       |    },
-       |    {
-       |      "emailAddress": "$developer9",
-       |      "userId": "$developer9Id",
-       |      "role": "DEVELOPER"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "lastAccess": 1458832690624,
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [],
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "moreApplication": {
-       |        "allowAutoDelete": true,
-       |      "lastActionActor": "UNKNOWN"
+       |    "details": {
+       |      "id": "$approvedApp1",
+       |      "clientId": "clientid1",
+       |      "gatewayId": "gatewayId1",
+       |      "name": "Purnimas Application",
+       |      "deployedTo": "PRODUCTION",
+       |      "description": "application for test",
+       |      "createdOn": "2016-03-24T15:18:10.624Z",
+       |      "lastAccess": "2016-03-24T15:18:10.624Z",
+       |      "grantLength": "P547D",
+       |      "access": {
+       |        "redirectUris": [],
+       |        "overrides": [],
+       |        "accessType": "STANDARD"
+       |      },
+       |      "state": {
+       |        "name": "PRODUCTION",
+       |        "requestedByEmailAddress": "$developer",
+       |        "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |        "updatedOn": "2016-04-05T15:02:53.962Z"
+       |      },
+       |      "rateLimitTier": "BRONZE",
+       |      "blocked": false,
+       |      "ipAllowlist": {
+       |        "required": false,
+       |        "allowlist": []
+       |      },
+       |      "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN",
+       |      "deleteRestriction": {
+       |        "deleteRestrictionType": "NO_RESTRICTION"
        |      }
+       |    },
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer",
+       |        "userId": "$developerId",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer9",
+       |        "userId": "$developer9Id",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "subscriptions": []
        |  },
-       |    {
-       |    "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
-       |    "clientId": "clientId1",
-       |    "gatewayId": "gatewayId2",
-       |    "name": "Imrans Application",
-       |    "description": "application for test",
-       |    "deployedTo": "PRODUCTION",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer2",
-       |      "userId": "$developer2Id",
-       |      "role": "ADMINISTRATOR"
-       |    },
-       |    {
-       |      "emailAddress": "$developer7",
-       |      "userId": "$developer7Id",
-       |      "role": "DEVELOPER"
-       |    },
-       |    {
-       |      "emailAddress": "$developer8",
-       |      "userId": "$developer8Id",
-       |      "role": "DEVELOPER"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "lastAccess": 1458832690624,
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer2",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [],
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "moreApplication": {
-       |        "allowAutoDelete": true,
-       |        "lastActionActor": "UNKNOWN"
+       |  {
+       |    "details": {
+       |      "id": "df0c32b6-bbb7-46eb-ba50-e6e5459162ff",
+       |      "clientId": "clientId1",
+       |      "gatewayId": "gatewayId2",
+       |      "name": "Imrans Application",
+       |      "deployedTo": "PRODUCTION",
+       |      "description": "application for test",
+       |      "createdOn": "2016-03-24T15:18:10.624Z",
+       |      "lastAccess": "2016-03-24T15:18:10.624Z",
+       |      "grantLength": "P547D",
+       |      "access": {
+       |        "redirectUris": [],
+       |        "overrides": [],
+       |        "accessType": "STANDARD"
+       |      },
+       |      "state": {
+       |        "name": "PRODUCTION",
+       |        "requestedByEmailAddress": "$developer2",
+       |        "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |        "updatedOn": "2016-04-05T15:02:53.962Z"
+       |      },
+       |      "rateLimitTier": "BRONZE",
+       |      "blocked": false,
+       |      "ipAllowlist": {
+       |        "required": false,
+       |        "allowlist": []
+       |      },
+       |      "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN",
+       |      "deleteRestriction": {
+       |        "deleteRestrictionType": "NO_RESTRICTION"
        |      }
+       |    },
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer2",
+       |        "userId": "$developer2Id",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer7",
+       |        "userId": "$developer7Id",
+       |        "role": "DEVELOPER"
+       |      },
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "userId": "$developer8Id",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ],
+       |    "subscriptions": []
        |  }]
     """.stripMargin
 
   val applicationResponseForEmail =
     s"""
        |  [{
-       |    "id": "$appToDelete",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Automated Test Application",
-       |    "description": "application for test",
-       |    "deployedTo": "PRODUCTION",
-       |   "collaborators": [
-       |    {
-       |      "emailAddress": "$developer8",
-       |      "userId": "$developer8Id",
-       |     "role": "ADMINISTRATOR"
-       |    },
-       |    {
-       |      "emailAddress": "$developer9",
-       |      "userId": "$developer9Id",
-       |     "role": "DEVELOPER"
-       |    }
-       |    ],
-       |    "createdOn": 1458832690624,
-       |    "lastAccess": 1458832690624,
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "blocked": false,
-       |    "trusted": false,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "redirectUris": [],
-       |    "moreApplication": {
-       |        "allowAutoDelete": true,
-       |        "lastActionActor": "UNKNOWN"
+       |    "details": {
+       |      "id": "$appToDelete",
+       |      "clientId": "clientid1",
+       |      "gatewayId": "gatewayId1",
+       |      "name": "Automated Test Application",
+       |      "deployedTo": "PRODUCTION",
+       |      "description": "application for test",
+       |      "createdOn": "2016-03-24T15:18:10.624Z",
+       |      "lastAccess": "2016-03-24T15:18:10.624Z",
+       |      "grantLength": "P547D",
+       |      "access": {
+       |        "redirectUris": [],
+       |        "overrides": [],
+       |        "accessType": "STANDARD"
+       |      },
+       |      "state": {
+       |        "name": "PRODUCTION",
+       |        "requestedByEmailAddress": "$developer",
+       |        "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |        "updatedOn": "2016-04-05T15:02:53.962Z"
+       |      },
+       |      "rateLimitTier": "BRONZE",
+       |      "blocked": false,
+       |      "ipAllowlist": {
+       |        "required": false,
+       |        "allowlist": []
+       |      },
+       |      "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN",
+       |      "deleteRestriction": {
+       |        "deleteRestrictionType": "NO_RESTRICTION"
        |      }
+       |    },
+       |    "collaborators": [
+       |      {
+       |        "emailAddress": "$developer8",
+       |        "userId": "$developer8Id",
+       |        "role": "ADMINISTRATOR"
+       |      },
+       |      {
+       |        "emailAddress": "$developer9",
+       |        "userId": "$developer9Id",
+       |        "role": "DEVELOPER"
+       |      }
+       |    ]
        |  }]
     """.stripMargin
 
   val applicationResponsewithNoSubscription =
     s"""
        |  [{
-       |    "id": "$approvedApp1",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Purnimas Application",
-       |    "description": "application for test",
-       |    "deployedTo": "PRODUCTION",
+       |    "details": {
+       |      "id": "$approvedApp1",
+       |      "clientId": "clientid1",
+       |      "gatewayId": "gatewayId1",
+       |      "name": "Purnimas Application",
+       |      "deployedTo": "PRODUCTION",
+       |      "description": "application for test",
+       |      "createdOn": "2016-03-24T15:18:10.624Z",
+       |      "lastAccess": "2016-03-24T15:18:10.624Z",
+       |      "grantLength": "P547D",
+       |      "access": {
+       |        "redirectUris": [],
+       |        "overrides": [],
+       |        "accessType": "STANDARD"
+       |      },
+       |      "state": {
+       |        "name": "PRODUCTION",
+       |        "requestedByEmailAddress": "$developer4",
+       |        "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
+       |        "updatedOn": "2016-04-05T15:02:53.962Z"
+       |      },
+       |      "rateLimitTier": "BRONZE",
+       |      "blocked": false,
+       |      "ipAllowlist": {
+       |        "required": false,
+       |        "allowlist": []
+       |      },
+       |      "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN",
+       |      "deleteRestriction": {
+       |        "deleteRestrictionType": "NO_RESTRICTION"
+       |      }
+       |    },
        |    "collaborators": [
        |      {
        |        "emailAddress": "$developer4",
@@ -321,32 +357,7 @@ object MockDataSugar {
        |        "role": "DEVELOPER"
        |      }
        |    ],
-       |    "createdOn": 1458832690624,
-       |    "lastAccess": 1458832690624,
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    "blocked": false,
-       |    "trusted": false,
-       |    "state": {
-       |      "name": "PRODUCTION",
-       |      "requestedByEmailAddress": "$developer4",
-       |      "verificationCode": "pRoPW05BMTQ_HqzTTR0Ent10py9gvstX34_a3dxx4V8",
-       |      "updatedOn": 1459868573962
-       |    },
-       |    "subscriptions": [],
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "moreApplication": {
-       |        "allowAutoDelete": true,
-       |      "lastActionActor": "UNKNOWN"
-       |      }
+       |    "subscriptions": []
        |  }]
     """.stripMargin
 
@@ -539,12 +550,34 @@ object MockDataSugar {
     s"""
        |{
        |  "application": {
-       |    "id": "$approvedApp1",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Application",
-       |    "description": "$description",
-       |    "deployedTo": "PRODUCTION",
+       |    "details": {
+       |      "id": "$approvedApp1",
+       |      "clientId": "clientid1",
+       |      "gatewayId": "gatewayId1",
+       |      "name": "Application",
+       |      "deployedTo": "PRODUCTION",
+       |      "description": "$description",
+       |      "createdOn": "2016-04-05T14:30:28.433Z",
+       |      "lastAccess": "2016-04-05T14:30:28.433Z",
+       |      "grantLength": "P547D",
+       |      "access": {
+       |        "redirectUris": [],
+       |        "overrides": [],
+       |        "accessType": "STANDARD"
+       |      },
+       |      $state,
+       |      "rateLimitTier": "BRONZE",
+       |      "blocked": false,
+       |      "ipAllowlist": {
+       |        "required": false,
+       |        "allowlist": []
+       |      },
+       |      "allowAutoDelete": true,
+       |      "lastActionActor": "UNKNOWN",
+       |      "deleteRestriction": {
+       |        "deleteRestrictionType": "NO_RESTRICTION"
+       |      }
+       |    },
        |    "collaborators": [
        |      {
        |        "emailAddress": "$adminEmail",
@@ -559,26 +592,7 @@ object MockDataSugar {
        |        "role": "ADMINISTRATOR"
        |      }
        |    ],
-       |    "createdOn": 1459866628433,
-       |    "lastAccess": 1459866628433,
-       |    "redirectUris": [],
-       |    "subscriptions": [],
-       |    "access": {
-       |      "redirectUris": [],
-       |      "overrides": [],
-       |      "accessType": "STANDARD"
-       |    },
-       |    "rateLimitTier": "BRONZE",
-       |    $state,
-       |    "ipAllowlist" : {
-       |        "required" : false,
-       |        "allowlist" : []
-       |    },
-       |    "grantLength": 547,
-       |    "moreApplication": {
-       |        "allowAutoDelete": true,
-       |      "lastActionActor": "UNKNOWN"
-       |      }
+       |    "subscriptions": []
        |  },
        |  "history": [
        |      {
@@ -770,13 +784,42 @@ object MockDataSugar {
    """.stripMargin
 
   val applicationForDeveloperResponse: String =
-    """[
+    """
+      |[
       |  {
-      |    "id": "b42c4a8f-3df3-451f-92ea-114ff039110e",
-      |    "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
-      |    "gatewayId": "12345",
-      |    "name": "application for test",
-      |    "deployedTo": "PRODUCTION",
+      |    "details": {
+      |      "id": "b42c4a8f-3df3-451f-92ea-114ff039110e",
+      |      "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
+      |      "gatewayId": "12345",
+      |      "name": "application for test",
+      |      "deployedTo": "PRODUCTION",
+      |      "createdOn": "2023-03-14T11:11:27.460Z",
+      |      "lastAccess": "2023-03-14T11:11:27.460Z",
+      |      "grantLength": "P547D",
+      |      "access": {
+      |        "redirectUris": [
+      |          "http://isobel.name",
+      |          "http://meghan.biz"
+      |        ],
+      |        "overrides": [],
+      |        "accessType": "STANDARD"
+      |      },
+      |      "state": {
+      |        "name": "PRODUCTION",
+      |        "updatedOn": "2023-03-14T11:25:42.888Z"
+      |      },
+      |      "rateLimitTier": "BRONZE",
+      |      "blocked": false,
+      |      "ipAllowlist": {
+      |        "required": false,
+      |        "allowlist": []
+      |      },
+      |      "allowAutoDelete": true,
+      |      "lastActionActor": "UNKNOWN",
+      |      "deleteRestriction": {
+      |        "deleteRestrictionType": "NO_RESTRICTION"
+      |      }
+      |    },
       |    "collaborators": [
       |      {
       |        "userId": "8e6657be-3b86-42b7-bcdf-855bee3bf941",
@@ -784,34 +827,7 @@ object MockDataSugar {
       |        "role": "ADMINISTRATOR"
       |      }
       |    ],
-      |    "createdOn": 1678792287460,
-      |    "lastAccess": 1678792287460,
-      |    "grantLength": 547,
-      |    "redirectUris": [
-      |      "http://red1",
-      |      "http://red2"
-      |    ],
-      |    "access": {
-      |      "redirectUris": [
-      |        "http://isobel.name",
-      |        "http://meghan.biz"
-      |      ],
-      |      "overrides": [],
-      |      "accessType": "STANDARD"
-      |    },
-      |    "state": {
-      |      "name": "PRODUCTION",
-      |      "updatedOn": 1678793142888
-      |    },
-      |    "rateLimitTier": "BRONZE",
-      |    "blocked": false,
-      |    "trusted": false,
-      |    "serverToken": "2faa09169cf8f464ce13b80a14718b15",
-      |    "subscriptions": [],
-      |    "ipAllowlist": {
-      |      "required": false,
-      |      "allowlist": []
-      |    }
+      |    "subscriptions": []
       |  }
       |]""".stripMargin
 }

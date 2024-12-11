@@ -22,6 +22,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators.Administrator
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.NoRestriction
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -79,7 +80,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
         blocked,
         ipAllowlist,
         moreApplication.allowAutoDelete,
-        lastActionActor = moreApplication.lastActionActor
+        lastActionActor = moreApplication.lastActionActor,
+        deleteRestriction = NoRestriction
       ),
       collaborators
     )

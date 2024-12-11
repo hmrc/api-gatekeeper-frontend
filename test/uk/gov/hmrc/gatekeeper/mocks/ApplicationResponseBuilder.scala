@@ -20,6 +20,7 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.NoRestriction
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -70,7 +71,8 @@ object ApplicationResponseBuilder {
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
         allowAutoDelete = false,
-        lastActionActor = ActorType.UNKNOWN
+        lastActionActor = ActorType.UNKNOWN,
+        deleteRestriction = NoRestriction
       ),
       collaborators = Set(buildCollaborator(userId1))
     )
