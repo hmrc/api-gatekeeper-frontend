@@ -84,6 +84,12 @@ class DevelopersController @Inject() (
       def individualApisSubscribedTo(user: RegisteredUser): Int                               = {
         user.emailPreferences.interests.map(r => r.services.size).sum
       }
+      def getLastLogin(user: RegisteredUser): String = {
+        user.lastLogin.map(_.toString).getOrElse("")
+      }
+      def getRegistrationTime(user: RegisteredUser): String = {
+        user.registrationTime.map(_.toString).getOrElse("")
+      }
 
       def csvColumnDefinitions(orgs: List[XmlOrganisation]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
@@ -95,7 +101,10 @@ class DevelopersController @Inject() (
         ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EVENT_INVITES).toString())),
         ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
         ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
-        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString()))
+        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),
+        ColumnDefinition("Failed login attempts", (dev => dev.failedLogins.toString())),
+        ColumnDefinition("Last Login", (dev => getLastLogin(dev))),
+        ColumnDefinition("Developer Hub Registration Date", (dev => getRegistrationTime(dev)))
       )
 
       (
