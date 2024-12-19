@@ -40,8 +40,8 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
   }
 
-  def getApplicationsByEmails(emails: List[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    http.post(url"${config.serviceBaseUrl}/developer/applications")
+  def getApplicationsByEmails(emails: List[LaxEmailAddress], params: Map[String, String])(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    http.post(url"${config.serviceBaseUrl}/developer/applications?$params")
       .withBody(Json.toJson(ApplicationsByRequest(emails)))
       .execute[List[ApplicationWithCollaborators]]
   }

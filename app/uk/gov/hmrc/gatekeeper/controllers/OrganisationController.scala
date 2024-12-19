@@ -23,6 +23,7 @@ import scala.concurrent.ExecutionContext
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -30,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.VersionSummary
 import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId
 import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
@@ -57,7 +59,10 @@ class OrganisationController @Inject() (
 
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def organisationPage(orgId: OrganisationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+  def organisationPage(orgId: OrganisationId, environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val env                                                   = Environment.apply(environment.getOrElse("SANDBOX"))
+    val defaults                                              = Map("page" -> "1", "pageSize" -> "1000", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
+    val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
@@ -65,9 +70,20 @@ class OrganisationController @Inject() (
         routes.ApplicationController.applicationPage(appId).url
       }
 
-    organisationService.fetchOrganisationWithApplications(orgId)
-      .map(organisationWithApps => Ok(organisationView(organisationWithApps, buildAppUrlFn))) recoverWith {
+    (for {
+      organisationWithApps <- organisationService.fetchOrganisationWithApplications(orgId, params)
+      apis                 <- apmService.fetchNonOpenApis(env.get)
+    } yield Ok(organisationView(organisationWithApps, buildAppUrlFn, groupApisByStatus(apis), params))) recoverWith {
       case UpstreamErrorResponse(_, NOT_FOUND, _, _) => errorHandler.notFoundTemplate("Organisation not found").map(NotFound(_))
     }
+  }
+
+  private def groupApisByStatus(apis: List[ApiDefinition]): Map[String, List[VersionSummary]] = {
+    val versions = for {
+      api     <- apis
+      version <- api.versionsAsList
+    } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.versionNbr))
+
+    versions.groupBy(_.status.displayText)
   }
 }
