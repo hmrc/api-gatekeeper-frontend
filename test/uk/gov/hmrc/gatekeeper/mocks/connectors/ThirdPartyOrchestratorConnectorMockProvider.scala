@@ -33,8 +33,9 @@ trait ThirdPartyOrchestratorConnectorMockProvider {
 
     object GetApplicationsByEmails {
 
-      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(thirdPartyOrchestratorConnectorMock.getApplicationsByEmails(eqTo(emails))(*))
-        .thenReturn(successful(application.toList))
+      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) =
+        when(thirdPartyOrchestratorConnectorMock.getApplicationsByEmails(eqTo(emails), *[Map[String, String]])(*))
+          .thenReturn(successful(application.toList))
     }
 
   }

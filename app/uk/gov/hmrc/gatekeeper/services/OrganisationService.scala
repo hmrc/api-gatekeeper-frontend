@@ -31,10 +31,10 @@ class OrganisationService @Inject() (
   )(implicit ec: ExecutionContext
   ) extends ApplicationLogger {
 
-  def fetchOrganisationWithApplications(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[OrganisationWithApps] = {
+  def fetchOrganisationWithApplications(organisationId: OrganisationId, params: Map[String, String])(implicit hc: HeaderCarrier): Future[OrganisationWithApps] = {
     for {
       organisation <- apiPlatformDeskproConnector.getOrganisation(organisationId, hc)
-      applications <- tpoConnector.getApplicationsByEmails(organisation.people.map(_.email))
-    } yield OrganisationWithApps(organisation.organisationName, applications)
+      applications <- tpoConnector.getApplicationsByEmails(organisation.people.map(_.email), params)
+    } yield OrganisationWithApps(organisation.organisationId, organisation.organisationName, applications)
   }
 }

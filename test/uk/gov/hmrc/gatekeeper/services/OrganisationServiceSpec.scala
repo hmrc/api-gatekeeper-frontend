@@ -49,9 +49,9 @@ class OrganisationServiceSpec extends AsyncHmrcSpec {
         ApiPlatformDeskproConnectorMock.GetOrganisation.returns(organisation)
         ThirdPartyOrchestratorConnectorMock.GetApplicationsByEmails.returns(List(email))(applicationResponse)
 
-        val result = await(organisationService.fetchOrganisationWithApplications(organisationId))
+        val result = await(organisationService.fetchOrganisationWithApplications(organisationId, Map.empty))
 
-        result shouldBe OrganisationWithApps(organisationName, List(applicationResponse))
+        result shouldBe OrganisationWithApps(organisationId, organisationName, List(applicationResponse))
       }
     }
   }

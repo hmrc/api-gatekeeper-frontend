@@ -26,10 +26,11 @@
 @import java.time.format.DateTimeFormatterBuilder
 @import java.time.ZoneId
 @import java.time.temporal.ChronoField
+@import uk.gov.hmrc.gatekeeper.models.VersionSummary
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(organisationWithApps: OrganisationWithApps, gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
+@(organisationWithApps: OrganisationWithApps, gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String, apis: Map[String, Seq[VersionSummary]], params: Map[String, String])(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
 
 @main(title = s"${applicationConfig.title} - ${organisationWithApps.organisationName}") {
   @defining(new DateTimeFormatterBuilder()
@@ -45,6 +46,39 @@
 
     <br />
     <br />
+  @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort", "showExport").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: showExport :: _ =>
+  <form name="application-filters" action="@routes.OrganisationController.organisationPage(organisationWithApps.organisationId).url" method="get">
+      <div class="govuk-filter-row">
+          <div class="govuk-form-group govuk-!-padding-right-6 js-visible">
+              <label class="govuk-label govuk-!-font-weight-bold" for="filter">
+              Filter by API Subscription
+              </label>
+              <select class="govuk-select full-width" id="filter" name="apiSubscription">
+                  <option @if(apiSubscription == None) {selected} value>All applications</option>
+                  <option @if(apiSubscription == Some("ANY")) {selected} value="ANY">One or more subscriptions</option>
+                  <option @if(apiSubscription == Some("NONE")) {selected} value="NONE">No subscriptions</option>
+
+                  @for((status, versions) <- apis) {
+                      <optgroup label="@{status}">
+                      @for(version <- versions.sortBy(v => v.name.toLowerCase)) {
+                          @defining(s"${version.apiIdentifier.context.value}--${version.apiIdentifier.versionNbr.value}") { value =>
+                              <option @if(apiSubscription == Some(value)) {selected} value="@value">
+                              @version.name (@version.apiIdentifier.versionNbr.value)
+                          </option>
+                      }
+                    }
+                  </optgroup>
+              }
+    </select>
+  </div>
+  </div>
+
+  <div class="appsearch-buttons">
+      <input id="submitButton" type="submit" value="Submit" name="main-submit" class="govuk-button"/>
+  </div>
+
+
+  }
     <table id="applications-table" class="govuk-table">
       <caption class="govuk-table__caption govuk-table__caption--m">Applications</caption>
       <thead class="govuk-table__head">
@@ -88,7 +122,8 @@
     </table>
 
     @if(organisationWithApps.applications.isEmpty) {
-      <p class="govuk-body">This organisation does not have any applications.</p>
+      <p class="govuk-body">No applications</p>
     }
+  </form>
   }
 }
