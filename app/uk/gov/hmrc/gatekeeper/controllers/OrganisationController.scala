@@ -61,7 +61,7 @@ class OrganisationController @Inject() (
 
   def organisationPage(orgId: OrganisationId, environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env                                                   = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults                                              = Map("page" -> "1", "pageSize" -> "1000", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
+    val defaults                                              = Map("page" -> "1", "pageSize" -> "1000", "sort" -> "NO_SORT", "includeDeleted" -> "false")
     val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
