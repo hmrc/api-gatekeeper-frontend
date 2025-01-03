@@ -94,7 +94,7 @@ class ThirdPartyOrchestratorConnectorSpec
           )
       )
 
-      val result = await(underTest.getApplicationsByEmails(List(email), Map.empty))
+      val result = await(underTest.getApplicationsByEmails(List(email)))
 
       result shouldBe List(application)
     }
