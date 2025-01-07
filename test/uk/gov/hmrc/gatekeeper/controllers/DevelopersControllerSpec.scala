@@ -164,7 +164,18 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           Set.empty
         )
         private val user1       =
-          RegisteredUser(LaxEmailAddress("developer1@example.com"), userId1, "first", "last", verified = true, mfaDetails = mfaDetails1, emailPreferences = emailPref1, failedLogins = 1, registrationTime = Some(Instants.aYearAgo), lastLogin = Some(Instants.aYearAgo))
+          RegisteredUser(
+            LaxEmailAddress("developer1@example.com"),
+            userId1,
+            "first",
+            "last",
+            verified = true,
+            mfaDetails = mfaDetails1,
+            emailPreferences = emailPref1,
+            failedLogins = 1,
+            registrationTime = Some(Instants.aYearAgo),
+            lastLogin = Some(Instants.aYearAgo)
+          )
 
         private val userId2     = UserId.random
         private val mfaDetails2 = List(
@@ -173,7 +184,16 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val emailPref2  = EmailPreferences(List(TaxRegimeInterests("VAT", Set.empty)), Set.empty)
         private val user2       =
-          RegisteredUser(LaxEmailAddress("developer2@example.com"), userId2, "first", "last", verified = true, mfaDetails = mfaDetails2, emailPreferences = emailPref2, registrationTime = Some(Instants.aYearAgo))
+          RegisteredUser(
+            LaxEmailAddress("developer2@example.com"),
+            userId2,
+            "first",
+            "last",
+            verified = true,
+            mfaDetails = mfaDetails2,
+            emailPreferences = emailPref2,
+            registrationTime = Some(Instants.aYearAgo)
+          )
 
         private val userId3     = UserId.random
         private val mfaDetails3 = List(
@@ -182,7 +202,16 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         )
         private val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
         private val user3       =
-          RegisteredUser(LaxEmailAddress("developer3@example.com"), userId3, "first", "last", verified = true, mfaDetails = mfaDetails3, emailPreferences = emailPref3, registrationTime = Some(Instants.aYearAgo))
+          RegisteredUser(
+            LaxEmailAddress("developer3@example.com"),
+            userId3,
+            "first",
+            "last",
+            verified = true,
+            mfaDetails = mfaDetails3,
+            emailPreferences = emailPref3,
+            registrationTime = Some(Instants.aYearAgo)
+          )
 
         private val xmlOrg1 = XmlOrganisation(
           OrganisationId(UUID.randomUUID()),

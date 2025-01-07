@@ -84,10 +84,10 @@ class DevelopersController @Inject() (
       def individualApisSubscribedTo(user: RegisteredUser): Int                               = {
         user.emailPreferences.interests.map(r => r.services.size).sum
       }
-      def getLastLogin(user: RegisteredUser): String = {
+      def getLastLogin(user: RegisteredUser): String                                          = {
         user.lastLogin.map(_.toString).getOrElse("")
       }
-      def getRegistrationTime(user: RegisteredUser): String = {
+      def getRegistrationTime(user: RegisteredUser): String                                   = {
         user.registrationTime.map(_.toString).getOrElse("")
       }
 

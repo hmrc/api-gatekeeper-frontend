@@ -70,7 +70,8 @@ object ApplicationResponseBuilder {
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
         allowAutoDelete = false,
-        lastActionActor = ActorType.UNKNOWN
+        lastActionActor = ActorType.UNKNOWN,
+        deleteRestriction = DeleteRestriction.NoRestriction
       ),
       collaborators = Set(buildCollaborator(userId1))
     )

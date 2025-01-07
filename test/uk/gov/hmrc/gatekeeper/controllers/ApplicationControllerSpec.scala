@@ -307,7 +307,8 @@ class ApplicationControllerSpec
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
-          moreApplication = MoreApplication(allowAutoDelete = false)
+          moreApplication = MoreApplication(allowAutoDelete = false),
+          deleteRestriction = aDeleteRestriction
         )
 
         ApplicationServiceMock.SearchApplications.returns(applicationResponse)
@@ -346,7 +347,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
-          moreApplication = MoreApplication(allowAutoDelete = false)
+          moreApplication = MoreApplication(allowAutoDelete = false),
+          deleteRestriction = aDeleteRestriction
         )
 
         ApplicationServiceMock.SearchApplications.returns(applicationResponse)
@@ -384,7 +386,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
-          moreApplication = MoreApplication(allowAutoDelete = false)
+          moreApplication = MoreApplication(allowAutoDelete = false),
+          deleteRestriction = aDeleteRestriction
         )
         val secondApplicationResponse = buildApplication(
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),

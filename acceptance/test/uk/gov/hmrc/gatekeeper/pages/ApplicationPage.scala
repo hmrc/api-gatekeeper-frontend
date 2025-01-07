@@ -19,9 +19,10 @@ package uk.gov.hmrc.gatekeeper.pages
 import org.openqa.selenium.By
 
 import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
+import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 
-case class BaseApplicationPage(applicationName: String, applicationId: String) extends WebPage {
-  override val pageHeading: String = applicationName
+object ApplicationPage extends WebPage with CommonTestData {
+  override val pageHeading: String = applicationName.value
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/$applicationId" // a97541e8-f93d-4d0a-ab0b-862e63204b7d
 
@@ -45,5 +46,3 @@ case class BaseApplicationPage(applicationName: String, applicationId: String) e
     getText(By.tagName("h1")) == "This page can’t be found"
   }
 }
-
-object ApplicationPage extends BaseApplicationPage("My new app", "a97541e8-f93d-4d0a-ab0b-862e63204b7d")

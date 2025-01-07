@@ -42,7 +42,7 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
     .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))
     .withLastAccess(Instant.parse("2019-07-01T00:00:00.000Z"))
 
-  val blockedApplication = defaultApplication.withId(blockedApplicationId).withBlocked(true)
+  val blockedApplication = defaultApplication.withId(blockedApplicationId).withName(blockedApplicationName).withBlocked(true)
 
   val pendingApprovalApplication = defaultApplication
     .withId(pendingApprovalApplicationId)

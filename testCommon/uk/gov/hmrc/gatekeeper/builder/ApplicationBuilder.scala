@@ -52,7 +52,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
       redirectUris: List[RedirectUri] = List.empty,
-      moreApplication: MoreApplication = MoreApplication(true)
+      moreApplication: MoreApplication = MoreApplication(true),
+      deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction
     ): ApplicationWithCollaborators = {
 
     val access2 = access match {
@@ -79,7 +80,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
         blocked,
         ipAllowlist,
         moreApplication.allowAutoDelete,
-        lastActionActor = moreApplication.lastActionActor
+        lastActionActor = moreApplication.lastActionActor,
+        deleteRestriction
       ),
       collaborators
     )
@@ -129,10 +131,12 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   }
 
   def aStateHistory(state: State, changedAt: Instant = instant): StateHistory = {
-    StateHistory(ApplicationId.random, state, anActor(), changedAt = changedAt)
+    StateHistory(ApplicationId.random, state, anActor, changedAt = changedAt)
   }
 
-  def anActor() = Actors.Unknown
+  val anActor = Actors.Unknown
+
+  val aDeleteRestriction = DeleteRestriction.DoNotDelete("Kept for testing", anActor, instant)
 
   def buildSubscriptions(apiContext: ApiContext, apiVersion: ApiVersionNbr): Set[ApiIdentifier] =
     Set(
