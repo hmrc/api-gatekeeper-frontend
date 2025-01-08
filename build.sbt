@@ -80,8 +80,7 @@ lazy val it = (project in file("it"))
   .settings(
     name := "integration-tests",
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    DefaultBuildSettings.itSettings(),
-    addTestReportOption(Test, "int-test-reports")
+    DefaultBuildSettings.itSettings()
   )
 
 lazy val acceptance = (project in file("acceptance"))
