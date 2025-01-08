@@ -135,7 +135,7 @@ class ApiGatekeeperApplicationSpec
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.clickApplicationNameLink("My new app")
+      ApplicationsPage.clickApplicationNameLink(applicationName.value)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)

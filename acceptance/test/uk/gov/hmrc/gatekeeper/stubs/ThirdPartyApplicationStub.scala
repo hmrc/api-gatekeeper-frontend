@@ -216,8 +216,8 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
-  def stubApplicationResponse(applicationId: String, responseBody: String) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
+  def stubApplicationResponse(applicationId: ApplicationId, responseBody: String) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId"))
       .willReturn(aResponse().withBody(responseBody).withStatus(OK)))
   }
 
