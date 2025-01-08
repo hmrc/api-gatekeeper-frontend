@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import scala.io.Source
-
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
@@ -106,19 +104,29 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
       .willReturn(aResponse().withStatus(200)))
   }
 
-  def stubApplicationsList() = {
-    Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
-  }
+  val applicationsList = Json.toJson(
+    List(
+      standardApp.withName(applicationName),
+      standardApp2,
+      blockedApplicationResponse,
+      privilegedApp,
+      ropcApp
+    )
+  )
 
   def stubPaginatedApplicationList() = {
-    val paginatedApplications = Source.fromURL(getClass.getResource("/paginated-applications.json")).mkString.replaceAll("\n", "")
-
+    val paginatedApplications = Json.obj(
+      "applications" -> applicationsList,
+      "page"         -> 1,
+      "pageSize"     -> 5,
+      "total"        -> 7,
+      "matching"     -> 7
+    ).toString()
     stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
   }
 
   def stubFetchAllApplicationsList(): Unit = {
-    val applicationsList = Source.fromURL(getClass.getResource("/applications.json")).mkString.replaceAll("\n", "")
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList).withStatus(OK)))
+    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK)))
   }
 
   def stubApplicationForDeveloper(developerId: UserId, response: String): Unit = {
@@ -208,8 +216,8 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
-  def stubApplicationResponse(applicationId: String, responseBody: String) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$approvedApp1"))
+  def stubApplicationResponse(applicationId: ApplicationId, responseBody: String) = {
+    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId"))
       .willReturn(aResponse().withBody(responseBody).withStatus(OK)))
   }
 

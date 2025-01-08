@@ -57,7 +57,8 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
         Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now()),
-        moreApplication = MoreApplication(allowAutoDelete = false)
+        moreApplication = MoreApplication(allowAutoDelete = false),
+        deleteRestriction = aDeleteRestriction
       )
 
     val reason     = "Do not delete this application"
