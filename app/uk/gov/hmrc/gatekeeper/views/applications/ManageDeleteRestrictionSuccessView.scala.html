@@ -22,10 +22,10 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators, allowAutoDelete: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, allowDelete: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
-  title = s"${applicationConfig.title} - Manage application auto delete success",
+  title = s"${applicationConfig.title} - Manage application delete success",
   breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
@@ -42,7 +42,7 @@
     <div class="govuk-grid-column-three-quarters">
       <div class="govuk-panel govuk-panel--confirmation">
         <h1 class="govuk-panel__title">
-            @{application.name} will @if(!allowAutoDelete){not} be deleted if it is inactive
+            @{application.name} will @if(!allowDelete){not} be deleted if it is inactive
         </h1>
       </div>
 

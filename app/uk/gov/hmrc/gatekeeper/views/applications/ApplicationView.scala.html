@@ -35,6 +35,7 @@
 @import java.time.{Clock, LocalDateTime, Instant}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RedirectUri
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
 
@@ -423,15 +424,15 @@
     }
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">
-        Application deleted if inactive
+        Application protected from being deleted
       </dt>
-      <dd class="govuk-summary-list__value" data-application-deleted-if-active>
-        @{if (application.details.allowAutoDelete) "Yes" else "No"}
+      <dd class="govuk-summary-list__value" data-application-protected-from-deletion>
+        @{if (application.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE) "Yes" else "No"}
       </dd>
       @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-application-deleted-if-active" class="govuk-link" href="@{routes.ApplicationController.manageAutoDelete(applicationId)}">
-            Manage<span class="govuk-visually-hidden"> application deleted if inactive</span>
+          <a id="manage-application-protected-from-deletion" class="govuk-link" href="@{routes.ApplicationController.manageDeleteRestriction(applicationId)}">
+            Manage<span class="govuk-visually-hidden"> application protected from being deleted/span>
           </a>
         </dd>
       }

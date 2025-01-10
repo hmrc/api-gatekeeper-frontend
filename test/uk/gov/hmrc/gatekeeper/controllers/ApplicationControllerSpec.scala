@@ -51,7 +51,7 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageRedirectUriView, _}
+import uk.gov.hmrc.gatekeeper.views.html.applications.{ManageDeleteRestrictionDisabledView, ManageRedirectUriView, _}
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -64,32 +64,32 @@ class ApplicationControllerSpec
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView             = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView                 = app.injector.instanceOf[ForbiddenView]
-  private lazy val applicationsView              = app.injector.instanceOf[ApplicationsView]
-  private lazy val applicationView               = app.injector.instanceOf[ApplicationView]
-  private lazy val manageAccessOverridesView     = app.injector.instanceOf[ManageAccessOverridesView]
-  private lazy val manageScopesView              = app.injector.instanceOf[ManageScopesView]
-  private lazy val ipAllowlistView               = app.injector.instanceOf[IpAllowlistView]
-  private lazy val manageRedirectUriView         = app.injector.instanceOf[ManageRedirectUriView]
-  private lazy val manageIpAllowlistView         = app.injector.instanceOf[ManageIpAllowlistView]
-  private lazy val manageRateLimitView           = app.injector.instanceOf[ManageRateLimitView]
-  private lazy val deleteApplicationView         = app.injector.instanceOf[DeleteApplicationView]
-  private lazy val deleteApplicationSuccessView  = app.injector.instanceOf[DeleteApplicationSuccessView]
-  private lazy val blockApplicationView          = app.injector.instanceOf[BlockApplicationView]
-  private lazy val blockApplicationSuccessView   = app.injector.instanceOf[BlockApplicationSuccessView]
-  private lazy val unblockApplicationView        = app.injector.instanceOf[UnblockApplicationView]
-  private lazy val unblockApplicationSuccessView = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val approvedView                  = app.injector.instanceOf[ApprovedView]
-  private lazy val createApplicationView         = app.injector.instanceOf[CreateApplicationView]
-  private lazy val createApplicationSuccessView  = app.injector.instanceOf[CreateApplicationSuccessView]
-  private lazy val manageGrantLengthView         = app.injector.instanceOf[ManageGrantLengthView]
-  private lazy val manageGrantLengthSuccessView  = app.injector.instanceOf[ManageGrantLengthSuccessView]
-  private lazy val manageAutoDeleteEnabledView   = app.injector.instanceOf[ManageAutoDeleteEnabledView]
-  private lazy val manageAutoDeleteDisabledView  = app.injector.instanceOf[ManageAutoDeleteDisabledView]
-  private lazy val autoDeleteSuccessView         = app.injector.instanceOf[AutoDeleteSuccessView]
-  private lazy val eventsConnector               = mock[EnvironmentAwareApiPlatformEventsConnector]
-  private lazy val errorHandler                  = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorTemplateView                   = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView                       = app.injector.instanceOf[ForbiddenView]
+  private lazy val applicationsView                    = app.injector.instanceOf[ApplicationsView]
+  private lazy val applicationView                     = app.injector.instanceOf[ApplicationView]
+  private lazy val manageAccessOverridesView           = app.injector.instanceOf[ManageAccessOverridesView]
+  private lazy val manageScopesView                    = app.injector.instanceOf[ManageScopesView]
+  private lazy val ipAllowlistView                     = app.injector.instanceOf[IpAllowlistView]
+  private lazy val manageRedirectUriView               = app.injector.instanceOf[ManageRedirectUriView]
+  private lazy val manageIpAllowlistView               = app.injector.instanceOf[ManageIpAllowlistView]
+  private lazy val manageRateLimitView                 = app.injector.instanceOf[ManageRateLimitView]
+  private lazy val deleteApplicationView               = app.injector.instanceOf[DeleteApplicationView]
+  private lazy val deleteApplicationSuccessView        = app.injector.instanceOf[DeleteApplicationSuccessView]
+  private lazy val blockApplicationView                = app.injector.instanceOf[BlockApplicationView]
+  private lazy val blockApplicationSuccessView         = app.injector.instanceOf[BlockApplicationSuccessView]
+  private lazy val unblockApplicationView              = app.injector.instanceOf[UnblockApplicationView]
+  private lazy val unblockApplicationSuccessView       = app.injector.instanceOf[UnblockApplicationSuccessView]
+  private lazy val approvedView                        = app.injector.instanceOf[ApprovedView]
+  private lazy val createApplicationView               = app.injector.instanceOf[CreateApplicationView]
+  private lazy val createApplicationSuccessView        = app.injector.instanceOf[CreateApplicationSuccessView]
+  private lazy val manageGrantLengthView               = app.injector.instanceOf[ManageGrantLengthView]
+  private lazy val manageGrantLengthSuccessView        = app.injector.instanceOf[ManageGrantLengthSuccessView]
+  private lazy val manageDeleteRestrictionDisabledView = app.injector.instanceOf[ManageDeleteRestrictionDisabledView]
+  private lazy val manageDeleteRestrictionEnabledView  = app.injector.instanceOf[ManageDeleteRestrictionEnabledView]
+  private lazy val manageDeleteRestrictionSuccessView  = app.injector.instanceOf[ManageDeleteRestrictionSuccessView]
+  private lazy val eventsConnector                     = mock[EnvironmentAwareApiPlatformEventsConnector]
+  private lazy val errorHandler                        = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
@@ -127,11 +127,11 @@ class ApplicationControllerSpec
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
       }
 
-      val basicAppWithAutoDeleteFalse   = basicApplication.modify(_.copy(allowAutoDelete = false))
-      val basicAppWithAutoDeleteFalseId = basicAppWithAutoDeleteFalse.id
-      val appWithAutoDeleteFalse        = ApplicationWithHistory(basicAppWithAutoDeleteFalse, List.empty)
-      val events                        = List(DisplayEvent(
-        basicAppWithAutoDeleteFalseId,
+      val basicAppWithDeleteRestrictionEnabled   = basicApplication.modify(_.copy(deleteRestriction = aDeleteRestriction))
+      val basicAppWithDeleteRestrictionEnabledId = basicAppWithDeleteRestrictionEnabled.id
+      val appWithDeleteRestrictionEnabled        = ApplicationWithHistory(basicAppWithDeleteRestrictionEnabled, List.empty)
+      val events                                 = List(DisplayEvent(
+        basicAppWithDeleteRestrictionEnabledId,
         Instant.now(),
         GatekeeperUser("gk user"),
         "APP_LIFECYCLE",
@@ -169,9 +169,9 @@ class ApplicationControllerSpec
         createApplicationSuccessView,
         manageGrantLengthView,
         manageGrantLengthSuccessView,
-        manageAutoDeleteEnabledView,
-        manageAutoDeleteDisabledView,
-        autoDeleteSuccessView,
+        manageDeleteRestrictionDisabledView,
+        manageDeleteRestrictionEnabledView,
+        manageDeleteRestrictionSuccessView,
         eventsConnector,
         mockApmService,
         errorHandler,
@@ -674,78 +674,78 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
     }
 
-    "manageAutoDeletePage" should {
+    "manageAllowDeletePage" should {
       "return the manage auto delete enabled page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         givenTheAppWillBeReturned()
 
-        val result = underTest.manageAutoDelete(applicationId)(anAdminLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(applicationId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
+        contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
       }
 
       "return the manage auto delete enabled page for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        val result = underTest.manageAutoDelete(applicationId)(aSuperUserLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(applicationId)(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("Applications that don't make any API calls for a long time are deleted")
+        contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
       }
 
       "return the error page when auto delete disabled and no events found and GK user is admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
 
-        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe NOT_FOUND
         contentAsString(result) should include("Reason not found")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the error page when auto delete disabled and no events found and GK user is super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
 
-        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe NOT_FOUND
         contentAsString(result) should include("Reason not found")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
-      "return the manage auto delete disabled page when an event exists and GK user is admin" in new Setup {
+      "return the manage delete restriction enabled page when an event exists and GK user is admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
 
-        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
+        contentAsString(result) should include(s"${appWithDeleteRestrictionEnabled.application.name} has been set not to be deleted if it is inactive")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the manage auto delete disabled page when an event exists and GK user is super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
 
-        val result = underTest.manageAutoDelete(basicAppWithAutoDeleteFalseId)(anAdminLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(s"${appWithAutoDeleteFalse.application.name} has been set not to be deleted if it is inactive")
+        contentAsString(result) should include(s"${appWithDeleteRestrictionEnabled.application.name} has been set not to be deleted if it is inactive")
 
-        verify(eventsConnector).query(eqTo(basicAppWithAutoDeleteFalseId), eqTo(basicAppWithAutoDeleteFalse.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
+        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the forbidden page for a normal user" in new Setup {
@@ -753,14 +753,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val result = underTest.manageAutoDelete(applicationId)(aLoggedInRequest)
+        val result = underTest.manageDeleteRestriction(applicationId)(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
         contentAsString(result) should include("You do not have permission")
       }
     }
 
-    "updateAutoDeletePreviouslyEnabled" should {
+    "updateAllowDeletePreviouslyEnabled" should {
       val noReason = "No reasons given"
       val reason   = "Some reason"
 
@@ -769,15 +769,15 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+        ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyEnabled(applicationId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
       }
 
       "call the service to disable auto deletion when a valid form is submitted for a super user" in new Setup {
@@ -785,15 +785,15 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+        ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyEnabled(applicationId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -803,11 +803,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyEnabled(applicationId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
       }
 
       "return forbidden when a form is submitted for a normal user" in new Setup {
@@ -817,107 +817,107 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         val request = aLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyEnabled(applicationId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, eqTo(noReason))(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, eqTo(noReason))(*)
       }
     }
 
-    "updateAutoDeletePreviouslyDisabled" should {
+    "updateDeleteRestrictionPreviouslyEnabled" should {
       val noReason = "No reasons given"
       val reason   = "This app should not be deleted"
       val date     = "12th Aug"
 
-      "call the service to enable auto deletion when a valid form is submitted for an admin user" in new Setup {
+      "call the service to enable deletion when a valid form is submitted for an admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+        ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(basicAppWithAutoDeleteFalseId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "call the service to enable auto deletion when a valid form is submitted for a super user" in new Setup {
+      "call the service to enable deletion when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        ApplicationServiceMock.UpdateAutoDelete.succeeds()
+        ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateAutoDelete(eqTo(basicAppWithAutoDeleteFalseId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "show to autoDeleteSuccessView when user selects 'no' on valid form by an admin user" in new Setup {
+      "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by an admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(s"${basicAppWithAutoDeleteFalse.name} will not be deleted if it is inactive")
+        contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
       }
 
-      "show to autoDeleteSuccessView when user selects 'no' on valid form by a super user" in new Setup {
+      "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(s"${basicAppWithAutoDeleteFalse.name} will not be deleted if it is inactive")
+        contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
       }
 
       "return a forbidden when form submitted for a normal user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
-        ApplicationServiceMock.FetchApplication.returns(appWithAutoDeleteFalse)
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
-        val result = addToken(underTest.updateAutoDeletePreviouslyDisabled(basicAppWithAutoDeleteFalseId))(request)
+        val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateAutoDelete(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
       }
     }
 

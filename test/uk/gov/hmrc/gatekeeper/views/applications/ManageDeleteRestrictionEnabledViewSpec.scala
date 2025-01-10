@@ -29,17 +29,17 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
+import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyEnabledForm
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteDisabledView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionEnabledView
 
-class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
+class ManageDeleteRestrictionEnabledViewSpec extends CommonViewSpec {
 
   trait Setup extends ApplicationBuilder {
-    val request                                                    = FakeRequest().withCSRFToken
-    val manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView = app.injector.instanceOf[ManageAutoDeleteDisabledView]
+    val request                                                                = FakeRequest().withCSRFToken
+    val manageDeleteRestrictionEnabledView: ManageDeleteRestrictionEnabledView = app.injector.instanceOf[ManageDeleteRestrictionEnabledView]
 
     val application: ApplicationWithCollaborators =
       buildApplication(
@@ -65,9 +65,10 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
     val reasonDate = "26th Sept 2023"
   }
 
-  "Auto Delete Disabled view" should {
-    "show reason, date and radio buttons when auto deletion is disabled for application" in new Setup {
-      val result: Appendable = manageAutoDeleteDisabledView(application, reason, reasonDate, AutoDeletePreviouslyDisabledForm.form)(request, LoggedInUser(None), messagesProvider)
+  "Delete Restriction Enabled view" should {
+    "show reason, date and radio buttons when deletion restriction is enabled for application" in new Setup {
+      val result: Appendable =
+        manageDeleteRestrictionEnabledView(application, reason, reasonDate, DeleteRestrictionPreviouslyEnabledForm.form)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -78,10 +79,10 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
       elementIdentifiedByIdContainsText(document, "dd", "date-text", "Date")
       elementIdentifiedByIdContainsText(document, "dd", "date-value", reasonDate)
       elementExistsByText(document, "h2", s"Do you want to change the application to be deleted if it is inactive?") shouldBe true
-      elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
-      elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
-      labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "auto-delete-no", "No, the application should not be deleted if inactive") shouldBe true
+      elementExistsByIdWithAttr(document, "allow-delete-no", "checked") shouldBe false
+      elementExistsByIdWithAttr(document, "allow-delete-yes", "checked") shouldBe false
+      labelIdentifiedByForAttrContainsText(document, "allow-delete-yes", "Yes") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "allow-delete-no", "No, the application should not be deleted if inactive") shouldBe true
     }
   }
 }
