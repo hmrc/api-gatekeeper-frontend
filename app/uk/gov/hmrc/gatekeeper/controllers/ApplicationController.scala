@@ -27,13 +27,13 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
@@ -82,7 +82,7 @@ class ApplicationController @Inject() (
     manageDeleteRestrictionDisabledView: ManageDeleteRestrictionDisabledView,
     manageDeleteRestrictionEnabledView: ManageDeleteRestrictionEnabledView,
     manageDeleteRestrictionSuccessView: ManageDeleteRestrictionSuccessView,
-    eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
+    applicationProtectedFromDeletionView: ApplicationProtectedFromDeletionView,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -523,11 +523,11 @@ class ApplicationController @Inject() (
   def manageDeleteRestriction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleDeleteRestrictionEnabled(application: ApplicationWithCollaborators) = {
-        val deleteRestriction = application.details.deleteRestriction.asInstanceOf[DeleteRestriction.DoNotDelete]
+        val deleteRestriction = application.details.deleteRestriction.asInstanceOf[DoNotDelete]
         val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
 
         Future.successful(Ok(manageDeleteRestrictionEnabledView(
-          app.application,
+          application,
           deleteRestriction.reason,
           deleteRestriction.timestamp.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
           DeleteRestrictionPreviouslyEnabledForm.form
@@ -592,7 +592,13 @@ class ApplicationController @Inject() (
 
   def deleteApplicationPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+      if (app.application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION)
+        Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
+      else
+        Future.successful(Ok(applicationProtectedFromDeletionView(
+          app.application,
+          app.application.details.deleteRestriction.asInstanceOf[DoNotDelete].reason
+        )))
     }
   }
 
