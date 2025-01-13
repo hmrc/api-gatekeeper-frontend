@@ -135,7 +135,7 @@ class ApplicationControllerSpec
         Instant.now(),
         GatekeeperUser("gk user"),
         "APP_LIFECYCLE",
-        "Application auto delete blocked",
+        "Application delete restricted",
         List("This app should not be deleted")
       ))
 
@@ -674,8 +674,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
     }
 
-    "manageAllowDeletePage" should {
-      "return the manage auto delete enabled page for an admin" in new Setup {
+    "manageDeleteRestriction" should {
+      "return the manage delete restriction disabled page for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         givenTheAppWillBeReturned()
@@ -686,7 +686,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
       }
 
-      "return the manage auto delete enabled page for a super user" in new Setup {
+      "return the manage delete restriction disabled page for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
@@ -696,7 +696,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
       }
 
-      "return the error page when auto delete disabled and no events found and GK user is admin" in new Setup {
+      "return the error page when delete restriction enabled and no events found and GK user is admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
@@ -709,7 +709,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
-      "return the error page when auto delete disabled and no events found and GK user is super user" in new Setup {
+      "return the error page when delete restriction enabled and no events found and GK user is super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
@@ -735,7 +735,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
-      "return the manage auto delete disabled page when an event exists and GK user is super user" in new Setup {
+      "return the manage delete restriction enabled page when an event exists and GK user is super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
         when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
@@ -760,11 +760,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
     }
 
-    "updateAllowDeletePreviouslyEnabled" should {
+    "updateDeleteRestrictionPreviouslyDisabled" should {
       val noReason = "No reasons given"
       val reason   = "Some reason"
 
-      "call the service to enable auto deletion when a valid form is submitted for a super user" in new Setup {
+      "call the service to disable deletion restriction when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
@@ -780,7 +780,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "call the service to disable auto deletion when a valid form is submitted for a super user" in new Setup {
+      "call the service to enable deletion restriction when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         givenTheAppWillBeReturned()
@@ -830,7 +830,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       val reason   = "This app should not be deleted"
       val date     = "12th Aug"
 
-      "call the service to enable deletion when a valid form is submitted for an admin user" in new Setup {
+      "call the service to disable deletion restriction when a valid form is submitted for an admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
@@ -846,7 +846,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
       }
 
-      "call the service to enable deletion when a valid form is submitted for a super user" in new Setup {
+      "call the service to disable deletion restriction when a valid form is submitted for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)

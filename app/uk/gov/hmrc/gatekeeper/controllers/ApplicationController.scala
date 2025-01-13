@@ -538,7 +538,7 @@ class ApplicationController @Inject() (
 
       def handleDeleteRestrictionEnabled(application: ApplicationWithCollaborators) = {
         eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
-          .map(events => events.find(e => e.eventType == "Application auto delete blocked")) // todo change event
+          .map(events => events.find(e => e.eventType == "Application delete restricted"))
           .flatMap(getView(_))
       }
 
