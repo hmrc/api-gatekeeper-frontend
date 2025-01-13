@@ -62,7 +62,7 @@ GET         /applications/:id/grant-length                                    uk
 POST        /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateGrantLength(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 GET         /applications/:id/delete-restriction                               uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageDeleteRestriction(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
-POST        /applications/:id/delete-restriction/previously-enabled            uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
+POST        /applications/:id/delete-restriction/previously-disabled           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 POST        /applications/:id/delete-restriction/previously-enabled            uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyEnabled(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 
