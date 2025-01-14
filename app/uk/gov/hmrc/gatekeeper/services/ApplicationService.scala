@@ -133,7 +133,7 @@ class ApplicationService @Inject() (
     }
   }
 
-  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplicationResponse] = {
+  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
     applicationConnectorFor(env).searchApplications(params)
   }
 

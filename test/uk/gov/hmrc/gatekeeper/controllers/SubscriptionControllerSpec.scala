@@ -26,7 +26,7 @@ import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
@@ -74,12 +74,6 @@ class SubscriptionControllerSpec
         basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
         List.empty
       )
-
-      def aPaginatedApplicationResponse(applications: List[ApplicationWithCollaborators]): PaginatedApplicationResponse = {
-        val page     = 1
-        val pageSize = 10
-        PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
-      }
 
       val underTest = new SubscriptionController(
         manageSubscriptionsView,

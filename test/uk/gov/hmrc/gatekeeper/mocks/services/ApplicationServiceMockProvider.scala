@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.services.ApplicationService
 trait ApplicationServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  import mocks.PaginatedApplicationResponseBuilder._
+  import mocks.PaginatedApplicationsBuilder._
 
   val mockApplicationService = mock[ApplicationService]
 
@@ -52,7 +52,7 @@ trait ApplicationServiceMockProvider {
     object SearchApplications {
 
       def returns(apps: ApplicationWithCollaborators*) =
-        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplications(apps.toList)))
     }
 
     object FetchApplicationsWithSubscriptions {

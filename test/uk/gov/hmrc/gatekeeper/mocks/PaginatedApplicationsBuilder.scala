@@ -16,14 +16,13 @@
 
 package mocks
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.gatekeeper.models.PaginatedApplicationResponse
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, PaginatedApplications}
 
-object PaginatedApplicationResponseBuilder {
+object PaginatedApplicationsBuilder {
 
-  def buildPaginatedApplicationResponse(applications: List[ApplicationWithCollaborators]): PaginatedApplicationResponse = {
+  def buildPaginatedApplications(applications: List[ApplicationWithCollaborators]): PaginatedApplications = {
     val page     = 1
     val pageSize = 10
-    PaginatedApplicationResponse(applications, page, pageSize, total = applications.size, matching = applications.size)
+    PaginatedApplications(applications, page, pageSize, total = applications.size, matching = applications.size)
   }
 }
