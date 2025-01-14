@@ -16,19 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json._
-
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.gatekeeper.utils.PaginationHelper
-
-case class PaginatedApplicationResponse(applications: List[ApplicationWithCollaborators], page: Int, pageSize: Int, total: Int, matching: Int) {
-  val maxPage = PaginationHelper.maxPage(matching, pageSize)
-}
-
-object PaginatedApplicationResponse {
-  implicit val format: OFormat[PaginatedApplicationResponse] = Json.format[PaginatedApplicationResponse]
-}
-
 case class TotpSecrets(production: String)
 
 case class SubscriptionNameAndVersion(name: String, version: String)

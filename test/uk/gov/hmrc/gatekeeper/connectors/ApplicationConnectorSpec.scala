@@ -358,7 +358,7 @@ class ApplicationConnectorSpec
   "searchApplications" should {
     val url              = s"/applications"
     val params           = Map("page" -> "1", "pageSize" -> "10")
-    val expectedResponse = PaginatedApplicationResponse(List.empty, 0, 0, 0, 0)
+    val expectedResponse = PaginatedApplications(List.empty, 0, 0, 0, 0)
     val response         = Json.toJson(expectedResponse).toString
 
     "return the paginated application response when the call is successful" in new Setup {
