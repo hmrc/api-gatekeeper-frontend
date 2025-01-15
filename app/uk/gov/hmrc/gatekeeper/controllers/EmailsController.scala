@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.VerifiedStatus
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -38,6 +37,10 @@ import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, Applic
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.html.emails._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 
 @Singleton
 class EmailsController @Inject() (
@@ -205,16 +208,17 @@ class EmailsController @Inject() (
       apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
     } yield apiDropDowns
 
-    val filter       = DevelopersSearchFilter(None, ApiContextVersion(mapEmptyStringToNone(maybeApiVersionFilter)), AnyEnvironment, VerifiedStatus)
-    val fetchedUsers = mapEmptyStringToNone(maybeApiVersionFilter).fold(Future.successful(List.empty[AbstractUser]))(_ => developerService.searchDevelopers(filter))
+    val apiFilter     = ApiFilter(maybeApiVersionFilter)
+
     for {
-      registeredUsers <- fetchedUsers.map(users =>
-                           users.collect {
-                             case r: RegisteredUser => r
-                           }
-                         )
-      verifiedUsers    = registeredUsers.filter(_.verified)
+      appsSubscribedToSelectedApiSandBox: List[ApplicationWithCollaborators]     <- applicationService.fetchApplications(apiFilter, SandboxEnvironment)
+      appsSubscribedToSelectedApiProduction: List[ApplicationWithCollaborators]  <- applicationService.fetchApplications(apiFilter, ProductionEnvironment)
+      allApps: List[ApplicationWithCollaborators]  = appsSubscribedToSelectedApiSandBox ++ appsSubscribedToSelectedApiProduction
+      allAppsNotDeleted: List[ApplicationWithCollaborators] = allApps.filter(_.details.state.name != State.DELETED)
+      allCollaborators: Set[Collaborator] = allAppsNotDeleted.map(_.collaborators).flatten.toSet
+      allCollaboratorEmails: Set[LaxEmailAddress] = allCollaborators.map(_.emailAddress)
+      allRegisteredUsers: List[RegisteredUser] <- developerService.fetchDevelopersByEmails(allCollaboratorEmails)
       apis            <- apiDropDowns
-    } yield Ok(emailApiSubscriptionsView(apis, verifiedUsers, usersToEmailCopyText(verifiedUsers), queryParams))
+    } yield Ok(emailApiSubscriptionsView(apis, allRegisteredUsers, usersToEmailCopyText(allRegisteredUsers), queryParams))
   }
 }
