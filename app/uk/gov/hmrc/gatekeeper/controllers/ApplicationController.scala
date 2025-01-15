@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
+import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
@@ -522,24 +522,16 @@ class ApplicationController @Inject() (
 
   def manageDeleteRestriction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def getView(event: Option[DisplayEvent]) = {
-        val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
-        val reasonNotFound    = "Reason not found"
-        event match {
-          case None        => errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound).map(NotFound(_))
-          case Some(event) => Future.successful(Ok(manageDeleteRestrictionEnabledView(
-              app.application,
-              event.metaData.mkString,
-              event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
-              DeleteRestrictionPreviouslyEnabledForm.form
-            )))
-        }
-      }
-
       def handleDeleteRestrictionEnabled(application: ApplicationWithCollaborators) = {
-        eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
-          .map(events => events.find(e => e.eventType == "Application delete restricted"))
-          .flatMap(getView(_))
+        val deleteRestriction = application.details.deleteRestriction.asInstanceOf[DeleteRestriction.DoNotDelete]
+        val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
+
+        Future.successful(Ok(manageDeleteRestrictionEnabledView(
+          app.application,
+          deleteRestriction.reason,
+          deleteRestriction.timestamp.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
+          DeleteRestrictionPreviouslyEnabledForm.form
+        )))
       }
 
       if (app.application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {

@@ -696,56 +696,24 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
       }
 
-      "return the error page when delete restriction enabled and no events found and GK user is admin" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
-        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
-
-        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
-
-        status(result) shouldBe NOT_FOUND
-        contentAsString(result) should include("Reason not found")
-
-        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
-      }
-
-      "return the error page when delete restriction enabled and no events found and GK user is super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
-        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(List.empty))
-
-        val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
-
-        status(result) shouldBe NOT_FOUND
-        contentAsString(result) should include("Reason not found")
-
-        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
-      }
-
       "return the manage delete restriction enabled page when an event exists and GK user is admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
-        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
 
         val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
         contentAsString(result) should include(s"${appWithDeleteRestrictionEnabled.application.name} has been set not to be deleted if it is inactive")
-
-        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the manage delete restriction enabled page when an event exists and GK user is super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
-        when(eventsConnector.query(*[ApplicationId], *, *, *)(*)).thenReturn(Future.successful(events))
 
         val result = underTest.manageDeleteRestriction(basicAppWithDeleteRestrictionEnabledId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
         contentAsString(result) should include(s"${appWithDeleteRestrictionEnabled.application.name} has been set not to be deleted if it is inactive")
-
-        verify(eventsConnector).query(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(basicAppWithDeleteRestrictionEnabled.deployedTo), eqTo(Some("APP_LIFECYCLE")), eqTo(None))(*)
       }
 
       "return the forbidden page for a normal user" in new Setup {
