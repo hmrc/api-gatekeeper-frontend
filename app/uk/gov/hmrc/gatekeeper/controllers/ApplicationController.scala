@@ -27,12 +27,13 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
+import uk.gov.hmrc.apiplatform.modules.events.connectors.EnvironmentAwareApiPlatformEventsConnector
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
@@ -78,9 +79,9 @@ class ApplicationController @Inject() (
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
     manageGrantLengthSuccessView: ManageGrantLengthSuccessView,
-    manageAutoDeleteEnabledView: ManageAutoDeleteEnabledView,
-    manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView,
-    autoDeleteSuccessView: AutoDeleteSuccessView,
+    manageDeleteRestrictionDisabledView: ManageDeleteRestrictionDisabledView,
+    manageDeleteRestrictionEnabledView: ManageDeleteRestrictionEnabledView,
+    manageDeleteRestrictionSuccessView: ManageDeleteRestrictionSuccessView,
     eventsConnector: EnvironmentAwareApiPlatformEventsConnector,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
@@ -519,81 +520,73 @@ class ApplicationController @Inject() (
     }
   }
 
-  def manageAutoDelete(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageDeleteRestriction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def getView(event: Option[DisplayEvent]) = {
+      def handleDeleteRestrictionEnabled(application: ApplicationWithCollaborators) = {
+        val deleteRestriction = application.details.deleteRestriction.asInstanceOf[DeleteRestriction.DoNotDelete]
         val dateTimeFormatter = DateTimeFormatter.ofPattern("dd MMM yyyy")
-        val reasonNotFound    = "Reason not found"
-        event match {
-          case None        => errorHandler.standardErrorTemplate("Something unexpected happened", reasonNotFound, reasonNotFound).map(NotFound(_))
-          case Some(event) => Future.successful(Ok(manageAutoDeleteDisabledView(
-              app.application,
-              event.metaData.mkString,
-              event.eventDateTime.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
-              AutoDeletePreviouslyDisabledForm.form
-            )))
-        }
+
+        Future.successful(Ok(manageDeleteRestrictionEnabledView(
+          app.application,
+          deleteRestriction.reason,
+          deleteRestriction.timestamp.atZone(ZoneOffset.UTC).format(dateTimeFormatter),
+          DeleteRestrictionPreviouslyEnabledForm.form
+        )))
       }
 
-      def handleAutoDeleteDisabled(application: ApplicationWithCollaborators) = {
-        eventsConnector.query(application.id, application.deployedTo, Some("APP_LIFECYCLE"), None)
-          .map(events => events.find(e => e.eventType == "Application auto delete blocked"))
-          .flatMap(getView(_))
-      }
-
-      if (app.application.details.allowAutoDelete) {
-        Future.successful(Ok(manageAutoDeleteEnabledView(app.application, AutoDeletePreviouslyEnabledForm.form)))
+      if (app.application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {
+        Future.successful(Ok(manageDeleteRestrictionDisabledView(app.application, DeleteRestrictionPreviouslyDisabledForm.form)))
       } else {
-        handleAutoDeleteDisabled(app.application)
+        handleDeleteRestrictionEnabled(app.application)
       }
     }
   }
 
-  def updateAutoDeletePreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateDeleteRestrictionPreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
-        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
-          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+      def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
+        applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
+          Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete))
         }
       }
 
-      def handleValidForm(form: AutoDeletePreviouslyEnabledForm): Future[Result] = {
+      def handleValidForm(form: DeleteRestrictionPreviouslyDisabledForm): Future[Result] = {
         form.confirm match {
-          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
-          case "no"  => handleUpdateAutoDelete(allowAutoDelete = false, form.reason)
+          case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
+          case "no"  => handleUpdateDeleteRestriction(allowDelete = false, form.reason)
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeletePreviouslyEnabledForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteEnabledView(app.application, form)))
+      def handleInvalidForm(form: Form[DeleteRestrictionPreviouslyDisabledForm]): Future[Result] = {
+        successful(BadRequest(manageDeleteRestrictionDisabledView(app.application, form)))
       }
 
-      AutoDeletePreviouslyEnabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      DeleteRestrictionPreviouslyDisabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 
-  def updateAutoDeletePreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateDeleteRestrictionPreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def handleUpdateAutoDelete(allowAutoDelete: Boolean, reason: String) = {
-        applicationService.updateAutoDelete(appId, allowAutoDelete, loggedIn.userFullName.get, reason) map { _ =>
-          Ok(autoDeleteSuccessView(app.application, allowAutoDelete))
+      def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
+        applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
+          Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete))
         }
       }
 
-      def handleValidForm(form: AutoDeletePreviouslyDisabledForm) = {
+      def handleValidForm(form: DeleteRestrictionPreviouslyEnabledForm) = {
         form.confirm match {
-          case "yes" => handleUpdateAutoDelete(allowAutoDelete = true, "No reasons given")
-          case "no"  => Future.successful(Ok(autoDeleteSuccessView(app.application, allowAutoDelete = false)))
+          case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
+          case "no"  => Future.successful(Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete = false)))
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
-      def handleInvalidForm(form: Form[AutoDeletePreviouslyDisabledForm]): Future[Result] = {
-        successful(BadRequest(manageAutoDeleteDisabledView(app.application, form.data("reason"), form.data("reasonDate"), form)))
+      def handleInvalidForm(form: Form[DeleteRestrictionPreviouslyEnabledForm]): Future[Result] = {
+        successful(BadRequest(manageDeleteRestrictionEnabledView(app.application, form.data("reason"), form.data("reasonDate"), form)))
       }
 
-      AutoDeletePreviouslyDisabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+      DeleteRestrictionPreviouslyEnabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
   }
 

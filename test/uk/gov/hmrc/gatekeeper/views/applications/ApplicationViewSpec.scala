@@ -287,7 +287,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     }
 
-    "show 'Manage' Application deleted if inactive link when logged in as admin" in new Setup {
+    "show 'Manage' Application protected from being deleted link when logged in as admin" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
         adminRequest,
@@ -298,13 +298,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       result.contentType should include("text/html")
 
-      elementExistsById(document, "manage-application-deleted-if-active") shouldBe true
-      elementExistsByAttr(document, "dd", "data-application-deleted-if-active") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "dd", "data-application-deleted-if-active", "Yes") shouldBe true
+      elementExistsById(document, "manage-application-protected-from-deletion") shouldBe true
+      elementExistsByAttr(document, "dd", "data-application-protected-from-deletion") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-application-protected-from-deletion", "No") shouldBe true
 
     }
 
-    "show 'Manage' Application deleted if inactive link when logged in as super user" in new Setup {
+    "show 'Manage' Application protected from being deleted link when logged in as super user" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
         superUserRequest,
@@ -315,13 +315,13 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
       result.contentType should include("text/html")
 
-      elementExistsById(document, "manage-application-deleted-if-active") shouldBe true
-      elementExistsByAttr(document, "dd", "data-application-deleted-if-active") shouldBe true
-      elementIdentifiedByAttrContainsText(document, "dd", "data-application-deleted-if-active", "Yes") shouldBe true
+      elementExistsById(document, "manage-application-protected-from-deletion") shouldBe true
+      elementExistsByAttr(document, "dd", "data-application-protected-from-deletion") shouldBe true
+      elementIdentifiedByAttrContainsText(document, "dd", "data-application-protected-from-deletion", "No") shouldBe true
 
     }
 
-    "not show 'Manage' Application deleted if inactive link when logged in as user" in new Setup {
+    "not show 'Manage' Application protected from being deleted link when logged in as user" in new Setup {
       val result = applicationView.render(
         DefaultApplicationViewModel,
         strideUserRequest,
@@ -331,7 +331,7 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       val document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsById(document, "manage-application-deleted-if-active") shouldBe false
+      elementExistsById(document, "manage-application-protected-from-deletion") shouldBe false
 
     }
 

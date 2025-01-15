@@ -32,13 +32,13 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.IpAllowlistForm.allowlistedIpsConstraint
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.AutoDeleteSuccessView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionSuccessView
 
-class AutoDeleteSuccessViewSpec extends CommonViewSpec {
+class AllowDeleteSuccessViewSpec extends CommonViewSpec {
 
   trait Setup extends ApplicationBuilder {
-    val request                                      = FakeRequest()
-    val autoDeleteSuccessView: AutoDeleteSuccessView = app.injector.instanceOf[AutoDeleteSuccessView]
+    val request                                                                = FakeRequest()
+    val manageDeleteRestrictionSuccessView: ManageDeleteRestrictionSuccessView = app.injector.instanceOf[ManageDeleteRestrictionSuccessView]
 
     val application: ApplicationWithCollaborators =
       buildApplication(
@@ -59,9 +59,9 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
       )
   }
 
-  "Auto Delete Success view" should {
-    "show Auto Delete success page when auto deletion was enabled for the application" in new Setup {
-      val result: Appendable = autoDeleteSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
+  "Manage Delete Restriction Success view" should {
+    "show Manage Delete Restriction success page when deletion was enabled for the application" in new Setup {
+      val result: Appendable = manageDeleteRestrictionSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -70,8 +70,8 @@ class AutoDeleteSuccessViewSpec extends CommonViewSpec {
       elementExistsByText(document, "a", "Back to application page") shouldBe true
     }
 
-    "show Auto Delete success page when auto deletion was disabled for the application" in new Setup {
-      val result: Appendable = autoDeleteSuccessView(application.modify(_.copy(allowAutoDelete = false)), false)(request, LoggedInUser(None), messagesProvider)
+    "show Manage Delete Restriction success page when auto deletion was disabled for the application" in new Setup {
+      val result: Appendable = manageDeleteRestrictionSuccessView(application.modify(_.copy(allowAutoDelete = false)), false)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

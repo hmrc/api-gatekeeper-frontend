@@ -400,40 +400,40 @@ object Forms {
     )
   }
 
-  final case class AutoDeletePreviouslyDisabledForm(confirm: String = "", reason: String = "", reasonDate: String = "")
+  final case class DeleteRestrictionPreviouslyEnabledForm(confirm: String = "", reason: String = "", reasonDate: String = "")
 
-  object AutoDeletePreviouslyDisabledForm {
+  object DeleteRestrictionPreviouslyEnabledForm {
 
-    val form: Form[AutoDeletePreviouslyDisabledForm] = Form(
+    val form: Form[DeleteRestrictionPreviouslyEnabledForm] = Form(
       mapping(
         "confirm"    -> text,
         "reason"     -> text,
         "reasonDate" -> text
-      )(AutoDeletePreviouslyDisabledForm.apply)(AutoDeletePreviouslyDisabledForm.unapply)
+      )(DeleteRestrictionPreviouslyEnabledForm.apply)(DeleteRestrictionPreviouslyEnabledForm.unapply)
         .verifying(
           "auto.delete.option.required",
           fields =>
             fields match {
-              case data: AutoDeletePreviouslyDisabledForm => data.confirm.nonEmpty
+              case data: DeleteRestrictionPreviouslyEnabledForm => data.confirm.nonEmpty
             }
         )
     )
   }
 
-  final case class AutoDeletePreviouslyEnabledForm(confirm: String = "", reason: String)
+  final case class DeleteRestrictionPreviouslyDisabledForm(confirm: String = "", reason: String)
 
-  object AutoDeletePreviouslyEnabledForm {
+  object DeleteRestrictionPreviouslyDisabledForm {
 
-    val form: Form[AutoDeletePreviouslyEnabledForm] = Form(
+    val form: Form[DeleteRestrictionPreviouslyDisabledForm] = Form(
       mapping(
         "confirm" -> text,
         "reason"  -> text
-      )(AutoDeletePreviouslyEnabledForm.apply)(AutoDeletePreviouslyEnabledForm.unapply)
+      )(DeleteRestrictionPreviouslyDisabledForm.apply)(DeleteRestrictionPreviouslyDisabledForm.unapply)
         .verifying(
           "auto.delete.reason.required",
           fields =>
             fields match {
-              case data: AutoDeletePreviouslyEnabledForm =>
+              case data: DeleteRestrictionPreviouslyDisabledForm =>
                 if (data.confirm.equalsIgnoreCase("no") && data.reason.isEmpty) false else true
             }
         )
