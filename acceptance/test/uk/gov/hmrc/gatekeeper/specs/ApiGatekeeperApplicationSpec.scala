@@ -116,7 +116,7 @@ class ApiGatekeeperApplicationSpec
       verifyText("data-submission-contact-telephone", "020 1122 3344")
       verifyText("data-checked-on", "22 July 2020")
       verifyText("data-checked-by", "gatekeeper.username")
-      verifyText("data-application-deleted-if-active", "Yes")
+      verifyText("data-application-protected-from-deletion", "Yes")
 
       And("I can see the Copy buttons")
       verifyText("data-clip-text", "Copy all team member email addresses", 0)
