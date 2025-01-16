@@ -29,7 +29,7 @@
 @(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
-    title = s"${applicationConfig.title} - Do you want to protect your application from being deleted?",
+    title = s"Do you want ${application.name} to be deleted if it is inactive?  - HMRC API Gatekeeper",
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
