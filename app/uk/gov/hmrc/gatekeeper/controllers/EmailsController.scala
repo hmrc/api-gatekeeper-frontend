@@ -200,8 +200,8 @@ class EmailsController @Inject() (
   }
 
   def emailApiSubscribersPage(maybeApiVersionFilter: Option[String] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val queryParams                               = getQueryParametersAsKeyValues(request)
-    
+    val queryParams = getQueryParametersAsKeyValues(request)
+
     val apiDropDowns: Future[List[DropDownValue]] = for {
       apiVersions  <- apiDefinitionService.fetchAllApiDefinitions()
       apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
