@@ -28,6 +28,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -140,6 +141,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       def givenApiDefinition2Apis() = {
         FetchAllApiDefinitions.inAny.returns(twoApis: _*)
+      }
+
+      def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+      }
+
+      def givenDevelopersByEmail(users: List[RegisteredUser]) = {
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
       }
 
       val serviceNameOne   = "serviceNameOne"
@@ -299,6 +309,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render correctly (not display user table) when no filter provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition2Apis()
+        given2ApplicationsWithSubscriptions(ApiFilter(None), List.empty)
+        givenDevelopersByEmail(List.empty)
+
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
@@ -308,7 +321,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "render correctly and display users when api filter provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenApiDefinition2Apis()
-        given3VerifiedDevelopers1UnverifiedSearchDevelopers()
+        given2ApplicationsWithSubscriptions(ApiFilter(Some("service2__3")), List.empty)
+        givenDevelopersByEmail(users)
+
         val result: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
         status(result) shouldBe OK
 

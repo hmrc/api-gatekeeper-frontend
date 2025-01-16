@@ -26,6 +26,7 @@ import play.api.libs.ws.{WSClient, WSResponse}
 import play.api.test.Helpers.{FORBIDDEN, OK, SEE_OTHER}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaboratorsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
@@ -34,7 +35,8 @@ import uk.gov.hmrc.gatekeeper.utils.{MockCookies, UserFunctionsWrapper}
 import uk.gov.hmrc.gatekeeper.views.emails.EmailsPagesHelper
 
 class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with UserFunctionsWrapper
-    with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub {
+    with ApplicationServiceStub with AuthServiceStub with DeveloperServiceStub with APIDefinitionServiceStub with EmailsPagesHelper with ApmServiceStub
+    with ApplicationWithCollaboratorsFixtures {
   this: Suite with ServerProvider =>
 
   override protected def appBuilder: GuiceApplicationBuilder =
@@ -215,6 +217,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
         primeDefinitionServiceSuccessWithAPIs(apisAsMap)
+        //
+
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
         result.status shouldBe OK
 
@@ -225,8 +229,14 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       "respond with 200 and render the page with users when selected api sent" in {
         primeAuthServiceSuccess()
         primeDefinitionServiceSuccessWithAPIs(apisAsMap)
-        primeApplicationServiceSuccessWithUsers(allUsers)
-        primeDeveloperServiceGetByEmails(allUsers ++ Seq(unverifiedUser1))
+
+        val collaborators = verifiedUsers.map(user => Collaborators.Administrator(user.userId, user.email))
+        val apps          = List(standardApp.withCollaborators(collaborators: _*), standardApp2.withCollaborators(collaborators: _*))
+
+        primeApplicationServiceFetchApplicationBySubscription(apis.head, apps)
+
+        primeDeveloperServiceGetByEmails(verifiedUsers)
+
         val dropdownvalues: Seq[DropDownValue] = getApiVersionsDropDownValues(apis)
         val result                             = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers?apiVersionFilter=${dropdownvalues.head.value}", validHeaders)
         result.status shouldBe OK
