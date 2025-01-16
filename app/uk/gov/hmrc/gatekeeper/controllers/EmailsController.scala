@@ -206,9 +206,9 @@ class EmailsController @Inject() (
       apiDropDowns <- Future.successful(getApiVersionsDropDownValues(apiVersions))
     } yield apiDropDowns
 
-    val apiFilter = ApiFilter(maybeApiVersionFilter)
+    // val apiFilter = ApiFilter(maybeApiVersionFilter)
 
-    def getSubscribedRegisteredUsers(): Future[List[RegisteredUser]] = {
+    def getSubscribedRegisteredUsers(apiFilter: ApiFilter[String]): Future[List[RegisteredUser]] = {
       for {
         appsSubscribedToSelectedApiSandBox: List[ApplicationWithCollaborators]    <- applicationService.fetchApplications(apiFilter, SandboxEnvironment)
         appsSubscribedToSelectedApiProduction: List[ApplicationWithCollaborators] <- applicationService.fetchApplications(apiFilter, ProductionEnvironment)
@@ -221,8 +221,11 @@ class EmailsController @Inject() (
     }
 
     for {
-      allRegisteredUsers <- maybeApiVersionFilter.fold(Future.successful(List.empty[RegisteredUser]))(_ => getSubscribedRegisteredUsers())
       apis               <- apiDropDowns
+      allRegisteredUsers <- maybeApiVersionFilter match {
+                              case None              => successful(List.empty[RegisteredUser])
+                              case api @ Some(value) => getSubscribedRegisteredUsers(ApiFilter(api))
+                            }
     } yield Ok(emailApiSubscriptionsView(apis, allRegisteredUsers, usersToEmailCopyText(allRegisteredUsers), queryParams))
   }
 }
