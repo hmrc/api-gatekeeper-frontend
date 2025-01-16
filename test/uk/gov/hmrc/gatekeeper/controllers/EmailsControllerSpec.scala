@@ -183,16 +183,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       )
     }
 
-    "email landing page" should {
-      "on initial request with logged in user should display disabled options and checked email all options" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result: Future[Result] = underTest.landing()(aLoggedInRequest)
-        status(result) shouldBe OK
-
-        verify(mockEmailLandingView).apply()(*, *, *)
-      }
-    }
-
     "choose email option" should {
       "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)

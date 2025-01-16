@@ -22,8 +22,8 @@ import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.{AnyContentAsEmpty, Result}
-import play.api.test.Helpers._
 import play.api.test.FakeRequest
+import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
@@ -38,16 +38,16 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView                   = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView                       = app.injector.instanceOf[ForbiddenView]
+  private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
 
   running(app) {
 
     trait Setup extends ControllerSetupBase {
-      val mockEmailAllUsersView               = mock[EmailAllUsersView]
+      val mockEmailAllUsersView = mock[EmailAllUsersView]
 
       when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-   
+
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest: FakeRequest[AnyContentAsEmpty.type] =
@@ -71,8 +71,6 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
 
       def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
-
-      // def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
@@ -119,10 +117,10 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
         verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(*, *, *)
       }
-    
+
       "on request should return forbidden when not logged in to Stride Auth" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
-       
+
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe FORBIDDEN
