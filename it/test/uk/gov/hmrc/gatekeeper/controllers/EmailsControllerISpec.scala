@@ -217,7 +217,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       "respond with 200 and render the page correctly on initial load when authorised" in {
         primeAuthServiceSuccess()
         primeDefinitionServiceSuccessWithAPIs(apisAsMap)
-        //
 
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/api-subscribers", validHeaders)
         result.status shouldBe OK
