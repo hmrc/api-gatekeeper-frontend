@@ -36,12 +36,11 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.GatekeeperUser
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
@@ -64,32 +63,32 @@ class ApplicationControllerSpec
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView                   = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView                       = app.injector.instanceOf[ForbiddenView]
-  private lazy val applicationsView                    = app.injector.instanceOf[ApplicationsView]
-  private lazy val applicationView                     = app.injector.instanceOf[ApplicationView]
-  private lazy val manageAccessOverridesView           = app.injector.instanceOf[ManageAccessOverridesView]
-  private lazy val manageScopesView                    = app.injector.instanceOf[ManageScopesView]
-  private lazy val ipAllowlistView                     = app.injector.instanceOf[IpAllowlistView]
-  private lazy val manageRedirectUriView               = app.injector.instanceOf[ManageRedirectUriView]
-  private lazy val manageIpAllowlistView               = app.injector.instanceOf[ManageIpAllowlistView]
-  private lazy val manageRateLimitView                 = app.injector.instanceOf[ManageRateLimitView]
-  private lazy val deleteApplicationView               = app.injector.instanceOf[DeleteApplicationView]
-  private lazy val deleteApplicationSuccessView        = app.injector.instanceOf[DeleteApplicationSuccessView]
-  private lazy val blockApplicationView                = app.injector.instanceOf[BlockApplicationView]
-  private lazy val blockApplicationSuccessView         = app.injector.instanceOf[BlockApplicationSuccessView]
-  private lazy val unblockApplicationView              = app.injector.instanceOf[UnblockApplicationView]
-  private lazy val unblockApplicationSuccessView       = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val approvedView                        = app.injector.instanceOf[ApprovedView]
-  private lazy val createApplicationView               = app.injector.instanceOf[CreateApplicationView]
-  private lazy val createApplicationSuccessView        = app.injector.instanceOf[CreateApplicationSuccessView]
-  private lazy val manageGrantLengthView               = app.injector.instanceOf[ManageGrantLengthView]
-  private lazy val manageGrantLengthSuccessView        = app.injector.instanceOf[ManageGrantLengthSuccessView]
-  private lazy val manageDeleteRestrictionDisabledView = app.injector.instanceOf[ManageDeleteRestrictionDisabledView]
-  private lazy val manageDeleteRestrictionEnabledView  = app.injector.instanceOf[ManageDeleteRestrictionEnabledView]
-  private lazy val manageDeleteRestrictionSuccessView  = app.injector.instanceOf[ManageDeleteRestrictionSuccessView]
-  private lazy val eventsConnector                     = mock[EnvironmentAwareApiPlatformEventsConnector]
-  private lazy val errorHandler                        = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorTemplateView                    = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView                        = app.injector.instanceOf[ForbiddenView]
+  private lazy val applicationsView                     = app.injector.instanceOf[ApplicationsView]
+  private lazy val applicationView                      = app.injector.instanceOf[ApplicationView]
+  private lazy val manageAccessOverridesView            = app.injector.instanceOf[ManageAccessOverridesView]
+  private lazy val manageScopesView                     = app.injector.instanceOf[ManageScopesView]
+  private lazy val ipAllowlistView                      = app.injector.instanceOf[IpAllowlistView]
+  private lazy val manageRedirectUriView                = app.injector.instanceOf[ManageRedirectUriView]
+  private lazy val manageIpAllowlistView                = app.injector.instanceOf[ManageIpAllowlistView]
+  private lazy val manageRateLimitView                  = app.injector.instanceOf[ManageRateLimitView]
+  private lazy val deleteApplicationView                = app.injector.instanceOf[DeleteApplicationView]
+  private lazy val deleteApplicationSuccessView         = app.injector.instanceOf[DeleteApplicationSuccessView]
+  private lazy val blockApplicationView                 = app.injector.instanceOf[BlockApplicationView]
+  private lazy val blockApplicationSuccessView          = app.injector.instanceOf[BlockApplicationSuccessView]
+  private lazy val unblockApplicationView               = app.injector.instanceOf[UnblockApplicationView]
+  private lazy val unblockApplicationSuccessView        = app.injector.instanceOf[UnblockApplicationSuccessView]
+  private lazy val approvedView                         = app.injector.instanceOf[ApprovedView]
+  private lazy val createApplicationView                = app.injector.instanceOf[CreateApplicationView]
+  private lazy val createApplicationSuccessView         = app.injector.instanceOf[CreateApplicationSuccessView]
+  private lazy val manageGrantLengthView                = app.injector.instanceOf[ManageGrantLengthView]
+  private lazy val manageGrantLengthSuccessView         = app.injector.instanceOf[ManageGrantLengthSuccessView]
+  private lazy val manageDeleteRestrictionDisabledView  = app.injector.instanceOf[ManageDeleteRestrictionDisabledView]
+  private lazy val manageDeleteRestrictionEnabledView   = app.injector.instanceOf[ManageDeleteRestrictionEnabledView]
+  private lazy val applicationProtectedFromDeletionView = app.injector.instanceOf[ApplicationProtectedFromDeletionView]
+  private lazy val manageDeleteRestrictionSuccessView   = app.injector.instanceOf[ManageDeleteRestrictionSuccessView]
+  private lazy val errorHandler                         = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
@@ -130,14 +129,6 @@ class ApplicationControllerSpec
       val basicAppWithDeleteRestrictionEnabled   = basicApplication.modify(_.copy(deleteRestriction = aDeleteRestriction))
       val basicAppWithDeleteRestrictionEnabledId = basicAppWithDeleteRestrictionEnabled.id
       val appWithDeleteRestrictionEnabled        = ApplicationWithHistory(basicAppWithDeleteRestrictionEnabled, List.empty)
-      val events                                 = List(DisplayEvent(
-        basicAppWithDeleteRestrictionEnabledId,
-        Instant.now(),
-        GatekeeperUser("gk user"),
-        "APP_LIFECYCLE",
-        "Application delete restricted",
-        List("This app should not be deleted")
-      ))
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
@@ -172,7 +163,7 @@ class ApplicationControllerSpec
         manageDeleteRestrictionDisabledView,
         manageDeleteRestrictionEnabledView,
         manageDeleteRestrictionSuccessView,
-        eventsConnector,
+        applicationProtectedFromDeletionView,
         mockApmService,
         errorHandler,
         LdapAuthorisationServiceMock.aMock
@@ -886,6 +877,36 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe FORBIDDEN
 
         verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+      }
+    }
+
+    "deleteApplicationPage" should {
+      "show deleteApplicationView when application is not protected from deletion" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        ApplicationServiceMock.FetchApplication.returns(application)
+
+        val request = anAdminLoggedInRequest
+
+        val result = addToken(underTest.deleteApplicationPage(applicationId))(request)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("You must check with all administrators before deleting this application.")
+      }
+
+      "show applicationProtectedFromDeletionView when application is protected from deletion" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        ApplicationServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
+
+        val request = anAdminLoggedInRequest
+
+        val result = addToken(underTest.deleteApplicationPage(basicAppWithDeleteRestrictionEnabledId))(request)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("You cannot delete")
+        contentAsString(result) should include(appWithDeleteRestrictionEnabled.application.name.value)
+        contentAsString(result) should include(appWithDeleteRestrictionEnabled.application.details.deleteRestriction.asInstanceOf[DoNotDelete].reason)
       }
     }
 
