@@ -28,7 +28,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.{DO_NOT_DELETE, NO_RESTRICTION}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
@@ -156,7 +156,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Has IP Allow List", (app => app.details.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
-      ColumnDefinition("Auto delete", (app => app.details.allowAutoDelete.toString())),
+      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE).toString)),
       ColumnDefinition("Number of Redirect URIs", (nbrOfRedirectUris(_).toString))
     ) ++ (
       if (isStrideUser)
