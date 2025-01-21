@@ -702,31 +702,31 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "updateAutoDelete" should {
+  "updateDeleteRestriction" should {
     val noReason = "No reasons given"
     val reason   = "Some reason"
 
-    "issue AllowApplicationAutoDelete command when auto delete is true in either sandbox or production app" in new Setup {
+    "issue AllowApplicationAllowDelete command when allow delete is true in either sandbox or production app" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateAutoDelete(standardApp.id, true, gatekeeperUserId, noReason))
+      val result = await(underTest.updateDeleteRestriction(standardApp.id, true, gatekeeperUserId, noReason))
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
-        case ApplicationCommands.AllowApplicationAutoDelete(aUser, aReason, _) =>
+        case ApplicationCommands.AllowApplicationDelete(aUser, aReason, _) =>
           aUser shouldBe gatekeeperUserId
           aReason shouldBe noReason
       }
     }
 
-    "issue BlockApplicationAutoDelete command when auto delete is false in either sandbox or production app" in new Setup {
+    "issue RestrictApplicationDelete command when allow delete is false in either sandbox or production app" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateAutoDelete(standardApp.id, false, gatekeeperUserId, reason))
+      val result = await(underTest.updateDeleteRestriction(standardApp.id, false, gatekeeperUserId, reason))
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
-        case ApplicationCommands.BlockApplicationAutoDelete(aUser, aReason, _) =>
+        case ApplicationCommands.RestrictApplicationDelete(aUser, aReason, _) =>
           aUser shouldBe gatekeeperUserId
           aReason shouldBe reason
       }

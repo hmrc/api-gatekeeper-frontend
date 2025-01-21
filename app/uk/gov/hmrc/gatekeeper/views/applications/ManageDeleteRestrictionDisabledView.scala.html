@@ -19,15 +19,17 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyEnabledForm
+@import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyDisabledForm
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 
-@(application: ApplicationWithCollaborators, form: Form[AutoDeletePreviouslyEnabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
-    title = s"${applicationConfig.title} - Do you want your application to be deleted?",
+    title = s"Do you want ${application.name} to be deleted if it is inactive? - HMRC API Gatekeeper",
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
@@ -44,34 +46,33 @@
     <div class="govuk-grid-column-two-thirds">
     @errorSummary2(form)
 
-    <h1 class="govuk-heading-l">Do you want @{application.name} to be deleted if it is inactive?</h1>
+    <h1 class="govuk-heading-l">Do you want to protect @{application.name} from being deleted?</h1>
 
     <p class="govuk-hint">
-        <li class="govuk-hint">Applications that don't make any API calls for a long time are deleted by the system, unless they are excluded</li>
-        <li class="govuk-hint">Applications pending production request approval for a long time will also be automatically deleted, unless they are excluded.</li>
+        This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.
     </p>
 
-    @helper.form(action = routes.ApplicationController.updateAutoDeletePreviouslyEnabled(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
 
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="auto-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.allowAutoDelete) {checked}>
-                    <label class="govuk-label govuk-radios__label" for="auto-delete-yes">
-                        Yes
+                    <input class="govuk-radios__input" id="no-protect-allow-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {checked}>
+                    <label class="govuk-label govuk-radios__label" for="no-protect-allow-delete-yes">
+                        No
                     </label>
                 </div>
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="auto-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(!application.details.allowAutoDelete) {checked}>
-                    <label class="govuk-label govuk-radios__label" for="auto-delete-no">
-                        No
+                    <input class="govuk-radios__input" id="yes-protect-allow-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(application.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE) {checked}>
+                    <label class="govuk-label govuk-radios__label" for="yes-protect-allow-delete-no">
+                        Yes
                     </label>
                 </div>
 
                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-reason">
-                    <label class="govuk-label" for="reason">Give the reasons for excluding this application from being deleted if it is inactive
+                    <label class="govuk-label" for="reason">Give the reasons for protecting this application from being deleted
                     </label>
                     <textarea class="govuk-textarea" id="reason" name="reason" type="text" spellcheck="false" rows="2" maxlength="100"></textarea>
                 </div>

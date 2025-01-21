@@ -1,0 +1,61 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+
+@(application: ApplicationWithCollaborators, reason: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+
+    title = s"Application cannot be deleted - HMRC API Gatekeeper",
+    breadcrumbs = Seq(
+        Crumb(
+            s"${application.name}",
+            s"${routes.ApplicationController.applicationPage(application.id)}",
+            Some("data-breadcrumb-view-application")
+        ),
+        Crumb(
+            "Applications",
+            s"${routes.ApplicationController.applicationsPage(None)}",
+            Some("data-breadcrumb-view-applications")
+        )
+    )
+) {
+    <div class="govuk-grid-column-two-thirds">
+
+        <h1 class="govuk-heading-l">Application cannot be deleted</h1>
+
+        <p class="govuk-body">
+            You cannot delete <span class="govuk-!-font-weight-bold">@{application.name}</span> because: </p>
+
+        <div class="govuk-inset-text">
+        @reason
+        </div>
+
+        <p class="govuk-body govuk-!-margin-top-0 govuk-!-margin-bottom-8">
+            If you still want to delete this application you will need to change <a class="govuk-link--no-visited-state" href="@{routes.ApplicationController.manageDeleteRestriction(application.id)}">its protected status</a>.
+        </p>
+
+        <p class="govuk-body"><a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-link govuk-link--no-visited-state">Back to application details</a></p>
+    </div>
+}

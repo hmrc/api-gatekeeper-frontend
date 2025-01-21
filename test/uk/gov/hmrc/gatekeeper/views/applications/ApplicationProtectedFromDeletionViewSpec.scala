@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.applications
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -26,20 +26,19 @@ import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models.Forms.AutoDeletePreviouslyDisabledForm
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
-import uk.gov.hmrc.gatekeeper.views.html.applications.ManageAutoDeleteDisabledView
+import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationProtectedFromDeletionView
 
-class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
+class ApplicationProtectedFromDeletionViewSpec extends CommonViewSpec {
 
   trait Setup extends ApplicationBuilder {
-    val request                                                    = FakeRequest().withCSRFToken
-    val manageAutoDeleteDisabledView: ManageAutoDeleteDisabledView = app.injector.instanceOf[ManageAutoDeleteDisabledView]
+    val request                                                                    = FakeRequest().withCSRFToken
+    val applicationProtectedFromDeletionView: ApplicationProtectedFromDeletionView = app.injector.instanceOf[ApplicationProtectedFromDeletionView]
 
     val application: ApplicationWithCollaborators =
       buildApplication(
@@ -61,27 +60,20 @@ class ManageAutoDeleteDisabledViewSpec extends CommonViewSpec {
         deleteRestriction = aDeleteRestriction
       )
 
-    val reason     = "Do not delete this application"
-    val reasonDate = "26th Sept 2023"
+    val reason = "Do not delete this application"
   }
 
-  "Auto Delete Disabled view" should {
-    "show reason, date and radio buttons when auto deletion is disabled for application" in new Setup {
-      val result: Appendable = manageAutoDeleteDisabledView(application, reason, reasonDate, AutoDeletePreviouslyDisabledForm.form)(request, LoggedInUser(None), messagesProvider)
+  "Delete Restriction Enabled view" should {
+    "show reason, date and radio buttons when deletion restriction is enabled for application" in new Setup {
+      val result: Appendable =
+        applicationProtectedFromDeletionView(application, reason)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
-      elementExistsByText(document, "h1", s"${application.name} has been set not to be deleted if it is inactive") shouldBe true
-      elementIdentifiedByIdContainsText(document, "dd", "reason-text", "Reason")
-      elementIdentifiedByIdContainsText(document, "dd", "reason-value", reason)
-      elementIdentifiedByIdContainsText(document, "dd", "date-text", "Date")
-      elementIdentifiedByIdContainsText(document, "dd", "date-value", reasonDate)
-      elementExistsByText(document, "h2", s"Do you want to change the application to be deleted if it is inactive?") shouldBe true
-      elementExistsByIdWithAttr(document, "auto-delete-no", "checked") shouldBe false
-      elementExistsByIdWithAttr(document, "auto-delete-yes", "checked") shouldBe false
-      labelIdentifiedByForAttrContainsText(document, "auto-delete-yes", "Yes") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "auto-delete-no", "No, the application should not be deleted if inactive") shouldBe true
+      elementExistsByText(document, "h1", "Application cannot be deleted") shouldBe true
+      elementExistsByText(document, "p", s"You cannot delete ${application.name.value} because:") shouldBe true
+      elementExistsByText(document, "dd", reason)
     }
   }
 }
