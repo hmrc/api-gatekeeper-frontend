@@ -91,7 +91,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list all subscribed applications from production when PRODUCTION environment is specified" in new Setup {
       ApplicationConnectorMock.Prod.SearchApplications.returns(allProductionApplications: _*)
 
-      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.PRODUCTION), Map.empty))
+      val result: PaginatedApplications = await(underTest.searchApplications(Some(Environment.PRODUCTION), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == standardApp.name).value
       val app2 = result.applications.find(sa => sa.name == privilegedApp.name).value
@@ -104,7 +104,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     "list all subscribed applications from sandbox when SANDBOX environment is specified" in new Setup {
       ApplicationConnectorMock.Sandbox.SearchApplications.returns(allSandboxApplications: _*)
-      val result: PaginatedApplicationResponse = await(underTest.searchApplications(Some(Environment.SANDBOX), Map.empty))
+      val result: PaginatedApplications = await(underTest.searchApplications(Some(Environment.SANDBOX), Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == standardApp.name).value
       val app2 = result.applications.find(sa => sa.name == privilegedApp.name).value
@@ -118,7 +118,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "list all subscribed applications from sandbox when no environment is specified" in new Setup {
       ApplicationConnectorMock.Sandbox.SearchApplications.returns(allSandboxApplications: _*)
 
-      val result: PaginatedApplicationResponse = await(underTest.searchApplications(None, Map.empty))
+      val result: PaginatedApplications = await(underTest.searchApplications(None, Map.empty))
 
       val app1 = result.applications.find(sa => sa.name == appNameOne).get
       val app2 = result.applications.find(sa => sa.name == appNameTwo).get

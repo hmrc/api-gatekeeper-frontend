@@ -139,11 +139,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     val applicationViewWithNoApis: () => HtmlFormat.Appendable =
-      () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApis: () => HtmlFormat.Appendable   = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
+      () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
+    val applicationViewWithApis: () => HtmlFormat.Appendable   = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
 
     val applicationViewWithApplication: () => HtmlFormat.Appendable =
-      () => applicationsView(PaginatedApplicationResponse(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)
+      () => applicationsView(PaginatedApplications(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)
     val applicationViewWithApplicationDocument                      = Jsoup.parse(applicationViewWithApplication().body)
   }
 
@@ -225,7 +225,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a superuser" should {
 
       "Display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, true, Map.empty, getApprovalsUrl)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, true, Map.empty, getApprovalsUrl)
         applicationView().body should include("""Add privileged or ROPC application""")
       }
     }
@@ -233,7 +233,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
     "Called by a non-superuser" should {
 
       "Not display the 'Add privileged or ROPC application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplicationResponse(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
+        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
         applicationView().body shouldNot include("""Add privileged or ROPC application""")
       }
     }

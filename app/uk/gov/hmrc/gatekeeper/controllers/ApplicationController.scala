@@ -108,9 +108,9 @@ class ApplicationController @Inject() (
       }
 
     for {
-      paginatedApplicationResponse <- applicationService.searchApplications(env, params)
-      apis                         <- apmService.fetchNonOpenApis(env.get)
-    } yield Ok(applicationsView(paginatedApplicationResponse, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
+      paginatedApplications <- applicationService.searchApplications(env, params)
+      apis                  <- apmService.fetchNonOpenApis(env.get)
+    } yield Ok(applicationsView(paginatedApplications, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
   }
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
@@ -124,7 +124,7 @@ class ApplicationController @Inject() (
       .map(applicationResponse => Ok(toCsvContent(applicationResponse, request.role.isUser, showDeletionData)))
   }
 
-  private def toCsvContent(paginatedApplicationResponse: PaginatedApplicationResponse, isStrideUser: Boolean, showDeletionDataColumns: Boolean): String = {
+  private def toCsvContent(paginatedApplications: PaginatedApplications, isStrideUser: Boolean, showDeletionDataColumns: Boolean): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
       s"${role.displayText}:${emailAddress.text}"
     }
@@ -171,11 +171,11 @@ class ApplicationController @Inject() (
       else Seq.empty
     )
 
-    val pagingRow = s"page: ${paginatedApplicationResponse.page} of ${paginatedApplicationResponse.maxPage} from ${paginatedApplicationResponse.matching} results"
+    val pagingRow = s"page: ${paginatedApplications.page} of ${paginatedApplications.maxPage} from ${paginatedApplications.matching} results"
 
-    toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
+    toCsvString(csvColumnDefinitions, paginatedApplications.applications)
 
-    val csvRows = toCsvString(csvColumnDefinitions, paginatedApplicationResponse.applications)
+    val csvRows = toCsvString(csvColumnDefinitions, paginatedApplications.applications)
 
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }

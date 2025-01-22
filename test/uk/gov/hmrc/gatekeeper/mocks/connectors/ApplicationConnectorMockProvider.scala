@@ -37,10 +37,10 @@ trait ApplicationConnectorMockProvider {
   trait ApplicationConnectorMock {
     def aMock: ApplicationConnector
 
-    import mocks.PaginatedApplicationResponseBuilder._
+    import mocks.PaginatedApplicationsBuilder._
 
     object SearchApplications {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplicationResponse(apps.toList)))
+      def returns(apps: ApplicationWithCollaborators*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplications(apps.toList)))
     }
 
     object SearchCollaborators {
