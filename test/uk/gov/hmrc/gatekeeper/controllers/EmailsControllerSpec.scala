@@ -28,6 +28,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -142,6 +143,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FetchAllApiDefinitions.inAny.returns(twoApis: _*)
       }
 
+      def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+      }
+
+      def givenDevelopersByEmail(users: List[RegisteredUser]) = {
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
+      }
+
       val serviceNameOne   = "serviceNameOne"
       val serviceNameTwo   = "serviceNameTwo"
       val serviceNameThree = "serviceNameThree"
@@ -171,16 +181,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         mockApmService,
         StrideAuthorisationServiceMock.aMock
       )
-    }
-
-    "email landing page" should {
-      "on initial request with logged in user should display disabled options and checked email all options" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result: Future[Result] = underTest.landing()(aLoggedInRequest)
-        status(result) shouldBe OK
-
-        verify(mockEmailLandingView).apply()(*, *, *)
-      }
     }
 
     "choose email option" should {
@@ -292,27 +292,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(*, *, *)
-      }
-    }
-
-    "email subscribers page" should {
-      "render correctly (not display user table) when no filter provided" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition2Apis()
-        val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
-        status(result) shouldBe OK
-
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
-      }
-
-      "render correctly and display users when api filter provided" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        givenApiDefinition2Apis()
-        given3VerifiedDevelopers1UnverifiedSearchDevelopers()
-        val result: Future[Result] = underTest.emailApiSubscribersPage(Some("service2__3"))(createGetRequest("/emails/api-subscribers?apiVersionFilter=service2__3"))
-        status(result) shouldBe OK
-
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
       }
     }
 

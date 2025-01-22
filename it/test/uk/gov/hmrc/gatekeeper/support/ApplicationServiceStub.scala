@@ -20,6 +20,8 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
@@ -36,6 +38,18 @@ trait ApplicationServiceStub extends WireMockExtensions {
         aResponse()
           .withStatus(Status.OK)
           .withJsonBody(users.map(_.email))
+      ))
+  }
+
+  def primeApplicationServiceFetchApplicationBySubscription(definition: ApiDefinition, apps: List[ApplicationWithCollaborators]): Unit = {
+
+    stubFor(get(urlPathEqualTo("/application"))
+      .withQueryParam("subscribesTo", containing(definition.context.value))
+      .withQueryParam("version", containing(definition.versions.head._1.value))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withJsonBody(apps)
       ))
   }
 }
