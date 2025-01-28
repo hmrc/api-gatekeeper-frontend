@@ -4,7 +4,7 @@ object AppDependencies {
 
   lazy val jsoupVersion      = "1.12.1"
   lazy val scalaCheckVersion = "1.17.0"
-  lazy val bootstrapVersion  = "9.2.0"
+  lazy val bootstrapVersion  = "9.7.0"
 
   val tpdDomainVersion    = "0.11.0"
   val apiDomainVersion    = "0.19.1"
@@ -14,7 +14,7 @@ object AppDependencies {
 
   lazy val dependencies = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30"            % bootstrapVersion,
-    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "10.6.0",
+    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "11.11.0",
     "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.1.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.0.0",
     "uk.gov.hmrc"       %% "emailaddress"                          % "3.8.0",
