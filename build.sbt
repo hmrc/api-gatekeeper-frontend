@@ -78,9 +78,12 @@ lazy val acceptance = (project in file("acceptance"))
   .dependsOn(microservice % "test->test")
   .settings(
     name := "acceptance-tests",
-    Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
-    DefaultBuildSettings.itSettings(),
-    addTestReportOption(Test, "acceptance-reports")
+    publishArtifact := false,
+    Test / fork := false,
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.ScalaTest, "-eT"),
+      Tests.Argument("-o", "-u", "target/acceptance-test-reports", "-h", "target/acceptance-test-reports/html-report")
+    )
   )
 
 
