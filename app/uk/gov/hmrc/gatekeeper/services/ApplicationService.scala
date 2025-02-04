@@ -228,18 +228,18 @@ class ApplicationService @Inject() (
 
   def manageRedirectUris(
       application: ApplicationWithCollaborators,
-      redirectUris: List[RedirectUri],
+      redirectUris: List[LoginRedirectUri],
       gatekeeperUser: String
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
     val oldRedirectUris = application.access match {
-      case Access.Standard(redirects, _, _, _, _, _) => redirects
-      case _                                         => List.empty
+      case Access.Standard(redirects, _, _, _, _, _, _) => redirects
+      case _                                            => List.empty
     }
 
     commandConnector.dispatch(
       application.id,
-      ApplicationCommands.UpdateRedirectUris(
+      ApplicationCommands.UpdateLoginRedirectUris(
         Actors.GatekeeperUser(gatekeeperUser),
         oldRedirectUris,
         redirectUris,
