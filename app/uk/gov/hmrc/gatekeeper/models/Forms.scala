@@ -28,7 +28,7 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{RedirectUri, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{LoginRedirectUri, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
@@ -168,7 +168,7 @@ object Forms {
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes)
   )
 
-  final case class RedirectUriForm(redirectUris: List[RedirectUri])
+  final case class RedirectUriForm(redirectUris: List[LoginRedirectUri])
 
   object RedirectUriForm {
 
@@ -180,7 +180,7 @@ object Forms {
         redirectUri5: Option[String]
       ): RedirectUriForm = {
       val data = List(redirectUri1, redirectUri2, redirectUri3, redirectUri4, redirectUri5)
-        .flatMap(_.map(RedirectUri.apply))
+        .flatMap(_.map(LoginRedirectUri.apply))
         .collect { case Some(uri) => uri }
         .distinct
       RedirectUriForm(data)
@@ -192,7 +192,7 @@ object Forms {
     }
 
     def validateUri(uri: String): ValidationResult = {
-      RedirectUri(uri)
+      LoginRedirectUri(uri)
         .map(_ => Valid)
         .getOrElse(Invalid(Seq(ValidationError("redirectUri.invalid", uri))))
     }

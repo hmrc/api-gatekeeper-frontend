@@ -131,8 +131,8 @@ class ApplicationController @Inject() (
 
     val nbrOfRedirectUris = (app: ApplicationWithCollaborators) =>
       app.access match {
-        case Access.Standard(redirectUris, _, _, _, _, _) => redirectUris.length
-        case _                                            => 0
+        case Access.Standard(redirectUris, _, _, _, _, _, _) => redirectUris.length
+        case _                                               => 0
       }
 
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithCollaborators]](
@@ -148,8 +148,8 @@ class ApplicationController @Inject() (
         "Overrides",
         app =>
           app.access match {
-            case Access.Standard(_, _, _, overrides, _, _) => overrides.mkString(",")
-            case _                                         => ""
+            case Access.Standard(_, _, _, _, overrides, _, _) => overrides.mkString(",")
+            case _                                            => ""
           }
       ),
       ColumnDefinition("Blocked", (app => app.details.blocked.toString())),
@@ -254,10 +254,10 @@ class ApplicationController @Inject() (
 
       def getResponsibleIndividualHistory(access: Access): List[ResponsibleIndividualHistoryItem] = {
         access match {
-          case Access.Standard(_, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, _, termsOfUseAcceptances))) => {
+          case Access.Standard(_, _, _, _, _, _, Some(ImportantSubmissionData(_, _, _, _, _, termsOfUseAcceptances))) => {
             buildResponsibleIndividualHistoryItems(termsOfUseAcceptances).reverse
           }
-          case _                                                                                                   => List.empty
+          case _                                                                                                      => List.empty
         }
       }
 
@@ -443,8 +443,8 @@ class ApplicationController @Inject() (
   def manageRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       app.application.access match {
-        case Access.Standard(redirects, _, _, _, _, _) => Future.successful(Ok(manageRedirectUriView(app.application, RedirectUriForm.form.fill(RedirectUriForm(redirects)))))
-        case _                                         => Future.successful(NotFound)
+        case Access.Standard(redirects, _, _, _, _, _, _) => Future.successful(Ok(manageRedirectUriView(app.application, RedirectUriForm.form.fill(RedirectUriForm(redirects)))))
+        case _                                            => Future.successful(NotFound)
       }
 
     }

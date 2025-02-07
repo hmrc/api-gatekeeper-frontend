@@ -51,7 +51,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
-      redirectUris: List[RedirectUri] = List.empty,
+      redirectUris: List[LoginRedirectUri] = List.empty,
       moreApplication: MoreApplication = MoreApplication(true),
       deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction
     ): ApplicationWithCollaborators = {
@@ -91,7 +91,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   val DefaultApplication = buildApplication(
     collaborators = buildCollaborators(Seq(("a@b.com", Collaborator.Roles.ADMINISTRATOR))),
     access = Access.Standard(
-      redirectUris = List("https://red1", "https://red2").map(RedirectUri.unsafeApply),
+      redirectUris = List("https://red1", "https://red2").map(LoginRedirectUri.unsafeApply),
       termsAndConditionsUrl = Some("http://tnc-url.com")
     )
   )

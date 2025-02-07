@@ -297,7 +297,7 @@ class ApplicationControllerSpec
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
-          redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
+          redirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
           moreApplication = MoreApplication(allowAutoDelete = false),
           deleteRestriction = aDeleteRestriction
         )
@@ -337,7 +337,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
-          redirectUris = List(RedirectUri.unsafeApply("http://localhost:8080/callback")),
+          redirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
           moreApplication = MoreApplication(allowAutoDelete = false),
           deleteRestriction = aDeleteRestriction
         )
@@ -945,7 +945,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
     }
 
     "manageRedirectUrisAction" should {
-      val redirectUriToUpdate = RedirectUri.unsafeApply("http://localhost:8909")
+      val redirectUriToUpdate = LoginRedirectUri.unsafeApply("http://localhost:8909")
 
       "manage the Redirect Uri using the app service for an admin" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
@@ -990,7 +990,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockApplicationService).manageRedirectUris(
           eqTo(application.application),
-          eqTo(List(redirectUriToUpdate, RedirectUri.unsafeApply("https://example.com"), RedirectUri.unsafeApply("https://otherexample.com"))),
+          eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://otherexample.com"))),
           eqTo("Bobby Example")
         )(*)
       }
@@ -1011,7 +1011,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockApplicationService).manageRedirectUris(
           eqTo(application.application),
-          eqTo(List(redirectUriToUpdate, RedirectUri.unsafeApply("https://example.com"))),
+          eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
         )(*)
       }
@@ -1032,7 +1032,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockApplicationService).manageRedirectUris(
           eqTo(application.application),
-          eqTo(List(redirectUriToUpdate, RedirectUri.unsafeApply("https://example.com"), RedirectUri.unsafeApply("https://example2.com"))),
+          eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
         )(*)
       }
