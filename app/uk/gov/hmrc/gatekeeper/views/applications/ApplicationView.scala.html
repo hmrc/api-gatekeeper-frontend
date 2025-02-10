@@ -130,11 +130,11 @@
 @renderRedirectUris(redirectUris: List[LoginRedirectUri]) = {
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
-      Redirect URIs
+      Login Redirect URIs
     </dt>
     @if(redirectUris.isEmpty) {
       <dd class="govuk-summary-list__value">
-        No redirect URIs assigned to this application
+        No login redirect URIs assigned to this application
       </dd>
     } else {
       <dd class="govuk-summary-list__value">
@@ -153,6 +153,31 @@
   </div>
 }
 
+@renderPostLogoutRedirectUris(redirectUris: List[LoginRedirectUri]) = {
+  <div class="govuk-summary-list__row">
+    <dt class="govuk-summary-list__key">
+      Post Logout Redirect URIs
+    </dt>
+    @if(redirectUris.isEmpty) {
+      <dd class="govuk-summary-list__value">
+        No post logout redirect URIs assigned to this application
+      </dd>
+    } else {
+      <dd class="govuk-summary-list__value">
+        <ul class="govuk-list">
+        @redirectUris.map(uri => {<li>{uri}</li>})
+        </ul>
+      </dd>
+    }
+    @if(request.role.isSuperUser && !application.state.isDeleted) {
+      <dd class="govuk-summary-list__actions">
+        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
+          Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
+        </a>
+      </dd>
+    }
+  </div>
+}
 
 @renderExternalUrl(url: String) = {
   <a href="@url" class="govuk-link" target="_blank">@url</a> (opens in a new window)
@@ -412,7 +437,7 @@
     @{
       access match {
         case standardAccess : Access.Standard => {
-          Seq(renderOverrides(standardAccess.overrides), renderRedirectUris(standardAccess.redirectUris))
+          Seq(renderOverrides(standardAccess.overrides), renderLoginRedirectUris(standardAccess.redirectUris), renderPostLogoutRedirectUris(standardAccess.redirectUris))
         }
         case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)
