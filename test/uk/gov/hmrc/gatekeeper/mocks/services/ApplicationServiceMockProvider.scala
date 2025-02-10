@@ -68,10 +68,6 @@ trait ApplicationServiceMockProvider {
       def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
-    object ManageRedirectUris {
-      def succeeds() = when(mockApplicationService.manageLoginRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
-    }
-
     object UpdateOverrides {
       def succeeds() = when(mockApplicationService.updateOverrides(*, *, *)(*)).thenReturn(successful(UpdateOverridesSuccessResult))
     }

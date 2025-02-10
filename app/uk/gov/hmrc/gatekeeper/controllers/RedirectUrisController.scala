@@ -43,6 +43,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 class RedirectUrisController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val applicationService: ApplicationService,
+    redirectUriService: RedirectUrisService,
     mcc: MessagesControllerComponents,
     manageLoginRedirectUriView: ManageLoginRedirectUriView,
     managePostLogoutRedirectUriView: ManagePostLogoutRedirectUriView,
@@ -82,7 +83,7 @@ class RedirectUrisController @Inject() (
   def manageLoginRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: LoginRedirectUriForm) = {
-        applicationService.manageLoginRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+        redirectUriService.manageLoginRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
@@ -98,7 +99,7 @@ class RedirectUrisController @Inject() (
   def managePostLogoutRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: PostLogoutRedirectUriForm) = {
-        applicationService.managePostLogoutRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+        redirectUriService.managePostLogoutRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }

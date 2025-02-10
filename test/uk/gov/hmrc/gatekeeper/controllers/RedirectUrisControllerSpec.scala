@@ -17,14 +17,11 @@
 package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
+import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider, RedirectUrisServiceMockProvider}
 import org.apache.pekko.stream.Materializer
-import org.jsoup.Jsoup
 
-import play.api.mvc.Result
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
@@ -60,6 +57,7 @@ class RedirectUrisControllerSpec
 
     trait Setup extends ControllerSetupBase
         with ApplicationServiceMockProvider
+        with RedirectUrisServiceMockProvider
         with ApplicationConnectorMockProvider
         with ApmServiceMockProvider
         with StrideAuthorisationServiceMockModule
@@ -89,6 +87,7 @@ class RedirectUrisControllerSpec
       val underTest = new RedirectUrisController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
+        mockRedirectUrisService,
         mcc,
         manageLoginRedirectUriView,
         managePostLogoutRedirectUriView,
@@ -141,33 +140,33 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage the Redirect Uri using the app service for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage multiple Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
@@ -178,7 +177,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(
+        verify(mockRedirectUrisService).manageLoginRedirectUris(
           eqTo(application.application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://otherexample.com"))),
           eqTo("Bobby Example")
@@ -188,7 +187,7 @@ class RedirectUrisControllerSpec
       "manage duplicate Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
@@ -199,7 +198,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(
+        verify(mockRedirectUrisService).manageLoginRedirectUris(
           eqTo(application.application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
@@ -209,7 +208,7 @@ class RedirectUrisControllerSpec
       "manage gaps in Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri3" -> "https://example.com",
@@ -220,7 +219,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(
+        verify(mockRedirectUrisService).manageLoginRedirectUris(
           eqTo(application.application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
@@ -230,14 +229,14 @@ class RedirectUrisControllerSpec
       "clear the Redirect Uri when redirectUris is empty" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        ApplicationServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockApplicationService).manageLoginRedirectUris(eqTo(application.application), eqTo(List()), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List()), eqTo("Bobby Example"))(*)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -254,7 +253,7 @@ class RedirectUrisControllerSpec
           val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageLoginRedirectUris(*, *, *)(*)
+          verify(mockRedirectUrisService, times(0)).manageLoginRedirectUris(*, *, *)(*)
         }
       }
 
@@ -269,14 +268,6 @@ class RedirectUrisControllerSpec
         status(result) shouldBe FORBIDDEN
         contentAsString(result) should include("You do not have permission")
       }
-    }
-
-    def assertIncludesOneError(result: Future[Result], message: String) = {
-
-      val body = contentAsString(result)
-
-      body should include(message)
-      assert(Jsoup.parse(body).getElementsByClass("govuk-form-group--error").size == 1)
     }
   }
 }
