@@ -44,7 +44,7 @@
 
     <h1 class="govuk-heading-l">Manage redirect URIs</h1>
 
-    @helper.form(action = controllers.routes.RedirectUrisController.manageLoginRedirectUriAction(application.id)) {
+    @helper.form(action = controllers.routes.RedirectUrisController.managePostLogoutRedirectUriAction(application.id)) {
         @helper.CSRF.formField
 
         <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">

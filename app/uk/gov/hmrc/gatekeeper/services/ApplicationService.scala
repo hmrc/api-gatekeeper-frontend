@@ -250,6 +250,30 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
+  def managePostLogoutRedirectUris(
+      application: ApplicationWithCollaborators,
+      redirectUris: List[PostLogoutRedirectUri],
+      gatekeeperUser: String
+    )(implicit hc: HeaderCarrier
+    ): Future[ApplicationUpdateResult] = {
+    val oldRedirectUris = application.access match {
+      case Access.Standard(_, redirects, _, _, _, _, _) => redirects
+      case _                                            => List.empty
+    }
+
+    commandConnector.dispatch(
+      application.id,
+      ApplicationCommands.UpdatePostLogoutRedirectUris(
+        Actors.GatekeeperUser(gatekeeperUser),
+        oldRedirectUris,
+        redirectUris,
+        instant()
+      ),
+      Set.empty[LaxEmailAddress]
+    )
+      .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
+  }
+
   def validateApplicationName(application: ApplicationWithCollaborators, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
     applicationConnectorFor(application).validateApplicationName(Some(application.id), name)
   }

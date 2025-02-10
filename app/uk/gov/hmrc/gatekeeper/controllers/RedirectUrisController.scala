@@ -97,17 +97,17 @@ class RedirectUrisController @Inject() (
 
   def managePostLogoutRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      def handleValidForm(form: LoginRedirectUriForm) = {
-        applicationService.manageLoginRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+      def handleValidForm(form: PostLogoutRedirectUriForm) = {
+        applicationService.managePostLogoutRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
-      def handleFormError(form: Form[LoginRedirectUriForm]) = {
-        Future.successful(BadRequest(manageLoginRedirectUriView(app.application, form)))
+      def handleFormError(form: Form[PostLogoutRedirectUriForm]) = {
+        Future.successful(BadRequest(managePostLogoutRedirectUriView(app.application, form)))
       }
 
-      LoginRedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
+      PostLogoutRedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 }
