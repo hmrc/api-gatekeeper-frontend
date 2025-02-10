@@ -51,9 +51,10 @@ class RedirectUrisControllerSpec
 
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
-  private lazy val manageLoginRedirectUriView = app.injector.instanceOf[ManageLoginRedirectUriView]
-  private lazy val errorHandler               = app.injector.instanceOf[ErrorHandler]
+  private lazy val errorTemplateView               = app.injector.instanceOf[ErrorTemplate]
+  private lazy val manageLoginRedirectUriView      = app.injector.instanceOf[ManageLoginRedirectUriView]
+  private lazy val managePostLogoutRedirectUriView = app.injector.instanceOf[ManagePostLogoutRedirectUriView]
+  private lazy val errorHandler                    = app.injector.instanceOf[ErrorHandler]
 
   running(app) {
 
@@ -90,6 +91,7 @@ class RedirectUrisControllerSpec
         mockApplicationService,
         mcc,
         manageLoginRedirectUriView,
+        managePostLogoutRedirectUriView,
         errorTemplateView,
         mockApmService,
         errorHandler,

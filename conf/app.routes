@@ -37,6 +37,8 @@ POST        /applications/:id/ip-allowlist/manage                             uk
 GET         /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriPage(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 POST        /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriAction(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
+GET         /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriPage(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
+POST        /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriAction(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
 GET         /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageAccessOverrides(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 POST        /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAccessOverrides(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
