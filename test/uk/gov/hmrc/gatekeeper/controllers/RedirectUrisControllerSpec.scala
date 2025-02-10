@@ -108,7 +108,7 @@ class RedirectUrisControllerSpec
         val result = underTest.manageLoginRedirectUriPage(applicationId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("Manage Redirect URIs")
+        contentAsString(result) should include("Manage Login Redirect URIs")
       }
 
       "return the manage Redirect Uri page for a super user" in new Setup {
@@ -118,7 +118,7 @@ class RedirectUrisControllerSpec
         val result = underTest.manageLoginRedirectUriPage(applicationId)(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("Manage Redirect URIs")
+        contentAsString(result) should include("Manage Login Redirect URIs")
       }
 
       "return the forbidden page for a normal user" in new Setup {
