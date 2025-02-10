@@ -140,7 +140,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
@@ -153,7 +153,7 @@ class RedirectUrisControllerSpec
       "manage the Redirect Uri using the app service for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
@@ -166,7 +166,7 @@ class RedirectUrisControllerSpec
       "manage multiple Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
@@ -187,7 +187,7 @@ class RedirectUrisControllerSpec
       "manage duplicate Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
@@ -208,7 +208,7 @@ class RedirectUrisControllerSpec
       "manage gaps in Redirect Uri using the app service" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri3" -> "https://example.com",
@@ -229,7 +229,7 @@ class RedirectUrisControllerSpec
       "clear the Redirect Uri when redirectUris is empty" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
-        RedirectUrisServiceMock.ManageRedirectUris.succeeds()
+        RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
@@ -264,6 +264,178 @@ class RedirectUrisControllerSpec
         val request = aLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe FORBIDDEN
+        contentAsString(result) should include("You do not have permission")
+      }
+    }
+
+    "managePostLogoutRedirectUrisPage" should {
+      "return the manage post logout redirect uris page for an admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+
+        val result = underTest.managePostLogoutRedirectUriPage(applicationId)(anAdminLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Manage Post Logout Redirect URIs")
+      }
+
+      "return the manage post logout redirect uris page for a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+
+        val result = underTest.managePostLogoutRedirectUriPage(applicationId)(aSuperUserLoggedInRequest)
+
+        status(result) shouldBe OK
+        contentAsString(result) should include("Manage Post Logout Redirect URIs")
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        givenTheAppWillBeReturned()
+
+        val result = underTest.managePostLogoutRedirectUriPage(applicationId)(aLoggedInRequest)
+
+        status(result) shouldBe FORBIDDEN
+        contentAsString(result) should include("You do not have permission")
+      }
+    }
+
+    "managePostLogoutRedirectUrisAction" should {
+      val redirectUriToUpdate = PostLogoutRedirectUri.unsafeApply("http://localhost:8909")
+
+      "manage the post logout redirect rri using the app service for an admin" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
+
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+      }
+
+      "manage the post logout redirect uri using the app service for a super user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+      }
+
+      "manage multiple post logout redirect uris using the app service" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri2" -> "https://example.com",
+          "redirectUri3" -> "https://otherexample.com"
+        )
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(
+          eqTo(application.application),
+          eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"), PostLogoutRedirectUri.unsafeApply("https://otherexample.com"))),
+          eqTo("Bobby Example")
+        )(*)
+      }
+
+      "manage duplicate post logout redirect uris using the app service" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri2" -> "https://example.com",
+          "redirectUri3" -> "https://example.com"
+        )
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(
+          eqTo(application.application),
+          eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"))),
+          eqTo("Bobby Example")
+        )(*)
+      }
+
+      "manage gaps in post logout redirect uris using the app service" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+          "redirectUri1" -> redirectUriToUpdate.toString,
+          "redirectUri3" -> "https://example.com",
+          "redirectUri5" -> "https://example2.com"
+        )
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(
+          eqTo(application.application),
+          eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"), PostLogoutRedirectUri.unsafeApply("https://example2.com"))),
+          eqTo("Bobby Example")
+        )(*)
+      }
+
+      "clear the post logout redirect uri when redirectUris is empty" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        givenTheAppWillBeReturned()
+        RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+        status(result) shouldBe SEE_OTHER
+        redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List()), eqTo("Bobby Example"))(*)
+      }
+
+      "return bad request for invalid values" in new Setup {
+        val invalidRedirectUris: Seq[String] = Seq(
+          "http://example.com/post",
+          "abcdef"
+        )
+
+        invalidRedirectUris.foreach { invalidRedirectUri =>
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          givenTheAppWillBeReturned()
+          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
+
+          val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
+
+          status(result) shouldBe BAD_REQUEST
+          verify(mockRedirectUrisService, times(0)).managePostLogoutRedirectUris(*, *, *)(*)
+        }
+      }
+
+      "return the forbidden page for a normal user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+        givenTheAppWillBeReturned()
+        val request = aLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
+
+        val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
         status(result) shouldBe FORBIDDEN
         contentAsString(result) should include("You do not have permission")

@@ -30,8 +30,12 @@ trait RedirectUrisServiceMockProvider {
 
   object RedirectUrisServiceMock {
 
-    object ManageRedirectUris {
+    object ManageLoginRedirectUris {
       def succeeds() = when(mockRedirectUrisService.manageLoginRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+    }
+
+    object ManagePostLogoutRedirectUris {
+      def succeeds() = when(mockRedirectUrisService.managePostLogoutRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
   }
 }
