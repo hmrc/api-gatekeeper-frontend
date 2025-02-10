@@ -69,7 +69,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object ManageRedirectUris {
-      def succeeds() = when(mockApplicationService.manageRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.manageLoginRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UpdateOverrides {

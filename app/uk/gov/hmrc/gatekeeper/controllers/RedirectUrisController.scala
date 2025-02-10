@@ -41,7 +41,7 @@ class RedirectUrisController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val applicationService: ApplicationService,
     mcc: MessagesControllerComponents,
-    manageRedirectUriView: ManageRedirectUriView,
+    manageLoginRedirectUriView: ManageLoginRedirectUriView,
     override val errorTemplate: ErrorTemplate,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
@@ -53,26 +53,27 @@ class RedirectUrisController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  def manageRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageLoginRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       app.application.access match {
-        case Access.Standard(redirects, _, _, _, _, _, _) => Future.successful(Ok(manageRedirectUriView(app.application, RedirectUriForm.form.fill(RedirectUriForm(redirects)))))
+        case Access.Standard(redirects, _, _, _, _, _, _) =>
+          Future.successful(Ok(manageLoginRedirectUriView(app.application, RedirectUriForm.form.fill(RedirectUriForm(redirects)))))
         case _                                            => Future.successful(NotFound)
       }
 
     }
   }
 
-  def manageRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageLoginRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: RedirectUriForm) = {
-        applicationService.manageRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+        applicationService.manageLoginRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[RedirectUriForm]) = {
-        Future.successful(BadRequest(manageRedirectUriView(app.application, form)))
+        Future.successful(BadRequest(manageLoginRedirectUriView(app.application, form)))
       }
 
       RedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)

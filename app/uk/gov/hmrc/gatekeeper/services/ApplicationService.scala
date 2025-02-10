@@ -226,7 +226,7 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def manageRedirectUris(
+  def manageLoginRedirectUris(
       application: ApplicationWithCollaborators,
       redirectUris: List[LoginRedirectUri],
       gatekeeperUser: String
