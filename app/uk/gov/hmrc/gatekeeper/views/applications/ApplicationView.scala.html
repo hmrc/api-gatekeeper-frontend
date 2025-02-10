@@ -127,7 +127,7 @@
   </div>
 }
 
-@renderRedirectUris(redirectUris: List[LoginRedirectUri]) = {
+@renderLoginRedirectUris(redirectUris: List[LoginRedirectUri]) = {
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
       Login Redirect URIs
@@ -145,7 +145,7 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
+        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageRedirectUriPage(application.id)}">
           Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
         </a>
       </dd>
@@ -171,7 +171,7 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.ApplicationController.manageRedirectUriPage(application.id)}">
+        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageRedirectUriPage(application.id)}">
           Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
         </a>
       </dd>

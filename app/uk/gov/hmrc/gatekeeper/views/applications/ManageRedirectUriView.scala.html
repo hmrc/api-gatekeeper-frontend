@@ -44,15 +44,15 @@
 
     <h1 class="govuk-heading-l">Manage redirect URIs</h1>
 
-    @helper.form(action = controllers.routes.ApplicationController.manageRedirectUriAction(application.id)) {
+    @helper.form(action = controllers.routes.RedirectUrisController.manageRedirectUriAction(application.id)) {
         @helper.CSRF.formField
 
         <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">
-            @errorAwareInput(form, "redirectUri1", "Redirect URI 1")
-            @errorAwareInput(form, "redirectUri2", "Redirect URI 2")
-            @errorAwareInput(form, "redirectUri3", "Redirect URI 3")
-            @errorAwareInput(form, "redirectUri4", "Redirect URI 4")
-            @errorAwareInput(form, "redirectUri5", "Redirect URI 5")
+            @errorAwareInput(form, "redirectUri1", "Login Redirect URI 1")
+            @errorAwareInput(form, "redirectUri2", "Login Redirect URI 2")
+            @errorAwareInput(form, "redirectUri3", "Login Redirect URI 3")
+            @errorAwareInput(form, "redirectUri4", "Login Redirect URI 4")
+            @errorAwareInput(form, "redirectUri5", "Login Redirect URI 5")
         </div>
 
         <div class="govuk-button-group">
