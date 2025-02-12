@@ -1,0 +1,64 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+@import uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.LoginRedirectUriForm
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(application: ApplicationWithCollaborators, form: Form[LoginRedirectUriForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(
+    title = s"${applicationConfig.title} - Manage Login Redirect URIs",
+    breadcrumbs = Seq(
+        Crumb(
+            s"${application.name}",
+            s"${routes.ApplicationController.applicationPage(application.id)}",
+            Some("data-breadcrumb-view-application")
+        ),
+        Crumb(
+            "Applications",
+            s"${routes.ApplicationController.applicationsPage(None)}",
+            Some("data-breadcrumb-view-applications")
+        )
+    )
+) {
+    @errorSummary2(form)
+
+    <h1 class="govuk-heading-l">Manage redirect URIs</h1>
+
+    @helper.form(action = controllers.routes.RedirectUrisController.manageLoginRedirectUriAction(application.id)) {
+        @helper.CSRF.formField
+
+        <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">
+            @errorAwareInput(form, "redirectUri1", "Login Redirect URI 1")
+            @errorAwareInput(form, "redirectUri2", "Login Redirect URI 2")
+            @errorAwareInput(form, "redirectUri3", "Login Redirect URI 3")
+            @errorAwareInput(form, "redirectUri4", "Login Redirect URI 4")
+            @errorAwareInput(form, "redirectUri5", "Login Redirect URI 5")
+        </div>
+
+        <div class="govuk-button-group">
+            <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save and return</button>
+            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">
+                Cancel</a>
+        </div>
+    }
+}

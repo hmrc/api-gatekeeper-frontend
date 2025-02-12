@@ -28,7 +28,7 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{LoginRedirectUri, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
@@ -167,50 +167,6 @@ object Forms {
       "scopes" -> validScopes
     )(ScopesForm.toSetOfScopes)(ScopesForm.fromSetOfScopes)
   )
-
-  final case class RedirectUriForm(redirectUris: List[LoginRedirectUri])
-
-  object RedirectUriForm {
-
-    def toForm(
-        redirectUri1: Option[String],
-        redirectUri2: Option[String],
-        redirectUri3: Option[String],
-        redirectUri4: Option[String],
-        redirectUri5: Option[String]
-      ): RedirectUriForm = {
-      val data = List(redirectUri1, redirectUri2, redirectUri3, redirectUri4, redirectUri5)
-        .flatMap(_.map(LoginRedirectUri.apply))
-        .collect { case Some(uri) => uri }
-        .distinct
-      RedirectUriForm(data)
-    }
-
-    def fromForm(form: RedirectUriForm): Option[(Option[String], Option[String], Option[String], Option[String], Option[String])] = {
-      val data = form.redirectUris.map(_.toString())
-      Some((data.headOption, data.lift(1), data.lift(2), data.lift(3), data.lift(4)))
-    }
-
-    def validateUri(uri: String): ValidationResult = {
-      LoginRedirectUri(uri)
-        .map(_ => Valid)
-        .getOrElse(Invalid(Seq(ValidationError("redirectUri.invalid", uri))))
-    }
-
-    val redirectUrisConstraint: Constraint[String] = Constraint({
-      uri => validateUri(uri)
-    })
-
-    val form: Form[RedirectUriForm] = Form(
-      mapping(
-        "redirectUri1" -> optional(text.verifying(redirectUrisConstraint)),
-        "redirectUri2" -> optional(text.verifying(redirectUrisConstraint)),
-        "redirectUri3" -> optional(text.verifying(redirectUrisConstraint)),
-        "redirectUri4" -> optional(text.verifying(redirectUrisConstraint)),
-        "redirectUri5" -> optional(text.verifying(redirectUrisConstraint))
-      )(RedirectUriForm.toForm)(RedirectUriForm.fromForm)
-    )
-  }
 
   def reduceValidationResults(a: ValidationResult, b: ValidationResult): ValidationResult = {
     (a, b) match {

@@ -64,7 +64,6 @@ class ApplicationController @Inject() (
     manageAccessOverridesView: ManageAccessOverridesView,
     manageScopesView: ManageScopesView,
     ipAllowlistView: IpAllowlistView,
-    manageRedirectUriView: ManageRedirectUriView,
     manageIpAllowlistView: ManageIpAllowlistView,
     manageRateLimitView: ManageRateLimitView,
     deleteApplicationView: DeleteApplicationView,
@@ -437,32 +436,6 @@ class ApplicationController @Inject() (
       }
 
       IpAllowlistForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
-    }
-  }
-
-  def manageRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
-    withApp(appId) { app =>
-      app.application.access match {
-        case Access.Standard(redirects, _, _, _, _, _, _) => Future.successful(Ok(manageRedirectUriView(app.application, RedirectUriForm.form.fill(RedirectUriForm(redirects)))))
-        case _                                            => Future.successful(NotFound)
-      }
-
-    }
-  }
-
-  def manageRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
-    withApp(appId) { app =>
-      def handleValidForm(form: RedirectUriForm) = {
-        applicationService.manageRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
-        }
-      }
-
-      def handleFormError(form: Form[RedirectUriForm]) = {
-        Future.successful(BadRequest(manageRedirectUriView(app.application, form)))
-      }
-
-      RedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
     }
   }
 

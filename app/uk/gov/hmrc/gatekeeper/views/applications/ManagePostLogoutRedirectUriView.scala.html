@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-@import uk.gov.hmrc.gatekeeper.models.Forms.RedirectUriForm
+@import uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.PostLogoutRedirectUriForm
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -23,10 +23,10 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators, form: Form[RedirectUriForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[PostLogoutRedirectUriForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
-    title = s"${applicationConfig.title} - Manage Redirect URIs",
+    title = s"${applicationConfig.title} - Manage Post Logout Redirect URIs",
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
@@ -44,15 +44,15 @@
 
     <h1 class="govuk-heading-l">Manage redirect URIs</h1>
 
-    @helper.form(action = controllers.routes.ApplicationController.manageRedirectUriAction(application.id)) {
+    @helper.form(action = controllers.routes.RedirectUrisController.managePostLogoutRedirectUriAction(application.id)) {
         @helper.CSRF.formField
 
         <div class="govuk-form-group @if(form.errors("redirectUris").nonEmpty) {govuk-form-group--error}">
-            @errorAwareInput(form, "redirectUri1", "Redirect URI 1")
-            @errorAwareInput(form, "redirectUri2", "Redirect URI 2")
-            @errorAwareInput(form, "redirectUri3", "Redirect URI 3")
-            @errorAwareInput(form, "redirectUri4", "Redirect URI 4")
-            @errorAwareInput(form, "redirectUri5", "Redirect URI 5")
+            @errorAwareInput(form, "redirectUri1", "Post Logout Redirect URI 1")
+            @errorAwareInput(form, "redirectUri2", "Post Logout Redirect URI 2")
+            @errorAwareInput(form, "redirectUri3", "Post Logout Redirect URI 3")
+            @errorAwareInput(form, "redirectUri4", "Post Logout Redirect URI 4")
+            @errorAwareInput(form, "redirectUri5", "Post Logout Redirect URI 5")
         </div>
 
         <div class="govuk-button-group">
