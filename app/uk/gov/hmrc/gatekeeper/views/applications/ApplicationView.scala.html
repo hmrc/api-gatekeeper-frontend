@@ -145,8 +145,8 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageLoginRedirectUriPage(application.id)}">
-          Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
+        <a id="manage-login-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageLoginRedirectUriPage(application.id)}">
+          Manage<span class="govuk-visually-hidden"> Login Redirect Uris</span>
         </a>
       </dd>
     }
@@ -171,8 +171,8 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.managePostLogoutRedirectUriPage(application.id)}">
-          Manage<span class="govuk-visually-hidden"> Redirect Uris</span>
+        <a id="manage-logout-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.managePostLogoutRedirectUriPage(application.id)}">
+          Manage<span class="govuk-visually-hidden"> Post Logout Redirect Uris</span>
         </a>
       </dd>
     }
