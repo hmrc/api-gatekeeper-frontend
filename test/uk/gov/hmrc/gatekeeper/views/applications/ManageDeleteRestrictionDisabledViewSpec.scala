@@ -99,7 +99,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
       labelIdentifiedByForAttrContainsText(document, "yes-protect-allow-delete-no", "Yes") shouldBe true
       elementExistsByIdWithClass(document, "conditional-reason", "govuk-radios__conditional") shouldBe true
       elementExistsById(document, "reason") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "reason", "Give the reasons for protecting this application from being deleted") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "reason", "Give the reasons for protecting this application from being deleted. Please note that the reasons are externally visible.") shouldBe true
     }
   }
 }
