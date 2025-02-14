@@ -42,7 +42,7 @@
 ) {
     @errorSummary2(form)
 
-    <h1 class="govuk-heading-l">Manage redirect URIs</h1>
+    <h1 class="govuk-heading-l">Manage Login Redirect URIs</h1>
 
     @helper.form(action = controllers.routes.RedirectUrisController.manageLoginRedirectUriAction(application.id)) {
         @helper.CSRF.formField
