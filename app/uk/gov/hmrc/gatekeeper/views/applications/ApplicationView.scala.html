@@ -17,8 +17,8 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
@@ -34,7 +34,6 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.{Clock, LocalDateTime, Instant}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.LoginRedirectUri
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
@@ -153,7 +152,7 @@
   </div>
 }
 
-@renderPostLogoutRedirectUris(redirectUris: List[LoginRedirectUri]) = {
+@renderPostLogoutRedirectUris(redirectUris: List[PostLogoutRedirectUri]) = {
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
       Post Logout Redirect URIs
@@ -437,7 +436,7 @@
     @{
       access match {
         case standardAccess : Access.Standard => {
-          Seq(renderOverrides(standardAccess.overrides), renderLoginRedirectUris(standardAccess.redirectUris), renderPostLogoutRedirectUris(standardAccess.redirectUris))
+          Seq(renderOverrides(standardAccess.overrides), renderLoginRedirectUris(standardAccess.redirectUris), renderPostLogoutRedirectUris(standardAccess.postLogoutRedirectUris))
         }
         case privilegedAccess : Access.Privileged => {
           renderScopes(privilegedAccess.scopes)
