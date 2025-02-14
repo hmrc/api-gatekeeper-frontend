@@ -129,7 +129,7 @@
 @renderLoginRedirectUris(redirectUris: List[LoginRedirectUri]) = {
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
-      Login Redirect URIs
+      Login redirect URIs
     </dt>
     @if(redirectUris.isEmpty) {
       <dd class="govuk-summary-list__value">
@@ -145,7 +145,7 @@
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-login-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageLoginRedirectUriPage(application.id)}">
-          Manage<span class="govuk-visually-hidden"> Login Redirect Uris</span>
+          Manage<span class="govuk-visually-hidden"> Login redirect Uris</span>
         </a>
       </dd>
     }
@@ -155,7 +155,7 @@
 @renderPostLogoutRedirectUris(redirectUris: List[PostLogoutRedirectUri]) = {
   <div class="govuk-summary-list__row">
     <dt class="govuk-summary-list__key">
-      Post Logout Redirect URIs
+      Post logout redirect URIs
     </dt>
     @if(redirectUris.isEmpty) {
       <dd class="govuk-summary-list__value">
@@ -171,7 +171,7 @@
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
         <a id="manage-logout-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.managePostLogoutRedirectUriPage(application.id)}">
-          Manage<span class="govuk-visually-hidden"> Post Logout Redirect Uris</span>
+          Manage<span class="govuk-visually-hidden"> Post logout redirect Uris</span>
         </a>
       </dd>
     }
