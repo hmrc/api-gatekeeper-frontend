@@ -49,7 +49,7 @@
     <h1 class="govuk-heading-l">Do you want to protect @{application.name} from being deleted?</h1>
 
     <p class="govuk-hint">
-        This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.
+        This means it cannot be deleted even if it's not used to make API calls for a while.
     </p>
 
     @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id)) {
@@ -72,7 +72,7 @@
                 </div>
 
                 <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-reason">
-                    <label class="govuk-label" for="reason">Give the reasons for protecting this application from being deleted. Please note that the reasons are externally visible.
+                    <label class="govuk-label" for="reason">Why shouldn't this application be deleted? Developers will be able to see this reason.
                     </label>
                     <textarea class="govuk-textarea" id="reason" name="reason" type="text" spellcheck="false" rows="2" maxlength="100"></textarea>
                 </div>

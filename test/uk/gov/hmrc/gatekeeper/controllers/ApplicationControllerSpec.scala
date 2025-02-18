@@ -672,7 +672,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = underTest.manageDeleteRestriction(applicationId)(anAdminLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
+        contentAsString(result) should include("This means it cannot be deleted even if it's not used to make API calls for a while.")
       }
 
       "return the manage delete restriction disabled page for a super user" in new Setup {
@@ -682,7 +682,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = underTest.manageDeleteRestriction(applicationId)(aSuperUserLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include("This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time.")
+        contentAsString(result) should include("This means it cannot be deleted even if it's not used to make API calls for a while.")
       }
 
       "return the manage delete restriction enabled page when an event exists and GK user is admin" in new Setup {

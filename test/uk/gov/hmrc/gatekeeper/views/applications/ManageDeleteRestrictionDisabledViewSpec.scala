@@ -71,7 +71,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
       elementExistsByText(
         document,
         "p",
-        "This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time."
+        "This means it cannot be deleted even if it's not used to make API calls for a while."
       ) shouldBe true
       elementExistsByIdWithAttr(document, "yes-protect-allow-delete-no", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "no-protect-allow-delete-yes", "checked") shouldBe true
@@ -92,14 +92,14 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
       elementExistsByText(
         document,
         "p",
-        "This will protect the application from being deleted by users and by the system if it does not make any API calls for a long time."
+        "This means it cannot be deleted even if it's not used to make API calls for a while."
       ) shouldBe true
       elementExistsByIdWithAttr(document, "no-protect-allow-delete-yes", "checked") shouldBe false
       elementExistsByIdWithAttr(document, "yes-protect-allow-delete-no", "checked") shouldBe true
       labelIdentifiedByForAttrContainsText(document, "yes-protect-allow-delete-no", "Yes") shouldBe true
       elementExistsByIdWithClass(document, "conditional-reason", "govuk-radios__conditional") shouldBe true
       elementExistsById(document, "reason") shouldBe true
-      labelIdentifiedByForAttrContainsText(document, "reason", "Give the reasons for protecting this application from being deleted. Please note that the reasons are externally visible.") shouldBe true
+      labelIdentifiedByForAttrContainsText(document, "reason", "Why shouldn't this application be deleted? Developers will be able to see this reason.") shouldBe true
     }
   }
 }
