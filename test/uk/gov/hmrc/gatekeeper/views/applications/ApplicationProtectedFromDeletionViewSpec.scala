@@ -56,7 +56,7 @@ class ApplicationProtectedFromDeletionViewSpec extends CommonViewSpec {
         Some(Instant.now()),
         access = Access.Standard(),
         state = ApplicationState(updatedOn = Instant.now()),
-        moreApplication = MoreApplication(allowAutoDelete = false),
+        moreApplication = MoreApplication(),
         deleteRestriction = aDeleteRestriction
       )
 
