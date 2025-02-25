@@ -52,7 +52,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
       redirectUris: List[LoginRedirectUri] = List.empty,
-      moreApplication: MoreApplication = MoreApplication(true),
+      moreApplication: MoreApplication = MoreApplication(),
       deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction
     ): ApplicationWithCollaborators = {
 
@@ -79,7 +79,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
         checkInformation,
         blocked,
         ipAllowlist,
-        moreApplication.allowAutoDelete,
         lastActionActor = moreApplication.lastActionActor,
         deleteRestriction
       ),

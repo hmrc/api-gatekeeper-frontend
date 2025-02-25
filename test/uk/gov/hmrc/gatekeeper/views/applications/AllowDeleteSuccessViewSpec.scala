@@ -71,7 +71,7 @@ class AllowDeleteSuccessViewSpec extends CommonViewSpec {
     }
 
     "show Manage Delete Restriction success page when auto deletion was disabled for the application" in new Setup {
-      val result: Appendable = manageDeleteRestrictionSuccessView(application.modify(_.copy(allowAutoDelete = false)), false)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = manageDeleteRestrictionSuccessView(application, false)(request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

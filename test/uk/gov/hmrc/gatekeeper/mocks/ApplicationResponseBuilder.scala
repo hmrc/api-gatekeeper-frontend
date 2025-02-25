@@ -69,7 +69,6 @@ object ApplicationResponseBuilder {
         checkInformation = None,
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
-        allowAutoDelete = false,
         lastActionActor = ActorType.UNKNOWN,
         deleteRestriction = DeleteRestriction.NoRestriction
       ),

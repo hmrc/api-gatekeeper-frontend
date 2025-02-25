@@ -128,7 +128,6 @@ class ApiGatekeeperDeleteApplicationSpec
         checkInformation = defaultApplication.details.checkInformation,
         blocked = defaultApplication.details.blocked,
         ipAllowlist = defaultApplication.details.ipAllowlist,
-        allowAutoDelete = defaultApplication.details.allowAutoDelete,
         lastActionActor = defaultApplication.details.lastActionActor,
         deleteRestriction = defaultApplication.details.deleteRestriction
       ),
