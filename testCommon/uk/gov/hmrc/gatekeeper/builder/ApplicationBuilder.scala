@@ -51,13 +51,14 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
-      redirectUris: List[LoginRedirectUri] = List.empty,
+      loginRedirectUris: List[LoginRedirectUri] = List.empty,
+      postLogoutRedirectUris: List[PostLogoutRedirectUri] = List.empty,
       moreApplication: MoreApplication = MoreApplication(),
       deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction
     ): ApplicationWithCollaborators = {
 
     val access2 = access match {
-      case a: Access.Standard => a.copy(redirectUris = redirectUris)
+      case a: Access.Standard => a.copy(redirectUris = loginRedirectUris, postLogoutRedirectUris = postLogoutRedirectUris)
       case _                  => access
     }
 

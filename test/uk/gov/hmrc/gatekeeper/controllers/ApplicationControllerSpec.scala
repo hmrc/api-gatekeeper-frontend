@@ -295,7 +295,8 @@ class ApplicationControllerSpec
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
-          redirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
+          loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
+          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
           moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
@@ -307,8 +308,8 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
-Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Collaborator
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,Administrator:some@something.com|Developer:another@somethingelse.com
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Number of Post Logout Redirect URIs,Collaborator
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,1,Administrator:some@something.com|Developer:another@somethingelse.com
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -335,7 +336,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
-          redirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
+          loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
+          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout")),
           moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
@@ -347,8 +349,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
-Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Number of Post Logout Redirect URIs
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,1
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -403,9 +405,9 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
         status(eventualResult) shouldBe OK
 
         val expectedCsvContent = """page: 1 of 1 from 2 results
-Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Collaborator,Deleted by,When deleted
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,0,Administrator:some@something.com|Developer:another@somethingelse.com,UNKNOWN,N/A
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Deleted,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T13:02:01Z,false,0,Administrator:some@something.com|Developer:another@somethingelse.com,GATEKEEPER,2020-01-02T03:04:05.006Z
+Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Number of Post Logout Redirect URIs,Collaborator,Deleted by,When deleted
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,0,0,Administrator:some@something.com|Developer:another@somethingelse.com,UNKNOWN,N/A
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Deleted,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T13:02:01Z,false,0,0,Administrator:some@something.com|Developer:another@somethingelse.com,GATEKEEPER,2020-01-02T03:04:05.006Z
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)

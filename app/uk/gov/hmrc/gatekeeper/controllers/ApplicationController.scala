@@ -128,10 +128,16 @@ class ApplicationController @Inject() (
       s"${role.displayText}:${emailAddress.text}"
     }
 
-    val nbrOfRedirectUris = (app: ApplicationWithCollaborators) =>
+    val nbrOfLoginRedirectUris = (app: ApplicationWithCollaborators) =>
       app.access match {
         case Access.Standard(redirectUris, _, _, _, _, _, _) => redirectUris.length
         case _                                               => 0
+      }
+
+    val nbrOfPostLogoutRedirectUris = (app: ApplicationWithCollaborators) =>
+      app.access match {
+        case Access.Standard(_, postLogoutRedirectUris, _, _, _, _, _) => postLogoutRedirectUris.length
+        case _                                                         => 0
       }
 
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithCollaborators]](
@@ -156,7 +162,8 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE).toString)),
-      ColumnDefinition("Number of Redirect URIs", (nbrOfRedirectUris(_).toString))
+      ColumnDefinition("Number of Redirect URIs", (nbrOfLoginRedirectUris(_).toString)),
+      ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))
     ) ++ (
       if (isStrideUser)
         Seq(ColumnDefinition[ApplicationWithCollaborators]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")))
