@@ -29,16 +29,16 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationView
 
-class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
+class CreatePrivAppViewSpec extends CommonViewSpec {
 
   trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
 
     implicit val userFullName: LoggedInUser = LoggedInUser(Some("firstName lastName"))
-    val page: () => HtmlFormat.Appendable   = () => createApplicationView(createPrivOrROPCAppForm)
+    val page: () => HtmlFormat.Appendable   = () => createApplicationView(createPrivAppForm)
   }
 
-  "CreatePrivOrROPCApp page" should {
+  "CreatePrivApp page" should {
     "with no fields filled" should {
       "have the correct content type" in new Setup {
         page().contentType should include("text/html")
@@ -46,13 +46,7 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
 
       "render the correct heading" in new Setup {
         val document = Jsoup.parse(page().body)
-        elementExistsByText(document, "h1", "Add privileged or ROPC application") shouldBe true
-      }
-
-      "render unchecked accesstype buttons" in new Setup {
-        val document = Jsoup.parse(page().body)
-        document.getElementById("accessTypePrivileged").hasAttr("checked") shouldBe false
-        document.getElementById("accessTypeROPC").hasAttr("checked") shouldBe false
+        elementExistsByText(document, "h1", "Add privileged application") shouldBe true
       }
 
       "render an empty application name" in new Setup {
@@ -82,14 +76,12 @@ class CreatePrivOrROPCAppViewSpec extends CommonViewSpec {
     "render errors for fields when given errors in form" in new Setup {
 
       override val page: () => HtmlFormat.Appendable = () =>
-        createApplicationView(createPrivOrROPCAppForm
-          .withError("accessType", "This is an error about access type")
+        createApplicationView(createPrivAppForm
           .withError("applicationName", "This is an error about application name")
           .withError("applicationDescription", "This is an error about application description")
           .withError("adminEmail", "This is an error about admin email"))
 
       val document = Jsoup.parse(page().body)
-      document.body.toString.contains("This is an error about access type") shouldBe true
       document.body.toString.contains("This is an error about application name") shouldBe true
       document.body.toString.contains("This is an error about application description") shouldBe true
       document.body.toString.contains("This is an error about admin email") shouldBe true

@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -320,7 +321,7 @@ class ApplicationConnectorSpec
     }
   }
 
-  "createPrivOrROPCApp" should {
+  "createPrivApp" should {
     val url = s"/application"
 
     "successfully create an application" in new Setup {
@@ -328,14 +329,14 @@ class ApplicationConnectorSpec
       val appDescription = "My app description"
       val app            = privilegedCoreApp.copy(description = Some(appDescription))
       val admin          = List(administrator)
-      val access         = AppAccess(AccessType.PRIVILEGED, List())
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivOrROPCAppRequest  = CreatePrivOrROPCAppRequest(Environment.PRODUCTION, app.name.value, appDescription, admin, access)
-      val request                     = Json.toJson(createPrivOrROPCAppRequest).toString
-      val createPrivOrROPCAppResponse = CreatePrivOrROPCAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.clientId, totpSecrets, appAccess)
-      val response                    =
+      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None)
+
+      val request               = Json.toJson(createPrivAppRequest).toString
+      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.clientId, totpSecrets, appAccess)
+      val response              =
         s"""{
            |  "details": ${Json.toJson(app).toString()},
            |  "totp": "secret"
@@ -351,7 +352,7 @@ class ApplicationConnectorSpec
           )
       )
 
-      await(productionConnector.createPrivOrROPCApp(createPrivOrROPCAppRequest)) shouldBe createPrivOrROPCAppResponse
+      await(productionConnector.createPrivApp(createPrivAppRequest)) shouldBe createPrivAppResponse
     }
   }
 

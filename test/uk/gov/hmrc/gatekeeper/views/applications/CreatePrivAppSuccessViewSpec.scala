@@ -29,13 +29,13 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationSuccessView
 
-class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
+class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
 
   trait Setup {
     val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
   }
 
-  "CreatePrivOrROPCAppSuccess page" when {
+  "CreatePrivAppSuccess page" when {
 
     val appId      = ApplicationId.random
     val appName    = ApplicationName("This is my app name")
@@ -66,29 +66,6 @@ class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
         elementExistsByText(document, "div", s"Environment ${env.displayText}") shouldBe true
         elementExistsByText(document, "div", "Access type Privileged") shouldBe true
         elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe true
-        elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true
-
-      }
-    }
-
-    "an ROPC application is created" should {
-      "render" in new Setup {
-        val accessType = Some(AccessType.ROPC)
-
-        val page: () => HtmlFormat.Appendable =
-          () => createApplicationSuccessView(appId, appName, env, accessType, None, clientId)(LoggedInUser(Some("")), messagesProvider, fakeRequest)
-
-        page().contentType should include("text/html")
-
-        val document = Jsoup.parse(page().body)
-
-        elementExistsByText(document, "h1", appName.value) shouldBe true
-        elementExistsByText(document, "h2", "Application added") shouldBe true
-        elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true
-        elementExistsByText(document, "div", s"Application name $appName") shouldBe true
-        elementExistsByText(document, "div", s"Environment ${env.displayText}") shouldBe true
-        elementExistsByText(document, "div", "Access type ROPC") shouldBe true
-        elementExistsByText(document, "div", s"TOTP secret $totpSecret") shouldBe false
         elementExistsByText(document, "div", s"Client ID ${clientId.value}") shouldBe true
 
       }

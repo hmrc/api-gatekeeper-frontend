@@ -27,7 +27,7 @@
 @(applicationId: ApplicationId, applicationName: ApplicationName, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
-@main(title = s"${applicationConfig.title} - Create privileged or ROPC application success") {
+@main(title = s"${applicationConfig.title} - Create privileged application success") {
 
   <h1 class="govuk-heading-l">@applicationName.value</h1>
 

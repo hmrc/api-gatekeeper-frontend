@@ -24,6 +24,7 @@ import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, PaginatedApplications, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -124,13 +125,13 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def createPrivOrROPCApp(createPrivOrROPCAppRequest: CreatePrivOrROPCAppRequest)(implicit hc: HeaderCarrier): Future[CreatePrivOrROPCAppResult] = {
+  def createPrivApp(request: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application"))
-      .withBody(Json.toJson(createPrivOrROPCAppRequest))
-      .execute[Either[UpstreamErrorResponse, CreatePrivOrROPCAppSuccessResult]]
+      .withBody(Json.toJson(request))
+      .execute[Either[UpstreamErrorResponse, CreatePrivAppSuccessResult]]
       .map(_ match {
         case Right(result) => result
-        case Left(_)       => CreatePrivOrROPCAppFailureResult
+        case Left(_)       => CreatePrivAppFailureResult
       })
   }
 

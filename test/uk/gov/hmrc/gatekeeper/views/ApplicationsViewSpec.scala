@@ -224,17 +224,17 @@ class ApplicationsViewSpec extends CommonViewSpec {
 
     "Called by a superuser" should {
 
-      "Display the 'Add privileged or ROPC application' button" in new Setup {
+      "Display the 'Add privileged application' button" in new Setup {
         val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, true, Map.empty, getApprovalsUrl)
-        applicationView().body should include("""Add privileged or ROPC application""")
+        applicationView().body should include("""Add privileged application""")
       }
     }
 
     "Called by a non-superuser" should {
 
-      "Not display the 'Add privileged or ROPC application' button" in new Setup {
+      "Not display the 'Add privileged application' button" in new Setup {
         val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-        applicationView().body shouldNot include("""Add privileged or ROPC application""")
+        applicationView().body shouldNot include("""Add privileged application""")
       }
     }
   }

@@ -28,6 +28,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -538,7 +539,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
   }
 
-  "createPrivOrROPCApp" should {
+  "createPrivApp" should {
     val admin       = List(Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail))
     val totpSecrets = Some(TotpSecrets("secret"))
     val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
@@ -551,27 +552,27 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the production connector to create a new app in production" in new Setup {
       val environment = Environment.PRODUCTION
 
-      ApplicationConnectorMock.Prod.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
+      ApplicationConnectorMock.Prod.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivOrROPCApp(environment, name.value, description, admin, appAccess))
+      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
 
-      result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
+      result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockProductionApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name.value, description, admin, appAccess)))(*)
-      verify(mockSandboxApplicationConnector, never).createPrivOrROPCApp(*)(*)
+      verify(mockProductionApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None)))(*)
+      verify(mockSandboxApplicationConnector, never).createPrivApp(*)(*)
     }
 
     "call the sandbox connector to create a new app in sandbox" in new Setup {
       val environment = Environment.SANDBOX
 
-      ApplicationConnectorMock.Sandbox.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
+      ApplicationConnectorMock.Sandbox.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivOrROPCApp(environment, name.value, description, admin, appAccess))
+      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
 
-      result shouldBe CreatePrivOrROPCAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
+      result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector).createPrivOrROPCApp(eqTo(CreatePrivOrROPCAppRequest(environment, name.value, description, admin, appAccess)))(*)
-      verify(mockProductionApplicationConnector, never).createPrivOrROPCApp(*)(*)
+      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None)))(*)
+      verify(mockProductionApplicationConnector, never).createPrivApp(*)(*)
     }
   }
 
