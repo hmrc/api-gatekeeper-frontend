@@ -325,16 +325,6 @@ sealed trait FieldsDeleteResult
 case object FieldsDeleteSuccessResult extends FieldsDeleteResult
 case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
-// final case class createPrivAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
-
-// object createPrivAppRequest {
-//   implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
-//   implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
-//   implicit val format7: OFormat[createPrivAppRequest] = Json.format[createPrivAppRequest]
-// }
-
-// case class AppAccess(accessType: AccessType, scopes: List[String])
-
 final case class AddTeamMemberRequest(email: String, role: Collaborator.Role, requestingEmail: Option[String])
 
 object AddTeamMemberRequest {
