@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
@@ -307,19 +308,25 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUnblockFailureResult, _ => ApplicationUnblockSuccessResult))
   }
 
-  def createPrivOrROPCApp(
+  def createPrivApp(
       appEnv: Environment,
       appName: String,
       appDescription: String,
-      collaborators: List[Collaborator],
-      access: AppAccess
+      collaborators: List[Collaborator]
     )(implicit hc: HeaderCarrier
-    ): Future[CreatePrivOrROPCAppResult] = {
-    val req = CreatePrivOrROPCAppRequest(appEnv, appName, appDescription, collaborators, access)
+    ): Future[CreatePrivAppResult] = {
+    val req = CreateApplicationRequestV1(
+      name = ApplicationName(appName),
+      access = CreationAccess.Privileged,
+      description = Some(appDescription).filterNot(_.isBlank()),
+      environment = appEnv,
+      collaborators.toSet,
+      subscriptions = None
+    )
 
     appEnv match {
-      case Environment.PRODUCTION => productionApplicationConnector.createPrivOrROPCApp(req)
-      case Environment.SANDBOX    => sandboxApplicationConnector.createPrivOrROPCApp(req)
+      case Environment.PRODUCTION => productionApplicationConnector.createPrivApp(req)
+      case Environment.SANDBOX    => sandboxApplicationConnector.createPrivApp(req)
     }
   }
 

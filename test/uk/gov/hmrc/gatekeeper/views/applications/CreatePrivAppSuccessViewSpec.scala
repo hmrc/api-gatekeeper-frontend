@@ -29,13 +29,13 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationSuccessView
 
-class CreatePrivOrROPCAppSuccessViewSpec extends CommonViewSpec {
+class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
 
   trait Setup {
     val createApplicationSuccessView = app.injector.instanceOf[CreateApplicationSuccessView]
   }
 
-  "CreatePrivOrROPCAppSuccess page" when {
+  "CreatePrivAppSuccess page" when {
 
     val appId      = ApplicationId.random
     val appName    = ApplicationName("This is my app name")

@@ -249,7 +249,7 @@ class ApplicationControllerSpec
           Some("http://example.com")
       }
 
-      "show button to add Privileged or ROPC app to superuser" in new Setup {
+      "show button to add Privileged app to superuser" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenThePaginatedApplicationsWillBeReturned
 
@@ -258,11 +258,11 @@ class ApplicationControllerSpec
 
         val body = contentAsString(result)
 
-        body should include("Add privileged or ROPC application")
+        body should include("Add privileged application")
 
       }
 
-      "not show button to add Privileged or ROPC app to non-superuser" in new Setup {
+      "not show button to add Privileged app to non-superuser" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
@@ -271,7 +271,7 @@ class ApplicationControllerSpec
 
         val body = contentAsString(result)
 
-        body shouldNot include("Add privileged or ROPC application")
+        body shouldNot include("Add privileged application")
 
       }
     }
@@ -1267,26 +1267,23 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
     }
 
-    "createPrivOrROPCApp" should {
+    "createPrivApp" should {
       val appName              = ApplicationName("My New App")
       val privilegedAccessType = AccessType.PRIVILEGED
-      val ropcAccessType       = AccessType.ROPC
       val description          = "An application description"
       val adminEmail           = "emailAddress@example.com".toLaxEmail
       val clientId             = ClientId.random
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
       val privAccess           = AppAccess(AccessType.PRIVILEGED, List.empty)
-      val ropcAppAccess        = AppAccess(AccessType.ROPC, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", ""),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1298,31 +1295,12 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           assertIncludesOneError(result, "Tell us what environment")
         }
 
-        "show the correct error message when no access type is chosen" in new Setup {
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
-              ("accessType", ""),
-              ("applicationName", appName.value),
-              ("applicationDescription", description),
-              ("adminEmail", adminEmail.text)
-            )
-          )
-
-          status(result) shouldBe BAD_REQUEST
-
-          assertIncludesOneError(result, "Tell us what access type")
-        }
-
         "show the correct error message when the app name is left empty" in new Setup {
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1340,10 +1318,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.duplicate()
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1360,10 +1337,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.invalid()
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "HMRC"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1379,10 +1355,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "P"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1398,10 +1373,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "Pete£"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1417,7 +1391,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+          ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
             Environment.SANDBOX,
@@ -1426,10 +1400,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             privAccess
           ))
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.SANDBOX.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1445,7 +1418,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+          ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
             Environment.SANDBOX,
@@ -1454,10 +1427,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             privAccess
           ))
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.SANDBOX.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1473,7 +1445,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-          ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(
+          ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
             Environment.PRODUCTION,
@@ -1482,10 +1454,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             privAccess
           ))
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1501,10 +1472,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", appName.value),
               ("applicationDescription", ""),
               ("adminEmail", adminEmail.text)
@@ -1520,10 +1490,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "")
@@ -1538,10 +1507,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         "show the correct error message when admin email is invalid" in new Setup {
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-          val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+          val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.PRODUCTION.toString),
-              ("accessType", privilegedAccessType.toString),
               ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "notAValidEmailAddress")
@@ -1561,7 +1529,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor(email.toLaxEmail)
             StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
-            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivApplicationAction())(
               aLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
@@ -1580,9 +1548,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
 
-            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.PRODUCTION.toString),
                 ("accessType", privilegedAccessType.toString),
@@ -1609,9 +1577,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
 
-            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
+            val result = addToken(underTest.createPrivApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.SANDBOX.toString),
                 ("accessType", privilegedAccessType.toString),
@@ -1631,59 +1599,6 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             contentAsString(result) should include("Privileged")
             contentAsString(result) should include(totpSecret)
             contentAsString(result) should include(clientId.value)
-          }
-
-          "show the success page for an ROPC app in production" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, None, ropcAppAccess))
-
-            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.PRODUCTION.toString),
-                ("accessType", ropcAccessType.toString),
-                ("applicationName", appName.value),
-                ("applicationDescription", description),
-                ("adminEmail", "a@example.com")
-              )
-            )
-
-            status(result) shouldBe OK
-
-            contentAsString(result) should include(appName.value)
-            contentAsString(result) should include("Application added")
-            contentAsString(result) should include(applicationId.value.toString())
-            contentAsString(result) should include("Production")
-            contentAsString(result) should include("ROPC")
-            contentAsString(result) should include(clientId.value)
-          }
-
-          "show the success page for an ROPC app in sandbox" in new Setup {
-            DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivOrROPCApp.returns(CreatePrivOrROPCAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, None, ropcAppAccess))
-
-            val result = addToken(underTest.createPrivOrROPCApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.SANDBOX.toString),
-                ("accessType", ropcAccessType.toString),
-                ("applicationName", appName.value),
-                ("applicationDescription", description),
-                ("adminEmail", "a@example.com")
-              )
-            )
-
-            status(result) shouldBe OK
-
-            contentAsString(result) should include(appName.value)
-            contentAsString(result) should include("Application added")
-            contentAsString(result) should include(applicationId.value.toString())
-            contentAsString(result) should include("Sandbox")
-            contentAsString(result) should include("ROPC")
-            contentAsString(result) should include(clientId.value)
-
           }
         }
       }

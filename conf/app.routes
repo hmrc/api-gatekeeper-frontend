@@ -94,8 +94,8 @@ POST        /applications/:id/block                                           uk
 GET         /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationPage(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 POST        /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationAction(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 
-GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationPage()
-POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivOrROPCApplicationAction()
+GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationPage()
+POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationAction()
 
 GET         /pending                                                          uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.pendingPage()
 GET         /pending/:serviceName/review-sandbox                              uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")

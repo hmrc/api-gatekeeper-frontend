@@ -112,7 +112,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
     }
   }
 
-  "CreatePrivOrROPCAppSuccessResult" should {
+  "CreatePrivAppSuccessResult" should {
     "read the flat layout (old style)" in {
       val totp         = "totp-secret"
       val jsonResponse =
@@ -127,7 +127,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
            |  }
            |}""".stripMargin
 
-      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+      val result = Json.parse(jsonResponse).as[CreatePrivAppSuccessResult]
 
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name
@@ -145,7 +145,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
            |  "totp": "$totp"
            |}""".stripMargin
 
-      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+      val result = Json.parse(jsonResponse).as[CreatePrivAppSuccessResult]
 
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name
@@ -162,7 +162,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
            |  "details": ${Json.toJson(privilegedCoreApp).toString()}
            |}""".stripMargin
 
-      val result = Json.parse(jsonResponse).as[CreatePrivOrROPCAppSuccessResult]
+      val result = Json.parse(jsonResponse).as[CreatePrivAppSuccessResult]
 
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name

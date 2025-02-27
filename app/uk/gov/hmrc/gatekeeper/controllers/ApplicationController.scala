@@ -685,12 +685,12 @@ class ApplicationController @Inject() (
     }
   }
 
-  def createPrivOrROPCApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
-    Future.successful(Ok(createApplicationView(createPrivOrROPCAppForm.fill(CreatePrivOrROPCAppForm()))))
+  def createPrivApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    Future.successful(Ok(createApplicationView(createPrivAppForm.fill(CreatePrivAppForm()))))
   }
 
-  def createPrivOrROPCApplicationAction(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
-    def handleInvalidForm(form: Form[CreatePrivOrROPCAppForm]) = {
+  def createPrivApplicationAction(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    def handleInvalidForm(form: Form[CreatePrivAppForm]) = {
       Future.successful(BadRequest(createApplicationView(form)))
     }
 
@@ -727,41 +727,38 @@ class ApplicationController @Inject() (
       case Some(user: RegisteredUser)                                                    => user.validNec
     }
 
-    def handleValidForm(form: CreatePrivOrROPCAppForm): Future[Result] = {
-      def createApp(user: AbstractUser, accessType: AccessType) = {
+    def handleValidForm(form: CreatePrivAppForm): Future[Result] = {
+      def createApp(user: AbstractUser) = {
         val collaborators = List(Collaborators.Administrator(user.userId, LaxEmailAddress(form.adminEmail)))
 
-        applicationService.createPrivOrROPCApp(form.environment, form.applicationName, form.applicationDescription, collaborators, AppAccess(accessType, List.empty))
+        applicationService.createPrivApp(form.environment, form.applicationName, form.applicationDescription, collaborators)
           .map {
-            case CreatePrivOrROPCAppFailureResult                                                 => InternalServerError("Unexpected problems creating application")
-            case CreatePrivOrROPCAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
+            case CreatePrivAppFailureResult                                                 => InternalServerError("Unexpected problems creating application")
+            case CreatePrivAppSuccessResult(appId, appName, appEnv, clientId, totp, access) =>
               Ok(createApplicationSuccessView(appId, appName, appEnv, Some(access.accessType), totp, clientId))
           }
       }
 
-      def handleValues(validationResult: ValidationResult[(String, RegisteredUser)], accessType: AccessType): Future[Result] =
+      def handleValues(validationResult: ValidationResult[(String, RegisteredUser)]): Future[Result] =
         validationResult.fold[Future[Result]](
           errs => successful(viewWithFormErrors(errs)),
-          goodData => createApp(goodData._2, accessType)
+          goodData => createApp(goodData._2)
         )
 
-      def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivOrROPCAppForm] =
-        errs.foldLeft(createPrivOrROPCAppForm.fill(form))((f, e) => f.withError(e._1, e._2))
+      def formWithErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Form[CreatePrivAppForm] =
+        errs.foldLeft(createPrivAppForm.fill(form))((f, e) => f.withError(e._1, e._2))
 
       def viewWithFormErrors(errs: NonEmptyChain[(FieldName, ErrorCode)]): Result =
         BadRequest(createApplicationView(formWithErrors(errs)))
-
-      val accessType =
-        form.accessType.flatMap(AccessType.apply).getOrElse(throw new RuntimeException(s"Access Type ${form.accessType} not recognized when attempting to create Priv or ROPC app"))
 
       for {
         appNameValidationResult <- validateApplicationName(form.environment, form.applicationName)
         userValidationResult    <- developerService.seekUser(LaxEmailAddress(form.adminEmail)).map(validateUserSuitability)
         overallValidationResult  = (appNameValidationResult.withField("applicationName"), userValidationResult.withField("adminEmail")).mapN((n, u) => (n, u))
-        result                  <- handleValues(overallValidationResult, accessType)
+        result                  <- handleValues(overallValidationResult)
       } yield result
     }
 
-    createPrivOrROPCAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    createPrivAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 }

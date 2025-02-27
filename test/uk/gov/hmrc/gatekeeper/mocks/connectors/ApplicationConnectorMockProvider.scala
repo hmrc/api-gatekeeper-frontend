@@ -88,8 +88,8 @@ trait ApplicationConnectorMockProvider {
       def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
     }
 
-    object CreatePrivOrROPCApp {
-      def returns(result: CreatePrivOrROPCAppResult) = when(aMock.createPrivOrROPCApp(*)(*)).thenReturn(successful(result))
+    object CreatePrivApp {
+      def returns(result: CreatePrivAppResult) = when(aMock.createPrivApp(*)(*)).thenReturn(successful(result))
     }
   }
 

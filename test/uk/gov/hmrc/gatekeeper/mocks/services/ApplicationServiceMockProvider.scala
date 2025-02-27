@@ -45,8 +45,8 @@ trait ApplicationServiceMockProvider {
       def succeeds() = when(mockApplicationService.blockApplication(*, *)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
     }
 
-    object CreatePrivOrROPCApp {
-      def returns(result: CreatePrivOrROPCAppResult) = when(mockApplicationService.createPrivOrROPCApp(*, *, *, *, *)(*)).thenReturn(successful(result))
+    object CreatePrivApp {
+      def returns(result: CreatePrivAppResult) = when(mockApplicationService.createPrivApp(*, *, *, *)(*)).thenReturn(successful(result))
     }
 
     object SearchApplications {

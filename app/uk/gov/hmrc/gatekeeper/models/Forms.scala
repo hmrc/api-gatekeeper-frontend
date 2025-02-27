@@ -246,14 +246,13 @@ object Forms {
     )(UnblockApplicationForm.apply)(UnblockApplicationForm.unapply)
   )
 
-  val createPrivOrROPCAppForm = Form(
+  val createPrivAppForm = Form(
     mapping(
       environment            -> of[Environment],
-      accessType             -> optional(text).verifying("access.type.required", s => s.isDefined),
       applicationName        -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
       adminEmail             -> emailValidator()
-    )(CreatePrivOrROPCAppForm.apply)(CreatePrivOrROPCAppForm.unapply)
+    )(CreatePrivAppForm.apply)(CreatePrivAppForm.unapply)
   )
 
   implicit def environmentFormat: Formatter[Environment] = new Formatter[Environment] {

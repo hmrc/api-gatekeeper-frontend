@@ -24,7 +24,7 @@ import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access.{Privileged, Ropc}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access.Privileged
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
@@ -217,36 +217,37 @@ sealed trait EmailPreferencesDeleteResult
 case object EmailPreferencesDeleteSuccessResult extends EmailPreferencesDeleteResult
 case object EmailPreferencesDeleteFailureResult extends EmailPreferencesDeleteResult
 
-sealed trait CreatePrivOrROPCAppResult
+sealed trait CreatePrivAppResult
 
-case class CreatePrivOrROPCAppSuccessResult(id: ApplicationId, name: ApplicationName, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
-    extends CreatePrivOrROPCAppResult
+case class AppAccess(accessType: AccessType, scopes: List[String])
 
-object CreatePrivOrROPCAppSuccessResult {
+case class CreatePrivAppSuccessResult(id: ApplicationId, name: ApplicationName, deployedTo: Environment, clientId: ClientId, totp: Option[TotpSecrets], access: AppAccess)
+    extends CreatePrivAppResult
+
+object CreatePrivAppSuccessResult {
   implicit val rds1: Reads[TotpSecrets] = Json.reads[TotpSecrets]
   implicit val rds4: Reads[AppAccess]   = Json.reads[AppAccess]
 
   private def asAppAccess(access: Access): AppAccess = access match {
-    case Privileged(totpIds, scopes) => AppAccess(access.accessType, scopes.toList)
-    case Ropc(scopes)                => AppAccess(access.accessType, scopes.toList)
-    case _                           => throw new IllegalStateException("Should only be here with a Priviledged or ROPC app")
+    case Privileged(_, scopes) => AppAccess(access.accessType, scopes.toList)
+    case _                     => throw new IllegalStateException("Should only be here with a Priviledged app")
   }
 
-  private def unpack: (CoreApplication, Option[TotpSecrets]) => CreatePrivOrROPCAppSuccessResult = (app, totp) => {
-    CreatePrivOrROPCAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, totp, asAppAccess(app.access))
+  private def unpack: (CoreApplication, Option[TotpSecrets]) => CreatePrivAppSuccessResult = (app, totp) => {
+    CreatePrivAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, totp, asAppAccess(app.access))
   }
 
   import play.api.libs.functional.syntax._
 
-  private val newLayoutReads: Reads[CreatePrivOrROPCAppSuccessResult] = (
+  private val newLayoutReads: Reads[CreatePrivAppSuccessResult] = (
     (JsPath \ "details").read[CoreApplication] and
       (JsPath \ "totp").readNullable[String].map(_.map(TotpSecrets(_)))
   )(unpack)
 
-  implicit val reads: Reads[CreatePrivOrROPCAppSuccessResult] = newLayoutReads.orElse(Json.reads[CreatePrivOrROPCAppSuccessResult])
+  implicit val reads: Reads[CreatePrivAppSuccessResult] = newLayoutReads.orElse(Json.reads[CreatePrivAppSuccessResult])
 }
 
-case object CreatePrivOrROPCAppFailureResult extends CreatePrivOrROPCAppResult
+case object CreatePrivAppFailureResult extends CreatePrivAppResult
 
 case class ApiScope(key: String, name: String, description: String, confidenceLevel: Option[ConfidenceLevel] = None)
 
@@ -294,29 +295,28 @@ object DeleteDeveloperRequest {
   implicit val format: OFormat[DeleteDeveloperRequest] = Json.format[DeleteDeveloperRequest]
 }
 
-final case class CreatePrivOrROPCAppForm(
+final case class CreatePrivAppForm(
     environment: Environment = Environment.SANDBOX,
-    accessType: Option[String] = None,
     applicationName: String = "",
     applicationDescription: String = "",
     adminEmail: String = ""
   )
 
-object CreatePrivOrROPCAppForm {
+object CreatePrivAppForm {
 
-  def invalidAppName(form: Form[CreatePrivOrROPCAppForm]) = {
+  def invalidAppName(form: Form[CreatePrivAppForm]) = {
     form.withError("applicationName", "application.name.already.exists")
   }
 
-  def adminMustBeRegisteredUser(form: Form[CreatePrivOrROPCAppForm]) = {
+  def adminMustBeRegisteredUser(form: Form[CreatePrivAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.registered")
   }
 
-  def adminMustBeVerifiedEmailAddress(form: Form[CreatePrivOrROPCAppForm]) = {
+  def adminMustBeVerifiedEmailAddress(form: Form[CreatePrivAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.verified")
   }
 
-  def adminMustHaveMfaEnabled(form: Form[CreatePrivOrROPCAppForm]) = {
+  def adminMustHaveMfaEnabled(form: Form[CreatePrivAppForm]) = {
     form.withError("adminEmail", "admin.email.is.not.mfa.enabled")
   }
 }
@@ -325,15 +325,15 @@ sealed trait FieldsDeleteResult
 case object FieldsDeleteSuccessResult extends FieldsDeleteResult
 case object FieldsDeleteFailureResult extends FieldsDeleteResult
 
-final case class CreatePrivOrROPCAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
+// final case class createPrivAppRequest(environment: Environment, name: String, description: String, collaborators: List[Collaborator], access: AppAccess)
 
-object CreatePrivOrROPCAppRequest {
-  implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
-  implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
-  implicit val format7: OFormat[CreatePrivOrROPCAppRequest] = Json.format[CreatePrivOrROPCAppRequest]
-}
+// object createPrivAppRequest {
+//   implicit val format4: OFormat[TotpSecrets]                = Json.format[TotpSecrets]
+//   implicit val format6: OFormat[AppAccess]                  = Json.format[AppAccess]
+//   implicit val format7: OFormat[createPrivAppRequest] = Json.format[createPrivAppRequest]
+// }
 
-case class AppAccess(accessType: AccessType, scopes: List[String])
+// case class AppAccess(accessType: AccessType, scopes: List[String])
 
 final case class AddTeamMemberRequest(email: String, role: Collaborator.Role, requestingEmail: Option[String])
 
