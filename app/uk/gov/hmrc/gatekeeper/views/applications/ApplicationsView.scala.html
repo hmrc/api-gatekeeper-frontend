@@ -52,7 +52,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
     <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
 
     @if(isSuperUser) {
-      <a id="create-privileged-or-ROPC-application" href="@{routes.ApplicationController.createPrivApplicationPage()}" class="govuk-button" style="float: right;">
+      <a id="create-privileged-application" href="@{routes.ApplicationController.createPrivApplicationPage()}" class="govuk-button" style="float: right;">
         Add privileged application
       </a>
     }
