@@ -296,7 +296,7 @@ class ApplicationControllerSpec
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
-          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
+          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout"), PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
           moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
@@ -309,7 +309,7 @@ class ApplicationControllerSpec
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Number of Post Logout Redirect URIs,Collaborator
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,1,Administrator:some@something.com|Developer:another@somethingelse.com
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,2,Administrator:some@something.com|Developer:another@somethingelse.com
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
@@ -337,7 +337,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           access = Access.Standard(),
           state = ApplicationState(updatedOn = instant),
           loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
-          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout")),
+          postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout"), PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
           moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
@@ -350,7 +350,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
 
         val expectedCsvContent = """page: 1 of 1 from 1 results
 Name,App ID,Client ID,Gateway ID,Environment,Status,Rate limit tier,Access type,Overrides,Blocked,Has IP Allow List,Submitted/Created on,Last API call,Restricted from deletion,Number of Redirect URIs,Number of Post Logout Redirect URIs
-App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,1
+App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e02f,the-gateway-id,SANDBOX,Created,BRONZE,STANDARD,,false,false,2001-02-03T12:01:02Z,2002-02-03T12:01:02Z,true,1,2
 """
 
         val responseBody = Helpers.contentAsString(eventualResult)
