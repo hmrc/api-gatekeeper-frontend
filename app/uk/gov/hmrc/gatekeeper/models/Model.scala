@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.models
 
 import java.time.{Instant, LocalDateTime}
+import scala.collection.immutable.ListSet
 
 import play.api.data.Form
 import play.api.libs.json._
@@ -337,12 +338,33 @@ object AddTeamMemberResponse {
   implicit val format: OFormat[AddTeamMemberResponse] = Json.format[AddTeamMemberResponse]
 }
 
-case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment]) {
+case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment], state: ApprovalState = ApprovalState.NEW) {
   lazy val env = environment.get.toString.toLowerCase.capitalize
 }
 
 object APIApprovalSummary {
-  implicit val format: OFormat[APIApprovalSummary] = Json.format[APIApprovalSummary]
+  implicit val format: OFormat[APIApprovalSummary] = Json.using[Json.WithDefaultValues].format[APIApprovalSummary]
+}
+
+sealed trait ApprovalState
+
+object ApprovalState {
+  case object NEW         extends ApprovalState
+  case object APPROVED    extends ApprovalState
+  case object FAILED      extends ApprovalState
+  case object RESUBMITTED extends ApprovalState
+
+  /* The order of the following declarations is important since it defines the ordering of the enumeration.
+   * Be very careful when changing this, code may be relying on certain values being larger/smaller than others. */
+  val values = ListSet(NEW, APPROVED, FAILED, RESUBMITTED)
+
+  def apply(text: String): Option[ApprovalState] = ApprovalState.values.find(_.toString.toUpperCase == text.toUpperCase())
+
+  def unsafeApply(text: String): ApprovalState = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid ApprovalState"))
+
+  import play.api.libs.json.Format
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+  implicit val format: Format[ApprovalState] = SealedTraitJsonFormatting.createFormatFor[ApprovalState]("ApprovalState", apply)
 }
 
 case class ApproveServiceRequest(serviceName: String, actor: Actors.GatekeeperUser)

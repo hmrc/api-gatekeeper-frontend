@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
+import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
@@ -51,6 +52,21 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
 
       verify(mockProductionApiPublisherConnector).fetchUnapproved()(*)
+    }
+  }
+
+  "fetchAllServices" should {
+    "fetch all the services" in new Setup {
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), state = APPROVED))
+      ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries: _*)
+      ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries: _*)
+
+      val result = await(underTest.fetchAllServices())
+
+      result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
+
+      verify(mockProductionApiPublisherConnector).fetchAll()(*)
     }
   }
 

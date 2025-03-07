@@ -41,6 +41,16 @@ class DeploymentApprovalService @Inject() (
     } yield (sandbox ++ production).distinct
   }
 
+  def fetchAllServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+    val sandboxFuture    = sandboxApiPublisherConnector.fetchAll()
+    val productionFuture = productionApiPublisherConnector.fetchAll()
+
+    for {
+      sandbox    <- sandboxFuture
+      production <- productionFuture
+    } yield (sandbox ++ production).distinct
+  }
+
   def fetchApprovalSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     connectorFor(environment).fetchApprovalSummary(serviceName)
   }

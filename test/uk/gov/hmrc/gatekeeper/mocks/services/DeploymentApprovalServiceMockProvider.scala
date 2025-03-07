@@ -37,6 +37,12 @@ trait DeploymentApprovalServiceMockProvider {
         when(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).thenReturn(successful(approvalSummaries.toList))
     }
 
+    object FetchAllServices {
+
+      def returns(approvalSummaries: APIApprovalSummary*) =
+        when(mockDeploymentApprovalService.fetchAllServices()(*)).thenReturn(successful(approvalSummaries.toList))
+    }
+
     object FetchApprovalSummary {
 
       def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =
