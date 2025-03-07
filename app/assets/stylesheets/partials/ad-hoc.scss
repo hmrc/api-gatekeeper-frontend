@@ -326,6 +326,22 @@ p.error-notification {
   color: #d4351c;
 }
 
+.approval-status--new {
+  background-color: #cce1d8;
+}
+
+.approval-status--approved {
+  background-color: #dbd5e8;
+}
+
+.approval-status--failed {
+  background-color: #f4ccc6;
+}
+
+.approval-status--resubmitted {
+  background-color: #e8f0f8;
+}
+
 .govuk-single-checkbox {
   content: "";
   -webkit-box-sizing: border-box;
