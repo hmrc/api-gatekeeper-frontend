@@ -42,6 +42,7 @@ class DeploymentApprovalController @Inject() (
     apiCataloguePublishConnector: ApiCataloguePublishConnector,
     mcc: MessagesControllerComponents,
     deploymentApproval: DeploymentApprovalView,
+    deploymentApprovalAll: DeploymentApprovalAllView,
     deploymentReview: DeploymentReviewView,
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
@@ -54,6 +55,10 @@ class DeploymentApprovalController @Inject() (
 
   def pendingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
+  }
+
+  def allApprovalsPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    deploymentApprovalService.fetchAllServices().map(app => Ok(deploymentApprovalAll(app)))
   }
 
   def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>

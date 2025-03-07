@@ -1,0 +1,92 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.controllers._
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.ApprovalState.NEW
+@import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalState.FAILED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalState.RESUBMITTED
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@(unapprovedApis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - API Approval") {
+
+  <h1 class="govuk-heading-l">API approval</h1>
+
+  <form action="@routes.DeploymentApprovalController.pendingPage().url" method="get">
+    <table
+      id="application-table"
+      class="govuk-table"
+      width="100%"
+      data-dom="t<'text--center'lip>"
+      data-order='[0,"asc"]'
+      data-page-length="100"
+      data-paginate="true"
+      data-length-change="true"
+      data-length-menu="[10,50,100, 200, 300]"
+      data-responsive="true"
+      data-column-defs='[{"targets": [0,1], "orderable": true, "searchable":true}]'
+      data-language='{"sSearchPlaceholder":"Service ID, Name","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'
+    >
+      <caption class="govuk-visually-hidden">API approval table</caption>
+      <thead class="govuk-table__head">
+        <tr class="govuk-table__row" role="row">
+          <th tabindex="0" scope="col" class="govuk-table__header">Service ID</th>
+          <th tabindex="0" scope="col" class="govuk-table__header">Name</th>
+          <th tabindex="0" scope="col" class="govuk-table__header">Environment</th>
+          <th tabindex="0" scope="col" class="govuk-table__header">Status</th>
+          <th scope="col" class="govuk-table__header" data-orderable="false" tabindex="0">Action</th>
+        </tr>
+      </thead>
+      <tbody  class="govuk-table__body">
+        @for((api, index) <- unapprovedApis.zipWithIndex) {
+          <tr role="row" class="govuk-table__row">
+            <td class="govuk-table__cell" id="api-servicename-@index">@api.serviceName</td>
+            <td class="govuk-table__cell" id="api-name-@index">@api.name</td>
+            <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
+              <td id="app-status-@index" class="govuk-table__cell">
+              @defining( api.state match {
+                  case NEW => ("status approval-status--new", "New")
+                  case APPROVED => ("status approval-status--approved", "Approved")
+                  case FAILED => ("status approval-status--failed", "Failed")
+                  case RESUBMITTED => ("status approval-status--resubmitted", "Re-submitted")
+              }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+              </td>
+            <td class="govuk-table__cell">
+              @if(request.role.isUser) {
+                <a data-review="@api.serviceName" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">Check and approve</a>
+              }
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <div class="govuk-visually-hidden" style="margin-left:0">
+      <div class="grid-layout__column--1-3 text--center">
+        @if(unapprovedApis.isEmpty) {"There are no unapproved APIs."}
+      </div>
+    </div>
+  </form>
+
+  <a class="govuk-link" href="#">Back to Top</a>
+}
