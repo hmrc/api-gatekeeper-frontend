@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -44,6 +45,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       extends MockitoSugar with ArgumentMatchersSugar
       with ApplicationConnectorMockProvider
       with ApmConnectorMockProvider
+      with ThirdPartyOrchestratorConnectorMockProvider
       with CommandConnectorMockProvider
       with ApiScopeConnectorMockProvider
       with ApplicationBuilder {
@@ -56,6 +58,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       mockSandboxApiScopeConnector,
       mockProductionApiScopeConnector,
       ApmConnectorMock.aMock,
+      ThirdPartyOrchestratorConnectorMock.aMock,
       mockDeveloperConnector,
       mockSubscriptionFieldsService,
       CommandConnectorMock.aMock,

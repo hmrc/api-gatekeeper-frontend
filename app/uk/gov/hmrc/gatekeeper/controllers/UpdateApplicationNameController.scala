@@ -23,6 +23,7 @@ import play.api.data.Form
 import play.api.mvc._
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -76,18 +77,18 @@ class UpdateApplicationNameController @Inject() (
 
         } else {
           applicationService.validateApplicationName(app.application, form.applicationName).map(_ match {
-            case ValidateApplicationNameSuccessResult          =>
+            case ApplicationNameValidationResult.Valid =>
               Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
-            case failure: ValidateApplicationNameFailureResult => {
-              val errorMsg       = failure match {
-                case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error"
-                case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error"
-              }
-              val formWithErrors = UpdateApplicationNameForm.form.fill(form)
-                .withError(FormFields.applicationName, messagesApi.preferred(request)(errorMsg))
+
+            case ApplicationNameValidationResult.Invalid =>
+              val formWithErrors = UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.invalid.error"))
               Ok(manageApplicationNameView(app.application, formWithErrors))
-            }
+
+            case ApplicationNameValidationResult.Duplicate =>
+              val formWithErrors =
+                UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.duplicate.error"))
+              Ok(manageApplicationNameView(app.application, formWithErrors))
           })
         }
       }

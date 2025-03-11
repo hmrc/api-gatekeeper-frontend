@@ -21,6 +21,7 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, StateHistory, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
@@ -123,23 +124,23 @@ trait ApplicationServiceMockProvider {
     object ValidateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
 
       def invalid() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
 
       def duplicate() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
     }
 
     object ValidateNewApplicationName {
-      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameSuccessResult))
+      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
 
       def invalid() =
-        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureInvalidResult))
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
 
       def duplicate() =
-        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ValidateApplicationNameFailureDuplicateResult))
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
     }
 
     object UpdateApplicationName {
