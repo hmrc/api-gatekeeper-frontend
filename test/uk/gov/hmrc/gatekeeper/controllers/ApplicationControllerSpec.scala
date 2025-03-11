@@ -45,6 +45,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
@@ -95,6 +96,7 @@ class ApplicationControllerSpec
         with ApplicationServiceMockProvider
         with ApplicationConnectorMockProvider
         with ApmServiceMockProvider
+        with ThirdPartyOrchestratorConnectorMockProvider
         with StrideAuthorisationServiceMockModule
         with LdapAuthorisationServiceMockModule {
 

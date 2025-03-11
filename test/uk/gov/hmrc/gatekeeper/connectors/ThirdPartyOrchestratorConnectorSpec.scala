@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -98,6 +99,49 @@ class ThirdPartyOrchestratorConnectorSpec
 
       result shouldBe List(application)
     }
+  }
+
+  "validateName" should {
+    val url = s"/environment/PRODUCTION/application/name/validate"
+
+    "returns a valid response" in new Setup {
+      val applicationName                                   = "my valid application name"
+      val appId                                             = ApplicationId.random
+      val expectedRequest: ApplicationNameValidationRequest = ChangeApplicationNameValidationRequest(applicationName, appId)
+      val expectedResponse: ApplicationNameValidationResult = ApplicationNameValidationResult.Valid
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(expectedRequest)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(expectedResponse)
+          )
+      )
+      val result = await(underTest.validateName(applicationName, Some(appId), Environment.PRODUCTION))
+      result shouldBe ApplicationNameValidationResult.Valid
+    }
+
+    "returns a invalid response" in new Setup {
+
+      val applicationName                                   = "my invalid application name"
+      val expectedRequest: ApplicationNameValidationRequest = NewApplicationNameValidationRequest(applicationName)
+      val expectedResponse: ApplicationNameValidationResult = ApplicationNameValidationResult.Invalid
+
+      stubFor(
+        post(urlEqualTo(url))
+          .withJsonRequestBody(expectedRequest)
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withJsonBody(expectedResponse)
+          )
+      )
+      val result = await(underTest.validateName(applicationName, None, Environment.PRODUCTION))
+      result shouldBe ApplicationNameValidationResult.Invalid
+    }
+
   }
 
 }

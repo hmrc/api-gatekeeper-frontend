@@ -25,6 +25,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
@@ -44,6 +45,19 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     http.post(url"${config.serviceBaseUrl}/developer/applications")
       .withBody(Json.toJson(ApplicationsByRequest(emails)))
       .execute[List[ApplicationWithCollaborators]]
+  }
+
+  def validateName(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(implicit hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
+
+    val body = selfApplicationId.fold[ApplicationNameValidationRequest](NewApplicationNameValidationRequest(name))(appId => ChangeApplicationNameValidationRequest(name, appId))
+
+    http.post(url"${config.serviceBaseUrl}/environment/$environment/application/name/validate")
+      .withBody(Json.toJson[ApplicationNameValidationRequest](body))
+      .execute[Option[ApplicationNameValidationResult]]
+      .map {
+        case Some(x) => x
+        case None    => throw new RuntimeException // ApplicationNotFound
+      }
   }
 }
 

@@ -34,7 +34,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec {
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
-    val organisationService = new OrganisationService(apiPlatformDeskproConnector, thirdPartyOrchestratorConnectorMock)
+    val organisationService = new OrganisationService(apiPlatformDeskproConnector, ThirdPartyOrchestratorConnectorMock.aMock)
 
     val organisationId      = OrganisationId("1")
     val organisationName    = "Org Name"

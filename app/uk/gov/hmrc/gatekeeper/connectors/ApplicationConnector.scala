@@ -32,12 +32,6 @@ import uk.gov.hmrc.gatekeeper.models._
 object ApplicationConnector {
   import play.api.libs.json.Json
 
-  case class ValidateApplicationNameResponseErrorDetails(invalidName: Boolean, duplicateName: Boolean)
-  case class ValidateApplicationNameResponse(errors: Option[ValidateApplicationNameResponseErrorDetails])
-
-  implicit val validateApplicationNameResponseErrorDetailsReads: Reads[ValidateApplicationNameResponseErrorDetails] = Json.reads[ValidateApplicationNameResponseErrorDetails]
-  implicit val validateApplicationNameResponseReads: Reads[ValidateApplicationNameResponse]                         = Json.reads[ValidateApplicationNameResponse]
-
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr)
 
   implicit val writes: OWrites[SearchCollaboratorsRequest] = Json.writes[SearchCollaboratorsRequest]
@@ -111,18 +105,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       .recover {
         case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
       }
-  }
-
-  def validateApplicationName(applicationId: Option[ApplicationId], name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
-    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application/name/validate"))
-      .withBody(Json.toJson(ValidateApplicationNameRequest(name, applicationId)))
-      .execute[Either[UpstreamErrorResponse, ValidateApplicationNameResponse]]
-      .map(_ match {
-        case Right(ValidateApplicationNameResponse(None))                                                       => ValidateApplicationNameSuccessResult
-        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(true, _)))) => ValidateApplicationNameFailureInvalidResult
-        case Right(ValidateApplicationNameResponse(Some(ValidateApplicationNameResponseErrorDetails(_, true)))) => ValidateApplicationNameFailureDuplicateResult
-        case Left(err)                                                                                          => throw err
-      })
   }
 
   def createPrivApp(request: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {

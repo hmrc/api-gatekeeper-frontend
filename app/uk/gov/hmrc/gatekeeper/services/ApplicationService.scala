@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{ApplicationNameValidationResult, CreateApplicationRequestV1, CreationAccess}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
@@ -38,6 +38,7 @@ class ApplicationService @Inject() (
     sandboxApiScopeConnector: SandboxApiScopeConnector,
     productionApiScopeConnector: ProductionApiScopeConnector,
     apmConnector: ApmConnector,
+    tpoConnector: ThirdPartyOrchestratorConnector,
     developerConnector: DeveloperConnector,
     subscriptionFieldsService: SubscriptionFieldsService,
     commandConnector: ApplicationCommandConnector,
@@ -227,12 +228,12 @@ class ApplicationService @Inject() (
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
-  def validateApplicationName(application: ApplicationWithCollaborators, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
-    applicationConnectorFor(application).validateApplicationName(Some(application.id), name)
+  def validateApplicationName(application: ApplicationWithCollaborators, name: String)(implicit hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
+    tpoConnector.validateName(name, Some(application.id), application.deployedTo)
   }
 
-  def validateNewApplicationName(environment: Environment, name: String)(implicit hc: HeaderCarrier): Future[ValidateApplicationNameResult] = {
-    applicationConnectorFor(Some(environment)).validateApplicationName(None, name)
+  def validateNewApplicationName(environment: Environment, name: String)(implicit hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
+    tpoConnector.validateName(name, None, environment)
   }
 
   def updateApplicationName(

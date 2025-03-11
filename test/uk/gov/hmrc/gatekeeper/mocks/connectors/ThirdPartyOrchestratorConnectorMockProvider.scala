@@ -21,21 +21,39 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.gatekeeper.connectors._
 
 trait ThirdPartyOrchestratorConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val thirdPartyOrchestratorConnectorMock = mock[ThirdPartyOrchestratorConnector]
-
   object ThirdPartyOrchestratorConnectorMock {
+    val aMock = mock[ThirdPartyOrchestratorConnector]
 
     object GetApplicationsByEmails {
 
-      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(thirdPartyOrchestratorConnectorMock.getApplicationsByEmails(eqTo(emails))(*))
+      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(aMock.getApplicationsByEmails(eqTo(emails))(*))
         .thenReturn(successful(application.toList))
     }
 
+    object ValidateName {
+
+      def succeedsWith(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(response: ApplicationNameValidationResult) = {
+        when(aMock.validateName(eqTo(name), eqTo(selfApplicationId), eqTo(environment))(*)).thenReturn(successful(response))
+      }
+    }
+
+    object ValidateApplicationName {
+
+      def succeeds() =
+        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
+
+      def invalid() =
+        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
+
+      def duplicate() =
+        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
+    }
   }
 }

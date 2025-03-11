@@ -31,6 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRes
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.{DO_NOT_DELETE, NO_RESTRICTION}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
@@ -716,13 +717,9 @@ class ApplicationController @Inject() (
 
     def validateApplicationName(environment: Environment, applicationName: String): Future[FieldValidationResult[String]] = {
       applicationService.validateNewApplicationName(environment, applicationName).map(_ match {
-        case ValidateApplicationNameSuccessResult          => applicationName.valid
-        case failure: ValidateApplicationNameFailureResult => {
-          failure match {
-            case ValidateApplicationNameFailureInvalidResult   => "application.name.invalid.error".invalidNec
-            case ValidateApplicationNameFailureDuplicateResult => "application.name.duplicate.error".invalidNec
-          }
-        }
+        case ApplicationNameValidationResult.Valid     => applicationName.valid
+        case ApplicationNameValidationResult.Invalid   => "application.name.invalid.error".invalidNec
+        case ApplicationNameValidationResult.Duplicate => "application.name.duplicate.error".invalidNec
       })
     }
 
