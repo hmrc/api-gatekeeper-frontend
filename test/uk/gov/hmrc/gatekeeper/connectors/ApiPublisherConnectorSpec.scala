@@ -87,7 +87,7 @@ class ApiPublisherConnectorSpec
 
   "fetchAll" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
-    val url         = "/services/all"
+    val url         = "/services"
 
     "return all API approval summaries" in new Setup {
       val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), state = APPROVED))

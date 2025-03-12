@@ -42,7 +42,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
   }
 
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services/all")).execute[List[APIApprovalSummary]]
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services")).execute[List[APIApprovalSummary]]
       .map(_.map(_.copy(environment = Some(environment))))
   }
 
