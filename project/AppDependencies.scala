@@ -17,7 +17,6 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "11.12.0",
     "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.2.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.2.0",
-    "uk.gov.hmrc"       %% "emailaddress"                          % "3.8.0",
     "commons-net"        % "commons-net"                           % "3.9.0",
     "org.apache.commons" % "commons-csv"                           % "1.10.0",
     "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "3.1.0",

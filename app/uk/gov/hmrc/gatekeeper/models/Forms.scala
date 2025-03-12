@@ -19,13 +19,13 @@ package uk.gov.hmrc.gatekeeper.models
 import scala.util.{Failure, Try}
 
 import org.apache.commons.net.util.SubnetUtils
+import org.apache.commons.validator.routines.EmailValidator
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
 import play.api.data.Forms._
 import play.api.data.format.Formatter
 import play.api.data.validation._
 import play.api.data.{Form, FormError}
-import uk.gov.hmrc.emailaddress.EmailAddress
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
@@ -265,10 +265,12 @@ object Forms {
     override def unbind(key: String, value: Environment) = Map(key -> value.toString)
   }
 
+  private val defaultEmailValidator = EmailValidator.getInstance()
+
   private def emailValidator() = {
     text
       .verifying("email.required", _.nonEmpty)
-      .verifying("email.not.valid", email => EmailAddress.isValid(email) || email.isEmpty)
+      .verifying("email.not.valid", email => defaultEmailValidator.isValid(email) || email.isEmpty)
   }
 
   final case class AddTeamMemberForm(email: String, role: Option[String])
