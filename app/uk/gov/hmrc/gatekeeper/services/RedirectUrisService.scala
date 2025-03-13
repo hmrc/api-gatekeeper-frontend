@@ -43,16 +43,11 @@ class RedirectUrisService @Inject() (
       gatekeeperUser: String
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    val oldRedirectUris = application.access match {
-      case Access.Standard(redirects, _, _, _, _, _, _) => redirects
-      case _                                            => List.empty
-    }
 
     commandConnector.dispatch(
       application.id,
       ApplicationCommands.UpdateLoginRedirectUris(
         Actors.GatekeeperUser(gatekeeperUser),
-        oldRedirectUris,
         redirectUris,
         instant()
       ),
@@ -67,16 +62,11 @@ class RedirectUrisService @Inject() (
       gatekeeperUser: String
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    val oldRedirectUris = application.access match {
-      case Access.Standard(_, redirects, _, _, _, _, _) => redirects
-      case _                                            => List.empty
-    }
 
     commandConnector.dispatch(
       application.id,
       ApplicationCommands.UpdatePostLogoutRedirectUris(
         Actors.GatekeeperUser(gatekeeperUser),
-        oldRedirectUris,
         redirectUris,
         instant()
       ),

@@ -19,10 +19,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.apache.pekko.stream.Materializer
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -35,11 +38,11 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView      = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView          = app.injector.instanceOf[ForbiddenView]
-  private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
+  private lazy val errorTemplateView         = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView             = app.injector.instanceOf[ForbiddenView]
+  private lazy val deploymentApprovalView    = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentApprovalAllView = app.injector.instanceOf[DeploymentApprovalAllView]
-  private lazy val deploymentReviewView   = app.injector.instanceOf[DeploymentReviewView]
+  private lazy val deploymentReviewView      = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
     val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
