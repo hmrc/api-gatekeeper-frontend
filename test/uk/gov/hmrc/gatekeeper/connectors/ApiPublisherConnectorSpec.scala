@@ -30,6 +30,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
 import uk.gov.hmrc.gatekeeper.models._
 
 class ApiPublisherConnectorSpec
@@ -80,6 +81,41 @@ class ApiPublisherConnectorSpec
 
       intercept[UpstreamErrorResponse] {
         await(connector.fetchUnapproved())
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "fetchAll" should {
+    val serviceName = "ServiceName" + UUID.randomUUID()
+    val url         = "/services"
+
+    "return all API approval summaries" in new Setup {
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), state = APPROVED))
+      val payload  = Json.toJson(response)
+
+      stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
+      )
+
+      await(connector.fetchAll()) shouldBe response
+    }
+
+    "fail when api-subscription-fields returns an internal server error" in new Setup {
+      stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(connector.fetchAll())
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
