@@ -120,6 +120,43 @@ class ApiPublisherConnectorSpec
     }
   }
 
+  "searchServices" should {
+    val serviceName = "ServiceName" + UUID.randomUUID()
+    val url         = "/services/search?status=APPROVED"
+
+    "return an API approval summary" in new Setup {
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), state = APPROVED))
+      val payload  = Json.toJson(response)
+
+      stubFor(
+        get(urlEqualTo(url))
+          .withQueryParam("status", equalTo("APPROVED"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
+      )
+
+      await(connector.searchServices(Seq("status" -> "APPROVED"))) shouldBe response
+    }
+
+    "fail when services search returns an internal server error" in new Setup {
+      stubFor(
+        get(urlEqualTo(url))
+          .withQueryParam("status", equalTo("APPROVED"))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(connector.searchServices(Seq("status" -> "APPROVED")))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
   "fetchApprovalSummary" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
     val url         = s"/service/$serviceName/summary"

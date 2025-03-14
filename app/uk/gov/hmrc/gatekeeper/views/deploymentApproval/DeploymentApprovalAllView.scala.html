@@ -23,16 +23,85 @@
 @import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalState.FAILED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalState.RESUBMITTED
+@import uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.FilterForm
+@import views.html.helper.form
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(unapprovedApis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[FilterForm], unapprovedApis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - API Approval") {
 
   <h1 class="govuk-heading-l">API approval</h1>
 
-  <form action="@routes.DeploymentApprovalController.pendingPage().url" method="get">
+    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.DeploymentApprovalController.approvalsPage, Symbol("class") -> "form") {
+        @helper.CSRF.formField
+
+        <div class="govuk-form-group">
+            <fieldset class="govuk-fieldset">
+                <legend class="govuk-fieldset__legend govuk-heading-m govuk-!-margin-bottom-1 govuk-!-font-weight-bold">
+                    Filter by status
+                </legend>
+                <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
+                    <div class="govuk-grid-row">
+                        @defining(if(form("newStatus").value == Some("true")) """checked="checked"""" else "") { checked =>
+                            <div class="govuk-grid-column-one-third">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" type="checkbox" id="newStatusFilter"
+                                    name="newStatus" value="true" @{checked}>
+                                    <label class="govuk-body-s govuk-checkboxes__label" for="newStatusFilter">
+                                    New
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                        @defining(if(form("resubmittedStatus").value == Some("true")) """checked="checked"""" else "") { checked =>
+                            <div class="govuk-grid-column-one-third">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" type="checkbox" id="resubmittedStatusFilter"
+                                    name="resubmittedStatus" value="true" @{checked}>
+                                    <label class="govuk-body-s govuk-checkboxes__label" for="resubmittedStatusFilter">
+                                    Re-submitted
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                        @defining(if(form("failedStatus").value == Some("true")) """checked="checked"""" else "") { checked =>
+                            <div class="govuk-grid-column-one-third">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" type="checkbox" id="failedStatusFilter"
+                                    name="failedStatus" value="true" @{checked}>
+                                    <label class="govuk-body-s govuk-checkboxes__label" for="failedStatusFilter">
+                                    Failed
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                    <div class="govuk-grid-row">
+                        @defining(if(form("approvedStatus").value == Some("true")) """checked="checked"""" else "") { checked =>
+                            <div class="govuk-grid-column-one-third">
+                                <div class="govuk-checkboxes__item">
+                                    <input class="govuk-checkboxes__input" type="checkbox" id="approvedStatusFilter"
+                                    name="approvedStatus" value="true" @{checked}>
+                                    <label class="govuk-body-s govuk-checkboxes__label" for="approvedStatusFilter">
+                                    Approved
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </fieldset>
+        </div>
+
+        <div class="govuk-form-group govuk-!-margin-bottom-0">
+            <button id="filterResults" class="govuk-button" type="submit">Filter</button>
+        </div>
+    }
+
+    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible">
+
     <table
       id="application-table"
       class="govuk-table"
@@ -86,7 +155,6 @@
         @if(unapprovedApis.isEmpty) {"There are no unapproved APIs."}
       </div>
     </div>
-  </form>
 
   <a class="govuk-link" href="#">Back to Top</a>
 }
