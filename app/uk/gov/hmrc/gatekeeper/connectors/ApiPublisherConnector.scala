@@ -46,6 +46,11 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.map(_.copy(environment = Some(environment))))
   }
 
+  def searchServices(params: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services/search?$params")).execute[List[APIApprovalSummary]]
+      .map(_.map(_.copy(environment = Some(environment))))
+  }
+
   def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/service/$serviceName/summary")).execute[APIApprovalSummary]
       .map(_.copy(environment = Some(environment)))

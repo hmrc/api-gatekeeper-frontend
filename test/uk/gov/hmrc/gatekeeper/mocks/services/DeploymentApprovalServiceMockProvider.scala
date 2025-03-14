@@ -43,6 +43,20 @@ trait DeploymentApprovalServiceMockProvider {
         when(mockDeploymentApprovalService.fetchAllServices()(*)).thenReturn(successful(approvalSummaries.toList))
     }
 
+    object SearchServices {
+
+      def thenReturn(approvalSummaries: APIApprovalSummary*) = {
+        when(mockDeploymentApprovalService.searchServices(*)(*)).thenReturn(successful(approvalSummaries.toList))
+      }
+
+      def thenNotFound() = {
+        when(mockDeploymentApprovalService.searchServices(*)(*)).thenReturn(successful(List.empty))
+      }
+
+      def verifyCalled(params: Seq[(String, String)]) =
+        verify(mockDeploymentApprovalService).searchServices(eqTo(params))(*)
+    }
+
     object FetchApprovalSummary {
 
       def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =

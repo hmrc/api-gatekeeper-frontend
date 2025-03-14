@@ -70,6 +70,21 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
   }
 
+  "searchServices" should {
+    "call production Api publisher connector correctly" in new Setup {
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), state = APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), state = APPROVED))
+      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
+      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
+
+      val result = await(underTest.searchServices(Seq("status" -> "NEW", "status" -> "APPROVED")))
+
+      result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
+
+      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
+    }
+  }
+
   "fetchApiDefinitionSummary" should {
     "fetch the Api definition summary for sandbox" in new Setup {
       val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX))

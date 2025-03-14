@@ -31,15 +31,16 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval.{DeploymentApprovalAllView, DeploymentApprovalView, DeploymentReviewView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer: Materializer = app.materializer
 
-  private lazy val errorTemplateView      = app.injector.instanceOf[ErrorTemplate]
-  private lazy val forbiddenView          = app.injector.instanceOf[ForbiddenView]
-  private lazy val deploymentApprovalView = app.injector.instanceOf[DeploymentApprovalView]
+  private lazy val errorTemplateView         = app.injector.instanceOf[ErrorTemplate]
+  private lazy val forbiddenView             = app.injector.instanceOf[ForbiddenView]
+  private lazy val deploymentApprovalView    = app.injector.instanceOf[DeploymentApprovalView]
   private lazy val deploymentApprovalAllView = app.injector.instanceOf[DeploymentApprovalAllView]
-  private lazy val deploymentReviewView   = app.injector.instanceOf[DeploymentReviewView]
+  private lazy val deploymentReviewView      = app.injector.instanceOf[DeploymentReviewView]
 
   trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
     val csrfToken = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
@@ -95,17 +96,17 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     }
   }
 
-  "allApprovalsPage" should {
+  "approvalsPage" should {
     "render the deployment approval page for APIs in all environments" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchAllServices.returns(
+      DeploymentApprovalServiceMock.SearchServices.thenReturn(
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), state = APPROVED)
       )
 
-      val result = underTest.allApprovalsPage()(aLoggedInRequest)
+      val result = underTest.approvalsPage()(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -115,14 +116,28 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
       contentAsString(result) should include("New")
       contentAsString(result) should include("Approved")
 
-      verify(mockDeploymentApprovalService).fetchAllServices()(*)
+      DeploymentApprovalServiceMock.SearchServices.verifyCalled(List.empty)
+    }
+
+    "render the deployment approval page with passed in status filter" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.SearchServices.thenReturn()
+
+      val request = aLoggedInRequest.withCSRFToken.withFormUrlEncodedBody("newStatus" -> "true", "resubmittedStatus" -> "true")
+
+      val result = underTest.approvalsPage()(request)
+
+      status(result) shouldBe OK
+      DeploymentApprovalServiceMock.SearchServices.verifyCalled(Seq("status" -> "NEW", "status" -> "RESUBMITTED"))
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.allApprovalsPage()(aLoggedInRequest)
+      val result = underTest.approvalsPage()(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
