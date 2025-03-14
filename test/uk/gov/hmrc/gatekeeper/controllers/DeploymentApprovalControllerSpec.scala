@@ -19,10 +19,13 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
+
 import org.apache.pekko.stream.Materializer
+
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
