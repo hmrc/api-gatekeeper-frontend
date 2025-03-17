@@ -19,20 +19,20 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-@import uk.gov.hmrc.gatekeeper.models.ApprovalState.NEW
-@import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalState.FAILED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalState.RESUBMITTED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.NEW
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
 @import uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.FilterForm
 @import views.html.helper.form
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(form: Form[FilterForm], unapprovedApis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - API Approval") {
+@main(title = s"${applicationConfig.title} - API Approvals") {
 
-  <h1 class="govuk-heading-l">API approval</h1>
+  <h1 class="govuk-heading-l">API approvals</h1>
 
     @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.DeploymentApprovalController.approvalsPage, Symbol("class") -> "form") {
         @helper.CSRF.formField
@@ -100,8 +100,6 @@
         </div>
     }
 
-    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible">
-
     <table
       id="application-table"
       class="govuk-table"
@@ -119,32 +117,30 @@
       <caption class="govuk-visually-hidden">API approval table</caption>
       <thead class="govuk-table__head">
         <tr class="govuk-table__row" role="row">
+          <th tabindex="0" scope="col" class="govuk-table__header">API Name</th>
           <th tabindex="0" scope="col" class="govuk-table__header">Service ID</th>
-          <th tabindex="0" scope="col" class="govuk-table__header">Name</th>
           <th tabindex="0" scope="col" class="govuk-table__header">Environment</th>
           <th tabindex="0" scope="col" class="govuk-table__header">Status</th>
-          <th scope="col" class="govuk-table__header" data-orderable="false" tabindex="0">Action</th>
         </tr>
       </thead>
       <tbody  class="govuk-table__body">
-        @for((api, index) <- unapprovedApis.zipWithIndex) {
+        @for((api, index) <- apis.zipWithIndex) {
           <tr role="row" class="govuk-table__row">
-            <td class="govuk-table__cell" id="api-servicename-@index">@api.serviceName</td>
-            <td class="govuk-table__cell" id="api-name-@index">@api.name</td>
+            <td class="govuk-table__cell" id="api-servicename-@index">
+                @if(request.role.isUser) {
+                    <a data-review="@api.serviceName" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">@api.name</a>
+                }else {@api.serviceName}
+            </td>
+            <td class="govuk-table__cell" id="api-name-@index">@api.serviceName</td>
             <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
               <td id="app-status-@index" class="govuk-table__cell">
-              @defining( api.state match {
-                  case NEW => ("status approval-status--new", "New")
-                  case APPROVED => ("status approval-status--approved", "Approved")
-                  case FAILED => ("status approval-status--failed", "Failed")
-                  case RESUBMITTED => ("status approval-status--resubmitted", "Re-submitted")
-              }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
+              @defining( api.status match {
+                  case NEW => ("govuk-tag govuk-tag--green", "New")
+                  case APPROVED => ("govuk-tag govuk-tag--purple", "Approved")
+                  case FAILED => ("govuk-tag govuk-tag--red", "Failed")
+                  case RESUBMITTED => ("govuk-tag govuk-tag--light-blue", "Re-submitted")
+              }) { case (cssStyle, text) => <strong class="@cssStyle">@text</strong> }
               </td>
-            <td class="govuk-table__cell">
-              @if(request.role.isUser) {
-                <a data-review="@api.serviceName" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">Check and approve</a>
-              }
-            </td>
           </tr>
         }
       </tbody>
@@ -152,7 +148,7 @@
 
     <div class="govuk-visually-hidden" style="margin-left:0">
       <div class="grid-layout__column--1-3 text--center">
-        @if(unapprovedApis.isEmpty) {"There are no unapproved APIs."}
+        @if(apis.isEmpty) {"There are no APIs."}
       </div>
     </div>
 
