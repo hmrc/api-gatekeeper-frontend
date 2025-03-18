@@ -29,12 +29,12 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
-import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
+import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval.{DeploymentApprovalAllView, DeploymentApprovalView, DeploymentReviewView}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 
 class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer: Materializer = app.materializer
@@ -106,7 +106,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       DeploymentApprovalServiceMock.SearchServices.thenReturn(
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), state = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       )
 
       val result = underTest.approvalsPage()(aLoggedInRequest.withCSRFToken)

@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
+import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
@@ -58,7 +58,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   "fetchAllServices" should {
     "fetch all the services" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), state = APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
       ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries: _*)
 
@@ -72,8 +72,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "searchServices" should {
     "call production Api publisher connector correctly" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), state = APPROVED))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), state = APPROVED))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
       ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
 

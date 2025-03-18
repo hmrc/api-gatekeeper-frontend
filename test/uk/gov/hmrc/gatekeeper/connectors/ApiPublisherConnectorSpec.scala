@@ -30,7 +30,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.ApprovalState.APPROVED
+import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 import uk.gov.hmrc.gatekeeper.models._
 
 class ApiPublisherConnectorSpec
@@ -90,7 +90,7 @@ class ApiPublisherConnectorSpec
     val url         = "/services"
 
     "return all API approval summaries" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), state = APPROVED))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), status = APPROVED))
       val payload  = Json.toJson(response)
 
       stubFor(
@@ -125,7 +125,7 @@ class ApiPublisherConnectorSpec
     val url         = "/services/search?status=APPROVED"
 
     "return an API approval summary" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), state = APPROVED))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), status = APPROVED))
       val payload  = Json.toJson(response)
 
       stubFor(
