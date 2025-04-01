@@ -61,6 +61,10 @@ trait DeploymentApprovalServiceMockProvider {
 
       def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =
         when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
+
+      def verifyCalled(environment: Environment) =
+        verify(mockDeploymentApprovalService).fetchApprovalSummary(*, eqTo(environment))(*)
+
     }
 
     object ApproveService {

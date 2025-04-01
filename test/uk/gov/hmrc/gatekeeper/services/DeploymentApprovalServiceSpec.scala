@@ -133,6 +133,26 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
   }
 
+  "declineService" should {
+    "decline the service in sandbox" in new Setup {
+      ApiPublisherConnectorMock.Sandbox.DeclineService.succeeds()
+
+      await(underTest.declineService(serviceName, Environment.SANDBOX))
+
+      verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName))(*)
+      verify(mockProductionApiPublisherConnector, never).declineService(*)(*)
+    }
+
+    "decline the service in production" in new Setup {
+      ApiPublisherConnectorMock.Prod.DeclineService.succeeds()
+
+      await(underTest.declineService(serviceName, Environment.PRODUCTION))
+
+      verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName))(*)
+      verify(mockSandboxApiPublisherConnector, never).declineService(*)(*)
+    }
+  }
+
   "connectorFor" should {
     "return the sandbox API publisher connector when asked for sandbox" in new Setup {
       val connector = underTest.connectorFor(Environment.SANDBOX)
