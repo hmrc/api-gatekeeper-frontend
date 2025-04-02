@@ -338,7 +338,14 @@ object AddTeamMemberResponse {
   implicit val format: OFormat[AddTeamMemberResponse] = Json.format[AddTeamMemberResponse]
 }
 
-case class APIApprovalSummary(serviceName: String, name: String, description: Option[String], environment: Option[Environment], status: ApprovalStatus = ApprovalStatus.NEW) {
+case class APIApprovalSummary(
+    serviceName: String,
+    name: String,
+    description: Option[String],
+    environment: Option[Environment],
+    status: ApprovalStatus = ApprovalStatus.NEW,
+    createdOn: Option[Instant] = Some(Instant.now())
+  ) {
   lazy val env = environment.get.toString.toLowerCase.capitalize
 }
 

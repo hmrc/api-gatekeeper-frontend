@@ -63,6 +63,13 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .execute[Either[UpstreamErrorResponse, Unit]]
       .map(_.fold(err => throw err, _ => ()))
   }
+
+  def declineService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/decline"))
+      .setHeader("Content-Type" -> "application/json")
+      .execute[Either[UpstreamErrorResponse, Unit]]
+      .map(_.fold(err => throw err, _ => ()))
+  }
 }
 
 @Singleton

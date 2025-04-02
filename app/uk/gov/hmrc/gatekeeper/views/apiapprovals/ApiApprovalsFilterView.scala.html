@@ -23,7 +23,7 @@
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
-@import uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.FilterForm
+@import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.FilterForm
 @import views.html.helper.form
 
 @this(main: MainView, applicationConfig: AppConfig)
@@ -34,7 +34,7 @@
 
   <h1 class="govuk-heading-l">API approvals</h1>
 
-    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.DeploymentApprovalController.approvalsPage, Symbol("class") -> "form") {
+    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.filterPage, Symbol("class") -> "form") {
         @helper.CSRF.formField
 
         <div class="govuk-form-group">
@@ -128,19 +128,19 @@
           <tr role="row" class="govuk-table__row">
             <td class="govuk-table__cell" id="api-servicename-@index">
                 @if(request.role.isUser) {
-                    <a data-review="@api.serviceName" href="@{routes.DeploymentApprovalController.reviewPage(api.serviceName, api.environment.get.toString)}">@api.name</a>
+                    <a data-review="@api.serviceName" href="@{routes.ApiApprovalsController.historyPage(api.serviceName, api.environment.get.toString)}">@api.name</a>
                 }else {@api.serviceName}
             </td>
             <td class="govuk-table__cell" id="api-name-@index">@api.serviceName</td>
             <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
-              <td id="app-status-@index" class="govuk-table__cell">
+            <td id="api-status-@index" class="govuk-table__cell">
               @defining( api.status match {
                   case NEW => ("govuk-tag govuk-tag--green", "New")
                   case APPROVED => ("govuk-tag govuk-tag--purple", "Approved")
                   case FAILED => ("govuk-tag govuk-tag--red", "Failed")
                   case RESUBMITTED => ("govuk-tag govuk-tag--light-blue", "Re-submitted")
               }) { case (cssStyle, text) => <strong class="@cssStyle">@text</strong> }
-              </td>
+            </td>
           </tr>
         }
       </tbody>

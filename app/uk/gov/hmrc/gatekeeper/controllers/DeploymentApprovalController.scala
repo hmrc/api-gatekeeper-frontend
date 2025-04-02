@@ -21,7 +21,6 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -37,32 +36,12 @@ import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.deploymentApproval._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-object DeploymentApprovalController {
-
-  case class FilterForm(
-      newStatus: Option[String],
-      approvedStatus: Option[String],
-      failedStatus: Option[String],
-      resubmittedStatus: Option[String]
-    )
-
-  val filterForm: Form[FilterForm] = Form(
-    mapping(
-      "newStatus"         -> optional(text),
-      "approvedStatus"    -> optional(text),
-      "failedStatus"      -> optional(text),
-      "resubmittedStatus" -> optional(text)
-    )(FilterForm.apply)(FilterForm.unapply)
-  )
-}
-
 class DeploymentApprovalController @Inject() (
     val forbiddenView: ForbiddenView,
     deploymentApprovalService: DeploymentApprovalService,
     apiCataloguePublishConnector: ApiCataloguePublishConnector,
     mcc: MessagesControllerComponents,
     deploymentApproval: DeploymentApprovalView,
-    deploymentApprovalAll: DeploymentApprovalAllView,
     deploymentReview: DeploymentReviewView,
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
@@ -72,45 +51,9 @@ class DeploymentApprovalController @Inject() (
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper {
-  import DeploymentApprovalController._
 
   def pendingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
-  }
-
-  def approvalsPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    def getQueryParamsFromForm(form: FilterForm): Seq[(String, String)] = {
-      getQueryParamFromStatusVar("NEW", form.newStatus) ++
-        getQueryParamFromStatusVar("APPROVED", form.approvedStatus) ++
-        getQueryParamFromStatusVar("FAILED", form.failedStatus) ++
-        getQueryParamFromStatusVar("RESUBMITTED", form.resubmittedStatus)
-    }
-
-    def getQueryParamFromStatusVar(key: String, value: Option[String]): Seq[(String, String)] = {
-      if (value.contains("true")) {
-        Seq("status" -> key)
-      } else {
-        Seq.empty
-      }
-    }
-
-    def handleValidForm(form: FilterForm) = {
-      val params: Seq[(String, String)] = getQueryParamsFromForm(form)
-      val queryForm                     = filterForm.fill(form)
-
-      for {
-        apps <- deploymentApprovalService.searchServices(params)
-      } yield Ok(deploymentApprovalAll(queryForm, apps))
-    }
-
-    def handleInvalidForm(form: Form[FilterForm]) = {
-
-      for {
-        apps <- deploymentApprovalService.fetchAllServices()
-      } yield Ok(deploymentApprovalAll(form, apps))
-    }
-
-    DeploymentApprovalController.filterForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
   def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>

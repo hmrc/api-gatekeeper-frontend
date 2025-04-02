@@ -225,4 +225,35 @@ class ApiPublisherConnectorSpec
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
+
+  "declineService" should {
+    val serviceName = "ServiceName" + UUID.randomUUID()
+    val url         = s"/service/$serviceName/decline"
+
+    "return ok for approve service" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(NO_CONTENT)
+          )
+      )
+
+      await(connector.declineService(serviceName)) shouldBe ((): Unit)
+    }
+
+    "fail when decline service returns an internal server error" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(connector.declineService(serviceName))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
 }
