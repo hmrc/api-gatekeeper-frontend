@@ -21,7 +21,6 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, Box
 
 private[connectors] object ApmConnectorJsonFormatters extends APIDefinitionFormatters {
 
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.LocalDateTimeFormatter._
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
   import play.api.libs.json._
 
