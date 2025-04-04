@@ -23,6 +23,7 @@
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
+@import uk.gov.hmrc.gatekeeper.views.helper.DateFormatter
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -71,20 +72,19 @@
       </tr>
       <tr class="govuk-table__row">
         <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Submission date</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4">@{apiDefinition.createdOn}</td>
+        <td class="govuk-table__cell govuk-!-padding-top-4">@DateFormatter.getFormattedDate(apiDefinition.createdOn)</td>
         <td class="govuk-table__cell"></td>
       </tr>
     </tbody>
   </table>
 
-    @{
-        if(apiDefinition.status == NEW || apiDefinition.status == RESUBMITTED) {
+
+        @if(apiDefinition.status == NEW || apiDefinition.status == RESUBMITTED) {
                 <div class="govuk-button-group">
                 <a class="govuk-button govuk-link--no-underline" href="@{routes.ApiApprovalsController.reviewPage(apiDefinition.serviceName, apiDefinition.environment.get.toString)}">Review this API</a>
                 <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.filterPage()}">Add a comment on this API</a>
                 </div>
         }
-    }
 
     <h2 id="approval-history" class="govuk-heading-l govuk-!-margin-bottom-6 govuk-!-margin-top-9">Approval history</h2>
     This is to be implemented ....
