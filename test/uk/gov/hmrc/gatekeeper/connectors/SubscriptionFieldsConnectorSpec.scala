@@ -46,9 +46,6 @@ class SubscriptionFieldsConnectorSpec
   private val apiContext = ApiContext.random
   private val apiVersion = ApiVersionNbr.random
 
-  val valueUrl      = SubscriptionFieldsConnector.urlSubscriptionFieldValues("")(clientId, apiContext, apiVersion)
-  val definitionUrl = SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("")(apiContext, apiVersion)
-
   trait Setup {
     implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
     val httpClient                    = app.injector.instanceOf[HttpClientV2]
@@ -60,33 +57,20 @@ class SubscriptionFieldsConnectorSpec
 
   "urlSubscriptionFieldValues" should {
     "return simple url" in {
-      val url = url"${SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
-          ClientId("1"),
-          ApiContext("path"),
-          ApiVersionNbr("1")
-        )}"
+      val url = SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
+        ClientId("1"),
+        ApiContext("path"),
+        ApiVersionNbr("1")
+      )
       url.toString shouldBe "http://example.com/field/application/1/context/path/version/1"
     }
     "return complex encoded url" in {
-      val url = url"${SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
-          ClientId("1 2"),
-          ApiContext("path1/path2"),
-          ApiVersionNbr("1.0 demo")
-        )}"
-      url.toString shouldBe "http://example.com/field/application/1+2/context/path1%2Fpath2/version/1.0+demo"
-    }
-  }
-
-  "urlSubscriptionFieldDefinition" should {
-    "return simple url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(ApiContext("path"), ApiVersionNbr("1")) shouldBe "base/definition/context/path/version/1"
-    }
-
-    "return complex encoded url" in {
-      SubscriptionFieldsConnector.urlSubscriptionFieldDefinition("base")(
+      val url = SubscriptionFieldsConnector.urlSubscriptionFieldValues("http://example.com")(
+        ClientId("1 2"),
         ApiContext("path1/path2"),
         ApiVersionNbr("1.0 demo")
-      ) shouldBe "base/definition/context/path1%2Fpath2/version/1.0+demo"
+      )
+      url.toString shouldBe "http://example.com/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo"
     }
   }
 
@@ -123,12 +107,14 @@ class SubscriptionFieldsConnectorSpec
   }
 
   "saveFieldValues" should {
+    val valuePath = SubscriptionFieldsConnector.urlSubscriptionFieldValues(wireMockUrl)(clientId, apiContext, apiVersion).getPath()
+
     val fieldsValues        = fields(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)
     val subFieldsPutRequest = Json.toJson(SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fieldsValues)).toString
 
     "save the fields" in new Setup {
       stubFor(
-        put(urlEqualTo(valueUrl))
+        put(urlEqualTo(valuePath))
           .withRequestBody(equalTo(subFieldsPutRequest))
           .willReturn(
             aResponse()
@@ -142,7 +128,7 @@ class SubscriptionFieldsConnectorSpec
 
     "fail when api-subscription-fields returns a 500" in new Setup {
       stubFor(
-        put(urlEqualTo(valueUrl))
+        put(urlEqualTo(valuePath))
           .withRequestBody(equalTo(subFieldsPutRequest))
           .willReturn(
             aResponse()
@@ -156,7 +142,7 @@ class SubscriptionFieldsConnectorSpec
 
     "fail when api-subscription-fields returns a 404" in new Setup {
       stubFor(
-        put(urlEqualTo(valueUrl))
+        put(urlEqualTo(valuePath))
           .withRequestBody(equalTo(subFieldsPutRequest))
           .willReturn(
             aResponse()
