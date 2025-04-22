@@ -165,18 +165,19 @@ object RedirectUrisController {
         redirectUri2: Option[String],
         redirectUri3: Option[String],
         redirectUri4: Option[String],
-        redirectUri5: Option[String]
+        redirectUri5: Option[String],
+        redirectUri6: Option[String]
       ): PostLogoutRedirectUriForm = {
-      val data = List(redirectUri1, redirectUri2, redirectUri3, redirectUri4, redirectUri5)
+      val data = List(redirectUri1, redirectUri2, redirectUri3, redirectUri4, redirectUri5, redirectUri6)
         .flatMap(_.map(PostLogoutRedirectUri.apply))
         .collect { case Some(uri) => uri }
         .distinct
       PostLogoutRedirectUriForm(data)
     }
 
-    def fromForm(form: PostLogoutRedirectUriForm): Option[(Option[String], Option[String], Option[String], Option[String], Option[String])] = {
+    def fromForm(form: PostLogoutRedirectUriForm): Option[(Option[String], Option[String], Option[String], Option[String], Option[String], Option[String])] = {
       val data = form.redirectUris.map(_.toString())
-      Some((data.headOption, data.lift(1), data.lift(2), data.lift(3), data.lift(4)))
+      Some((data.headOption, data.lift(1), data.lift(2), data.lift(3), data.lift(4), data.lift(5)))
     }
 
     def validateUri(uri: String): ValidationResult = {
@@ -193,7 +194,8 @@ object RedirectUrisController {
         "redirectUri2" -> optional(text.verifying(redirectUrisConstraint)),
         "redirectUri3" -> optional(text.verifying(redirectUrisConstraint)),
         "redirectUri4" -> optional(text.verifying(redirectUrisConstraint)),
-        "redirectUri5" -> optional(text.verifying(redirectUrisConstraint))
+        "redirectUri5" -> optional(text.verifying(redirectUrisConstraint)),
+        "redirectUri6" -> optional(text.verifying(redirectUrisConstraint))
       )(PostLogoutRedirectUriForm.toForm)(PostLogoutRedirectUriForm.fromForm)
     )
   }

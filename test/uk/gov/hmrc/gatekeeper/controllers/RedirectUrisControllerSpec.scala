@@ -342,7 +342,10 @@ class RedirectUrisControllerSpec
         val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
-          "redirectUri3" -> "https://otherexample.com"
+          "redirectUri3" -> "https://otherexample.com",
+          "redirectUri4" -> "https://yetmoreexample.com",
+          "redirectUri5" -> "https://andsomemoreexample.com",
+          "redirectUri6" -> "https://thefinalexample.com"
         )
 
         val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
@@ -351,7 +354,16 @@ class RedirectUrisControllerSpec
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
         verify(mockRedirectUrisService).managePostLogoutRedirectUris(
           eqTo(application.application),
-          eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"), PostLogoutRedirectUri.unsafeApply("https://otherexample.com"))),
+          eqTo(
+            List(
+              redirectUriToUpdate,
+              PostLogoutRedirectUri.unsafeApply("https://example.com"),
+              PostLogoutRedirectUri.unsafeApply("https://otherexample.com"),
+              PostLogoutRedirectUri.unsafeApply("https://yetmoreexample.com"),
+              PostLogoutRedirectUri.unsafeApply("https://andsomemoreexample.com"),
+              PostLogoutRedirectUri.unsafeApply("https://thefinalexample.com")
+            )
+          ),
           eqTo("Bobby Example")
         )(*)
       }
