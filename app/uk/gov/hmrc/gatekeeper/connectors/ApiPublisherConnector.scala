@@ -56,16 +56,17 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.copy(environment = Some(environment)))
   }
 
-  def approveService(serviceName: String, actor: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def approveService(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/approve"))
-      .withBody(Json.toJson(ApproveServiceRequest(serviceName, actor)))
+      .withBody(Json.toJson(ApproveServiceRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
       .execute[Either[UpstreamErrorResponse, Unit]]
       .map(_.fold(err => throw err, _ => ()))
   }
 
-  def declineService(serviceName: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def declineService(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/decline"))
+      .withBody(Json.toJson(DeclineServiceRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
       .execute[Either[UpstreamErrorResponse, Unit]]
       .map(_.fold(err => throw err, _ => ()))

@@ -82,12 +82,32 @@
                                 Approve this API and make it live
                             </label>
                         </div>
+                        <div class="govuk-radios__conditional" id="conditional-approve">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label" for="approve-detail">
+                                    If necessary, provide some detail on the approval
+                                </label>
+                                <div id="approve-detail-hint" class="govuk-hint"></div>
+                                <textarea class="govuk-textarea" id="approve-detail" name="approveDetail" rows="3" aria-describedby="approve-detail-hint"></textarea>
+                            </div>
+                        </div>
+
                         <div class="govuk-radios__item">
                             <input class="govuk-radios__input" id="review-api-2" name="approve" type="radio" value="false" aria-controls="conditional-decline" aria-expanded="false">
                             <label class="govuk-label govuk-radios__label" for="review-api-2">
                                 Decline this API
                             </label>
                         </div>
+                        <div class="govuk-radios__conditional" id="conditional-decline">
+                            <div class="govuk-form-group">
+                                <label class="govuk-label" for="decline-detail">
+                                    If necessary, provide some detail on the approval
+                                </label>
+                                <div id="decline-detail-hint" class="govuk-hint"></div>
+                                <textarea class="govuk-textarea" id="decline-detail" name="declineDetail" rows="3" aria-describedby="decline-detail-hint"></textarea>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </fieldset>

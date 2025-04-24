@@ -195,7 +195,8 @@ class ApiPublisherConnectorSpec
     val serviceName           = "ServiceName" + UUID.randomUUID()
     val url                   = s"/service/$serviceName/approve"
     val actor                 = Actors.GatekeeperUser("GK User")
-    val approveServiceRequest = ApproveServiceRequest(serviceName, actor)
+    val notes                 = Some("Service approved")
+    val approveServiceRequest = ApproveServiceRequest(serviceName, actor, notes)
 
     "return ok for approve service" in new Setup {
       stubFor(
@@ -207,7 +208,7 @@ class ApiPublisherConnectorSpec
           )
       )
 
-      await(connector.approveService(serviceName, actor)) shouldBe ((): Unit)
+      await(connector.approveService(serviceName, actor, notes)) shouldBe ((): Unit)
     }
 
     "fail when approve service returns an internal server error" in new Setup {
@@ -221,30 +222,35 @@ class ApiPublisherConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(connector.approveService(serviceName, actor))
+        await(connector.approveService(serviceName, actor, notes))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
 
   "declineService" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
-    val url         = s"/service/$serviceName/decline"
+    val serviceName           = "ServiceName" + UUID.randomUUID()
+    val url                   = s"/service/$serviceName/decline"
+    val actor                 = Actors.GatekeeperUser("GK User")
+    val notes                 = Some("Service declined")
+    val declineServiceRequest = DeclineServiceRequest(serviceName, actor, notes)
 
     "return ok for approve service" in new Setup {
       stubFor(
         post(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(declineServiceRequest))))
           .willReturn(
             aResponse()
               .withStatus(NO_CONTENT)
           )
       )
 
-      await(connector.declineService(serviceName)) shouldBe ((): Unit)
+      await(connector.declineService(serviceName, actor, notes)) shouldBe ((): Unit)
     }
 
     "fail when decline service returns an internal server error" in new Setup {
       stubFor(
         post(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(declineServiceRequest))))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -252,7 +258,7 @@ class ApiPublisherConnectorSpec
       )
 
       intercept[UpstreamErrorResponse] {
-        await(connector.declineService(serviceName))
+        await(connector.declineService(serviceName, actor, notes))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }

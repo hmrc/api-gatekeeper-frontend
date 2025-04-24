@@ -114,42 +114,45 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "approveService" should {
     val gatekeeperUser: Actors.GatekeeperUser = Actors.GatekeeperUser("GK User")
+    val notes                                 = Some("Service approved")
     "approve the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.SANDBOX, gatekeeperUser))
+      await(underTest.approveService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
 
-      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser))(*)
-      verify(mockProductionApiPublisherConnector, never).approveService(*, *)(*)
+      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockProductionApiPublisherConnector, never).approveService(*, *, *)(*)
     }
 
     "approve the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.PRODUCTION, gatekeeperUser))
+      await(underTest.approveService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
 
-      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser))(*)
-      verify(mockSandboxApiPublisherConnector, never).approveService(*, *)(*)
+      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockSandboxApiPublisherConnector, never).approveService(*, *, *)(*)
     }
   }
 
   "declineService" should {
+    val gatekeeperUser: Actors.GatekeeperUser = Actors.GatekeeperUser("GK User")
+    val notes                                 = Some("Service decline")
     "decline the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.DeclineService.succeeds()
 
-      await(underTest.declineService(serviceName, Environment.SANDBOX))
+      await(underTest.declineService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
 
-      verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName))(*)
-      verify(mockProductionApiPublisherConnector, never).declineService(*)(*)
+      verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockProductionApiPublisherConnector, never).declineService(*, *, *)(*)
     }
 
     "decline the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.DeclineService.succeeds()
 
-      await(underTest.declineService(serviceName, Environment.PRODUCTION))
+      await(underTest.declineService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
 
-      verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName))(*)
-      verify(mockSandboxApiPublisherConnector, never).declineService(*)(*)
+      verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockSandboxApiPublisherConnector, never).declineService(*, *, *)(*)
     }
   }
 
