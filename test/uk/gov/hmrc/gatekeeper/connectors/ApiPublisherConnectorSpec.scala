@@ -192,16 +192,16 @@ class ApiPublisherConnectorSpec
   }
 
   "approveService" should {
-    val serviceName           = "ServiceName" + UUID.randomUUID()
-    val url                   = s"/service/$serviceName/approve"
-    val actor                 = Actors.GatekeeperUser("GK User")
-    val notes                 = Some("Service approved")
-    val approveServiceRequest = ApproveServiceRequest(serviceName, actor, notes)
+    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val url                = s"/service/$serviceName/approve"
+    val actor              = Actors.GatekeeperUser("GK User")
+    val notes              = Some("Service approved")
+    val apiApprovalRequest = ApiApprovalRequest(serviceName, actor, notes)
 
     "return ok for approve service" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
           .willReturn(
             aResponse()
               .withStatus(OK)
@@ -214,7 +214,7 @@ class ApiPublisherConnectorSpec
     "fail when approve service returns an internal server error" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .withRequestBody(equalToJson(Json.stringify(Json.toJson(approveServiceRequest))))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
@@ -228,16 +228,16 @@ class ApiPublisherConnectorSpec
   }
 
   "declineService" should {
-    val serviceName           = "ServiceName" + UUID.randomUUID()
-    val url                   = s"/service/$serviceName/decline"
-    val actor                 = Actors.GatekeeperUser("GK User")
-    val notes                 = Some("Service declined")
-    val declineServiceRequest = DeclineServiceRequest(serviceName, actor, notes)
+    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val url                = s"/service/$serviceName/decline"
+    val actor              = Actors.GatekeeperUser("GK User")
+    val notes              = Some("Service declined")
+    val apiApprovalRequest = ApiApprovalRequest(serviceName, actor, notes)
 
     "return ok for approve service" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .withRequestBody(equalToJson(Json.stringify(Json.toJson(declineServiceRequest))))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
           .willReturn(
             aResponse()
               .withStatus(NO_CONTENT)
@@ -250,7 +250,7 @@ class ApiPublisherConnectorSpec
     "fail when decline service returns an internal server error" in new Setup {
       stubFor(
         post(urlEqualTo(url))
-          .withRequestBody(equalToJson(Json.stringify(Json.toJson(declineServiceRequest))))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)

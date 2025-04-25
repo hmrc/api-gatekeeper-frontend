@@ -374,16 +374,10 @@ object ApprovalStatus {
   implicit val format: Format[ApprovalStatus] = SealedTraitJsonFormatting.createFormatFor[ApprovalStatus]("ApprovalStatus", apply)
 }
 
-case class ApproveServiceRequest(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)
+case class ApiApprovalRequest(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)
 
-object ApproveServiceRequest {
-  implicit val format: OFormat[ApproveServiceRequest] = Json.format[ApproveServiceRequest]
-}
-
-case class DeclineServiceRequest(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)
-
-object DeclineServiceRequest {
-  implicit val format: OFormat[DeclineServiceRequest] = Json.format[DeclineServiceRequest]
+object ApiApprovalRequest {
+  implicit val format: OFormat[ApiApprovalRequest] = Json.format[ApiApprovalRequest]
 }
 
 class UpdateApiDefinitionsFailed extends Throwable
