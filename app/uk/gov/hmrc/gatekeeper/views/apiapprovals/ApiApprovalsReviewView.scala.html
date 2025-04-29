@@ -28,14 +28,12 @@
 
 @main(title = s"${applicationConfig.title} - API Approval") {
 
+    @errorSummary2(form)
+
     <h1 class="govuk-heading-l">
         <span class="govuk-caption-l">API approvals</span>
         Check the details of this API
     </h1>
-
-  @if(form.hasGlobalErrors) {
-    @include.errorSummary(form)
-  }
 
     <table class="govuk-table govuk-!-width-column-full govuk-!-margin-bottom-9">
         <tbody class="govuk-table__body">
@@ -63,8 +61,11 @@
         </tbody>
     </table>
 
+
     @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.reviewAction(api.serviceName, api.environment.get.toString), Symbol("class") -> "form") {
         @helper.CSRF.formField
+        <div class="govuk-form-group @if(form.errors("approve").nonEmpty) {govuk-form-group--error}">
+            @fieldError(form.errors, "approve", form.error("submissionError").isEmpty)
 
         <div class="govuk-form-group">
             <fieldset class="govuk-fieldset">
@@ -75,39 +76,35 @@
                 </legend>
 
                 <div class="govuk-form-group">
-                    <div class="govuk-radios" data-module="govuk-radios" data-govuk-radios-init="">
+
+                    <div class="govuk-radios" data-module="govuk-radios">
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="review-api" name="approve" type="radio" value="true" aria-controls="conditional-approve" aria-expanded="false">
+                            <input class="govuk-radios__input" id="review-api" name="approve" type="radio" value="true" data-aria-controls="conditional-approve">
                             <label class="govuk-label govuk-radios__label" for="review-api">
                                 Approve this API and make it live
                             </label>
                         </div>
-                        <div class="govuk-radios__conditional" id="conditional-approve">
-                            <div class="govuk-form-group">
+                        <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-approve">
                                 <label class="govuk-label" for="approve-detail">
                                     If necessary, provide some detail on the approval
                                 </label>
                                 <div id="approve-detail-hint" class="govuk-hint"></div>
                                 <textarea class="govuk-textarea" id="approve-detail" name="approveDetail" rows="3" aria-describedby="approve-detail-hint"></textarea>
-                            </div>
                         </div>
 
                         <div class="govuk-radios__item">
-                            <input class="govuk-radios__input" id="review-api-2" name="approve" type="radio" value="false" aria-controls="conditional-decline" aria-expanded="false">
+                            <input class="govuk-radios__input" id="review-api-2" name="approve" type="radio" value="false" data-aria-controls="conditional-decline">
                             <label class="govuk-label govuk-radios__label" for="review-api-2">
                                 Decline this API
                             </label>
                         </div>
-                        <div class="govuk-radios__conditional" id="conditional-decline">
-                            <div class="govuk-form-group">
+                        <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-decline">
                                 <label class="govuk-label" for="decline-detail">
                                     If necessary, provide some detail on the approval
                                 </label>
                                 <div id="decline-detail-hint" class="govuk-hint"></div>
                                 <textarea class="govuk-textarea" id="decline-detail" name="declineDetail" rows="3" aria-describedby="decline-detail-hint"></textarea>
                             </div>
-                        </div>
-
                     </div>
                 </div>
             </fieldset>

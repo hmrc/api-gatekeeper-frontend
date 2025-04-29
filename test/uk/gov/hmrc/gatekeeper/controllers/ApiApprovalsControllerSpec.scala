@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
+import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, NEW}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
@@ -226,6 +226,25 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include(s"The $serviceName has been declined")
 
       verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(*)
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
+    "fail form validation when no radio button is selected" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      )
+
+      val request = aLoggedInRequest
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include(s"Please select an option")
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 

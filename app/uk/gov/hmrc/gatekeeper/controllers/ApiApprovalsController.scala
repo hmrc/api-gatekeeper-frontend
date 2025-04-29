@@ -21,7 +21,7 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional, text}
+import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -56,14 +56,14 @@ object ApiApprovalsController {
   )
 
   case class ReviewForm(
-      approve: Boolean,
+      approve: Option[String],
       approveDetail: Option[String],
       declineDetail: Option[String]
     )
 
   val reviewForm: Form[ReviewForm] = Form(
     mapping(
-      "approve"       -> boolean,
+      "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
       "approveDetail" -> optional(text),
       "declineDetail" -> optional(text)
     )(ReviewForm.apply)(ReviewForm.unapply)
@@ -154,11 +154,12 @@ class ApiApprovalsController @Inject() (
     }
 
     def updateApiWithValidForm(validForm: ReviewForm) = {
-      println(s"****approve:${validForm.approve}, approveDetail:${validForm.approveDetail.getOrElse("")}, declineDetail:${validForm.declineDetail.getOrElse("")}")
 
-      doCalls(serviceName, env, validForm.approve, validForm.approveDetail, validForm.declineDetail) map {
+      val approve = validForm.approve.contains("true")
+
+      doCalls(serviceName, env, approve, validForm.approveDetail, validForm.declineDetail) map {
         _ =>
-          validForm.approve match {
+          approve match {
             case true  => Ok(apiApprovalsApprovedSuccessView(serviceName))
             case false => Ok(apiApprovalsDeclinedSuccessView(serviceName))
           }
