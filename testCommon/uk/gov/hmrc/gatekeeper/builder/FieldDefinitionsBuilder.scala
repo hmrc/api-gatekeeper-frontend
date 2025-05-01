@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.FieldName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiVersionNbr}
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitionFields
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 

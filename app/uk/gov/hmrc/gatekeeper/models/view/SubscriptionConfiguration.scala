@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.models.view
 import play.api.data.Form
 import play.api.data.Forms.{nonEmptyText, _}
 
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionDataAndFieldDefinitions
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
 

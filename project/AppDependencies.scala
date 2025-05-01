@@ -8,14 +8,14 @@ object AppDependencies {
 
   val tpdDomainVersion    = "0.13.0"
   val apiDomainVersion    = "0.19.1"
-  val appDomainVersion    = "0.76.0"
+  val appDomainVersion    = "0.79.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 
   lazy val dependencies = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30"            % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % "11.13.0",
-    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.2.0",
+    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.3.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.2.0",
     "commons-net"        % "commons-net"                           % "3.9.0",
     "org.apache.commons" % "commons-csv"                           % "1.10.0",
