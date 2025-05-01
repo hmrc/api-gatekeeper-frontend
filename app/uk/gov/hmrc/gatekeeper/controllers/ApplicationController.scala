@@ -39,6 +39,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
@@ -187,22 +188,22 @@ class ApplicationController @Inject() (
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
-  private def toCsvContent(response: List[ApplicationWithSubscriptions], env: Option[Environment]): String = {
+  private def toCsvContent(response: List[AppWithSubscriptionsForCsvResponse], env: Option[Environment]): String = {
 
-    val identifiers: Seq[ApiIdentifier]                                 = response.map(_.subscriptions).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
-    val apiColumns: Seq[ColumnDefinition[ApplicationWithSubscriptions]] =
+    val identifiers: Seq[ApiIdentifier]                                       = response.map(_.apiIdentifiers).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
+    val apiColumns: Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]] =
       identifiers.map(apiIdentity =>
         ColumnDefinition(
           apiIdentity.asText("."),
-          (app: ApplicationWithSubscriptions) => app.subscriptions.contains(apiIdentity).toString
+          (app: AppWithSubscriptionsForCsvResponse) => app.apiIdentifiers.contains(apiIdentity).toString
         )
       )
 
-    val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithSubscriptions]](
-      ColumnDefinition("Name", app => app.details.name.toString),
-      ColumnDefinition("App ID", app => app.id.toString),
+    val csvColumnDefinitions = Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]](
+      ColumnDefinition("Name", _.name.toString),
+      ColumnDefinition("App ID", _.id.toString),
       ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
-      ColumnDefinition("Last API call", app => app.details.lastAccess.fold("")(_.toString))
+      ColumnDefinition("Last API call", _.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
     toCsvString(csvColumnDefinitions, response)

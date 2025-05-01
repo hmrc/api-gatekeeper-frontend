@@ -37,6 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -46,6 +47,7 @@ class ApplicationConnectorSpec
     with GuiceOneAppPerSuite
     with UrlEncoding
     with ApplicationBuilder
+    with ApiIdentifierFixtures
     with ApplicationWithCollaboratorsFixtures {
 
   val apiVersion1   = ApiVersionNbr.random
@@ -190,14 +192,27 @@ class ApplicationConnectorSpec
     val url = "/gatekeeper/applications/subscriptions"
 
     "retrieve all applications" in new Setup {
-      val applications = List(standardApp.withSubscriptions(
+      val application = AppWithSubscriptionsForCsvResponse(
+        applicationIdOne,
+        appNameOne,
+        Some(Instant.parse("2002-02-03T12:01:02Z")),
         Set(
-          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
-          ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
-          ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
+          apiIdentifierOne,
+          apiIdentifierTwo,
+          apiIdentifierThree
         )
-      ))
-      val payload      = Json.toJson(applications).toString
+      )
+
+      val payload = s"""[{
+                       |  "id": "${applicationIdOne}",
+                       |  "name": "${appNameOne}",
+                       |  "lastAccess": "2002-02-03T12:01:02Z",
+                       |  "apiIdentifiers": [
+                       |    {"context":"${apiIdentifierOne.context}","version":"${apiIdentifierOne.versionNbr}"},
+                       |    {"context":"${apiIdentifierTwo.context}","version":"${apiIdentifierTwo.versionNbr}"},
+                       |    {"context":"${apiIdentifierThree.context}","version":"${apiIdentifierThree.versionNbr}"}
+                       |  ]
+                       |}]""".stripMargin
 
       stubFor(
         get(urlEqualTo(url))
@@ -208,7 +223,7 @@ class ApplicationConnectorSpec
           )
       )
       val result = await(productionConnector.fetchApplicationsWithSubscriptions())
-      result.head.id shouldBe applications.head.id
+      result.head shouldBe application
     }
   }
 

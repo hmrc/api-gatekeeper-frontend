@@ -34,6 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
@@ -135,33 +136,40 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   }
 
   "fetchApplicationsWithSubscriptions" should {
-    val resp1 = standardApp
-      .withName(appNameOne)
-      .withSubscriptions(
-        Set(
-          apiIdentifierOne,
-          apiIdentifierTwo,
-          apiIdentifierThree
-        )
+    val resp1 = AppWithSubscriptionsForCsvResponse(
+      standardApp.id,
+      appNameOne,
+      standardApp.details.lastAccess,
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
-    val resp2 = standardApp
-      .withName(appNameTwo)
-      .withSubscriptions(
-        Set(
-          apiIdentifierOne,
-          apiIdentifierTwo
-        )
+    )
+    val resp2 = AppWithSubscriptionsForCsvResponse(
+      standardApp2.id,
+      appNameTwo,
+      standardApp2.details.lastAccess,
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
-    val resp3 = standardApp
-      .withName(appNameThree)
-      .withSubscriptions(
-        Set()
+    )
+    val resp3 = AppWithSubscriptionsForCsvResponse(
+      standardApp3.id,
+      appNameThree,
+      standardApp3.details.lastAccess,
+      Set(
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+        ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+        ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
       )
+    )
 
     "list all applications from production when PRODUCTION environment is specified" in new Setup {
       ApplicationConnectorMock.Prod.FetchApplicationsWithSubscriptions.returns(resp1, resp2)
 
-      val result: List[ApplicationWithSubscriptions] = await(underTest.fetchApplicationsWithSubscriptions(Some(Environment.PRODUCTION)))
+      val result: List[AppWithSubscriptionsForCsvResponse] = await(underTest.fetchApplicationsWithSubscriptions(Some(Environment.PRODUCTION)))
 
       val app1 = result.find(sa => sa.name == appNameOne).get
       val app2 = result.find(sa => sa.name == appNameTwo).get
