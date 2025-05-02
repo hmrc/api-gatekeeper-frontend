@@ -45,6 +45,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -422,28 +423,25 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
       "return csv data" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val response1 = standardApp
-          .withId(applicationIdOne)
-          .withName(appNameOne)
-          .withSubscriptions(
-            Set(
-              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
-              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
-              ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
-            )
+        val response1 = AppWithSubscriptionsForCsvResponse(
+          applicationIdOne,
+          appNameOne,
+          Some(instant),
+          Set(
+            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("2.0")),
+            ApiIdentifier(ApiContext("api-documentation-test-service"), ApiVersionNbr("1.5"))
           )
-        val response2 = standardApp
-          .withId(applicationIdTwo)
-          .withName(appNameTwo)
-          .modify(_.copy(
-            lastAccess = None
-          ))
-          .withSubscriptions(
-            Set(
-              ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
-              ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
-            )
+        )
+        val response2 = AppWithSubscriptionsForCsvResponse(
+          applicationIdTwo,
+          appNameTwo,
+          None,
+          Set(
+            ApiIdentifier(ApiContext("hello"), ApiVersionNbr("1.0")),
+            ApiIdentifier(ApiContext("individual-tax"), ApiVersionNbr("1.0"))
           )
+        )
 
         ApplicationServiceMock.FetchApplicationsWithSubscriptions.returns(response1, response2)
 

@@ -23,9 +23,9 @@ import scala.concurrent.Future
 import play.api.http.Status.FORBIDDEN
 import play.api.test.Helpers._
 
-import uk.gov.hmrc.apiplatform.modules.applications.subscriptions.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}

@@ -12,7 +12,7 @@ addSbtPlugin("org.scoverage"       % "sbt-scoverage"         % "2.3.1")
 addSbtPlugin("org.scalastyle"      % "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("org.scalameta"       % "sbt-scalafmt"          % "2.5.2")
 addSbtPlugin("ch.epfl.scala"       % "sbt-scalafix"          % "0.14.2")
-addSbtPlugin("ch.epfl.scala"       % "sbt-bloop"             % "2.0.8")
+addSbtPlugin("ch.epfl.scala"       % "sbt-bloop"             % "2.0.9")
 addSbtPlugin("uk.gov.hmrc"         % "sbt-test-report"       % "1.0.0")
 
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always

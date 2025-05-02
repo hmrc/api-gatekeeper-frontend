@@ -16,14 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.Instant
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.json.{Json, OWrites, Reads}
+import play.api.libs.json._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptions, PaginatedApplications, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaborators, PaginatedApplications, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -39,6 +40,10 @@ object ApplicationConnector {
   case class TermsOfUseInvitationResponse(applicationId: ApplicationId)
 
   implicit val termsOfUseInvitationResponseReads: Reads[TermsOfUseInvitationResponse] = Json.reads[TermsOfUseInvitationResponse]
+
+  case class AppWithSubscriptionsForCsvResponse(id: ApplicationId, name: ApplicationName, lastAccess: Option[Instant], apiIdentifiers: Set[ApiIdentifier])
+
+  implicit val appWithSubscriptionsForCsvResponseReads: Reads[AppWithSubscriptionsForCsvResponse] = Json.reads[AppWithSubscriptionsForCsvResponse]
 }
 
 abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
@@ -121,8 +126,8 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/applications?${params.toSeq}")).execute[PaginatedApplications]
   }
 
-  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptions]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[ApplicationWithSubscriptions]]
+  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[AppWithSubscriptionsForCsvResponse]]
   }
 
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {

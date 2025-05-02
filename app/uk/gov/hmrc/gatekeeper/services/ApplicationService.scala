@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{Appli
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -139,7 +140,7 @@ class ApplicationService @Inject() (
     applicationConnectorFor(env).searchApplications(params)
   }
 
-  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[ApplicationWithSubscriptions]] = {
+  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
