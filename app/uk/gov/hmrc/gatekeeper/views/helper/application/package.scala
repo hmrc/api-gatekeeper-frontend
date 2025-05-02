@@ -23,6 +23,11 @@ import java.time.{Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CheckInformation, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
+object ViewFormat {
+  val date: DateTimeFormatter                  = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
+  def formatWithTime(instant: Instant): String = date.format(instant.atOffset(ZoneOffset.UTC))
+}
+
 object ApplicationPublicDescription {
 
   def apply(application: ApplicationWithCollaborators): Option[String] = {

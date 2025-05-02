@@ -26,6 +26,7 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 @import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
+@import uk.gov.hmrc.gatekeeper.views.helper.application.ViewFormat
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -96,6 +97,17 @@
             </dt>
             <dd class="govuk-summary-list__value" id="userId">
             @developer.id
+            </dd>
+        </div>
+        <div class="govuk-summary-list__row">
+            <dt class="govuk-summary-list__key">
+                Last logged in
+            </dt>
+            <dd class="govuk-summary-list__value" id="lastLoggedIn">
+            @(developer.user match {
+                case u: RegisteredUser => u.lastLogin.map(lastLogin => ViewFormat.formatWithTime(lastLogin)).getOrElse("None Recorded")
+                case _ => "None Recorded"
+            })
             </dd>
         </div>
         <div class="govuk-summary-list__row">
