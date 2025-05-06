@@ -109,6 +109,17 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
       testDeveloperDetails(unregisteredDeveloper)
     }
 
+    "show None Recorded for unregistered developer logged in time when logged in as superuser" in new Setup {
+      val unregisteredDeveloper = Developer(UnregisteredUser("email@example.com".toLaxEmail, UserId.random), List.empty)
+
+      val result = developerDetails.render(unregisteredDeveloper, buildXmlServicesFeUrl, superUserRequest)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      document.getElementById("lastLoggedIn").text shouldBe "None Recorded"
+    }
+
     "show unverified developer details when logged in as superuser" in new Setup {
       val unverifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", false), List.empty)
       testDeveloperDetails(unverifiedDeveloper)
@@ -117,6 +128,28 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
     "show verified developer details when logged in as superuser" in new Setup {
       val verifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), List.empty)
       testDeveloperDetails(verifiedDeveloper)
+    }
+
+    "show None Recorded for verified developer who hasn't logged in when logged in as superuser" in new Setup {
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), List.empty)
+
+      val result = developerDetails.render(verifiedDeveloper, buildXmlServicesFeUrl, superUserRequest)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      document.getElementById("lastLoggedIn").text shouldBe "None Recorded"
+    }
+
+    "show Last logged in time for verified developer when logged in as superuser" in new Setup {
+      val verifiedDeveloper = Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true, lastLogin = Some(instant)), List.empty)
+
+      val result = developerDetails.render(verifiedDeveloper, buildXmlServicesFeUrl, superUserRequest)
+
+      val document = Jsoup.parse(result.body)
+
+      result.contentType should include("text/html")
+      document.getElementById("lastLoggedIn").text shouldBe "02 January 2020 03:04"
     }
 
     "show verified developer details with organisation when logged in as superuser" in new Setup {
