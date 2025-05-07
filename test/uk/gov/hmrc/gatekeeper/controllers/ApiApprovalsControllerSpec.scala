@@ -19,13 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import java.net.URLEncoder
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import org.apache.pekko.stream.Materializer
-
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -35,13 +32,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.apiapprovals.{
-  ApiApprovalsApprovedSuccessView,
-  ApiApprovalsDeclinedSuccessView,
-  ApiApprovalsFilterView,
-  ApiApprovalsHistoryView,
-  ApiApprovalsReviewView
-}
+import uk.gov.hmrc.gatekeeper.views.html.apiapprovals.{ApiApprovalsApprovedSuccessView, ApiApprovalsCommentSuccessView, ApiApprovalsCommentView, ApiApprovalsDeclinedSuccessView, ApiApprovalsFilterView, ApiApprovalsHistoryView, ApiApprovalsReviewView}
 
 class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
   implicit val materializer: Materializer = app.materializer
@@ -52,6 +43,8 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
   private lazy val apiApprovalsReviewView          = app.injector.instanceOf[ApiApprovalsReviewView]
   private lazy val apiApprovalsApprovedSuccessView = app.injector.instanceOf[ApiApprovalsApprovedSuccessView]
   private lazy val apiApprovalsDeclinedSuccessView = app.injector.instanceOf[ApiApprovalsDeclinedSuccessView]
+  private lazy val apiApprovalsCommentSuccessView = app.injector.instanceOf[ApiApprovalsCommentSuccessView]
+  private lazy val apiApprovalsCommentView         = app.injector.instanceOf[ApiApprovalsCommentView]
   private lazy val apiCataloguePublishConnector    = app.injector.instanceOf[ApiCataloguePublishConnector]
 
   trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
@@ -72,6 +65,8 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       apiApprovalsReviewView,
       apiApprovalsApprovedSuccessView,
       apiApprovalsDeclinedSuccessView,
+      apiApprovalsCommentSuccessView,
+      apiApprovalsCommentView,
       errorTemplateView,
       StrideAuthorisationServiceMock.aMock,
       LdapAuthorisationServiceMock.aMock
