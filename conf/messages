@@ -40,3 +40,4 @@ auto.delete.option.required=Select an option
 service.name = HMRC API Gatekeeper
 pagination.previous = Previous
 pagination.next = Next
+api.approvals.review.action.required=Please select an option

@@ -49,11 +49,11 @@ trait ApiPublisherConnectorMockProvider {
     }
 
     object ApproveService {
-      def succeeds() = when(mock.approveService(*, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.approveService(*, *, *)(*)).thenReturn(successful(()))
     }
 
     object DeclineService {
-      def succeeds() = when(mock.declineService(*)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.declineService(*, *, *)(*)).thenReturn(successful(()))
     }
   }
 

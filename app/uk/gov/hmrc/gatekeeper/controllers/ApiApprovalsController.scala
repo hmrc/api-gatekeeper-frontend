@@ -21,7 +21,7 @@ import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.data.Forms.{boolean, mapping, optional, text}
+import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 
@@ -56,16 +56,16 @@ object ApiApprovalsController {
   )
 
   case class ReviewForm(
-      approve: Boolean,
-      approvedComment: Option[String],
-      declinedComment: Option[String]
+      approve: Option[String],
+      approveDetail: Option[String],
+      declineDetail: Option[String]
     )
 
   val reviewForm: Form[ReviewForm] = Form(
     mapping(
-      "approve"         -> boolean,
-      "approvedComment" -> optional(text),
-      "declinedComment" -> optional(text)
+      "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
+      "approveDetail" -> optional(text),
+      "declineDetail" -> optional(text)
     )(ReviewForm.apply)(ReviewForm.unapply)
   )
 }
@@ -140,23 +140,26 @@ class ApiApprovalsController @Inject() (
     def errors(errors: Form[ReviewForm]) =
       fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(apiApprovalsReviewView(errors, details)))
 
-    def doCalls(serviceName: String, environment: Environment, approve: Boolean): Future[Unit] = {
+    def doCalls(serviceName: String, environment: Environment, approve: Boolean, approveDetail: Option[String], declineDetail: Option[String]): Future[Unit] = {
       approve match {
-        case true  => deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get)
+        case true  => deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get, approveDetail)
             .flatMap(_ =>
               environment match {
                 case (environment) if (environment == Environment.PRODUCTION) && approve => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
                 case _                                                                   => successful(())
               }
             )
-        case false => deploymentApprovalService.declineService(serviceName, environment)
+        case false => deploymentApprovalService.declineService(serviceName, environment, gatekeeperUser.get, declineDetail)
       }
     }
 
     def updateApiWithValidForm(validForm: ReviewForm) = {
-      doCalls(serviceName, env, validForm.approve) map {
+
+      val approve = validForm.approve.contains("true")
+
+      doCalls(serviceName, env, approve, validForm.approveDetail, validForm.declineDetail) map {
         _ =>
-          validForm.approve match {
+          approve match {
             case true  => Ok(apiApprovalsApprovedSuccessView(serviceName))
             case false => Ok(apiApprovalsDeclinedSuccessView(serviceName))
           }

@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
+import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, NEW}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
@@ -193,32 +193,66 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
   }
 
   "reviewAction" should {
-    "call the approveService and redirect if form contains confirmation for a sandbox API" in new Setup {
+    "call approveService if approve is selected on the review page and show the approved success page" in new Setup {
+      val approveNote = "Service approved"
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
-      )
+      DeploymentApprovalServiceMock.ApproveService.succeeds()
+      ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest.withCSRFToken)
+      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
 
       status(result) shouldBe OK
-      contentAsString(result) should include("API approvals")
-      contentAsString(result) should include("aName")
-      contentAsString(result) should include("aDescription")
-      contentAsString(result) should include(serviceName)
-      contentAsString(result) should not include ("Sandbox")
-      contentAsString(result) should include("Production")
+      contentAsString(result) should include(s"The $serviceName has been approved")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
+    }
+
+    "call declineService if decline is selected on the review page and show the declined success page" in new Setup {
+      val declineNote = "Service declined"
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.DeclineService.succeeds()
+
+      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false", "declineDetail" -> declineNote)
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe OK
+      contentAsString(result) should include(s"The $serviceName has been declined")
+
+      verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(*)
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
+    "fail form validation when no radio button is selected" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      )
+
+      val request = aLoggedInRequest
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include(s"Please select an option")
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.reviewAction(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
