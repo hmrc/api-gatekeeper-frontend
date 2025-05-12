@@ -79,5 +79,10 @@ trait DeploymentApprovalServiceMockProvider {
         when(mockDeploymentApprovalService.declineService(*, *, *, *)(*)).thenReturn(successful(()))
     }
 
+    object AddComment {
+
+      def succeeds() =
+        when(mockDeploymentApprovalService.addComment(*, *, *, *)(*)).thenReturn(successful(()))
+    }
   }
 }

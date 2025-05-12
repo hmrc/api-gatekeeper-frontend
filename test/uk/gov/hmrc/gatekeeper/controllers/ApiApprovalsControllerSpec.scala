@@ -190,6 +190,33 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
     }
   }
 
+  "commentPage" should {
+    "render the comments page for an API" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      )
+
+      val result = underTest.commentPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest.withCSRFToken)
+
+      status(result) shouldBe OK
+      contentAsString(result) should include(s"Add a comment for the aName API")
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
+    }
+
+    "redirect to the login page if the user is not logged in" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
+
+      val result = underTest.commentPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+
+      status(result) shouldBe SEE_OTHER
+    }
+  }
+
   "reviewAction" should {
     "call approveService if approve is selected on the review page and show the approved success page" in new Setup {
       val approveNote = "Service approved"
@@ -251,6 +278,52 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
       val result = underTest.reviewAction(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+
+      status(result) shouldBe SEE_OTHER
+    }
+  }
+
+  "addComment" should {
+    "call addComment and show the add comment success page" in new Setup {
+      val comment = "Test comment"
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.AddComment.succeeds()
+
+      val request = aLoggedInRequest.withFormUrlEncodedBody("comment" -> comment)
+
+      val result = underTest.addComment(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe OK
+      contentAsString(result) should include(s"Your comment has been added for the $serviceName API")
+
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(comment))(*)
+    }
+
+    "fail form validation when no no comment entered" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      )
+
+      val request = aLoggedInRequest
+
+      val result = underTest.addComment(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include(s"Comment is required")
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+    }
+
+    "redirect to the login page if the user is not logged in" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
+
+      val result = underTest.addComment(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
