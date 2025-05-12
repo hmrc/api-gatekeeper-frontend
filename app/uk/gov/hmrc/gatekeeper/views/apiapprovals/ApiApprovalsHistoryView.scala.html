@@ -24,20 +24,16 @@
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
 @import uk.gov.hmrc.gatekeeper.views.helper.DateFormatter
-@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukBackLink
+@import uk.gov.hmrc.govukfrontend.views.Aliases.BackLink
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukBackLink: GovukBackLink)
+
 
 @(apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - API Approval",
-    breadcrumbs = Seq(
-    Crumb(
-        "Back",
-        s"${routes.ApiApprovalsController.filterPage()}",
-        Some("data-back-link")
-    )
-)) {
+    backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript)) {
 
   <span class="govuk-caption-l">API approvals</span>
   <h1 class="govuk-heading-l">@{apiDefinition.name}</h1>
