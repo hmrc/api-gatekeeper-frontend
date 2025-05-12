@@ -19,10 +19,12 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.Inject
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
+
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -68,12 +70,12 @@ object ApiApprovalsController {
   )
 
   case class CommentForm(
-                         comment: Option[String],
-                       )
+      comment: Option[String]
+    )
 
   val commentForm: Form[CommentForm] = Form(
     mapping(
-      "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined),
+      "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined)
     )(CommentForm.apply)(CommentForm.unapply)
   )
 }
@@ -183,7 +185,7 @@ class ApiApprovalsController @Inject() (
     fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(apiApprovalsCommentView(commentForm, apiDefinition)))
   }
 
-  def addComment(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction  { implicit request =>
+  def addComment(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val env = Environment.unsafeApply(environment)
 
     val requestForm: Form[CommentForm] = commentForm.bindFromRequest()
