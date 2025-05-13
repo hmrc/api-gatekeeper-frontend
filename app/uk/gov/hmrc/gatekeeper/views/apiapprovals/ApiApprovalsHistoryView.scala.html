@@ -89,7 +89,7 @@
         @if(apiDefinition.status == NEW || apiDefinition.status == RESUBMITTED) {
                 <div class="govuk-button-group">
                 <a class="govuk-button govuk-link--no-underline" href="@{routes.ApiApprovalsController.reviewPage(apiDefinition.serviceName, apiDefinition.environment.get.toString)}">Review this API</a>
-                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.filterPage()}">Add a comment on this API</a>
+                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.commentPage(apiDefinition.serviceName, apiDefinition.environment.get.toString)}">Add a comment on this API</a>
                 </div>
         }
 

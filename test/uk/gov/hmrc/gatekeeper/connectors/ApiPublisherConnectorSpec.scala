@@ -262,4 +262,41 @@ class ApiPublisherConnectorSpec
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
     }
   }
+
+  "addComment" should {
+    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val url                = s"/service/$serviceName/comment"
+    val actor              = Actors.GatekeeperUser("GK User")
+    val notes              = "New comment"
+    val apiApprovalRequest = ApiApprovalRequest(serviceName, actor, Some(notes))
+
+    "return ok for add comment" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
+          .willReturn(
+            aResponse()
+              .withStatus(NO_CONTENT)
+          )
+      )
+
+      await(connector.addComment(serviceName, actor, notes)) shouldBe ((): Unit)
+    }
+
+    "fail when add comment returns an internal server error" in new Setup {
+      stubFor(
+        post(urlEqualTo(url))
+          .withRequestBody(equalToJson(Json.stringify(Json.toJson(apiApprovalRequest))))
+          .willReturn(
+            aResponse()
+              .withStatus(INTERNAL_SERVER_ERROR)
+          )
+      )
+
+      intercept[UpstreamErrorResponse] {
+        await(connector.addComment(serviceName, actor, notes))
+      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
 }

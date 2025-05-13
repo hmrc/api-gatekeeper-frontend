@@ -55,6 +55,10 @@ trait ApiPublisherConnectorMockProvider {
     object DeclineService {
       def succeeds() = when(mock.declineService(*, *, *)(*)).thenReturn(successful(()))
     }
+
+    object AddComment {
+      def succeeds() = when(mock.addComment(*, *, *)(*)).thenReturn(successful(()))
+    }
   }
 
   object ApiPublisherConnectorMock {

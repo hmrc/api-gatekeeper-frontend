@@ -73,5 +73,9 @@ class DeploymentApprovalService @Inject() (
     connectorFor(environment).declineService(serviceName, actor, notes)
   }
 
+  def addComment(serviceName: String, environment: Environment, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+    connectorFor(environment).addComment(serviceName, actor, notes)
+  }
+
   def connectorFor(environment: Environment) = if (environment == Environment.PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
 }
