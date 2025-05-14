@@ -14,17 +14,11 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.controllers._
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
-@import uk.gov.hmrc.gatekeeper.controllers.routes
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.NEW
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.FilterForm
-@import views.html.helper.form
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models._
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -134,12 +128,7 @@
             <td class="govuk-table__cell" id="api-name-@index">@api.serviceName</td>
             <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
             <td id="api-status-@index" class="govuk-table__cell">
-              @defining( api.status match {
-                  case NEW => ("govuk-tag govuk-tag--green", "New")
-                  case APPROVED => ("govuk-tag govuk-tag--purple", "Approved")
-                  case FAILED => ("govuk-tag govuk-tag--red", "Failed")
-                  case RESUBMITTED => ("govuk-tag govuk-tag--light-blue", "Re-submitted")
-              }) { case (cssStyle, text) => <strong class="@cssStyle">@text</strong> }
+            @buildApiApprovalStatusHtml(api.status)
             </td>
           </tr>
         }
