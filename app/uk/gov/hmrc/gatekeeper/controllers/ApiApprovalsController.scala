@@ -68,6 +68,16 @@ object ApiApprovalsController {
       "declineDetail" -> optional(text)
     )(ReviewForm.apply)(ReviewForm.unapply)
   )
+
+  case class CommentForm(
+      comment: Option[String]
+    )
+
+  val commentForm: Form[CommentForm] = Form(
+    mapping(
+      "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined)
+    )(CommentForm.apply)(CommentForm.unapply)
+  )
 }
 
 class ApiApprovalsController @Inject() (
@@ -79,6 +89,8 @@ class ApiApprovalsController @Inject() (
     apiApprovalsReviewView: ApiApprovalsReviewView,
     apiApprovalsApprovedSuccessView: ApiApprovalsApprovedSuccessView,
     apiApprovalsDeclinedSuccessView: ApiApprovalsDeclinedSuccessView,
+    apiApprovalsCommentSuccessView: ApiApprovalsCommentSuccessView,
+    apiApprovalsCommentView: ApiApprovalsCommentView,
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
@@ -167,6 +179,25 @@ class ApiApprovalsController @Inject() (
     }
 
     requestForm.fold(errors, updateApiWithValidForm)
+  }
+
+  def commentPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(apiApprovalsCommentView(commentForm, apiDefinition)))
+  }
+
+  def addComment(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    val env = Environment.unsafeApply(environment)
+
+    val requestForm: Form[CommentForm] = commentForm.bindFromRequest()
+
+    def errors(errors: Form[CommentForm]) =
+      fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(apiApprovalsCommentView(errors, details)))
+
+    def addCommentWithValidForm(validForm: CommentForm) = {
+      deploymentApprovalService.addComment(serviceName, env, gatekeeperUser.get, validForm.comment.get).map(_ => Ok(apiApprovalsCommentSuccessView(serviceName)))
+    }
+
+    requestForm.fold(errors, addCommentWithValidForm)
   }
 
   private def fetchApiDefinitionSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {

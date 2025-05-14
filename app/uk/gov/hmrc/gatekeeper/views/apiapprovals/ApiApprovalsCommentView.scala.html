@@ -1,0 +1,77 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.NEW
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
+@import uk.gov.hmrc.gatekeeper.views.helper.DateFormatter
+@import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.CommentForm
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+
+@(form: Form[CommentForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"${applicationConfig.title} - API Approval") {
+
+    @errorSummary2(form)
+
+    <div class="govuk-width-container">
+        <div class="govuk-grid-row">
+            <div class="govuk-grid-column-two-thirds">
+
+            @helper.form(action = routes.ApiApprovalsController.addComment(apiDefinition.serviceName, apiDefinition.environment.get.toString)) {
+                @helper.CSRF.formField
+                <div class="govuk-form-group @if(form.errors("comment").nonEmpty) {govuk-form-group--error}">
+                @fieldError(form.errors, "comment", form.error("submissionError").isEmpty)
+
+                <div class="govuk-form-group">
+                    <fieldset class="govuk-fieldset">
+                        <div class="govuk-form-group">
+                            <h1 class="govuk-label-wrapper">
+                                <label class="govuk-label govuk-label--l" for="comment">
+                                    <span class="govuk-caption-l">API approvals</span>
+                                    Add a comment for the @{
+                                    apiDefinition.name
+                                } API
+                                </label>
+                            </h1>
+
+                            <p class="govuk-body">
+                                Leave a comment if you have an update about the approval of this API, it will be added to the approval history.</p>
+                            <div id="more-detail-hint" class="govuk-hint">
+                            </div>
+                            <textarea class="govuk-textarea" id="comment" name="comment" rows="5" aria-describedby="more-detail-hint"></textarea>
+                        </div>
+
+                    </fieldset>
+                </div>
+
+                <div class="govuk-button-group">
+                    <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Send comment</button>
+                    <a href="@{routes.ApiApprovalsController.filterPage()}" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+                </div>
+            }
+            </div>
+        </div>
+    </div>
+}

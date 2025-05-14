@@ -156,6 +156,29 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
   }
 
+  "addComment" should {
+    val gatekeeperUser: Actors.GatekeeperUser = Actors.GatekeeperUser("GK User")
+    val notes                                 = "Service decline"
+
+    "add comment in sandbox" in new Setup {
+      ApiPublisherConnectorMock.Sandbox.AddComment.succeeds()
+
+      await(underTest.addComment(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
+
+      verify(mockSandboxApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockProductionApiPublisherConnector, never).addComment(*, *, *)(*)
+    }
+
+    "add comment in production" in new Setup {
+      ApiPublisherConnectorMock.Prod.AddComment.succeeds()
+
+      await(underTest.addComment(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
+
+      verify(mockProductionApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
+      verify(mockSandboxApiPublisherConnector, never).addComment(*, *, *)(*)
+    }
+  }
+
   "connectorFor" should {
     "return the sandbox API publisher connector when asked for sandbox" in new Setup {
       val connector = underTest.connectorFor(Environment.SANDBOX)

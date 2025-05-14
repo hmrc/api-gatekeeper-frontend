@@ -107,6 +107,8 @@ GET         /api-approvals                                                    uk
 GET         /api-approvals/:environment/:serviceName/history                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.historyPage(serviceName: String, environment: String)
 GET         /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewPage(serviceName: String, environment: String)
 POST        /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewAction(serviceName: String, environment: String)
+GET         /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.commentPage(serviceName: String, environment: String)
+POST        /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.addComment(serviceName: String, environment: String)
 
 
 GET         /apis                                                             uk.gov.hmrc.gatekeeper.controllers.ApiDefinitionController.apis()

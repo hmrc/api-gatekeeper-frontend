@@ -71,6 +71,14 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .execute[Either[UpstreamErrorResponse, Unit]]
       .map(_.fold(err => throw err, _ => ()))
   }
+
+  def addComment(serviceName: String, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+    configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/comment"))
+      .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, Some(notes))))
+      .setHeader("Content-Type" -> "application/json")
+      .execute[Either[UpstreamErrorResponse, Unit]]
+      .map(_.fold(err => throw err, _ => ()))
+  }
 }
 
 @Singleton
