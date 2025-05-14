@@ -32,7 +32,7 @@
 
 @(approvalSummary: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - API Approval",
+@main(title = s"API approval request details ${approvalSummary.name} - ${applicationConfig.title}",
     backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript)) {
 
   <span class="govuk-caption-l">API approvals</span>
