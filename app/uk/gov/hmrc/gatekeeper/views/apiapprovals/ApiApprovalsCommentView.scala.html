@@ -31,7 +31,7 @@
 
 @(form: Form[CommentForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - API Approval") {
+@main(title = s"API approval request details ${apiDefinition.name} - HMRC API Gatekeeper") {
 
     @errorSummary2(form)
 
@@ -50,9 +50,7 @@
                             <h1 class="govuk-label-wrapper">
                                 <label class="govuk-label govuk-label--l" for="comment">
                                     <span class="govuk-caption-l">API approvals</span>
-                                    Add a comment for the @{
-                                    apiDefinition.name
-                                } API
+                                    Add a comment for the @{apiDefinition.name} API
                                 </label>
                             </h1>
 
