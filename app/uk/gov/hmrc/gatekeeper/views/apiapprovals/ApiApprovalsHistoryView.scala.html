@@ -57,7 +57,7 @@
                         isStartButton = false,
                         content = Text("Review this API"),
                         href=Some(routes.ApiApprovalsController.reviewPage(approvalSummary.serviceName, approvalSummary.environment.get.toString).url)))
-                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.filterPage()}">Add a comment on this API</a>
+                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.commentPage(approvalSummary.serviceName, approvalSummary.environment.get.toString)}">Add a comment on this API</a>
                 </div>
         }
 
