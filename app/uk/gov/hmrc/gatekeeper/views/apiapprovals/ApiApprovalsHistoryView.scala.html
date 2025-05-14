@@ -14,86 +14,63 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.NEW
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.FAILED
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
-@import uk.gov.hmrc.gatekeeper.views.helper.DateFormatter
-@import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{NEW, RESUBMITTED}
+@import uk.gov.hmrc.gatekeeper.views.helper.{DateFormatter, ExtractUser, HistoryOrdering, StatusWording}
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{BackLink, Button, Table, TableRow, Text}
+@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukBackLink, GovukButton, GovukTable}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeline
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeline.{Event, Timeline}
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukBackLink: GovukBackLink, govukTable: GovukTable, govukButton: GovukButton, hmrcTimeline: HmrcTimeline)
 
-@(apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - API Approval",
-    breadcrumbs = Seq(
-    Crumb(
-        "Back",
-        s"${routes.ApiApprovalsController.filterPage()}",
-        Some("data-back-link")
-    )
-)) {
+@(approvalSummary: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@main(title = s"API approval request details ${approvalSummary.name} - ${applicationConfig.title}",
+    backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript)) {
 
   <span class="govuk-caption-l">API approvals</span>
-  <h1 class="govuk-heading-l">@{apiDefinition.name}</h1>
+  <h1 class="govuk-heading-l">@{approvalSummary.name}</h1>
 
-  <table class="govuk-table govuk-!-width-column-full">
-    <tbody class="govuk-table__body">
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Status</th>
-          <td id="api-status" class="govuk-table__cell govuk-!-padding-top-4">
-          @defining( apiDefinition.status match {
-              case NEW => ("govuk-tag govuk-tag--green", "New")
-              case APPROVED => ("govuk-tag govuk-tag--purple", "Approved")
-              case FAILED => ("govuk-tag govuk-tag--red", "Failed")
-              case RESUBMITTED => ("govuk-tag govuk-tag--light-blue", "Re-submitted")
-          }) { case (cssStyle, text) => <strong class="@cssStyle">@text</strong> }
-          </td>
-        <td class="govuk-table__cell"></td>
-      </tr>
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Description</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4">@{apiDefinition.description}</td>
-        <td class="govuk-table__cell"></td>
-      </tr>
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Service ID</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4">@{apiDefinition.serviceName}</td>
-        <td class="govuk-table__cell"></td>
-      </tr>
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Environment</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4">@{apiDefinition.environment.getOrElse(Environment.SANDBOX).displayText}</td>
-        <td class="govuk-table__cell">
-        </td>
-      </tr>
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Last update</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4"><a class="govuk-link--no-visited-state govuk-link" href="#approval-history">This is to be implemented</a></td>
-        <td class="govuk-table__cell"></td>
-      </tr>
-      <tr class="govuk-table__row">
-        <th scope="row" class="govuk-table__header column-1 govuk-!-padding-top-4 govuk-!-padding-bottom-2">Submission date</th>
-        <td class="govuk-table__cell govuk-!-padding-top-4">@DateFormatter.getFormattedDate(apiDefinition.createdOn)</td>
-        <td class="govuk-table__cell"></td>
-      </tr>
-    </tbody>
-  </table>
+    @govukTable(Table(
+        firstCellIsHeader = true,
+        rows = Seq(
+            Seq(TableRow(content = Text("Status")), TableRow(content = HtmlContent(buildApiApprovalStatusHtml(approvalSummary.status)))),
+            Seq(TableRow(content = Text("Description")), TableRow(content = Text(approvalSummary.description.getOrElse("")))),
+            Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(approvalSummary.serviceName))),
+            Seq(TableRow(content = Text("Environment")), TableRow(content = Text(approvalSummary.environment.getOrElse(Environment.SANDBOX).displayText))),
+            Seq(TableRow(content = Text("Last update")), TableRow(content = Text("This is to be implemented"))),
+            Seq(TableRow(content = Text("Submission date")), TableRow(content = Text(DateFormatter.getFormattedDate(approvalSummary.createdOn))))
+        )
+    ))
 
-
-        @if(apiDefinition.status == NEW || apiDefinition.status == RESUBMITTED) {
+        @if(approvalSummary.status == NEW || approvalSummary.status == RESUBMITTED) {
                 <div class="govuk-button-group">
-                <a class="govuk-button govuk-link--no-underline" href="@{routes.ApiApprovalsController.reviewPage(apiDefinition.serviceName, apiDefinition.environment.get.toString)}">Review this API</a>
-                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.commentPage(apiDefinition.serviceName, apiDefinition.environment.get.toString)}">Add a comment on this API</a>
+                    @govukButton(Button(
+                        id = Some("reviewApi"),
+                        isStartButton = false,
+                        content = Text("Review this API"),
+                        href=Some(routes.ApiApprovalsController.reviewPage(approvalSummary.serviceName, approvalSummary.environment.get.toString).url)))
+                <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.commentPage(approvalSummary.serviceName, approvalSummary.environment.get.toString)}">Add a comment on this API</a>
                 </div>
         }
 
     <h2 id="approval-history" class="govuk-heading-l govuk-!-margin-bottom-6 govuk-!-margin-top-9">Approval history</h2>
-    This is to be implemented ....
+
+    @hmrcTimeline(Timeline(
+        events = approvalSummary.stateHistory.sortWith(HistoryOrdering.changedAtOrdering).map(event =>
+            Event(
+                title = StatusWording.displayStatus(event.status) + " by " + ExtractUser.displayUser(event.actor) ,
+                content = "<h2 class='govuk-heading-s'>Comment</h2><p class='govuk-body'>" + event.notes.getOrElse("No comment") + "</p>",
+                time = DateFormatter.getFormattedDate(Some(event.changedAt))
+            )
+        )
+    ))
 
 }

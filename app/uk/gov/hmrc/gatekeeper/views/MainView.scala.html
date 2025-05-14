@@ -34,6 +34,7 @@
   hmrcFooter: HmrcFooter,
   hmrcHead: HmrcHead,
   applicationConfig: AppConfig,
+        govukBackLink: GovukBackLink,
         autocompleteCss: HmrcAccessibleAutocompleteCss,
         autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
@@ -41,7 +42,8 @@
 @(
   title: String,
   breadcrumbs: Seq[Crumb] = Seq.empty,
-  mainContentHeader: Html = HtmlFormat.empty
+  mainContentHeader: Html = HtmlFormat.empty,
+        backLink: Option[BackLink] = None
 )(
   mainContent: Html
 )(
@@ -78,9 +80,17 @@
 @beforeContent = {
   <div class="before-content-banner">
     @include.breadcrumbs(breadcrumbs: _*)
+      @buildBackLink(backLink)
     @userBanner
   </div>
 }
+
+@buildBackLink(link: Option[BackLink]) = {
+@if(link.isDefined) {
+    @govukBackLink(link.get)
+}
+}
+
 
 @navigation = @{
   Seq(

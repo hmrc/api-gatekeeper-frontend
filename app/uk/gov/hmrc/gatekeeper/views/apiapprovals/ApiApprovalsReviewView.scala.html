@@ -26,7 +26,7 @@
 
 @(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"${applicationConfig.title} - API Approval") {
+@main(title = s"API approval request details ${api.name} - ${applicationConfig.title}") {
 
     @errorSummary2(form)
 

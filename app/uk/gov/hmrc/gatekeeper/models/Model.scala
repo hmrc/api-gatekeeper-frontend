@@ -338,13 +338,26 @@ object AddTeamMemberResponse {
   implicit val format: OFormat[AddTeamMemberResponse] = Json.format[AddTeamMemberResponse]
 }
 
+case class ApiApprovalState(
+    actor: Actor,
+    changedAt: Instant,
+    status: Option[ApprovalStatus] = None,
+    notes: Option[String] = None
+  )
+
+object ApiApprovalState {
+  implicit val stateFormat: Format[ApiApprovalState] = Json.format[ApiApprovalState]
+
+}
+
 case class APIApprovalSummary(
     serviceName: String,
     name: String,
     description: Option[String],
     environment: Option[Environment],
     status: ApprovalStatus = ApprovalStatus.NEW,
-    createdOn: Option[Instant] = Some(Instant.now())
+    createdOn: Option[Instant] = Some(Instant.now()),
+    stateHistory: Seq[ApiApprovalState] = Seq.empty
   ) {
   lazy val env = environment.get.toString.toLowerCase.capitalize
 }
