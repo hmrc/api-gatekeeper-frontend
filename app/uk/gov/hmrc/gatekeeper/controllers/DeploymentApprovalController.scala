@@ -82,7 +82,7 @@ class DeploymentApprovalController @Inject() (
       validForm.approval_confirmation match {
         case "Yes" =>
           doCalls(serviceName, env) map {
-            _ => Redirect(routes.DeploymentApprovalController.pendingPage().url, SEE_OTHER)
+            _ => Redirect(routes.ApiApprovalsController.filterPage().url, SEE_OTHER)
           }
         case _     => throw new UnsupportedOperationException("Can't Reject Service Approval")
       }

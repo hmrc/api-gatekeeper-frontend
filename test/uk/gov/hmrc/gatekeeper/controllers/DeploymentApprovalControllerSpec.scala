@@ -156,7 +156,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       status(result) shouldBe SEE_OTHER
 
-      redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
+      redirectLocation(result) shouldBe Some("/api-gatekeeper/api-approvals")
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment), eqTo(gatekeeperUser), eqTo(None))(*)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
@@ -177,7 +177,7 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
 
       status(result) shouldBe SEE_OTHER
 
-      redirectLocation(result) shouldBe Some("/api-gatekeeper/pending")
+      redirectLocation(result) shouldBe Some("/api-gatekeeper/api-approvals")
 
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(environment), eqTo(gatekeeperUser), eqTo(None))(*)
       verify(mockApiCataloguePublishConnector).publishByServiceName(eqTo(serviceName))(*)

@@ -45,7 +45,6 @@
             Seq(TableRow(content = Text("Description")), TableRow(content = Text(approvalSummary.description.getOrElse("")))),
             Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(approvalSummary.serviceName))),
             Seq(TableRow(content = Text("Environment")), TableRow(content = Text(approvalSummary.environment.getOrElse(Environment.SANDBOX).displayText))),
-            Seq(TableRow(content = Text("Last update")), TableRow(content = Text("This is to be implemented"))),
             Seq(TableRow(content = Text("Submission date")), TableRow(content = Text(DateFormatter.getFormattedDate(approvalSummary.createdOn))))
         )
     ))

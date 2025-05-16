@@ -99,7 +99,7 @@
     NavigationItem(content = Text("Developers"), href = Some(routes.DevelopersController.blankDevelopersPage().url)),
     NavigationItem(content = Text("Terms of use"), href = Some(routes.TermsOfUseController.page().url)),
     NavigationItem(content = Text("Email"), href = Some(routes.EmailsController.landing().url)),
-    NavigationItem(content = Text("API Approvals"), href = Some(routes.DeploymentApprovalController.pendingPage().url)),
+    NavigationItem(content = Text("API Approvals"), href = Some(routes.ApiApprovalsController.filterPage().url)),
     NavigationItem(content = Text("XML"), href = Some(routes.XmlServicesController.organisationsSearchPage().url))
   )
 }
