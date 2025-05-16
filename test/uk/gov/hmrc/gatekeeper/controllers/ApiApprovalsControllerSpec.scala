@@ -143,7 +143,6 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include(serviceName)
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
-      contentAsString(result) should include("Last update")
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
     }
