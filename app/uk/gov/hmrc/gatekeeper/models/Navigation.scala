@@ -33,7 +33,7 @@ case object StaticNavLinks {
       NavLink("Applications", Some(routes.ApplicationController.applicationsPage(None).url)),
       NavLink("Developers", Some(routes.DevelopersController.blankDevelopersPage().url)),
       NavLink("Email", Some(routes.EmailsController.landing().url)),
-      NavLink("API Approvals", Some(routes.DeploymentApprovalController.pendingPage().url)),
+      NavLink("API Approvals", Some(routes.ApiApprovalsController.filterPage().url)),
       NavLink("XML", Some(routes.XmlServicesController.organisationsSearchPage().url))
     )
   }

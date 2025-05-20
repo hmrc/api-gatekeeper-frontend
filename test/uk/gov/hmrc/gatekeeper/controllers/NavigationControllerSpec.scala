@@ -36,7 +36,7 @@ class NavigationControllerSpec extends ControllerBaseSpec {
         val result = underTest.navLinks()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe
-          """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers"},{"label":"Email","href":"/api-gatekeeper/emails"},{"label":"API Approvals","href":"/api-gatekeeper/pending"},{"label":"XML","href":"/api-gatekeeper/xml-organisations"}]"""
+          """[{"label":"Applications","href":"/api-gatekeeper/applications"},{"label":"Developers","href":"/api-gatekeeper/developers"},{"label":"Email","href":"/api-gatekeeper/emails"},{"label":"API Approvals","href":"/api-gatekeeper/api-approvals"},{"label":"XML","href":"/api-gatekeeper/xml-organisations"}]"""
       }
     }
   }
