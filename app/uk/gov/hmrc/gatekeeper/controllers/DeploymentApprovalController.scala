@@ -52,10 +52,6 @@ class DeploymentApprovalController @Inject() (
     with GatekeeperAuthorisationActions
     with ErrorHelper {
 
-  def pendingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    deploymentApprovalService.fetchUnapprovedServices().map(app => Ok(deploymentApproval(app)))
-  }
-
   def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(deploymentReview(HandleApprovalForm.form, apiDefinition)))
   }

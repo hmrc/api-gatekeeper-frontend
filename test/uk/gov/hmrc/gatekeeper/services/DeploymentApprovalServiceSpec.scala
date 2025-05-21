@@ -40,21 +40,6 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     val underTest = spy(service)
   }
 
-  "fetchUnapprovedServices" should {
-    "fetch the unapproved services" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)))
-      ApiPublisherConnectorMock.Prod.FetchUnapproved.returns(expectedProductionSummaries: _*)
-      ApiPublisherConnectorMock.Sandbox.FetchUnapproved.returns(expectedSandboxSummaries: _*)
-
-      val result = await(underTest.fetchUnapprovedServices())
-
-      result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
-
-      verify(mockProductionApiPublisherConnector).fetchUnapproved()(*)
-    }
-  }
-
   "fetchAllServices" should {
     "fetch all the services" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))

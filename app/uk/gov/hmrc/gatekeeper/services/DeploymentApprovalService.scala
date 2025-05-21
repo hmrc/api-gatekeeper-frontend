@@ -31,16 +31,6 @@ class DeploymentApprovalService @Inject() (
   )(implicit ec: ExecutionContext
   ) {
 
-  def fetchUnapprovedServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
-    val sandboxFuture    = sandboxApiPublisherConnector.fetchUnapproved()
-    val productionFuture = productionApiPublisherConnector.fetchUnapproved()
-
-    for {
-      sandbox    <- sandboxFuture
-      production <- productionFuture
-    } yield (sandbox ++ production).distinct
-  }
-
   def fetchAllServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     val sandboxFuture    = sandboxApiPublisherConnector.fetchAll()
     val productionFuture = productionApiPublisherConnector.fetchAll()

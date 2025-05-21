@@ -36,11 +36,6 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
-  def fetchUnapproved()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services/unapproved")).execute[List[APIApprovalSummary]]
-      .map(_.map(_.copy(environment = Some(environment))))
-  }
-
   def fetchAll()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services")).execute[List[APIApprovalSummary]]
       .map(_.map(_.copy(environment = Some(environment))))

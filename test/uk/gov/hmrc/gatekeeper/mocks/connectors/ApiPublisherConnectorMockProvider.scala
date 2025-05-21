@@ -32,10 +32,6 @@ trait ApiPublisherConnectorMockProvider {
   trait ApiPublisherConnectorMock {
     def mock: ApiPublisherConnector
 
-    object FetchUnapproved {
-      def returns(summaries: APIApprovalSummary*) = when(mock.fetchUnapproved()(*)).thenReturn(successful(summaries.toList))
-    }
-
     object FetchAll {
       def returns(summaries: APIApprovalSummary*) = when(mock.fetchAll()(*)).thenReturn(successful(summaries.toList))
     }
