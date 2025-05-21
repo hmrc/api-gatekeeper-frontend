@@ -31,12 +31,6 @@ trait DeploymentApprovalServiceMockProvider {
 
   object DeploymentApprovalServiceMock {
 
-    object FetchUnapprovedServices {
-
-      def returns(approvalSummaries: APIApprovalSummary*) =
-        when(mockDeploymentApprovalService.fetchUnapprovedServices()(*)).thenReturn(successful(approvalSummaries.toList))
-    }
-
     object FetchAllServices {
 
       def returns(approvalSummaries: APIApprovalSummary*) =

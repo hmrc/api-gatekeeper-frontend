@@ -50,41 +50,6 @@ class ApiPublisherConnectorSpec
     val apiVersion1 = ApiVersionNbr.random
   }
 
-  "fetchUnapproved" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
-    val url         = "/services/unapproved"
-
-    "return unapproved API approval summaries" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION)))
-      val payload  = Json.toJson(response)
-
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      await(connector.fetchUnapproved()) shouldBe response
-    }
-
-    "fail when api-subscription-fields returns an internal server error" in new Setup {
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(connector.fetchUnapproved())
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
-
   "fetchAll" should {
     val serviceName = "ServiceName" + UUID.randomUUID()
     val url         = "/services"
