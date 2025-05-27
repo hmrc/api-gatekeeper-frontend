@@ -97,7 +97,6 @@ POST        /applications/:id/unblock                                         uk
 GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationPage()
 POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationAction()
 
-GET         /pending                                                          uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.pendingPage()
 GET         /pending/:serviceName/review-sandbox                              uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "SANDBOX")
 GET         /pending/:serviceName/review-production                           uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.reviewPage(serviceName: String, environment: String = "PRODUCTION")
 POST        /pending/:serviceName/approve-sandbox                             uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
