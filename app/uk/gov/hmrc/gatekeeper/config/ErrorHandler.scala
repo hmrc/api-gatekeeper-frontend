@@ -52,4 +52,12 @@ class ErrorHandler @Inject() (
       Messages("global.error.badRequest400.heading"),
       Messages(message)
     )
+
+  def publishErrorTemplate()(implicit request: RequestHeader) =
+    standardErrorTemplate(
+      "API Publishing error",
+      "API Publishing error",
+      "API was successfully approved but publishing failed. Please check API Approval history for the error details."
+    )
+
 }
