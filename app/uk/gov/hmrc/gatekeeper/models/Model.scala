@@ -357,6 +357,7 @@ case class APIApprovalSummary(
     environment: Option[Environment],
     status: ApprovalStatus = ApprovalStatus.NEW,
     createdOn: Option[Instant] = Some(Instant.now()),
+    lastUpdated: Option[Instant] = None,
     stateHistory: Seq[ApiApprovalState] = Seq.empty
   ) {
   lazy val env = environment.get.toString.toLowerCase.capitalize
