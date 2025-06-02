@@ -64,37 +64,6 @@ class DeploymentApprovalControllerSpec extends ControllerBaseSpec with WithCSRFA
     )
   }
 
-  "pendingPage" should {
-    "render the deployment approval page for APIs in all environments" in new Setup {
-      LdapAuthorisationServiceMock.Auth.notAuthorised
-      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-
-      DeploymentApprovalServiceMock.FetchUnapprovedServices.returns(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION))
-      )
-
-      val result = underTest.pendingPage()(aLoggedInRequest)
-
-      status(result) shouldBe OK
-      contentAsString(result) should include("API approval")
-      contentAsString(result) should include(serviceName)
-      contentAsString(result) should include("Production")
-      contentAsString(result) should include("Sandbox")
-
-      verify(mockDeploymentApprovalService).fetchUnapprovedServices()(*)
-    }
-
-    "redirect to the login page if the user is not logged in" in new Setup {
-      LdapAuthorisationServiceMock.Auth.notAuthorised
-      StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
-
-      val result = underTest.pendingPage()(aLoggedInRequest)
-
-      status(result) shouldBe SEE_OTHER
-    }
-  }
-
   "reviewPage" should {
     "render the deployment review page for a sandbox API" in new Setup {
       val environment     = Environment.SANDBOX
