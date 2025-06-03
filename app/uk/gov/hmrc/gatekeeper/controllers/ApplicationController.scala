@@ -168,7 +168,17 @@ class ApplicationController @Inject() (
       ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))
     ) ++ (
       if (isStrideUser)
-        Seq(ColumnDefinition[ApplicationWithCollaborators]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")))
+        Seq(
+          ColumnDefinition[ApplicationWithCollaborators]("Collaborator", app => app.collaborators.map(c => formatRoleAndEmailAddress(c.role, c.emailAddress)).mkString("|")),
+          ColumnDefinition[ApplicationWithCollaborators](
+            "Responsible Individual",
+            app =>
+              app.access match {
+                case Access.Standard(_, _, _, _, _, _, Some(subData)) => subData.responsibleIndividual.emailAddress.text
+                case _                                                => ""
+              }
+          )
+        )
       else Seq.empty
     ) ++ (
       if (showDeletionDataColumns)
