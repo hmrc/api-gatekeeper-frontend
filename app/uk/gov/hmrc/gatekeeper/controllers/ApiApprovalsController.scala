@@ -23,13 +23,13 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
@@ -92,6 +92,7 @@ class ApiApprovalsController @Inject() (
     apiApprovalsCommentSuccessView: ApiApprovalsCommentSuccessView,
     apiApprovalsCommentView: ApiApprovalsCommentView,
     override val errorTemplate: ErrorTemplate,
+    val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
   )(implicit val appConfig: AppConfig,
@@ -174,6 +175,11 @@ class ApiApprovalsController @Inject() (
           approve match {
             case true  => Ok(apiApprovalsApprovedSuccessView(serviceName))
             case false => Ok(apiApprovalsDeclinedSuccessView(serviceName))
+          }
+      } recoverWith {
+        case UpstreamErrorResponse(message, _, _, _) =>
+          deploymentApprovalService.addComment(serviceName, env, gatekeeperUser.get, s"PUBLISH FAILED: $message") flatMap {
+            _ => errorHandler.publishErrorTemplate().map(BadRequest(_))
           }
       }
     }

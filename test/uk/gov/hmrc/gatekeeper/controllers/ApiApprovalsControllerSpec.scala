@@ -29,6 +29,7 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
 import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, NEW}
 import uk.gov.hmrc.gatekeeper.models._
@@ -41,6 +42,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
   implicit val materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView               = app.injector.instanceOf[ErrorTemplate]
+  private lazy val errorHandler                    = app.injector.instanceOf[ErrorHandler]
   private lazy val apiApprovalsFilterView          = app.injector.instanceOf[ApiApprovalsFilterView]
   private lazy val apiApprovalsHistoryView         = app.injector.instanceOf[ApiApprovalsHistoryView]
   private lazy val apiApprovalsReviewView          = app.injector.instanceOf[ApiApprovalsReviewView]
@@ -58,6 +60,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
     val serviceName    = "ServiceName" + UUID.randomUUID()
     val mockedURl      = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
     val gatekeeperUser = Actors.GatekeeperUser("Bobby Example")
+    val approveNote    = "Service approved"
 
     val underTest = new ApiApprovalsController(
       mockDeploymentApprovalService,
@@ -71,6 +74,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       apiApprovalsCommentSuccessView,
       apiApprovalsCommentView,
       errorTemplateView,
+      errorHandler,
       StrideAuthorisationServiceMock.aMock,
       LdapAuthorisationServiceMock.aMock
     )
@@ -218,7 +222,6 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
   "reviewAction" should {
     "call approveService if approve is selected on the review page and show the approved success page" in new Setup {
-      val approveNote = "Service approved"
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
@@ -269,6 +272,26 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include(s"Please select an option")
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
+    "fail with error page when approve is selected but approve service fails" in new Setup {
+      val error = "PUBLISH FAILED: Field 'context' must have at least two segments for API 'Hello World'; Context: 'hello'"
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.ApproveService.fails()
+      DeploymentApprovalServiceMock.AddComment.succeeds()
+
+      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include(s"API was successfully approved but publishing failed. Please check API Approval history for the error details.")
+
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(error))(*)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 

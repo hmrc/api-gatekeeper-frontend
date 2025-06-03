@@ -16,9 +16,11 @@
 
 package mocks.services
 
-import scala.concurrent.Future.successful
+import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
+
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.models._
@@ -65,6 +67,13 @@ trait DeploymentApprovalServiceMockProvider {
 
       def succeeds() =
         when(mockDeploymentApprovalService.approveService(*, *, *, *)(*)).thenReturn(successful(()))
+
+      def fails() =
+        when(mockDeploymentApprovalService.approveService(*, *, *, *)(*)).thenReturn(failed((UpstreamErrorResponse(
+          "Field 'context' must have at least two segments for API 'Hello World'; Context: 'hello'",
+          400
+        ))))
+
     }
 
     object DeclineService {
