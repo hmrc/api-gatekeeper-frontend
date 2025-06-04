@@ -68,6 +68,47 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
     }
+
+    "returns results sorted in order of newest first (created date descending)" in new Setup {
+      val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      val sandboxSummary1 = APIApprovalSummary(
+        serviceName,
+        "sandboxSummary1",
+        Option("aDescription"),
+        Some(Environment.SANDBOX),
+        status = APPROVED,
+        createdOn = prodSummary1.createdOn.map(_.plusSeconds(1))
+      )
+      val prodSummary2    = APIApprovalSummary(
+        serviceName,
+        "prodSummary2",
+        Option("aDescription"),
+        Some(Environment.PRODUCTION),
+        status = APPROVED,
+        createdOn = sandboxSummary1.createdOn.map(_.plusSeconds(1))
+      )
+      val sandboxSummary2 = APIApprovalSummary(
+        serviceName,
+        "sandboxSummary2",
+        Option("aDescription"),
+        Some(Environment.SANDBOX),
+        status = APPROVED,
+        createdOn = prodSummary2.createdOn.map(_.plusSeconds(1))
+      )
+      val sandboxSummary3 = APIApprovalSummary(serviceName, "sandboxSummary2", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED, createdOn = None)
+
+      val expectedProductionSummaries = List(prodSummary1, prodSummary2)
+      val expectedSandboxSummaries    = List(sandboxSummary1, sandboxSummary2, sandboxSummary3)
+
+      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
+      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
+
+      val result = await(underTest.searchServices(Seq("status" -> "NEW", "status" -> "APPROVED")))
+
+      result shouldBe List(sandboxSummary2, prodSummary2, sandboxSummary1, prodSummary1, sandboxSummary3)
+
+      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
+    }
   }
 
   "fetchApiDefinitionSummary" should {

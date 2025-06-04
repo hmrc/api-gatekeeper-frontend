@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -48,7 +49,7 @@ class DeploymentApprovalService @Inject() (
     for {
       sandbox    <- sandboxFuture
       production <- productionFuture
-    } yield (sandbox ++ production).distinct
+    } yield (sandbox ++ production).distinct.sortBy(_.createdOn)(Ordering[Option[Instant]].reverse)
   }
 
   def fetchApprovalSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
