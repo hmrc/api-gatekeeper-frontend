@@ -49,7 +49,7 @@ class DeploymentApprovalService @Inject() (
     for {
       sandbox    <- sandboxFuture
       production <- productionFuture
-    } yield (sandbox ++ production).distinct.sorted(Ordering.by[APIApprovalSummary, Option[Instant]](_.createdOn).reverse)
+    } yield (sandbox ++ production).distinct.sortBy(_.createdOn)(Ordering[Option[Instant]].reverse)
   }
 
   def fetchApprovalSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
