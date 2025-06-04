@@ -90,7 +90,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       )
 
-      val result = underTest.filterPage()(aLoggedInRequest.withCSRFToken)
+      val result = underTest.filterPage(false)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
@@ -103,25 +103,53 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       DeploymentApprovalServiceMock.SearchServices.verifyCalled(List.empty)
     }
 
+    "render the API Approval page with default filtering" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.SearchServices.thenReturn()
+
+      val request = aLoggedInRequest.withCSRFToken
+
+      val result = underTest.filterPage(defaultFiltering = true)(request)
+
+      status(result) shouldBe OK
+      DeploymentApprovalServiceMock.SearchServices.verifyCalled(Seq("status" -> "NEW", "status" -> "RESUBMITTED"))
+    }
+
+    "render the API Approval page with no filtering" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.SearchServices.thenReturn()
+
+      val request = aLoggedInRequest.withCSRFToken
+
+      val result = underTest.filterPage(defaultFiltering = false)(request)
+
+      status(result) shouldBe OK
+      DeploymentApprovalServiceMock.SearchServices.verifyCalled(Seq())
+    }
+
     "render the API Approval page with passed in status filter" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.SearchServices.thenReturn()
 
-      val request = aLoggedInRequest.withCSRFToken.withFormUrlEncodedBody("newStatus" -> "true", "resubmittedStatus" -> "true")
+      val request = aLoggedInRequest.withCSRFToken.withFormUrlEncodedBody("approvedStatus" -> "true", "failedStatus" -> "true")
 
-      val result = underTest.filterPage()(request)
+      val result = underTest.filterPage(false)(request)
 
       status(result) shouldBe OK
-      DeploymentApprovalServiceMock.SearchServices.verifyCalled(Seq("status" -> "NEW", "status" -> "RESUBMITTED"))
+      DeploymentApprovalServiceMock.SearchServices.verifyCalled(Seq("status" -> "APPROVED", "status" -> "FAILED"))
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.filterPage()(aLoggedInRequest)
+      val result = underTest.filterPage(false)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }

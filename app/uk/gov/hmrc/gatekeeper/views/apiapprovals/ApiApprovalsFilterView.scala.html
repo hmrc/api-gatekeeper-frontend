@@ -28,7 +28,7 @@
 
   <h1 class="govuk-heading-l">API approvals</h1>
 
-    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.filterPage, Symbol("class") -> "form") {
+    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.filterPage(), Symbol("class") -> "form") {
         @helper.CSRF.formField
 
         <div class="govuk-form-group">
@@ -36,6 +36,7 @@
                 <legend class="govuk-fieldset__legend govuk-heading-m govuk-!-margin-bottom-1 govuk-!-font-weight-bold">
                     Filter by status
                 </legend>
+                <input class="govuk-visually-hidden" type="hidden" name="defaultFiltering" value="false" />
                 <div class="govuk-checkboxes govuk-checkboxes--small" data-module="govuk-checkboxes">
                     <div class="govuk-grid-row">
                         @defining(if(form("newStatus").value == Some("true")) """checked="checked"""" else "") { checked =>

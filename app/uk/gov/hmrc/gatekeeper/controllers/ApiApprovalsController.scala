@@ -102,7 +102,7 @@ class ApiApprovalsController @Inject() (
     with ErrorHelper {
   import ApiApprovalsController._
 
-  def filterPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+  def filterPage(defaultFiltering: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     def getQueryParamsFromForm(form: FilterForm): Seq[(String, String)] = {
       getQueryParamFromStatusVar("NEW", form.newStatus) ++
         getQueryParamFromStatusVar("APPROVED", form.approvedStatus) ++
@@ -118,7 +118,12 @@ class ApiApprovalsController @Inject() (
       }
     }
 
-    def handleValidForm(form: FilterForm) = {
+    def handleValidForm(inputForm: FilterForm) = {
+      val form = if (defaultFiltering)
+        FilterForm(newStatus = Some("true"), approvedStatus = None, failedStatus = None, resubmittedStatus = Some("true"))
+      else
+        inputForm
+
       val params: Seq[(String, String)] = getQueryParamsFromForm(form)
       val queryForm                     = filterForm.fill(form)
 

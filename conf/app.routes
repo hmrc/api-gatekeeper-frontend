@@ -102,7 +102,7 @@ GET         /pending/:serviceName/review-production                           uk
 POST        /pending/:serviceName/approve-sandbox                             uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "SANDBOX")
 POST        /pending/:serviceName/approve-productio                           uk.gov.hmrc.gatekeeper.controllers.DeploymentApprovalController.handleApproval(serviceName: String, environment: String = "PRODUCTION")
 
-GET         /api-approvals                                                    uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.filterPage()
+GET         /api-approvals                                                    uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.filterPage(defaultFiltering: Boolean ?= true)
 GET         /api-approvals/:environment/:serviceName/history                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.historyPage(serviceName: String, environment: String)
 GET         /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewPage(serviceName: String, environment: String)
 POST        /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewAction(serviceName: String, environment: String)
