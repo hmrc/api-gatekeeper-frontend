@@ -69,7 +69,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
     }
 
-    "returns results sorted in order of newest first (created date " in new Setup {
+    "returns results sorted in order of newest first (created date descending)" in new Setup {
       val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       val sandboxSummary1 = APIApprovalSummary(
         serviceName,
