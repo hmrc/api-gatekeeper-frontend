@@ -303,6 +303,25 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
+    "fail form validation when decline is selected, but no reason entered" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      )
+
+      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false")
+
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+
+      status(result) shouldBe BAD_REQUEST
+      contentAsString(result) should include(s"Enter the reasons for declining the API")
+
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
     "fail with error page when approve is selected but approve service fails" in new Setup {
       val error = "PUBLISH FAILED: Field 'context' must have at least two segments for API 'Hello World'; Context: 'hello'"
       LdapAuthorisationServiceMock.Auth.notAuthorised
