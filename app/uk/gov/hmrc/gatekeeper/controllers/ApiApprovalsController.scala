@@ -64,9 +64,17 @@ object ApiApprovalsController {
   val reviewForm: Form[ReviewForm] = Form(
     mapping(
       "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
-      "approveDetail" -> optional(text),
-      "declineDetail" -> optional(text)
+      "approveDetail" -> optional(text(maxLength = 500)),
+      "declineDetail" -> optional(text(maxLength = 500))
     )(ReviewForm.apply)(ReviewForm.unapply)
+      .verifying(
+        "api.approvals.review.decline.reason.required",
+        fields =>
+          fields match {
+            case data: ReviewForm =>
+              if (data.approve.contains("false") && data.declineDetail.isEmpty) false else true
+          }
+      )
   )
 
   case class CommentForm(

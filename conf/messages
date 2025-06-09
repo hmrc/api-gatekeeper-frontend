@@ -41,4 +41,5 @@ service.name = HMRC API Gatekeeper
 pagination.previous = Previous
 pagination.next = Next
 api.approvals.review.action.required=Please select an option
+api.approvals.review.decline.reason.required=Enter the reasons for declining the API
 api.approvals.comment.required=Comment is required

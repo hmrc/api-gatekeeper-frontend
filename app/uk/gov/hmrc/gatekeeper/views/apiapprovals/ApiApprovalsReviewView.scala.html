@@ -20,11 +20,13 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.ReviewForm
+@import uk.gov.hmrc.govukfrontend.views.html.components.{CharacterCount, GovukCharacterCount, Text, Label}
+@import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount)
 
 
-@(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
 
 @main(title = s"API approval request details ${api.name} - ${applicationConfig.title}") {
 
@@ -85,11 +87,13 @@
                             </label>
                         </div>
                         <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-approve">
-                                <label class="govuk-label" for="approve-detail">
-                                    If necessary, provide some detail on the approval
-                                </label>
-                                <div id="approve-detail-hint" class="govuk-hint"></div>
-                                <textarea class="govuk-textarea" id="approve-detail" name="approveDetail" rows="3" aria-describedby="approve-detail-hint"></textarea>
+                            @govukCharacterCount(CharacterCount(
+                                name = "approveDetail",
+                                id = "approve-detail",
+                                label = Label(content = Text(messages("If necessary, provide some detail on the approval"))),
+                                rows = 3,
+                                maxLength = Some(500)
+                            ).withFormField(form("approveDetail")))
                         </div>
 
                         <div class="govuk-radios__item">
@@ -99,12 +103,14 @@
                             </label>
                         </div>
                         <div class="govuk-radios__conditional govuk-radios__conditional--hidden" id="conditional-decline">
-                                <label class="govuk-label" for="decline-detail">
-                                    If necessary, provide some detail on the approval
-                                </label>
-                                <div id="decline-detail-hint" class="govuk-hint"></div>
-                                <textarea class="govuk-textarea" id="decline-detail" name="declineDetail" rows="3" aria-describedby="decline-detail-hint"></textarea>
-                            </div>
+                           @govukCharacterCount(CharacterCount(
+                               name = "declineDetail",
+                               id = "decline-detail",
+                               label = Label(content = Text(messages("Provide some detail on the decline reasons"))),
+                               rows = 3,
+                               maxLength = Some(500)
+                           ).withFormField(form("declineDetail")))
+                        </div>
                     </div>
                 </div>
             </fieldset>
