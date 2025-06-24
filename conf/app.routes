@@ -81,7 +81,6 @@ GET         /organisations/:id/applications                                   uk
 
 GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /nav-links                                                        uk.gov.hmrc.gatekeeper.controllers.NavigationController.navLinks()
 GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage()
 GET         /terms-of-use                                                     uk.gov.hmrc.gatekeeper.controllers.TermsOfUseController.page()
 
