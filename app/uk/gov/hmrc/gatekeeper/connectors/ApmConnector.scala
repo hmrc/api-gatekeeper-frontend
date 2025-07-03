@@ -19,6 +19,8 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.http.Status._
+import play.api.http.{ContentTypes, HeaderNames}
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -93,5 +95,17 @@ class ApmConnector @Inject() (http: HttpClientV2, config: ApmConnector.Config)(i
     http.patch(url"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}")
       .withBody(Json.toJson(cmd))
       .execute[Either[UpstreamErrorResponse, Unit]]
+  }
+
+  def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
+    http.get(url"${config.serviceBaseUrl}/csv?environment=$environment")
+      .setHeader(HeaderNames.ACCEPT -> ContentTypes.TEXT)
+      .execute[HttpResponse]
+      .map { response =>
+        response.status match {
+          case OK         => response.body
+          case statusCode => throw UpstreamErrorResponse("Failed to get CSV", statusCode)
+        }
+      }
   }
 }
