@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext
 
 import com.github.tomakehurst.wiremock.client.WireMock._
@@ -31,8 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.connectors.SubscriptionFieldsConnector.JsonFormatters._
-import uk.gov.hmrc.gatekeeper.connectors.SubscriptionFieldsConnector._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
 class SubscriptionFieldsConnectorSpec
@@ -71,38 +68,6 @@ class SubscriptionFieldsConnectorSpec
         ApiVersionNbr("1.0 demo")
       )
       url.toString shouldBe "http://example.com/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo"
-    }
-  }
-
-  "fetchAllFieldValues" should {
-    val url = "/field"
-
-    "return all fields values" in new Setup {
-      val fieldValues = Map.empty[FieldName, FieldValue]
-
-      val expectedResult = List(ApplicationApiFieldValues(
-        ClientId("clientId-1"),
-        ApiContext("apiContext"),
-        ApiVersionNbr("1.0"),
-        UUID.randomUUID(),
-        fieldValues
-      ))
-
-      val data: AllApiFieldValues = AllApiFieldValues(expectedResult)
-
-      private val validResponse = Json.toJson(data).toString()
-
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(validResponse)
-          )
-      )
-      private val result = await(subscriptionFieldsConnector.fetchAllFieldValues())
-
-      result shouldBe data.subscriptions
     }
   }
 

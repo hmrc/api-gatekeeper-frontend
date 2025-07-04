@@ -36,7 +36,6 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.DefinitionsByApiVersion
 
 class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -124,17 +123,16 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val context = apiIdentifier.context
     val version = apiIdentifier.versionNbr
 
-    val allProductionApplications                      = List(stdApp1, stdApp2, privilegedApp)
-    val allSandboxApplications                         = allProductionApplications.map(_.withId(ApplicationId.random).inSandbox())
-    val testContext                                    = ApiContext("test-context")
-    val unknownContext                                 = ApiContext("unknown-context")
-    val superContext                                   = ApiContext("super-context")
-    val sandboxTestContext                             = ApiContext("sandbox-test-context")
-    val sandboxUnknownContext                          = ApiContext("sandbox-unknown-context")
-    val sandboxSuperContext                            = ApiContext("sandbox-super-context")
-    val subscriptionFieldDefinition                    = SubscriptionFieldDefinition(FieldName.random, "description", "hint", "String", "shortDescription")
-    val prefetchedDefinitions: DefinitionsByApiVersion = Map(apiIdentifier -> List(subscriptionFieldDefinition))
-    val definitions                                    = List(subscriptionFieldDefinition)
+    val allProductionApplications   = List(stdApp1, stdApp2, privilegedApp)
+    val allSandboxApplications      = allProductionApplications.map(_.withId(ApplicationId.random).inSandbox())
+    val testContext                 = ApiContext("test-context")
+    val unknownContext              = ApiContext("unknown-context")
+    val superContext                = ApiContext("super-context")
+    val sandboxTestContext          = ApiContext("sandbox-test-context")
+    val sandboxUnknownContext       = ApiContext("sandbox-unknown-context")
+    val sandboxSuperContext         = ApiContext("sandbox-super-context")
+    val subscriptionFieldDefinition = SubscriptionFieldDefinition(FieldName.random, "description", "hint", "String", "shortDescription")
+    val definitions                 = List(subscriptionFieldDefinition)
   }
 
   "subscribeToApi" should {

@@ -76,18 +76,4 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
-
-  "fetchAllProductionFieldValues" in new Setup {
-    val expectedResult = List.empty
-
-    when(mockProductionSubscriptionFieldsConnector.fetchAllFieldValues()(*))
-      .thenReturn(successful(expectedResult))
-
-    val actualResult = await(service.fetchAllProductionFieldValues()(*))
-
-    actualResult shouldBe expectedResult
-
-    verify(mockProductionSubscriptionFieldsConnector)
-      .fetchAllFieldValues()(*)
-  }
 }

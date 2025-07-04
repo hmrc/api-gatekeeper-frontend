@@ -54,4 +54,8 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.fetchNonOpenApis(environment)
   }
 
+  def subsFieldsCsv()(implicit hc: HeaderCarrier): Future[String] = {
+    apmConnector.subsFieldsCsv(Environment.PRODUCTION)
+  }
+
 }

@@ -16,18 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import play.api.http.Status.FORBIDDEN
 import play.api.test.Helpers._
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.ApplicationApiFieldValues
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
+import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
@@ -36,26 +32,21 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
   private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
 
   trait Setup extends ControllerSetupBase {
-    val subscriptionFieldsService = mock[SubscriptionFieldsService]
+    val apmService = mock[ApmService]
 
     val controller =
-      new SubscriptionFieldsController(subscriptionFieldsService, forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock)
+      new SubscriptionFieldsController(forbiddenView, mcc, errorTemplateView, StrideAuthorisationServiceMock.aMock, LdapAuthorisationServiceMock.aMock, apmService)
   }
 
   "subscriptionFieldValues" should {
     "return a csv" in new Setup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val expectedValues = List(ApplicationApiFieldValues(
-        ClientId("my-client-id"),
-        ApiContext("my-api-context"),
-        ApiVersionNbr("my-api-version"),
-        UUID.randomUUID(),
-        Map(FieldName("callbackUrl") -> FieldValue("callbackUrlValue"))
-      ))
+      val expectedValues = """|Environment,ClientId,ApiContext,ApiVersionNbr,FieldName
+                              |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl
+                              |""".stripMargin
 
-      when(subscriptionFieldsService.fetchAllProductionFieldValues()(*))
-        .thenReturn(Future.successful(expectedValues))
+      when(apmService.subsFieldsCsv()(*)).thenReturn(Future.successful(expectedValues))
 
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 
