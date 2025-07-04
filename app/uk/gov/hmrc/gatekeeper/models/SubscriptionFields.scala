@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.util.UUID
-
 import play.api.libs.json.{Format, Json}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -40,8 +38,6 @@ object SubscriptionFields {
   case class SubscriptionFieldDefinition(name: FieldName, description: String, hint: String, `type`: String, shortDescription: String)
 
   case class SubscriptionFieldValue(definition: SubscriptionFieldDefinition, value: FieldValue)
-
-  case class ApplicationApiFieldValues(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fieldsId: UUID, fields: Map[FieldName, FieldValue])
 
   object SubscriptionFieldValue {
 

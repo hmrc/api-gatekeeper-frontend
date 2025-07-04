@@ -20,7 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status._
-import play.api.libs.json.{Format, JsSuccess, Json}
+import play.api.libs.json.{JsSuccess, Json}
 import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
@@ -29,24 +29,15 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, UpstreamErrorResponse, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.SubscriptionFieldsConnector
 
 abstract class AbstractSubscriptionFieldsConnector(implicit ec: ExecutionContext) extends SubscriptionFieldsConnector {
   val environment: Environment
   val serviceBaseUrl: String
 
-  import SubscriptionFieldsConnector.JsonFormatters._
-  import SubscriptionFieldsConnector._
-
   def http: HttpClientV2
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
-
-  def fetchAllFieldValues()(implicit hc: HeaderCarrier): Future[List[ApplicationApiFieldValues]] = {
-    val url = url"$serviceBaseUrl/field"
-    configureEbridgeIfRequired(http.get(url)).execute[AllApiFieldValues].map(_.subscriptions)
-  }
 
   def saveFieldValues(
       clientId: ClientId,
@@ -77,13 +68,6 @@ object SubscriptionFieldsConnector {
 
   def urlSubscriptionFieldValues(baseUrl: String)(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     url"$baseUrl/field/application/${clientId}/context/${apiContext}/version/${apiVersion}"
-
-  private[connectors] case class AllApiFieldValues(subscriptions: List[ApplicationApiFieldValues])
-
-  object JsonFormatters extends APIDefinitionFormatters {
-    implicit val format: Format[ApplicationApiFieldValues]                     = Json.format[ApplicationApiFieldValues]
-    implicit val formatAllApplicationApiFieldValues: Format[AllApiFieldValues] = Json.format[AllApiFieldValues]
-  }
 }
 
 @Singleton
