@@ -22,9 +22,10 @@
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.ReviewForm
 @import uk.gov.hmrc.govukfrontend.views.html.components.{CharacterCount, GovukCharacterCount, Text, Label}
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
+@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 
-@this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount)
-
+@this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount, govukTable: GovukTable)
 
 @(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
 
@@ -37,31 +38,15 @@
         Check the details of this API
     </h1>
 
-    <table class="govuk-table govuk-!-width-column-full govuk-!-margin-bottom-9">
-        <tbody class="govuk-table__body">
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header govuk-!-padding-top-4 govuk-!-padding-bottom-2">Name</th>
-                <td class="govuk-table__cell govuk-!-padding-top-4">@{api.name}</td>
-                <td class="govuk-table__cell"></td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header govuk-!-padding-top-4 govuk-!-padding-bottom-2">Description</th>
-                <td class="govuk-table__cell govuk-!-padding-top-4">@{api.description}</td>
-                <td class="govuk-table__cell"></td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header govuk-!-padding-top-4 govuk-!-padding-bottom-2">Service ID</th>
-                <td class="govuk-table__cell govuk-!-padding-top-4">@{api.serviceName}</td>
-                <td class="govuk-table__cell"></td>
-            </tr>
-            <tr class="govuk-table__row">
-                <th scope="row" class="govuk-table__header govuk-!-padding-top-4 govuk-!-padding-bottom-2">Environment</th>
-                <td class="govuk-table__cell govuk-!-padding-top-4">@{api.environment.getOrElse(Environment.SANDBOX).displayText}</td>
-                <td class="govuk-table__cell">
-                </td>
-            </tr>
-        </tbody>
-    </table>
+    @govukTable(Table(
+        firstCellIsHeader = true,
+        rows = Seq(
+            Seq(TableRow(content = Text("Name")), TableRow(content = Text(api.name))),
+            Seq(TableRow(content = Text("Description")), TableRow(content = Text(api.description.getOrElse("")))),
+            Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(api.serviceName))),
+            Seq(TableRow(content = Text("Environment")), TableRow(content = Text(api.environment.getOrElse(Environment.SANDBOX).displayText)))
+        )
+    ))
 
 
     @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.reviewAction(api.serviceName, api.environment.get.toString), Symbol("class") -> "form") {

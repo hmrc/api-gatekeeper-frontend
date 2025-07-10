@@ -17,22 +17,20 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{Panel, Text}
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukPanel: GovukPanel)
 
 
 @(serviceName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"The $serviceName has been approved - ${applicationConfig.title}") {
 
-    <div class="govuk-panel govuk-panel--confirmation">
-        <h1 class="govuk-panel__title">
-            The @serviceName API has been approved
-        </h1>
-        <div class="govuk-panel__body">
-            The API is now live
-        </div>
-    </div>
+    @govukPanel(Panel(
+        title = Text(s"The $serviceName API has been approved"),
+        content = Text("The API is now live")
+    ))
 
     <a href="@{routes.ApiApprovalsController.filterPage()}" class="govuk-link govuk-link--no-visited-state">Back to API approvals</a>
 

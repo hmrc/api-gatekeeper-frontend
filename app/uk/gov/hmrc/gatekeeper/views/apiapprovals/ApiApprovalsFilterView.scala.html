@@ -19,10 +19,20 @@
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.FilterForm
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table, Text}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukTable: GovukTable)
+
 
 @(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+
+@buildApiLinkHtml(api: APIApprovalSummary, isUser: Boolean) = {
+    @if(isUser) {
+        <a data-review="@api.serviceName" href="@{routes.ApiApprovalsController.historyPage(api.serviceName, api.env.toLowerCase)}">@api.name</a>
+    } else {@api.name}
+}
 
 @main(title = s"API approvals - ${applicationConfig.title}") {
 
@@ -95,46 +105,21 @@
         </div>
     }
 
-    <table
-      id="application-table"
-      class="govuk-table"
-      width="100%"
-      data-dom="t<'text--center'lip>"
-      data-order='[0,"asc"]'
-      data-page-length="100"
-      data-paginate="true"
-      data-length-change="true"
-      data-length-menu="[10,50,100, 200, 300]"
-      data-responsive="true"
-      data-column-defs='[{"targets": [0,1], "orderable": true, "searchable":true}]'
-      data-language='{"sSearchPlaceholder":"Service ID, Name","sSearch":"<span class=\"full-width shim text--left\"><strong>Search</strong></span>"}'
-    >
-      <caption class="govuk-visually-hidden">API approval table</caption>
-      <thead class="govuk-table__head">
-        <tr class="govuk-table__row" role="row">
-          <th tabindex="0" scope="col" class="govuk-table__header">API Name</th>
-          <th tabindex="0" scope="col" class="govuk-table__header">Service ID</th>
-          <th tabindex="0" scope="col" class="govuk-table__header">Environment</th>
-          <th tabindex="0" scope="col" class="govuk-table__header">Status</th>
-        </tr>
-      </thead>
-      <tbody  class="govuk-table__body">
-        @for((api, index) <- apis.zipWithIndex) {
-          <tr role="row" class="govuk-table__row">
-            <td class="govuk-table__cell" id="api-servicename-@index">
-                @if(request.role.isUser) {
-                    <a data-review="@api.serviceName" href="@{routes.ApiApprovalsController.historyPage(api.serviceName, api.environment.get.toString)}">@api.name</a>
-                }else {@api.serviceName}
-            </td>
-            <td class="govuk-table__cell" id="api-name-@index">@api.serviceName</td>
-            <td class="govuk-table__cell" id="api-environment-@index">@api.env</td>
-            <td id="api-status-@index" class="govuk-table__cell">
-            @buildApiApprovalStatusHtml(api.status)
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+    @govukTable(Table(
+        head = Some(Seq(
+            HeadCell(content = Text("API Name")),
+            HeadCell(content = Text("Service ID")),
+            HeadCell(content = Text("Environment")),
+            HeadCell(content = Text("Status"))
+        )),
+        rows = apis.map(api =>  Seq(
+            TableRow(content = HtmlContent(buildApiLinkHtml(api, request.role.isUser))),
+            TableRow(content = Text(api.serviceName)),
+            TableRow(content = Text(api.env)),
+            TableRow(content = HtmlContent(buildApiApprovalStatusHtml(api.status)))
+            ))
+
+    ))
 
     <div class="govuk-visually-hidden" style="margin-left:0">
       <div class="grid-layout__column--1-3 text--center">

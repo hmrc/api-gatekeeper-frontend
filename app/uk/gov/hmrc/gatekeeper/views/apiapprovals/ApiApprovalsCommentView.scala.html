@@ -25,9 +25,11 @@
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.RESUBMITTED
 @import uk.gov.hmrc.gatekeeper.views.helper.DateFormatter
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.CommentForm
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
-
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(form: Form[CommentForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -63,9 +65,14 @@
 
                     </fieldset>
                 </div>
+                </div>
 
                 <div class="govuk-button-group">
-                    <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Send comment</button>
+                    @govukButton(Button(
+                        id = Some("submit"),
+                        content = Text("Send comment"),
+                        inputType = Some("submit")
+                        ))
                     <a href="@{routes.ApiApprovalsController.filterPage()}" class="govuk-link govuk-link--no-visited-state">Cancel</a>
                 </div>
             }

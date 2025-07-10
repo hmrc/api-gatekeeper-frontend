@@ -17,9 +17,10 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.govukfrontend.views.Aliases.{Panel, Text}
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukPanel
 
-@this(main: MainView, applicationConfig: AppConfig)
-
+@this(main: MainView, applicationConfig: AppConfig, govukPanel: GovukPanel)
 
 @(serviceName: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -28,11 +29,10 @@
     <div class="govuk-grid-row">
         <div class="govuk-grid-column-two-thirds">
 
-            <div class="govuk-panel govuk-panel--confirmation">
-                <h1 class="govuk-panel__title">
-                    Your comment has been added for the @serviceName API
-                </h1>
-            </div>
+            @govukPanel(Panel(
+                title = Text(s"Your comment has been added for the $serviceName API")
+                )
+            )
 
             <p class="govuk-!-margin-top-6">
                 <a href="@{routes.ApiApprovalsController.filterPage()}" class="govuk-link govuk-link--no-visited-state">Back to API approvals</a>
