@@ -98,7 +98,7 @@ class ApmConnector @Inject() (http: HttpClientV2, config: ApmConnector.Config)(i
   }
 
   def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
-    http.get(url"${config.serviceBaseUrl}/csv?environment=$environment")
+    http.get(url"${config.serviceBaseUrl}/subscription-fields/csv?environment=$environment")
       .setHeader(HeaderNames.ACCEPT -> ContentTypes.TEXT)
       .execute[HttpResponse]
       .map { response =>
