@@ -142,3 +142,5 @@ GET         /emails/email-preferences/selected-user-tax-regime                uk
 
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
 GET         /boxes                                                            uk.gov.hmrc.gatekeeper.controllers.BoxesController.page()
+
+GET         /subscription-fields/csv                                          uk.gov.hmrc.gatekeeper.controllers.SubscriptionFieldsController.subscriptionFieldValues()
