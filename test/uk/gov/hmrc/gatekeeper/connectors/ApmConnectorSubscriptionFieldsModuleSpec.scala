@@ -21,14 +21,16 @@ import scala.concurrent.ExecutionContext
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
+import play.api.http.HeaderNames
 import play.api.http.Status._
 import play.api.libs.json.Json
-import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 
 class ApmConnectorSubscriptionFieldsModuleSpec
@@ -36,7 +38,9 @@ class ApmConnectorSubscriptionFieldsModuleSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with ClientIdFixtures
-    with ApiIdentifierFixtures {
+    with ApiIdentifierFixtures
+    with FieldNameFixtures
+    with APIDefinitionFormatters {
 
   trait Setup {
     implicit val hc: HeaderCarrier = HeaderCarrier()
@@ -68,6 +72,45 @@ class ApmConnectorSubscriptionFieldsModuleSpec
         ApiVersionNbr("1.0 demo")
       )
       url.toString shouldBe "http://example.com/subscription-fields/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo?environment=PRODUCTION"
+    }
+  }
+
+  "subsFieldsCsv" should {
+    "returns data" in new Setup {
+      val path = "/subscription-fields/csv"
+      stubFor(
+        get(urlPathEqualTo(path))
+          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withHeader(HeaderNames.ACCEPT, equalTo("text/csv"))
+          .willReturn(
+            aResponse()
+              .withHeader(HeaderNames.CONTENT_TYPE, "text/csv")
+              .withBody("some,text")
+              .withStatus(OK)
+          )
+      )
+
+      await(underTest.subsFieldsCsv(Environment.PRODUCTION))
+    }
+  }
+
+  "getAllFieldDefinitions" should {
+    "return data" in new Setup {
+
+      val response = Map(apiContextOne -> Map(apiVersionNbrOne -> Map(fieldNameOne -> SubscriptionFieldDefinition(fieldNameOne, "Description", "Hint", "URL", "ShortDescription"))))
+      val path     = s"/subscription-fields"
+      stubFor(
+        get(urlPathEqualTo(path))
+          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .willReturn(
+            aResponse()
+              .withBody(Json.toJson(response).toString)
+              .withStatus(OK)
+          )
+      )
+      val result   = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
+
+      result shouldBe response
     }
   }
 

@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
+import play.api.http.HeaderNames
 import play.api.http.Status._
-import play.api.http.{ContentTypes, HeaderNames}
 import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
@@ -73,8 +73,8 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
   }
 
   def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
-    http.get(url"${config.serviceBaseUrl}/csv?environment=$environment")
-      .setHeader(HeaderNames.ACCEPT -> ContentTypes.TEXT)
+    http.get(url"${baseUrl}/csv?environment=$environment")
+      .setHeader(HeaderNames.ACCEPT -> "text/csv")
       .execute[HttpResponse]
       .map { response =>
         response.status match {
