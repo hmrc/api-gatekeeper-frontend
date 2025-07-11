@@ -20,9 +20,9 @@ import scala.concurrent.Future
 
 import play.api.http.Status._
 import play.api.http.{ContentTypes, HeaderNames}
+import uk.gov.hmrc.http.HttpErrorFunctions._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
-import uk.gov.hmrc.http.HttpErrorFunctions._
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
@@ -30,6 +30,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
 
 object ApmConnectorSubscriptionFieldsModule {
+
   def urlSubscriptionFieldValues(baseUrl: String)(environment: Environment, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr) =
     url"$baseUrl/field/application/${clientId}/context/${apiContext}/version/${apiVersion}?environment=${environment}"
 }
@@ -46,13 +47,14 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
   }
 
   def saveFieldValues(
-    environment: Environment,
-    clientId: ClientId,
-    apiContext: ApiContext,
-    apiVersion: ApiVersionNbr,
-    fields: Fields.Alias
-  )(implicit hc: HeaderCarrier
-  ): Future[SaveSubscriptionFieldsResponse] = {
+      environment: Environment,
+      clientId: ClientId,
+      apiContext: ApiContext,
+      apiVersion: ApiVersionNbr,
+      fields: Fields.Alias
+    )(implicit hc: HeaderCarrier
+    ): Future[SaveSubscriptionFieldsResponse] = {
+
     val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(baseUrl)(environment, clientId, apiContext, apiVersion)
 
     http.put(url)

@@ -21,24 +21,25 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json.Json
+import play.api.libs.json._
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
-class ApmConnectorCombinedApisModuleSpec
+class ApmConnectorApplicationModuleSpec
     extends AsyncHmrcSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
     with FixedClock {
 
-  trait Setup {
+  trait Setup extends ApplicationBuilder {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
@@ -46,44 +47,36 @@ class ApmConnectorCombinedApisModuleSpec
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val underTest: ApmConnectoCombinedApisModule = new ApmConnector(httpClient, mockApmConnectorConfig)
+    val applicationId = ApplicationId.random
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
-    val combinedList     = List(combinedRestApi1, combinedXmlApi2)
+    val application = DefaultApplication.modify(_.copy(id = applicationId))
+
+    val underTest: ApmConnectorApplicationModule = new ApmConnector(httpClient, mockApmConnectorConfig)
   }
 
-  "fetchAllCombinedApis" should {
-    "returns combined xml and rest apis" in new Setup {
-      val url = "/combined-rest-xml-apis"
+  "fetchApplicationById" should {
+    "return ApplicationWithSubscriptionData" in new Setup {
+      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionFields] = Json.writes[ApplicationWithSubscriptionFields]
+
+      val url                             = s"/applications/${applicationId.value.toString()}"
+      val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application.details, application.collaborators, Set.empty, Map.empty)
+      val payload                         = Json.toJson(applicationWithSubscriptionData)
 
       stubFor(
-        get(urlPathEqualTo(url))
+        get(urlEqualTo(url))
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(combinedList).toString)
+              .withBody(payload.toString)
           )
       )
 
-      val result = await(underTest.fetchAllCombinedApis())
-      result shouldBe combinedList
-    }
+      val result = await(underTest.fetchApplicationById(applicationId))
+      result should not be None
 
-    "returns exception when backend returns error" in new Setup {
-      val url = "/combined-rest-xml-apis"
-
-      stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      intercept[UpstreamErrorResponse] {
-        await(underTest.fetchAllCombinedApis())
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
+      result.map { appWithSubsData =>
+        appWithSubsData.details.id shouldBe application.id
+      }
     }
   }
 }

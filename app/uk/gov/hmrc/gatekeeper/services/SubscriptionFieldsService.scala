@@ -23,14 +23,14 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreApplication
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.gatekeeper.connectors.ApmConnectorSubscriptionFieldsModule
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.connectors.ApmConnectorSubscriptionFieldsModule
 
 @Singleton
 class SubscriptionFieldsService @Inject() (apmConnectorSubsFieldModule: ApmConnectorSubscriptionFieldsModule) extends APIDefinitionFormatters {
 
-  println("FROM SubscriptionFieldsService "+apmConnectorSubsFieldModule)
+  println("FROM SubscriptionFieldsService " + apmConnectorSubsFieldModule)
 
   def saveFieldValues(
       application: CoreApplication,

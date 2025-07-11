@@ -17,13 +17,15 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext}
+import scala.concurrent.ExecutionContext
+
 import uk.gov.hmrc.http.client.HttpClientV2
 
 object ApmConnector {
+
   case class Config(
-    serviceBaseUrl: String
-  )
+      serviceBaseUrl: String
+    )
 }
 
 trait ApmConnectorModule {
@@ -34,9 +36,8 @@ trait ApmConnectorModule {
 
 @Singleton
 class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(implicit val ec: ExecutionContext)
-    extends ApmConnectoCombinedApisModule 
+    extends ApmConnectoCombinedApisModule
     with ApmConnectorApiDefinitionModule
     with ApmConnectorApplicationModule
     with ApmConnectorPpnsModule
-    with ApmConnectorSubscriptionFieldsModule {
-}
+    with ApmConnectorSubscriptionFieldsModule {}

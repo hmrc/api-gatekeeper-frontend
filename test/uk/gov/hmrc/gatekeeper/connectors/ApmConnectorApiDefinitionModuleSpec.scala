@@ -16,24 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.{LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json.{Json, Writes}
+import play.api.libs.json.Json
 import play.api.test.Helpers._
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+import uk.gov.hmrc.gatekeeper.builder.ApiBuilder
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorApiDefintionModuleSpec

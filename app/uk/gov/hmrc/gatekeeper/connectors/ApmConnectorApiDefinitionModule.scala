@@ -29,11 +29,10 @@ object ApmConnectorApiDefinitionModule {
   val RestrictedQueryParam    = "restricted"
 }
 
-
 trait ApmConnectorApiDefinitionModule extends ApmConnectorModule {
   import ApmConnectorApiDefinitionModule._
-  
-  private[this] val baseUrl   = s"${config.serviceBaseUrl}/api-definitions"
+
+  private[this] val baseUrl = s"${config.serviceBaseUrl}/api-definitions"
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val queryParams = Seq(

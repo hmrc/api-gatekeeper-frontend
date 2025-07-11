@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
@@ -25,7 +26,7 @@ trait ApmConnectorPpnsModule extends ApmConnectorModule {
   import play.api.libs.json._
   import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
 
-  private[this] val baseUrl   = s"${config.serviceBaseUrl}/push-pull-notifications"
+  private[this] val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
 
   private[this] implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
   private[this] implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]

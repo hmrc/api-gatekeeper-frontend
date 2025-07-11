@@ -17,8 +17,10 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
+
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, _}
+
 import uk.gov.hmrc.gatekeeper.models._
 
 trait ApmConnectoCombinedApisModule extends ApmConnectorModule {
