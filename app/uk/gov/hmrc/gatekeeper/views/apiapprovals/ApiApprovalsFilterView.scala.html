@@ -106,6 +106,7 @@
     }
 
     @govukTable(Table(
+        attributes = Map("id" -> "application-table"),
         head = Some(Seq(
             HeadCell(content = Text("API Name")),
             HeadCell(content = Text("Service ID")),
@@ -118,7 +119,6 @@
             TableRow(content = Text(api.env)),
             TableRow(content = HtmlContent(buildApiApprovalStatusHtml(api.status)))
             ))
-
     ))
 
     <div class="govuk-visually-hidden" style="margin-left:0">
