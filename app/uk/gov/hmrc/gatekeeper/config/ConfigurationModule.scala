@@ -16,33 +16,29 @@
 
 package uk.gov.hmrc.gatekeeper.config
 
-import com.google.inject.name.Names
-
 import play.api.inject.Module
 import play.api.{Configuration, Environment}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.controllers.HandleForbiddenWithView
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService.SubscriptionFieldsConnector
 
 class ConfigurationModule extends Module {
 
   override def bindings(environment: Environment, configuration: Configuration) = {
     Seq(
-      bind[SubscriptionFieldsConnector]
-        .qualifiedWith(Names.named("SANDBOX"))
-        .to[SandboxSubscriptionFieldsConnector],
-      bind[SubscriptionFieldsConnector]
-        .qualifiedWith(Names.named("PRODUCTION"))
-        .to[ProductionSubscriptionFieldsConnector],
       bind[ApmConnector.Config].toProvider[LiveApmConnectorConfigProvider],
       bind[ThirdPartyOrchestratorConnector.Config].toProvider[ThirdPartyOrchestratorConnectorConfigProvider],
       bind[ApiPlatformDeskproConnector.Config].toProvider[ApiPlatformDeskproConnectorConfigProvider],
       bind[ApiPlatformAdminApiConnector.Config].toProvider[ApiPlatformAdminApiConnectorConfigProvider],
       bind[ApiCataloguePublishConnector.Config].toProvider[ApiCataloguePublishConnectorConfigProvider],
       bind[XmlServicesConnector.Config].toProvider[XmlServicesConnectorConfigProvider],
-      bind[ForbiddenHandler].to(classOf[HandleForbiddenWithView])
+      bind[ForbiddenHandler].to[HandleForbiddenWithView],
+      bind[ApmConnectoCombinedApisModule].to[ApmConnector],
+      bind[ApmConnectorApiDefinitionModule].to[ApmConnector],
+      bind[ApmConnectorApplicationModule].to[ApmConnector],
+      bind[ApmConnectorPpnsModule].to[ApmConnector],
+      bind[ApmConnectorSubscriptionFieldsModule].to[ApmConnector]
     )
   }
 }

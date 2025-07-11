@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import java.time.Instant
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
 
+@Singleton
 class DeploymentApprovalService @Inject() (
     sandboxApiPublisherConnector: SandboxApiPublisherConnector,
     productionApiPublisherConnector: ProductionApiPublisherConnector

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import java.time.Clock
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -32,6 +32,7 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
+@Singleton
 class DeveloperService @Inject() (
     appConfig: AppConfig,
     developerConnector: DeveloperConnector,

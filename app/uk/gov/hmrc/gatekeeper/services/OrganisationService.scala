@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
 
+@Singleton
 class OrganisationService @Inject() (
     apiPlatformDeskproConnector: ApiPlatformDeskproConnector,
     tpoConnector: ThirdPartyOrchestratorConnector
