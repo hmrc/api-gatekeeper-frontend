@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -29,9 +29,8 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptio
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
+@Singleton
 class ApmService @Inject() (apmConnector: ApmConnector) {
-
-  println("FROM APMSERVICE " + apmConnector)
 
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     apmConnector.fetchApplicationById(applicationId)

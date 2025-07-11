@@ -30,8 +30,6 @@ import uk.gov.hmrc.gatekeeper.models._
 @Singleton
 class SubscriptionFieldsService @Inject() (apmConnectorSubsFieldModule: ApmConnectorSubscriptionFieldsModule) extends APIDefinitionFormatters {
 
-  println("FROM SubscriptionFieldsService " + apmConnectorSubsFieldModule)
-
   def saveFieldValues(
       application: CoreApplication,
       apiContext: ApiContext,

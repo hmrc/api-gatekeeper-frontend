@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import java.time.Clock
-import javax.inject.Inject
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.http.Status.NOT_FOUND
@@ -33,6 +33,7 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptio
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
+@Singleton
 class ApplicationService @Inject() (
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,

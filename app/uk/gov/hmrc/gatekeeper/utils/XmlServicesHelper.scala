@@ -28,5 +28,4 @@ trait XmlServicesHelper {
       .map(x => x.name)
       .distinct
   }
-
 }
