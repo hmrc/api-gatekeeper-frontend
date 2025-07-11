@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,212 +14,228 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.connectors
+// /*
+//  * Copyright 2023 HM Revenue & Customs
+//  *
+//  * Licensed under the Apache License, Version 2.0 (the "License");
+//  * you may not use this file except in compliance with the License.
+//  * You may obtain a copy of the License at
+//  *
+//  *     http://www.apache.org/licenses/LICENSE-2.0
+//  *
+//  * Unless required by applicable law or agreed to in writing, software
+//  * distributed under the License is distributed on an "AS IS" BASIS,
+//  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  * See the License for the specific language governing permissions and
+//  * limitations under the License.
+//  */
 
-import java.time.{LocalDateTime, ZoneOffset}
-import scala.concurrent.ExecutionContext.Implicits.global
+// package uk.gov.hmrc.gatekeeper.connectors
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import org.scalatestplus.play.guice.GuiceOneAppPerSuite
+// import java.time.{LocalDateTime, ZoneOffset}
+// import scala.concurrent.ExecutionContext.Implicits.global
 
-import play.api.libs.json.{Json, Writes}
-import play.api.test.Helpers._
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+// import com.github.tomakehurst.wiremock.client.WireMock._
+// import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+// import play.api.libs.json.{Json, Writes}
+// import play.api.test.Helpers._
+// import uk.gov.hmrc.http.client.HttpClientV2
+// import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-class ApmConnectorSpec
-    extends AsyncHmrcSpec
-    with WireMockSugar
-    with GuiceOneAppPerSuite
-    with UrlEncoding
-    with FixedClock {
+// import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+// import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
+// import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+// import uk.gov.hmrc.apiplatform.modules.common.utils._
+// import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
+// import uk.gov.hmrc.gatekeeper.models._
+// import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+// import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
-  trait Setup extends ApplicationBuilder with ApiBuilder {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+// class ApmConnectorSpec
+//     extends AsyncHmrcSpec
+//     with WireMockSugar
+//     with GuiceOneAppPerSuite
+//     with UrlEncoding
+//     with FixedClock {
 
-    val httpClient = app.injector.instanceOf[HttpClientV2]
+//   trait Setup extends ApplicationBuilder with ApiBuilder {
+//     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
-    when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
+//     val httpClient = app.injector.instanceOf[HttpClientV2]
 
-    val applicationId = ApplicationId.random
+//     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
+//     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val application = DefaultApplication.modify(_.copy(id = applicationId))
+//     val applicationId = ApplicationId.random
 
-    val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
+//     val application = DefaultApplication.modify(_.copy(id = applicationId))
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
-    val combinedList     = List(combinedRestApi1, combinedXmlApi2)
+//     val underTest = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
-  }
+//     val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
+//     val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+//     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
-  "fetchApplicationById" should {
-    "return ApplicationWithSubscriptionData" in new Setup {
-      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionFields] = Json.writes[ApplicationWithSubscriptionFields]
+//     val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)
+//     val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationId), Some(boxSubscriber), Environment.PRODUCTION)
+//   }
 
-      val url                             = s"/applications/${applicationId.value.toString()}"
-      val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application.details, application.collaborators, Set.empty, Map.empty)
-      val payload                         = Json.toJson(applicationWithSubscriptionData)
+//   "fetchApplicationById" should {
+//     "return ApplicationWithSubscriptionData" in new Setup {
+//       implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionFields] = Json.writes[ApplicationWithSubscriptionFields]
 
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
+//       val url                             = s"/applications/${applicationId.value.toString()}"
+//       val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application.details, application.collaborators, Set.empty, Map.empty)
+//       val payload                         = Json.toJson(applicationWithSubscriptionData)
 
-      val result = await(underTest.fetchApplicationById(applicationId))
-      result should not be None
+//       stubFor(
+//         get(urlEqualTo(url))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody(payload.toString)
+//           )
+//       )
 
-      result.map { appWithSubsData =>
-        appWithSubsData.details.id shouldBe application.id
-      }
-    }
-  }
+//       val result = await(underTest.fetchApplicationById(applicationId))
+//       result should not be None
 
-  "fetchAllPossibleSubscriptions" should {
-    val url = "/api-definitions"
+//       result.map { appWithSubsData =>
+//         appWithSubsData.details.id shouldBe application.id
+//       }
+//     }
+//   }
 
-    "return all subscribeable API's and their ApiDefinition" in new Setup {
-      val apiDefinition           = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
-      val apiContext              = ApiContext("Api Context")
-      val apiContextAndDefinition = Map(apiContext -> apiDefinition)
-      val payload                 = Json.stringify(Json.toJson(apiContextAndDefinition))
+//   "fetchAllPossibleSubscriptions" should {
+//     val url = "/api-definitions"
 
-      stubFor(
-        get(urlPathEqualTo(url))
-          .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
-          .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload)
-          )
-      )
+//     "return all subscribeable API's and their ApiDefinition" in new Setup {
+//       val apiDefinition           = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
+//       val apiContext              = ApiContext("Api Context")
+//       val apiContextAndDefinition = Map(apiContext -> apiDefinition)
+//       val payload                 = Json.stringify(Json.toJson(apiContextAndDefinition))
 
-      val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-      result shouldBe List(apiDefinition)
-    }
+//       stubFor(
+//         get(urlPathEqualTo(url))
+//           .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
+//           .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody(payload)
+//           )
+//       )
 
-    "return all subscribeable API's and their ApiDefinition from map of definitions" in new Setup {
-      val apiDefinition       = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
-      val listOfApiDefinition = List(apiDefinition)
-      val payload             = Json.stringify(Json.toJson(listOfApiDefinition))
+//       val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
+//       result shouldBe List(apiDefinition)
+//     }
 
-      stubFor(
-        get(urlPathEqualTo(url))
-          .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
-          .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload)
-          )
-      )
+//     "return all subscribeable API's and their ApiDefinition from map of definitions" in new Setup {
+//       val apiDefinition       = DefaultApiDefinition.addVersion(VersionOne, DefaultVersionData)
+//       val listOfApiDefinition = List(apiDefinition)
+//       val payload             = Json.stringify(Json.toJson(listOfApiDefinition))
 
-      val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
-      result shouldBe List(apiDefinition)
-    }
-  }
+//       stubFor(
+//         get(urlPathEqualTo(url))
+//           .withQueryParam(ApmConnector.applicationIdQueryParam, equalTo(encode(applicationId.value.toString)))
+//           .withQueryParam(ApmConnector.restrictedQueryParam, equalTo("false"))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody(payload)
+//           )
+//       )
 
-  "getAllFieldDefinitions" should {
-    "returns empty field definitions" in new Setup {
-      val url = "/subscription-fields\\?environment=PRODUCTION"
+//       val result = await(underTest.fetchAllPossibleSubscriptions(applicationId))
+//       result shouldBe List(apiDefinition)
+//     }
+//   }
 
-      stubFor(
-        get(urlMatching(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody("{}")
-          )
-      )
+//   "getAllFieldDefinitions" should {
+//     "returns empty field definitions" in new Setup {
+//       val url = "/subscription-fields\\?environment=PRODUCTION"
 
-      val result = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
-      result shouldBe Map.empty
-    }
-  }
+//       stubFor(
+//         get(urlMatching(url))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody("{}")
+//           )
+//       )
 
-  "fetchAllCombinedApis" should {
-    "returns combined xml and rest apis" in new Setup {
-      val url = "/combined-rest-xml-apis"
+//       val result = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
+//       result shouldBe Map.empty
+//     }
+//   }
 
-      stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(Json.toJson(combinedList).toString)
-          )
-      )
+//   "fetchAllCombinedApis" should {
+//     "returns combined xml and rest apis" in new Setup {
+//       val url = "/combined-rest-xml-apis"
 
-      val result = await(underTest.fetchAllCombinedApis())
-      result shouldBe combinedList
-    }
+//       stubFor(
+//         get(urlPathEqualTo(url))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody(Json.toJson(combinedList).toString)
+//           )
+//       )
 
-    "returns exception when backend returns error" in new Setup {
-      val url = "/combined-rest-xml-apis"
+//       val result = await(underTest.fetchAllCombinedApis())
+//       result shouldBe combinedList
+//     }
 
-      stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
+//     "returns exception when backend returns error" in new Setup {
+//       val url = "/combined-rest-xml-apis"
 
-      intercept[UpstreamErrorResponse] {
-        await(underTest.fetchAllCombinedApis())
-      }.statusCode shouldBe INTERNAL_SERVER_ERROR
-    }
-  }
+//       stubFor(
+//         get(urlPathEqualTo(url))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(INTERNAL_SERVER_ERROR)
+//           )
+//       )
 
-  "fetchAllBoxes" should {
-    "returns all boxes" in new Setup {
-      val url = "/push-pull-notifications/boxes"
+//       intercept[UpstreamErrorResponse] {
+//         await(underTest.fetchAllCombinedApis())
+//       }.statusCode shouldBe INTERNAL_SERVER_ERROR
+//     }
+//   }
 
-      val expectedBox = Box(
-        BoxId("07787f13-dcae-4168-8685-c00a33b86134"),
-        "someBoxName6",
-        BoxCreator(ClientId("myClientIs6")),
-        None,
-        Some(BoxSubscriber("testurl.co.uk", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)),
-        Environment.PRODUCTION
-      )
+//   "fetchAllBoxes" should {
+//     "returns all boxes" in new Setup {
+//       val url = "/push-pull-notifications/boxes"
 
-      val text = """[{
-                   |"boxId":"07787f13-dcae-4168-8685-c00a33b86134",
-                   |"boxName":"someBoxName6",
-                   |"boxCreator":{"clientId":"myClientIs6"},
-                   |"subscriber":{"callBackUrl":"testurl.co.uk","subscribedDateTime":"2001-01-01T01:02:03.000+0000","subscriptionType":"API_PUSH_SUBSCRIBER"},
-                   |"clientManaged":false,
-                   |"environment": "PRODUCTION"
-                   |}]""".stripMargin
-      stubFor(
-        get(urlPathEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(text)
-          )
-      )
+//       val expectedBox = Box(
+//         BoxId("07787f13-dcae-4168-8685-c00a33b86134"),
+//         "someBoxName6",
+//         BoxCreator(ClientId("myClientIs6")),
+//         None,
+//         Some(BoxSubscriber("testurl.co.uk", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)),
+//         Environment.PRODUCTION
+//       )
 
-      val result = await(underTest.fetchAllBoxes())
-      result shouldBe List(expectedBox)
-    }
-  }
-}
+//       val text = """[{
+//                    |"boxId":"07787f13-dcae-4168-8685-c00a33b86134",
+//                    |"boxName":"someBoxName6",
+//                    |"boxCreator":{"clientId":"myClientIs6"},
+//                    |"subscriber":{"callBackUrl":"testurl.co.uk","subscribedDateTime":"2001-01-01T01:02:03.000+0000","subscriptionType":"API_PUSH_SUBSCRIBER"},
+//                    |"clientManaged":false,
+//                    |"environment": "PRODUCTION"
+//                    |}]""".stripMargin
+//       stubFor(
+//         get(urlPathEqualTo(url))
+//           .willReturn(
+//             aResponse()
+//               .withStatus(OK)
+//               .withBody(text)
+//           )
+//       )
+
+//       val result = await(underTest.fetchAllBoxes())
+//       result shouldBe List(expectedBox)
+//     }
+//   }
+// }

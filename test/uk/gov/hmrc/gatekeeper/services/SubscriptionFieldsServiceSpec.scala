@@ -35,45 +35,42 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
   val sandboxApplication    = standardApp.inSandbox()
 
   trait Setup extends SubscriptionsBuilder {
-    val mockSandboxSubscriptionFieldsConnector: SandboxSubscriptionFieldsConnector       = mock[SandboxSubscriptionFieldsConnector]
-    val mockProductionSubscriptionFieldsConnector: ProductionSubscriptionFieldsConnector = mock[ProductionSubscriptionFieldsConnector]
+    val mockApmConnectorModule: ApmConnectorSubscriptionFieldsModule = mock[ApmConnectorSubscriptionFieldsModule]
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val service = new SubscriptionFieldsService(mockSandboxSubscriptionFieldsConnector, mockProductionSubscriptionFieldsConnector)
+    val service = new SubscriptionFieldsService(mockApmConnectorModule)
   }
 
   "When application is deployedTo production then principal connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockProductionSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
       await(service.saveFieldValues(productionApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
-      verify(mockProductionSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
-
-      verify(mockSandboxSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+      verify(mockApmConnectorModule).saveFieldValues(eqTo(Environment.PRODUCTION), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.SANDBOX), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockSandboxSubscriptionFieldsConnector.saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
 
       await(service.saveFieldValues(sandboxApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
-      verify(mockSandboxSubscriptionFieldsConnector)
-        .saveFieldValues(eqTo(sandboxApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
-
-      verify(mockProductionSubscriptionFieldsConnector, never).saveFieldValues(*[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+      verify(mockApmConnectorModule)
+        .saveFieldValues(eqTo(Environment.SANDBOX), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+      verify(mockApmConnectorModule, never) 
+        .saveFieldValues(eqTo(Environment.PRODUCTION), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 }

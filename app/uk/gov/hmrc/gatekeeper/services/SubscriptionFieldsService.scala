@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import javax.inject.{Inject, Named, Singleton}
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
 
 import uk.gov.hmrc.http.HeaderCarrier
@@ -25,13 +25,12 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreAppli
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService._
+import uk.gov.hmrc.gatekeeper.connectors.ApmConnectorSubscriptionFieldsModule
 
 @Singleton
-class SubscriptionFieldsService @Inject() (
-    @Named("SANDBOX") sandboxSubscriptionFieldsConnector: SubscriptionFieldsConnector,
-    @Named("PRODUCTION") productionSubscriptionFieldsConnector: SubscriptionFieldsConnector
-  ) extends APIDefinitionFormatters {
+class SubscriptionFieldsService @Inject() (apmConnectorSubsFieldModule: ApmConnectorSubscriptionFieldsModule) extends APIDefinitionFormatters {
+
+  println("FROM SubscriptionFieldsService "+apmConnectorSubsFieldModule)
 
   def saveFieldValues(
       application: CoreApplication,
@@ -40,27 +39,6 @@ class SubscriptionFieldsService @Inject() (
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
-    connectorFor(application.deployedTo).saveFieldValues(application.clientId, apiContext, apiVersion, fields)
-  }
-
-  private def connectorFor(deployedTo: Environment): SubscriptionFieldsConnector =
-    if (deployedTo == Environment.PRODUCTION) {
-      productionSubscriptionFieldsConnector
-    } else {
-      sandboxSubscriptionFieldsConnector
-    }
-}
-
-object SubscriptionFieldsService {
-
-  trait SubscriptionFieldsConnector {
-
-    def saveFieldValues(
-        clientId: ClientId,
-        apiContext: ApiContext,
-        apiVersion: ApiVersionNbr,
-        fields: Fields.Alias
-      )(implicit hc: HeaderCarrier
-      ): Future[SaveSubscriptionFieldsResponse]
+    apmConnectorSubsFieldModule.saveFieldValues(application.deployedTo, application.clientId, apiContext, apiVersion, fields)
   }
 }

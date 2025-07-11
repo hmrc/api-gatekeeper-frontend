@@ -27,8 +27,13 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreApplication
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SaveSubscriptionFieldsResponse
 
 class ApmService @Inject() (apmConnector: ApmConnector) {
+
+  println("FROM APMSERVICE "+apmConnector)
 
   def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     apmConnector.fetchApplicationById(applicationId)
@@ -58,4 +63,13 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
     apmConnector.subsFieldsCsv(Environment.PRODUCTION)
   }
 
+  def saveFieldValues(
+      application: CoreApplication,
+      apiContext: ApiContext,
+      apiVersion: ApiVersionNbr,
+      fields: Fields.Alias
+    )(implicit hc: HeaderCarrier
+    ): Future[SaveSubscriptionFieldsResponse] = {
+    apmConnector.saveFieldValues(application.deployedTo, application.clientId, apiContext, apiVersion, fields)
+  }
 }
