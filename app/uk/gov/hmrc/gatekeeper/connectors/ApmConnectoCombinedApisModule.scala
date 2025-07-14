@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.utils
+package uk.gov.hmrc.gatekeeper.connectors
 
-import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.TaxRegimeInterests
-import uk.gov.hmrc.gatekeeper.models.xml.XmlApi
+import scala.concurrent.Future
 
-trait XmlServicesHelper {
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.{HeaderCarrier, _}
 
-  def filterXmlEmailPreferences(userInterests: List[TaxRegimeInterests], xmlApis: List[XmlApi]): List[String] = {
-    val allEmailPreferenceServices = userInterests.flatMap(interest => interest.services)
-    xmlApis
-      .filter(x => allEmailPreferenceServices.contains(x.serviceName))
-      .map(x => x.name)
-      .distinct
+import uk.gov.hmrc.gatekeeper.models._
+
+trait ApmConnectoCombinedApisModule extends ApmConnectorModule {
+  val baseUrl = s"${config.serviceBaseUrl}/combined-rest-xml-apis"
+
+  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+    http.get(url"${baseUrl}")
+      .execute[List[CombinedApi]]
   }
 }

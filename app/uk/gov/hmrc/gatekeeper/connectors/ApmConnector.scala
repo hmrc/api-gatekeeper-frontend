@@ -17,95 +17,27 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.ExecutionContext
 
-import play.api.http.Status._
-import play.api.http.{ContentTypes, HeaderNames}
-import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
-
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, MappedApiDefinitions}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
 object ApmConnector {
-  val applicationIdQueryParam = "applicationId"
-  val restrictedQueryParam    = "restricted"
 
   case class Config(
       serviceBaseUrl: String
     )
 }
 
-@Singleton
-class ApmConnector @Inject() (http: HttpClientV2, config: ApmConnector.Config)(implicit ec: ExecutionContext) {
-  import ApmConnectorJsonFormatters._
-  import ApmConnector._
-
-  def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] =
-    http.get(url"${config.serviceBaseUrl}/applications/${applicationId}")
-      .execute[Option[ApplicationWithSubscriptionFields]]
-
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
-    http.get((url"${config.serviceBaseUrl}/subscription-fields?environment=$environment"))
-      .execute[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]]
-  }
-
-  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    val queryParams = Seq(
-      applicationIdQueryParam -> applicationId.value.toString(),
-      restrictedQueryParam    -> "false"
-    )
-    http.get(url"${config.serviceBaseUrl}/api-definitions?$queryParams")
-      .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
-  }
-
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
-    http.get(url"${config.serviceBaseUrl}/combined-rest-xml-apis")
-      .execute[List[CombinedApi]]
-  }
-
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
-    http.get(url"${config.serviceBaseUrl}/push-pull-notifications/boxes")
-      .execute[List[Box]]
-  }
-
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.get(url"${config.serviceBaseUrl}/api-definitions/nonopen?environment=$environment")
-      .execute[List[ApiDefinition]]
-  }
-
-  def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
-    http.get(url"${config.serviceBaseUrl}/api-definitions/all?environment=$environment")
-      .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
-  }
-
-  // TODO - better return type
-  // TODO - better error handling for expected errors
-  def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
-    http.patch(url"${config.serviceBaseUrl}/applications/${applicationId.value.toString()}")
-      .withBody(Json.toJson(cmd))
-      .execute[Either[UpstreamErrorResponse, Unit]]
-  }
-
-  def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
-    http.get(url"${config.serviceBaseUrl}/subscription-fields/csv?environment=$environment")
-      .setHeader(HeaderNames.ACCEPT -> ContentTypes.TEXT)
-      .execute[HttpResponse]
-      .map { response =>
-        response.status match {
-          case OK         => response.body
-          case statusCode => throw UpstreamErrorResponse("Failed to get CSV", statusCode)
-        }
-      }
-  }
+trait ApmConnectorModule {
+  def http: HttpClientV2
+  def config: ApmConnector.Config
+  implicit def ec: ExecutionContext
 }
+
+@Singleton
+class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(implicit val ec: ExecutionContext)
+    extends ApmConnectoCombinedApisModule
+    with ApmConnectorApiDefinitionModule
+    with ApmConnectorApplicationModule
+    with ApmConnectorPpnsModule
+    with ApmConnectorSubscriptionFieldsModule {}
