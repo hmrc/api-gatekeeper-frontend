@@ -110,7 +110,7 @@ class OrganisationControllerSpec
         val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
 
         status(eventualResult) shouldBe NOT_FOUND
-        titleOf(eventualResult) shouldBe s"Page not found - 404"
+        titleOf(eventualResult) shouldBe s"Page not found"
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("Organisation not found")
       }

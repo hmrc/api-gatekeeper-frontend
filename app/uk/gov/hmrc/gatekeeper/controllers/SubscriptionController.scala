@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.inject.{Inject, Singleton}
 
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.data.Form
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -34,6 +35,22 @@ import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+
+object SubscriptionController {
+
+  case class SubsForm(subscribed: Boolean)
+
+  object SubsForm {
+    import play.api.data.Forms._
+    import play.api.data._
+
+    lazy val form = Form[SubsForm](
+      mapping(
+        "subscribed" -> boolean
+      )(SubsForm.apply)(SubsForm.unapply)
+    )
+  }
+}
 
 @Singleton
 class SubscriptionController @Inject() (
@@ -49,6 +66,8 @@ class SubscriptionController @Inject() (
   )(implicit val appConfig: AppConfig,
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
+
+  import SubscriptionController._
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
@@ -81,19 +100,25 @@ class SubscriptionController @Inject() (
     }
   }
 
-  def subscribeToApi(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
-    withApp(appId) { app =>
-      subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-        Redirect(routes.SubscriptionController.manageSubscription(appId))
-      )
+  def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    def handleFormError(form: Form[SubsForm]): Future[Result] = {
+      Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
-  }
 
-  def unsubscribeFromApi(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+    def handleValidForm(app: ApplicationWithHistory)(form: SubsForm): Future[Result] = {
+      if (form.subscribed) {
+        subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+          Redirect(routes.SubscriptionController.manageSubscription(appId))
+        )
+      } else {
+        subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+          Redirect(routes.SubscriptionController.manageSubscription(appId))
+        )
+      }
+    }
+
     withApp(appId) { app =>
-      subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-        Redirect(routes.SubscriptionController.manageSubscription(appId))
-      )
+      SubsForm.form.bindFromRequest().fold(handleFormError, handleValidForm(app))
     }
   }
 }
