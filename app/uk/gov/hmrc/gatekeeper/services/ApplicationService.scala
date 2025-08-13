@@ -350,4 +350,6 @@ class ApplicationService @Inject() (
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     productionApplicationConnector.doesApplicationHaveTermsOfUseInvitation(applicationId)
   }
+
+  def fetchSubmissionOverview()(implicit hc: HeaderCarrier): Future[Map[String, Int]] = productionApplicationConnector.fetchSubmissionOverviews()
 }

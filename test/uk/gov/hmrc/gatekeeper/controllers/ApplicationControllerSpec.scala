@@ -279,6 +279,16 @@ class ApplicationControllerSpec
       }
     }
 
+    "organisationIdentifiers" should {
+      "return csv data" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        ApplicationServiceMock.FetchSubmissionOverview.returns(Map("UTR" -> 3, "Companies House number" -> 4))
+        val result = underTest.showSubmissionOverview()(aLoggedInRequest)
+        status(result) shouldBe OK
+        Helpers.contentAsString(result) shouldBe "type,count\nUTR,3\nCompanies House number,4\n"
+      }
+    }
+
     "applicationsPageExportCsv" should {
       "return csv data including Collaborator column for Stride user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)

@@ -52,6 +52,10 @@ trait ApplicationConnectorMockProvider {
           .thenReturn(successful(collaboratorEmails.toList))
     }
 
+    object FetchSubmissionOverviews {
+      def returns(overview: Map[String, Int]) = when(aMock.fetchSubmissionOverviews()(*)).thenReturn(successful(overview))
+    }
+
     object FetchAllApplications {
       def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
     }

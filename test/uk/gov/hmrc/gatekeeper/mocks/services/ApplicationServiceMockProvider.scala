@@ -36,6 +36,10 @@ trait ApplicationServiceMockProvider {
 
   object ApplicationServiceMock {
 
+    object FetchSubmissionOverview {
+      def returns(overview: Map[String, Int]) = when(mockApplicationService.fetchSubmissionOverview()(*)).thenReturn(successful(overview))
+    }
+
     object FetchApplications {
       def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
 
