@@ -776,4 +776,13 @@ class ApplicationController @Inject() (
 
     createPrivAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
+
+  def showSubmissionOverview(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val columnDefinitions = Seq[ColumnDefinition[Tuple2[String, Int]]](
+      ColumnDefinition("type", _._1),
+      ColumnDefinition("count", _._2.toString)
+    )
+
+    applicationService.fetchSubmissionOverview().map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
+  }
 }

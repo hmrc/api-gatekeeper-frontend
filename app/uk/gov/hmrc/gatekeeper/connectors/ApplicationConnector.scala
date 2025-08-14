@@ -153,6 +153,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case None    => false
       })
   }
+
+  def fetchSubmissionOverviews()(implicit hc: HeaderCarrier): Future[Map[String, Int]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/organisation/ids")).execute[Map[String, Int]]
+  }
 }
 
 @Singleton
