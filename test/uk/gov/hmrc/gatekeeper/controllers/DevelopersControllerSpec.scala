@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, TaxRegimeInterests}
@@ -40,7 +41,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
-class DevelopersControllerSpec extends ControllerBaseSpec {
+class DevelopersControllerSpec extends ControllerBaseSpec with FixedClock {
 
   implicit val materializer: Materializer           = app.materializer
   private lazy val errorTemplateView: ErrorTemplate = app.injector.instanceOf[ErrorTemplate]
@@ -150,81 +151,98 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
     "developersCsv" should {
 
-      "exports as csv" in new Setup {
+      val userId1     = UserId.random
+      val mfaDetails1 = List.empty
+      val emailPref1  = EmailPreferences(
+        List(
+          TaxRegimeInterests("VAT", Set("hello-world")),
+          TaxRegimeInterests("MTD", Set("mtd-api", "other-api"))
+        ),
+        Set.empty
+      )
+      val user1       =
+        RegisteredUser(
+          LaxEmailAddress("developer1@example.com"),
+          userId1,
+          "first",
+          "last",
+          verified = true,
+          mfaDetails = mfaDetails1,
+          emailPreferences = emailPref1,
+          failedLogins = 1,
+          registrationTime = Some(Instants.aYearAgo),
+          lastLogin = Some(Instants.aYearAgo)
+        )
+
+      val userId2     = UserId.random
+      val mfaDetails2 = List(
+        SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev2's phone", instant, "01234 567890", true),
+        AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev2's app", instant, false)
+      )
+      val emailPref2  = EmailPreferences(List(TaxRegimeInterests("VAT", Set.empty)), Set.empty)
+      val user2       =
+        RegisteredUser(
+          LaxEmailAddress("developer2@example.com"),
+          userId2,
+          "first",
+          "last",
+          verified = true,
+          mfaDetails = mfaDetails2,
+          emailPreferences = emailPref2,
+          registrationTime = Some(Instants.aYearAgo)
+        )
+
+      val userId3     = UserId.random
+      val mfaDetails3 = List(
+        SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev3's phone", instant, "01234 567890", false),
+        AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev3's app", instant, true)
+      )
+      val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
+      val user3       =
+        RegisteredUser(
+          LaxEmailAddress("developer3@example.com"),
+          userId3,
+          "first",
+          "last",
+          verified = true,
+          mfaDetails = mfaDetails3,
+          emailPreferences = emailPref3,
+          registrationTime = Some(Instants.aYearAgo)
+        )
+
+      val xmlOrg1 = XmlOrganisation(
+        OrganisationId(UUID.randomUUID()),
+        VendorId(1),
+        "xml org name 1",
+        List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+      )
+      val xmlOrg2 = XmlOrganisation(
+        OrganisationId(UUID.randomUUID()),
+        VendorId(2),
+        "xml org name 2",
+        List(Collaborator(userId1, LaxEmailAddress("developer1@example.com")), Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
+      )
+
+      "exports as csv with PII data for stride user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenNoDataSuppliedDelegateServices()
 
-        private val userId1     = UserId.random
-        private val mfaDetails1 = List.empty
-        private val emailPref1  = EmailPreferences(
-          List(
-            TaxRegimeInterests("VAT", Set("hello-world")),
-            TaxRegimeInterests("MTD", Set("mtd-api", "other-api"))
-          ),
-          Set.empty
-        )
-        private val user1       =
-          RegisteredUser(
-            LaxEmailAddress("developer1@example.com"),
-            userId1,
-            "first",
-            "last",
-            verified = true,
-            mfaDetails = mfaDetails1,
-            emailPreferences = emailPref1,
-            failedLogins = 1,
-            registrationTime = Some(Instants.aYearAgo),
-            lastLogin = Some(Instants.aYearAgo)
-          )
+        DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
+        XmlServiceMock.GetAllXmlOrganisations.returns(List(xmlOrg1, xmlOrg2))
 
-        private val userId2     = UserId.random
-        private val mfaDetails2 = List(
-          SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev2's phone", instant, "01234 567890", true),
-          AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev2's app", instant, false)
+        val result = developersController.developersCsv()(aLoggedInRequest)
+        contentAsString(result) should be(
+          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors,Failed login attempts,Last Login,Developer Hub Registration Date,Email\n" +
+            s"${userId1.toString},false,false,false,false,false,false,0,3,1,1,2019-01-02T03:04:05.006Z,2019-01-02T03:04:05.006Z,developer1@example.com\n" +
+            s"${userId2.toString},true,false,false,false,false,false,1,0,0,0,,2019-01-02T03:04:05.006Z,developer2@example.com\n" +
+            s"${userId3.toString},false,true,true,true,true,true,0,0,2,0,,2019-01-02T03:04:05.006Z,developer3@example.com\n"
         )
-        private val emailPref2  = EmailPreferences(List(TaxRegimeInterests("VAT", Set.empty)), Set.empty)
-        private val user2       =
-          RegisteredUser(
-            LaxEmailAddress("developer2@example.com"),
-            userId2,
-            "first",
-            "last",
-            verified = true,
-            mfaDetails = mfaDetails2,
-            emailPreferences = emailPref2,
-            registrationTime = Some(Instants.aYearAgo)
-          )
+      }
 
-        private val userId3     = UserId.random
-        private val mfaDetails3 = List(
-          SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev3's phone", instant, "01234 567890", false),
-          AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev3's app", instant, true)
-        )
-        private val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
-        private val user3       =
-          RegisteredUser(
-            LaxEmailAddress("developer3@example.com"),
-            userId3,
-            "first",
-            "last",
-            verified = true,
-            mfaDetails = mfaDetails3,
-            emailPreferences = emailPref3,
-            registrationTime = Some(Instants.aYearAgo)
-          )
-
-        private val xmlOrg1 = XmlOrganisation(
-          OrganisationId(UUID.randomUUID()),
-          VendorId(1),
-          "xml org name 1",
-          List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
-        )
-        private val xmlOrg2 = XmlOrganisation(
-          OrganisationId(UUID.randomUUID()),
-          VendorId(2),
-          "xml org name 2",
-          List(Collaborator(userId1, LaxEmailAddress("developer1@example.com")), Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
-        )
+      "exports as csv without PII data for non-stride user" in new Setup {
+        StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        LdapAuthorisationServiceMock.Auth.succeeds
+        givenNoDataSuppliedDelegateServices()
 
         DeveloperServiceMock.FetchUsers.returns(user1, user2, user3)
         XmlServiceMock.GetAllXmlOrganisations.returns(List(xmlOrg1, xmlOrg2))
@@ -240,6 +258,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "fails without auth" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+        LdapAuthorisationServiceMock.Auth.notAuthorised
+
         givenNoDataSuppliedDelegateServices()
 
         val result = developersController.developersCsv()(aLoggedInRequest)
