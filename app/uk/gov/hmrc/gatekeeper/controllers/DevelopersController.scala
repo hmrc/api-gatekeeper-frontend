@@ -66,7 +66,7 @@ class DevelopersController @Inject() (
     combineUsersIntoPage(Future.successful(List.empty), DevelopersSearchForm(None, None, None, None))
   }
 
-  def developersCsv() = atLeastSuperUserAction { implicit request =>
+  def developersCsv() = anyAuthenticatedUserAction { implicit request =>
     {
 
       def isMfaTypeActive(user: RegisteredUser, mfaType: MfaType): Boolean                    = {
@@ -91,21 +91,29 @@ class DevelopersController @Inject() (
         user.registrationTime.map(_.toString).getOrElse("")
       }
 
-      def csvColumnDefinitions(orgs: List[XmlOrganisation]) = Seq[ColumnDefinition[RegisteredUser]](
-        ColumnDefinition("UserId", (dev => dev.userId.toString())),
-        ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
-        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
-        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, BUSINESS_AND_POLICY).toString())),
-        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, TECHNICAL).toString())),
-        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, RELEASE_SCHEDULES).toString())),
-        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EVENT_INVITES).toString())),
-        ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
-        ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
-        ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),
-        ColumnDefinition("Failed login attempts", (dev => dev.failedLogins.toString())),
-        ColumnDefinition("Last Login", (dev => getLastLogin(dev))),
-        ColumnDefinition("Developer Hub Registration Date", (dev => getRegistrationTime(dev)))
-      )
+      def csvColumnDefinitions(orgs: List[XmlOrganisation], isStrideUser: Boolean) = {
+        Seq[ColumnDefinition[RegisteredUser]](
+          ColumnDefinition("UserId", (dev => dev.userId.toString())),
+          ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
+          ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
+          ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, BUSINESS_AND_POLICY).toString())),
+          ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, TECHNICAL).toString())),
+          ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, RELEASE_SCHEDULES).toString())),
+          ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EVENT_INVITES).toString())),
+          ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
+          ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
+          ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),
+          ColumnDefinition("Failed login attempts", (dev => dev.failedLogins.toString())),
+          ColumnDefinition("Last Login", (dev => getLastLogin(dev))),
+          ColumnDefinition("Developer Hub Registration Date", (dev => getRegistrationTime(dev)))
+        ) ++ (
+          if (isStrideUser)
+            Seq[ColumnDefinition[RegisteredUser]](
+              ColumnDefinition("Email", (dev => dev.email.text))
+            )
+          else Seq.empty
+        )
+      }
 
       (
         for {
@@ -114,7 +122,7 @@ class DevelopersController @Inject() (
           orgs     <- xmlService.getAllOrganisations()
         } yield (users, orgs)
       )
-        .map(usersAndOrgs => CsvHelper.toCsvString(csvColumnDefinitions(usersAndOrgs._2), usersAndOrgs._1))
+        .map(usersAndOrgs => CsvHelper.toCsvString(csvColumnDefinitions(usersAndOrgs._2, request.role.isUser), usersAndOrgs._1))
         .map(Ok(_).withHeaders(CONTENT_DISPOSITION -> s"attachment; filename=developers-${Instant.now()}.csv").as("text/csv"))
     }
 
