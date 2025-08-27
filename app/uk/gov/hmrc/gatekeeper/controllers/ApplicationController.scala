@@ -34,6 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.lenientFormatter
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -777,12 +778,18 @@ class ApplicationController @Inject() (
     createPrivAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def showSubmissionOverview(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val columnDefinitions = Seq[ColumnDefinition[Tuple2[String, Int]]](
+  def showSubmissionOverview(maybeStartedOn: Option[String]): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    def parseDateString(maybeDateString: Option[String]) = {
+      maybeDateString match {
+        case Some(dateString) => Instant.from(lenientFormatter.parse(dateString))
+        case _                => Instant.from(lenientFormatter.parse("2022-08-01"))
+      }
+    }
+    val columnDefinitions                                = Seq[ColumnDefinition[Tuple2[String, Int]]](
       ColumnDefinition("type", _._1),
       ColumnDefinition("count", _._2.toString)
     )
 
-    applicationService.fetchSubmissionOverview().map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
+    applicationService.fetchSubmissionOverview(parseDateString(maybeStartedOn)).map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
   }
 }

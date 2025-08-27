@@ -283,7 +283,7 @@ class ApplicationControllerSpec
       "return csv data" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ApplicationServiceMock.FetchSubmissionOverview.returns(Map("UTR" -> 3, "Companies House number" -> 4))
-        val result = underTest.showSubmissionOverview()(aLoggedInRequest)
+        val result = underTest.showSubmissionOverview(Some("2022-08-01"))(aLoggedInRequest)
         status(result) shouldBe OK
         Helpers.contentAsString(result) shouldBe "type,count\nUTR,3\nCompanies House number,4\n"
       }

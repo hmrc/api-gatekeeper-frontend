@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.time.{Instant, ZoneOffset}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -154,8 +155,9 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def fetchSubmissionOverviews()(implicit hc: HeaderCarrier): Future[Map[String, Int]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/organisation/ids")).execute[Map[String, Int]]
+  def fetchSubmissionOverviews(startedOn: Instant)(implicit hc: HeaderCarrier): Future[Map[String, Int]] = {
+    val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC)
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/organisation/ids?startedOn=${dateTimeFormatter.format(startedOn)}")).execute[Map[String, Int]]
   }
 }
 
