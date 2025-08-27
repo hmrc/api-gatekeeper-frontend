@@ -53,7 +53,7 @@ trait ApplicationConnectorMockProvider {
     }
 
     object FetchSubmissionOverviews {
-      def returns(overview: Map[String, Int]) = when(aMock.fetchSubmissionOverviews()(*)).thenReturn(successful(overview))
+      def returns(overview: Map[String, Int]) = when(aMock.fetchSubmissionOverviews(*)(*)).thenReturn(successful(overview))
     }
 
     object FetchAllApplications {

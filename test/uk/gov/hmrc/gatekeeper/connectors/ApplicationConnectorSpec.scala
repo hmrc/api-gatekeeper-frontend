@@ -417,8 +417,10 @@ class ApplicationConnectorSpec
           .willReturn(
             aResponse()
               .withStatus(OK)
-              .withBody(Json.toJson(overview).toString())))
-      await(productionConnector.fetchSubmissionOverviews()) shouldBe overview
+              .withBody(Json.toJson(overview).toString())
+          )
+      )
+      await(productionConnector.fetchSubmissionOverviews(instant)) shouldBe overview
     }
   }
 
