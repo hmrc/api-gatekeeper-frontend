@@ -157,7 +157,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   def fetchSubmissionOverviews(startedOn: Instant)(implicit hc: HeaderCarrier): Future[Map[String, Int]] = {
     val dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd").withZone(ZoneOffset.UTC)
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/organisation/ids?startedOn=${dateTimeFormatter.format(startedOn)}")).execute[Map[String, Int]]
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/organisation/ids?startedon=${dateTimeFormatter.format(startedOn)}")).execute[Map[String, Int]]
   }
 }
 
