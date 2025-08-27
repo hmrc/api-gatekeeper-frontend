@@ -778,18 +778,18 @@ class ApplicationController @Inject() (
     createPrivAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def showSubmissionOverview(maybeStartedOn: Option[String]): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    def parseDateString(maybeDateString: Option[String]) = {
+  def showSubmissionOverview(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    def parseDateString(maybeDateString: Option[Seq[String]]) = {
       maybeDateString match {
-        case Some(dateString) => Instant.from(lenientFormatter.parse(dateString))
+        case Some(dateString) => Instant.from(lenientFormatter.parse(dateString.head))
         case _                => Instant.from(lenientFormatter.parse("2022-08-01"))
       }
     }
-    val columnDefinitions                                = Seq[ColumnDefinition[Tuple2[String, Int]]](
+    val columnDefinitions                                     = Seq[ColumnDefinition[Tuple2[String, Int]]](
       ColumnDefinition("type", _._1),
       ColumnDefinition("count", _._2.toString)
     )
 
-    applicationService.fetchSubmissionOverview(parseDateString(maybeStartedOn)).map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
+    applicationService.fetchSubmissionOverview(parseDateString(request.queryString.get("startedon"))).map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
   }
 }
