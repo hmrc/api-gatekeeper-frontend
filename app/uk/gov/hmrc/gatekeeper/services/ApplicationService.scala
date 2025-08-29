@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{Clock, Instant}
+import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -350,6 +350,4 @@ class ApplicationService @Inject() (
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     productionApplicationConnector.doesApplicationHaveTermsOfUseInvitation(applicationId)
   }
-
-  def fetchSubmissionOverview(startedOn: Instant)(implicit hc: HeaderCarrier): Future[Map[String, Int]] = productionApplicationConnector.fetchSubmissionOverviews(startedOn)
 }

@@ -105,8 +105,6 @@ POST        /api-approvals/:environment/:serviceName/comment                  uk
 
 GET         /apis                                                             uk.gov.hmrc.gatekeeper.controllers.ApiDefinitionController.apis()
 
-GET         /submissions/organisations/csv                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.showSubmissionOverview()
-
 # Deprecate this if we can find who uses it
 GET         /subscriptionFieldValues                                          uk.gov.hmrc.gatekeeper.controllers.SubscriptionFieldsController.subscriptionFieldValues()
 # Replacement route

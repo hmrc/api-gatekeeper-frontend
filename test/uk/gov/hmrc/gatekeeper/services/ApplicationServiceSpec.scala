@@ -744,12 +744,4 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       }
     }
   }
-  "fetchSubmissionOverview" should {
-    "fetch all from prod" in new Setup {
-      private val overview = Map("UTR" -> 3)
-      ApplicationConnectorMock.Prod.FetchSubmissionOverviews.returns(overview)
-      val result           = await(underTest.fetchSubmissionOverview(instant))
-      result shouldBe overview
-    }
-  }
 }

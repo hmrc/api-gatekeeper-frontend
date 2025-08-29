@@ -409,21 +409,6 @@ class ApplicationConnectorSpec
     }
   }
 
-  "fetch submission overview" should {
-    "return overview" in new Setup {
-      private val overview = Map("utr" -> 3)
-      stubFor(
-        get(urlPathEqualTo("/submissions/organisation/ids"))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(Json.toJson(overview).toString())
-          )
-      )
-      await(productionConnector.fetchSubmissionOverviews(instant)) shouldBe overview
-    }
-  }
-
   "search collaborators" should {
     val url        = s"/collaborators"
     val apiContext = ApiContext.random
