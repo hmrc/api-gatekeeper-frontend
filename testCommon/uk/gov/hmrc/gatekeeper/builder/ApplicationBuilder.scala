@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
-trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures {
+trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures with ApplicationTokenData {
 
   // scalastyle:off parameter.number
   def buildApplication(
@@ -65,7 +65,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     ApplicationWithCollaborators(
       CoreApplication(
         id,
-        clientId,
+        ApplicationTokenData.one.copy(clientId = clientId, lastAccessTokenUsage = lastAccess),
         gatewayId,
         ApplicationName(name.getOrElse(s"${id.value}-name")),
         deployedTo,
@@ -73,14 +73,13 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
         createdOn,
         lastAccess,
         grantLength,
-        lastAccessTokenUsage = lastAccess,
         access2,
         state,
         rateLimitTier,
         checkInformation,
         blocked,
         ipAllowlist,
-        lastActionActor = moreApplication.lastActionActor,
+        moreApplication.lastActionActor,
         deleteRestriction
       ),
       collaborators
@@ -199,7 +198,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
 
     def withId(id: ApplicationId)        = app.modify(_.copy(id = id))
-    def withClientId(clientId: ClientId) = app.modify(_.copy(clientId = clientId))
+    def withClientId(clientId: ClientId) = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
     def withGatewayId(gatewayId: String) = app.modify(_.copy(gatewayId = gatewayId))
 
     def withName(name: ApplicationName)      = app.modify(_.copy(name = name))
