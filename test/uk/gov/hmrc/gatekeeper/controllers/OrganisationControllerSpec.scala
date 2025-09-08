@@ -28,12 +28,11 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.mocks.services.OrganisationServiceMockProvider
 import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -46,6 +45,7 @@ class OrganisationControllerSpec
     with WithCSRFAddToken
     with TitleChecker
     with CollaboratorTracker
+    with ApplicationWithCollaboratorsFixtures
     with FixedClock {
 
   implicit val materializer: Materializer = app.materializer
@@ -69,7 +69,7 @@ class OrganisationControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
+      val applicationResponse  = standardApp
       val organisationName     = "Organisation Name"
       val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
       val organisationId       = OrganisationId("1")
