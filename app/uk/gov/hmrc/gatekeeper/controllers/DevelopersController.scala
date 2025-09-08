@@ -93,6 +93,7 @@ class DevelopersController @Inject() (
 
       def csvColumnDefinitions(orgs: List[XmlOrganisation]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
+        ColumnDefinition("Email", (app => app.email.text)),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
         ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
         ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, BUSINESS_AND_POLICY).toString())),
