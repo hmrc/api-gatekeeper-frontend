@@ -26,12 +26,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithCollaboratorsFixtures}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ThirdPartyOrchestratorConnectorSpec
@@ -39,6 +38,7 @@ class ThirdPartyOrchestratorConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
+    with ApplicationWithCollaboratorsFixtures
     with FixedClock {
 
   trait Setup {
@@ -49,9 +49,9 @@ class ThirdPartyOrchestratorConnectorSpec
     val mockConnectorConfig: ThirdPartyOrchestratorConnector.Config = mock[ThirdPartyOrchestratorConnector.Config]
     when(mockConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val applicationId = ApplicationId.random
+    val applicationId = standardApp.id
 
-    val application: ApplicationWithCollaborators = ApplicationResponseBuilder.buildApplication(applicationId, ClientId.random, UserId.random)
+    val application: ApplicationWithCollaborators = standardApp
 
     val underTest = new ThirdPartyOrchestratorConnector(httpClient, mockConnectorConfig)
   }

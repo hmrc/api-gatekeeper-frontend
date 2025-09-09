@@ -22,7 +22,6 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CoreApplication}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -110,30 +109,9 @@ class ApiGatekeeperDeleteApplicationSpec
 
   // TODO - bollocks
   def stubApplicationForDeleteSuccess() = {
-    val gkAppResponse = ApplicationWithCollaborators(
-      CoreApplication(
-        id = applicationId,
-        clientId = defaultApplication.clientId,
-        gatewayId = defaultApplication.details.gatewayId,
-        name = defaultApplication.details.name,
-        deployedTo = defaultApplication.deployedTo,
-        description = defaultApplication.details.description,
-        createdOn = defaultApplication.details.createdOn,
-        lastAccess = defaultApplication.details.lastAccess,
-        lastAccessTokenUsage = defaultApplication.details.lastAccess,
-        grantLength = defaultApplication.details.grantLength,
-        access = defaultApplication.access,
-        state = defaultApplication.state,
-        rateLimitTier = defaultApplication.details.rateLimitTier,
-        checkInformation = defaultApplication.details.checkInformation,
-        blocked = defaultApplication.details.blocked,
-        ipAllowlist = defaultApplication.details.ipAllowlist,
-        lastActionActor = defaultApplication.details.lastActionActor,
-        deleteRestriction = defaultApplication.details.deleteRestriction
-      ),
-      collaborators = defaultApplication.collaborators
-    )
-    val response      = DispatchSuccessResult(gkAppResponse)
+    val gkAppResponse = defaultApplication
+
+    val response = DispatchSuccessResult(gkAppResponse)
     stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString())))
   }
 

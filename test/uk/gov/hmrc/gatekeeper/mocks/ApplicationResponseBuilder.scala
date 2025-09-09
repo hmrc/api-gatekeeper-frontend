@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
-object ApplicationResponseBuilder {
+object ApplicationResponseBuilder extends ApplicationTokenData {
 
   def buildApplication(applicationId: ApplicationId, clientId: ClientId, userId1: UserId): ApplicationWithCollaborators = {
     val standardAccess = Access.Standard(
@@ -54,7 +54,7 @@ object ApplicationResponseBuilder {
     ApplicationWithCollaborators(
       CoreApplication(
         id = applicationId,
-        clientId = clientId,
+        ApplicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
         gatewayId = "gateway-id",
         name = ApplicationName("Petes test application"),
         deployedTo = Environment.PRODUCTION,
@@ -62,7 +62,6 @@ object ApplicationResponseBuilder {
         createdOn = Instant.parse("2022-12-23T12:24:31.123Z"),
         lastAccess = Some(Instant.parse("2023-10-02T12:24:31.123Z")),
         grantLength = GrantLength.EIGHTEEN_MONTHS,
-        lastAccessTokenUsage = None,
         access = standardAccess,
         state = ApplicationState(name = State.TESTING, updatedOn = Instant.parse("2022-10-08T12:24:31.123Z")),
         rateLimitTier = RateLimitTier.BRONZE,

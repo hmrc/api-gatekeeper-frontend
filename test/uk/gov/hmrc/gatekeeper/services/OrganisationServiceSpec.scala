@@ -22,14 +22,13 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId, OrganisationWithApps}
 
-class OrganisationServiceSpec extends AsyncHmrcSpec {
+class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
@@ -40,7 +39,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec {
     val organisationName    = "Org Name"
     val email               = "bob@example.com".toLaxEmail
     val organisation        = DeskproOrganisation(organisationId, organisationName, List(DeskproPerson("name", email)))
-    val applicationResponse = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
+    val applicationResponse = standardApp
   }
 
   "OrganisationService" when {
