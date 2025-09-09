@@ -231,10 +231,10 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val result = developersController.developersCsv()(aLoggedInRequest)
         contentAsString(result) should be(
-          s"UserId,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors,Failed login attempts,Last Login,Developer Hub Registration Date\n" +
-            s"${userId1.toString},false,false,false,false,false,false,0,3,1,1,2019-01-02T03:04:05.006Z,2019-01-02T03:04:05.006Z\n" +
-            s"${userId2.toString},true,false,false,false,false,false,1,0,0,0,,2019-01-02T03:04:05.006Z\n" +
-            s"${userId3.toString},false,true,true,true,true,true,0,0,2,0,,2019-01-02T03:04:05.006Z\n"
+          s"UserId,Email,SMS MFA Active,Authenticator MFA Active,Business And Policy Email,Technical Email,Release Schedules Email,Event Invites Email,Full Category Emails,Individual APIs Emails,XML Vendors,Failed login attempts,Last Login,Developer Hub Registration Date\n" +
+            s"${userId1.toString},${user1.email.text},false,false,false,false,false,false,0,3,1,1,2019-01-02T03:04:05.006Z,2019-01-02T03:04:05.006Z\n" +
+            s"${userId2.toString},${user2.email.text},true,false,false,false,false,false,1,0,0,0,,2019-01-02T03:04:05.006Z\n" +
+            s"${userId3.toString},${user3.email.text},false,true,true,true,true,true,0,0,2,0,,2019-01-02T03:04:05.006Z\n"
         )
       }
 
