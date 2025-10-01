@@ -5,9 +5,9 @@ object AppDependencies {
   lazy val jsoupVersion      = "1.12.1"
   lazy val scalaCheckVersion = "1.17.0"
   lazy val bootstrapVersion  = "9.19.0"
-  lazy val playFrontendVersion = "12.14.0"
+  lazy val playFrontendVersion = "12.15.0"
 
-  val tpdDomainVersion    = "0.13.0"
+  val tpdDomainVersion    = "0.14.0"
   val apiDomainVersion    = "0.20.0"
   val appDomainVersion    = "0.87.0"
   val mockitoScalaVersion = "2.0.0"
