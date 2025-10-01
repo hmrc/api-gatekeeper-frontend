@@ -67,6 +67,6 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
       fields: Fields.Alias
     )(implicit hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
-    apmConnector.saveFieldValues(application.deployedTo, application.clientId, apiContext, apiVersion, fields)
+    apmConnector.saveFieldValues(application.deployedTo, application.token.clientId, apiContext, apiVersion, fields)
   }
 }
