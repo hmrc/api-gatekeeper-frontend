@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
-trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures with ApplicationTokenData {
+trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures with ApplicationTokenFixtures {
 
   // scalastyle:off parameter.number
   def buildApplication(
@@ -53,8 +53,8 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       ipAllowlist: IpAllowlist = IpAllowlist(),
       loginRedirectUris: List[LoginRedirectUri] = List.empty,
       postLogoutRedirectUris: List[PostLogoutRedirectUri] = List.empty,
-      moreApplication: MoreApplication = MoreApplication(),
-      deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction
+      deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction,
+      lastActionActor: ActorType = ActorType.UNKNOWN
     ): ApplicationWithCollaborators = {
 
     val access2 = access match {
@@ -65,7 +65,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     ApplicationWithCollaborators(
       CoreApplication(
         id,
-        ApplicationTokenData.one.copy(clientId = clientId, lastAccessTokenUsage = lastAccess),
+        applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = lastAccess),
         gatewayId,
         ApplicationName(name.getOrElse(s"${id.value}-name")),
         deployedTo,
@@ -79,8 +79,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
         checkInformation,
         blocked,
         ipAllowlist,
-        moreApplication.lastActionActor,
-        deleteRestriction
+        lastActionActor,
+        deleteRestriction,
+        None
       ),
       collaborators
     )

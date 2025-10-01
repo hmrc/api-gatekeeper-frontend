@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import mocks.connectors.CommandConnectorMockProvider
@@ -25,8 +24,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -54,66 +52,13 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val collaborators = Set[Collaborator](
-      Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
-      Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    )
+    val stdApp1 = standardApp
 
-    val stdApp1 = buildApplication(
-      ApplicationId.random,
-      ClientId("clientid1"),
-      "gatewayId1",
-      Some("application1"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = instant)
-    )
+    val stdApp2 = standardApp2
+      
+    val privilegedAppGK = privilegedApp
+    val ropcAppGK              = ropcApp
 
-    val stdApp2 = buildApplication(
-      ApplicationId.random,
-      ClientId("clientid2"),
-      "gatewayId2",
-      Some("application2"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = instant)
-    )
-
-    val privilegedAppGK = buildApplication(
-      ApplicationId.random,
-      ClientId("clientid3"),
-      "gatewayId3",
-      Some("application3"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Privileged(),
-      state = ApplicationState(updatedOn = instant)
-    )
-
-    val ropcAppGK              = buildApplication(
-      ApplicationId.random,
-      ClientId("clientid4"),
-      "gatewayId4",
-      Some("application4"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Ropc(),
-      state = ApplicationState(updatedOn = instant)
-    )
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"
     val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")

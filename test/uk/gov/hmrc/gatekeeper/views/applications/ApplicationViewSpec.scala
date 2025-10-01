@@ -35,8 +35,11 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.IpAllowListData
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
+class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationWithCollaboratorsFixtures with FixedClock with ApplicationBuilder {
 
   trait Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -48,23 +51,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     val clientId = ClientId("clientid")
 
-    val application = buildApplication(
-      id = ApplicationId.random,
-      clientId = clientId,
-      gatewayId = "gateway",
-      name = Some("AnApplicationName"),
-      deployedTo = Environment.PRODUCTION,
-      description = None,
-      collaborators = Set.empty,
-      createdOn = Instant.now(),
-      lastAccess = Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = Instant.now()),
-      rateLimitTier = RateLimitTier.BRONZE,
-      checkInformation = None,
-      blocked = false,
-      ipAllowlist = IpAllowlist()
-    )
+    val application = standardApp
+      .withState(appStateTesting)
+      .withIpAllowlist(IpAllowListData.default)
 
     val DefaultApplicationViewModel = ApplicationViewModel(
       developers = developers,

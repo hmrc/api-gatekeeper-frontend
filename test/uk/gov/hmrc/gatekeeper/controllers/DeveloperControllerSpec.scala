@@ -24,8 +24,7 @@ import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -51,21 +50,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
 
   Helpers.running(app) {
 
-    def anApplicationWithCollaborators(collaborators: Set[Collaborator]) = {
-      buildApplication(
-        ApplicationId.random,
-        ClientId.random,
-        "gatewayId",
-        Some("application"),
-        Environment.PRODUCTION,
-        None,
-        collaborators,
-        instant,
-        Some(instant),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = instant)
-      )
-    }
+    def anApplicationWithCollaborators(collaborators: Set[Collaborator]) = standardApp.withCollaborators(collaborators).withId(ApplicationId.random)
 
     trait Setup extends ControllerSetupBase {
 

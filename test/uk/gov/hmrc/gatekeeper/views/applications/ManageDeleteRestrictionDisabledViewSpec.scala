@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, DeleteRestriction, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, DeleteRestriction}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -34,30 +34,16 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionDisabledView
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
 
-  trait Setup extends ApplicationBuilder {
+  trait Setup extends ApplicationWithCollaboratorsFixtures with FixedClock {
     val request                                                                  = FakeRequest().withCSRFToken
     val manageDeleteRestrictionDisabledView: ManageDeleteRestrictionDisabledView = app.injector.instanceOf[ManageDeleteRestrictionDisabledView]
 
-    val application: ApplicationWithCollaborators =
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid"),
-        "gatewayId",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        Set(
-          Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
-          Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
-        ),
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
-      )
+    val application: ApplicationWithCollaborators = standardApp
   }
 
   "Manage Delete Restriction Disabled view" should {

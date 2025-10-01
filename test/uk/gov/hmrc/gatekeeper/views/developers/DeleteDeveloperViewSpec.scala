@@ -32,8 +32,10 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
-class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
+class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
@@ -45,12 +47,9 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = buildApplication(
-        clientId = ClientId("a-client-id"),
-        name = Some("appName1"),
-        deployedTo = Environment.PRODUCTION,
-        collaborators = Set(admin(LaxEmailAddress("email@example.com")), admin(LaxEmailAddress("other@example.com"))),
-        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
+      val app       = standardApp.withCollaborators(
+        admin(LaxEmailAddress("email@example.com")), 
+        admin(LaxEmailAddress("other@example.com"))
       )
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
@@ -61,13 +60,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationBuilder {
     }
 
     "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
-      val app       = buildApplication(
-        clientId = ClientId("a-client-id"),
-        name = Some("appName1"),
-        deployedTo = Environment.PRODUCTION,
-        collaborators = Set(admin(LaxEmailAddress("email@example.com"))),
-        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
-      )
+      val app       = standardApp.withCollaborators(admin(LaxEmailAddress("email@example.com")))
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
       val document = Jsoup.parse(deleteDeveloper(developer).body)

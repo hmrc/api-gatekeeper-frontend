@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Instant
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
@@ -29,8 +28,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -43,6 +41,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 
 class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationBuilder {
 
@@ -68,22 +67,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     )
   }
 
-  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationWithCollaborators = {
-    buildApplication(
-      ApplicationId.random,
-      ClientId("clientId"),
-      "gatewayId",
-      Some(name),
-      deployedTo,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = instant)
-    )
-  }
-
+  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationWithCollaborators = 
+    standardApp
+    .withId(ApplicationId.random)
+    .withCollaborators(collaborators)
+    .withName(ApplicationName(name))
+    .withEnvironment(deployedTo)
+    
   def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.PRODUCTION)
 
   def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.SANDBOX)

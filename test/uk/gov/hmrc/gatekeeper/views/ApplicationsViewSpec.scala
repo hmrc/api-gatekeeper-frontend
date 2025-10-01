@@ -70,71 +70,11 @@ class ApplicationsViewSpec extends CommonViewSpec {
     )
 
     val applications    = List[ApplicationWithCollaborators](
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("Testing App"),
-        Environment.PRODUCTION,
-        Some("Testing App"),
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
-      ),
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("Pending Gatekeeper Approval App"),
-        Environment.PRODUCTION,
-        Some("Pending Gatekeeper Approval App"),
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(name = State.PENDING_GATEKEEPER_APPROVAL, updatedOn = Instant.now())
-      ),
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("Pending Requester Verification App"),
-        Environment.PRODUCTION,
-        Some("Pending Requester Verification App"),
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(name = State.PENDING_REQUESTER_VERIFICATION, updatedOn = Instant.now())
-      ),
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("Production App"),
-        Environment.PRODUCTION,
-        Some("Production App"),
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
-      ),
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("Blocked Production App"),
-        Environment.PRODUCTION,
-        Some("Blocked Production App"),
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
-      ).modify(_.copy(blocked = true))
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Testing App")).withState( ApplicationState(updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Gatekeeper Approval App")).withState( ApplicationState(name = State.PENDING_GATEKEEPER_APPROVAL, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Requester Verification App")).withState( ApplicationState(name = State.PENDING_REQUESTER_VERIFICATION, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState( ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Blocked Production App")).withState( ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())).withBlocked(true),
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
