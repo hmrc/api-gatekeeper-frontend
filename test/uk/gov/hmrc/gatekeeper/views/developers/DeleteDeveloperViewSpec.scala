@@ -23,8 +23,9 @@ import org.jsoup.Jsoup
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
@@ -32,8 +33,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
@@ -48,7 +47,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
 
     "show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
       val app       = standardApp.withCollaborators(
-        admin(LaxEmailAddress("email@example.com")), 
+        admin(LaxEmailAddress("email@example.com")),
         admin(LaxEmailAddress("other@example.com"))
       )
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))

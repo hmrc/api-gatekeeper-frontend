@@ -26,8 +26,9 @@ import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, IpAllowlist, RateLimitTier, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
@@ -35,9 +36,6 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.IpAllowListData
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationWithCollaboratorsFixtures with FixedClock with ApplicationBuilder {
 

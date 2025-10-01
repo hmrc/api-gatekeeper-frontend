@@ -26,7 +26,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -55,7 +55,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val stdApp1 = standardApp
+    val stdApp1          = standardApp
     val gatekeeperUserId = "loggedin.gatekeeper"
     val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
   }

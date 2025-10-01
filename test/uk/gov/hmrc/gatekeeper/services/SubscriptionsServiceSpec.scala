@@ -24,9 +24,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
@@ -55,9 +53,9 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val stdApp1 = standardApp
 
     val stdApp2 = standardApp2
-      
+
     val privilegedAppGK = privilegedApp
-    val ropcAppGK              = ropcApp
+    val ropcAppGK       = ropcApp
 
     val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
     val gatekeeperUserId       = "loggedin.gatekeeper"

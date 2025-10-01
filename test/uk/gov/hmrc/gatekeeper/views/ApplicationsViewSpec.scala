@@ -70,11 +70,19 @@ class ApplicationsViewSpec extends CommonViewSpec {
     )
 
     val applications    = List[ApplicationWithCollaborators](
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Testing App")).withState( ApplicationState(updatedOn = Instant.now())),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Gatekeeper Approval App")).withState( ApplicationState(name = State.PENDING_GATEKEEPER_APPROVAL, updatedOn = Instant.now())),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Requester Verification App")).withState( ApplicationState(name = State.PENDING_REQUESTER_VERIFICATION, updatedOn = Instant.now())),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState( ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Blocked Production App")).withState( ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())).withBlocked(true),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Testing App")).withState(ApplicationState(updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Gatekeeper Approval App")).withState(ApplicationState(
+        name = State.PENDING_GATEKEEPER_APPROVAL,
+        updatedOn = Instant.now()
+      )),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Requester Verification App")).withState(ApplicationState(
+        name = State.PENDING_REQUESTER_VERIFICATION,
+        updatedOn = Instant.now()
+      )),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState(ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Blocked Production App")).withState(
+        ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
+      ).withBlocked(true)
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 

@@ -25,8 +25,15 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{
+  ApplicationState,
+  ApplicationWithCollaborators,
+  ApplicationWithCollaboratorsFixtures,
+  Collaborators,
+  DeleteRestriction
+}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyEnabledForm
@@ -34,10 +41,6 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionEnabledView
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 
 class ManageDeleteRestrictionEnabledViewSpec extends CommonViewSpec {
 

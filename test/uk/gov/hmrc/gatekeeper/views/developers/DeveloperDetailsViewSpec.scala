@@ -24,9 +24,10 @@ import org.jsoup.nodes.Document
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
@@ -36,9 +37,6 @@ import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.deskproOrganisation
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 
 class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
