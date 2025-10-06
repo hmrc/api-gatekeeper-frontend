@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
-object ApplicationResponseBuilder extends ApplicationTokenData {
+object ApplicationResponseBuilder extends ApplicationTokenFixtures {
 
   def buildApplication(applicationId: ApplicationId, clientId: ClientId, userId1: UserId): ApplicationWithCollaborators = {
     val standardAccess = Access.Standard(
@@ -54,7 +54,7 @@ object ApplicationResponseBuilder extends ApplicationTokenData {
     ApplicationWithCollaborators(
       CoreApplication(
         id = applicationId,
-        ApplicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
+        applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
         gatewayId = "gateway-id",
         name = ApplicationName("Petes test application"),
         deployedTo = Environment.PRODUCTION,
@@ -69,7 +69,8 @@ object ApplicationResponseBuilder extends ApplicationTokenData {
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
         lastActionActor = ActorType.UNKNOWN,
-        deleteRestriction = DeleteRestriction.NoRestriction
+        deleteRestriction = DeleteRestriction.NoRestriction,
+        organisationId = None
       ),
       collaborators = Set(buildCollaborator(userId1))
     )

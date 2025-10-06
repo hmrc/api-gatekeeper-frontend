@@ -26,8 +26,9 @@ import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, CheckInformation, IpAllowlist, RateLimitTier, TermsOfUseAgreement}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
@@ -36,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
 
-class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationBuilder {
+class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationWithCollaboratorsFixtures with FixedClock with ApplicationBuilder {
 
   trait Setup {
     implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
@@ -48,23 +49,9 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     val clientId = ClientId("clientid")
 
-    val application = buildApplication(
-      id = ApplicationId.random,
-      clientId = clientId,
-      gatewayId = "gateway",
-      name = Some("AnApplicationName"),
-      deployedTo = Environment.PRODUCTION,
-      description = None,
-      collaborators = Set.empty,
-      createdOn = Instant.now(),
-      lastAccess = Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = Instant.now()),
-      rateLimitTier = RateLimitTier.BRONZE,
-      checkInformation = None,
-      blocked = false,
-      ipAllowlist = IpAllowlist()
-    )
+    val application = standardApp
+      .withState(appStateTesting)
+      .withIpAllowlist(IpAllowListData.default)
 
     val DefaultApplicationViewModel = ApplicationViewModel(
       developers = developers,

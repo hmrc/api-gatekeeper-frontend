@@ -300,7 +300,6 @@ class ApplicationControllerSpec
           state = ApplicationState(updatedOn = instant),
           loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
           postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout"), PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
-          moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
 
@@ -341,7 +340,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           state = ApplicationState(updatedOn = instant),
           loginRedirectUris = List(LoginRedirectUri.unsafeApply("http://localhost:8080/callback")),
           postLogoutRedirectUris = List(PostLogoutRedirectUri.unsafeApply("http://localhost:8080/logout"), PostLogoutRedirectUri.unsafeApply("http://localhost:8080/feedback")),
-          moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
 
@@ -380,7 +378,6 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
           access = Access.Standard(importantSubmissionData = Some(defaultImportantSubmissionData)),
           state = ApplicationState(updatedOn = instant),
-          moreApplication = MoreApplication(),
           deleteRestriction = aDeleteRestriction
         )
         val secondApplicationResponse = buildApplication(
@@ -398,9 +395,8 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T13:02:01Z")),
           access = Access.Standard(),
           state = ApplicationState(name = State.DELETED, updatedOn = instant),
-          moreApplication = MoreApplication(lastActionActor = ActorType.GATEKEEPER)
+          lastActionActor = ActorType.GATEKEEPER
         )
-
         ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse): _*)
 
         val eventualResult: Future[Result] = underTest.applicationsPageCsv()(aLoggedInRequestForDeletedApps)

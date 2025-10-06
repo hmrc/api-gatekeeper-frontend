@@ -707,9 +707,9 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
-        case ApplicationCommands.ChangeGrantLength(aUser, _, length) =>
+        case ApplicationCommands.ChangeGrantLength(aUser, _, aLength) =>
           aUser shouldBe gatekeeperUserId
-          length shouldBe GrantLength.THREE_MONTHS
+          aLength shouldBe GrantLength.THREE_MONTHS
       }
     }
   }

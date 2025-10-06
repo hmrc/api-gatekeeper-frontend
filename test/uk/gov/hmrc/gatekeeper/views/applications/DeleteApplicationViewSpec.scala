@@ -24,7 +24,7 @@ import play.api.mvc.Flash
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -37,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.DeleteApplicationView
 
 class DeleteApplicationViewSpec extends CommonViewSpec {
 
-  trait Setup extends ApplicationBuilder {
+  trait Setup extends ApplicationWithCollaboratorsFixtures {
     val request                   = FakeRequest().withCSRFToken
     val deleteApplicationView     = app.injector.instanceOf[DeleteApplicationView]
     val adminMissingMessages      = messagesProvider.messages("application.administrator.missing")
@@ -45,23 +45,10 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
     val adminEmail = "sample@example.com"
 
-    val application =
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid"),
-        "gatewayId",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        Set(
-          Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
-          Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
-        ),
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
-      )
+    val application = standardApp.withCollaborators(
+      Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
+      Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
+    )
 
     val applicationWithHistory = ApplicationWithHistory(application, List.empty)
   }

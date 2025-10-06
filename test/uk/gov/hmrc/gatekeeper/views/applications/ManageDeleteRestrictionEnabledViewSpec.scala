@@ -25,8 +25,15 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, MoreApplication}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, ClientId, Environment, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{
+  ApplicationState,
+  ApplicationWithCollaborators,
+  ApplicationWithCollaboratorsFixtures,
+  Collaborators,
+  DeleteRestriction
+}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyEnabledForm
@@ -37,29 +44,13 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionEna
 
 class ManageDeleteRestrictionEnabledViewSpec extends CommonViewSpec {
 
-  trait Setup extends ApplicationBuilder {
+  trait Setup extends ApplicationWithCollaboratorsFixtures with FixedClock {
     val request                                                                = FakeRequest().withCSRFToken
     val manageDeleteRestrictionEnabledView: ManageDeleteRestrictionEnabledView = app.injector.instanceOf[ManageDeleteRestrictionEnabledView]
 
-    val application: ApplicationWithCollaborators =
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid"),
-        "gatewayId",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        Set(
-          Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
-          Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
-        ),
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now()),
-        moreApplication = MoreApplication(),
-        deleteRestriction = aDeleteRestriction
-      )
+    val aDeleteRestriction = DeleteRestriction.DoNotDelete("Kept for testing", Actors.Unknown, instant)
+
+    val application: ApplicationWithCollaborators = standardApp.modify(x => x.copy(deleteRestriction = aDeleteRestriction))
 
     val reason     = "Do not delete this application"
     val reasonDate = "26th Sept 2023"

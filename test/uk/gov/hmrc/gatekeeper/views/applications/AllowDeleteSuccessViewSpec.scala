@@ -25,7 +25,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, MoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -40,23 +40,7 @@ class AllowDeleteSuccessViewSpec extends CommonViewSpec {
     val request                                                                = FakeRequest()
     val manageDeleteRestrictionSuccessView: ManageDeleteRestrictionSuccessView = app.injector.instanceOf[ManageDeleteRestrictionSuccessView]
 
-    val application: ApplicationWithCollaborators =
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid"),
-        "gatewayId",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        Set(
-          Collaborators.Administrator(UserId.random, LaxEmailAddress("sample@example.com")),
-          Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
-        ),
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = Instant.now())
-      )
+    val application: ApplicationWithCollaborators = standardApp
   }
 
   "Manage Delete Restriction Success view" should {

@@ -235,7 +235,7 @@ object CreatePrivAppSuccessResult {
   }
 
   private def unpack: (CoreApplication, Option[TotpSecrets]) => CreatePrivAppSuccessResult = (app, totp) => {
-    CreatePrivAppSuccessResult(app.id, app.name, app.deployedTo, app.clientId, totp, asAppAccess(app.access))
+    CreatePrivAppSuccessResult(app.id, app.name, app.deployedTo, app.token.clientId, totp, asAppAccess(app.access))
   }
 
   import play.api.libs.functional.syntax._

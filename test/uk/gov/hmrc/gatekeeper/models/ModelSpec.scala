@@ -16,13 +16,11 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import java.time.Instant
-
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
@@ -53,20 +51,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
     val developer                                   = Collaborators.Developer(UserId.random, emailAddress)
     val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
     val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    def application(teamMembers: Set[Collaborator]) =
-      buildApplication(
-        ApplicationId.random,
-        ClientId("clientid"),
-        "gatewayId",
-        Some("application"),
-        Environment.PRODUCTION,
-        None,
-        teamMembers,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = instant)
-      )
+    def application(teamMembers: Set[Collaborator]) = standardApp.withCollaborators(teamMembers)
 
     "return true when the given email address is the only admin and no other team members" in {
       val app = application(Set(admin))
@@ -120,7 +105,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
            |  "id": "${privilegedCoreApp.id}",
            |  "name": "${privilegedCoreApp.name}",
            |  "deployedTo": "${privilegedCoreApp.deployedTo}",
-           |  "clientId": "${privilegedCoreApp.clientId}",
+           |  "clientId": "${privilegedCoreApp.token.clientId}",
            |  "access": ${Json.toJson(privilegedCoreApp.access).toString()},
            |  "totp": {
            |    "production": "$totp"
@@ -132,7 +117,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
-      result.clientId shouldBe privilegedCoreApp.clientId
+      result.clientId shouldBe privilegedCoreApp.token.clientId
       result.access.accessType shouldBe AccessType.PRIVILEGED
       result.totp shouldBe Some(TotpSecrets(totp))
     }
@@ -150,13 +135,12 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
-      result.clientId shouldBe privilegedCoreApp.clientId
+      result.clientId shouldBe privilegedCoreApp.token.clientId
       result.access.accessType shouldBe AccessType.PRIVILEGED
       result.totp shouldBe Some(TotpSecrets(totp))
     }
 
     "read the CoreApplication without TOTP secret" in {
-      val totp         = "totp-secret"
       val jsonResponse =
         s"""{
            |  "details": ${Json.toJson(privilegedCoreApp).toString()}
@@ -167,7 +151,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.id shouldBe privilegedCoreApp.id
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
-      result.clientId shouldBe privilegedCoreApp.clientId
+      result.clientId shouldBe privilegedCoreApp.token.clientId
       result.access.accessType shouldBe AccessType.PRIVILEGED
       result.totp shouldBe None
     }

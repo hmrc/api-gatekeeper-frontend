@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDateTime}
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -29,13 +28,12 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, AccessType}
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.models._
@@ -46,9 +44,9 @@ class ApplicationConnectorSpec
     with WireMockSugar
     with GuiceOneAppPerSuite
     with UrlEncoding
-    with ApplicationBuilder
     with ApiIdentifierFixtures
-    with ApplicationWithCollaboratorsFixtures {
+    with ApplicationWithCollaboratorsFixtures
+    with FixedClock {
 
   val apiVersion1   = ApiVersionNbr.random
   val applicationId = ApplicationId.random
@@ -115,19 +113,7 @@ class ApplicationConnectorSpec
     )
 
     "retrieve all applications" in new Setup {
-      val applications = List(buildApplication(
-        applicationId,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = instant)
-      ))
+      val applications = List(standardApp.withCollaborators(collaborators))
       val payload      = Json.toJson(applications).toString
 
       stubFor(
@@ -143,19 +129,7 @@ class ApplicationConnectorSpec
     }
 
     "retrieve all applications from sandbox" in new Setup {
-      val applications = List(buildApplication(
-        applicationId,
-        ClientId("clientid1"),
-        "gatewayId1",
-        Some("application1"),
-        Environment.PRODUCTION,
-        None,
-        collaborators,
-        Instant.now(),
-        Some(Instant.now()),
-        access = Access.Standard(),
-        state = ApplicationState(updatedOn = instant)
-      ))
+      val applications = List(standardApp.withCollaborators(collaborators))
       val payload      = Json.toJson(applications).toString
 
       stubFor(
@@ -272,19 +246,7 @@ class ApplicationConnectorSpec
       changedAt = instant
     )
     val applicationState                 = ApplicationState(State.TESTING, updatedOn = instant)
-    val application                      = buildApplication(
-      applicationId,
-      ClientId("clientid1"),
-      "gatewayId1",
-      Some("application1"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now().truncatedTo(ChronoUnit.MILLIS),
-      Some(Instant.now().truncatedTo(ChronoUnit.MILLIS)),
-      access = Access.Standard(),
-      state = applicationState
-    )
+    val application                      = standardApp.withCollaborators(collaborators).withState(applicationState)
     val appWithHistory                   = ApplicationWithHistory(application, List(stateHistory))
     val response                         = Json.toJson(appWithHistory).toString
 
@@ -350,7 +312,7 @@ class ApplicationConnectorSpec
       val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None)
 
       val request               = Json.toJson(createPrivAppRequest).toString
-      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.clientId, totpSecrets, appAccess)
+      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.token.clientId, totpSecrets, appAccess)
       val response              =
         s"""{
            |  "details": ${Json.toJson(app).toString()},

@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Instant
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future.successful
 
@@ -27,8 +26,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -57,25 +55,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
-    val collaborators = Set[Collaborator](
-      Collaborators.Administrator(UserId.random, "sample@example.com".toLaxEmail),
-      Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    )
-
-    val stdApp1 = buildApplication(
-      ApplicationId.random,
-      ClientId("clientid1"),
-      "gatewayId1",
-      Some("application1"),
-      Environment.PRODUCTION,
-      None,
-      collaborators,
-      Instant.now(),
-      Some(Instant.now()),
-      access = Access.Standard(),
-      state = ApplicationState(updatedOn = instant)
-    )
-
+    val stdApp1          = standardApp
     val gatekeeperUserId = "loggedin.gatekeeper"
     val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
   }

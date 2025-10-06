@@ -24,9 +24,10 @@ import org.jsoup.nodes.Document
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, Collaborators, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 
-class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
+class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
   trait Setup {
     val developerDetails = app.injector.instanceOf[DeveloperDetailsView]
@@ -198,20 +199,12 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationBuilder {
     }
 
     "show developer with applications when logged in as superuser" in new Setup {
-      val testApplication1 = buildApplication(
-        clientId = ClientId("a-client-id"),
-        name = Some("appName1"),
-        deployedTo = Environment.PRODUCTION,
-        collaborators = Set(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.TESTING, updatedOn = Instant.now())
-      )
-      val testApplication2 = buildApplication(
-        clientId = ClientId("a-client-id"),
-        name = Some("appName2"),
-        deployedTo = Environment.PRODUCTION,
-        collaborators = Set(Collaborators.Developer(UserId.random, "email@example.com".toLaxEmail)),
-        state = ApplicationState(State.PRODUCTION, updatedOn = Instant.now())
-      )
+      val testApplication1 = standardApp
+        .withName(ApplicationName("appName1"))
+        .withCollaborators(Collaborators.Administrator(UserId.random, "email@example.com".toLaxEmail))
+      val testApplication2 = standardApp2
+        .withName(ApplicationName("appName2"))
+        .withCollaborators(Collaborators.Developer(UserId.random, "email@example.com".toLaxEmail))
 
       val developerWithApps: Developer = developer.copy(applications = List(testApplication1, testApplication2))
 
