@@ -29,6 +29,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaborators, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -36,7 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
-import uk.gov.hmrc.gatekeeper.mocks.connectors.ApiPlatformDeskproConnectorMockProvider
+import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
@@ -83,6 +84,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       with ArgumentMatchersSugar
       with ApplicationConnectorMockProvider
       with CommandConnectorMockProvider
+      with ThirdPartyOrchestratorConnectorMockProvider
       with DeveloperConnectorMockProvider
       with XmlServiceMockProvider
       with ApiPlatformDeskproConnectorMockProvider {
@@ -93,6 +95,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
+      TPOConnectorMock.aMock,
       CommandConnectorMock.aMock,
       apiPlatformDeskproConnector,
       mockXmlService,
@@ -120,7 +123,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
     def fetchDeveloperWillReturn(
         user: RegisteredUser,
-        includeDeleted: FetchDeletedApplications,
+        includeDeleted: Boolean,
         productionApps: List[ApplicationWithCollaborators] = List.empty,
         sandboxApps: List[ApplicationWithCollaborators] = List.empty
       ) = {
@@ -131,16 +134,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(user.userId, List(orgOne))
       ApiPlatformDeskproConnectorMock.GetOrganisationsForUser.returns(Some(organisations))
 
-      includeDeleted match {
-        case FetchDeletedApplications.Include => {
-          ApplicationConnectorMock.Prod.FetchApplicationsByUserId.returns(productionApps: _*)
-          ApplicationConnectorMock.Sandbox.FetchApplicationsByUserId.returns(sandboxApps: _*)
-        }
-        case FetchDeletedApplications.Exclude => {
-          ApplicationConnectorMock.Prod.FetchApplicationsExcludingDeletedByUserId.returns(productionApps: _*)
-          ApplicationConnectorMock.Sandbox.FetchApplicationsExcludingDeletedByUserId.returns(sandboxApps: _*)
-        }
-      }
+      TPOConnectorMock.Query.returnsForQry(Environment.PRODUCTION)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), productionApps)
+      TPOConnectorMock.Query.returnsForQry(Environment.SANDBOX)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), sandboxApps)
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
@@ -362,13 +357,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     "fetch the developer and the applications they are a team member on" in new Setup {
       val developer = aUser(name = "Fred")
       val apps      = List(anApp("application", Set(developer.email.asAdministratorCollaborator)))
-      fetchDeveloperWillReturn(developer, FetchDeletedApplications.Include, apps)
+      fetchDeveloperWillReturn(developer, true, apps)
 
       val result = await(underTest.fetchDeveloper(developer.userId, FetchDeletedApplications.Include))
 
       result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne), Some(organisations))
       verify(mockDeveloperConnector).fetchByUserId(eqTo(developer.userId))(*)
-      verify(mockProductionApplicationConnector).fetchApplicationsByUserId(eqTo(developer.userId))(*)
     }
 
     "remove MFA" in new Setup {
@@ -395,19 +389,19 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val user             = aUser("Fred", emailPreferences = emailPreferences)
 
     "fetch the developer when requested by userId" in new Setup {
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
+      fetchDeveloperWillReturn(user, true)
 
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), Some(organisations))
     }
 
     "fetch the developer not including deleted applications when requested by userId" in new Setup {
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude)
+      fetchDeveloperWillReturn(user, false)
 
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), Some(organisations))
     }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Include)
+      fetchDeveloperWillReturn(user, true)
 
       await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), Some(organisations))
     }
@@ -449,7 +443,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
     "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
 
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
+      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
       ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
@@ -467,7 +461,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val app2 = aProdApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aProdApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
 
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List(app1, app2, app3))
+      fetchDeveloperWillReturn(user, false, List(app1, app2, app3))
       fetchDevelopersWillReturnTheRequestedUsers
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
@@ -489,7 +483,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val app2 = aSandboxApp("application2", Set(unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
       val app3 = aSandboxApp("application3", Set(verifiedAdminCollaborator, unverifiedAdminCollaborator, user.email.asAdministratorCollaborator))
 
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, List.empty, List(app1, app2, app3))
+      fetchDeveloperWillReturn(user, false, List.empty, List(app1, app2, app3))
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
       ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
@@ -512,7 +506,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
         name = "sandboxApplication",
         collaborators = Set(user.email.asDeveloperCollaborator, "another@example.com".toLaxEmail.asAdministratorCollaborator)
       ))
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps, sandboxApps)
+      fetchDeveloperWillReturn(user, false, productionApps, sandboxApps)
 
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
@@ -524,7 +518,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
     "delete the developer successfully if the call to deskpro failed" in new Setup {
 
-      fetchDeveloperWillReturn(user, FetchDeletedApplications.Exclude, productionApps = List.empty, sandboxApps = List.empty)
+      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty)
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
       ApiPlatformDeskproConnectorMock.MarkPersonInactive.fails()

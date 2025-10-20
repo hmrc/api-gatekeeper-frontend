@@ -21,12 +21,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
@@ -38,6 +40,7 @@ class DeveloperService @Inject() (
     developerConnector: DeveloperConnector,
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,
+    tpoConnector: ThirdPartyOrchestratorConnector,
     commandConnector: ApplicationCommandConnector,
     deskproConnector: ApiPlatformDeskproConnector,
     xmlService: XmlService,
@@ -168,19 +171,17 @@ class DeveloperService @Inject() (
 
   def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
 
-    def fetchApplicationsByUserId(connector: ApplicationConnector, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationWithCollaborators]] = {
-      includingDeleted match {
-        case FetchDeletedApplications.Include => connector.fetchApplicationsByUserId(userId)
-        case FetchDeletedApplications.Exclude => connector.fetchApplicationsExcludingDeletedByUserId(userId)
-      }
+    def fetchApplicationsByUserId(env: Environment, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationWithCollaborators]] = {
+      val qry = ApplicationQueries.applicationsByUserId(userId, includeDeleted = (includingDeleted == FetchDeletedApplications.Include))
+      tpoConnector.query[List[ApplicationWithCollaborators]](env)(qry)
     }
 
     for {
       user                   <- developerConnector.fetchByUserId(userId)
       xmlServiceNames        <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
       xmlOrganisations       <- xmlService.findOrganisationsByUserId(userId)
-      sandboxApplications    <- fetchApplicationsByUserId(sandboxApplicationConnector, userId, includingDeleted)
-      productionApplications <- fetchApplicationsByUserId(productionApplicationConnector, userId, includingDeleted)
+      sandboxApplications    <- fetchApplicationsByUserId(Environment.SANDBOX, userId, includingDeleted)
+      productionApplications <- fetchApplicationsByUserId(Environment.PRODUCTION, userId, includingDeleted)
       deskproOrganisations   <- deskproConnector.getOrganisationsForUser(user.email, hc)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations)
   }
