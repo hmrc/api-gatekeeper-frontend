@@ -37,6 +37,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApplicationConnectorSpec
@@ -368,6 +369,23 @@ class ApplicationConnectorSpec
       intercept[UpstreamErrorResponse] {
         await(productionConnector.searchApplications(params))
       }.statusCode shouldBe INTERNAL_SERVER_ERROR
+    }
+  }
+
+  "fetch applications by answer" should {
+    "return apps" in new Setup {
+      private val appsByAnswer = List(ApplicationsByAnswer("12345", List(applicationId)))
+      private val questionType = "vat-registration-number"
+      stubFor(
+        get(urlPathEqualTo(s"/submissions/answers/$questionType"))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(Json.toJson(appsByAnswer).toString())
+          )
+      )
+
+      await(productionConnector.fetchApplicationsByAnswer(questionType)) shouldBe appsByAnswer
     }
   }
 

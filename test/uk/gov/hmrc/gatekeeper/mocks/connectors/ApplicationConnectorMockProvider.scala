@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -50,6 +51,10 @@ trait ApplicationConnectorMockProvider {
       def returnsFor(apiContext: ApiContext, apiVersion: ApiVersionNbr)(collaboratorEmails: LaxEmailAddress*): Any =
         when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion))(*))
           .thenReturn(successful(collaboratorEmails.toList))
+    }
+
+    object FetchApplicationsByAnswer {
+      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(aMock.fetchApplicationsByAnswer(*)(*)).thenReturn(successful(appsByAnswer))
     }
 
     object FetchAllApplications {

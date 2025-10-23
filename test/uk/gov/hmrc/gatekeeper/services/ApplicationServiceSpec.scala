@@ -39,6 +39,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
 
@@ -742,6 +743,14 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
           aUser shouldBe gatekeeperUserId
           aReason shouldBe reason
       }
+    }
+  }
+  "fetchApplicationsByAnswer" should {
+    "fetch all from prod" in new Setup {
+      private val appsByAnswer = List(ApplicationsByAnswer("12345", List(applicationIdOne)))
+      ApplicationConnectorMock.Prod.FetchApplicationsByAnswer.returns(appsByAnswer)
+      val result               = await(underTest.fetchApplicationsByAnswer("vat-registration-number"))
+      result shouldBe appsByAnswer
     }
   }
 }
