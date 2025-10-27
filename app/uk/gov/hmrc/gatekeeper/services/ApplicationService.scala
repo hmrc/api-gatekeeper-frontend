@@ -352,8 +352,6 @@ class ApplicationService @Inject() (
       case _                            => Param.HasSubscriptionsQP :: Nil
     }
 
-    println(params)
-
     Future.sequence(environments.map(env => {
       tpoConnector.query[List[ApplicationWithCollaborators]](env)(ApplicationQuery.GeneralOpenEndedApplicationQuery(params))
     }))
