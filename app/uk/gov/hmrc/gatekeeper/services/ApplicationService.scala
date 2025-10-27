@@ -20,12 +20,14 @@ import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.http.Status.NOT_FOUND
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
+import cats.data.OptionT
+
+import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{ApplicationNameValidationResult, CreateApplicationRequestV1, CreationAccess}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{ApplicationNameValidationResult, CreateApplicationRequestV1, CreationAccess, QueriedApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.ApplicationCommands
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
@@ -88,62 +90,9 @@ class ApplicationService @Inject() (
       }
     }
 
-    applicationConnectorFor(Some(Environment.PRODUCTION)).fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
+    productionApplicationConnector.fetchAllApplicationsWithStateHistories().map(_.flatMap(appStateHistory => {
       buildChanges(appStateHistory.applicationId, appStateHistory.appName, appStateHistory.journeyVersion, appStateHistory.stateHistory)
     }))
-  }
-
-  def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    val sandboxApplicationsFuture    = sandboxApplicationConnector.fetchAllApplications()
-    val productionApplicationsFuture = productionApplicationConnector.fetchAllApplications()
-
-    for {
-      sandboxApps    <- sandboxApplicationsFuture
-      productionApps <- productionApplicationsFuture
-    } yield (sandboxApps ++ productionApps).distinct
-  }
-
-  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    val connectors: List[ApplicationConnector] = envFilter match {
-      case ProductionEnvironment => List(productionApplicationConnector)
-      case SandboxEnvironment    => List(sandboxApplicationConnector)
-      case AnyEnvironment        => List(productionApplicationConnector, sandboxApplicationConnector)
-    }
-
-    apiFilter match {
-      case OneOrMoreSubscriptions       =>
-        val allFutures    = connectors.map(_.fetchAllApplications())
-        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
-        for {
-          all    <- combine(allFutures)
-          noSubs <- combine(noSubsFutures)
-        } yield all.filterNot(app => noSubs.contains(app)).distinct
-      case NoSubscriptions              =>
-        val noSubsFutures = connectors.map(_.fetchAllApplicationsWithNoSubscriptions())
-        for {
-          apps <- combine(noSubsFutures)
-        } yield apps.distinct
-      case Value(subscribesTo, version) =>
-        val futures = connectors.map(_.fetchAllApplicationsBySubscription(subscribesTo, version))
-        for {
-          apps <- combine(futures)
-        } yield apps.distinct
-      case _                            => fetchApplications
-    }
-  }
-
-  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    productionApplicationConnector.fetchApplication(appId).recoverWith {
-      case UpstreamErrorResponse(_, NOT_FOUND, _, _) => sandboxApplicationConnector.fetchApplication(appId)
-    }
-  }
-
-  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
-    applicationConnectorFor(env).searchApplications(params)
-  }
-
-  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
-    applicationConnectorFor(env).fetchApplicationsWithSubscriptions()
   }
 
   def updateOverrides(application: ApplicationWithCollaborators, overrides: Set[OverrideFlag], gatekeeperUserId: String)(implicit hc: HeaderCarrier)
@@ -342,8 +291,6 @@ class ApplicationService @Inject() (
   def apiScopeConnectorFor(application: ApplicationWithCollaborators): ApiScopeConnector =
     if (application.isProduction) productionApiScopeConnector else sandboxApiScopeConnector
 
-  private def combine[T](futures: List[Future[List[T]]]): Future[List[T]] = Future.reduceLeft(futures)(_ ++ _)
-
   def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     productionApplicationConnector.doesApplicationHaveSubmissions(applicationId)
   }
@@ -354,4 +301,97 @@ class ApplicationService @Inject() (
 
   def fetchApplicationsByAnswer(question: String)(implicit hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] =
     productionApplicationConnector.fetchApplicationsByAnswer(question: String)
+
+// ---------------------------------------------------------------------------------------
+
+  import uk.gov.hmrc.http.HttpReads.Implicits._
+
+  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
+    val correctedParams = params
+      .filterNot {
+        case ("includeDeleted", _) => true
+        case ("main-submit", _)    => true
+        case ("environment", _)    => true
+        case ("showExport", _)     => true
+        case ("status", "ALL")     => true
+        case (_, v) if v.isBlank() => true
+        case _                     => false
+      }
+      .flatMap {
+        case ("page" -> v)             => List(("pageNbr" -> v))
+        case ("apiSubscription", text) =>
+          if (text == "ANY")
+            List((ParamNames.HasSubscriptions -> ""))
+          else if (text == "NONE")
+            List((ParamNames.NoSubscriptions -> ""))
+          else {
+            text.split("--").toList.filterNot(_.isBlank()) match {
+              case Nil                       => Nil
+              case context :: Nil            => List((ParamNames.ApiContext -> context))
+              case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
+              case _                         => Nil
+            }
+          }
+        case x                         => List(x)
+      }
+
+    tpoConnector.rawQuery[PaginatedApplications](env.getOrElse(Environment.SANDBOX))(correctedParams)
+  }
+
+  def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    val environments: List[Environment] = envFilter match {
+      case ProductionEnvironment => List(Environment.PRODUCTION)
+      case SandboxEnvironment    => List(Environment.SANDBOX)
+      case AnyEnvironment        => List(Environment.PRODUCTION, Environment.SANDBOX)
+    }
+
+    val params = apiFilter match {
+      case OneOrMoreSubscriptions       => Param.HasSubscriptionsQP :: Nil
+      case NoSubscriptions              => Param.NoSubscriptionsQP :: Nil
+      case Value(subscribesTo, version) => Param.ApiContextQP(ApiContext(subscribesTo)) :: Param.ApiVersionNbrQP(ApiVersionNbr(version)) :: Nil
+      case _                            => Param.HasSubscriptionsQP :: Nil
+    }
+
+    println(params)
+
+    Future.sequence(environments.map(env => {
+      tpoConnector.query[List[ApplicationWithCollaborators]](env)(ApplicationQuery.GeneralOpenEndedApplicationQuery(params))
+    }))
+      .map(_.flatten)
+  }
+
+  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
+    val qry = ApplicationQuery.ById(appId, Nil, wantStateHistory = true)
+
+    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.PRODUCTION)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.SANDBOX)(qry))
+    )
+      .getOrRaise(new RuntimeException("Expected an application but found nothing"))
+      .map(r => ApplicationWithHistory(r.asAppWithCollaborators, r.stateHistory.get))
+  }
+
+  def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+    val qry                          = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil)
+    val sandboxApplicationsFuture    = tpoConnector.query[List[QueriedApplication]](Environment.SANDBOX)(qry)
+    val productionApplicationsFuture = tpoConnector.query[List[QueriedApplication]](Environment.PRODUCTION)(qry)
+
+    for {
+      sandboxApps    <- sandboxApplicationsFuture.map(_.map(_.asAppWithCollaborators))
+      productionApps <- productionApplicationsFuture.map(_.map(_.asAppWithCollaborators))
+    } yield (sandboxApps ++ productionApps).distinct
+  }
+
+  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
+    val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
+
+    tpoConnector.query[List[QueriedApplication]](env.getOrElse(Environment.SANDBOX))(qry)
+      .map(_.map { qas =>
+        AppWithSubscriptionsForCsvResponse(
+          id = qas.details.id,
+          name = qas.details.name,
+          lastAccess = qas.details.lastAccess,
+          apiIdentifiers = qas.subscriptions.getOrElse(Set.empty)
+        )
+      })
+  }
 }

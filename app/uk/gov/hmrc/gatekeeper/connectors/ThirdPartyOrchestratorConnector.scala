@@ -26,6 +26,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
@@ -58,6 +60,20 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
         case Some(x) => x
         case None    => throw new RuntimeException // ApplicationNotFound
       }
+  }
+
+  def query[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+    val qryStringMap = QueryParamsToQueryStringMap.toQuery(qry).map {
+      case (k, vs) => k -> vs.mkString
+    }
+
+    rawQuery[T](environment)(qryStringMap)
+  }
+
+  def rawQuery[T](environment: Environment)(qryStringMap: Map[String, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+    http
+      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .execute[T]
   }
 }
 

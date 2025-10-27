@@ -26,11 +26,8 @@ import uk.gov.hmrc.gatekeeper.common.SignInSugar
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.stubs.AuthStub
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers with CustomMatchers with GivenWhenThen with AuthStub {
-
-  import MockDataSugar._
 
   Feature("Gatekeeper Sign in") {
     info("In order to manage uplift application requests")
@@ -53,8 +50,6 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
 
     Scenario("Ensure developer is on Gatekeeper in Prod and they know it") {
       stubPaginatedApplicationList()
-
-      stubApplicationResponse(approvedApp1, approvedApplication("application description", true))
 
       stubApiDefinition()
       stubAuthenticate(gatekeeperId)

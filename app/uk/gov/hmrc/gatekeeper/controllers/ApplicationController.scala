@@ -117,7 +117,7 @@ class ApplicationController @Inject() (
 
   def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env                       = Environment.apply(environment.getOrElse("SANDBOX"))
-    val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
+    val defaults                  = Map("pageNbr" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
       params.get("status").exists(statusParam => Set("ALL", "DELETED", "all", "deleted").contains(statusParam))

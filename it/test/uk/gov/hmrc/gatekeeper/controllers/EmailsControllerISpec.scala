@@ -50,6 +50,8 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         "auditing.consumer.baseUri.port"                                -> wireMockPort,
         "microservice.services.third-party-developer.host"              -> wireMockHost,
         "microservice.services.third-party-developer.port"              -> wireMockPort,
+        "microservice.services.third-party-orchestrator.host"           -> wireMockHost,
+        "microservice.services.third-party-orchestrator.port"           -> wireMockPort,
         "microservice.services.api-definition-production.host"          -> wireMockHost,
         "microservice.services.api-definition-production.port"          -> wireMockPort,
         "microservice.services.api-definition-sandbox.host"             -> wireMockHost,
@@ -222,7 +224,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         result.status shouldBe OK
 
         validateEmailAPISubscriptionsPage(Jsoup.parse(result.body), apis)
-
       }
 
       "respond with 200 and render the page with users when selected api sent" in {
