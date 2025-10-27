@@ -22,13 +22,13 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 
 class ApiGatekeeperDeleteApplicationSpec
     extends ApiGatekeeperBaseSpec
@@ -39,8 +39,8 @@ class ApiGatekeeperDeleteApplicationSpec
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Delete an application") {
-    Scenario("I can delete an application") {
 
+    Scenario("I can delete an application") {
       stubApplicationForDeleteSuccess()
 
       When("I navigate to the Delete Page for an application")

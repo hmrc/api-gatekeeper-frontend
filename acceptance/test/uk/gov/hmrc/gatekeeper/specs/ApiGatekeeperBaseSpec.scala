@@ -50,7 +50,7 @@ class ApiGatekeeperBaseSpec
     stubQueryWithStateHistory(appId, applicationWithExtras, stateHistory)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
-
+    stubHasTermsOfUseInvitation(appId, false)
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
     stubSubmissionLatestIsNotFound(appId)
   }

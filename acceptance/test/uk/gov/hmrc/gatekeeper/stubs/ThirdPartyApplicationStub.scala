@@ -34,6 +34,19 @@ import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, Moc
 trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithStateHistoryTestData {
   import MockDataSugar._
 
+  def stubHasTermsOfUseInvitation(appId: ApplicationId, has: Boolean = false): Unit = {
+    if (has) {
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
+        .willReturn(aResponse()
+          .withBody("""{"applicationId": 1}""")
+          .withStatus(OK)))
+    } else {
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
+        .willReturn(aResponse()
+          .withStatus(NOT_FOUND)))
+    }
+  }
+
   def stubApplicationsCollaborators(developers: Seq[AbstractUser]): Unit = {
     val developersJson = developers.map(u => u.email)
     val request        = ApplicationConnector.SearchCollaboratorsRequest(ApiContext("employers-paye"), ApiVersionNbr("1.0"))
