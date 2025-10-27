@@ -126,7 +126,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubFetchAllApplicationsList()
     stubPaginatedApplicationList()
     stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
-    stubApplicationExcludingDeletedForDeveloper()
+    // stubApplicationExcludingDeletedForDeveloper()
     stubApiDefinition()
     stubDevelopers()
     stubDevelopersSearch()
@@ -134,7 +134,7 @@ class ApiGatekeeperRemoveMfaSpec
     stubGetAllXmlApis()
     stubGetXmlApiForCategories()
     stubGetXmlOrganisationsForUser(UserId(developer8Id))
-    stubApplicationSubscription(MockDataSugar.applicationSubscription)
+    // stubApplicationSubscription(MockDataSugar.applicationSubscription)
     stubRemoveMfa()
     stubGetOrganisationsForUser(developer8.toLaxEmail)
   }

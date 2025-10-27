@@ -63,7 +63,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlApiForCategories()
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationSubscription(MockDataSugar.applicationSubscription)
+      // stubApplicationSubscription(MockDataSugar.applicationSubscription)
       stubGetOrganisationsForUser(unverifiedUser.email)
 
       signInGatekeeper(app)

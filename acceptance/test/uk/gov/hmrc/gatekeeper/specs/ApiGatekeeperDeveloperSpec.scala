@@ -60,9 +60,9 @@ class ApiGatekeeperDeveloperSpec
       )
 
       Given("I have successfully logged in to the API Gatekeeper")
-      stubApplicationList(approvedApplications)
-      stubApplication(applicationResponse)
-      stubApplicationSubscription(applicationSubscription)
+      // stubApplicationList(approvedApplications)
+      // stubApplication(applicationResponse)
+      // stubApplicationSubscription(applicationSubscription)
       stubPaginatedApplicationList()
       stubApplicationsCollaborators(developers)
       stubApiDefinition()
