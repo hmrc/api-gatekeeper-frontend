@@ -311,6 +311,7 @@ class ApplicationService @Inject() (
       .filterNot {
         case ("includeDeleted", _) => true
         case ("main-submit", _)    => true
+        case ("csrfToken", _)      => true
         case ("environment", _)    => true
         case ("showExport", _)     => true
         case ("status", "ALL")     => true
