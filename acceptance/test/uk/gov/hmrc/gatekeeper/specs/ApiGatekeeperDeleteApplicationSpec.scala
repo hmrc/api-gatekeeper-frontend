@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 
 class ApiGatekeeperDeleteApplicationSpec
     extends ApiGatekeeperBaseSpec
@@ -78,7 +79,8 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
+    val queriedApp = QueriedApplication.apply(applicationWithSubscriptionData).copy(stateHistory = Some(stateHistories))
+    stubApplication(Json.toJson(queriedApp).toString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.clickApplicationNameLink(applicationName.value)
@@ -86,7 +88,7 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
 
-    stubApplicationToDelete(applicationId)
+    // stubApplicationToDelete(applicationId)
 
     When("I click the Delete Application Button")
     ApplicationPage.clickDeleteApplicationButton()
@@ -94,7 +96,7 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Delete Application page")
     on(DeleteApplicationPage)
 
-    stubApplicationToDelete(applicationId)
+    // stubApplicationToDelete(applicationId)
 
     When("I fill out the Delete Application Form correctly")
     DeleteApplicationPage.completeForm(applicationName.value)

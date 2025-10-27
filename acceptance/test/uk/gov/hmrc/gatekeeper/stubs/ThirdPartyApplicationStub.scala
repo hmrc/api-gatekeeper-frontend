@@ -159,7 +159,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
             .withStatus(OK)
         )
     )
-  }  
+  }
 
   def stubBlockedApplication(): Unit = {
     stubApplicationById(blockedApplicationId, blockedApplicationWithHistory.toJsonString)
@@ -192,6 +192,11 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
         .withQueryParam("id", equalTo(appId.toString()))
         .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
     )
+    stubFor(
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("id", equalTo(appId.toString()))
+        .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
+    )
   }
 
   def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
@@ -207,6 +212,13 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
       None,
       None,
       stateHistory = Some(stateH)
+    )
+    stubFor(
+      get(urlPathEqualTo(s"/environment/SANDBOX/query"))
+        .withQueryParam("wantStateHistory", matching(".*"))
+        .willReturn(
+          aResponse().withJsonBody(result)
+        )
     )
     stubFor(
       get(urlPathEqualTo(s"/environment/PRODUCTION/query"))
