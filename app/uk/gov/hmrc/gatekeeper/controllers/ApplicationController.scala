@@ -44,6 +44,7 @@ import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
@@ -775,5 +776,15 @@ class ApplicationController @Inject() (
     }
 
     createPrivAppForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+  }
+
+  def fetchApplicationByAnswer(question: String): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val columnDefinitions = Seq[ColumnDefinition[ApplicationsByAnswer]](
+      ColumnDefinition(question, _.answer),
+      ColumnDefinition("count", _.applicationIds.length.toString),
+      ColumnDefinition("applications", _.applicationIds.mkString(","))
+    )
+
+    applicationService.fetchApplicationsByAnswer(question).map(submissions => Ok(toCsvString(columnDefinitions, submissions.toSeq)))
   }
 }

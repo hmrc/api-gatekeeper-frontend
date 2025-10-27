@@ -32,6 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, Clock
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 @Singleton
 class ApplicationService @Inject() (
@@ -350,4 +351,7 @@ class ApplicationService @Inject() (
   def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
     productionApplicationConnector.doesApplicationHaveTermsOfUseInvitation(applicationId)
   }
+
+  def fetchApplicationsByAnswer(question: String)(implicit hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] =
+    productionApplicationConnector.fetchApplicationsByAnswer(question: String)
 }

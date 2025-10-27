@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.Create
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -152,6 +153,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
         case Some(_) => true
         case None    => false
       })
+  }
+
+  def fetchApplicationsByAnswer(question: String)(implicit hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] = {
+    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/answers/$question")).execute[List[ApplicationsByAnswer]]
   }
 }
 
