@@ -29,6 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 
 class ApiGatekeeperDeleteApplicationSpec
     extends ApiGatekeeperBaseSpec
@@ -88,7 +89,7 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
 
-    // stubApplicationToDelete(applicationId)
+    stubApplicationToDelete(applicationId)
 
     When("I click the Delete Application Button")
     ApplicationPage.clickDeleteApplicationButton()
@@ -96,7 +97,7 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Delete Application page")
     on(DeleteApplicationPage)
 
-    // stubApplicationToDelete(applicationId)
+    stubApplicationToDelete(applicationId)
 
     When("I fill out the Delete Application Form correctly")
     DeleteApplicationPage.completeForm(applicationName.value)
@@ -105,11 +106,10 @@ class ApiGatekeeperDeleteApplicationSpec
     DeleteApplicationPage.clickDeleteButton()
   }
 
-  def stubApplicationToDelete() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+  def stubApplicationToDelete(applicationId: ApplicationId) = {
+    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
   }
 
-  // TODO - bollocks
   def stubApplicationForDeleteSuccess() = {
     val gkAppResponse = defaultApplication
 

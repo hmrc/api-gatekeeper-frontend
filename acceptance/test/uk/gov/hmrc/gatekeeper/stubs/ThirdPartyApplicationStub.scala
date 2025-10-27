@@ -182,9 +182,6 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
   }
 
-  def stubApplicationToDelete(applicationId: ApplicationId) = {
-    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
-  }
 
   def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: ApplicationWithCollaborators) = {
     val response = DispatchSuccessResult(gkAppResponse)
