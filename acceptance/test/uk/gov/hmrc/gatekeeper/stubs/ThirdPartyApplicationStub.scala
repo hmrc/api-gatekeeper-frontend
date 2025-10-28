@@ -113,7 +113,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
         .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
     )
     stubFor(
-      get(urlPathEqualTo("/environment/PRODUCTIION/query"))
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
         .withQueryParam("pageNbr", equalTo("1"))
         .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
     )
@@ -121,7 +121,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
 
   def stubFetchAllApplicationsList(): Unit = {
     stubFor(
-      get(urlEqualTo("/environment/PRODUCTIION/query"))
+      get(urlEqualTo("/environment/PRODUCTION/query"))
         .withQueryParam("pageNbr", WireMock.absent())
         .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
     )
@@ -181,7 +181,6 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   def stubApplicationForDeveloperDefault(): Unit = {
     stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
   }
-
 
   def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: ApplicationWithCollaborators) = {
     val response = DispatchSuccessResult(gkAppResponse)
