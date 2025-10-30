@@ -146,3 +146,4 @@ GET         /emails/email-preferences/selected-user-tax-regime                uk
 
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
 GET         /boxes                                                            uk.gov.hmrc.gatekeeper.controllers.BoxesController.page()
+GET         /deskpro/ticket/:ticketId/developer                               uk.gov.hmrc.gatekeeper.controllers.DeskproController.developerPage(ticketId: Int)

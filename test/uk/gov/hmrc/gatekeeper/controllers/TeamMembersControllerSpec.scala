@@ -539,7 +539,7 @@ class TeamMembersControllerSpec
 
         "the form is invalid" should {
           "show 400 Bad Request" in new Setup {
-            DeveloperServiceMock.userExists(emailToRemove)
+            DeveloperServiceMock.FetchUser.returnsFor(emailToRemove)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             givenTheAppWillBeReturned()
 
