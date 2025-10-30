@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
+import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
@@ -32,34 +34,17 @@ import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, Moc
 trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithStateHistoryTestData {
   import MockDataSugar._
 
-  def stubApplicationList(body: String): Unit = {
-    stubFor(get(urlEqualTo("/gatekeeper/applications"))
-      .willReturn(aResponse()
-        .withBody(body)
-        .withStatus(OK)))
-  }
-
-  def stubApplication(applicationResponse: String): Unit = {
-    stubFor(get(urlEqualTo("/application"))
-      .willReturn(aResponse()
-        .withBody(applicationResponse)
-        .withStatus(OK)))
-  }
-
-  def stubApplicationSubscription(applicationSubscriptionResponse: String): Unit = {
-    stubFor(
-      get(
-        urlEqualTo("/application/subscriptions")
-      )
+  def stubHasTermsOfUseInvitation(appId: ApplicationId, has: Boolean = false): Unit = {
+    if (has) {
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
         .willReturn(aResponse()
-          .withBody(applicationSubscriptionResponse)
-          .withStatus(OK))
-    )
-  }
-
-  def stubApiSubscription(apiContext: String) = {
-    stubFor(get(urlEqualTo(s"/application?subscribesTo=$apiContext"))
-      .willReturn(aResponse().withBody(applicationResponse).withStatus(OK)))
+          .withBody("""{"applicationId": 1}""")
+          .withStatus(OK)))
+    } else {
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
+        .willReturn(aResponse()
+          .withStatus(NOT_FOUND)))
+    }
   }
 
   def stubApplicationsCollaborators(developers: Seq[AbstractUser]): Unit = {
@@ -90,7 +75,6 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubApplicationRejectUplift(applicationId: ApplicationId, gatekeeperId: String) = {
-
     val rejectRequest =
       s"""
          |{
@@ -122,16 +106,66 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
       "total"        -> 7,
       "matching"     -> 7
     ).toString()
-    stubFor(get(urlMatching("/applications\\?page.*")).willReturn(aResponse().withBody(paginatedApplications).withStatus(OK)))
+
+    stubFor(
+      get(urlPathEqualTo("/environment/SANDBOX/query"))
+        .withQueryParam("pageNbr", equalTo("1"))
+        .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
+    )
+    stubFor(
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("pageNbr", equalTo("1"))
+        .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
+    )
   }
 
   def stubFetchAllApplicationsList(): Unit = {
-    stubFor(get(urlEqualTo(s"/application")).willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK)))
+    stubFor(
+      get(urlEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("pageNbr", WireMock.absent())
+        .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
+    )
+    stubFor(
+      get(urlEqualTo("/environment/SANDBOX/query"))
+        .withQueryParam("pageNbr", WireMock.absent())
+        .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
+    )
   }
 
   def stubApplicationForDeveloper(developerId: UserId, response: String): Unit = {
     stubFor(
-      get(urlPathEqualTo(s"/gatekeeper/developer/${developerId}/applications"))
+      get(urlPathEqualTo("/environment/SANDBOX/query"))
+        .withQueryParam("userId", equalTo(developerId.toString()))
+        .willReturn(
+          aResponse()
+            .withBody(response)
+            .withStatus(OK)
+        )
+    )
+    stubFor(
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("userId", equalTo(developerId.toString()))
+        .willReturn(
+          aResponse()
+            .withBody(response)
+            .withStatus(OK)
+        )
+    )
+  }
+
+  def stubApplicationById(id: ApplicationId, response: String): Unit = {
+    stubFor(
+      get(urlPathEqualTo("/environment/SANDBOX/query"))
+        .withQueryParam("id", equalTo(id.toString()))
+        .willReturn(
+          aResponse()
+            .withBody(response)
+            .withStatus(OK)
+        )
+    )
+    stubFor(
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("userId", equalTo(id.toString()))
         .willReturn(
           aResponse()
             .withBody(response)
@@ -141,35 +175,11 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubBlockedApplication(): Unit = {
-    stubFor(
-      get(
-        urlEqualTo(s"/gatekeeper/application/${blockedApplicationId.value.toString()}")
-      )
-        .willReturn(
-          aResponse()
-            .withBody(blockedApplicationWithHistory.toJsonString)
-            .withStatus(OK)
-        )
-    )
+    stubApplicationById(blockedApplicationId, blockedApplicationWithHistory.toJsonString)
   }
 
   def stubApplicationForDeveloperDefault(): Unit = {
     stubApplicationForDeveloper(UserId(developer8Id), applicationResponseForEmail)
-  }
-
-  def stubApplicationExcludingDeletedForDeveloper(): Unit = {
-    stubFor(
-      get(urlPathEqualTo(s"/developer/${developer8Id.toString()}/applications"))
-        .willReturn(
-          aResponse()
-            .withBody(applicationResponseForEmail)
-            .withStatus(OK)
-        )
-    )
-  }
-
-  def stubApplicationToDelete(applicationId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
   }
 
   def stubApplicationForUnblockSuccess(applicationId: ApplicationId, gkAppResponse: ApplicationWithCollaborators) = {
@@ -182,17 +192,50 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubApplicationToReview(applicationId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(
-      aResponse().withBody(pendingApprovalApplicationWithHistory.toJsonString).withStatus(OK)
-    ))
+    stubApplicationById(applicationId, pendingApprovalApplicationWithHistory.toJsonString)
   }
 
   def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}")).willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK)))
+    stubFor(
+      get(urlPathEqualTo("/environment/SANDBOX/query"))
+        .withQueryParam("id", equalTo(appId.toString()))
+        .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
+    )
+    stubFor(
+      get(urlPathEqualTo("/environment/PRODUCTION/query"))
+        .withQueryParam("id", equalTo(appId.toString()))
+        .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
+    )
   }
 
   def stubStateHistory(stateHistory: String, appId: ApplicationId) = {
     stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}/stateHistory")).willReturn(aResponse().withBody(stateHistory).withStatus(OK)))
+  }
+
+  def stubQueryWithStateHistory(appId: ApplicationId, applicationWithHistory: String, stateHistory: String) = {
+    val appWH  = Json.parse(applicationWithHistory).as[ApplicationWithSubscriptionFields]
+    val stateH = Json.parse(stateHistory).as[List[StateHistory]]
+    val result = QueriedApplication(
+      details = appWH.details,
+      collaborators = appWH.collaborators,
+      None,
+      None,
+      stateHistory = Some(stateH)
+    )
+    stubFor(
+      get(urlPathEqualTo(s"/environment/SANDBOX/query"))
+        .withQueryParam("wantStateHistory", matching(".*"))
+        .willReturn(
+          aResponse().withJsonBody(result)
+        )
+    )
+    stubFor(
+      get(urlPathEqualTo(s"/environment/PRODUCTION/query"))
+        .withQueryParam("wantStateHistory", matching(".*"))
+        .willReturn(
+          aResponse().withJsonBody(result)
+        )
+    )
   }
 
   def stubSubmissionLatestIsNotCompleted(appId: ApplicationId) = {
@@ -213,12 +256,11 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubUnblockedApplication(): Unit = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.value.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
   }
 
   def stubApplicationResponse(applicationId: ApplicationId, responseBody: String) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/$applicationId"))
-      .willReturn(aResponse().withBody(responseBody).withStatus(OK)))
+    stubApplicationById(applicationId, responseBody)
   }
 
 }

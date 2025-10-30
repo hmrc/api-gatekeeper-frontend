@@ -59,6 +59,8 @@ trait BaseSpec extends AnyFeatureSpec
         "microservice.services.third-party-application-sandbox.port"    -> stubPort,
         "microservice.services.third-party-application-production.host" -> stubHost,
         "microservice.services.third-party-application-production.port" -> stubPort,
+        "microservice.services.third-party-orchestrator.host"           -> stubHost,
+        "microservice.services.third-party-orchestrator.port"           -> stubPort,
         "microservice.services.api-definition-sandbox.host"             -> stubHost,
         "microservice.services.api-definition-sandbox.port"             -> stubPort,
         "microservice.services.api-definition-production.host"          -> stubHost,

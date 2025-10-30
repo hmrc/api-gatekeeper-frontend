@@ -63,6 +63,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   def selectToBlockApplication() = {
     When("I click the Block Application Button")
     stubUnblockedApplication()
+
     ApplicationPage.clickBlockApplication()
 
     Then("I am successfully navigated to the Block Application page")
@@ -78,7 +79,6 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
   def navigateToApplicationPageAsAdminFor(appName: String, page: WebPage) = {
     Given("I have successfully logged in to the API Gatekeeper")
     stubPaginatedApplicationList()
-
     stubApiDefinition()
 
     signInAdminUserGatekeeper(app)

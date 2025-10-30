@@ -21,13 +21,15 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json._
+import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaborators, PaginatedApplications, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.TermsOfUseInvitationResponse
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
@@ -63,54 +65,10 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def fetchApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}")).execute[ApplicationWithHistory]
-  }
-
+  // Awaiting TPA supporting wantsSubscriptionFields
+  //
   def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
     configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")).execute[List[StateHistory]]
-  }
-
-  def fetchApplicationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/developer/${userId}/applications")).execute[List[ApplicationWithCollaborators]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
-  }
-
-  def fetchApplicationsExcludingDeletedByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/developer/${userId}/applications")).execute[List[ApplicationWithCollaborators]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
-  }
-
-  def fetchAllApplicationsBySubscription(subscribesTo: String, version: String)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?subscribesTo=$subscribesTo&version=$version")).execute[List[ApplicationWithCollaborators]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
-  }
-
-  def fetchAllApplicationsWithNoSubscriptions()(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application?noSubscriptions=true")).execute[List[ApplicationWithCollaborators]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
-  }
-
-  def fetchAllApplications()(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/application")).execute[List[ApplicationWithCollaborators]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
-  }
-
-  def fetchAllApplicationsWithStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/stateHistory")).execute[List[ApplicationStateHistory]]
-      .recover {
-        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
-      }
   }
 
   def createPrivApp(request: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
@@ -123,36 +81,12 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
       })
   }
 
-  def searchApplications(params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/applications?${params.toSeq}")).execute[PaginatedApplications]
-  }
-
-  def fetchApplicationsWithSubscriptions()(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/gatekeeper/applications/subscriptions")).execute[List[AppWithSubscriptionsForCsvResponse]]
-  }
-
   def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion)
 
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/collaborators"))
       .withBody(Json.toJson(request))
       .execute[List[LaxEmailAddress]]
-  }
-
-  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")).execute[Option[Boolean]]
-      .map(_ match {
-        case Some(_) => true
-        case None    => false
-      })
-  }
-
-  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
-    configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/terms-of-use/application/${applicationId}")).execute[Option[TermsOfUseInvitationResponse]]
-      .map(_ match {
-        case Some(_) => true
-        case None    => false
-      })
   }
 
   def fetchApplicationsByAnswer(question: String)(implicit hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] = {
@@ -188,4 +122,30 @@ class ProductionApplicationConnector @Inject() (
   val serviceBaseUrl = appConfig.applicationProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder
+
+  def fetchAllApplicationsWithStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
+    http.get(url"$serviceBaseUrl/gatekeeper/applications/stateHistory")
+      .execute[List[ApplicationStateHistory]]
+      .recover {
+        case e: UpstreamErrorResponse => throw new FetchApplicationsFailed(e)
+      }
+  }
+
+  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    http.get(url"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")
+      .execute[Option[Boolean]]
+      .map(_ match {
+        case Some(_) => true
+        case None    => false
+      })
+  }
+
+  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+    http.get(url"$serviceBaseUrl/terms-of-use/application/${applicationId}")
+      .execute[Option[TermsOfUseInvitationResponse]]
+      .map(_ match {
+        case Some(_) => true
+        case None    => false
+      })
+  }
 }

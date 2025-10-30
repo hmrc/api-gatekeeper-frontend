@@ -51,9 +51,7 @@ class ApiGatekeeperDeveloperDetailsSpec
 
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
-
       stubFetchAllApplicationsList()
-
       stubApplicationForDeveloper(unverifiedUser.userId, defaultApplicationResponse.toSeq.toJsonString)
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
       stubApiDefinition()
@@ -63,7 +61,6 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlApiForCategories()
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubApplicationSubscription(MockDataSugar.applicationSubscription)
       stubGetOrganisationsForUser(unverifiedUser.email)
 
       signInGatekeeper(app)
