@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.{AuthenticatorAppMfaDetail, MfaId}
-import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
+import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
 
@@ -164,9 +164,17 @@ trait DeveloperServiceMockProvider {
         when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[ApiCategory])(*)).thenReturn(successful(users.toList))
     }
 
-    def userExists(email: LaxEmailAddress): Unit = {
-      when(mockDeveloperService.fetchUser(eqTo(email))(*)).thenReturn(successful(aUser(email)))
+    object FetchUser {
+
+      def returnsFor(email: LaxEmailAddress): Unit = {
+        when(mockDeveloperService.fetchUser(eqTo(email))(*)).thenReturn(successful(aUser(email)))
+      }
+
+      def returnsNotFound(): Unit = {
+        when(mockDeveloperService.fetchUser(*[LaxEmailAddress])(*)).thenReturn(failed(new IllegalArgumentException("Email was not found, unexpectedly")))
+      }
     }
+
   }
 
   def aUser(email: LaxEmailAddress, verified: Boolean = false): AbstractUser = RegisteredUser(email, idOf(email), "first", "last", verified = verified)

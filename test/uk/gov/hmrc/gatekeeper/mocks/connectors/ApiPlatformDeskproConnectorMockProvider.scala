@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.gatekeeper.mocks.connectors
 
-import scala.concurrent.Future.successful
+import scala.concurrent.Future.{failed, successful}
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import play.api.http.Status.NOT_FOUND
+import uk.gov.hmrc.http.UpstreamErrorResponse
+
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
@@ -34,6 +37,14 @@ trait ApiPlatformDeskproConnectorMockProvider {
 
     object GetOrganisation {
       def returns(org: DeskproOrganisation) = when(apiPlatformDeskproConnector.getOrganisation(*[OrganisationId], *)).thenReturn(successful(org))
+    }
+
+    object GetDeskproTicket {
+      def returns(ticket: DeskproTicket) = when(apiPlatformDeskproConnector.getDeskproTicket(*, *)).thenReturn(successful(ticket))
+
+      def failsNotFound() =
+        when(apiPlatformDeskproConnector.getDeskproTicket(*, *)).thenReturn(failed(UpstreamErrorResponse("Not Found", NOT_FOUND)))
+
     }
 
     object GetOrganisationsForUser {
