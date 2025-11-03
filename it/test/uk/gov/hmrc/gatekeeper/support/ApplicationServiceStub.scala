@@ -43,13 +43,21 @@ trait ApplicationServiceStub extends WireMockExtensions {
 
   def primeApplicationServiceFetchApplicationBySubscription(definition: ApiDefinition, apps: List[ApplicationWithCollaborators]): Unit = {
 
-    stubFor(get(urlPathEqualTo("/application"))
-      .withQueryParam("subscribesTo", containing(definition.context.value))
-      .withQueryParam("version", containing(definition.versions.head._1.value))
+    stubFor(get(urlPathEqualTo("/environment/PRODUCTION/query"))
+      .withQueryParam("context", containing(definition.context.value))
+      .withQueryParam("versionNbr", containing(definition.versions.head._1.value))
       .willReturn(
         aResponse()
           .withStatus(Status.OK)
           .withJsonBody(apps)
+      ))
+    stubFor(get(urlPathEqualTo("/environment/SANDBOX/query"))
+      .withQueryParam("context", containing(definition.context.value))
+      .withQueryParam("versionNbr", containing(definition.versions.head._1.value))
+      .willReturn(
+        aResponse()
+          .withStatus(Status.OK)
+          .withBody("[]")
       ))
   }
 }

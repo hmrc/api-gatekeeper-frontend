@@ -22,9 +22,10 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
@@ -38,8 +39,8 @@ class ApiGatekeeperDeleteApplicationSpec
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Delete an application") {
-    Scenario("I can delete an application") {
 
+    Scenario("I can delete an application") {
       stubApplicationForDeleteSuccess()
 
       When("I navigate to the Delete Page for an application")
@@ -78,7 +79,8 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
+    val queriedApp = QueriedApplication.apply(applicationWithSubscriptionData).copy(stateHistory = Some(stateHistories))
+    stubApplication(Json.toJson(queriedApp).toString, developers, stateHistories.toJsonString, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.clickApplicationNameLink(applicationName.value)
@@ -103,11 +105,10 @@ class ApiGatekeeperDeleteApplicationSpec
     DeleteApplicationPage.clickDeleteButton()
   }
 
-  def stubApplicationToDelete() = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${applicationId.toString()}")).willReturn(aResponse().withBody(defaultApplicationWithHistory.toJsonString).withStatus(OK)))
+  def stubApplicationToDelete(applicationId: ApplicationId) = {
+    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
   }
 
-  // TODO - bollocks
   def stubApplicationForDeleteSuccess() = {
     val gkAppResponse = defaultApplication
 

@@ -43,12 +43,14 @@ class ApiGatekeeperBaseSpec
     with ThirdPartyDeveloperStub
     with ApiPlatformMicroserviceStub {
 
-  def stubApplication(application: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[DisplayEvent] = Nil) = {
-    stubNewApplication(application, appId)
+  def stubApplication(applicationWithExtras: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[DisplayEvent] = Nil) = {
+    stubNewApplication(applicationWithExtras, appId)
     stubStateHistory(stateHistory, appId)
+    // Now also mock new single route when we're only after AppWithCollaborator and State History
+    stubQueryWithStateHistory(appId, applicationWithExtras, stateHistory)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
-
+    stubHasTermsOfUseInvitation(appId, false)
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
     stubSubmissionLatestIsNotFound(appId)
   }

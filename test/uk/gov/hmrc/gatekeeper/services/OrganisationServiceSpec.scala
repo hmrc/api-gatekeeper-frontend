@@ -33,7 +33,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollabor
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
-    val organisationService = new OrganisationService(apiPlatformDeskproConnector, ThirdPartyOrchestratorConnectorMock.aMock)
+    val organisationService = new OrganisationService(apiPlatformDeskproConnector, TPOConnectorMock.aMock)
 
     val organisationId      = OrganisationId("1")
     val organisationName    = "Org Name"
@@ -46,7 +46,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollabor
     "fetchApplicationsForOrganisation" should {
       "return a list of OrganisationWithApps" in new Setup {
         ApiPlatformDeskproConnectorMock.GetOrganisation.returns(organisation)
-        ThirdPartyOrchestratorConnectorMock.GetApplicationsByEmails.returns(List(email))(applicationResponse)
+        TPOConnectorMock.GetApplicationsByEmails.returns(List(email))(applicationResponse)
 
         val result = await(organisationService.fetchOrganisationWithApplications(organisationId))
 

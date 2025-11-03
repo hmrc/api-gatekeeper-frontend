@@ -18,17 +18,19 @@ package uk.gov.hmrc.gatekeeper.mocks.connectors
 
 import scala.concurrent.Future.successful
 
+import org.mockito.Mockito.{verify => mockitoVerify}
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.gatekeeper.connectors._
 
 trait ThirdPartyOrchestratorConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  object ThirdPartyOrchestratorConnectorMock {
+  object TPOConnectorMock {
     val aMock = mock[ThirdPartyOrchestratorConnector]
 
     object GetApplicationsByEmails {
@@ -54,6 +56,15 @@ trait ThirdPartyOrchestratorConnectorMockProvider {
 
       def duplicate() =
         when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
+    }
+
+    object Query {
+      def returnsFor[T](env: Environment)(t: T) = when(aMock.query[T](eqTo(env))(*)(*, *)).thenReturn(successful(t))
+
+      def returnsForQry[T](env: Environment)(query: ApplicationQuery, t: T) = when(aMock.query[T](eqTo(env))(eqTo(query))(*, *)).thenReturn(successful(t))
+
+      def verify[T](query: ApplicationQuery)                   = mockitoVerify(aMock, atLeastOnce).query[T](*)(eqTo(query))(*, *)
+      def verify[T](env: Environment, query: ApplicationQuery) = mockitoVerify(aMock, atLeastOnce).query[T](eqTo(env))(eqTo(query))(*, *)
     }
   }
 }

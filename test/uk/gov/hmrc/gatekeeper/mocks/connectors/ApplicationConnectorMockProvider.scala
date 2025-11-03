@@ -16,18 +16,14 @@
 
 package mocks.connectors
 
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import play.api.http.Status._
-import uk.gov.hmrc.http.UpstreamErrorResponse
-
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 trait ApplicationConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -38,12 +34,6 @@ trait ApplicationConnectorMockProvider {
   trait ApplicationConnectorMock {
     def aMock: ApplicationConnector
 
-    import mocks.PaginatedApplicationsBuilder._
-
-    object SearchApplications {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.searchApplications(*)(*)).thenReturn(successful(buildPaginatedApplications(apps.toList)))
-    }
-
     object SearchCollaborators {
       def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)).thenReturn(successful(emails.toList))
 
@@ -52,41 +42,8 @@ trait ApplicationConnectorMockProvider {
           .thenReturn(successful(collaboratorEmails.toList))
     }
 
-    object FetchAllApplications {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchAllApplications()(*)).thenReturn(successful(apps.toList))
-    }
-
-    object FetchAllApplicationsWithStateHistories {
-
-      def returns(applicationStateHistories: ApplicationStateHistory*) = when(aMock.fetchAllApplicationsWithStateHistories()(*))
-        .thenReturn(successful(applicationStateHistories.toList))
-    }
-
-    object FetchAllApplicationsWithNoSubscriptions {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchAllApplicationsWithNoSubscriptions()(*)).thenReturn(successful(apps.toList))
-    }
-
-    object FetchApplicationsWithSubscriptions {
-      def returns(apps: AppWithSubscriptionsForCsvResponse*) = when(aMock.fetchApplicationsWithSubscriptions()(*)).thenReturn(successful(apps.toList))
-    }
-
-    object FetchAllApplicationsBySubscription {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchAllApplicationsBySubscription(*, *)(*)).thenReturn(successful(apps.toList))
-    }
-
-    object FetchApplication {
-      def returns(app: ApplicationWithHistory) = when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
-
-      def failsNotFound() =
-        when(aMock.fetchApplication(*[ApplicationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not Found", NOT_FOUND)))
-    }
-
-    object FetchApplicationsByUserId {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchApplicationsByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
-    }
-
-    object FetchApplicationsExcludingDeletedByUserId {
-      def returns(apps: ApplicationWithCollaborators*) = when(aMock.fetchApplicationsExcludingDeletedByUserId(*[UserId])(*)).thenReturn(successful(apps.toList))
+    object FetchApplicationsByAnswer {
+      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(aMock.fetchApplicationsByAnswer(*)(*)).thenReturn(successful(appsByAnswer))
     }
 
     object CreatePrivApp {

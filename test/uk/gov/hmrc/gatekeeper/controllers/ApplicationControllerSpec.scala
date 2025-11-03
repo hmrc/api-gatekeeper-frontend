@@ -48,6 +48,7 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -276,6 +277,17 @@ class ApplicationControllerSpec
 
         body shouldNot include("Add privileged application")
 
+      }
+    }
+
+    "appsByAnswer" should {
+      "return csv data" in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+        ApplicationServiceMock.FetchApplicationsByAnswer.returns(List(ApplicationsByAnswer("12345", List(applicationId))))
+        private val question = "vat-registration-number"
+        val result           = underTest.fetchApplicationByAnswer(question)(aLoggedInRequest)
+        status(result) shouldBe OK
+        Helpers.contentAsString(result) shouldBe s"${question},count,applications\n12345,1,$applicationId\n"
       }
     }
 

@@ -25,6 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
 trait ApplicationServiceMockProvider {
@@ -35,6 +36,10 @@ trait ApplicationServiceMockProvider {
   val mockApplicationService = mock[ApplicationService]
 
   object ApplicationServiceMock {
+
+    object FetchApplicationsByAnswer {
+      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(mockApplicationService.fetchApplicationsByAnswer(*)(*)).thenReturn(successful(appsByAnswer))
+    }
 
     object FetchApplications {
       def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))

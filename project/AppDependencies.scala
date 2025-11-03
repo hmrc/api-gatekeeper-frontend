@@ -9,7 +9,7 @@ object AppDependencies {
 
   val tpdDomainVersion    = "0.14.0"
   val apiDomainVersion    = "0.20.0"
-  val appDomainVersion    = "0.87.0"
+  val appDomainVersion    = "0.88.0"
   val mockitoScalaVersion = "2.0.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
