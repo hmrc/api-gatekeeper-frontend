@@ -21,15 +21,16 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify, _}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
+import play.api.http.Status.NOT_FOUND
 import play.api.libs.json.Json
 import play.api.test.Helpers._
-import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, LaxEmailAddressData}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{GetOrganisationsForUserRequest, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, GetOrganisationsForUserRequest, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -52,6 +53,10 @@ class ApiPlatformDeskproConnectorSpec
     val organisation                   = DeskproOrganisation(organisationId, "test org", List(DeskproPerson("Bob", "bob@example.com".toLaxEmail)))
     val organisationsForUser           = List(DeskproOrganisation(organisationId, "test org 1", List.empty), DeskproOrganisation(OrganisationId("2"), "test org 2", List.empty))
 
+    val ticketId: Int = 123
+    val personId: Int = 16
+    val ticket        = DeskproTicket(ticketId, "ref1", personId, LaxEmailAddress("bob@example.com"), "awaiting_user", instant, instant, Some(instant), "subject 1")
+
     val underTest = new ApiPlatformDeskproConnector(mockConnectorConfig, httpClient)
   }
 
@@ -72,6 +77,43 @@ class ApiPlatformDeskproConnectorSpec
       val result = await(underTest.getOrganisation(organisationId, hc))
 
       result shouldBe organisation
+    }
+  }
+
+  "getDeskproTicket" should {
+    "return ticket" in new Setup {
+      val url     = s"/ticket/$ticketId"
+      val payload = Json.toJson(ticket)
+
+      stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(payload.toString)
+          )
+      )
+
+      val result = await(underTest.getDeskproTicket(ticketId, hc))
+
+      result shouldBe ticket
+    }
+
+    "return not found" in new Setup {
+      val url = s"/ticket/$ticketId"
+
+      stubFor(
+        get(urlEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(NOT_FOUND)
+          )
+      )
+
+      val result = intercept[UpstreamErrorResponse] {
+        await(underTest.getDeskproTicket(ticketId, hc))
+      }
+      result.message contains "404" shouldBe true
     }
   }
 

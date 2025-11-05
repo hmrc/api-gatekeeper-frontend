@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import java.time.Instant
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -26,7 +27,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{MarkPersonInactiveFailed, MarkPersonInactiveResult, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveResult, MarkPersonInactiveSuccess}
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
 
 @Singleton
@@ -58,6 +59,11 @@ class ApiPlatformDeskproConnector @Inject() (
       .recover(handleUpstreamErrors[MarkPersonInactiveResult](MarkPersonInactiveFailed))
   }
 
+  def getDeskproTicket(ticketId: Int, hc: HeaderCarrier): Future[DeskproTicket] = {
+    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    http.get(url"${config.serviceBaseUrl}/ticket/$ticketId").execute[DeskproTicket]
+  }
+
   private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
     logger.warn("Exception occurred when calling Deskpro", err)
     err match {
@@ -81,6 +87,22 @@ object ApiPlatformDeskproConnector {
 
   object MarkPersonInactiveRequest {
     implicit val format: OFormat[MarkPersonInactiveRequest] = Json.format[MarkPersonInactiveRequest]
+  }
+
+  case class DeskproTicket(
+      id: Int,
+      ref: String,
+      person: Int,
+      personEmail: LaxEmailAddress,
+      status: String,
+      dateCreated: Instant,
+      dateLastUpdated: Instant,
+      dateResolved: Option[Instant],
+      subject: String
+    )
+
+  object DeskproTicket {
+    implicit val format: OFormat[DeskproTicket] = Json.format[DeskproTicket]
   }
 
   sealed trait MarkPersonInactiveResult
