@@ -340,7 +340,7 @@ class ApplicationController @Inject() (
   def resendVerification(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       val result = Redirect(routes.ApplicationController.applicationPage(appId))
-      applicationService.resendVerification(app.application, loggedIn.userFullName.get) map {
+      applicationService.resendVerification(app, loggedIn.userFullName.get) map {
         case ApplicationUpdateSuccessResult =>
           result.flashing("success" -> "Verification email has been sent")
         case _                              =>
@@ -350,8 +350,8 @@ class ApplicationController @Inject() (
   }
 
   def manageAccessOverrides(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
-    withStandardApp(appId) { (appWithHistory, access) =>
-      Future.successful(Ok(manageAccessOverridesView(appWithHistory.application, accessOverridesForm.fill(access.overrides), request.role.isSuperUser)))
+    withStandardApp(appId) { (application, access) =>
+      Future.successful(Ok(manageAccessOverridesView(application, accessOverridesForm.fill(access.overrides), request.role.isSuperUser)))
     }
   }
 
@@ -366,7 +366,7 @@ class ApplicationController @Inject() (
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {
-        applicationService.updateOverrides(app.application, overrides, loggedIn.userFullName.get).map {
+        applicationService.updateOverrides(app, overrides, loggedIn.userFullName.get).map {
           case UpdateOverridesFailureResult(overrideFlagErrors) =>
             var form = accessOverridesForm.fill(overrides)
 
@@ -377,13 +377,13 @@ class ApplicationController @Inject() (
               )
             )
 
-            BadRequest(manageAccessOverridesView(app.application, form, request.role.isSuperUser))
+            BadRequest(manageAccessOverridesView(app, form, request.role.isSuperUser))
           case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[Set[OverrideFlag]]) = {
-        Future.successful(BadRequest(manageAccessOverridesView(app.application, form, request.role.isSuperUser)))
+        Future.successful(BadRequest(manageAccessOverridesView(app, form, request.role.isSuperUser)))
       }
 
       accessOverridesForm.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -393,9 +393,9 @@ class ApplicationController @Inject() (
   def manageScopes(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def showManageScopesView(scopes: Set[String]) =
-        Future.successful(Ok(manageScopesView(app.application, scopesForm.fill(scopes))))
+        Future.successful(Ok(manageScopesView(app, scopesForm.fill(scopes))))
 
-      app.application.access match {
+      app.access match {
         case Access.Privileged(_, scopes) => showManageScopesView(scopes)
         case Access.Ropc(scopes)          => showManageScopesView(scopes)
         case _                            => Future.failed(new RuntimeException("Invalid access type on application"))
@@ -406,17 +406,17 @@ class ApplicationController @Inject() (
   def updateScopes(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
-        applicationService.updateScopes(app.application, scopes, loggedIn.userFullName.get).map {
+        applicationService.updateScopes(app, scopes, loggedIn.userFullName.get).map {
           case UpdateScopesInvalidScopesResult =>
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
-            BadRequest(manageScopesView(app.application, form))
+            BadRequest(manageScopesView(app, form))
 
           case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[Set[String]]) = {
-        Future.successful(BadRequest(manageScopesView(app.application, form)))
+        Future.successful(BadRequest(manageScopesView(app, form)))
       }
 
       scopesForm.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -425,15 +425,15 @@ class ApplicationController @Inject() (
 
   def viewIpAllowlistPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(ipAllowlistView(app.application)))
+      Future.successful(Ok(ipAllowlistView(app)))
     }
   }
 
   def manageIpAllowlistPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       Future.successful(Ok(manageIpAllowlistView(
-        app.application,
-        IpAllowlistForm.form.fill(IpAllowlistForm(app.application.details.ipAllowlist.required, app.application.details.ipAllowlist.allowlist))
+        app,
+        IpAllowlistForm.form.fill(IpAllowlistForm(app.details.ipAllowlist.required, app.details.ipAllowlist.allowlist))
       )))
     }
   }
@@ -443,16 +443,16 @@ class ApplicationController @Inject() (
       def handleValidForm(form: IpAllowlistForm) = {
         if (form.required && form.allowlist.isEmpty) {
           val formWithErrors = IpAllowlistForm.form.fill(form).withError("allowlistedIps", messagesApi.preferred(request)("ipAllowlist.invalid.required"))
-          Future.successful(BadRequest(manageIpAllowlistView(app.application, formWithErrors)))
+          Future.successful(BadRequest(manageIpAllowlistView(app, formWithErrors)))
         } else {
-          applicationService.manageIpAllowlist(app.application, form.required, form.allowlist, loggedIn.userFullName.get).map { _ =>
+          applicationService.manageIpAllowlist(app, form.required, form.allowlist, loggedIn.userFullName.get).map { _ =>
             Redirect(routes.ApplicationController.applicationPage(appId))
           }
         }
       }
 
       def handleFormError(form: Form[IpAllowlistForm]) = {
-        Future.successful(BadRequest(manageIpAllowlistView(app.application, form)))
+        Future.successful(BadRequest(manageIpAllowlistView(app, form)))
       }
 
       IpAllowlistForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -461,8 +461,8 @@ class ApplicationController @Inject() (
 
   def manageRateLimitTier(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.application.details.rateLimitTier.toString))
-      Future.successful(Ok(manageRateLimitView(app.application, form)))
+      val form = UpdateRateLimitForm.form.fill(UpdateRateLimitForm(app.details.rateLimitTier.toString))
+      Future.successful(Ok(manageRateLimitView(app, form)))
     }
   }
 
@@ -470,15 +470,15 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: UpdateRateLimitForm) = {
         RateLimitTier.apply(form.tier) match {
-          case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get).map { _ =>
+          case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get).map { _ =>
               Redirect(routes.ApplicationController.applicationPage(appId))
             }
-          case None       => Future.successful(BadRequest(manageRateLimitView(app.application, UpdateRateLimitForm.form.fill(form))))
+          case None       => Future.successful(BadRequest(manageRateLimitView(app, UpdateRateLimitForm.form.fill(form))))
         }
       }
 
       def handleFormError(form: Form[UpdateRateLimitForm]) = {
-        Future.successful(BadRequest(manageRateLimitView(app.application, form)))
+        Future.successful(BadRequest(manageRateLimitView(app, form)))
       }
 
       UpdateRateLimitForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -491,8 +491,8 @@ class ApplicationController @Inject() (
 
   def manageGrantLength(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.application.details.grantLength.period.getDays())))
-      Future.successful(Ok(manageGrantLengthView(app.application, form, getGrantLengths())))
+      val form = UpdateGrantLengthForm.form.fill(UpdateGrantLengthForm(Some(app.details.grantLength.period.getDays())))
+      Future.successful(Ok(manageGrantLengthView(app, form, getGrantLengths())))
     }
   }
 
@@ -500,13 +500,13 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: UpdateGrantLengthForm) = {
         val grantLength = GrantLength.apply(form.grantLength.get).get
-        applicationService.updateGrantLength(app.application, grantLength, loggedIn.userFullName.get) map { _ =>
-          Ok(manageGrantLengthSuccessView(app.application, grantLength))
+        applicationService.updateGrantLength(app, grantLength, loggedIn.userFullName.get) map { _ =>
+          Ok(manageGrantLengthSuccessView(app, grantLength))
         }
       }
 
       def handleFormError(form: Form[UpdateGrantLengthForm]) = {
-        Future.successful(BadRequest(manageGrantLengthView(app.application, form, getGrantLengths())))
+        Future.successful(BadRequest(manageGrantLengthView(app, form, getGrantLengths())))
       }
 
       UpdateGrantLengthForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -527,10 +527,10 @@ class ApplicationController @Inject() (
         )))
       }
 
-      if (app.application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {
-        Future.successful(Ok(manageDeleteRestrictionDisabledView(app.application, DeleteRestrictionPreviouslyDisabledForm.form)))
+      if (app.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {
+        Future.successful(Ok(manageDeleteRestrictionDisabledView(app, DeleteRestrictionPreviouslyDisabledForm.form)))
       } else {
-        handleDeleteRestrictionEnabled(app.application)
+        handleDeleteRestrictionEnabled(app)
       }
     }
   }
@@ -539,7 +539,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
         applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
-          Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete))
+          Ok(manageDeleteRestrictionSuccessView(app, allowDelete))
         }
       }
 
@@ -552,7 +552,7 @@ class ApplicationController @Inject() (
       }
 
       def handleInvalidForm(form: Form[DeleteRestrictionPreviouslyDisabledForm]): Future[Result] = {
-        successful(BadRequest(manageDeleteRestrictionDisabledView(app.application, form)))
+        successful(BadRequest(manageDeleteRestrictionDisabledView(app, form)))
       }
 
       DeleteRestrictionPreviouslyDisabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
@@ -563,20 +563,20 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
         applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
-          Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete))
+          Ok(manageDeleteRestrictionSuccessView(app, allowDelete))
         }
       }
 
       def handleValidForm(form: DeleteRestrictionPreviouslyEnabledForm) = {
         form.confirm match {
           case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
-          case "no"  => Future.successful(Ok(manageDeleteRestrictionSuccessView(app.application, allowDelete = false)))
+          case "no"  => Future.successful(Ok(manageDeleteRestrictionSuccessView(app, allowDelete = false)))
           case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
         }
       }
 
       def handleInvalidForm(form: Form[DeleteRestrictionPreviouslyEnabledForm]): Future[Result] = {
-        successful(BadRequest(manageDeleteRestrictionEnabledView(app.application, form.data("reason"), form.data("reasonDate"), form)))
+        successful(BadRequest(manageDeleteRestrictionEnabledView(app, form.data("reason"), form.data("reasonDate"), form)))
       }
 
       DeleteRestrictionPreviouslyEnabledForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
@@ -585,12 +585,12 @@ class ApplicationController @Inject() (
 
   def deleteApplicationPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      if (app.application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION)
+      if (app.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION)
         Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
       else
         Future.successful(Ok(applicationProtectedFromDeletionView(
-          app.application,
-          app.application.details.deleteRestriction.asInstanceOf[DoNotDelete].reason
+          app,
+          app.details.deleteRestriction.asInstanceOf[DoNotDelete].reason
         )))
     }
   }
@@ -598,8 +598,8 @@ class ApplicationController @Inject() (
   def deleteApplicationAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: DeleteApplicationForm) = {
-        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
-          applicationService.deleteApplication(app.application, loggedIn.userFullName.get, LaxEmailAddress(form.collaboratorEmail.get)).map {
+        if (app.name == ApplicationName(form.applicationNameConfirmation)) {
+          applicationService.deleteApplication(app, loggedIn.userFullName.get, LaxEmailAddress(form.collaboratorEmail.get)).map {
             case ApplicationUpdateSuccessResult => Ok(deleteApplicationSuccessView(app))
             case ApplicationUpdateFailureResult => technicalDifficulties
           }
@@ -627,8 +627,8 @@ class ApplicationController @Inject() (
   def blockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: BlockApplicationForm) = {
-        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
-          applicationService.blockApplication(app.application, loggedIn.userFullName.get).map {
+        if (app.name == ApplicationName(form.applicationNameConfirmation)) {
+          applicationService.blockApplication(app, loggedIn.userFullName.get).map {
             case ApplicationBlockSuccessResult => Ok(blockApplicationSuccessView(app))
             case ApplicationBlockFailureResult => technicalDifficulties
           }
@@ -656,8 +656,8 @@ class ApplicationController @Inject() (
   def unblockApplicationAction(appId: ApplicationId) = adminOnlyAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UnblockApplicationForm) = {
-        if (app.application.name == ApplicationName(form.applicationNameConfirmation)) {
-          applicationService.unblockApplication(app.application, loggedIn.userFullName.get).map {
+        if (app.name == ApplicationName(form.applicationNameConfirmation)) {
+          applicationService.unblockApplication(app, loggedIn.userFullName.get).map {
             case ApplicationUnblockSuccessResult => Ok(unblockApplicationSuccessView(app))
             case ApplicationUnblockFailureResult => technicalDifficulties
           }
@@ -691,7 +691,7 @@ class ApplicationController @Inject() (
 
       if (request.role.isSuperUser) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
-          case Some(tier) => applicationService.updateRateLimitTier(app.application, tier, loggedIn.userFullName.get) map {
+          case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
                 result.flashing("success" -> s"Rate limit tier has been changed to ${tier.displayText}")
               case _                              =>

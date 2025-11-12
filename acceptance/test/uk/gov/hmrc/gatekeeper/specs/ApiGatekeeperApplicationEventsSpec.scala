@@ -32,7 +32,6 @@ class ApiGatekeeperApplicationEventsSpec
     with StateHistoryTestData
     with ApplicationWithSubscriptionDataTestData
     with ApplicationResponseTestData
-    with ApplicationWithStateHistoryTestData
     with XmlServicesStub
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
@@ -53,7 +52,7 @@ class ApiGatekeeperApplicationEventsSpec
 
       val allEvents = makeSomeEvents()
       stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
-      stubApplicationForActionRefiner(defaultApplicationWithHistory.toJsonString, applicationId)
+      stubApplicationForActionRefiner(defaultApplicationResponse.toJsonString, applicationId)
       stubEvents(applicationId, allEvents)
 
       When("I select to navigate to the Automated Test Application page")

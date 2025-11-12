@@ -22,9 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory)(implicit request: LoggedInRequest[_], flash: Flash)
-
-@application = @{applicationWithHistory.application}
+@(application: ApplicationWithCollaborators)(implicit request: LoggedInRequest[_], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Application Unblocked",

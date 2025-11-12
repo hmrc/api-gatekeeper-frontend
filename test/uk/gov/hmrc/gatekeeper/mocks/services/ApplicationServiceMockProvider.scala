@@ -95,15 +95,6 @@ trait ApplicationServiceMockProvider {
       def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
     }
 
-    object FetchApplication {
-
-      def returns(app: ApplicationWithHistory) =
-        when(mockApplicationService.fetchApplication(*[ApplicationId])(*)).thenReturn(successful(app))
-
-      def verifyParams(applicationId: ApplicationId) =
-        verify(mockApplicationService).fetchApplication(eqTo(applicationId))(*)
-    }
-
     object FetchStateHistory {
 
       def returns(stateHistory: StateHistory*) =

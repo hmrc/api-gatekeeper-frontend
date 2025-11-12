@@ -27,7 +27,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
@@ -36,7 +36,6 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -45,9 +44,9 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 trait WithRestrictedApp {
   self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
-      app.application.access match {
+      app.access match {
         case _: Access.Standard            => f(app)
         case _ if request.role.isSuperUser => f(app)
         case _                             => successful(Forbidden(forbiddenView()))
@@ -80,13 +79,13 @@ class TeamMembersController @Inject() (
 
   def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
-      successful(Ok(manageTeamMembersView(app.application)))
+      successful(Ok(manageTeamMembersView(app)))
     }
   }
 
   def addTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
-      successful(Ok(addTeamMemberView(app.application, AddTeamMemberForm.form)))
+      successful(Ok(addTeamMemberView(app, AddTeamMemberForm.form)))
     }
   }
 
@@ -96,7 +95,7 @@ class TeamMembersController @Inject() (
         val emailAddress       = LaxEmailAddress(form.email)
         lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
         lazy val failureResult = BadRequest(addTeamMemberView(
-          app.application,
+          app,
           AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
         ))
 
@@ -104,7 +103,7 @@ class TeamMembersController @Inject() (
           user        <- developerService.fetchOrCreateUser(emailAddress)
           role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Roles.DEVELOPER)
           collaborator = if (role == Collaborator.Roles.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
-          result      <- teamMemberService.addTeamMember(app.application, collaborator, gatekeeperUser.get)
+          result      <- teamMemberService.addTeamMember(app, collaborator, gatekeeperUser.get)
                            .map {
                              case Right(())                                                               => successResult
                              case Left(NonEmptyList(CommandFailures.CollaboratorAlreadyExistsOnApp, Nil)) => failureResult
@@ -114,7 +113,7 @@ class TeamMembersController @Inject() (
       }
 
       def handleInvalidForm(formWithErrors: Form[AddTeamMemberForm]) =
-        successful(BadRequest(addTeamMemberView(app.application, formWithErrors)))
+        successful(BadRequest(addTeamMemberView(app, formWithErrors)))
 
       AddTeamMemberForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }
@@ -123,11 +122,11 @@ class TeamMembersController @Inject() (
   def removeTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberForm) =
-        successful(Ok(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form, form.email)))
+        successful(Ok(removeTeamMemberView(app, RemoveTeamMemberConfirmationForm.form, form.email)))
 
       def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberForm]) = {
         val email = formWithErrors("email").value.getOrElse("")
-        successful(BadRequest(removeTeamMemberView(app.application, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
+        successful(BadRequest(removeTeamMemberView(app, RemoveTeamMemberConfirmationForm.form.fillAndValidate(RemoveTeamMemberConfirmationForm(email)), email)))
       }
 
       RemoveTeamMemberForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
@@ -140,13 +139,13 @@ class TeamMembersController @Inject() (
         val emailAddress       = LaxEmailAddress(form.email)
         lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
         lazy val failureResult = BadRequest(removeTeamMemberView(
-          app.application,
+          app,
           RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),
           form.email
         ))
 
         form.confirm match {
-          case Some("Yes") => teamMemberService.removeTeamMember(app.application, emailAddress, gatekeeperUser.get).map {
+          case Some("Yes") => teamMemberService.removeTeamMember(app, emailAddress, gatekeeperUser.get).map {
               case Right(())                                                      => successResult
               case Left(NonEmptyList(CommandFailures.CannotRemoveLastAdmin, Nil)) => failureResult
               case _                                                              => throw new RuntimeException("Bang")
@@ -156,7 +155,7 @@ class TeamMembersController @Inject() (
       }
 
       def handleInvalidForm(formWithErrors: Form[RemoveTeamMemberConfirmationForm]) =
-        successful(BadRequest(removeTeamMemberView(app.application, formWithErrors, formWithErrors("email").value.getOrElse(""))))
+        successful(BadRequest(removeTeamMemberView(app, formWithErrors, formWithErrors("email").value.getOrElse(""))))
 
       RemoveTeamMemberConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
     }

@@ -51,7 +51,7 @@ class SubscriptionConfigurationControllerSpec
 
     lazy val controller = new SubscriptionConfigurationController(
       mockApplicationService,
-      mockQueryService,
+      ApplicationQueryServiceMock.aMock,
       mockSubscriptionFieldsService,
       forbiddenView,
       mcc,

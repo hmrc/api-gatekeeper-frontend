@@ -24,10 +24,10 @@ import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, OrganisationIdFixtures, UserId}
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
-import uk.gov.hmrc.gatekeeper.models.{ApplicationWithHistory, RegisteredUser}
 
 object MockDataSugar extends ApplicationWithSubscriptionsFixtures {
   val approvedApp1 = ApplicationId.unsafeApply("df0c32b6-bbb7-46eb-ba50-e6e5459162ff")
@@ -334,20 +334,6 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures {
        |    }
        |  }
    """.stripMargin
-
-  def approvedApplication(description: String = "", verified: Boolean = false) = {
-
-    Json.toJson(
-      ApplicationWithHistory(
-        standardApp.withCollaborators(
-          Collaborators.Administrator(UserId(adminId), LaxEmailAddress(adminEmail)),
-          Collaborators.Administrator(UserId(admin2Id), LaxEmailAddress(admin2Email)),
-          Collaborators.Developer(UserId(developer5Id), LaxEmailAddress(developer5))
-        ),
-        List.empty
-      )
-    ).toString()
-  }
 
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 

@@ -100,9 +100,7 @@ class ApplicationEventsController @Inject() (
   import ApplicationEventsController._
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    withApp(appId) { applicationWithHistory =>
-      import applicationWithHistory._
-
+    withApp(appId) { application =>
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
@@ -112,7 +110,7 @@ class ApplicationEventsController @Inject() (
         } yield {
           Ok(applicationEventsView(
             QueryModel(
-              applicationWithHistory.application.id,
+              application.id,
               application.details.name,
               qv,
               models

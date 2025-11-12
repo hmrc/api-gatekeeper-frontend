@@ -71,7 +71,7 @@ class OrganisationControllerSpec
       val underTest = new OrganisationController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
-        mockQueryService,
+        ApplicationQueryServiceMock.aMock,
         mcc,
         organisationView,
         mockOrganisationService,

@@ -96,10 +96,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     )
   )
 
-  def anApplicationWithHistory(applicationResponse: ApplicationWithCollaborators = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
-    ApplicationWithHistory(applicationResponse, stateHistories)
-  }
-
   def anApplication(createdOn: Instant = instant, lastAccess: Instant = instant): ApplicationWithCollaborators = {
     buildApplication(
       ApplicationId.random,

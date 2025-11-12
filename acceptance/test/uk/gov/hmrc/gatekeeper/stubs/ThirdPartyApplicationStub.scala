@@ -29,19 +29,19 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, MockDataSugar}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, MockDataSugar}
 
-trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithStateHistoryTestData {
+trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationResponseTestData {
   import MockDataSugar._
 
   def stubHasTermsOfUseInvitation(appId: ApplicationId, has: Boolean = false): Unit = {
     if (has) {
-      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$appId"))
         .willReturn(aResponse()
           .withBody("""{"applicationId": 1}""")
           .withStatus(OK)))
     } else {
-      stubFor(get(urlEqualTo(s"/terms-of-use/application/$applicationId"))
+      stubFor(get(urlEqualTo(s"/terms-of-use/application/$appId"))
         .willReturn(aResponse()
           .withStatus(NOT_FOUND)))
     }
@@ -156,7 +156,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   def stubApplicationById(id: ApplicationId, response: String): Unit = {
     stubFor(
       get(urlPathEqualTo("/environment/SANDBOX/query"))
-        .withQueryParam("id", equalTo(id.toString()))
+        .withQueryParam("applicationid", equalTo(id.toString()))
         .willReturn(
           aResponse()
             .withBody(response)
@@ -165,7 +165,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     )
     stubFor(
       get(urlPathEqualTo("/environment/PRODUCTION/query"))
-        .withQueryParam("userId", equalTo(id.toString()))
+        .withQueryParam("applicationid", equalTo(id.toString()))
         .willReturn(
           aResponse()
             .withBody(response)
@@ -175,7 +175,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubBlockedApplication(): Unit = {
-    stubApplicationById(blockedApplicationId, blockedApplicationWithHistory.toJsonString)
+    stubApplicationById(blockedApplicationId, blockedApplicationResponse.toJsonString)
   }
 
   def stubApplicationForDeveloperDefault(): Unit = {
@@ -191,20 +191,22 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
     )
   }
 
-  def stubApplicationToReview(applicationId: ApplicationId) = {
-    stubApplicationById(applicationId, pendingApprovalApplicationWithHistory.toJsonString)
-  }
-
-  def stubApplicationForActionRefiner(applicationWithHistory: String, appId: ApplicationId) = {
+  def stubApplicationForActionRefiner(appWithCollaboratorsJson: String, appId: ApplicationId) = {
     stubFor(
       get(urlPathEqualTo("/environment/SANDBOX/query"))
         .withQueryParam("id", equalTo(appId.toString()))
-        .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
+        .withQueryParam("wantSubscription", WireMock.absent())
+        .withQueryParam("wantSubscriptionFields", WireMock.absent())
+        .withQueryParam("wantStateHistory", WireMock.absent())
+        .willReturn(aResponse().withBody(appWithCollaboratorsJson).withStatus(OK))
     )
     stubFor(
       get(urlPathEqualTo("/environment/PRODUCTION/query"))
         .withQueryParam("id", equalTo(appId.toString()))
-        .willReturn(aResponse().withBody(applicationWithHistory).withStatus(OK))
+        .withQueryParam("wantSubscription", WireMock.absent())
+        .withQueryParam("wantSubscriptionFields", WireMock.absent())
+        .withQueryParam("wantStateHistory", WireMock.absent())
+        .willReturn(aResponse().withBody(appWithCollaboratorsJson).withStatus(OK))
     )
   }
 
@@ -256,7 +258,7 @@ trait ThirdPartyApplicationStub extends WireMockExtensions with ApplicationWithS
   }
 
   def stubUnblockedApplication(): Unit = {
-    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
+    stubApplicationById(applicationId, defaultApplicationResponse.toJsonString)
   }
 
   def stubApplicationResponse(applicationId: ApplicationId, responseBody: String) = {

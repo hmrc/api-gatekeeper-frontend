@@ -62,7 +62,7 @@ class DeskproControllerSpec
       val underTest = new DeskproController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
-        mockQueryService,
+        ApplicationQueryServiceMock.aMock,
         mcc,
         errorTemplateView,
         mockApmService,

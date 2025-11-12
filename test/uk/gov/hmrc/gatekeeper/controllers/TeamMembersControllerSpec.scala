@@ -60,20 +60,11 @@ class TeamMembersControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
-        List.empty
-      )
+      val applicationWithOverrides = basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin)))
 
-      val privilegedApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email"))),
-        List.empty
-      )
+      val privilegedApplication = basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email")))
 
-      val ropcApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
-        List.empty
-      )
+      val ropcApplication = basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email")))
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
@@ -87,7 +78,7 @@ class TeamMembersControllerSpec
         addTeamMemberView,
         removeTeamMemberView,
         mockApplicationService,
-        mockQueryService,
+        ApplicationQueryServiceMock.aMock,
         mockApmService,
         errorTemplateView,
         forbiddenView,
@@ -101,7 +92,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -114,7 +105,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
@@ -127,7 +118,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -138,7 +129,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)
 
@@ -203,7 +194,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
@@ -214,7 +205,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
@@ -227,7 +218,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aSuperUserLoggedInRequest)
 
@@ -238,7 +229,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val result = addToken(underTest.addTeamMember(applicationId))(aLoggedInRequest)
 
@@ -289,7 +280,7 @@ class TeamMembersControllerSpec
             val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("email", email.text), ("role", role))
             await(addToken(underTest.addTeamMemberAction(applicationId))(request))
 
-            TeamMemberServiceMock.AddTeamMember.verifyCalledWith(application.application, email.asDeveloperCollaborator, Actors.GatekeeperUser("Bobby Example"))
+            TeamMemberServiceMock.AddTeamMember.verifyCalledWith(application, email.asDeveloperCollaborator, Actors.GatekeeperUser("Bobby Example"))
           }
 
           "redirect back to manageTeamMembers when the service call is successful" in new Setup {
@@ -357,7 +348,7 @@ class TeamMembersControllerSpec
           "show 403 Forbidden" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email.text),
@@ -374,7 +365,7 @@ class TeamMembersControllerSpec
           "show 403 Forbidden" in new Setup {
             DeveloperServiceMock.FetchOrCreateUser.handles(email)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(
               ("email", email.text),
@@ -442,7 +433,7 @@ class TeamMembersControllerSpec
         "managing a privileged app" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
@@ -454,7 +445,7 @@ class TeamMembersControllerSpec
         "managing an ROPC app" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(ropcApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", email.text))
             val result  = addToken(underTest.removeTeamMember(applicationId))(request)
@@ -510,7 +501,7 @@ class TeamMembersControllerSpec
 
               status(result) shouldBe SEE_OTHER
 
-              TeamMemberServiceMock.RemoveTeamMember.verifyCalledWith(application.application, emailToRemove, Actors.GatekeeperUser("Bobby Example"))
+              TeamMemberServiceMock.RemoveTeamMember.verifyCalledWith(application, emailToRemove, Actors.GatekeeperUser("Bobby Example"))
             }
 
             "show a 400 Bad Request when the service fails with TeamMemberLastAdmin" in new Setup {
@@ -556,7 +547,7 @@ class TeamMembersControllerSpec
         "when managing a privileged app" should {
           "show 403 forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", "Yes"))
             val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)
@@ -568,7 +559,7 @@ class TeamMembersControllerSpec
         "when managing an ROPC app" should {
           "show 403 Forbidden" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            ApplicationServiceMock.FetchApplication.returns(privilegedApplication)
+            ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
 
             val request = aLoggedInRequest.withFormUrlEncodedBody(("email", emailToRemove.text), ("confirm", "Yes"))
             val result  = addToken(underTest.removeTeamMemberAction(applicationId))(request)

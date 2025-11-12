@@ -70,9 +70,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
     val collaborators = someCollaborators
 
-    val applicationWithHistory = ApplicationWithHistory(standardApp, List.empty)
-    val gatekeeperUserId       = "loggedin.gatekeeper"
-    val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
+    val gatekeeperUserId = "loggedin.gatekeeper"
+    val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersionNbr.random)
 

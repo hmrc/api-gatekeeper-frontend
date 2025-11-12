@@ -31,7 +31,6 @@ import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldNam
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
 
 class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
 
@@ -57,9 +56,8 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     val privilegedAppGK = privilegedApp
     val ropcAppGK       = ropcApp
 
-    val applicationWithHistory = ApplicationWithHistory(stdApp1, List.empty)
-    val gatekeeperUserId       = "loggedin.gatekeeper"
-    val gatekeeperUser         = Actors.GatekeeperUser("Bob Smith")
+    val gatekeeperUserId = "loggedin.gatekeeper"
+    val gatekeeperUser   = Actors.GatekeeperUser("Bob Smith")
 
     val apiIdentifier = ApiIdentifier(ApiContext.random, ApiVersionNbr.random)
 

@@ -46,7 +46,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
     val underTest = new ActionBuilders {
       val applicationService: ApplicationService           = mockApplicationService
-      val applicationQueryService: ApplicationQueryService = mockQueryService
+      val applicationQueryService: ApplicationQueryService = ApplicationQueryServiceMock.aMock
       val apmService: ApmService                           = mockApmService
       val errorHandler: ErrorHandler                       = app.injector.instanceOf[ErrorHandler]
     }
@@ -104,7 +104,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
   "withApp" should {
     "fetch application" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      ApplicationServiceMock.FetchApplication.returns(application)
+      ApplicationQueryServiceMock.FetchApplication.returns(application)
 
       val result = underTest.withApp(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
@@ -112,8 +112,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
-
-      ApplicationServiceMock.FetchApplication.verifyParams(applicationId)
     }
   }
 

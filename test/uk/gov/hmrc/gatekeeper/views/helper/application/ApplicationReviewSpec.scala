@@ -26,16 +26,16 @@ import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsReview" when {
     "application is approved" should {
-      val now           = LocalDateTime.now()
-      val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-      val app           = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, Instant.now())))
-      val appResponse   = anApplicationResponseWith(aCheckInformation())
+      val now            = LocalDateTime.now()
+      val dateFormatter  = DateTimeFormatter.ofPattern("dd MMMM yyyy")
+      val stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, Instant.now()))
+      val appResponse    = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {
-        ApplicationReview.getApprovedBy(app.history) shouldBe Some("Unknown")
+        ApplicationReview.getApprovedBy(stateHistories) shouldBe Some("Unknown")
       }
       "approved on return Some" in {
-        ApplicationReview.getApprovedOn(app.history) shouldBe Some(dateFormatter.format(now))
+        ApplicationReview.getApprovedOn(stateHistories) shouldBe Some(dateFormatter.format(now))
       }
       "review contact name return Some" in {
         ApplicationReview.getReviewContactName(appResponse.details.checkInformation) shouldBe Some("contactFullName")
@@ -48,14 +48,13 @@ class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
       }
     }
     "application is not approved" should {
-      val appWithHistory = anApplicationWithHistory()
-      val app            = anApplication()
+      val app = anApplication()
 
       "approved by return None" in {
-        ApplicationReview.getApprovedBy(appWithHistory.history) shouldBe None
+        ApplicationReview.getApprovedBy(Nil) shouldBe None
       }
       "approved on return None" in {
-        ApplicationReview.getApprovedOn(appWithHistory.history) shouldBe None
+        ApplicationReview.getApprovedOn(Nil) shouldBe None
       }
       "review contact name return None" in {
         ApplicationReview.getReviewContactName(app.details.checkInformation) shouldBe None

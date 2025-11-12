@@ -49,14 +49,12 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       Collaborators.Administrator(UserId.random, LaxEmailAddress(adminEmail)),
       Collaborators.Developer(UserId.random, LaxEmailAddress("someone@example.com"))
     )
-
-    val applicationWithHistory = ApplicationWithHistory(application, List.empty)
   }
 
   "delete application view" should {
     "show application information, including superuser only actions, when logged in as superuser but not team admin" in new Setup {
       val result = deleteApplicationView.apply(
-        applicationWithHistory,
+        application,
         isSuperUser = true,
         deleteApplicationForm.fill(DeleteApplicationForm("", None))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
@@ -72,7 +70,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
     "show application information, including superuser only actions, when logged in as both superuser and team admin" in new Setup {
       val result = deleteApplicationView.apply(
-        applicationWithHistory,
+        application,
         isSuperUser = true,
         deleteApplicationForm.fill(DeleteApplicationForm("", Some(adminEmail)))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
@@ -85,7 +83,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
 
     "show application information, excluding superuser only actions, when logged in as non superuser" in new Setup {
       val result = deleteApplicationView.apply(
-        applicationWithHistory,
+        application,
         isSuperUser = false,
         deleteApplicationForm.fill(DeleteApplicationForm("", None))
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
@@ -100,7 +98,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       val form = deleteApplicationForm.fill(DeleteApplicationForm("", None)).withError("collaboratorEmail", adminMissingMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory,
+        application,
         isSuperUser = true,
         form
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)
@@ -117,7 +115,7 @@ class DeleteApplicationViewSpec extends CommonViewSpec {
       ).withError("applicationNameConfirmation", confirmationErrorMessages)
 
       val result = deleteApplicationView.apply(
-        applicationWithHistory,
+        application,
         isSuperUser = true,
         form
       )(request, LoggedInUser(None), Flash.emptyCookie, messagesProvider)

@@ -25,13 +25,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html._
@@ -60,28 +58,13 @@ class SubscriptionControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
-        List.empty
-      )
-
-      val privilegedApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      val ropcApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
       val underTest = new SubscriptionController(
         manageSubscriptionsView,
         mcc,
         forbiddenView,
         errorTemplateView,
         mockApplicationService,
-        mockQueryService,
+        ApplicationQueryServiceMock.aMock,
         SubscriptionsServiceMock.aMock,
         mockApmService,
         errorHandler,

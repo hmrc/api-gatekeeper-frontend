@@ -22,14 +22,13 @@ import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.stubs.ThirdPartyApplicationStub
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
 class ApiGatekeeperUnblockApplicationSpec
     extends ApiGatekeeperBaseSpec
     with ApplicationWithSubscriptionDataTestData
     with StateHistoryTestData
     with ApplicationResponseTestData
-    with ApplicationWithStateHistoryTestData
     with ThirdPartyApplicationStub {
 
   val developers = List[RegisteredUser](new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))

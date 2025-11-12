@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.controllers.actions
 
+import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.mvc.Results.{BadRequest, NotFound}
@@ -23,7 +24,7 @@ import play.api.mvc.{MessagesRequest, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -36,24 +37,25 @@ trait ActionBuilders extends ApplicationLogger {
   def applicationQueryService: ApplicationQueryService
   def apmService: ApmService
 
-  def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    applicationService.fetchApplication(appId).flatMap(f)
+  def withApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
+    applicationQueryService.fetchApplication(appId)
+      .flatMap(_.fold[Future[Result]](successful(NotFound))(f(_)))
   }
 
   def withStandardApp(
       appId: ApplicationId
     )(
-      f: (ApplicationWithHistory, Access.Standard) => Future[Result]
+      f: (ApplicationWithCollaborators, Access.Standard) => Future[Result]
     )(implicit request: MessagesRequest[_],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
-    applicationService.fetchApplication(appId).flatMap(appWithHistory =>
-      appWithHistory.application.access match {
-        case access: Access.Standard => f(appWithHistory, access)
+    applicationQueryService.fetchApplication(appId).flatMap(_.fold[Future[Result]](successful(NotFound))(app =>
+      app.access match {
+        case access: Access.Standard => f(app, access)
         case _                       => errorHandler.badRequestTemplate("Application must have standard access for this call").map(BadRequest(_))
       }
-    )
+    ))
   }
 
   def withAppAndSubsData(

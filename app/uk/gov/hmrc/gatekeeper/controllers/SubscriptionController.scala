@@ -24,6 +24,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -106,13 +107,13 @@ class SubscriptionController @Inject() (
       Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
 
-    def handleValidForm(app: ApplicationWithHistory)(form: SubsForm): Future[Result] = {
+    def handleValidForm(app: ApplicationWithCollaborators)(form: SubsForm): Future[Result] = {
       if (form.subscribed) {
-        subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+        subscriptionService.subscribeToApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
           Redirect(routes.SubscriptionController.manageSubscription(appId))
         )
       } else {
-        subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+        subscriptionService.unsubscribeFromApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
           Redirect(routes.SubscriptionController.manageSubscription(appId))
         )
       }

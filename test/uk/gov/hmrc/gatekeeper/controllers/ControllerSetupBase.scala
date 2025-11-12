@@ -25,6 +25,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import play.api.test.FakeRequest
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -56,8 +57,8 @@ trait ControllerSetupBase
   val basicApplication = standardApp.withCollaborators(
     Set("sample@example.com".toLaxEmail.asAdministratorCollaborator, "someone@example.com".toLaxEmail.asDeveloperCollaborator)
   )
-  val application      = ApplicationWithHistory(basicApplication, List.empty)
-  val applicationId    = application.application.id
+  val application      = basicApplication
+  val applicationId    = basicApplication.id
 
   val authToken                 = GatekeeperSessionKeys.AuthToken    -> "some-bearer-token"
   val userToken                 = GatekeeperSessionKeys.LoggedInUser -> "Bobby Example"
@@ -69,5 +70,5 @@ trait ControllerSetupBase
   val aLoggedOutRequest         = FakeRequest().withSession()
   val noDevs                    = List.empty[Developer]
 
-  def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[ApplicationWithHistory]] = ApplicationServiceMock.FetchApplication.returns(application)
+  def givenTheAppWillBeReturned(): ScalaOngoingStubbing[Future[Option[ApplicationWithCollaborators]]] = ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
 }

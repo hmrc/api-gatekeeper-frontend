@@ -63,39 +63,39 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNamePage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.application.name.value))
-      Future.successful(Ok(manageApplicationNameView(app.application, form)))
+      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.name.value))
+      Future.successful(Ok(manageApplicationNameView(app, form)))
     }
   }
 
   def updateApplicationNameAction(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: UpdateApplicationNameForm) = {
-        if (app.application.name.equalsIgnoreCase(ApplicationName(form.applicationName))) {
+        if (app.name.equalsIgnoreCase(ApplicationName(form.applicationName))) {
           val formWithErrors = UpdateApplicationNameForm.form.fill(form)
             .withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.unchanged.error"))
-          Future.successful(Ok(manageApplicationNameView(app.application, formWithErrors)))
+          Future.successful(Ok(manageApplicationNameView(app, formWithErrors)))
 
         } else {
-          applicationService.validateApplicationName(app.application, form.applicationName).map(_ match {
+          applicationService.validateApplicationName(app, form.applicationName).map(_ match {
             case ApplicationNameValidationResult.Valid =>
               Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
 
             case ApplicationNameValidationResult.Invalid =>
               val formWithErrors = UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.invalid.error"))
-              Ok(manageApplicationNameView(app.application, formWithErrors))
+              Ok(manageApplicationNameView(app, formWithErrors))
 
             case ApplicationNameValidationResult.Duplicate =>
               val formWithErrors =
                 UpdateApplicationNameForm.form.fill(form).withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.duplicate.error"))
-              Ok(manageApplicationNameView(app.application, formWithErrors))
+              Ok(manageApplicationNameView(app, formWithErrors))
           })
         }
       }
 
       def handleFormError(form: Form[UpdateApplicationNameForm]) = {
-        Future.successful(BadRequest(manageApplicationNameView(app.application, form)))
+        Future.successful(BadRequest(manageApplicationNameView(app, form)))
       }
 
       UpdateApplicationNameForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -104,10 +104,10 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNameAdminEmailPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
+      val adminEmails = app.collaborators.filter(_.isAdministrator).map(_.emailAddress)
       Future.successful(adminEmails.size match {
-        case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
-        case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), UpdateApplicationNameAdminEmailForm.form))
+        case 1 => Ok(manageApplicationNameSingleAdminView(app, adminEmails.head.text))
+        case _ => Ok(manageApplicationNameAdminListView(app, adminEmails.map(_.text), UpdateApplicationNameAdminEmailForm.form))
       })
     }
   }
@@ -118,22 +118,22 @@ class UpdateApplicationNameController @Inject() (
         val newApplicationName = ValidatedApplicationName.unsafeApply(request.session.get(newAppNameSessionKey).get) // Already validated by the form
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
-        applicationService.updateApplicationName(app.application, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
+        applicationService.updateApplicationName(app, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
           case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
             val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName.value))
               .withError(FormFields.applicationName, messagesApi.preferred(request)("application.name.updatefailed.error"))
-            Ok(manageApplicationNameView(app.application, formWithErrors))
+            Ok(manageApplicationNameView(app, formWithErrors))
           }
         })
       }
 
       def handleFormError(form: Form[UpdateApplicationNameAdminEmailForm]) = {
-        val adminEmails = app.application.collaborators.filter(_.isAdministrator).map(_.emailAddress)
+        val adminEmails = app.collaborators.filter(_.isAdministrator).map(_.emailAddress)
         Future.successful(adminEmails.size match {
-          case 1 => Ok(manageApplicationNameSingleAdminView(app.application, adminEmails.head.text))
-          case _ => Ok(manageApplicationNameAdminListView(app.application, adminEmails.map(_.text), form))
+          case 1 => Ok(manageApplicationNameSingleAdminView(app, adminEmails.head.text))
+          case _ => Ok(manageApplicationNameAdminListView(app, adminEmails.map(_.text), form))
         })
       }
 
@@ -143,7 +143,7 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNameSuccessPage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      Future.successful(Ok(manageApplicationNameSuccessView(app.application)))
+      Future.successful(Ok(manageApplicationNameSuccessView(app)))
     }
   }
 

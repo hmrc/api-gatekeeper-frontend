@@ -52,6 +52,11 @@ trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsT
     .withName(pendingApprovalApplicationName)
     .withState(pendingApprovalState)
 
+  implicit class ApplicationResponseExtension(applicationResponse: ApplicationWithCollaborators) {
+    def toJson       = Json.toJson(applicationResponse)
+    def toJsonString = Json.toJson(applicationResponse).toString
+  }
+
   implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[ApplicationWithCollaborators]) {
     def toJson       = Json.toJson(applicationResponses)
     def toJsonString = Json.toJson(applicationResponses).toString

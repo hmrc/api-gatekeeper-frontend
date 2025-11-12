@@ -16,12 +16,27 @@
 
 package mocks.services
 
+import scala.concurrent.Future.successful
+
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.gatekeeper.services.ApplicationQueryService
 
 trait ApplicationQueryServiceMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
 
-  val mockQueryService = mock[ApplicationQueryService]
+  trait BaseApplicationQueryServiceMock {
+    def aMock: ApplicationQueryService
+
+    object FetchApplication {
+
+      def returns(app: ApplicationWithCollaborators) =
+        when(aMock.fetchApplication(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+    }
+  }
+
+  object ApplicationQueryServiceMock extends BaseApplicationQueryServiceMock {
+    val aMock = mock[ApplicationQueryService]
+  }
 }

@@ -20,8 +20,6 @@ import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.OptionT
-
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
@@ -357,16 +355,6 @@ class ApplicationService @Inject() (
       tpoConnector.query[List[ApplicationWithCollaborators]](env)(ApplicationQuery.GeneralOpenEndedApplicationQuery(params))
     }))
       .map(_.flatten)
-  }
-
-  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    val qry = ApplicationQuery.ById(appId, Nil, wantStateHistory = true)
-
-    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.SANDBOX)(qry))
-    )
-      .getOrRaise(new RuntimeException("Expected an application but found nothing"))
-      .map(r => ApplicationWithHistory(r.asAppWithCollaborators, r.stateHistory.get))
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {

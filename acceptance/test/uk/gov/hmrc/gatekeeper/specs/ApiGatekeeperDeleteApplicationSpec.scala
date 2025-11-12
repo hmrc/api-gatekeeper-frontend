@@ -28,13 +28,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
 class ApiGatekeeperDeleteApplicationSpec
     extends ApiGatekeeperBaseSpec
     with ApplicationWithSubscriptionDataTestData
-    with StateHistoryTestData
-    with ApplicationWithStateHistoryTestData {
+    with StateHistoryTestData {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
@@ -52,7 +51,6 @@ class ApiGatekeeperDeleteApplicationSpec
     }
 
     Scenario("I cannot delete an application") {
-
       stubApplicationForDeleteFailure()
 
       When("I navigate to the Delete Page for an application")
@@ -106,7 +104,7 @@ class ApiGatekeeperDeleteApplicationSpec
   }
 
   def stubApplicationToDelete(applicationId: ApplicationId) = {
-    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
+    stubApplicationById(applicationId, defaultApplicationResponse.toJsonString)
   }
 
   def stubApplicationForDeleteSuccess() = {
