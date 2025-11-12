@@ -18,8 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider, RedirectUrisServiceMockProvider}
+import mocks.services.RedirectUrisServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
 import play.api.test.FakeRequest
@@ -31,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -56,12 +54,7 @@ class RedirectUrisControllerSpec
   running(app) {
 
     trait Setup extends ControllerSetupBase
-        with ApplicationServiceMockProvider
-        with RedirectUrisServiceMockProvider
-        with ApplicationConnectorMockProvider
-        with ApmServiceMockProvider
-        with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule {
+        with RedirectUrisServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -87,6 +80,7 @@ class RedirectUrisControllerSpec
       val underTest = new RedirectUrisController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
+        mockQueryService,
         mockRedirectUrisService,
         mcc,
         manageLoginRedirectUriView,

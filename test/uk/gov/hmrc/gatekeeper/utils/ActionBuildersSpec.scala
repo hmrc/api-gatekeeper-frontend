@@ -36,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefi
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
 
@@ -45,9 +45,10 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     implicit val hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
-      val applicationService: ApplicationService = mockApplicationService
-      val apmService: ApmService                 = mockApmService
-      val errorHandler: ErrorHandler             = app.injector.instanceOf[ErrorHandler]
+      val applicationService: ApplicationService           = mockApplicationService
+      val applicationQueryService: ApplicationQueryService = mockQueryService
+      val apmService: ApmService                           = mockApmService
+      val errorHandler: ErrorHandler                       = app.injector.instanceOf[ErrorHandler]
     }
 
     val fakeRequest                                                            = FakeRequest()

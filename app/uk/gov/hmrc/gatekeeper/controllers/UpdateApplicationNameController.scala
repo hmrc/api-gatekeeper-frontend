@@ -41,6 +41,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 @Singleton
 class UpdateApplicationNameController @Inject() (
     val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,
     override val errorTemplate: ErrorTemplate,

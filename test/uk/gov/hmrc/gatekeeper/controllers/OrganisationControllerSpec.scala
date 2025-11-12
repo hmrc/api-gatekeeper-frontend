@@ -19,8 +19,6 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
@@ -31,7 +29,6 @@ import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.mocks.services.OrganisationServiceMockProvider
 import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
@@ -57,11 +54,6 @@ class OrganisationControllerSpec
   running(app) {
 
     trait Setup extends ControllerSetupBase
-        with ApplicationServiceMockProvider
-        with ApplicationConnectorMockProvider
-        with ApmServiceMockProvider
-        with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule
         with OrganisationServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
@@ -79,6 +71,7 @@ class OrganisationControllerSpec
       val underTest = new OrganisationController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
+        mockQueryService,
         mcc,
         organisationView,
         mockOrganisationService,

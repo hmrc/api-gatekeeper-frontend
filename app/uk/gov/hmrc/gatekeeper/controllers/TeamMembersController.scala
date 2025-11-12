@@ -37,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, DeveloperService, TeamMemberService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -65,6 +65,7 @@ class TeamMembersController @Inject() (
     addTeamMemberView: AddTeamMemberView,
     removeTeamMemberView: RemoveTeamMemberView,
     val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     val apmService: ApmService,
     val errorTemplate: ErrorTemplate,
     val forbiddenView: ForbiddenView,

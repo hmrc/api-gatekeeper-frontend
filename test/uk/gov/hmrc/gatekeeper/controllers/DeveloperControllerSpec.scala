@@ -73,6 +73,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       val developersController = new DeveloperController(
         mockDeveloperService,
         mockApplicationService,
+        mockQueryService,
         forbiddenView,
         mockApiDefinitionService,
         mcc,

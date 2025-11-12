@@ -41,6 +41,7 @@ trait ControllerSetupBase
     with ApiDefinitionServiceMockProvider
     with DeveloperServiceMockProvider
     with ApplicationServiceMockProvider
+    with ApplicationQueryServiceMockProvider
     with XmlServiceMockProvider
     with ApiCataloguePublishConnectorMockProvider
     with ApmServiceMockProvider

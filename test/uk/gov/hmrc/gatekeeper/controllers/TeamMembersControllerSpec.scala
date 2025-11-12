@@ -87,6 +87,7 @@ class TeamMembersControllerSpec
         addTeamMemberView,
         removeTeamMemberView,
         mockApplicationService,
+        mockQueryService,
         mockApmService,
         errorTemplateView,
         forbiddenView,

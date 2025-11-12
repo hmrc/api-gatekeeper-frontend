@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.mocks.services
+package mocks.services
 
 import scala.concurrent.Future.{failed, successful}
 

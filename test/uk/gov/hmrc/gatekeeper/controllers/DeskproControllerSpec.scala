@@ -19,8 +19,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider, DeveloperServiceMockProvider}
+import mocks.services.ApiPlatformDeskproServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
@@ -30,10 +29,8 @@ import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.DeskproTicket
-import uk.gov.hmrc.gatekeeper.mocks.services.ApiPlatformDeskproServiceMockProvider
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
@@ -53,13 +50,7 @@ class DeskproControllerSpec
   running(app) {
 
     trait Setup extends ControllerSetupBase
-        with ApplicationServiceMockProvider
-        with ApplicationConnectorMockProvider
-        with ApmServiceMockProvider
-        with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule
-        with ApiPlatformDeskproServiceMockProvider
-        with DeveloperServiceMockProvider {
+        with ApiPlatformDeskproServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -71,6 +62,7 @@ class DeskproControllerSpec
       val underTest = new DeskproController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
+        mockQueryService,
         mcc,
         errorTemplateView,
         mockApmService,

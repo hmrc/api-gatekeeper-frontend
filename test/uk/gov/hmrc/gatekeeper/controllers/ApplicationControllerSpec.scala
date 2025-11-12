@@ -22,8 +22,8 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider}
+import mocks.connectors._
+import mocks.services._
 import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
@@ -96,6 +96,7 @@ class ApplicationControllerSpec
 
     trait Setup extends ControllerSetupBase
         with ApplicationServiceMockProvider
+        with ApplicationQueryServiceMockProvider
         with ApplicationConnectorMockProvider
         with ApmServiceMockProvider
         with ThirdPartyOrchestratorConnectorMockProvider
@@ -138,6 +139,7 @@ class ApplicationControllerSpec
       val underTest = new ApplicationController(
         StrideAuthorisationServiceMock.aMock,
         mockApplicationService,
+        mockQueryService,
         forbiddenView,
         mockApiDefinitionService,
         mockDeveloperService,

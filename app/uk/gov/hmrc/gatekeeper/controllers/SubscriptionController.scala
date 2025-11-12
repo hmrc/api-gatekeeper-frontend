@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -59,6 +59,7 @@ class SubscriptionController @Inject() (
     val forbiddenView: ForbiddenView,
     val errorTemplate: ErrorTemplate,
     val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     subscriptionService: SubscriptionsService,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,

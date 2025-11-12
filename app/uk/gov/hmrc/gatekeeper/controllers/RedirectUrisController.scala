@@ -43,6 +43,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 class RedirectUrisController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     redirectUriService: RedirectUrisService,
     mcc: MessagesControllerComponents,
     manageLoginRedirectUriView: ManageLoginRedirectUriView,

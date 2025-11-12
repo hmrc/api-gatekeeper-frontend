@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.services.ApplicationServiceMockProvider
 import org.apache.pekko.stream.Materializer
 import org.mockito.captor.ArgCaptor
 
@@ -54,7 +53,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
   val errorHandler         = mock[ErrorHandler]
   val newAppNameSessionKey = "newApplicationName"
 
-  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with CollaboratorTracker {
+  trait Setup extends ControllerSetupBase with CollaboratorTracker {
     val csrfToken                            = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
     val manageApplicationNameView            = app.injector.instanceOf[ManageApplicationNameView]
     val manageApplicationNameAdminListView   = app.injector.instanceOf[ManageApplicationNameAdminListView]
@@ -69,6 +68,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
     val underTest = new UpdateApplicationNameController(
       mockApplicationService,
+      mockQueryService,
       forbiddenView,
       mcc,
       errorTemplate,

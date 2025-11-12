@@ -28,11 +28,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
 
 trait ActionBuilders extends ApplicationLogger {
   def errorHandler: ErrorHandler
   def applicationService: ApplicationService
+  def applicationQueryService: ApplicationQueryService
   def apmService: ApmService
 
   def withApp(appId: ApplicationId)(f: ApplicationWithHistory => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {

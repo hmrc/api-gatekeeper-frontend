@@ -46,7 +46,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService, TermsOfUseService}
+import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -57,6 +57,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 class ApplicationController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
     apiDefinitionService: ApiDefinitionService,
     developerService: DeveloperService,
