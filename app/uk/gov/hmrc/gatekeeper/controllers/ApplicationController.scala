@@ -98,8 +98,8 @@ class ApplicationController @Inject() (
 
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def applicationsPage(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                                   = Environment.apply(environment.getOrElse("SANDBOX"))
+  def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val env                                                   = environment.getOrElse(Environment.SANDBOX)
     val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "includeDeleted" -> "false")
     val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
@@ -111,12 +111,12 @@ class ApplicationController @Inject() (
 
     for {
       paginatedApplications <- applicationService.searchApplications(env, params)
-      apis                  <- apmService.fetchNonOpenApis(env.get)
+      apis                  <- apmService.fetchNonOpenApis(env)
     } yield Ok(applicationsView(paginatedApplications, groupApisByStatus(apis), request.role.isSuperUser, params, buildAppUrlFn))
   }
 
-  def applicationsPageCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                       = Environment.apply(environment.getOrElse("SANDBOX"))
+  def applicationsPageCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val env                       = environment.getOrElse(Environment.SANDBOX)
     val defaults                  = Map("pageNbr" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC")
     val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
@@ -199,7 +199,7 @@ class ApplicationController @Inject() (
     Seq(pagingRow, csvRows).mkString(System.lineSeparator())
   }
 
-  private def toCsvContent(response: List[AppWithSubscriptionsForCsvResponse], env: Option[Environment]): String = {
+  private def toCsvContent(response: List[AppWithSubscriptionsForCsvResponse], env: Environment): String = {
 
     val identifiers: Seq[ApiIdentifier]                                       = response.map(_.apiIdentifiers).reduceOption((a, b) => a ++ b).getOrElse(Set()).toSeq.sorted
     val apiColumns: Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]] =
@@ -213,16 +213,15 @@ class ApplicationController @Inject() (
     val csvColumnDefinitions = Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]](
       ColumnDefinition("Name", _.name.toString),
       ColumnDefinition("App ID", _.id.toString),
-      ColumnDefinition("Environment", _ => env.getOrElse(Environment.SANDBOX).toString),
+      ColumnDefinition("Environment", _ => env.toString),
       ColumnDefinition("Last API call", _.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
     toCsvString(csvColumnDefinitions, response)
   }
 
-  def applicationWithSubscriptionsCsv(environment: Option[String] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env: Option[Environment] = Environment.apply(environment.getOrElse("SANDBOX"))
-
+  def applicationWithSubscriptionsCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+    val env = environment.getOrElse(Environment.SANDBOX)
     for {
       appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
     } yield Ok(toCsvContent(appsWithSubs, env))

@@ -15,11 +15,11 @@ GET         /developers/email-preferences/remove                              uk
 POST        /developers/email-preferences/remove                              uk.gov.hmrc.gatekeeper.controllers.DevelopersController.removeEmailPreferencesAction()
 GET         /developers/csv                                                   uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersCsv()
 
-GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[String] ?= None)
-GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[String] ?= None)
+GET         /applications                                                     uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPage(environment: Option[Environment] ?= None)
+GET         /applications/csv                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationsPageCsv(environment: Option[Environment] ?= None)
 
 GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv()
-GET         /applications/subscriptions/csv                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationWithSubscriptionsCsv(environment: Option[String] ?= None)
+GET         /applications/subscriptions/csv                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationWithSubscriptionsCsv(environment: Option[Environment] ?= None)
 
 GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId)
 

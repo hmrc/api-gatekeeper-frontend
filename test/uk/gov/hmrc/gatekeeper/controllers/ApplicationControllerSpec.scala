@@ -191,7 +191,7 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -199,11 +199,11 @@ class ApplicationControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("PRODUCTION"))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.PRODUCTION))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.PRODUCTION)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
       }
 
@@ -211,11 +211,11 @@ class ApplicationControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some("SANDBOX"))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.SANDBOX))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -240,7 +240,7 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Some(Environment.SANDBOX)), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {

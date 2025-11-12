@@ -138,6 +138,38 @@ package object binders extends ApplicationLogger {
     }
   }
 
+  implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[Environment] = new QueryStringBindable[Environment] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, Environment]] = {
+      for {
+        text <- textBinder.bind("environment", params)
+      } yield {
+        text match {
+          case Right(raw) => Environment(raw).toRight("Not a valid environment")
+          case _          => Left("Unable to bind an environment")
+        }
+      }
+    }
+
+    override def unbind(key: String, env: Environment): String = {
+      textBinder.unbind("environment", env.toString())
+    }
+  }
+
+  implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
+
+    override def bind(key: String, value: String): Either[String, Environment] = {
+      for {
+        text <- textBinder.bind(key, value)
+        env  <- Environment.apply(text).toRight("Not a valid environment")
+      } yield env
+    }
+
+    override def unbind(key: String, env: Environment): String = {
+      env.toString.toLowerCase
+    }
+  }
+
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 
     override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {

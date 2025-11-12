@@ -306,7 +306,7 @@ class ApplicationService @Inject() (
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
+  def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
     val correctedParams = params
       .filterNot {
         case ("includeDeleted", _) => true
@@ -336,7 +336,7 @@ class ApplicationService @Inject() (
         case x                         => List(x)
       }
 
-    tpoConnector.rawQuery[PaginatedApplications](env.getOrElse(Environment.SANDBOX))(correctedParams)
+    tpoConnector.rawQuery[PaginatedApplications](env)(correctedParams)
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
@@ -380,10 +380,10 @@ class ApplicationService @Inject() (
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
+  def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    tpoConnector.query[List[QueriedApplication]](env.getOrElse(Environment.SANDBOX))(qry)
+    tpoConnector.query[List[QueriedApplication]](env)(qry)
       .map(_.map { qas =>
         AppWithSubscriptionsForCsvResponse(
           id = qas.details.id,
