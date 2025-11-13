@@ -16,11 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.{ResponseDefinitionBuilder, _}
+import com.github.tomakehurst.wiremock.stubbing.StubMapping
 
 import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.libs.json.Writes
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
@@ -33,7 +34,7 @@ trait TpoApplicationQueryStub {
 
   import MockDataSugar._
 
-  val applicationsList = Json.toJson(
+  val applicationsList =
     List(
       standardApp.withName(applicationName),
       standardApp2,
@@ -41,79 +42,51 @@ trait TpoApplicationQueryStub {
       privilegedApp,
       ropcApp
     )
-  )
+
+  def stubBoth(requestTransformer: MappingBuilder => MappingBuilder, response: ResponseDefinitionBuilder): StubMapping = {
+    stubFor(
+      requestTransformer(get(urlPathEqualTo("/environment/SANDBOX/query")))
+        .willReturn(response)
+    )
+
+    stubFor(
+      requestTransformer(get(urlPathEqualTo("/environment/PRODUCTION/query")))
+        .willReturn(response)
+    )
+  }
+
+  def stubBoth(requestTransformer: MappingBuilder => MappingBuilder, response: String): StubMapping = stubBoth(requestTransformer, aResponse().withBody(response).withStatus(OK))
+
+  def stubBoth[T](requestTransformer: MappingBuilder => MappingBuilder, body: T)(implicit wrts: Writes[T]): StubMapping =
+    stubBoth(requestTransformer, aResponse().withJsonBody(body).withStatus(OK))
 
   def stubPaginatedApplicationList() = {
-    val paginatedApplications = Json.obj(
-      "applications" -> applicationsList,
-      "page"         -> 1,
-      "pageSize"     -> 5,
-      "total"        -> 7,
-      "matching"     -> 7
-    ).toString()
-
-    stubFor(
-      get(urlPathEqualTo("/environment/SANDBOX/query"))
-        .withQueryParam("pageNbr", equalTo("1"))
-        .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
-    )
-    stubFor(
-      get(urlPathEqualTo("/environment/PRODUCTION/query"))
-        .withQueryParam("pageNbr", equalTo("1"))
-        .willReturn(aResponse().withBody(paginatedApplications).withStatus(OK))
-    )
+    val paginatedApplicationsJson = PaginatedApplications(applicationsList, 1, 5, 7, 7)
+    stubBoth(_.withQueryParam("pageNbr", equalTo("1")), paginatedApplicationsJson)
   }
 
   def stubFetchAllApplicationsList(): Unit = {
     stubFor(
       get(urlEqualTo("/environment/PRODUCTION/query")) // urlEqualTo ensures no parameters
-        .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
+        .willReturn(aResponse().withJsonBody(applicationsList).withStatus(OK))
     )
     stubFor(
       get(urlEqualTo("/environment/SANDBOX/query"))    // urlEqualTo ensures no parameters
-        .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
+        .willReturn(aResponse().withJsonBody(applicationsList).withStatus(OK))
     )
   }
 
   def stubApplicationForDeveloper(developerId: UserId, response: String): Unit = {
-    stubFor(
-      get(urlPathEqualTo("/environment/SANDBOX/query"))
-        .withQueryParam("userId", equalTo(developerId.toString()))
-        .willReturn(
-          aResponse()
-            .withBody(response)
-            .withStatus(OK)
-        )
-    )
-    stubFor(
-      get(urlPathEqualTo("/environment/PRODUCTION/query"))
-        .withQueryParam("userId", equalTo(developerId.toString()))
-        .willReturn(
-          aResponse()
-            .withBody(response)
-            .withStatus(OK)
-        )
-    )
+    stubBoth(_.withQueryParam("userId", equalTo(developerId.toString())), response)
   }
 
-  def stubApplicationById(id: ApplicationId, response: String): Unit = {
-    stubFor(
-      get(urlPathEqualTo("/environment/SANDBOX/query"))
-        .withQueryParam("applicationid", equalTo(id.toString()))
-        .willReturn(
-          aResponse()
-            .withBody(response)
-            .withStatus(OK)
-        )
-    )
-    stubFor(
-      get(urlPathEqualTo("/environment/PRODUCTION/query"))
-        .withQueryParam("applicationid", equalTo(id.toString()))
-        .willReturn(
-          aResponse()
-            .withBody(response)
-            .withStatus(OK)
-        )
+  def stubApplicationById(id: ApplicationId, app: ApplicationWithCollaborators): Unit = {
+    stubBoth(
+      _.withQueryParam("applicationId", equalTo(id.toString()))
+        .withQueryParam("wantSubscriptions", WireMock.absent())
+        .withQueryParam("wantSubscriptionFields", WireMock.absent())
+        .withQueryParam("wantStateHistory", WireMock.absent()),
+      app
     )
   }
 
@@ -123,25 +96,15 @@ trait TpoApplicationQueryStub {
       collaborators = appWithSubsFields.collaborators,
       None,
       None,
-      stateHistory = Some(stateHistory.withApplicationId(appWithSubsFields.id))
+      None
     )
-    stubFor(
-      get(urlPathEqualTo(s"/environment/SANDBOX/query"))
+
+    stubBoth(
+      _.withQueryParam("applicationId", equalTo(appId.toString()))
         .withQueryParam("wantSubscriptions", WireMock.absent())
         .withQueryParam("wantSubscriptionFields", WireMock.absent())
-        .withQueryParam("wantStateHistory", matching(".*"))
-        .willReturn(
-          aResponse().withJsonBody(result1)
-        )
-    )
-    stubFor(
-      get(urlPathEqualTo(s"/environment/PRODUCTION/query"))
-        .withQueryParam("wantSubscriptions", WireMock.absent())
-        .withQueryParam("wantSubscriptionFields", WireMock.absent())
-        .withQueryParam("wantStateHistory", matching(".*"))
-        .willReturn(
-          aResponse().withJsonBody(result1)
-        )
+        .withQueryParam("wantStateHistory", WireMock.absent()),
+      result1
     )
 
     val result2 = QueriedApplication(
@@ -151,29 +114,17 @@ trait TpoApplicationQueryStub {
       fieldValues = Some(appWithSubsFields.fieldValues),
       stateHistory = Some(stateHistory.withApplicationId(appWithSubsFields.id))
     )
-    stubFor(
-      get(urlPathEqualTo(s"/environment/SANDBOX/query"))
+    stubBoth(
+      _.withQueryParam("applicationId", equalTo(appId.toString()))
         .withQueryParam("wantSubscriptions", matching(".*"))
         .withQueryParam("wantSubscriptionFields", matching(".*"))
-        .withQueryParam("wantStateHistory", matching(".*"))
-        .willReturn(
-          aResponse().withJsonBody(result2)
-        )
+        .withQueryParam("wantStateHistory", matching(".*")),
+      result2
     )
-    stubFor(
-      get(urlPathEqualTo(s"/environment/PRODUCTION/query"))
-        .withQueryParam("wantSubscriptions", matching(".*"))
-        .withQueryParam("wantSubscriptionFields", matching(".*"))
-        .withQueryParam("wantStateHistory", matching(".*"))
-        .willReturn(
-          aResponse().withJsonBody(result2)
-        )
-    )
-
   }
 
   def stubBlockedApplication(): Unit = {
-    stubApplicationById(blockedApplicationId, blockedApplicationResponse.toJsonString)
+    stubApplicationById(blockedApplicationId, blockedApplicationResponse)
   }
 
   def stubApplicationForDeveloperDefault(): Unit = {
@@ -181,11 +132,7 @@ trait TpoApplicationQueryStub {
   }
 
   def stubUnblockedApplication(): Unit = {
-    stubApplicationById(applicationId, defaultApplicationResponse.toJsonString)
-  }
-
-  def stubApplicationResponse(applicationId: ApplicationId, responseBody: String) = {
-    stubApplicationById(applicationId, responseBody)
+    stubApplicationById(applicationId, defaultApplicationResponse)
   }
 
 }

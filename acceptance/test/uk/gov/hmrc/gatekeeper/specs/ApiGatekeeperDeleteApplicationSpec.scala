@@ -98,7 +98,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
   }
 
   def stubApplicationToDelete(applicationId: ApplicationId) = {
-    stubApplicationById(applicationId, defaultApplicationResponse.toJsonString)
+    stubApplicationById(applicationId, defaultApplicationResponse)
   }
 
   def stubApplicationForDeleteSuccess() = {

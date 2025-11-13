@@ -41,7 +41,7 @@ class ApplicationQueryService @Inject() (
   ) extends ApplicationLogger with ClockNow {
 
   def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
-    val qry = ApplicationQuery.ById(appId, Nil, wantStateHistory = true)
+    val qry = ApplicationQuery.ById(appId, Nil)
 
     OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.PRODUCTION)(qry)).orElse(
       OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX)(qry))
