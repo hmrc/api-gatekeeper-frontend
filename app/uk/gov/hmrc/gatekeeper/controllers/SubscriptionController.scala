@@ -92,7 +92,7 @@ class SubscriptionController @Inject() (
       )
     }
 
-    withAppAndSubsData(appId) { appWithSubsData =>
+    withAppWithSubsFields(appId) { appWithSubsData =>
       for {
         allPossibleSubs       <- apmService.fetchAllPossibleSubscriptions(appId)
         subscriptions          = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)

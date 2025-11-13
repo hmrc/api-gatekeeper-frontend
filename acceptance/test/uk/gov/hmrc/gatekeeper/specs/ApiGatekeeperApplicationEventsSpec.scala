@@ -29,9 +29,6 @@ import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperApplicationEventsSpec
     extends ApiGatekeeperBaseSpec
-    with StateHistoryTestData
-    with ApplicationWithSubscriptionDataTestData
-    with ApplicationResponseTestData
     with XmlServicesStub
     with DisplayEventsTestData
     with DisplayEventTestDataBuilder
@@ -51,8 +48,8 @@ class ApiGatekeeperApplicationEventsSpec
       ApplicationsPage.goTo()
 
       val allEvents = makeSomeEvents()
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
-      stubApplicationForActionRefiner(defaultApplicationResponse.toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
+      stubApplicationForActionRefiner(defaultApplicationResponse, applicationId)
       stubEvents(applicationId, allEvents)
 
       When("I select to navigate to the Automated Test Application page")

@@ -79,7 +79,7 @@ class SubscriptionConfigurationControllerSpec
 
     val fields = allFieldDefinitions(apiContext)(apiVersion).map(f => f._1 -> FieldValue.random)
 
-    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion, fields)
+    val applicationWithSubscriptionData = buildAppWithSubsFields(apiContext, apiVersion, fields)
 
     val apiName         = "API Name"
     val versionData     = DefaultVersionData

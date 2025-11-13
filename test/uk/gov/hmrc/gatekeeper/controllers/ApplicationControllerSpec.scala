@@ -42,7 +42,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
@@ -95,13 +94,9 @@ class ApplicationControllerSpec
   running(app) {
 
     trait Setup extends ControllerSetupBase
-        with ApplicationServiceMockProvider
-        with ApplicationQueryServiceMockProvider
         with ApplicationConnectorMockProvider
         with ApmServiceMockProvider
-        with ThirdPartyOrchestratorConnectorMockProvider
-        with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule {
+        with ThirdPartyOrchestratorConnectorMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -1618,21 +1613,21 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
-        ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
         DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
-        when(mockTermsOfUseService.getAgreementDetails(applicationWithSubscriptionData.details)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
+        when(mockTermsOfUseService.getAgreementDetails(application2.details)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
           "ri@example.com",
           "12 March 2023",
           "2"
         )))
 
-        val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
+        val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
         contentAsString(result) should include(application2.name.value)
@@ -1650,16 +1645,16 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
-        ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(application2.id, State.PRODUCTION))
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
         DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
 
-        val result = addToken(underTest.applicationPage(applicationId))(aLoggedInRequest)
+        val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
         contentAsString(result) should include(application2.name.value)

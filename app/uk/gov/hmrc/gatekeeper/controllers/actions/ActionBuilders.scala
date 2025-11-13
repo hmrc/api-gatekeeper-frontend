@@ -37,9 +37,18 @@ trait ActionBuilders extends ApplicationLogger {
   def applicationQueryService: ApplicationQueryService
   def apmService: ApmService
 
-  def withApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit ec: ExecutionContext, hc: HeaderCarrier): Future[Result] = {
-    applicationQueryService.fetchApplication(appId)
-      .flatMap(_.fold[Future[Result]](successful(NotFound))(f(_)))
+  def withApp(
+      appId: ApplicationId
+    )(
+      f: ApplicationWithCollaborators => Future[Result]
+    )(implicit request: MessagesRequest[_],
+      ec: ExecutionContext,
+      hc: HeaderCarrier
+    ): Future[Result] = {
+    applicationQueryService.fetchApplication(appId).flatMap {
+      case Some(app) => f(app)
+      case None      => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
+    }
   }
 
   def withStandardApp(
@@ -58,7 +67,7 @@ trait ActionBuilders extends ApplicationLogger {
     ))
   }
 
-  def withAppAndSubsData(
+  def withAppWithSubsFields(
       appId: ApplicationId
     )(
       f: ApplicationWithSubscriptionFields => Future[Result]
@@ -66,24 +75,22 @@ trait ActionBuilders extends ApplicationLogger {
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
-    apmService.fetchApplicationById(appId).flatMap {
+    applicationQueryService.fetchApplicationWithSubscriptionFields(appId).flatMap {
       case Some(appWithSubsData) => f(appWithSubsData)
       case None                  => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }
 
-  def withAppAndSubscriptionsAndStateHistory(
+  def withAppWithSubsFieldsAndHistory(
       appId: ApplicationId
     )(
-      action: ApplicationWithSubscriptionDataAndStateHistory => Future[Result]
+      f: ApplicationWithSubscriptionFieldsAndStateHistory => Future[Result]
     )(implicit request: MessagesRequest[_],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
-    apmService.fetchApplicationById(appId).flatMap {
-      case Some(value) =>
-        logger.info(s"FETCHED VALUE - $value")
-        applicationService.fetchStateHistory(appId, value.deployedTo).flatMap(history => action(ApplicationWithSubscriptionDataAndStateHistory(value, history)))
+    applicationQueryService.fetchApplicationWithSubscriptionFieldsAndHistory(appId).flatMap {
+      case Some(value) => f(value)
       case None        => errorHandler.notFoundTemplate("Application not found").map(NotFound(_))
     }
   }

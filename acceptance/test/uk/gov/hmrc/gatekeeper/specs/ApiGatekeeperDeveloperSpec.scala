@@ -23,14 +23,11 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
-import uk.gov.hmrc.gatekeeper.stubs.{ThirdPartyApplicationStub, ThirdPartyDeveloperStub}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class ApiGatekeeperDeveloperSpec
     extends ApiGatekeeperBaseSpec
-    with Assertions
-    with ThirdPartyApplicationStub
-    with ThirdPartyDeveloperStub {
+    with Assertions {
 
   import MockDataSugar._
 

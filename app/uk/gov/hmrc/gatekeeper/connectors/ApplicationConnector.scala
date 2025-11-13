@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.CreateApplicationRequestV1
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -64,12 +64,6 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
   def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId}"
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
-
-  // Awaiting TPA supporting wantsSubscriptionFields
-  //
-  def fetchStateHistory(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    configureEbridgeIfRequired(http.get(url"${baseTpaGatekeeperUrl(applicationId)}/stateHistory")).execute[List[StateHistory]]
-  }
 
   def createPrivApp(request: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application"))

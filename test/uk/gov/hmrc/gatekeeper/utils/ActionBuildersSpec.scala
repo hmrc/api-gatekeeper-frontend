@@ -36,6 +36,7 @@ import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefi
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
+import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHistory
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
@@ -90,7 +91,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   trait AppWithSubscriptionDataSetup extends Setup with ApplicationBuilder {
-    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
+    val applicationWithSubsFields = buildAppWithSubsFields()
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends AppWithSubscriptionDataSetup with FieldDefinitionsBuilder with ApiBuilder {
@@ -99,7 +100,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     val apiContext = allFieldDefinitions.keySet.head
     val apiVersion = allFieldDefinitions(apiContext).keySet.head
 
-    override val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion)
+    override val applicationWithSubsFields = buildAppWithSubsFields(apiContext, apiVersion)
   }
 
   "withApp" should {
@@ -116,28 +117,25 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   "withAppAndSubsData" should {
-    "fetch Application with Subscription Data" in new AppWithSubscriptionDataSetup {
+    "fetch Application with Subscription Fields" in new AppWithSubscriptionDataSetup {
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubsFields)
 
-      val result = underTest.withAppAndSubsData(applicationId)(_ => {
+      val result = underTest.withAppWithSubsFields(applicationWithSubsFields.id)(_ => {
         Future.successful(Ok(expectedResult))
       })
-
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
     }
-
   }
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
-    "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
+    "fetch Application with Subscription Fields and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       val apiDefinition = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
       val possibleSubs  = List(apiDefinition)
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApmServiceMock.FetchApplicationById.returns(applicationWithSubsFields)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
@@ -157,19 +155,17 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   "withAppAndSubscriptionsAndStateHistory" should {
-    "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
-      ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(applicationWithSubscriptionData.id, State.PRODUCTION))
+    "fetch Application with Subscription Fields and State History" in new AppWithSubscriptionDataSetup {
+      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.PRODUCTION))
+      val app          = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubsFields, stateHistory)
+      ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(app)
 
-      val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)(_ =>
+      val result = underTest.withAppWithSubsFieldsAndHistory(app.id)(_ =>
         Future.successful(Ok(expectedResult))
       )
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
-
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId, applicationWithSubscriptionData.deployedTo)
     }
   }
 }

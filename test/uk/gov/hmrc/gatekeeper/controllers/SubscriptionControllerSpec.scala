@@ -127,16 +127,16 @@ class SubscriptionControllerSpec
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val newApplication                  = DefaultApplication
-          val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(newApplication.details, newApplication.collaborators, Set.empty, Map.empty)
-          val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-          val possibleSubs                    = List(apiDefinition)
+          val newApplication    = DefaultApplication
+          val appWithSubsFields = ApplicationWithSubscriptionFields(newApplication.details, newApplication.collaborators, Set.empty, Map.empty)
+          val apiDefinition     = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+          val possibleSubs      = List(apiDefinition)
 
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+          ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(appWithSubsFields)
           ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
-          val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
+          val result = addToken(underTest.manageSubscription(newApplication.id))(aSuperUserLoggedInRequest)
 
           status(result) shouldBe OK
         }

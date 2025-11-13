@@ -22,22 +22,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
-import uk.gov.hmrc.gatekeeper.testdata._
-import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, XmlServicesStub}
 
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec
-    with ApplicationWithSubscriptionDataTestData
-    with ApplicationResponseTestData
-    with StateHistoryTestData
     with Assertions
-    with CommonTestData
-    with ApiDefinitionTestData
-    with UrlEncoding
     with XmlServicesStub
-    with ThirdPartyDeveloperStub
-    with ThirdPartyApplicationStub
     with ApiPlatformDeskproStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
@@ -53,7 +43,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubPaginatedApplicationList()
       stubFetchAllApplicationsList()
       stubApplicationForDeveloper(unverifiedUser.userId, defaultApplicationResponse.toSeq.toJsonString)
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
       stubApiDefinition()
       stubDevelopers()
       stubDevelopersSearch()

@@ -20,7 +20,8 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
+import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHistory
 import uk.gov.hmrc.gatekeeper.services.ApplicationQueryService
 
 trait ApplicationQueryServiceMockProvider {
@@ -33,6 +34,18 @@ trait ApplicationQueryServiceMockProvider {
 
       def returns(app: ApplicationWithCollaborators) =
         when(aMock.fetchApplication(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+    }
+
+    object FetchAppWithSubsFields {
+
+      def returns(app: ApplicationWithSubscriptionFields) =
+        when(aMock.fetchApplicationWithSubscriptionFields(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+    }
+
+    object FetchAppWithSubsFieldsAndHistory {
+
+      def returns(app: ApplicationWithSubscriptionFieldsAndStateHistory) =
+        when(aMock.fetchApplicationWithSubscriptionFieldsAndHistory(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
     }
   }
 

@@ -22,13 +22,9 @@ import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages._
 import uk.gov.hmrc.gatekeeper.stubs.ThirdPartyApplicationStub
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
 class ApiGatekeeperUnblockApplicationSpec
     extends ApiGatekeeperBaseSpec
-    with ApplicationWithSubscriptionDataTestData
-    with StateHistoryTestData
-    with ApplicationResponseTestData
     with ThirdPartyApplicationStub {
 
   val developers = List[RegisteredUser](new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
@@ -36,9 +32,9 @@ class ApiGatekeeperUnblockApplicationSpec
   Feature("Unblock an application") {
     Scenario("I can unblock an application") {
       stubApplication(
-        blockedApplicationWithSubscriptionData.toJsonString,
+        blockedApplicationWithSubscriptionData,
         developers,
-        stateHistories.withApplicationId(blockedApplicationId).toJsonString,
+        stateHistories.withApplicationId(blockedApplicationId),
         blockedApplicationId
       )
       stubApplicationForUnblockSuccess(blockedApplicationId, defaultApplication)
@@ -54,7 +50,7 @@ class ApiGatekeeperUnblockApplicationSpec
     }
 
     Scenario("I cannot unblock an application that is already unblocked") {
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(applicationId).toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData, developers, stateHistories.withApplicationId(applicationId), applicationId)
 
       When("I navigate to the application page")
       navigateToApplicationPageAsAdminFor(applicationName.value, ApplicationPage)

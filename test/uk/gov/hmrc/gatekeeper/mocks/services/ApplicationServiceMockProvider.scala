@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory, ValidatedApplicationName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
@@ -93,15 +93,6 @@ trait ApplicationServiceMockProvider {
 
     object UnblockApplication {
       def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
-    }
-
-    object FetchStateHistory {
-
-      def returns(stateHistory: StateHistory*) =
-        when(mockApplicationService.fetchStateHistory(*[ApplicationId], *)(*)).thenReturn(successful(stateHistory.toList))
-
-      def verifyParams(applicationId: ApplicationId, env: Environment) =
-        verify(mockApplicationService).fetchStateHistory(eqTo(applicationId), eqTo(env))(*)
     }
 
     object DoesApplicationHaveSubmissions {

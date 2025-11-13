@@ -37,5 +37,3 @@ trait WireMockExtensions {
     }
   }
 }
-
-object WireMockExtensions extends WireMockExtensions

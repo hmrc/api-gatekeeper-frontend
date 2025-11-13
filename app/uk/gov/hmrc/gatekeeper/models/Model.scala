@@ -48,7 +48,9 @@ object GatekeeperSessionKeys {
   val AuthToken    = SessionKeys.authToken
 }
 
-case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory])
+case class ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory]) {
+  val id = applicationWithSubscriptionData.id
+}
 
 object ApiDefinitionFields {
   type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
