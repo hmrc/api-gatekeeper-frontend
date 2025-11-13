@@ -49,7 +49,6 @@ class ApiGatekeeperApplicationEventsSpec
 
       val allEvents = makeSomeEvents()
       stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
-      stubApplicationForActionRefiner(defaultApplicationResponse, applicationId)
       stubEvents(applicationId, allEvents)
 
       When("I select to navigate to the Automated Test Application page")

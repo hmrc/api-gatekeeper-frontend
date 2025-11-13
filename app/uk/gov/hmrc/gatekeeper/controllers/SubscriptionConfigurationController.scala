@@ -31,14 +31,13 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import uk.gov.hmrc.gatekeeper.models.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService, SubscriptionFieldsService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, SubscriptionFieldsService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class SubscriptionConfigurationController @Inject() (
-    val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     val subscriptionFieldsService: SubscriptionFieldsService,
     val forbiddenView: ForbiddenView,

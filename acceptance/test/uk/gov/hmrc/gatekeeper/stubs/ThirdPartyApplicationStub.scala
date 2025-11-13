@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
@@ -102,10 +102,6 @@ trait ThirdPartyApplicationStub {
         .withRequestBody(containing("unblockApplication"))
         .willReturn(aResponse().withStatus(OK).withBody(Json.toJson(response).toString()))
     )
-  }
-
-  def stubStateHistory(stateHistory: List[StateHistory], appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/gatekeeper/application/${appId}/stateHistory")).willReturn(aResponse().withBody(stateHistory.toJsonString).withStatus(OK)))
   }
 
   def stubSubmissionLatestIsNotCompleted(appId: ApplicationId) = {

@@ -21,7 +21,6 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models._
@@ -37,12 +36,6 @@ trait ApmConnectorMockProvider {
 
     object FetchAllCombinedApis {
       def returns(combinedApis: List[CombinedApi]) = when(aMock.fetchAllCombinedApis()(*)).thenReturn(successful(combinedApis))
-    }
-
-    object FetchApplicationById {
-
-      def returns(applicationWithSubscriptionData: Option[ApplicationWithSubscriptionFields]) =
-        when(aMock.fetchApplicationById(*[ApplicationId])(*)).thenReturn(successful(applicationWithSubscriptionData))
     }
 
     object FetchAllPossibleSubscriptions {

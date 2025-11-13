@@ -36,7 +36,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService, DeveloperService, TeamMemberService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -63,7 +63,6 @@ class TeamMembersController @Inject() (
     manageTeamMembersView: ManageTeamMembersView,
     addTeamMemberView: AddTeamMemberView,
     removeTeamMemberView: RemoveTeamMemberView,
-    val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     val apmService: ApmService,
     val errorTemplate: ErrorTemplate,

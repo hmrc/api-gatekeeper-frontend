@@ -229,7 +229,6 @@ class ApplicationController @Inject() (
   }
 
   def applicationPage(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    println("XXXX:" + appId)
     withAppWithSubsFieldsAndHistory(appId) { applicationWithSubscriptionsAndStateHistory =>
       val app                                                                 = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.asAppWithCollaborators
       val subscriptions: Set[ApiIdentifier]                                   = applicationWithSubscriptionsAndStateHistory.applicationWithSubscriptionData.subscriptions

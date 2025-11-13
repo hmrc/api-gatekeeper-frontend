@@ -17,12 +17,11 @@
 package mocks.services
 
 import scala.concurrent.Future
-import scala.concurrent.Future.{failed, successful}
+import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitionFields
 import uk.gov.hmrc.gatekeeper.services.ApmService
@@ -33,19 +32,6 @@ trait ApmServiceMockProvider {
   val mockApmService = mock[ApmService]
 
   object ApmServiceMock {
-
-    object FetchApplicationById {
-      private val whenClause = when(mockApmService.fetchApplicationById(*[ApplicationId])(*))
-
-      def returns(app: ApplicationWithSubscriptionFields) =
-        whenClause.thenReturn(successful(Some(app)))
-
-      def returnsNone(app: ApplicationWithSubscriptionFields) =
-        whenClause.thenReturn(successful(None))
-
-      def failsWith(throwable: Throwable) =
-        whenClause.thenReturn(failed(throwable))
-    }
 
     object FetchNonOpenApiDefinitions {
       private val whenClause = when(mockApmService.fetchNonOpenApis(*[Environment])(*))
@@ -61,10 +47,6 @@ trait ApmServiceMockProvider {
     def getAllFieldDefinitionsReturns(returns: ApiDefinitionFields.Alias) = {
       when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
         .thenReturn(Future.successful(returns))
-    }
-
-    def verifyFetchApplicationById(applicationId: ApplicationId) = {
-      verify(mockApmService).fetchApplicationById(eqTo(applicationId))(*)
     }
 
     def verifyAllPossibleSubscriptions(applicationId: ApplicationId) = {

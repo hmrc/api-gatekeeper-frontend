@@ -35,7 +35,6 @@ import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 @Singleton
 class DeskproController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
-    val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     mcc: MessagesControllerComponents,
     override val errorTemplate: ErrorTemplate,

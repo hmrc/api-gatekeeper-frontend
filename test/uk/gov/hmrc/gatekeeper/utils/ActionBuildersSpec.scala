@@ -37,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
 import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHistory
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
 
@@ -46,7 +46,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     implicit val hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
-      val applicationService: ApplicationService           = mockApplicationService
       val applicationQueryService: ApplicationQueryService = ApplicationQueryServiceMock.aMock
       val apmService: ApmService                           = mockApmService
       val errorHandler: ErrorHandler                       = app.injector.instanceOf[ErrorHandler]
@@ -135,11 +134,11 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       val apiDefinition = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
       val possibleSubs  = List(apiDefinition)
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubsFields)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubsFields)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
-      val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
+      val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationWithSubsFields.id)(applicationWithSubscriptionDataAndFieldDefinitions => {
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields.nonEmpty shouldBe true
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields(apiContext).keySet.contains(apiVersion) shouldBe true
 
@@ -149,7 +148,6 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
 
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
   }

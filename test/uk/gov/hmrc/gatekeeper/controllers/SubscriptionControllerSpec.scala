@@ -63,7 +63,6 @@ class SubscriptionControllerSpec
         mcc,
         forbiddenView,
         errorTemplateView,
-        mockApplicationService,
         ApplicationQueryServiceMock.aMock,
         SubscriptionsServiceMock.aMock,
         mockApmService,

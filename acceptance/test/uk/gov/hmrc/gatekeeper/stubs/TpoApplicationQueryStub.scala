@@ -66,11 +66,11 @@ trait TpoApplicationQueryStub {
 
   def stubFetchAllApplicationsList(): Unit = {
     stubFor(
-      get(urlEqualTo("/environment/PRODUCTION/query"))   // urlEqualTo ensures no parameters
+      get(urlEqualTo("/environment/PRODUCTION/query")) // urlEqualTo ensures no parameters
         .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
     )
     stubFor(
-      get(urlEqualTo("/environment/SANDBOX/query"))   // urlEqualTo ensures no parameters
+      get(urlEqualTo("/environment/SANDBOX/query"))    // urlEqualTo ensures no parameters
         .willReturn(aResponse().withBody(applicationsList.toString).withStatus(OK))
     )
   }
@@ -117,26 +117,7 @@ trait TpoApplicationQueryStub {
     )
   }
 
-  def stubApplicationForActionRefiner(appWithCollaborators: ApplicationWithCollaborators, appId: ApplicationId) = {
-    stubFor(
-      get(urlPathEqualTo("/environment/SANDBOX/query"))
-        .withQueryParam("id", equalTo(appId.toString()))
-        .withQueryParam("wantSubscriptions", WireMock.absent())
-        .withQueryParam("wantSubscriptionFields", WireMock.absent())
-        .withQueryParam("wantStateHistory", WireMock.absent())
-        .willReturn(aResponse().withBody(appWithCollaborators.toJsonString).withStatus(OK))
-    )
-    stubFor(
-      get(urlPathEqualTo("/environment/PRODUCTION/query"))
-        .withQueryParam("id", equalTo(appId.toString()))
-        .withQueryParam("wantSubscriptions", WireMock.absent())
-        .withQueryParam("wantSubscriptionFields", WireMock.absent())
-        .withQueryParam("wantStateHistory", WireMock.absent())
-        .willReturn(aResponse().withBody(appWithCollaborators.toJsonString).withStatus(OK))
-    )
-  }
-
-  def stubQueryWithStateHistory(appId: ApplicationId, appWithSubsFields: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory]) = {
+  def stubAppQueryForActionBuilders(appId: ApplicationId, appWithSubsFields: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory]) = {
     val result1 = QueriedApplication(
       details = appWithSubsFields.details,
       collaborators = appWithSubsFields.collaborators,

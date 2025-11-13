@@ -75,7 +75,6 @@ class RedirectUrisControllerSpec
 
       val underTest = new RedirectUrisController(
         StrideAuthorisationServiceMock.aMock,
-        mockApplicationService,
         ApplicationQueryServiceMock.aMock,
         mockRedirectUrisService,
         mcc,

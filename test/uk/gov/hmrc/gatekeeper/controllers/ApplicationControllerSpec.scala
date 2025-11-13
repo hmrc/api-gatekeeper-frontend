@@ -1038,8 +1038,6 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
     "manageOverrides" should {
       "fetch an app with Standard access for a super user" in new Setup {
-        println(application)
-        println(application.id)
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 

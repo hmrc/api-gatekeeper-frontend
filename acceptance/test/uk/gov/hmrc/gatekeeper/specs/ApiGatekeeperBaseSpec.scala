@@ -56,9 +56,7 @@ class ApiGatekeeperBaseSpec
       appId: ApplicationId,
       events: List[DisplayEvent] = Nil
     ) = {
-    stubNewApplication(appWithSubsFields, appId)
-    stubQueryWithStateHistory(appId, appWithSubsFields, stateHistory)
-    stubStateHistory(stateHistory, appId)
+    stubAppQueryForActionBuilders(appId, appWithSubsFields.modify(_.withId(appId)), stateHistory)
     // Now also mock new single route when we're only after AppWithCollaborator and State History
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)

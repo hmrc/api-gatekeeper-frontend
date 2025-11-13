@@ -122,10 +122,9 @@ trait BaseSpec extends AnyFeatureSpec
   }
 
   def onTechDifficultiesFor(page: WebPage) = {
-    val element = eventually {
-      Driver.instance.findElement(By.tagName("body"))
+    eventually {
+      val element = Driver.instance.findElement(By.tagName("body"))
+      assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
     }
-
-    assert(element.getText().contains("Sorry, we’re experiencing technical difficulties"), s"Page loaded WITHOUT tech difficulties: ${page.url}")
   }
 }

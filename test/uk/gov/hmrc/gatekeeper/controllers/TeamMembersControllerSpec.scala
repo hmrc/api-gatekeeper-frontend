@@ -77,7 +77,6 @@ class TeamMembersControllerSpec
         manageTeamMembersView,
         addTeamMemberView,
         removeTeamMemberView,
-        mockApplicationService,
         ApplicationQueryServiceMock.aMock,
         mockApmService,
         errorTemplateView,

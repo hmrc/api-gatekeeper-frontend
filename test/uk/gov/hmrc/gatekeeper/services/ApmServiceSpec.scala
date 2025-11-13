@@ -56,16 +56,6 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
   "ApmService" when {
 
-    "fetchApplicationById" should {
-      "return None" in new Setup {
-
-        ApmConnectorMock.FetchApplicationById.returns(None)
-
-        val result = await(apmService.fetchApplicationById(anAppId))
-        result shouldBe None
-      }
-    }
-
     "fetchAllPossibleSubscriptions" should {
       "return empty Map" in new Setup {
 

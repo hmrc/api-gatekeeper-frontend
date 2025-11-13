@@ -22,7 +22,7 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionFields, CoreApplication}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreApplication
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse}
@@ -31,10 +31,6 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
 @Singleton
 class ApmService @Inject() (apmConnector: ApmConnector) {
-
-  def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
-    apmConnector.fetchApplicationById(applicationId)
-  }
 
   def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)

@@ -29,11 +29,10 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 
 trait ActionBuilders extends ApplicationLogger {
   def errorHandler: ErrorHandler
-  def applicationService: ApplicationService
   def applicationQueryService: ApplicationQueryService
   def apmService: ApmService
 
@@ -115,7 +114,7 @@ trait ActionBuilders extends ApplicationLogger {
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
-    apmService.fetchApplicationById(appId).flatMap {
+    applicationQueryService.fetchApplicationWithSubscriptionFields(appId).flatMap {
       case Some(applicationWithSubs) => {
         val applicationWithSubscriptionDataAndFieldDefinitions = for {
           allApiDefinitions <- apmService.getAllFieldDefinitions(applicationWithSubs.deployedTo)

@@ -34,7 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -85,7 +85,6 @@ class ApplicationEventsController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService,
     val apmService: ApmService,
-    val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     val errorTemplate: ErrorTemplate,
     val errorHandler: ErrorHandler
