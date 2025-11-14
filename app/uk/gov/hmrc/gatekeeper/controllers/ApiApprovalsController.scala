@@ -150,23 +150,21 @@ class ApiApprovalsController @Inject() (
     ApiApprovalsController.filterForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def historyPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(apiApprovalsHistoryView(apiDefinition)))
+  def historyPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsHistoryView(apiDefinition)))
   }
 
-  def reviewPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(apiApprovalsReviewView(reviewForm, apiDefinition)))
+  def reviewPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsReviewView(reviewForm, apiDefinition)))
   }
 
-  def reviewAction(serviceName: String, environment: String): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = Environment.unsafeApply(environment)
-
+  def reviewAction(serviceName: String, environment: Environment): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val requestForm: Form[ReviewForm] = reviewForm.bindFromRequest()
 
     def errors(errors: Form[ReviewForm]) =
-      fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(apiApprovalsReviewView(errors, details)))
+      fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(apiApprovalsReviewView(errors, details)))
 
-    def doCalls(serviceName: String, environment: Environment, approve: Boolean, approveDetail: Option[String], declineDetail: Option[String]): Future[Unit] = {
+    def doCalls(approve: Boolean, approveDetail: Option[String], declineDetail: Option[String]): Future[Unit] = {
       approve match {
         case true  => deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get, approveDetail)
             .flatMap(_ =>
@@ -183,7 +181,7 @@ class ApiApprovalsController @Inject() (
 
       val approve = validForm.approve.contains("true")
 
-      doCalls(serviceName, env, approve, validForm.approveDetail, validForm.declineDetail) map {
+      doCalls(approve, validForm.approveDetail, validForm.declineDetail) map {
         _ =>
           approve match {
             case true  => Ok(apiApprovalsApprovedSuccessView(serviceName))
@@ -191,7 +189,7 @@ class ApiApprovalsController @Inject() (
           }
       } recoverWith {
         case UpstreamErrorResponse(message, _, _, _) =>
-          deploymentApprovalService.addComment(serviceName, env, gatekeeperUser.get, s"PUBLISH FAILED: $message") flatMap {
+          deploymentApprovalService.addComment(serviceName, environment, gatekeeperUser.get, s"PUBLISH FAILED: $message") flatMap {
             _ => errorHandler.publishErrorTemplate().map(BadRequest(_))
           }
       }
@@ -200,20 +198,18 @@ class ApiApprovalsController @Inject() (
     requestForm.fold(errors, updateApiWithValidForm)
   }
 
-  def commentPage(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    fetchApiDefinitionSummary(serviceName, Environment.unsafeApply(environment)).map(apiDefinition => Ok(apiApprovalsCommentView(commentForm, apiDefinition)))
+  def commentPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsCommentView(commentForm, apiDefinition)))
   }
 
-  def addComment(serviceName: String, environment: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    val env = Environment.unsafeApply(environment)
-
+  def addComment(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val requestForm: Form[CommentForm] = commentForm.bindFromRequest()
 
     def errors(errors: Form[CommentForm]) =
-      fetchApiDefinitionSummary(serviceName, env).map(details => BadRequest(apiApprovalsCommentView(errors, details)))
+      fetchApiDefinitionSummary(serviceName, environment).map(details => BadRequest(apiApprovalsCommentView(errors, details)))
 
     def addCommentWithValidForm(validForm: CommentForm) = {
-      deploymentApprovalService.addComment(serviceName, env, gatekeeperUser.get, validForm.comment.get).map(_ => Ok(apiApprovalsCommentSuccessView(serviceName)))
+      deploymentApprovalService.addComment(serviceName, environment, gatekeeperUser.get, validForm.comment.get).map(_ => Ok(apiApprovalsCommentSuccessView(serviceName)))
     }
 
     requestForm.fold(errors, addCommentWithValidForm)

@@ -30,7 +30,7 @@
 
 @buildApiLinkHtml(api: APIApprovalSummary, isUser: Boolean) = {
     @if(isUser) {
-        <a data-review="@api.serviceName" href="@{routes.ApiApprovalsController.historyPage(api.serviceName, api.env.toLowerCase)}">@api.name</a>
+        <a data-review="@api.serviceName" href="@{routes.ApiApprovalsController.historyPage(api.serviceName, api.environment.get)}">@api.name</a>
     } else {@api.name}
 }
 

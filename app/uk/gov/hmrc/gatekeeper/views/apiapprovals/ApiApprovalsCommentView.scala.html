@@ -41,7 +41,7 @@
         <div class="govuk-grid-row">
             <div class="govuk-grid-column-two-thirds">
 
-            @helper.form(action = routes.ApiApprovalsController.addComment(apiDefinition.serviceName, apiDefinition.environment.get.toString)) {
+            @helper.form(action = routes.ApiApprovalsController.addComment(apiDefinition.serviceName, apiDefinition.environment.get)) {
                 @helper.CSRF.formField
                 <div class="govuk-form-group @if(form.errors("comment").nonEmpty) {govuk-form-group--error}">
                 @fieldError(form.errors, "comment", form.error("submissionError").isEmpty)
