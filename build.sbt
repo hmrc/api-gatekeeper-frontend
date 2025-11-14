@@ -41,7 +41,9 @@ lazy val microservice = Project(appName, file("."))
     routesImport ++= Seq(
       "uk.gov.hmrc.gatekeeper.controllers.binders._",
       "uk.gov.hmrc.gatekeeper.models._",
-      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._"
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models._",
+      "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._"
     )
   )
   .settings(
