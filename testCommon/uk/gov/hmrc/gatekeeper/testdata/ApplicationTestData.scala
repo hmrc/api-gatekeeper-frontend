@@ -23,7 +23,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowl
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-trait ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures {
+object ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures {
 
   val defaultApplication = DefaultApplication
     .withId(applicationId)
@@ -48,5 +48,10 @@ trait ApplicationTestData extends ApplicationBuilder with CommonTestData with Co
     .withId(pendingApprovalApplicationId)
     .withState(pendingApprovalState)
     .withName(pendingApprovalApplicationName)
+}
 
+trait ApplicationTestData {
+  val defaultApplication         = ApplicationTestData.defaultApplication
+  val blockedApplication         = ApplicationTestData.blockedApplication
+  val pendingApprovalApplication = ApplicationTestData.pendingApprovalApplication
 }

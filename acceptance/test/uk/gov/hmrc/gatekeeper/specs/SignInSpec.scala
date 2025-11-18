@@ -85,5 +85,4 @@ class SignInSpec extends ApiGatekeeperBaseSpec with SignInSugar with Matchers wi
       cookieBanner should include("(0, ")
     }
   }
-
 }

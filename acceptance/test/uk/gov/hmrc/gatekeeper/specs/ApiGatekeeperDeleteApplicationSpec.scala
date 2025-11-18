@@ -22,19 +22,13 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status._
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
-class ApiGatekeeperDeleteApplicationSpec
-    extends ApiGatekeeperBaseSpec
-    with ApplicationWithSubscriptionDataTestData
-    with StateHistoryTestData
-    with ApplicationWithStateHistoryTestData {
+class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
@@ -52,7 +46,6 @@ class ApiGatekeeperDeleteApplicationSpec
     }
 
     Scenario("I cannot delete an application") {
-
       stubApplicationForDeleteFailure()
 
       When("I navigate to the Delete Page for an application")
@@ -79,8 +72,7 @@ class ApiGatekeeperDeleteApplicationSpec
     Then("I am successfully navigated to the Applications page where I can view all applications")
     on(ApplicationsPage)
 
-    val queriedApp = QueriedApplication.apply(applicationWithSubscriptionData).copy(stateHistory = Some(stateHistories))
-    stubApplication(Json.toJson(queriedApp).toString, developers, stateHistories.toJsonString, applicationId)
+    stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
     ApplicationsPage.clickApplicationNameLink(applicationName.value)
@@ -106,7 +98,7 @@ class ApiGatekeeperDeleteApplicationSpec
   }
 
   def stubApplicationToDelete(applicationId: ApplicationId) = {
-    stubApplicationById(applicationId, defaultApplicationWithHistory.toJsonString)
+    stubApplicationById(applicationId, defaultApplicationResponse)
   }
 
   def stubApplicationForDeleteSuccess() = {

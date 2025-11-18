@@ -48,15 +48,9 @@ object GatekeeperSessionKeys {
   val AuthToken    = SessionKeys.authToken
 }
 
-case class ApplicationAndSubscribedFieldDefinitionsWithHistory(application: ApplicationWithHistory, subscriptionsWithFieldDefinitions: List[Subscription])
-
-case class ApplicationAndSubscriptionVersion(application: ApplicationWithHistory, subscription: Subscription, version: VersionSubscription)
-
-case class ApplicationAndSubscriptionsWithHistory(application: ApplicationWithHistory, subscriptions: List[Subscription])
-
-case class ApplicationWithHistory(application: ApplicationWithCollaborators, history: List[StateHistory])
-
-case class ApplicationWithSubscriptionDataAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory])
+case class ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData: ApplicationWithSubscriptionFields, stateHistory: List[StateHistory]) {
+  val id = applicationWithSubscriptionData.id
+}
 
 object ApiDefinitionFields {
   type Alias = Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]
@@ -73,7 +67,6 @@ object ApplicationWithHistory {
   implicit val format5: OFormat[SubmissionDetails]        = Json.format[SubmissionDetails]
   implicit val format6: OFormat[ApplicationReviewDetails] = Json.format[ApplicationReviewDetails]
   implicit val format7: OFormat[ApprovedApplication]      = Json.format[ApprovedApplication]
-  implicit val format9: OFormat[ApplicationWithHistory]   = Json.format[ApplicationWithHistory]
 }
 
 case class ApplicationWithUpliftRequest(id: ApplicationId, name: String, submittedOn: LocalDateTime, state: State)
@@ -360,7 +353,7 @@ case class APIApprovalSummary(
     lastUpdated: Option[Instant] = None,
     stateHistory: Seq[ApiApprovalState] = Seq.empty
   ) {
-  lazy val env = environment.get.toString.toLowerCase.capitalize
+  lazy val env = environment.get.displayText
 }
 
 object APIApprovalSummary {

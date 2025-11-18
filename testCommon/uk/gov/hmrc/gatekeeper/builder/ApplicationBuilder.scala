@@ -96,10 +96,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     )
   )
 
-  def anApplicationWithHistory(applicationResponse: ApplicationWithCollaborators = anApplication(), stateHistories: List[StateHistory] = List.empty): ApplicationWithHistory = {
-    ApplicationWithHistory(applicationResponse, stateHistories)
-  }
-
   def anApplication(createdOn: Instant = instant, lastAccess: Instant = instant): ApplicationWithCollaborators = {
     buildApplication(
       ApplicationId.random,
@@ -147,7 +143,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     Map(apiContext -> Map(apiVersion -> fields))
   }
 
-  def buildApplicationWithSubscriptionData(
+  def buildAppWithSubsFields(
       apiContext: ApiContext = ApiContext.random,
       apiVersion: ApiVersionNbr = ApiVersionNbr.random,
       fields: Fields.Alias = Map(FieldName.random -> FieldValue.random, FieldName.random -> FieldValue.random)

@@ -36,7 +36,8 @@ import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefi
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.controllers.{ControllerBaseSpec, ControllerSetupBase}
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHistory
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 
 class ActionBuildersSpec extends ControllerBaseSpec {
 
@@ -45,9 +46,9 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     implicit val hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
-      val applicationService: ApplicationService = mockApplicationService
-      val apmService: ApmService                 = mockApmService
-      val errorHandler: ErrorHandler             = app.injector.instanceOf[ErrorHandler]
+      val applicationQueryService: ApplicationQueryService = ApplicationQueryServiceMock.aMock
+      val apmService: ApmService                           = mockApmService
+      val errorHandler: ErrorHandler                       = app.injector.instanceOf[ErrorHandler]
     }
 
     val fakeRequest                                                            = FakeRequest()
@@ -89,7 +90,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
   }
 
   trait AppWithSubscriptionDataSetup extends Setup with ApplicationBuilder {
-    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData()
+    val applicationWithSubsFields = buildAppWithSubsFields()
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends AppWithSubscriptionDataSetup with FieldDefinitionsBuilder with ApiBuilder {
@@ -98,12 +99,12 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     val apiContext = allFieldDefinitions.keySet.head
     val apiVersion = allFieldDefinitions(apiContext).keySet.head
 
-    override val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion)
+    override val applicationWithSubsFields = buildAppWithSubsFields(apiContext, apiVersion)
   }
 
   "withApp" should {
     "fetch application" in new SubscriptionsWithMixOfSubscribedVersionsSetup {
-      ApplicationServiceMock.FetchApplication.returns(application)
+      ApplicationQueryServiceMock.FetchApplication.returns(application)
 
       val result = underTest.withApp(applicationId)(_ => {
         Future.successful(Ok(expectedResult))
@@ -111,38 +112,33 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
-
-      ApplicationServiceMock.FetchApplication.verifyParams(applicationId)
     }
   }
 
   "withAppAndSubsData" should {
-    "fetch Application with Subscription Data" in new AppWithSubscriptionDataSetup {
+    "fetch Application with Subscription Fields" in new AppWithSubscriptionDataSetup {
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubsFields)
 
-      val result = underTest.withAppAndSubsData(applicationId)(_ => {
+      val result = underTest.withAppWithSubsFields(applicationWithSubsFields.id)(_ => {
         Future.successful(Ok(expectedResult))
       })
-
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
     }
-
   }
 
   "withAppAndSubscriptionsAndFieldDefinitions" should {
-    "fetch Application with Subscription Data and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
+    "fetch Application with Subscription Fields and Field Definitions" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       val apiDefinition = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
       val possibleSubs  = List(apiDefinition)
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubsFields)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
-      val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationId)(applicationWithSubscriptionDataAndFieldDefinitions => {
+      val result = underTest.withAppAndSubscriptionsAndFieldDefinitions(applicationWithSubsFields.id)(applicationWithSubscriptionDataAndFieldDefinitions => {
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields.nonEmpty shouldBe true
         applicationWithSubscriptionDataAndFieldDefinitions.apiDefinitionFields(apiContext).keySet.contains(apiVersion) shouldBe true
 
@@ -152,25 +148,22 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
 
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
   }
 
   "withAppAndSubscriptionsAndStateHistory" should {
-    "fetch Application with Subscription Data and State History" in new AppWithSubscriptionDataSetup {
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
-      ApplicationServiceMock.FetchStateHistory.returns(buildStateHistory(applicationWithSubscriptionData.id, State.PRODUCTION))
+    "fetch Application with Subscription Fields and State History" in new AppWithSubscriptionDataSetup {
+      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.PRODUCTION))
+      val app          = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubsFields, stateHistory)
+      ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(app)
 
-      val result = underTest.withAppAndSubscriptionsAndStateHistory(applicationId)(_ =>
+      val result = underTest.withAppWithSubsFieldsAndHistory(app.id)(_ =>
         Future.successful(Ok(expectedResult))
       )
 
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
-
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApplicationServiceMock.FetchStateHistory.verifyParams(applicationId, applicationWithSubscriptionData.deployedTo)
     }
   }
 }

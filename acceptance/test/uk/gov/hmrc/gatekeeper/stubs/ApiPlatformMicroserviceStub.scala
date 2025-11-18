@@ -20,14 +20,15 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 
 import play.api.http.Status._
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
-import uk.gov.hmrc.gatekeeper.testdata.ApiDefinitionTestData
+import uk.gov.hmrc.gatekeeper.testdata.{ApiDefinitionTestData, ApplicationWithSubscriptionDataTestData}
 
-trait ApiPlatformMicroserviceStub extends WireMockExtensions with ApiDefinitionTestData {
+trait ApiPlatformMicroserviceStub extends WireMockExtensions with ApiDefinitionTestData with ApplicationWithSubscriptionDataTestData {
 
-  def stubNewApplication(application: String, appId: ApplicationId) = {
-    stubFor(get(urlEqualTo(s"/applications/${appId}")).willReturn(aResponse().withBody(application).withStatus(OK)))
+  def stubNewApplication(application: ApplicationWithSubscriptionFields, appId: ApplicationId) = {
+    stubFor(get(urlEqualTo(s"/applications/${appId}")).willReturn(aResponse().withBody(application.toJsonString).withStatus(OK)))
   }
 
   def stubApiDefintionsForApplication(apiDefinitions: String, appId: ApplicationId) = {

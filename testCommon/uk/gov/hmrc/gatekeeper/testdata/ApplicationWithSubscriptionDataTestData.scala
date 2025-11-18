@@ -29,7 +29,6 @@ trait ApplicationWithSubscriptionDataTestData extends CommonTestData with Subscr
     ApplicationWithSubscriptionFields(pendingApprovalApplication.details, pendingApprovalApplication.collaborators, defaultSubscriptions, Map.empty)
 
   implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionFields) {
-
     def toJson       = Json.toJson(applicationWithSubscriptionData)
     def toJsonString = Json.toJson(applicationWithSubscriptionData).toString
   }

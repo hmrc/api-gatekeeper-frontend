@@ -164,7 +164,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       )
 
-      val result = underTest.historyPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.historyPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approvals")
@@ -183,7 +183,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.historyPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.historyPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -198,7 +198,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       )
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approvals")
@@ -215,7 +215,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -230,7 +230,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
       )
 
-      val result = underTest.commentPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.commentPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"Add a comment for the aName API")
@@ -242,7 +242,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.commentPage(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.commentPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -258,7 +258,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been approved")
@@ -275,7 +275,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false", "declineDetail" -> declineNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been declined")
@@ -294,7 +294,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Please select an option")
@@ -313,7 +313,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false")
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Enter the reasons for declining the API")
@@ -332,7 +332,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"API was successfully approved but publishing failed. Please check API Approval history for the error details.")
@@ -346,7 +346,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.reviewAction(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.reviewAction(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -362,7 +362,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("comment" -> comment)
 
-      val result = underTest.addComment(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.addComment(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"Your comment has been added for the $serviceName API")
@@ -380,7 +380,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest
 
-      val result = underTest.addComment(serviceName, Environment.SANDBOX.displayText)(request.withCSRFToken)
+      val result = underTest.addComment(serviceName, Environment.SANDBOX)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Comment is required")
@@ -392,7 +392,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.addComment(serviceName, Environment.PRODUCTION.displayText)(aLoggedInRequest)
+      val result = underTest.addComment(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }

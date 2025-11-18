@@ -24,13 +24,10 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage}
 import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithSubscriptionDataTestData, MockDataSugar, StateHistoryTestData}
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class ApiGatekeeperApplicationSpec
     extends ApiGatekeeperBaseSpec
-    with StateHistoryTestData
-    with ApplicationWithSubscriptionDataTestData
-    with ApplicationResponseTestData
     with XmlServicesStub
     with ThirdPartyDeveloperStub
     with ThirdPartyApplicationStub
@@ -86,7 +83,7 @@ class ApiGatekeeperApplicationSpec
 
       val testApp = applicationWithSubscriptionData.modify(_.copy(checkInformation = Some(defaultCheckInformation)))
 
-      stubApplication(testApp.toJsonString, developers, stateHistories.toJsonString, applicationId)
+      stubApplication(testApp, developers, stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.clickApplicationNameLink("My new app")
@@ -132,7 +129,7 @@ class ApiGatekeeperApplicationSpec
       signInGatekeeper(app)
 
       on(ApplicationsPage)
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.clickApplicationNameLink(applicationName.value)

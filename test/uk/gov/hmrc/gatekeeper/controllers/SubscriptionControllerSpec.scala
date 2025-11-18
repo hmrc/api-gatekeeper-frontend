@@ -25,13 +25,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html._
@@ -60,27 +58,12 @@ class SubscriptionControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
-        List.empty
-      )
-
-      val privilegedApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
-      val ropcApplication = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email"))),
-        List.empty
-      )
-
       val underTest = new SubscriptionController(
         manageSubscriptionsView,
         mcc,
         forbiddenView,
         errorTemplateView,
-        mockApplicationService,
+        ApplicationQueryServiceMock.aMock,
         SubscriptionsServiceMock.aMock,
         mockApmService,
         errorHandler,
@@ -143,16 +126,16 @@ class SubscriptionControllerSpec
       "the user is a superuser" should {
         "fetch the subscriptions with the fields" in new Setup with ApplicationBuilder with ApiBuilder {
 
-          val newApplication                  = DefaultApplication
-          val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(newApplication.details, newApplication.collaborators, Set.empty, Map.empty)
-          val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
-          val possibleSubs                    = List(apiDefinition)
+          val newApplication    = DefaultApplication
+          val appWithSubsFields = ApplicationWithSubscriptionFields(newApplication.details, newApplication.collaborators, Set.empty, Map.empty)
+          val apiDefinition     = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
+          val possibleSubs      = List(apiDefinition)
 
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-          ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+          ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(appWithSubsFields)
           ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
 
-          val result = addToken(underTest.manageSubscription(applicationId))(aSuperUserLoggedInRequest)
+          val result = addToken(underTest.manageSubscription(newApplication.id))(aSuperUserLoggedInRequest)
 
           status(result) shouldBe OK
         }

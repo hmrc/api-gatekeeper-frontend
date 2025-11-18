@@ -35,6 +35,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class SubscriptionConfigurationControllerSpec
     extends ControllerBaseSpec
+    with ApiIdentifierFixtures
     with WithCSRFAddToken
     with TitleChecker {
 
@@ -50,7 +51,7 @@ class SubscriptionConfigurationControllerSpec
       with SubscriptionFieldsServiceMockProvider {
 
     lazy val controller = new SubscriptionConfigurationController(
-      mockApplicationService,
+      ApplicationQueryServiceMock.aMock,
       mockSubscriptionFieldsService,
       forbiddenView,
       mcc,
@@ -61,13 +62,6 @@ class SubscriptionConfigurationControllerSpec
       errorHandler,
       StrideAuthorisationServiceMock.aMock
     )
-
-    val version                       = ApiVersionNbr.random
-    val context                       = ApiContext.random
-    val subscriptionFieldValue        = buildSubscriptionFieldValue(FieldName.random)
-    val subscriptionFieldsWrapper     = buildSubscriptionFieldsWrapper(applicationId, List(subscriptionFieldValue))
-    val versionWithSubscriptionFields = buildVersionWithSubscriptionFields(version, true, applicationId, fields = Some(subscriptionFieldsWrapper))
-    val subscription                  = buildSubscription("My Subscription", Some(context), List(versionWithSubscriptionFields))
   }
 
   trait AppWithSubscriptionDataAndFieldDefinitionsSetup extends Setup with FieldDefinitionsBuilder with ApiBuilder with ApplicationBuilder {
@@ -78,7 +72,7 @@ class SubscriptionConfigurationControllerSpec
 
     val fields = allFieldDefinitions(apiContext)(apiVersion).map(f => f._1 -> FieldValue.random)
 
-    val applicationWithSubscriptionData = buildApplicationWithSubscriptionData(apiContext, apiVersion, fields)
+    val applicationWithSubscriptionData = buildAppWithSubsFields(apiContext, apiVersion, fields)
 
     val apiName         = "API Name"
     val versionData     = DefaultVersionData
@@ -100,11 +94,11 @@ class SubscriptionConfigurationControllerSpec
     "show subscriptions configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result = controller.listConfigurations(applicationId)(aLoggedInRequest)
+      val result = controller.listConfigurations(applicationWithSubscriptionData.id)(aLoggedInRequest)
       status(result) shouldBe OK
 
       titleOf(result) shouldBe "Unit Test Title - Subscription configuration"
@@ -117,8 +111,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
       responseBody should include(fields.head._2.value)
 
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApmServiceMock.verifyAllPossibleSubscriptions(applicationId)
+      ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
 
     }
@@ -126,11 +119,11 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result = controller.listConfigurations(applicationId)(aSuperUserLoggedInRequest)
+      val result = controller.listConfigurations(applicationWithSubscriptionData.id)(aSuperUserLoggedInRequest)
       status(result) shouldBe OK
     }
 
@@ -145,11 +138,11 @@ class SubscriptionConfigurationControllerSpec
   "edit Subscription Configuration" should {
     "show Subscription Configuration" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aLoggedInRequest)
+      val result = addToken(controller.editConfigurations(applicationWithSubscriptionData.id, apiContext, apiVersion))(aLoggedInRequest)
 
       status(result) shouldBe OK
 
@@ -164,18 +157,17 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
       responseBody should include(fields.head._2.value)
 
-      ApmServiceMock.verifyFetchApplicationById(applicationId)
-      ApmServiceMock.verifyAllPossibleSubscriptions(applicationId)
+      ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
-      val result = addToken(controller.editConfigurations(applicationId, apiContext, apiVersion))(aSuperUserLoggedInRequest)
+      val result = addToken(controller.editConfigurations(applicationWithSubscriptionData.id, apiContext, apiVersion))(aSuperUserLoggedInRequest)
 
       status(result) shouldBe OK
 
@@ -184,7 +176,7 @@ class SubscriptionConfigurationControllerSpec
     "When logged in as normal user renders forbidden page" in new Setup {
       StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
-      val result = controller.editConfigurations(applicationId, context, version)(aLoggedInRequest)
+      val result = controller.editConfigurations(applicationId, apiContextOne, apiVersionNbrOne)(aLoggedInRequest)
       status(result) shouldBe FORBIDDEN
     }
   }
@@ -192,7 +184,7 @@ class SubscriptionConfigurationControllerSpec
   "save subscription configuration post" should {
     "save" in new EditSaveFormData {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
       SubscriptionFieldsServiceMock.SaveFieldValues.succeeds()
@@ -201,10 +193,10 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(fields.head._1, newValue)(aLoggedInRequest)
 
-      val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
+      val result = addToken(controller.saveConfigurations(applicationWithSubscriptionData.id, apiContext, apiVersion))(request)
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions-configuration")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationWithSubscriptionData.id.value.toString()}/subscriptions-configuration")
 
       val expectedFields = Map(fields.head._1 -> newValue)
 
@@ -213,7 +205,7 @@ class SubscriptionConfigurationControllerSpec
 
     "save gives validation errors" in new EditSaveFormData {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
@@ -224,7 +216,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(fields.head._1, FieldValue.random)(aLoggedInRequest)
 
-      val result = addToken(controller.saveConfigurations(applicationId, apiContext, apiVersion))(request)
+      val result = addToken(controller.saveConfigurations(applicationWithSubscriptionData.id, apiContext, apiVersion))(request)
 
       status(result) shouldBe BAD_REQUEST
 
@@ -234,7 +226,7 @@ class SubscriptionConfigurationControllerSpec
 
     "When logged in as super saves the data" in new EditSaveFormData {
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-      ApmServiceMock.FetchApplicationById.returns(applicationWithSubscriptionData)
+      ApplicationQueryServiceMock.FetchAppWithSubsFields.returns(applicationWithSubscriptionData)
       ApmServiceMock.getAllFieldDefinitionsReturns(allFieldDefinitions)
       ApmServiceMock.fetchAllPossibleSubscriptionsReturns(allPossibleSubs)
 
@@ -242,7 +234,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aSuperUserLoggedInRequest)
 
-      val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
+      val result = addToken(controller.saveConfigurations(applicationWithSubscriptionData.id, apiContextOne, apiVersionNbrOne))(request)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -252,7 +244,7 @@ class SubscriptionConfigurationControllerSpec
 
       val request = requestWithFormData(FieldName.random, FieldValue.empty)(aLoggedInRequest)
 
-      val result = addToken(controller.saveConfigurations(applicationId, context, version))(request)
+      val result = addToken(controller.saveConfigurations(applicationWithSubscriptionData.id, apiContextOne, apiVersionNbrOne))(request)
       status(result) shouldBe FORBIDDEN
     }
   }

@@ -39,7 +39,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 @Singleton
 class OrganisationController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
-    val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     mcc: MessagesControllerComponents,
     organisationView: OrganisationView,
     organisationService: OrganisationService,

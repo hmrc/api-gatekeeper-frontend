@@ -20,8 +20,6 @@ import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import cats.data.OptionT
-
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access, OverrideFlag}
@@ -54,10 +52,6 @@ class ApplicationService @Inject() (
   def resendVerification(application: ApplicationWithCollaborators, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
     commandConnector.dispatch(application.id, ApplicationCommands.ResendRequesterEmailVerification(gatekeeperUserId, instant()), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
-  }
-
-  def fetchStateHistory(applicationId: ApplicationId, environment: Environment)(implicit hc: HeaderCarrier): Future[List[StateHistory]] = {
-    applicationConnectorFor(Some(environment)).fetchStateHistory(applicationId)
   }
 
   def fetchProdAppStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistoryChange]] = {
@@ -306,7 +300,7 @@ class ApplicationService @Inject() (
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def searchApplications(env: Option[Environment], params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
+  def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
     val correctedParams = params
       .filterNot {
         case ("includeDeleted", _) => true
@@ -336,7 +330,7 @@ class ApplicationService @Inject() (
         case x                         => List(x)
       }
 
-    tpoConnector.rawQuery[PaginatedApplications](env.getOrElse(Environment.SANDBOX))(correctedParams)
+    tpoConnector.rawQuery[PaginatedApplications](env)(correctedParams)
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
@@ -359,16 +353,6 @@ class ApplicationService @Inject() (
       .map(_.flatten)
   }
 
-  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[ApplicationWithHistory] = {
-    val qry = ApplicationQuery.ById(appId, Nil, wantStateHistory = true)
-
-    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.SANDBOX)(qry))
-    )
-      .getOrRaise(new RuntimeException("Expected an application but found nothing"))
-      .map(r => ApplicationWithHistory(r.asAppWithCollaborators, r.stateHistory.get))
-  }
-
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val qry                          = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil)
     val sandboxApplicationsFuture    = tpoConnector.query[List[QueriedApplication]](Environment.SANDBOX)(qry)
@@ -380,10 +364,10 @@ class ApplicationService @Inject() (
     } yield (sandboxApps ++ productionApps).distinct
   }
 
-  def fetchApplicationsWithSubscriptions(env: Option[Environment])(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
+  def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    tpoConnector.query[List[QueriedApplication]](env.getOrElse(Environment.SANDBOX))(qry)
+    tpoConnector.query[List[QueriedApplication]](env)(qry)
       .map(_.map { qas =>
         AppWithSubscriptionsForCsvResponse(
           id = qas.details.id,

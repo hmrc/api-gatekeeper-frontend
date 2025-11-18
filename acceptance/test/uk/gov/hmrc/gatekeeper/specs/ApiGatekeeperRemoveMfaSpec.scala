@@ -22,14 +22,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyDeveloperStub, XmlServicesStub}
-import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class ApiGatekeeperRemoveMfaSpec
     extends ApiGatekeeperBaseSpec
     with Assertions
-    with CommonTestData
-    with ThirdPartyDeveloperStub
     with XmlServicesStub
     with ApiPlatformDeskproStub {
 

@@ -42,7 +42,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications._
 @Singleton
 class RedirectUrisController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
-    val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     redirectUriService: RedirectUrisService,
     mcc: MessagesControllerComponents,
     manageLoginRedirectUriView: ManageLoginRedirectUriView,
@@ -60,9 +60,9 @@ class RedirectUrisController @Inject() (
 
   def manageLoginRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      app.application.access match {
+      app.access match {
         case Access.Standard(redirects, _, _, _, _, _, _) =>
-          Future.successful(Ok(manageLoginRedirectUriView(app.application, LoginRedirectUriForm.form.fill(LoginRedirectUriForm(redirects)))))
+          Future.successful(Ok(manageLoginRedirectUriView(app, LoginRedirectUriForm.form.fill(LoginRedirectUriForm(redirects)))))
         case _                                            => Future.successful(NotFound)
       }
 
@@ -71,9 +71,9 @@ class RedirectUrisController @Inject() (
 
   def managePostLogoutRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      app.application.access match {
+      app.access match {
         case Access.Standard(_, redirects, _, _, _, _, _) =>
-          Future.successful(Ok(managePostLogoutRedirectUriView(app.application, PostLogoutRedirectUriForm.form.fill(PostLogoutRedirectUriForm(redirects)))))
+          Future.successful(Ok(managePostLogoutRedirectUriView(app, PostLogoutRedirectUriForm.form.fill(PostLogoutRedirectUriForm(redirects)))))
         case _                                            => Future.successful(NotFound)
       }
 
@@ -83,13 +83,13 @@ class RedirectUrisController @Inject() (
   def manageLoginRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: LoginRedirectUriForm) = {
-        redirectUriService.manageLoginRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+        redirectUriService.manageLoginRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[LoginRedirectUriForm]) = {
-        Future.successful(BadRequest(manageLoginRedirectUriView(app.application, form)))
+        Future.successful(BadRequest(manageLoginRedirectUriView(app, form)))
       }
 
       LoginRedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)
@@ -99,13 +99,13 @@ class RedirectUrisController @Inject() (
   def managePostLogoutRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: PostLogoutRedirectUriForm) = {
-        redirectUriService.managePostLogoutRedirectUris(app.application, form.redirectUris, loggedIn.userFullName.get).map { _ =>
+        redirectUriService.managePostLogoutRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
           Redirect(routes.ApplicationController.applicationPage(appId))
         }
       }
 
       def handleFormError(form: Form[PostLogoutRedirectUriForm]) = {
-        Future.successful(BadRequest(managePostLogoutRedirectUriView(app.application, form)))
+        Future.successful(BadRequest(managePostLogoutRedirectUriView(app, form)))
       }
 
       PostLogoutRedirectUriForm.form.bindFromRequest().fold(handleFormError, handleValidForm)

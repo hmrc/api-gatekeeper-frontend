@@ -22,16 +22,11 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApmConnectorApplicationModule extends ApmConnectorModule {
   private[this] val baseUrl = s"${config.serviceBaseUrl}/applications"
-
-  def fetchApplicationById(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] =
-    http.get(url"${baseUrl}/${applicationId}")
-      .execute[Option[ApplicationWithSubscriptionFields]]
 
   // TODO - better return type
   // TODO - better error handling for expected errors

@@ -19,7 +19,6 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.collection.immutable.ArraySeq.unsafeWrapArray
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.services.ApplicationServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
 import play.api.http.Status.{FORBIDDEN, OK}
@@ -27,11 +26,9 @@ import play.api.test.Helpers.{contentAsString, contentType, header, running, sta
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
 
-class ApplicationStatesControllerSpec extends ControllerBaseSpec with ApplicationServiceMockProvider
-    with StrideAuthorisationServiceMockModule with LdapAuthorisationServiceMockModule {
+class ApplicationStatesControllerSpec extends ControllerBaseSpec {
   implicit val materializer: Materializer = app.materializer
 
   running(app) {

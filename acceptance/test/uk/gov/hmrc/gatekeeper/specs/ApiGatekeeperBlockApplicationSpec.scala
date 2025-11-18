@@ -21,16 +21,14 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, ApplicationWithStateHistoryTestData, ApplicationWithSubscriptionDataTestData, StateHistoryTestData}
 
-class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with ApplicationResponseTestData with ApplicationWithSubscriptionDataTestData with StateHistoryTestData
-    with ApplicationWithStateHistoryTestData {
+class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec {
 
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
   Feature("Block an application") {
     Scenario("I can block an application") {
-      stubApplication(applicationWithSubscriptionData.toJsonString, developers, stateHistories.withApplicationId(applicationId).toJsonString, applicationId)
+      stubApplication(applicationWithSubscriptionData, developers, stateHistories.withApplicationId(applicationId), applicationId)
       stubApplicationForBlockSuccess(applicationId, defaultApplication)
 
       When("I navigate to the application page")
@@ -46,9 +44,9 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec with Appli
 
     Scenario("I cannot block an application that is already blocked") {
       stubApplication(
-        blockedApplicationWithSubscriptionData.toJsonString,
+        blockedApplicationWithSubscriptionData,
         developers,
-        stateHistories.withApplicationId(blockedApplicationId).toJsonString,
+        stateHistories.withApplicationId(blockedApplicationId),
         blockedApplicationId
       )
 

@@ -49,7 +49,7 @@
     ))
 
 
-    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.reviewAction(api.serviceName, api.environment.get.toString), Symbol("class") -> "form") {
+    @helper.form(action = uk.gov.hmrc.gatekeeper.controllers.routes.ApiApprovalsController.reviewAction(api.serviceName, api.environment.get), Symbol("class") -> "form") {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("approve").nonEmpty) {govuk-form-group--error}">
             @fieldError(form.errors, "approve", form.error("submissionError").isEmpty)

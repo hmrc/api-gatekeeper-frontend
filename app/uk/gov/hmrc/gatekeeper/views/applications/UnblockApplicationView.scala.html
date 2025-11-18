@@ -22,9 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
-
-@application = @{applicationWithHistory.application}
+@(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Unblock Application",

@@ -24,6 +24,7 @@ import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
@@ -32,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService, SubscriptionsService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -58,7 +59,7 @@ class SubscriptionController @Inject() (
     mcc: MessagesControllerComponents,
     val forbiddenView: ForbiddenView,
     val errorTemplate: ErrorTemplate,
-    val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     subscriptionService: SubscriptionsService,
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
@@ -90,7 +91,7 @@ class SubscriptionController @Inject() (
       )
     }
 
-    withAppAndSubsData(appId) { appWithSubsData =>
+    withAppWithSubsFields(appId) { appWithSubsData =>
       for {
         allPossibleSubs       <- apmService.fetchAllPossibleSubscriptions(appId)
         subscriptions          = convertToSubscriptions(appWithSubsData.subscriptions, allPossibleSubs)
@@ -105,13 +106,13 @@ class SubscriptionController @Inject() (
       Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }
 
-    def handleValidForm(app: ApplicationWithHistory)(form: SubsForm): Future[Result] = {
+    def handleValidForm(app: ApplicationWithCollaborators)(form: SubsForm): Future[Result] = {
       if (form.subscribed) {
-        subscriptionService.subscribeToApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+        subscriptionService.subscribeToApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
           Redirect(routes.SubscriptionController.manageSubscription(appId))
         )
       } else {
-        subscriptionService.unsubscribeFromApi(app.application, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
+        subscriptionService.unsubscribeFromApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
           Redirect(routes.SubscriptionController.manageSubscription(appId))
         )
       }

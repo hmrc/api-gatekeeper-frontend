@@ -56,7 +56,6 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
           aResponse().withStatus(OK).withBody(userJsonText)
         )
     )
-
   }
 
   def stubGetDevelopersByEmails(developers: Seq[RegisteredUser]): Unit = {

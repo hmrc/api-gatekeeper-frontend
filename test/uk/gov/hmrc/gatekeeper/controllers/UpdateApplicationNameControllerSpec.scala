@@ -18,7 +18,6 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.services.ApplicationServiceMockProvider
 import org.apache.pekko.stream.Materializer
 import org.mockito.captor.ArgCaptor
 
@@ -27,12 +26,10 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, WithCSRFAddToken}
@@ -54,7 +51,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
   val errorHandler         = mock[ErrorHandler]
   val newAppNameSessionKey = "newApplicationName"
 
-  trait Setup extends ControllerSetupBase with ApplicationServiceMockProvider with CollaboratorTracker {
+  trait Setup extends ControllerSetupBase with CollaboratorTracker {
     val csrfToken                            = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
     val manageApplicationNameView            = app.injector.instanceOf[ManageApplicationNameView]
     val manageApplicationNameAdminListView   = app.injector.instanceOf[ManageApplicationNameAdminListView]
@@ -65,10 +62,10 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
     val updateApplicationNameFormCaptor = ArgCaptor[Form[UpdateApplicationNameForm]]
     val validName                       = "valid app name"
-    val appId                           = ApplicationId.random
 
     val underTest = new UpdateApplicationNameController(
       mockApplicationService,
+      ApplicationQueryServiceMock.aMock,
       forbiddenView,
       mcc,
       errorTemplate,
@@ -84,10 +81,10 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
   "updateApplicationNamePage" should {
     "display page correctly" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNamePage(appId)(aLoggedInRequest)
+      val result = underTest.updateApplicationNamePage(applicationId)(aLoggedInRequest)
 
       status(result) shouldBe OK
     }
@@ -95,65 +92,65 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
   "updateApplicationNameAction" should {
     "redirect to the admin email page if the app name is valid" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "my app name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "my app name"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/admin-email")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.toString()}/name/admin-email")
     }
 
     "redisplay the name entry page if the name has not changed" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> basicApplication.name.value))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> basicApplication.name.value))
 
       status(result) shouldBe OK
       contentAsString(result) should include("The application already has the specified name")
     }
 
     "redisplay the name entry page if the name is invalid" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.ValidateApplicationName.invalid()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some invalid name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some invalid name"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("The application name is invalid")
     }
 
     "redisplay the name entry page if the name is incorrect length" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "s"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "s"))
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
     }
 
     "redisplay the name entry page if the name has disallowed characters" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "sgfjkgfkfk£"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "sgfjkgfkfk£"))
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
     }
 
     "redisplay the name entry page if the name is a duplicate" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.ValidateApplicationName.duplicate()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(appId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some duplicate name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some duplicate name"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("An application with this name already exists")
@@ -162,10 +159,10 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
   "updateApplicationNameAdminEmailPage" should {
     "display single admin page if there is only 1 admin for the app" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailPage(appId)(aLoggedInRequest)
+      val result = underTest.updateApplicationNameAdminEmailPage(applicationId)(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("Confirm who changed the application name")
@@ -180,10 +177,10 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
         )
       )
 
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(appWithMultipleAdmins, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(appWithMultipleAdmins)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailPage(appId)(aLoggedInRequest)
+      val result = underTest.updateApplicationNameAdminEmailPage(applicationId)(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("Which admin requested the application name change?")
@@ -193,23 +190,23 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
   "updateApplicationNameAdminEmailAction" should {
     "redirect to the success page if app name update succeeds" in new Setup {
       val appNameRequest = aLoggedInRequest.withSession(newAppNameSessionKey -> "New app name")
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.UpdateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
+      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe SEE_OTHER
-      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${appId.value.toString()}/name/updated")
+      redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.toString()}/name/updated")
     }
 
     "display app name entry page with an error if app name update fails" in new Setup {
       val appNameRequest = aLoggedInRequest.withSession(newAppNameSessionKey -> "New app name")
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       ApplicationServiceMock.UpdateApplicationName.fails()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailAction(appId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
+      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("Failed to update the application name")
@@ -218,10 +215,10 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
 
   "updateApplicationNameSuccessPage" should {
     "display the success page with new app name" in new Setup {
-      ApplicationServiceMock.FetchApplication.returns(ApplicationWithHistory(basicApplication, List.empty))
+      ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameSuccessPage(appId)(aLoggedInRequest)
+      val result = underTest.updateApplicationNameSuccessPage(applicationId)(aLoggedInRequest)
 
       status(result) shouldBe OK
       contentAsString(result) should include("Application name is now")

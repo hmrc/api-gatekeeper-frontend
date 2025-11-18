@@ -24,12 +24,11 @@ class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {
-        val app = anApplicationWithHistory(stateHistories = List(aStateHistory(PENDING_GATEKEEPER_APPROVAL)))
-        ApplicationSubmission.getSubmittedBy(app.history) shouldBe Some("Unknown")
+        val stateHistories = List(aStateHistory(PENDING_GATEKEEPER_APPROVAL))
+        ApplicationSubmission.getSubmittedBy(stateHistories) shouldBe Some("Unknown")
       }
       "is not present" in {
-        val app = anApplicationWithHistory()
-        ApplicationSubmission.getSubmittedBy(app.history) shouldBe None
+        ApplicationSubmission.getSubmittedBy(Nil) shouldBe None
       }
     }
   }

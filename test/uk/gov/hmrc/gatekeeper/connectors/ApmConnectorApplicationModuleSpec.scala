@@ -18,15 +18,11 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.libs.json._
-import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -52,31 +48,5 @@ class ApmConnectorApplicationModuleSpec
     val application = DefaultApplication.modify(_.copy(id = applicationId))
 
     val underTest: ApmConnectorApplicationModule = new ApmConnector(httpClient, mockApmConnectorConfig)
-  }
-
-  "fetchApplicationById" should {
-    "return ApplicationWithSubscriptionData" in new Setup {
-      implicit val writesApplicationWithSubscriptionData: Writes[ApplicationWithSubscriptionFields] = Json.writes[ApplicationWithSubscriptionFields]
-
-      val url                             = s"/applications/${applicationId.value.toString()}"
-      val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application.details, application.collaborators, Set.empty, Map.empty)
-      val payload                         = Json.toJson(applicationWithSubscriptionData)
-
-      stubFor(
-        get(urlEqualTo(url))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      val result = await(underTest.fetchApplicationById(applicationId))
-      result should not be None
-
-      result.map { appWithSubsData =>
-        appWithSubsData.details.id shouldBe application.id
-      }
-    }
   }
 }

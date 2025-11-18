@@ -22,9 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(applicationWithHistory: ApplicationWithHistory, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
-
-@application = @{applicationWithHistory.application}
+@(application: ApplicationWithCollaborators, isSuperUser: Boolean, form: Form[DeleteApplicationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Delete Application",

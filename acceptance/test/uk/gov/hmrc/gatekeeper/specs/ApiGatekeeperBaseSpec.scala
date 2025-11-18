@@ -21,13 +21,15 @@ import org.scalatest.matchers.should.Matchers
 
 import play.api.libs.json.Json
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionFields, StateHistory}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.stubs._
-import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData}
+import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData, ApplicationResponseTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperBaseSpec
@@ -38,16 +40,24 @@ class ApiGatekeeperBaseSpec
     with GivenWhenThen
     with AllSubscribeableApisTestData
     with ApiDefinitionTestData
+    with StateHistoryTestData
+    with ApplicationResponseTestData
     with UrlEncoding
+    with WireMockExtensions
     with ThirdPartyApplicationStub
+    with TpoApplicationQueryStub
     with ThirdPartyDeveloperStub
     with ApiPlatformMicroserviceStub {
 
-  def stubApplication(applicationWithExtras: String, developers: List[RegisteredUser], stateHistory: String, appId: ApplicationId, events: List[DisplayEvent] = Nil) = {
-    stubNewApplication(applicationWithExtras, appId)
-    stubStateHistory(stateHistory, appId)
+  def stubApplication(
+      appWithSubsFields: ApplicationWithSubscriptionFields,
+      developers: List[RegisteredUser],
+      stateHistory: List[StateHistory],
+      appId: ApplicationId,
+      events: List[DisplayEvent] = Nil
+    ) = {
+    stubAppQueryForActionBuilders(appId, appWithSubsFields.modify(_.withId(appId)), stateHistory)
     // Now also mock new single route when we're only after AppWithCollaborator and State History
-    stubQueryWithStateHistory(appId, applicationWithExtras, stateHistory)
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)
     stubHasTermsOfUseInvitation(appId, false)

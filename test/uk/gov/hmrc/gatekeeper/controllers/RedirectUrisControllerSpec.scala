@@ -18,8 +18,7 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.connectors.ApplicationConnectorMockProvider
-import mocks.services.{ApmServiceMockProvider, ApplicationServiceMockProvider, RedirectUrisServiceMockProvider}
+import mocks.services.RedirectUrisServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
 import play.api.test.FakeRequest
@@ -31,7 +30,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -56,12 +54,7 @@ class RedirectUrisControllerSpec
   running(app) {
 
     trait Setup extends ControllerSetupBase
-        with ApplicationServiceMockProvider
-        with RedirectUrisServiceMockProvider
-        with ApplicationConnectorMockProvider
-        with ApmServiceMockProvider
-        with StrideAuthorisationServiceMockModule
-        with LdapAuthorisationServiceMockModule {
+        with RedirectUrisServiceMockProvider {
 
       val csrfToken                          = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -69,10 +62,7 @@ class RedirectUrisControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      val applicationWithOverrides = ApplicationWithHistory(
-        basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin))),
-        List.empty
-      )
+      val applicationWithOverrides = basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin)))
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
@@ -80,13 +70,12 @@ class RedirectUrisControllerSpec
 
       val basicAppWithDeleteRestrictionEnabled   = basicApplication.modify(_.copy(deleteRestriction = aDeleteRestriction))
       val basicAppWithDeleteRestrictionEnabledId = basicAppWithDeleteRestrictionEnabled.id
-      val appWithDeleteRestrictionEnabled        = ApplicationWithHistory(basicAppWithDeleteRestrictionEnabled, List.empty)
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
       val underTest = new RedirectUrisController(
         StrideAuthorisationServiceMock.aMock,
-        mockApplicationService,
+        ApplicationQueryServiceMock.aMock,
         mockRedirectUrisService,
         mcc,
         manageLoginRedirectUriView,
@@ -147,7 +136,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage the Redirect Uri using the app service for a super user" in new Setup {
@@ -160,7 +149,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage multiple Redirect Uri using the app service" in new Setup {
@@ -178,7 +167,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockRedirectUrisService).manageLoginRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://otherexample.com"))),
           eqTo("Bobby Example")
         )(*)
@@ -199,7 +188,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockRedirectUrisService).manageLoginRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
         )(*)
@@ -220,7 +209,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
         verify(mockRedirectUrisService).manageLoginRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
         )(*)
@@ -236,7 +225,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application.application), eqTo(List()), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(*)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -318,7 +307,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage the post logout redirect uri using the app service for a super user" in new Setup {
@@ -332,7 +321,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
       }
 
       "manage multiple post logout redirect uris using the app service" in new Setup {
@@ -353,7 +342,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
         verify(mockRedirectUrisService).managePostLogoutRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(
             List(
               redirectUriToUpdate,
@@ -383,7 +372,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
         verify(mockRedirectUrisService).managePostLogoutRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
         )(*)
@@ -404,7 +393,7 @@ class RedirectUrisControllerSpec
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
         verify(mockRedirectUrisService).managePostLogoutRedirectUris(
-          eqTo(application.application),
+          eqTo(application),
           eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"), PostLogoutRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
         )(*)
@@ -420,7 +409,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application.application), eqTo(List()), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(*)
       }
 
       "return bad request for invalid values" in new Setup {

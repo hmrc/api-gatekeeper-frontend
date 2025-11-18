@@ -34,7 +34,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -85,7 +85,7 @@ class ApplicationEventsController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService,
     val apmService: ApmService,
-    val applicationService: ApplicationService,
+    val applicationQueryService: ApplicationQueryService,
     val errorTemplate: ErrorTemplate,
     val errorHandler: ErrorHandler
   )(implicit val appConfig: AppConfig,
@@ -99,9 +99,7 @@ class ApplicationEventsController @Inject() (
   import ApplicationEventsController._
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    withApp(appId) { applicationWithHistory =>
-      import applicationWithHistory._
-
+    withApp(appId) { application =>
       def handleFormError(form: Form[QueryForm]): Future[Result] = {
         val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
@@ -111,7 +109,7 @@ class ApplicationEventsController @Inject() (
         } yield {
           Ok(applicationEventsView(
             QueryModel(
-              applicationWithHistory.application.id,
+              application.id,
               application.details.name,
               qv,
               models
