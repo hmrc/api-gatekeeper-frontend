@@ -20,9 +20,8 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcHeader
-@import uk.gov.hmrc.hmrcfrontend.views.html.components.Header
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
+@import uk.gov.hmrc.govukfrontend.views.viewmodels.servicenavigation.{ServiceNavigation, ServiceNavigationItem}
 @import _root_.controllers.routes.Assets
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -30,7 +29,7 @@
 
 @this(
   govukLayout: GovukLayout,
-  hmrcHeader: HmrcHeader,
+  hmrcStandardHeader: HmrcStandardHeader,
   hmrcFooter: HmrcFooter,
   hmrcHead: HmrcHead,
   applicationConfig: AppConfig,
@@ -91,15 +90,15 @@
 }
 
 
-@navigation = @{
+@serviceNavigationItems = @{
   Seq(
-    NavigationItem(content = Text("APIs"), href = Some(applicationConfig.gatekeeperApisUrl)),
-    NavigationItem(content = Text("Applications"), href = Some(routes.ApplicationController.applicationsPage(None).url)),
-    NavigationItem(content = Text("Developers"), href = Some(routes.DevelopersController.blankDevelopersPage().url)),
-    NavigationItem(content = Text("Terms of use"), href = Some(routes.TermsOfUseController.page().url)),
-    NavigationItem(content = Text("Email"), href = Some(routes.EmailsController.landing().url)),
-    NavigationItem(content = Text("API Approvals"), href = Some(routes.ApiApprovalsController.filterPage().url)),
-    NavigationItem(content = Text("XML"), href = Some(routes.XmlServicesController.organisationsSearchPage().url))
+    ServiceNavigationItem(content = Text("APIs"), href = applicationConfig.gatekeeperApisUrl),
+    ServiceNavigationItem(content = Text("Applications"), href = routes.ApplicationController.applicationsPage(None).url),
+    ServiceNavigationItem(content = Text("Developers"), href = routes.DevelopersController.blankDevelopersPage().url),
+    ServiceNavigationItem(content = Text("Terms of use"), href = routes.TermsOfUseController.page().url),
+    ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url),
+    ServiceNavigationItem(content = Text("API Approvals"), href = routes.ApiApprovalsController.filterPage().url),
+    ServiceNavigationItem(content = Text("XML"), href = routes.XmlServicesController.organisationsSearchPage().url)
   )
 }
 
@@ -114,16 +113,15 @@
 @govukLayout(
   pageTitle = Some(title),
   headBlock = Some(hmrcHead(Some(head))),
-  headerBlock = Some(hmrcHeader(Header(
-    homepageUrl ="https://www.gov.uk",
+  headerBlock = Some(hmrcStandardHeader(
     serviceName = Some(messages("service.name")),
-    navigation = Some(navigation),
-    serviceUrl = "",
-    displayHmrcBanner = false,
-    containerClasses = "govuk-width-container",
-    signOutHref = None,
-    language = En
-  ))),
+    serviceUrl = Some(routes.ApplicationController.applicationsPage(None).url),
+    serviceNavigation = Some(ServiceNavigation(
+      serviceName = Some(messages("service.name")),
+      serviceUrl = Some(routes.ApplicationController.applicationsPage(None).url),
+      navigation = serviceNavigationItems
+    ))
+  )),
   beforeContentBlock = Some(beforeContent),
   mainContentLayout = None,
   scriptsBlock = Some(scriptElem),
