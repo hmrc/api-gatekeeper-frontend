@@ -48,8 +48,8 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptio
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
-import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -110,7 +110,6 @@ class ApplicationControllerSpec
 
       lazy val ropcApplication = basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email")))
 
-      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
       val mockTermsOfUseService         = mock[TermsOfUseService]
 
       val developers = List[RegisteredUser] {
@@ -222,8 +221,7 @@ class ApplicationControllerSpec
           "apiSubscription" -> "ANY",
           "status"          -> "CREATED",
           "termsOfUse"      -> "ACCEPTED",
-          "accessType"      -> "STANDARD",
-          "includeDeleted"  -> "false"
+          "accessType"      -> "STANDARD"
         )
         val result                     = underTest.applicationsPage()(aLoggedInRequestWithParams)
 
