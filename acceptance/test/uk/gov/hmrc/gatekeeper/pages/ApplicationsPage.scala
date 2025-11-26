@@ -71,7 +71,7 @@ object ApplicationsPage extends WebPage {
   }
 
   def getApplicationName(): String = {
-    getText(By.className("govuk-header__service-name"))
+    getText(By.className("govuk-service-navigation__service-name"))
   }
 
   object APIFilter {

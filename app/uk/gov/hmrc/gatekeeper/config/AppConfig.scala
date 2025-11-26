@@ -66,9 +66,10 @@ trait AppConfig {
   def adminRole: String
 
   def gatekeeperXmlServicesBaseUrl: String
-
+  def gatekeeperXmlOrganisationsUrl: String
   def gatekeeperApprovalsEnabled: Boolean
   def gatekeeperApprovalsBaseUrl: String
+  def gatekeeperTermsOfUseUrl: String
   def gatekeeperApisBaseUrl: String
   def gatekeeperApisUrl: String
 
@@ -121,12 +122,13 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val userRole      = getString("roles.user")
   val adminRole     = getString("roles.admin")
 
-  val gatekeeperXmlServicesBaseUrl = baseUrl("api-gatekeeper-xml-services-frontend")
-
-  val gatekeeperApprovalsEnabled = getBoolean("api-gatekeeper-approvals-frontend.enabled")
-  val gatekeeperApprovalsBaseUrl = baseUrl("api-gatekeeper-approvals-frontend")
-  val gatekeeperApisBaseUrl      = baseUrl("api-gatekeeper-apis-frontend")
-  val gatekeeperApisUrl          = s"$gatekeeperApisBaseUrl/api-gatekeeper-apis"
+  val gatekeeperXmlServicesBaseUrl  = baseUrl("api-gatekeeper-xml-services-frontend")
+  val gatekeeperXmlOrganisationsUrl = s"$gatekeeperXmlServicesBaseUrl/organisations"
+  val gatekeeperApprovalsEnabled    = getBoolean("api-gatekeeper-approvals-frontend.enabled")
+  val gatekeeperApprovalsBaseUrl    = baseUrl("api-gatekeeper-approvals-frontend")
+  val gatekeeperTermsOfUseUrl       = s"$gatekeeperApprovalsBaseUrl/terms-of-use"
+  val gatekeeperApisBaseUrl         = baseUrl("api-gatekeeper-apis-frontend")
+  val gatekeeperApisUrl             = s"$gatekeeperApisBaseUrl/api-gatekeeper-apis"
 
   private val apiGatekeeperEmailBaseUrl = baseUrl("api-gatekeeper-email-frontend")
   val apiGatekeeperEmailUrl             = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"
