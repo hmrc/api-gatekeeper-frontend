@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.hmrcfrontend.views.html.components._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.view.StaticNavLinks
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
@@ -89,17 +90,14 @@
 }
 }
 
-
 @serviceNavigationItems = @{
-  Seq(
-    ServiceNavigationItem(content = Text("APIs"), href = applicationConfig.gatekeeperApisUrl),
-    ServiceNavigationItem(content = Text("Applications"), href = routes.ApplicationController.applicationsPage(None).url),
-    ServiceNavigationItem(content = Text("Developers"), href = routes.DevelopersController.blankDevelopersPage().url),
-    ServiceNavigationItem(content = Text("Terms of use"), href = routes.TermsOfUseController.page().url),
-    ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url),
-    ServiceNavigationItem(content = Text("API Approvals"), href = routes.ApiApprovalsController.filterPage().url),
-    ServiceNavigationItem(content = Text("XML"), href = routes.XmlServicesController.organisationsSearchPage().url)
-  )
+  StaticNavLinks.apply(applicationConfig.gatekeeperApisUrl, applicationConfig.gatekeeperTermsOfUseUrl , applicationConfig.gatekeeperXmlOrganisationsUrl)
+    .map(navLink => ServiceNavigationItem(
+      content = Text(navLink.label),
+      href = navLink.href,
+      active = navLink.active,
+      attributes = if (navLink.openInNewWindow) Map("target" -> "_blank") else Map.empty
+    ))
 }
 
 @mainContentDefault = {
