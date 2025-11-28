@@ -48,8 +48,8 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptio
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import uk.gov.hmrc.gatekeeper.services.TermsOfUseService
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
-import uk.gov.hmrc.gatekeeper.services.{SubscriptionFieldsService, TermsOfUseService}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -104,14 +104,11 @@ class ApplicationControllerSpec
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      lazy val applicationWithOverrides = basicApplication.withAccess(Access.Standard(overrides = Set(OverrideFlag.PersistLogin)))
-
       lazy val privilegedApplication = basicApplication.withAccess(Access.Privileged(scopes = Set("openid", "email")))
 
       lazy val ropcApplication = basicApplication.withAccess(Access.Ropc(scopes = Set("openid", "email")))
 
-      val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
-      val mockTermsOfUseService         = mock[TermsOfUseService]
+      val mockTermsOfUseService = mock[TermsOfUseService]
 
       val developers = List[RegisteredUser] {
         new RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false)
@@ -169,9 +166,15 @@ class ApplicationControllerSpec
     }
 
     "applicationsPage" should {
-      "on request with no specified environment all sandbox applications supplied" in new Setup {
+      "on request with no specified environment all except deleted sandbox applications supplied" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
+        val expectedParams = Map(
+          "page"     -> "1",
+          "pageSize" -> "100",
+          "sort"     -> "NAME_ASC",
+          "status"   -> "EXCLUDING_DELETED"
+        )
 
         val eventualResult: Future[Result] = underTest.applicationsPage()(aLoggedInRequest)
 
@@ -180,19 +183,25 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
-      "on request for production all production applications supplied" in new Setup {
+      "on request for production all except deleted production applications supplied" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
+        val expectedParams = Map(
+          "page"     -> "1",
+          "pageSize" -> "100",
+          "sort"     -> "NAME_ASC",
+          "status"   -> "EXCLUDING_DELETED"
+        )
 
         val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.PRODUCTION))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), eqTo(expectedParams))(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
       }
 
@@ -222,8 +231,7 @@ class ApplicationControllerSpec
           "apiSubscription" -> "ANY",
           "status"          -> "CREATED",
           "termsOfUse"      -> "ACCEPTED",
-          "accessType"      -> "STANDARD",
-          "includeDeleted"  -> "false"
+          "accessType"      -> "STANDARD"
         )
         val result                     = underTest.applicationsPage()(aLoggedInRequestWithParams)
 

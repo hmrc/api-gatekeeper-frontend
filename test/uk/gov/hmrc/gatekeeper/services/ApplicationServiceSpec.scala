@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.connectors.{ApmConnectorMockProvider, ApplicationConnectorMockProvider, CommandConnectorMockProvider}
+import mocks.connectors.{ApplicationConnectorMockProvider, CommandConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
@@ -33,7 +33,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
 import uk.gov.hmrc.gatekeeper.models._
@@ -44,23 +43,17 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   trait Setup
       extends MockitoSugar with ArgumentMatchersSugar
       with ApplicationConnectorMockProvider
-      with ApmConnectorMockProvider
       with ThirdPartyOrchestratorConnectorMockProvider
       with CommandConnectorMockProvider
       with ApiScopeConnectorMockProvider
       with ApplicationBuilder {
-    val mockDeveloperConnector        = mock[DeveloperConnector]
-    val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
     val applicationService = new ApplicationService(
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,
       mockSandboxApiScopeConnector,
       mockProductionApiScopeConnector,
-      ApmConnectorMock.aMock,
       TPOConnectorMock.aMock,
-      mockDeveloperConnector,
-      mockSubscriptionFieldsService,
       CommandConnectorMock.aMock,
       FixedClock.clock
     )

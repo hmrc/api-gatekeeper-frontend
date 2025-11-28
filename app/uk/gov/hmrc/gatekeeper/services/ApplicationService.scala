@@ -40,10 +40,7 @@ class ApplicationService @Inject() (
     productionApplicationConnector: ProductionApplicationConnector,
     sandboxApiScopeConnector: SandboxApiScopeConnector,
     productionApiScopeConnector: ProductionApiScopeConnector,
-    apmConnector: ApmConnector,
     tpoConnector: ThirdPartyOrchestratorConnector,
-    developerConnector: DeveloperConnector,
-    subscriptionFieldsService: SubscriptionFieldsService,
     commandConnector: ApplicationCommandConnector,
     val clock: Clock
   )(implicit ec: ExecutionContext
@@ -303,7 +300,6 @@ class ApplicationService @Inject() (
   def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
     val correctedParams = params
       .filterNot {
-        case ("includeDeleted", _) => true
         case ("main-submit", _)    => true
         case ("csrfToken", _)      => true
         case ("environment", _)    => true

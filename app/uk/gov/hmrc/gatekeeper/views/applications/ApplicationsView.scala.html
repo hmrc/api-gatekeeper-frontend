@@ -61,7 +61,6 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
     @defining(Seq("environment", "search", "apiSubscription", "status", "termsOfUse", "accessType", "sort", "showExport").map(params.get)) { case environment :: search :: apiSubscription :: status :: termsOfUse :: accessType :: sort :: showExport :: _ =>
       <form name="application-filters" action="@routes.ApplicationController.applicationsPage(None).url" method="get">
         <input class="govuk-visually-hidden" type="hidden" name="page" value="1" />
-        <input class="govuk-visually-hidden" type="hidden" name="includeDeleted" value="true" />
 
         <div class="govuk-form-group js-visible">
           <label class="govuk-label govuk-!-font-weight-bold">
