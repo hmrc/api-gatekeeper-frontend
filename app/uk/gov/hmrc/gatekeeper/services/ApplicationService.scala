@@ -313,31 +313,31 @@ class ApplicationService @Inject() (
   def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
 
     val filteredParams = params
-    .filterNot {
-      case (k,"") => true
-      case ("status", "ALL") => true
-      case _ => false
-    }
-    .flatMap {
-      case ("page" -> v)             => List(("pageNbr" -> v))
-      case ("apiSubscription", text) =>
-        if (text == "ANY")
-          List((ParamNames.HasSubscriptions -> ""))
-        else if (text == "NONE")
-          List((ParamNames.NoSubscriptions -> ""))
-        else {
-          text.split("--").toList.filterNot(_.isBlank()) match {
-            case Nil                       => Nil
-            case context :: Nil            => List((ParamNames.ApiContext -> context))
-            case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
-            case _                         => Nil
+      .filterNot {
+        case (_, "")           => true
+        case ("status", "ALL") => true
+        case _                 => false
+      }
+      .flatMap {
+        case ("page" -> v)             => List(("pageNbr" -> v))
+        case ("apiSubscription", text) =>
+          if (text == "ANY")
+            List((ParamNames.HasSubscriptions -> ""))
+          else if (text == "NONE")
+            List((ParamNames.NoSubscriptions -> ""))
+          else {
+            text.split("--").toList.filterNot(_.isBlank()) match {
+              case Nil                       => Nil
+              case context :: Nil            => List((ParamNames.ApiContext -> context))
+              case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
+              case _                         => Nil
+            }
           }
-        }
-      case x                         => List(x)
-    }.toMap
-    .filter {
-      case (k, v) => validSearchParams.find(_.equalsIgnoreCase(k)).isDefined
-    }
+        case x                         => List(x)
+      }.toMap
+      .filter {
+        case (k, v) => validSearchParams.find(_.equalsIgnoreCase(k)).isDefined
+      }
     tpoConnector.rawQuery[PaginatedApplications](env)(filteredParams)
   }
 
