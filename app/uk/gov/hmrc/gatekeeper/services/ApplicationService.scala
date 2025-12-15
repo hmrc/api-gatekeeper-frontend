@@ -297,36 +297,48 @@ class ApplicationService @Inject() (
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
-    val correctedParams = params
-      .filterNot {
-        case ("main-submit", _)    => true
-        case ("csrfToken", _)      => true
-        case ("environment", _)    => true
-        case ("showExport", _)     => true
-        case ("status", "ALL")     => true
-        case (_, v) if v.isBlank() => true
-        case _                     => false
-      }
-      .flatMap {
-        case ("page" -> v)             => List(("pageNbr" -> v))
-        case ("apiSubscription", text) =>
-          if (text == "ANY")
-            List((ParamNames.HasSubscriptions -> ""))
-          else if (text == "NONE")
-            List((ParamNames.NoSubscriptions -> ""))
-          else {
-            text.split("--").toList.filterNot(_.isBlank()) match {
-              case Nil                       => Nil
-              case context :: Nil            => List((ParamNames.ApiContext -> context))
-              case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
-              case _                         => Nil
-            }
-          }
-        case x                         => List(x)
-      }
+  val validSearchParams = List(
+    ParamNames.AccessType,
+    ParamNames.ApiContext,
+    ParamNames.ApiVersionNbr,
+    ParamNames.Status,
+    ParamNames.HasSubscriptions,
+    ParamNames.NoSubscriptions,
+    ParamNames.Search,
+    ParamNames.PageSize,
+    ParamNames.PageNbr,
+    ParamNames.Sort
+  )
 
-    tpoConnector.rawQuery[PaginatedApplications](env)(correctedParams)
+  def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
+
+    val filteredParams = params
+    .filterNot {
+      case (k,"") => true
+      case ("status", "ALL") => true
+      case _ => false
+    }
+    .flatMap {
+      case ("page" -> v)             => List(("pageNbr" -> v))
+      case ("apiSubscription", text) =>
+        if (text == "ANY")
+          List((ParamNames.HasSubscriptions -> ""))
+        else if (text == "NONE")
+          List((ParamNames.NoSubscriptions -> ""))
+        else {
+          text.split("--").toList.filterNot(_.isBlank()) match {
+            case Nil                       => Nil
+            case context :: Nil            => List((ParamNames.ApiContext -> context))
+            case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
+            case _                         => Nil
+          }
+        }
+      case x                         => List(x)
+    }.toMap
+    .filter {
+      case (k, v) => validSearchParams.find(_.equalsIgnoreCase(k)).isDefined
+    }
+    tpoConnector.rawQuery[PaginatedApplications](env)(filteredParams)
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {

@@ -17,9 +17,11 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 import mocks.connectors.{ApplicationConnectorMockProvider, CommandConnectorMockProvider}
 import mocks.services.ApiScopeConnectorMockProvider
+import org.mockito.captor.ArgCaptor
 import org.mockito.scalatest.ResetMocksAfterEachTest
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
@@ -28,6 +30,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models._
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
@@ -81,6 +84,89 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
   trait SubscriptionFieldsServiceSetup extends Setup {
     def subscriptionFields: List[SubscriptionFieldValue]
+  }
+
+  "searchApplication" should {
+    val mockResult = Future.successful(mock[PaginatedApplications])
+
+    "ignores status of ALL" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("status" -> "ALL")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value shouldBe Map.empty
+    }
+
+    "ignores valid params (e.g. accessType) when empty" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map(ParamNames.AccessType -> "")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value shouldBe Map.empty
+    }
+
+    "converts page to pageNbr" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("page" -> "2")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value should contain("pageNbr" -> "2")
+    }
+
+    "split apiSubscription" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("apiSubscription" -> "Hello--1.0")
+
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value should contain(ParamNames.ApiContext -> "Hello")
+      paramCaptor.value should contain(ParamNames.ApiVersionNbr -> "1.0")
+    }
+
+    "converts ANY to HasSubscriptions" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("apiSubscription" -> "ANY")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value should contain(ParamNames.HasSubscriptions -> "")
+    }
+
+    "converts NONE to NoSubscriptions" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("apiSubscription" -> "NONE")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value should contain(ParamNames.NoSubscriptions -> "")
+    }
+
+    "filters out irrelevant params" in new Setup {
+      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+
+      val inputs = Map("apiSubscription" -> "NONE", "submit" -> "", "bobbins" -> "hello")
+      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+
+      val paramCaptor = ArgCaptor[Map[String, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      paramCaptor.value should contain(ParamNames.NoSubscriptions -> "")
+    }
   }
 
   "resendVerification" should {

@@ -66,5 +66,11 @@ trait ThirdPartyOrchestratorConnectorMockProvider {
       def verify[T](query: ApplicationQuery)                   = mockitoVerify(aMock, atLeastOnce).query[T](*)(eqTo(query))(*, *)
       def verify[T](env: Environment, query: ApplicationQuery) = mockitoVerify(aMock, atLeastOnce).query[T](eqTo(env))(eqTo(query))(*, *)
     }
+
+    object RawQuery {
+      def returnsFor[T](env: Environment)(t: T) = when(aMock.rawQuery[T](eqTo(env))(*)(*, *)).thenReturn(successful(t))
+
+      def returnsForParams[T](env: Environment)(params: Map[String, String], t: T) = when(aMock.rawQuery[T](eqTo(env))(eqTo(params))(*, *)).thenReturn(successful(t))
+    }
   }
 }
