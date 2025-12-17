@@ -297,16 +297,26 @@ class ApplicationService @Inject() (
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
+  val validSearchParams = List(
+    ParamNames.AccessType,
+    ParamNames.ApiContext,
+    ParamNames.ApiVersionNbr,
+    ParamNames.Status,
+    ParamNames.HasSubscriptions,
+    ParamNames.NoSubscriptions,
+    ParamNames.Search,
+    ParamNames.PageSize,
+    ParamNames.PageNbr,
+    ParamNames.Sort
+  )
+
   def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
-    val correctedParams = params
+
+    val filteredParams = params
       .filterNot {
-        case ("main-submit", _)    => true
-        case ("csrfToken", _)      => true
-        case ("environment", _)    => true
-        case ("showExport", _)     => true
-        case ("status", "ALL")     => true
-        case (_, v) if v.isBlank() => true
-        case _                     => false
+        case (_, "")           => true
+        case ("status", "ALL") => true
+        case _                 => false
       }
       .flatMap {
         case ("page" -> v)             => List(("pageNbr" -> v))
@@ -324,9 +334,11 @@ class ApplicationService @Inject() (
             }
           }
         case x                         => List(x)
+      }.toMap
+      .filter {
+        case (k, v) => validSearchParams.find(_.equalsIgnoreCase(k)).isDefined
       }
-
-    tpoConnector.rawQuery[PaginatedApplications](env)(correctedParams)
+    tpoConnector.rawQuery[PaginatedApplications](env)(filteredParams)
   }
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
