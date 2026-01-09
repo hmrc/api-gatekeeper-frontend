@@ -19,13 +19,10 @@ package uk.gov.hmrc.gatekeeper.controllers
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
-
 import cats.data.NonEmptyList
-
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
-
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
@@ -36,6 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -78,7 +76,11 @@ class TeamMembersController @Inject() (
 
   def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
-      successful(Ok(manageTeamMembersView(app)))
+      val collaboratorUsers: Future[List[RegisteredUser]] = developerService.fetchDevelopersByEmails(app.collaborators.map(_.emailAddress))
+      collaboratorUsers.flatMap { collabUsers =>
+        successful(Ok(manageTeamMembersView(app, collabUsers))
+        )
+      }
     }
   }
 
