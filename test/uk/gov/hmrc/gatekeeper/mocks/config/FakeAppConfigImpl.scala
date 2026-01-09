@@ -31,8 +31,4 @@ class FakeAppConfigImpl @Inject() (config: Configuration)
   override def title = "Unit Test Title"
 
   override val strideLoginUrl = "https://loginUri"
-
-  // override val userRole      = TestRoles.userRole
-  // override val adminRole     = TestRoles.adminRole
-  // override val superUserRole = TestRoles.superUserRole
 }
