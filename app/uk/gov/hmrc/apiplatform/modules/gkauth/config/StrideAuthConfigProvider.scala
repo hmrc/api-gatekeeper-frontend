@@ -23,6 +23,7 @@ import play.api.Configuration
 case class StrideAuthRoles(
     adminRole: String,
     superUserRole: String,
+    advancedUserRole: String,
     userRole: String
   )
 
@@ -40,13 +41,14 @@ class StrideAuthConfigProvider @Inject() (configuration: Configuration) extends 
   override def get(): StrideAuthConfig = {
     val strideLoginUrl = s"${extractBaseUrl("stride-auth-frontend")}/stride/sign-in"
 
-    val strideConfig  = configuration.underlying.getConfig("stride")
-    val successUrl    = strideConfig.getString("success-url")
-    val origin        = strideConfig.getString("origin")
-    val adminRole     = strideConfig.getString("roles.admin")
-    val superUserRole = strideConfig.getString("roles.super-user")
-    val userRole      = strideConfig.getString("roles.user")
+    val strideConfig     = configuration.underlying.getConfig("stride")
+    val successUrl       = strideConfig.getString("success-url")
+    val origin           = strideConfig.getString("origin")
+    val adminRole        = strideConfig.getString("roles.admin")
+    val superUserRole    = strideConfig.getString("roles.super-user")
+    val advancedUserRole = strideConfig.getString("roles.advanced-user")
+    val userRole         = strideConfig.getString("roles.user")
 
-    StrideAuthConfig(strideLoginUrl, successUrl, origin, StrideAuthRoles(adminRole, superUserRole, userRole))
+    StrideAuthConfig(strideLoginUrl, successUrl, origin, StrideAuthRoles(adminRole, superUserRole, advancedUserRole, userRole))
   }
 }

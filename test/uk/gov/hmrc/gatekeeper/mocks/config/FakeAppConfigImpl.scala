@@ -19,7 +19,6 @@ package mocks.config
 import javax.inject.Inject
 
 import com.google.inject.Singleton
-import mocks.TestRoles
 
 import play.api.Configuration
 
@@ -33,7 +32,7 @@ class FakeAppConfigImpl @Inject() (config: Configuration)
 
   override val strideLoginUrl = "https://loginUri"
 
-  override val userRole      = TestRoles.userRole
-  override val adminRole     = TestRoles.adminRole
-  override val superUserRole = TestRoles.superUserRole
+  // override val userRole      = TestRoles.userRole
+  // override val adminRole     = TestRoles.adminRole
+  // override val superUserRole = TestRoles.superUserRole
 }

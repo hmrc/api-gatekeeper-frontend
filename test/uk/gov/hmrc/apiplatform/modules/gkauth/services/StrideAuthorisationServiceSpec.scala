@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandl
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnectorMockModule with StubMessagesFactory with TableDrivenPropertyChecks {
-  val strideAuthRoles = StrideAuthRoles(adminRole = "test-admin", superUserRole = "test-superUser", userRole = "test-user")
+  val strideAuthRoles = StrideAuthRoles(adminRole = "test-admin", superUserRole = "test-superUser", advancedUserRole = "test-advancedUser", userRole = "test-user")
   val fakeRequest     = FakeRequest()
   val msgRequest      = new MessagesRequest(fakeRequest, stubMessagesApi())
 
