@@ -62,12 +62,14 @@ class StrideAuthorisationService @Inject() (
         (
           authorisedEnrolments.getEnrolment(adminRole).isDefined,
           authorisedEnrolments.getEnrolment(superUserRole).isDefined,
+          authorisedEnrolments.getEnrolment(advancedUserRole).isDefined,
           authorisedEnrolments.getEnrolment(userRole).isDefined
         ) match {
-          case (true, _, _) => applyRole(GatekeeperRoles.ADMIN)
-          case (_, true, _) => applyRole(GatekeeperRoles.SUPERUSER)
-          case (_, _, true) => applyRole(GatekeeperRoles.USER)
-          case _            => Left(forbiddenHandler.handle(msgRequest))
+          case (true, _, _, _) => applyRole(GatekeeperRoles.ADMIN)
+          case (_, true, _, _) => applyRole(GatekeeperRoles.SUPERUSER)
+          case (_, _, true, _) => applyRole(GatekeeperRoles.ADVANCEDUSER)
+          case (_, _, _, true) => applyRole(GatekeeperRoles.USER)
+          case _               => Left(forbiddenHandler.handle(msgRequest))
         }
 
       case None ~ authorisedEnrolments => Left(forbiddenHandler.handle(msgRequest))

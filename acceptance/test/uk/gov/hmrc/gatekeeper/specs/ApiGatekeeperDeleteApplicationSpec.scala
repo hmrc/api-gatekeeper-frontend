@@ -63,6 +63,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
 
     stubApiDefinition()
 
+    signInAdvancedUserGatekeeper(app)
     signInSuperUserGatekeeper(app)
     on(ApplicationsPage)
 

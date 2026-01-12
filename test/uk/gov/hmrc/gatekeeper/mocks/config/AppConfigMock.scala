@@ -16,7 +16,6 @@
 
 package mocks.config
 
-import mocks.TestRoles._
 import org.mockito.MockitoSugar
 
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -25,11 +24,6 @@ trait AppConfigMock extends MockitoSugar {
   implicit val mockConfig: AppConfig = mock[AppConfig]
 
   when(mockConfig.title).thenReturn("Unit Test Title")
-
-  when(mockConfig.userRole).thenReturn(userRole)
-  when(mockConfig.adminRole).thenReturn(adminRole)
-  when(mockConfig.superUserRole).thenReturn(superUserRole)
-
   when(mockConfig.strideLoginUrl).thenReturn("https://loginUri")
   when(mockConfig.appName).thenReturn("Gatekeeper app name")
 

@@ -27,14 +27,16 @@ object StrideAuthorisationPredicateForGatekeeperRole {
   def apply(strideAuthRoles: StrideAuthRoles)(strideRoleRequired: GatekeeperStrideRole): Predicate = {
     import strideAuthRoles._
 
-    val adminEnrolment          = Enrolment(adminRole)
-    lazy val superUserEnrolment = Enrolment(superUserRole)
-    lazy val userEnrolment      = Enrolment(userRole)
+    val adminEnrolment        = Enrolment(adminRole)
+    val superUserEnrolment    = Enrolment(superUserRole)
+    val advancedUserEnrolment = Enrolment(advancedUserRole)
+    val userEnrolment         = Enrolment(userRole)
 
     strideRoleRequired match {
-      case GatekeeperRoles.ADMIN     => adminEnrolment
-      case GatekeeperRoles.SUPERUSER => adminEnrolment or superUserEnrolment
-      case GatekeeperRoles.USER      => adminEnrolment or superUserEnrolment or userEnrolment
+      case GatekeeperRoles.ADMIN        => adminEnrolment
+      case GatekeeperRoles.SUPERUSER    => adminEnrolment or superUserEnrolment
+      case GatekeeperRoles.ADVANCEDUSER => adminEnrolment or superUserEnrolment or advancedUserEnrolment
+      case GatekeeperRoles.USER         => adminEnrolment or superUserEnrolment or advancedUserEnrolment or userEnrolment
     }
   }
 }

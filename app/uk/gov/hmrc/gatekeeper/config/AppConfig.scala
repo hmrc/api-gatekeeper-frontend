@@ -61,10 +61,6 @@ trait AppConfig {
   def apiPublisherSandboxApiKey: String
   def apiPublisherProductionBaseUrl: String
 
-  def superUserRole: String
-  def userRole: String
-  def adminRole: String
-
   def gatekeeperXmlServicesBaseUrl: String
 
   def gatekeeperApprovalsEnabled: Boolean
@@ -116,10 +112,6 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val apiPublisherSandboxBearerToken = bearerToken("api-publisher-sandbox")
   val apiPublisherSandboxApiKey      = apiKey("api-publisher-sandbox")
   val apiPublisherProductionBaseUrl  = baseUrl("api-publisher-production")
-
-  val superUserRole = getString("roles.super-user")
-  val userRole      = getString("roles.user")
-  val adminRole     = getString("roles.admin")
 
   val gatekeeperXmlServicesBaseUrl = baseUrl("api-gatekeeper-xml-services-frontend")
 

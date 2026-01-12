@@ -53,6 +53,9 @@ trait GatekeeperStrideAuthorisationActions {
   def anyStrideUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.USER)(block)
 
+  def atLeastAdvancedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+    gatekeeperRoleAction(GatekeeperRoles.ADVANCEDUSER)(block)
+
   def atLeastSuperUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.SUPERUSER)(block)
 
