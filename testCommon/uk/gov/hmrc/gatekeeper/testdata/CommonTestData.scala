@@ -55,4 +55,15 @@ trait CommonTestData extends ApplicationWithCollaboratorsFixtures {
 
   val unverifiedUserJson = Json.toJson(unverifiedUser).toString
 
+val verifiedAdminUser = RegisteredUser(
+    email = MockDataSugar.adminEmail.toLaxEmail,
+    userId = UserId(MockDataSugar.adminId),
+    firstName = MockDataSugar.firstName,
+    lastName = MockDataSugar.lastName,
+    verified = true,
+    mfaDetails = List(AuthenticatorAppMfaDetail(MfaId.random, "Some app", Instant.now(), verified = true))
+  )
+
+  val verifiedAdminUserJson = Json.toJson(verifiedAdminUser).toString
+
 }

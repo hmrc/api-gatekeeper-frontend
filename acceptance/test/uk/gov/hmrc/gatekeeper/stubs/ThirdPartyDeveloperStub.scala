@@ -144,5 +144,13 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
         )
     )
   }
+ def stubDeveloperGetVerified() = {
+    stubFor(
+      get(urlPathEqualTo("/developer"))
+        .willReturn(
+          aResponse().withStatus(OK).withBody(verifiedAdminUserJson)
+        )
+    )
+  }
 
 }

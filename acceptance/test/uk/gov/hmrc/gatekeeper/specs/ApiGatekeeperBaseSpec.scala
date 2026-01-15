@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.specs
 
+import monocle.Monocle.toAppliedFocusOps
 import org.scalatest.GivenWhenThen
 import org.scalatest.matchers.should.Matchers
-
 import play.api.libs.json.Json
-
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionFields, StateHistory}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionFields, Collaborator, CollaboratorData, CoreApplication, StateHistory}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
@@ -57,6 +56,23 @@ class ApiGatekeeperBaseSpec
       events: List[DisplayEvent] = Nil
     ) = {
     stubAppQueryForActionBuilders(appId, appWithSubsFields.modify(_.withId(appId)), stateHistory)
+    // Now also mock new single route when we're only after AppWithCollaborator and State History
+    stubApiDefintionsForApplication(allSubscribeableApis, appId)
+    stubDevelopers(developers)
+    stubHasTermsOfUseInvitation(appId, false)
+    stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
+    stubSubmissionLatestIsNotFound(appId)
+  }
+
+  def stubApplicationWithVerifiedAdmin(
+      appWithSubsFields: ApplicationWithSubscriptionFields,
+      developers: List[RegisteredUser],
+      stateHistory: List[StateHistory],
+      appId: ApplicationId,
+      events: List[DisplayEvent] = Nil
+    ) = {
+
+    stubAppQueryForActionBuilders(appId, appWithSubsFields.copy(collaborators = appWithSubsFields.collaborators ++ Set(CollaboratorData.Administrator.one.copy(emailAddress = LaxEmailAddress("dixie.fakename@example.com")))), stateHistory)
     // Now also mock new single route when we're only after AppWithCollaborator and State History
     stubApiDefintionsForApplication(allSubscribeableApis, appId)
     stubDevelopers(developers)

@@ -34,20 +34,24 @@ object TeamMember {
     }
   }
 
-   def oneOnlyVerifiedAdmin(collaboratorUsers:  List[RegisteredUser], appCollaborators: Set[Collaborator]) = {
+   def oneOnlyVerifiedAdmin(collaboratorUsers:  List[RegisteredUser], appCollaborators: Set[Collaborator]): Boolean = {
     val adminEmails: Set[LaxEmailAddress] = appCollaborators.filter(_.isAdministrator).map(_.emailAddress)
     collaboratorUsers.filter(u => adminEmails.contains(u.email)).count(_.verified) == 1
   }
 
-  def displayUnverified(collaborator: Collaborator, collaboratorUsers: List[RegisteredUser]): Boolean = {
-    unregistered(collaborator, collaboratorUsers) || !verified(collaboratorUsers.find(_.email == collaborator.emailAddress))
+  def verifiedStatusDisplay(collaborator: Collaborator, collaboratorUsers: List[RegisteredUser]): String = {
+    if (unregistered(collaborator, collaboratorUsers) || !verified(collaboratorUsers.find(_.email == collaborator.emailAddress))){
+      "No"
+    } else {
+      "Yes"
+    }
   }
 
   private def unregistered(collaborator: Collaborator, collaboratorUsers: List[RegisteredUser]) = {
     !collaboratorUsers.exists(_.email == collaborator.emailAddress)
   }
 
-  def userIsVerifiedAdmin(collaboratorUsers: List[RegisteredUser], appCollaborator: Collaborator): Boolean = {
+  def collaboratorIsVerifiedAdmin(collaboratorUsers: List[RegisteredUser], appCollaborator: Collaborator): Boolean = {
     collaboratorUsers.filter(cu => cu.email == appCollaborator.emailAddress && appCollaborator.isAdministrator).exists(ru => ru.verified)
   }
 }
