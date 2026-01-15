@@ -33,7 +33,6 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
-import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
@@ -1234,12 +1233,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       val tier = RateLimitTier.Gold
 
       "change the rate limit for a super user" in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 
         val appCaptor     = ArgumentCaptor.forClass(classOf[ApplicationWithCollaborators])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
-        val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
         when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(using hcCaptor.capture()))
@@ -1248,6 +1246,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
 
+        verify(mockApplicationService, times(1)).updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(*)
         appCaptor.getValue shouldBe basicApplication
         newTierCaptor.getValue shouldBe tier
         userCaptor.getValue() shouldBe "Bobby Example"
@@ -1256,8 +1255,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
       }
 
-      "not call the application connector for a normal user " in new Setup {
-        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+      "not call the application connector for any other  user " in new Setup {
+        StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", "GOLD")))
@@ -1280,7 +1279,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1297,7 +1296,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         }
 
         "show the correct error message when the app name is left empty" in new Setup {
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1316,7 +1315,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when the new prod app name already exists in prod" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
           ApplicationServiceMock.ValidateNewApplicationName.duplicate()
 
           val result = addToken(underTest.createPrivApplicationAction())(
@@ -1335,7 +1334,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when the new prod app name contains disallowed strings" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
           ApplicationServiceMock.ValidateNewApplicationName.invalid()
 
           val result = addToken(underTest.createPrivApplicationAction())(
@@ -1354,7 +1353,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when the new prod app name is not long enough" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1372,7 +1371,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when the new prod app name contains disallowed characters" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1390,7 +1389,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "allow creation of a sandbox app even when the name already exists in production" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
@@ -1417,7 +1416,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "allow creation of a sandbox app if name already exists in sandbox" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
@@ -1444,7 +1443,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "allow creation of a prod app if name already exists in sandbox" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor(adminEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
           ApplicationServiceMock.ValidateNewApplicationName.succeeds()
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
@@ -1471,7 +1470,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when app description is left empty" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1489,7 +1488,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         "show the correct error message when admin email is left empty" in new Setup {
           DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1506,7 +1505,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         }
 
         "show the correct error message when admin email is invalid" in new Setup {
-          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+          StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
@@ -1524,7 +1523,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
 
       "with valid form fields" can {
-        "but the user is not a superuser" should {
+        "but the user is not an advanced user" should {
           "show 403 forbidden" in new Setup {
             val email = "a@example.com"
             DeveloperServiceMock.SeekRegisteredUser.returnsFor(email.toLaxEmail)
@@ -1544,10 +1543,10 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           }
         }
 
-        "and the user is a superuser" should {
+        "and the user is an advanced user" should {
           "show the success page for a priv app in production" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Production, clientId, totp, privAccess))
 
@@ -1576,7 +1575,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           "show the success page for a priv app in sandbox" in new Setup {
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
-            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
+            StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
             ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Sandbox, clientId, totp, privAccess))
 
