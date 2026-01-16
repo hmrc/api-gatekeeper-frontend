@@ -25,38 +25,59 @@ import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.utils.MockCookies
 
 trait SignInSugar {
-  val gatekeeperId: String          = "joe.test"
-  val superUserGatekeeperId: String = "maxpower"
-  val adminUserGatekeeperId: String = "supermaxpower"
+  val gatekeeperId: String             = "joe.test"
+  val advancedUserGatekeeperId: String = "more.power"
+  val superUserGatekeeperId: String    = "maxpower"
+  val adminUserGatekeeperId: String    = "supermaxpower"
 
   val requestJsonForUser =
     """
       |{
-      |  "authorise": [
-      |    {
-      |      "$or": [
-      |        {
-      |          "identifiers": [],
-      |          "state": "Activated",
-      |          "enrolment": "admin-role"
-      |        },
-      |        {
-      |          "identifiers": [],
-      |          "state": "Activated",
-      |          "enrolment": "super-user-role"
-      |        },
-      |        {
-      |          "identifiers": [],
-      |          "state": "Activated",
-      |          "enrolment": "user-role"
-      |        }
-      |      ]
-      |    }
-      |  ],
-      |  "retrieve": [
-      |    "optionalName",
-      |    "authorisedEnrolments"
-      |  ]
+      |  "authorise": [ {
+      |    "$or" : [ {
+      |      "$or" : [ {
+      |        "identifiers": [],
+      |        "state": "Activated",
+      |        "enrolment": "admin-role"
+      |      }, {
+      |        "identifiers": [],
+      |        "state": "Activated",
+      |        "enrolment": "super-user-role"
+      |      } ]
+      |    }, {
+      |      "identifiers": [],
+      |      "state": "Activated",
+      |      "enrolment": "advanced-user-role"
+      |    }, {
+      |      "identifiers": [],
+      |      "state": "Activated",
+      |      "enrolment": "user-role"
+      |    } ]
+      |  } ],
+      |  "retrieve": [ "optionalName", "authorisedEnrolments" ]
+      |}
+    """.stripMargin
+
+  val requestJsonForAdvancedUser =
+    """
+      |{
+      |   "authorise" : [ {
+      |     "$or" : [ {
+      |       "identifiers" : [ ],
+      |       "state" : "Activated",
+      |       "enrolment" : "admin-role"
+      |     }, {
+      |       "identifiers" : [ ],
+      |       "state" : "Activated",
+      |       "enrolment" : "super-user-role"
+      |     }, {
+      |       "identifiers" : [ ],
+      |       "state" : "Activated",
+      |       "enrolment" : "advanced-user-role"
+      |     } ]
+      |   } ],
+      |   "retrieve" : [ "optionalName", "authorisedEnrolments" ]
+      | }
       |}
     """.stripMargin
 
@@ -118,6 +139,23 @@ trait SignInSugar {
     ApplicationsPage.goTo() // now we have a valid session cookie we should be fine and normal auth stub should work as normal
   }
 
+  def signInAdvancedUserGatekeeper(app: Application) = {
+
+    val responseJson =
+      s"""{
+         |  "optionalName": {"name":"$advancedUserGatekeeperId","lastName":"Smith"},
+         |  "authorisedEnrolments": [{"key": "advanced-user-role"}]
+         |}""".stripMargin
+
+    setupAuthCall(requestJsonForUser, responseJson)
+    setupAuthCall(requestJsonForAdvancedUser, responseJson)
+    setupStrideAuthPage(app)
+
+    ApplicationsPage.goTo() // 1st call will redirect to stride auth but we've stubbed out response to set cookie, still need to hit this route though
+    ApplicationsPage.goTo() // now we have a valid session cookie we should be fine and normal auth stub should work as normal
+
+  }
+
   def signInSuperUserGatekeeper(app: Application) = {
 
     val responseJson =
@@ -127,6 +165,7 @@ trait SignInSugar {
          |}""".stripMargin
 
     setupAuthCall(requestJsonForUser, responseJson)
+    setupAuthCall(requestJsonForAdvancedUser, responseJson)
     setupAuthCall(requestJsonForSuperUser, responseJson)
     setupStrideAuthPage(app)
 
@@ -144,6 +183,7 @@ trait SignInSugar {
          |}""".stripMargin
 
     setupAuthCall(requestJsonForUser, responseJson)
+    setupAuthCall(requestJsonForAdvancedUser, responseJson)
     setupAuthCall(requestJsonForSuperUser, responseJson)
     setupAuthCall(requestJsonForAdmin, responseJson)
     setupStrideAuthPage(app)
