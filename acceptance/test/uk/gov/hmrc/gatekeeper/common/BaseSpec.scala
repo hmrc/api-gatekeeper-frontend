@@ -126,11 +126,6 @@ trait BaseSpec extends AnyFeatureSpec
     foundText should include(expected)
   }
 
-  protected def verifyTextForClassname(cssClass: String, expected: String) = {
-    val foundText = Driver.instance.findElement(By.className(cssClass)).getText
-    foundText should include(expected)
-  }
-
   def onTechDifficultiesFor(page: WebPage) = {
     eventually {
       val element = Driver.instance.findElement(By.tagName("body"))

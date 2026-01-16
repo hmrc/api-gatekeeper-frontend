@@ -23,8 +23,7 @@ import uk.gov.hmrc.gatekeeper.testdata.ApplicationTestData.collaboratorsTwoAdmin
 
 trait ApplicationWithSubscriptionDataTestData extends CommonTestData with SubscriptionsTestData with ApplicationTestData {
   val applicationWithSubscriptionData  = ApplicationWithSubscriptionFields(defaultApplication.details, defaultApplication.collaborators, defaultSubscriptions, Map.empty)
-  val applicationWithSubscriptionData2 = ApplicationWithSubscriptionFields(defaultApplication.details, defaultApplication.collaborators, defaultSubscriptions, Map.empty)
-  val applicationWithSubscriptionData3 = ApplicationWithSubscriptionFields(defaultApplication.details, collaboratorsTwoAdminAndUnverifiedDev, defaultSubscriptions, Map.empty)
+  val applicationWithSubscriptionData2 = ApplicationWithSubscriptionFields(defaultApplication.details, collaboratorsTwoAdminAndUnverifiedDev, defaultSubscriptions, Map.empty)
 
   val blockedApplicationWithSubscriptionData = ApplicationWithSubscriptionFields(blockedApplication.details, blockedApplication.collaborators, defaultSubscriptions, Map.empty)
 

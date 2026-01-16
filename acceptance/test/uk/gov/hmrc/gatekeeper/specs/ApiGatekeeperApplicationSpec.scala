@@ -199,7 +199,7 @@ class ApiGatekeeperApplicationSpec
       signInGatekeeper(app)
 
       on(ApplicationsPage)
-      stubApplication(applicationWithSubscriptionData3, List(verifiedAdminUser, verifiedAdminUser2), stateHistories, applicationId)
+      stubApplication(applicationWithSubscriptionData2, List(verifiedAdminUser, verifiedAdminUser2), stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.clickApplicationNameLink(applicationName.value)
