@@ -20,8 +20,9 @@ import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+import uk.gov.hmrc.gatekeeper.pages.ManageTeamMembersPage.whyCantRemoveAdminShowing
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage, ManageTeamMembersPage}
 import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
@@ -33,10 +34,7 @@ class ApiGatekeeperApplicationSpec
     with ThirdPartyApplicationStub
     with ApiPlatformDeskproStub {
 
-  val developers             = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
-
-  val verifiedAdminDeveloper =
-    List[RegisteredUser](RegisteredUser(LaxEmailAddress("admin@example.com"), UserId(MockDataSugar.adminId), MockDataSugar.firstName, MockDataSugar.lastName, verified = true))
+  val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
 
   Feature("Application List for Search Functionality") {
     info("AS A Product Owner")
@@ -191,8 +189,7 @@ class ApiGatekeeperApplicationSpec
       verifyTextForId("1-verified", "No")
       verifyTextForId("2-email", "purnima.fakename@example.com")
       verifyTextForId("2-verified", "No")
-      verifyTextForClassname("govuk-details__summary-text", "Why can't I remove the verified admin from this application?")
-
+      whyCantRemoveAdminShowing shouldBe true
     }
 
     Scenario("View all team members on an application when it has more than one verified admin. Ensure either can be removed") {

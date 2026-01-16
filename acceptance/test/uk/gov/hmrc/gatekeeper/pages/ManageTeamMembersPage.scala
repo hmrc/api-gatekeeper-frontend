@@ -28,61 +28,7 @@ object ManageTeamMembersPage extends WebPage with UrlEncoding with CommonTestDat
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/$applicationId/team-members"
 
-  def teamMemberRows() = {
-    getText(By.cssSelector("#govuk-table__row"))
-
+  def whyCantRemoveAdminShowing = {
+    getText(By.className("govuk-details__summary-text")) == "Why can't I remove the verified admin from this application?"
   }
-
-  def firstName(): String = {
-    getText(By.cssSelector("#first-name"))
-  }
-
-  def lastName(): String = {
-    getText(By.cssSelector("#last-name"))
-  }
-
-  def status(): String = {
-    getText(By.cssSelector("#status"))
-  }
-
-  def organisations(): String = {
-    getText(By.id("organisations"))
-  }
-
-  def mfaHeading(): String = {
-    getText(By.id("mfa-heading"))
-  }
-
-  def removeMfaLinkText(): String = {
-    getText(By.id("remove-2SV"))
-  }
-
-  def removeMfaLinkIsDisabled(): Boolean = {
-    findElement(By.id("remove-2SV")).getAttribute("disabled") == "true"
-  }
-
-  def authAppMfaType(): String = {
-    getText(By.id("mfa-type-0"))
-  }
-
-  def authAppMfaName(): String = {
-    getText(By.id("mfa-name-0"))
-  }
-
-  def smsMfaType(): String = {
-    getText(By.id("mfa-type-1"))
-  }
-
-  def smsMfaName(): String = {
-    getText(By.id("mfa-name-1"))
-  }
-
-  def selectByApplicationName(name: String): Unit = {
-    click(By.linkText(name))
-  }
-
-  def removeMfa(): Unit = {
-    click(By.id("remove-2SV"))
-  }
-
 }
