@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.specs
 
 import java.time.Instant
+
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
@@ -32,8 +33,10 @@ class ApiGatekeeperApplicationSpec
     with ThirdPartyApplicationStub
     with ApiPlatformDeskproStub {
 
-  val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
-  val verifiedAdminDeveloper = List[RegisteredUser](RegisteredUser(LaxEmailAddress("admin@example.com"), UserId(MockDataSugar.adminId), MockDataSugar.firstName, MockDataSugar.lastName, verified=true))
+  val developers             = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
+
+  val verifiedAdminDeveloper =
+    List[RegisteredUser](RegisteredUser(LaxEmailAddress("admin@example.com"), UserId(MockDataSugar.adminId), MockDataSugar.firstName, MockDataSugar.lastName, verified = true))
 
   Feature("Application List for Search Functionality") {
     info("AS A Product Owner")
@@ -168,7 +171,7 @@ class ApiGatekeeperApplicationSpec
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
-      stubDeveloperGetVerified()
+      stubDeveloperGetUnverified()
       stubGetAllXmlApis()
       stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
@@ -191,14 +194,15 @@ class ApiGatekeeperApplicationSpec
       verifyTextForClassname("govuk-details__summary-text", "Why can't I remove the verified admin from this application?")
 
     }
-  /*Scenario("View all team members on an application when it has more than one verified admin. Ensure this can be removed") {
+
+    Scenario("View all team members on an application when it has more than one verified admin. Ensure either can be removed") {
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
       signInGatekeeper(app)
 
       on(ApplicationsPage)
-      stubApplication(applicationWithSubscriptionData, verifiedAdminDeveloper, stateHistories, applicationId)
+      stubApplication(applicationWithSubscriptionData3, List(verifiedAdminUser, verifiedAdminUser2), stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
       ApplicationsPage.clickApplicationNameLink(applicationName.value)
@@ -206,7 +210,7 @@ class ApiGatekeeperApplicationSpec
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
 
-      stubDeveloperGetVerified()
+      stubDeveloperGetUnverified()
       stubGetAllXmlApis()
       stubGetXmlApiForCategories()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
@@ -219,16 +223,18 @@ class ApiGatekeeperApplicationSpec
       Then("I am successfully navigated to the manage team page")
       on(ManageTeamMembersPage)
       verifyTextForId("team-members-header", "Manage Team Members")
-      verifyTextForId("0-email", "admin@example.com")
+      verifyTextForId("0-email", "admin2@example.com")
       verifyTextForId("0-verified", "Yes")
-      verifyTextForId("td-form-0", "Not Available")
-      verifyTextForId("1-email", "dixie.fakename@example.com")
-      verifyTextForId("1-verified", "No")
-      verifyTextForId("2-email", "purnima.fakename@example.com")
+      verifyTextForId("td-form-0", "Remove")
+      verifyTextForId("1-email", "admin@example.com")
+      verifyTextForId("1-verified", "Yes")
+      verifyTextForId("td-form-1", "Remove")
+      verifyTextForId("2-email", "dixie.fakename@example.com")
       verifyTextForId("2-verified", "No")
-      verifyTextForClassname("govuk-details__summary-text", "Why can't I remove the verified admin from this application?")
-
-    }*/
+      verifyTextForId("td-form-2", "Remove")
+      verifyTextForId("3-email", "purnima.fakename@example.com")
+      verifyTextForId("3-verified", "No")
+      verifyTextForId("td-form-3", "Remove")
+    }
   }
-
 }

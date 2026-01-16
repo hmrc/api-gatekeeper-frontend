@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.pages
 
 import org.openqa.selenium.By
+
 import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -31,6 +32,7 @@ object ManageTeamMembersPage extends WebPage with UrlEncoding with CommonTestDat
     getText(By.cssSelector("#govuk-table__row"))
 
   }
+
   def firstName(): String = {
     getText(By.cssSelector("#first-name"))
   }

@@ -38,7 +38,8 @@ trait CommonTestData extends ApplicationWithCollaboratorsFixtures {
   val blockedApplicationName         = ApplicationName("Automated Test Application - Blocked")
   val pendingApprovalApplicationName = ApplicationName("Application requiring approval")
 
-  val administratorEmail = "admin@example.com".toLaxEmail
+  val administratorEmail  = "admin@example.com".toLaxEmail
+  val administrator2Email = "admin2@example.com".toLaxEmail
 
   val developerEmail     = "purnima.fakename@example.com".toLaxEmail
   val developerFirstName = "Purnima"
@@ -55,7 +56,7 @@ trait CommonTestData extends ApplicationWithCollaboratorsFixtures {
 
   val unverifiedUserJson = Json.toJson(unverifiedUser).toString
 
-val verifiedAdminUser = RegisteredUser(
+  val verifiedAdminUser = RegisteredUser(
     email = MockDataSugar.adminEmail.toLaxEmail,
     userId = UserId(MockDataSugar.adminId),
     firstName = MockDataSugar.firstName,
@@ -65,5 +66,16 @@ val verifiedAdminUser = RegisteredUser(
   )
 
   val verifiedAdminUserJson = Json.toJson(verifiedAdminUser).toString
+
+  val verifiedAdminUser2 = RegisteredUser(
+    email = MockDataSugar.admin2Email.toLaxEmail,
+    userId = UserId(MockDataSugar.admin2Id),
+    firstName = MockDataSugar.firstName,
+    lastName = MockDataSugar.lastName,
+    verified = true,
+    mfaDetails = List(AuthenticatorAppMfaDetail(MfaId.random, "Some app", Instant.now(), verified = true))
+  )
+
+  val verifiedAdminUserJson2 = Json.toJson(verifiedAdminUser2).toString
 
 }

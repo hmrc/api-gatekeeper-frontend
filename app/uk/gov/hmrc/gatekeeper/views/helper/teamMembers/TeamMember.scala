@@ -34,13 +34,13 @@ object TeamMember {
     }
   }
 
-   def oneOnlyVerifiedAdmin(collaboratorUsers:  List[RegisteredUser], appCollaborators: Set[Collaborator]): Boolean = {
+  def oneOnlyVerifiedAdmin(collaboratorUsers: List[RegisteredUser], appCollaborators: Set[Collaborator]): Boolean = {
     val adminEmails: Set[LaxEmailAddress] = appCollaborators.filter(_.isAdministrator).map(_.emailAddress)
     collaboratorUsers.filter(u => adminEmails.contains(u.email)).count(_.verified) == 1
   }
 
   def verifiedStatusDisplay(collaborator: Collaborator, collaboratorUsers: List[RegisteredUser]): String = {
-    if (unregistered(collaborator, collaboratorUsers) || !verified(collaboratorUsers.find(_.email == collaborator.emailAddress))){
+    if (unregistered(collaborator, collaboratorUsers) || !verified(collaboratorUsers.find(_.email == collaborator.emailAddress))) {
       "No"
     } else {
       "Yes"
