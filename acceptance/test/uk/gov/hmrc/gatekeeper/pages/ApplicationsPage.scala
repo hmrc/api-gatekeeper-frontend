@@ -74,6 +74,10 @@ object ApplicationsPage extends WebPage {
     getText(By.className("govuk-service-navigation__service-name"))
   }
 
+  def manageTeamMembers() = {
+    click(By.id("manage-team-members"))
+  }
+
   object APIFilter {
 
     sealed abstract class APIFilterList(val name: String) {}

@@ -144,5 +144,4 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
         )
     )
   }
-
 }

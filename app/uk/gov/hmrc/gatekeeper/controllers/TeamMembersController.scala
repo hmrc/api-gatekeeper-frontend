@@ -36,6 +36,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServic
 import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
@@ -78,7 +79,10 @@ class TeamMembersController @Inject() (
 
   def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
-      successful(Ok(manageTeamMembersView(app)))
+      val collaboratorUsers: Future[List[RegisteredUser]] = developerService.fetchDevelopersByEmails(app.collaborators.map(_.emailAddress))
+      collaboratorUsers.flatMap { collabUsers =>
+        successful(Ok(manageTeamMembersView(app, collabUsers)))
+      }
     }
   }
 

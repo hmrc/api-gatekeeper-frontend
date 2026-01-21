@@ -27,6 +27,13 @@ trait CollaboratorsTestData extends CommonTestData with CollaboratorTracker {
     Collaborators.Developer(unverifiedUser.userId, unverifiedUser.email)
   )
 
+  val collaboratorsTwoAdminAndUnverifiedDev: Set[Collaborator] = Set(
+    administratorEmail.asAdministratorCollaborator,
+    administrator2Email.asAdministratorCollaborator,
+    developerEmail.asDeveloperCollaborator,
+    Collaborators.Developer(unverifiedUser.userId, unverifiedUser.email)
+  )
+
   val collaboratorsDevAndUnverifiedAdmin: Set[Collaborator] = Set(
     developerEmail.asDeveloperCollaborator,
     Collaborators.Administrator(unverifiedUser.userId, unverifiedUser.email)
