@@ -1,5 +1,6 @@
 # microservice specific routes
 
+GET         /landing                                                          uk.gov.hmrc.gatekeeper.controllers.LandingPageController.landingPage()
 
 POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: ApplicationId)
 

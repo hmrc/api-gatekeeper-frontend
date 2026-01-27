@@ -1,0 +1,71 @@
+@*
+ * Copyright 2023 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *@
+
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.controllers.routes
+
+@this(main: MainView, applicationConfig: AppConfig)
+
+@()(
+implicit loggedInUser: LoggedInUser, messages: Messages, request: Request[_])
+
+@main(title = s"${applicationConfig.title} - API Gatekeeper") {
+
+  <h1 class="govuk-heading-l govuk-!-margin-bottom-8">@messages("landing.page.title")</h1>
+
+  <div class="govuk-grid-row">
+    <div class="govuk-grid-column-one-quarter">
+      <div class="tile-body">
+        <h2 class="govuk-heading-m">@messages("landing.page.apis")</h2>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{applicationConfig.gatekeeperApisUrl}">@messages("landing.page.apis")</a></li>
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.ApiApprovalsController.filterPage()}">@messages("landing.page.api.approvals")</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="govuk-grid-column-one-quarter">
+      <div class="tile-body">
+        <h2 class="govuk-heading-m">@messages("landing.page.applications")</h2>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.ApplicationController.applicationsPage()}">@messages("landing.page.applications")</a></li>
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.DevelopersController.developersPage()}">@messages("landing.page.developers")</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="govuk-grid-column-one-quarter">
+      <div class="tile-body">
+        <h2 class="govuk-heading-m">@messages("landing.page.organisations")</h2>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--novisited-state" href='@{s"${applicationConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations"}'>@messages("landing.page.xml.vendors")</a></li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="govuk-grid-column-one-quarter">
+      <div class="tile-body">
+        <h2 class="govuk-heading-m">@messages("landing.page.emails")</h2>
+        <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.EmailsController.emailPreferencesChoice()}">@messages("landing.page.email.based.on.preferences")</a></li>
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.EmailsController.showEmailInformation("""api-subscription""")}">@messages("landing.page.email.based.on.api")</a></li>
+          <li><a class="govuk-link govuk-link--novisited-state" href="@{routes.EmailsController.showEmailInformation("""all-users""")}">@messages("landing.page.email.to.all")</a></li>
+        </ul>
+      </div>
+    </div>    
+  </div>
+}
