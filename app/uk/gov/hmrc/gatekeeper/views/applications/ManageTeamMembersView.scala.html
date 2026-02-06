@@ -61,7 +61,7 @@
           <td class="govuk-table__cell" style="vertical-align: middle;" id="@index-email">@teamMember.emailAddress.text</td>
           <td class="govuk-table__cell" style="vertical-align: middle;" id="@index-verified">@verifiedStatusDisplay(teamMember, collaboratorUsers)</td>
           <td class="govuk-table__cell" style="vertical-align: middle;">@teamMember.role.displayText</td>
-          <td class="govuk-table__cell" id="td-form-@index">
+          <td class="govuk-table__cell" id="td-form-@teamMember.userId">
             @if(collaboratorIsVerifiedAdmin(collaboratorUsers, teamMember) && oneOnlyVerifiedAdmin(collaboratorUsers, application.collaborators)){
               Not Available
               } else {
@@ -99,13 +99,13 @@
   </div>
     @views.html.helper.script(args = Symbol("type") -> "module") {
         function submitTeamMemberRemovalForm(id) {
-            document.getElementById('td-form-'+id).children.namedItem('remove-team-member-form').submit();
+            document.getElementById(id).children.namedItem('remove-team-member-form').submit();
         }
-        var forms = document.getElementsByTagName('form')
+        var forms = document.getElementsByTagName('form');
         for (let i=0; i<forms.length; i++){
-            var anchors = forms[i].parentElement.getElementsByTagName('a')
+            var anchors = forms[i].parentElement.getElementsByTagName('a');
             for (let j=0; j<anchors.length; j++){
-                anchors[j].addEventListener('click', function(){submitTeamMemberRemovalForm(i)}, false)
+                anchors[j].addEventListener('click', function(){submitTeamMemberRemovalForm(forms[i].parentElement.id)}, false);
             }
         }
     }
