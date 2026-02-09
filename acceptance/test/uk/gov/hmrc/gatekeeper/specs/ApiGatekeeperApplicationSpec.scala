@@ -20,7 +20,7 @@ import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, ContactDetails, TermsOfUseAgreement}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserIdData}
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.ManageTeamMembersPage.whyCantRemoveAdminShowing
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage, ManageTeamMembersPage}
@@ -182,9 +182,9 @@ class ApiGatekeeperApplicationSpec
       Then("I am successfully navigated to the manage team page")
       on(ManageTeamMembersPage)
       verifyTextForId("team-members-header", "Manage Team Members")
-      verifyTextForId("0-email", "admin@example.com")
+      verifyTextForId("0-email", administratorEmail.text)
       verifyTextForId("0-verified", "Yes")
-      verifyTextForId("td-form-0", "Not Available")
+      verifyTextForId(s"""td-form-${UserIdData.one}""", "Not Available")
       verifyTextForId("1-email", "dixie.fakename@example.com")
       verifyTextForId("1-verified", "No")
       verifyTextForId("2-email", "purnima.fakename@example.com")
@@ -222,16 +222,16 @@ class ApiGatekeeperApplicationSpec
       verifyTextForId("team-members-header", "Manage Team Members")
       verifyTextForId("0-email", "admin2@example.com")
       verifyTextForId("0-verified", "Yes")
-      verifyTextForId("td-form-0", "Remove")
+      verifyTextForId(s"td-form-${UserIdData.two}", "Remove")
       verifyTextForId("1-email", "admin@example.com")
       verifyTextForId("1-verified", "Yes")
-      verifyTextForId("td-form-1", "Remove")
-      verifyTextForId("2-email", "dixie.fakename@example.com")
+      verifyTextForId(s"td-form-${UserIdData.two}", "Remove")
+      verifyTextForId("2-email", MockDataSugar.developer5)
       verifyTextForId("2-verified", "No")
-      verifyTextForId("td-form-2", "Remove")
-      verifyTextForId("3-email", "purnima.fakename@example.com")
+      verifyTextForId(s"td-form-${UserIdData.three}", "Remove")
+      verifyTextForId("3-email", MockDataSugar.developer)
       verifyTextForId("3-verified", "No")
-      verifyTextForId("td-form-3", "Remove")
+      verifyTextForId(s"td-form-${MockDataSugar.developer5Id}", "Remove")
     }
   }
 }
