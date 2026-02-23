@@ -44,6 +44,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       collaborators: Set[Collaborator] = Set.empty,
       createdOn: Instant = instant,
       lastAccess: Option[Instant] = Some(instant),
+      lastAccessTokenUsage: Option[Instant] = Some(instant),
       grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS,
       access: Access = Access.Standard(),
       state: ApplicationState = ApplicationState(State.PRODUCTION, updatedOn = instant),
@@ -65,7 +66,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     ApplicationWithCollaborators(
       CoreApplication(
         id,
-        applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = lastAccess),
+        applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = lastAccessTokenUsage),
         gatewayId,
         ApplicationName(name.getOrElse(s"${id.value}-name")),
         deployedTo,
