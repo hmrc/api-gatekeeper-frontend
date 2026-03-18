@@ -256,7 +256,7 @@ class DeveloperService @Inject() (
 
       for {
         adminsToEmail <- fetchAdminsToEmail(developer.email)(app)
-        cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, instant())
+        cmd            = ApplicationCommands.RemoveCollaborator(Actors.GatekeeperUser(gatekeeperUserName), collaborator, instant)
         result        <- commandConnector.dispatch(app.id, cmd, adminsToEmail).map(_ match {
                            case Left(_)  => throw new RuntimeException("Failed to remove team member from app")
                            case Right(_) => ()

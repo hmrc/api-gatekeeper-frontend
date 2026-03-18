@@ -48,7 +48,7 @@ class RedirectUrisService @Inject() (
       ApplicationCommands.UpdateLoginRedirectUris(
         Actors.GatekeeperUser(gatekeeperUser),
         redirectUris,
-        instant()
+        instant
       ),
       Set.empty[LaxEmailAddress]
     )
@@ -67,7 +67,7 @@ class RedirectUrisService @Inject() (
       ApplicationCommands.UpdatePostLogoutRedirectUris(
         Actors.GatekeeperUser(gatekeeperUser),
         redirectUris,
-        instant()
+        instant
       ),
       Set.empty[LaxEmailAddress]
     )
