@@ -14,74 +14,97 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.hmrcfrontend.views.html.components._
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
-@import uk.gov.hmrc.gatekeeper.models._
+@import _root_.controllers.routes.Assets
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
-@import uk.gov.hmrc.hmrcfrontend.views.html.components.Header
-@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
-@import _root_.controllers.routes.Assets
+@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.components._
+@import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
+@import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
 @import views.html.helper.CSPNonce
 
 @this(
-  govukLayout: GovukLayout,
-  hmrcStandardHeader: HmrcStandardHeader,
-  hmrcFooter: HmrcFooter,
-  hmrcHead: HmrcHead,
-  applicationConfig: AppConfig,
+        govukLayout: GovukLayout,
+        hmrcStandardHeader: HmrcStandardHeader,
+        hmrcFooter: HmrcFooter,
+        hmrcHead: HmrcHead,
+        applicationConfig: AppConfig,
         govukBackLink: GovukBackLink,
         autocompleteCss: HmrcAccessibleAutocompleteCss,
         autocompleteJavascript: HmrcAccessibleAutocompleteJavascript
 )
 
 @(
-  title: String,
-  breadcrumbs: Seq[Crumb] = Seq.empty,
-  mainContentHeader: Html = HtmlFormat.empty,
-        backLink: Option[BackLink] = None
+        title: String,
+        breadcrumbs: Seq[Crumb] = Seq.empty,
+        mainContentHeader: Html = HtmlFormat.empty,
+        backLink: Option[BackLink] = None,
+        submenuItems: List[SubmenuItem] = List.empty
 )(
-  mainContent: Html
+        mainContent: Html
 )(
-  implicit loggedInUser: LoggedInUser = LoggedInUser(None),
-  messages: Messages,
-  messagesProvider: MessagesProvider,
-  requestHeader: RequestHeader
+        implicit loggedInUser: LoggedInUser = LoggedInUser(None),
+        messages: Messages,
+        messagesProvider: MessagesProvider,
+        requestHeader: RequestHeader
 )
 
 @scriptElem = {
-  <script @CSPNonce.attr src='@Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
-  <script @CSPNonce.attr type='module'>
-    import { initAll } from '@Assets.versioned("lib/govuk-frontend/dist/govuk/govuk-frontend.min.js")'
-    initAll({accordion: {rememberExpanded: false}})
-  </script>
-  @autocompleteJavascript()
-  <script @CSPNonce.attr>window.HMRCFrontend.initAll();</script>
-  <script @CSPNonce.attr src='@Assets.versioned("javascripts/apis-app.js")' type="text/javascript"></script>
+    <script @CSPNonce.attr src='@Assets.versioned("lib/hmrc-frontend/hmrc/all.js")'></script>
+    <script @CSPNonce.attr type='module'>
+            import {initAll} from ''
+
+            initAll({accordion: {rememberExpanded: false}})
+    </script>
+@autocompleteJavascript()
+    <script @CSPNonce.attr>window.HMRCFrontend.initAll();</script>
+    <script @CSPNonce.attr src='@Assets.versioned("javascripts/apis-app.js")' type="text/javascript"></script>
 }
 
 @head = {
-  <link href='@Assets.versioned("stylesheets/main.css")' media="screen" rel="stylesheet" type="text/css" />
+    <link href='@Assets.versioned("stylesheets/main.css")' media="screen" rel="stylesheet" type="text/css" />
 }
 
 @userBanner = {
-  <div id="user-nav-links" class="subnav-auth">
-    <ul class="govuk-list subnav-auth-links">
-      @headerNavLinks(UserNavLinks(loggedInUser.userFullName), anchorClass=Some("link-style"))
-    </ul>
-  </div>
+    <div id="user-nav-links" class="subnav-auth">
+        <ul class="govuk-list subnav-auth-links">
+        @headerNavLinks(UserNavLinks(loggedInUser.userFullName), anchorClass = Some("link-style"))
+        </ul>
+    </div>
+}
+
+@submenu = {
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+            <ul class="govuk-pagination__list">
+            @submenuItems.map(item => {
+                    <li class="govuk-pagination__item">
+                    {if(item.href.isDefined) {
+                            <a class="govuk-link govuk-link--no-visited-state" href={item.href.get}>{item.name}</a>
+                    }
+                    else {
+                        {item.name}
+                    }}
+                    </li>
+            })
+            </ul>
+        </div>
+    </div>
+    <hr class="govuk-section-break govuk-section-break--s govuk-section-break--visible">
 }
 
 @beforeContent = {
-  <div class="before-content-banner">
-    @include.breadcrumbs(breadcrumbs: _*)
-      @buildBackLink(backLink)
-    @userBanner
-  </div>
+  @if(submenuItems.nonEmpty){ @submenu }
+    <div class="before-content-banner">
+        @include.breadcrumbs(breadcrumbs: _*)
+        @buildBackLink(backLink)
+        @userBanner
+    </div>
 }
 
 @buildBackLink(link: Option[BackLink]) = {
@@ -92,41 +115,39 @@
 
 
 @navigation = @{
-  Seq(
-      ServiceNavigationItem(content = Text("APIs"), href = applicationConfig.gatekeeperApisUrl),
-      ServiceNavigationItem(content = Text("Applications"), href = routes.ApplicationController.applicationsPage(None).url),
-      ServiceNavigationItem(content = Text("Developers"), href = routes.DevelopersController.blankDevelopersPage().url),
-      ServiceNavigationItem(content = Text("Terms of use"), href = routes.TermsOfUseController.page().url),
-      ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url),
-      ServiceNavigationItem(content = Text("API Approvals"), href = routes.ApiApprovalsController.filterPage().url),
-      ServiceNavigationItem(content = Text("XML"), href = routes.XmlServicesController.organisationsSearchPage().url)
-  )
+    Seq(
+        ServiceNavigationItem(content = Text("APIs"), href = applicationConfig.gatekeeperApisUrl),
+        ServiceNavigationItem(content = Text("Applications"), href = routes.ApplicationController.applicationsPage(None).url),
+        ServiceNavigationItem(content = Text("Developers"), href = routes.DevelopersController.blankDevelopersPage().url),
+        ServiceNavigationItem(content = Text("XML vendors"), href = routes.XmlServicesController.organisationsSearchPage().url),
+        ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url)
+    )
 }
 
 @mainContentDefault = {
-  <div class="govuk-grid-row">
-    <div class="govuk-grid-column-full">
-      @mainContent
+    <div class="govuk-grid-row">
+        <div class="govuk-grid-column-full">
+        @mainContent
+        </div>
     </div>
-  </div>
 }
 
 @govukLayout(
-  pageTitle = Some(title),
-  headBlock = Some(hmrcHead(Some(head))),
-  headerBlock = Some(hmrcStandardHeader(
-    serviceName = Some(messages("service.name")),
-    serviceUrl = None,
-    displayHmrcBanner = false,
-    containerClasses = "govuk-width-container",
-      serviceNavigation = Some(ServiceNavigation(
-          serviceName = Some(messages("service.name")),
-          navigation=navigation
-      ))
-  )),
-  beforeContentBlock = Some(beforeContent),
-  mainContentLayout = None,
-  scriptsBlock = Some(scriptElem),
-  footerBlock = Some(hmrcFooter(new Footer(meta = None, language = En))),
-  assetPath = None
+    pageTitle = Some(title),
+    headBlock = Some(hmrcHead(Some(head))),
+    headerBlock = Some(hmrcStandardHeader(
+        serviceName = Some(messages("service.name")),
+        serviceUrl = None,
+        displayHmrcBanner = false,
+        containerClasses = "govuk-width-container",
+        serviceNavigation = Some(ServiceNavigation(
+            serviceName = Some(messages("service.name")),
+            navigation = navigation
+        ))
+    )),
+    beforeContentBlock = Some(beforeContent),
+    mainContentLayout = None,
+    scriptsBlock = Some(scriptElem),
+    footerBlock = Some(hmrcFooter(new Footer(meta = None, language = En))),
+    assetPath = None
 )(mainContentDefault)

@@ -21,13 +21,15 @@
 @import uk.gov.hmrc.gatekeeper.views.helper.teamMembers.TeamMember._
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.RegisteredUser
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 @(application: ApplicationWithCollaborators, collaboratorUsers: List[RegisteredUser])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage Team Members",
-  breadcrumbs = Seq(
+    submenuItems = SubmenuItem.ApplicationsMenu,
+    breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
       s"${routes.ApplicationController.applicationPage(application.id)}",

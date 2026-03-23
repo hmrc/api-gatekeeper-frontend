@@ -24,12 +24,13 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.implicits._
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount, govukTable: GovukTable)
 
 @(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
 
-@main(title = s"API approval request details ${api.name} - ${applicationConfig.title}") {
+@main(title = s"API approval request details ${api.name} - ${applicationConfig.title}",submenuItems = SubmenuItem.ApiApprovalsMenu(applicationConfig)) {
 
     @errorSummary2(form)
 

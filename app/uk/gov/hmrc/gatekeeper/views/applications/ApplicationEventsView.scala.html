@@ -19,6 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -26,6 +27,7 @@
 
 @main(
   title = s"${applicationConfig.title} - Application Events",
+  submenuItems = SubmenuItem.ApplicationsMenu,
   breadcrumbs = Seq(
     Crumb(
       s"${queryModel.applicationName}",

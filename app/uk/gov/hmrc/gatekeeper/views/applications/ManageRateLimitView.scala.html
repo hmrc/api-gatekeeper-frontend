@@ -21,6 +21,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RateLimitTier
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -28,7 +29,8 @@
 
 @main(
   title = s"${applicationConfig.title} - Manage rate limit tier",
-  breadcrumbs = Seq(
+    submenuItems = SubmenuItem.ApplicationsMenu,
+    breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
       s"${routes.ApplicationController.applicationPage(application.id)}",

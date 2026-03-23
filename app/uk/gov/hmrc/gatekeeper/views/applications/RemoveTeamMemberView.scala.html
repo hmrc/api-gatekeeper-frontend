@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -27,7 +28,8 @@
 
 @main(
   title = s"${applicationConfig.title} - Remove Team Member",
-  breadcrumbs = Seq(
+    submenuItems = SubmenuItem.ApplicationsMenu,
+    breadcrumbs = Seq(
     Crumb(
       "Manage team members",
       s"${routes.TeamMembersController.manageTeamMembers(application.id)}",

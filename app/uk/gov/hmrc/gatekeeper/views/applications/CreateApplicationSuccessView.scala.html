@@ -21,13 +21,14 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(applicationId: ApplicationId, applicationName: ApplicationName, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
 )(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
-@main(title = s"${applicationConfig.title} - Create privileged application success") {
+@main(title = s"${applicationConfig.title} - Create privileged application success"  ,  submenuItems = SubmenuItem.ApplicationsMenu) {
 
   <h1 class="govuk-heading-l">@applicationName.value</h1>
 

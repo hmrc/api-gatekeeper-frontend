@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -69,6 +70,7 @@
 
 @main(
   title = s"${applicationConfig.title} - Manage access overrides",
+  submenuItems = SubmenuItem.ApplicationsMenu,
   breadcrumbs = Seq(
     Crumb(
       s"${application.name}",

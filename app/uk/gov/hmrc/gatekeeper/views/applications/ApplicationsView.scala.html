@@ -25,6 +25,7 @@
 @import include.pagination
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -46,7 +47,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
   }
 }
 
-@main(title = s"${applicationConfig.title} - Applications") {
+@main(title = s"${applicationConfig.title} - Applications",    submenuItems = SubmenuItem.ApplicationsMenu) {
   @defining(DateTimeFormatter.ofPattern("dd.MM.yyyy")) { dateFormatter =>
 
     <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
