@@ -8,7 +8,7 @@ object AppDependencies {
   lazy val playFrontendVersion = "12.32.0"
 
   val tpdDomainVersion    = "0.14.0"
-  val apiDomainVersion    = "0.22.0"
+  val apiDomainVersion    = "1.0.0"
   val appDomainVersion    = "1.0.0"
   val mockitoScalaVersion = "2.0.0"
 
@@ -17,7 +17,7 @@ object AppDependencies {
   lazy val dependencies = Seq(
     "uk.gov.hmrc"       %% "bootstrap-frontend-play-30"            % bootstrapVersion,
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % playFrontendVersion,
-    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.4.0",
+    "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.5.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.4.0",
     "commons-net"        % "commons-net"                           % "3.12.0",
     "org.apache.commons" % "commons-csv"                           % "1.14.1",

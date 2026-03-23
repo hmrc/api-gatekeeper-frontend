@@ -364,6 +364,7 @@ class ApplicationController @Inject() (
         case OverrideFlag.SuppressIvForIndividuals(_)   => FormFields.suppressIvForIndividualsScopes
         case OverrideFlag.GrantWithoutConsent(_)        => FormFields.grantWithoutConsentScopes
         case OverrideFlag.OriginOverride(_)             => FormFields.originOverrideValue
+        case OverrideFlag.PersistLogin                  => FormFields.persistLoginEnabled
       }
 
       def handleValidForm(overrides: Set[OverrideFlag]) = {

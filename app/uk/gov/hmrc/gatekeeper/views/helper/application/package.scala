@@ -40,7 +40,7 @@ object ApplicationPublicDescription {
 
 object ApplicationFormatter {
   val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-  val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0) // scalastyle:ignore magic.number
+  val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0)
 
   def getCreatedOn(app: ApplicationWithCollaborators): String = {
     dateFormatter.format(app.details.createdOn.atOffset(ZoneOffset.UTC))
