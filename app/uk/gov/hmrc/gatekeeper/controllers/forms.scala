@@ -77,7 +77,7 @@ object HandleApprovalForm {
 
   lazy val form = Form(
     mapping(
-      "approval_confirmation" -> text(0, 20) // scalastyle:ignore
+      "approval_confirmation" -> text(0, 20)
     )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
   )
 

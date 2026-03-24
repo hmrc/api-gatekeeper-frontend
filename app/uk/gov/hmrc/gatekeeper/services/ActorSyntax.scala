@@ -26,6 +26,7 @@ object ActorSyntax {
       case Actors.AppCollaborator(LaxEmailAddress(emailText)) => emailText
       case Actors.GatekeeperUser(user)                        => user
       case Actors.ScheduledJob(jobId)                         => jobId
+      case Actors.Process(name)                               => name
       case Actors.Unknown                                     => "Unknown"
     }
   }

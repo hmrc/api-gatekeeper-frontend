@@ -33,7 +33,7 @@ class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with
 
   "getCreatedOn" should {
     "return the createdOn value with long date format" in {
-      val createdOn = LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC) // scalastyle:ignore magic.number
+      val createdOn = LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC)
       getCreatedOn(DefaultApplication.withCreatedOn(createdOn)) shouldBe "01 January 2019"
     }
   }
@@ -68,8 +68,8 @@ class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with
 
     "display 'never used' if the last access date is within a second of the created date" in {
       val createdOnDate = initialLastAccessDate.plusHours(3).toInstant(ZoneOffset.UTC)
-      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.plusMillis(900)))(FixedTimeNow) shouldBe "No API called"  // scalastyle:ignore magic.number
-      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.minusMillis(900)))(FixedTimeNow) shouldBe "No API called" // scalastyle:ignore magic.number
+      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.plusMillis(900)))(FixedTimeNow) shouldBe "No API called"
+      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.minusMillis(900)))(FixedTimeNow) shouldBe "No API called"
     }
   }
 }

@@ -29,7 +29,7 @@ object CsvHelper {
     val format = CSVFormat.RFC4180.builder
       .setHeader(headers: _*)
       .setRecordSeparator(System.lineSeparator())
-      .build()
+      .get()
 
     val output  = new StringWriter()
     val printer = new CSVPrinter(output, format)
