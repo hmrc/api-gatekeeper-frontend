@@ -33,7 +33,6 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 
 trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder with FixedClock with ApplicationWithCollaboratorsFixtures with ApplicationTokenFixtures {
 
-  // scalastyle:off parameter.number
   def buildApplication(
       id: ApplicationId = ApplicationId.random,
       clientId: ClientId = ClientId.random,
@@ -87,7 +86,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       collaborators
     )
   }
-  // scalastyle:on parameter.number
 
   val DefaultApplication = buildApplication(
     collaborators = buildCollaborators(Seq(("a@b.com", Collaborator.Roles.ADMINISTRATOR))),

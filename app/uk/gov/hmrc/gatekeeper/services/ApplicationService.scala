@@ -47,7 +47,7 @@ class ApplicationService @Inject() (
   ) extends ApplicationLogger with ClockNow {
 
   def resendVerification(application: ApplicationWithCollaborators, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ResendRequesterEmailVerification(gatekeeperUserId, instant()), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ResendRequesterEmailVerification(gatekeeperUserId, instant), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
@@ -115,7 +115,7 @@ class ApplicationService @Inject() (
           if (overrideTypes.nonEmpty) {
             Future.successful(UpdateOverridesFailureResult(overrideTypes))
           } else {
-            val cmd = ApplicationCommands.ChangeApplicationAccessOverrides(gatekeeperUserId, overrides, instant())
+            val cmd = ApplicationCommands.ChangeApplicationAccessOverrides(gatekeeperUserId, overrides, instant)
             commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
               .map(_.fold(_ => UpdateOverridesFailureResult(), _ => UpdateOverridesSuccessResult))
           }
@@ -137,7 +137,7 @@ class ApplicationService @Inject() (
         ).flatMap(hasInvalidScopes =>
           if (hasInvalidScopes) Future.successful(UpdateScopesInvalidScopesResult)
           else {
-            val cmd = ApplicationCommands.ChangeApplicationScopes(gatekeeperUserId, scopes, instant())
+            val cmd = ApplicationCommands.ChangeApplicationScopes(gatekeeperUserId, scopes, instant)
             commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
               .map(_.fold(_ => UpdateScopesInvalidScopesResult, _ => UpdateScopesSuccessResult))
           }
@@ -161,7 +161,7 @@ class ApplicationService @Inject() (
       application.id,
       ApplicationCommands.ChangeIpAllowlist(
         Actors.GatekeeperUser(gatekeeperUser),
-        instant(),
+        instant,
         required,
         currentIpAllowlist,
         newIpAllowlist
@@ -191,7 +191,7 @@ class ApplicationService @Inject() (
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {
         case Some(instigator) =>
-          commandConnector.dispatch(application.id, ApplicationCommands.ChangeProductionApplicationName(gatekeeperUser, instigator, instant(), newName), Set.empty[LaxEmailAddress])
+          commandConnector.dispatch(application.id, ApplicationCommands.ChangeProductionApplicationName(gatekeeperUser, instigator, instant, newName), Set.empty[LaxEmailAddress])
             .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
         case None             => Future.successful(ApplicationUpdateFailureResult)
       }
@@ -200,7 +200,7 @@ class ApplicationService @Inject() (
 
   def updateGrantLength(application: ApplicationWithCollaborators, grantLength: GrantLength, gatekeeperUser: String)(implicit hc: HeaderCarrier)
       : Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, instant(), grantLength), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeGrantLength(gatekeeperUser, instant, grantLength), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
@@ -213,15 +213,15 @@ class ApplicationService @Inject() (
     ): Future[ApplicationUpdateResult] = {
 
     val appCmdResult = allowDelete match {
-      case true  => commandConnector.dispatch(applicationId, ApplicationCommands.AllowApplicationDelete(gatekeeperUser, reason, instant()), Set.empty[LaxEmailAddress])
-      case false => commandConnector.dispatch(applicationId, ApplicationCommands.RestrictApplicationDelete(gatekeeperUser, reason, instant()), Set.empty[LaxEmailAddress])
+      case true  => commandConnector.dispatch(applicationId, ApplicationCommands.AllowApplicationDelete(gatekeeperUser, reason, instant), Set.empty[LaxEmailAddress])
+      case false => commandConnector.dispatch(applicationId, ApplicationCommands.RestrictApplicationDelete(gatekeeperUser, reason, instant), Set.empty[LaxEmailAddress])
     }
 
     appCmdResult.map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def updateRateLimitTier(application: ApplicationWithCollaborators, tier: RateLimitTier, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[ApplicationUpdateResult] = {
-    commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, instant(), tier), Set.empty[LaxEmailAddress])
+    commandConnector.dispatch(application.id, ApplicationCommands.ChangeRateLimitTier(gatekeeperUser, instant, tier), Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
@@ -234,20 +234,20 @@ class ApplicationService @Inject() (
     val reasons = "Application deleted by Gatekeeper user"
     commandConnector.dispatch(
       application.id,
-      ApplicationCommands.DeleteApplicationByGatekeeper(gatekeeperUser, requestByEmailAddress, reasons, instant()),
+      ApplicationCommands.DeleteApplicationByGatekeeper(gatekeeperUser, requestByEmailAddress, reasons, instant),
       Set.empty[LaxEmailAddress]
     )
       .map(_.fold(_ => ApplicationUpdateFailureResult, _ => ApplicationUpdateSuccessResult))
   }
 
   def blockApplication(application: ApplicationWithCollaborators, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationBlockResult] = {
-    val cmd = ApplicationCommands.BlockApplication(gatekeeperUserId, instant())
+    val cmd = ApplicationCommands.BlockApplication(gatekeeperUserId, instant)
     commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationBlockFailureResult, _ => ApplicationBlockSuccessResult))
   }
 
   def unblockApplication(application: ApplicationWithCollaborators, gatekeeperUserId: String)(implicit hc: HeaderCarrier): Future[ApplicationUnblockResult] = {
-    val cmd = ApplicationCommands.UnblockApplication(gatekeeperUserId, instant())
+    val cmd = ApplicationCommands.UnblockApplication(gatekeeperUserId, instant)
     commandConnector.dispatch(application.id, cmd, Set.empty[LaxEmailAddress])
       .map(_.fold(_ => ApplicationUnblockFailureResult, _ => ApplicationUnblockSuccessResult))
   }

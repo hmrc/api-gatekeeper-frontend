@@ -149,6 +149,7 @@ class DeveloperConnector @Inject() (
         case (Some(_), None, Some(_))    => topic ++ regimes ++ params
         case (Some(_), Some(_), Some(_)) => topic ++ apis ++ regimes ++ params
         case (Some(_), Some(_), None)    => topic ++ apis ++ params
+        case _                           => Seq.empty
       }
     }
 

@@ -56,7 +56,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
             Filter by developer status
           </label>
           <select class="govuk-select full-width" id="developerStatusFilter" name="developerStatusFilter">
-            <option value="ALL" @if(developerStatusFilterValue.getOrElse("ALL") == Some("ALL")) {selected}>All</option>
+            <option value="ALL" @if(developerStatusFilterValue.getOrElse("ALL") == "ALL") {selected}>All</option>
             <option value="VERIFIED" @if(developerStatusFilterValue == Some("VERIFIED")) {selected}>Verified</option>
             <option value="UNVERIFIED" @if(developerStatusFilterValue == Some("UNVERIFIED")) {selected}>
               Not verified
