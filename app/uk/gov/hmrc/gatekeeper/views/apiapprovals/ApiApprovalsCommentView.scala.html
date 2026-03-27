@@ -28,12 +28,13 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Button
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(form: Form[CommentForm], apiDefinition: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
-@main(title = s"API approval request details ${apiDefinition.name} - ${applicationConfig.title}") {
+@main(title = s"API approval request details ${apiDefinition.name} - ${applicationConfig.title}",submenuItems = SubmenuItem.ApiApprovalsMenu(applicationConfig)) {
 
     @errorSummary2(form)
 

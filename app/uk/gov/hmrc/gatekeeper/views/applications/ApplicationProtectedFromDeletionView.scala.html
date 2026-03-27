@@ -19,15 +19,16 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
-
 
 @(application: ApplicationWithCollaborators, reason: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
 
     title = s"Application cannot be deleted - HMRC API Gatekeeper",
+    submenuItems = SubmenuItem.ApplicationsMenu,
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",

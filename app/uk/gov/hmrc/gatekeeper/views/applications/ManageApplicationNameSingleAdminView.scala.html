@@ -20,6 +20,7 @@
 @import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -27,7 +28,8 @@
 
 @main(
   title = s"${applicationConfig.title} - Confirm who changed the application name",
-  breadcrumbs = Seq(
+    submenuItems = SubmenuItem.ApplicationsMenu,
+    breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
       s"${routes.ApplicationController.applicationPage(application.id)}",

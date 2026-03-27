@@ -26,14 +26,15 @@
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
 @import uk.gov.hmrc.hmrcfrontend.views.html.components.HmrcTimeline
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.timeline.{Event, Timeline}
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig, govukBackLink: GovukBackLink, govukTable: GovukTable, govukButton: GovukButton, hmrcTimeline: HmrcTimeline)
-
 
 @(approvalSummary: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"API approval request details ${approvalSummary.name} - ${applicationConfig.title}",
-    backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript)) {
+    backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript),
+    submenuItems = SubmenuItem.ApiApprovalsMenu(applicationConfig)) {
 
   <span class="govuk-caption-l">API approvals</span>
   <h1 class="govuk-heading-l">@{approvalSummary.name}</h1>

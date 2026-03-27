@@ -22,14 +22,15 @@
 @import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyDisabledForm
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
-
 
 @(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"Do you want ${application.name} to be deleted if it is inactive? - HMRC API Gatekeeper",
+    submenuItems = SubmenuItem.ApplicationsMenu,
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",

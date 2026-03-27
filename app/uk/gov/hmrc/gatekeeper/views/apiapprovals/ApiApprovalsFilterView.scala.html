@@ -22,9 +22,9 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
+@import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig, govukTable: GovukTable)
-
 
 @(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -34,7 +34,7 @@
     } else {@api.name}
 }
 
-@main(title = s"API approvals - ${applicationConfig.title}") {
+@main(title = s"API approvals - ${applicationConfig.title}",submenuItems = SubmenuItem.ApiApprovalsMenu(applicationConfig)) {
 
   <h1 class="govuk-heading-l">API approvals</h1>
 
