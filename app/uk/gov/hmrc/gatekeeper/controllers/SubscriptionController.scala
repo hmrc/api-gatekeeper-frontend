@@ -70,7 +70,7 @@ class SubscriptionController @Inject() (
 
   import SubscriptionController._
 
-  def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
       Ordering.by[VersionSubscriptionWithoutFields, ApiVersionNbr](_.version.versionNbr).reverse
 
@@ -101,7 +101,7 @@ class SubscriptionController @Inject() (
     }
   }
 
-  def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     def handleFormError(form: Form[SubsForm]): Future[Result] = {
       Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
     }

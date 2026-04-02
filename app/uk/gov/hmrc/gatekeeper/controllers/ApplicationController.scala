@@ -392,7 +392,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def manageScopes(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def manageScopes(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def showManageScopesView(scopes: Set[String]) =
         Future.successful(Ok(manageScopesView(app, scopesForm.fill(scopes))))
@@ -405,7 +405,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def updateScopes(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def updateScopes(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(scopes: Set[String]) = {
         applicationService.updateScopes(app, scopes, loggedIn.userFullName.get).map {
@@ -515,7 +515,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def manageDeleteRestriction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageDeleteRestriction(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleDeleteRestrictionEnabled(application: ApplicationWithCollaborators) = {
         val deleteRestriction = application.details.deleteRestriction.asInstanceOf[DoNotDelete]
@@ -537,7 +537,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def updateDeleteRestrictionPreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateDeleteRestrictionPreviouslyDisabled(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
         applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -561,7 +561,7 @@ class ApplicationController @Inject() (
     }
   }
 
-  def updateDeleteRestrictionPreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def updateDeleteRestrictionPreviouslyEnabled(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleUpdateDeleteRestriction(allowDelete: Boolean, reason: String) = {
         applicationService.updateDeleteRestriction(appId, allowDelete, loggedIn.userFullName.get, reason) map { _ =>
@@ -691,7 +691,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       val result = Redirect(routes.ApplicationController.applicationPage(appId))
 
-      if (request.role.isSuperUser) {
+      if (request.role.isAdmin) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
@@ -707,11 +707,11 @@ class ApplicationController @Inject() (
     }
   }
 
-  def createPrivApplicationPage(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def createPrivApplicationPage(): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     Future.successful(Ok(createApplicationView(createPrivAppForm.fill(CreatePrivAppForm()))))
   }
 
-  def createPrivApplicationAction(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def createPrivApplicationAction(): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     def handleInvalidForm(form: Form[CreatePrivAppForm]) = {
       Future.successful(BadRequest(createApplicationView(form)))
     }
