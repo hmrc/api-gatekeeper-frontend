@@ -356,8 +356,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         givenNoDataSuppliedDelegateServices()
 
         val apiVersions   = Map(
-          apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
-          apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
+          apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+          apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
         val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", ApiContext.random, apiVersions, false, None, List(ApiCategory.OTHER))
         FetchAllApiDefinitions.inAny.returns(apiDefinition)
@@ -376,8 +376,8 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val apiContext = ApiContext.random
 
         val apiVersions = Map(
-          apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
-          apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
+          apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+          apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
         )
 
         val apiDefinition = ApiDefinition(ServiceName(""), "", "", "", apiContext, apiVersions, false, None, List(ApiCategory.OTHER))
@@ -393,7 +393,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       "show an api version filter dropdown without duplicates" in new Setup {
         val apiContext = ApiContext.random
 
-        val apiVersions   = Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN))
+        val apiVersions   = Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN))
         val apiDefinition = ApiDefinition(ServiceName(""), "", "MyApi", "", apiContext, apiVersions, false, None, List(ApiCategory.OTHER))
 
         val result = developersController.getApiVersionsDropDownValues(List(apiDefinition, apiDefinition))

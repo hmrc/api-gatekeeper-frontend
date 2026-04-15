@@ -84,7 +84,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         None,
         List(category1)
@@ -95,7 +95,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         None,
         List(category2)
