@@ -62,7 +62,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
     )
 
     val version1 = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
-    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.BETA, ApiAccessType.INTERNAL, List.empty, false, None, ApiVersionSource.UNKNOWN)
+    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.BETA, ApiAccessType.CONTROLLED, List.empty, false, None, ApiVersionSource.UNKNOWN)
     val version3 = ApiVersion(ApiVersionNbr("3.0"), ApiStatus.BETA, ApiAccessType.INTERNAL, List.empty, false, None, ApiVersionSource.UNKNOWN)
 
     val customsDeclarations1 = ApiDefinition(
