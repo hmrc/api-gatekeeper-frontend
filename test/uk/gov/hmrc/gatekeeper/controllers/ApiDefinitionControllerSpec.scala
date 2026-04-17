@@ -64,8 +64,8 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val someContext = ApiContext.random
 
       val apiVersions   = Map(
-        apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
-        apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
+        apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+        apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
       )
       val apiDefinition = ApiDefinition(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, None, List(ApiCategory.OTHER))
 
@@ -73,9 +73,9 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
       val result = controller.apis()(aLoggedInRequest)
 
-      contentAsString(result) shouldBe s"""name,serviceName,context,version,source,status,access,isTrial,environment
-                                          |MyApi,aServiceName,${someContext.value},1.0,UNKNOWN,Alpha,PUBLIC,false,PRODUCTION
-                                          |MyApi,aServiceName,${someContext.value},2.0,OAS,Stable,PUBLIC,false,PRODUCTION
+      contentAsString(result) shouldBe s"""name,serviceName,context,version,source,status,access,environment
+                                          |MyApi,aServiceName,${someContext.value},1.0,UNKNOWN,Alpha,Public,PRODUCTION
+                                          |MyApi,aServiceName,${someContext.value},2.0,OAS,Stable,Public,PRODUCTION
                                           |""".stripMargin
     }
 

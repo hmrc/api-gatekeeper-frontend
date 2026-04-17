@@ -36,7 +36,7 @@ trait SubscriptionsBuilder {
     val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
     VersionSubscription(
-      ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccess.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+      ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
       subscribed = subscribed,
       fields = fields.getOrElse(defaults)
     )

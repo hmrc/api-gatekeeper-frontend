@@ -127,10 +127,12 @@ class EmailsController @Inject() (
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
-        case (_, Nil)                   => successful(List.empty[RegisteredUser])
-        case (ApiAccessType.PUBLIC, _)  =>
+        case (_, Nil)                      => successful(List.empty[RegisteredUser])
+        case (ApiAccessType.PUBLIC, _)     =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = false).map(_.filter(_.verified))
-        case (ApiAccessType.PRIVATE, _) =>
+        case (ApiAccessType.CONTROLLED, _) =>
+          developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
+        case (ApiAccessType.INTERNAL, _)   =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
       }
     })
@@ -141,11 +143,12 @@ class EmailsController @Inject() (
       Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
       for {
-        apis         <- apmService.fetchAllCombinedApis()
-        filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
-        privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PRIVATE)
-        combinedUsers = (publicUsers ++ privateUsers).distinct
+        apis            <- apmService.fetchAllCombinedApis()
+        filteredApis     = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+        publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
+        controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.CONTROLLED)
+        internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.INTERNAL)
+        combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).distinct
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }

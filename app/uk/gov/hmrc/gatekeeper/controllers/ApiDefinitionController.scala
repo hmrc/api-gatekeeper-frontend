@@ -40,7 +40,6 @@ case class ApiDefinitionView(
     versionSource: ApiVersionSource,
     status: String,
     access: String,
-    isTrial: Boolean,
     environment: Environment
   )
 
@@ -72,7 +71,6 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("source", (vm => vm.versionSource.toString())),
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
-        ColumnDefinition("isTrial", (vm => vm.isTrial.toString())),
         ColumnDefinition("environment", (vm => vm.environment.toString))
       )
 
@@ -81,13 +79,6 @@ class ApiDefinitionController @Inject() (
   }
 
   private def toViewModel(apiDefinition: ApiDefinition, environment: Environment): Iterable[ApiDefinitionView] = {
-    def isTrial(apiVersion: ApiVersion): Boolean = {
-      apiVersion.access match {
-        case ApiAccess.Private(true) => true
-        case _                       => false
-      }
-    }
-
     apiDefinition.versions.values.map(v =>
       ApiDefinitionView(
         apiDefinition.name,
@@ -96,8 +87,7 @@ class ApiDefinitionController @Inject() (
         v.versionNbr,
         v.versionSource,
         v.status.displayText,
-        v.access.accessType.toString(),
-        isTrial(v),
+        v.access.displayText,
         environment
       )
     )

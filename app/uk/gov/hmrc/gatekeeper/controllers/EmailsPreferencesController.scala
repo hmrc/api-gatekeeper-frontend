@@ -183,8 +183,6 @@ class EmailsPreferencesController @Inject() (
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
         case (ApiAccessType.INTERNAL, _)   =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
-        case (ApiAccessType.PRIVATE, _)    =>
-          developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
       }
     })
   }
@@ -194,11 +192,12 @@ class EmailsPreferencesController @Inject() (
       Future.successful(Redirect(routes.EmailsPreferencesController.selectSpecificApi(None, selectedTopic)))
     } else {
       for {
-        apis         <- apmService.fetchAllCombinedApis()
-        filteredApis  = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers  <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
-        privateUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PRIVATE)
-        combinedUsers = publicUsers ++ privateUsers
+        apis            <- apmService.fetchAllCombinedApis()
+        filteredApis     = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+        publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
+        controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.INTERNAL)
+        internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.INTERNAL)
+        combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).distinct
       } yield Ok(emailPreferencesSpecificApiNewView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
