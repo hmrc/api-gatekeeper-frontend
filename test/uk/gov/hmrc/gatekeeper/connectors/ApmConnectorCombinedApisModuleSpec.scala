@@ -70,6 +70,24 @@ class ApmConnectorCombinedApisModuleSpec
       result shouldBe combinedList
     }
 
+    "handles legacy access type" in new Setup {
+      val url = "/combined-rest-xml-apis"
+
+      val legacyJsonText = """[{"displayName":"displayName1","serviceName":"serviceName1","categories":["CUSTOMS"],"apiType":"REST_API","accessType":"PRIVATE"}]"""
+
+      stubFor(
+        get(urlPathEqualTo(url))
+          .willReturn(
+            aResponse()
+              .withStatus(OK)
+              .withBody(legacyJsonText)
+          )
+      )
+
+      val result = await(underTest.fetchAllCombinedApis())
+      result shouldBe List(combinedRestApi1.copy(accessType = Some(ApiAccessType.INTERNAL)))
+    }
+
     "returns exception when backend returns error" in new Setup {
       val url = "/combined-rest-xml-apis"
 
