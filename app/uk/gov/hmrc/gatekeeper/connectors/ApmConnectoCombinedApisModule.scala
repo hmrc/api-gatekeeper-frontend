@@ -18,13 +18,29 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
+import play.api.libs.json._
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiAccessType
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
 import uk.gov.hmrc.gatekeeper.models._
 
 trait ApmConnectoCombinedApisModule extends ApmConnectorModule {
   val baseUrl = s"${config.serviceBaseUrl}/combined-rest-xml-apis"
+
+  private def mapText(in: String): Option[ApiAccessType] = {
+    ApiAccessType.apply(in).orElse {
+      if (in == "PRIVATE")
+        Some(ApiAccessType.INTERNAL)
+      else
+        None
+    }
+  }
+
+  private implicit val overrideFormatForApiAccessType: Format[ApiAccessType] = SealedTraitJsonFormatting.createFormatFor[ApiAccessType]("API Access Type", mapText)
+
+  private implicit val overrideFormatCombinedApi: OFormat[CombinedApi] = Json.format[CombinedApi]
 
   def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
     http.get(url"${baseUrl}")
