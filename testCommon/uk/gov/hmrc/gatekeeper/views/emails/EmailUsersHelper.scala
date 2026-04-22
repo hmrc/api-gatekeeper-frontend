@@ -18,12 +18,11 @@ package uk.gov.hmrc.gatekeeper.views.emails
 
 import org.jsoup.nodes.{Document, Element}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
-import uk.gov.hmrc.gatekeeper.models.ApiType.{REST_API, XML_API}
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.{CombinedApi, RegisteredUser, TopicOptionChoice, _}
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
@@ -72,8 +71,8 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def handleXmlAppendValue(api: CombinedApi) = {
     api.apiType match {
-      case XML_API  => api.displayName + " - XML API"
-      case REST_API => api.displayName
+      case ApiType.XML_API  => api.displayName + " - XML API"
+      case ApiType.REST_API => api.displayName
     }
   }
 

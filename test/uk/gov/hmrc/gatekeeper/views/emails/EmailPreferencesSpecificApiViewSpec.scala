@@ -24,7 +24,7 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiAccessType, ApiCategory}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiAccessType, ApiCategory, ApiType, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
@@ -43,8 +43,8 @@ class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPrefe
 
   "email preferences specific api view" must {
     val selectedTopic    = TopicOptionChoice.BUSINESS_AND_POLICY
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
 
     val user1 = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)

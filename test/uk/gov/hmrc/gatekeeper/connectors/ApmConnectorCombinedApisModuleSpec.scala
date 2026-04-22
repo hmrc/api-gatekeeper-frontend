@@ -28,7 +28,6 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorCombinedApisModuleSpec
@@ -48,8 +47,8 @@ class ApmConnectorCombinedApisModuleSpec
 
     val underTest: ApmConnectoCombinedApisModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+    val combinedXmlApi2  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
   }
 
@@ -85,7 +84,7 @@ class ApmConnectorCombinedApisModuleSpec
       )
 
       val result = await(underTest.fetchAllCombinedApis())
-      result shouldBe List(combinedRestApi1.copy(accessType = Some(ApiAccessType.INTERNAL)))
+      result shouldBe List(combinedRestApi1.copy(accessType = ApiAccessType.INTERNAL))
     }
 
     "returns exception when backend returns error" in new Setup {

@@ -156,9 +156,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val serviceNameTwo   = "serviceNameTwo"
       val serviceNameThree = "serviceNameThree"
 
-      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
-      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.INTERNAL))
+      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
+      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.INTERNAL)
       val combinedApisList        = List(combinedRestApi, combinedXmlApi, combinedInternalRestApi)
 
       val underTest = new EmailsController(

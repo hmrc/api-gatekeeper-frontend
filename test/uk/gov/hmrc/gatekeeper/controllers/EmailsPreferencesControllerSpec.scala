@@ -163,8 +163,8 @@ class EmailsPreferencesControllerSpec extends ControllerBaseSpec with WithCSRFAd
       val serviceNameOne = "serviceNameOne"
       val serviceNameTwo = "serviceNameTwo"
 
-      val combinedRestApi  = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-      val combinedXmlApi   = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+      val combinedRestApi  = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+      val combinedXmlApi   = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
       val combinedApisList = List(combinedRestApi, combinedXmlApi)
 
       val underTest = new EmailsPreferencesController(

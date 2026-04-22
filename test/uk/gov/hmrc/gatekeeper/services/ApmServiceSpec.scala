@@ -24,7 +24,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models._
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 
@@ -40,7 +39,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       "serviceName1",
       Set(ApiCategory.CUSTOMS),
       ApiType.REST_API,
-      Some(ApiAccessType.PUBLIC)
+      ApiAccessType.PUBLIC
     )
 
     val combinedXmlApi2 = CombinedApi(
@@ -48,7 +47,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       "serviceName2",
       Set(ApiCategory.VAT),
       ApiType.XML_API,
-      Some(ApiAccessType.PUBLIC)
+      ApiAccessType.PUBLIC
     )
     val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 
