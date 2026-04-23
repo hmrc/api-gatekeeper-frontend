@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
@@ -41,7 +41,7 @@ trait DeveloperConnectorMockProvider {
     }
 
     object RemoveEmailPreferencesByService {
-      def returns(response: EmailPreferencesDeleteResult) = when(mockDeveloperConnector.removeEmailPreferencesByService(*)(*)).thenReturn(successful(response))
+      def returns(response: EmailPreferencesDeleteResult) = when(mockDeveloperConnector.removeEmailPreferencesByService(*[ServiceName])(*)).thenReturn(successful(response))
     }
 
     object FetchById {
@@ -55,7 +55,7 @@ trait DeveloperConnectorMockProvider {
 
       def returnsFor(
           topic: TopicOptionChoice,
-          maybeApis: Option[Seq[String]],
+          maybeApis: Option[Seq[ServiceName]],
           maybeApiCategories: Option[Set[ApiCategory]],
           privateapimatch: Boolean
         )(
@@ -69,7 +69,7 @@ trait DeveloperConnectorMockProvider {
 
       def returnsFor(
           topic: Option[TopicOptionChoice],
-          maybeApis: Option[Seq[String]],
+          maybeApis: Option[Seq[ServiceName]],
           maybeApiCategories: Option[Set[ApiCategory]],
           privateApiMatch: Boolean,
           offset: Int,

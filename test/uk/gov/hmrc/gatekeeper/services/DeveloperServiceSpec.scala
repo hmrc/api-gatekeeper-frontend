@@ -534,7 +534,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
   "developerService removeEmailPreferencesByService" should {
     "successfuly remove email preferences" in new Setup {
-      private val service = "mtd-vat-1"
+      private val service = ServiceName("mtd-vat-1")
 
       DeveloperConnectorMock.RemoveEmailPreferencesByService.returns(EmailPreferencesDeleteSuccessResult)
 
@@ -546,7 +546,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     }
 
     "return error when remove email preferences fails" in new Setup {
-      private val service = "mtd-vat-1"
+      private val service = ServiceName("mtd-vat-1")
 
       DeveloperConnectorMock.RemoveEmailPreferencesByService.returns(EmailPreferencesDeleteFailureResult)
 
@@ -737,9 +737,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val category1   = ApiCategory.AGENTS
     val category2   = ApiCategory.BUSINESS_RATES
     val categories  = Set[ApiCategory](category1, category2)
-    val apiName1    = "apiName1"
-    val apiName2    = "apiName2"
-    val apiName3    = "apiName3"
+    val apiName1    = ServiceName("apiName1")
+    val apiName2    = ServiceName("apiName2")
+    val apiName3    = ServiceName("apiName3")
     val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when passed a topic and a category" in new Setup {
@@ -779,9 +779,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val category1   = ApiCategory.VAT
     val category2   = ApiCategory.BUSINESS_RATES
     val categories  = Set[ApiCategory](category1, category2)
-    val apiName1    = "apiName1"
-    val apiName2    = "apiName2"
-    val apiName3    = "apiName3"
+    val apiName1    = ServiceName("apiName1")
+    val apiName2    = ServiceName("apiName2")
+    val apiName3    = ServiceName("apiName3")
     val apis        = List(apiName1, apiName2, apiName3)
 
     "call the connector correctly when only passed a category" in new Setup {
@@ -830,7 +830,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
   "developerService fetchDevelopersBySpecificApisEmailPreferences" should {
     val sandboxUser = aUser("sandbox")
-    val apiName1    = "apiName1"
+    val apiName1    = ServiceName("apiName1")
 
     "call the connector correctly when only passed apis" in new Setup {
       DeveloperConnectorMock.FetchByEmailPreferencesPaginated.returnsFor(None, Some(Seq(apiName1)), None, privateApiMatch = false, offset, limit)(sandboxUser)

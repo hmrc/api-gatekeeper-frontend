@@ -27,6 +27,7 @@ import play.api.libs.json.Json
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.HttpClientV2
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
@@ -51,7 +52,7 @@ class ApiPublisherConnectorSpec
   }
 
   "fetchAll" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
+    val serviceName = ServiceName("ServiceName" + UUID.randomUUID())
     val url         = "/services"
 
     "return all API approval summaries" in new Setup {
@@ -86,7 +87,7 @@ class ApiPublisherConnectorSpec
   }
 
   "searchServices" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
+    val serviceName = ServiceName("ServiceName" + UUID.randomUUID())
     val url         = "/services/search?status=APPROVED"
 
     "return an API approval summary" in new Setup {
@@ -123,7 +124,7 @@ class ApiPublisherConnectorSpec
   }
 
   "fetchApprovalSummary" should {
-    val serviceName = "ServiceName" + UUID.randomUUID()
+    val serviceName = ServiceName("ServiceName" + UUID.randomUUID())
     val url         = s"/service/$serviceName/summary"
 
     "return approval summary for an API" in new Setup {
@@ -157,7 +158,7 @@ class ApiPublisherConnectorSpec
   }
 
   "approveService" should {
-    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val serviceName        = ServiceName("ServiceName" + UUID.randomUUID())
     val url                = s"/service/$serviceName/approve"
     val actor              = Actors.GatekeeperUser("GK User")
     val notes              = Some("Service approved")
@@ -193,7 +194,7 @@ class ApiPublisherConnectorSpec
   }
 
   "declineService" should {
-    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val serviceName        = ServiceName("ServiceName" + UUID.randomUUID())
     val url                = s"/service/$serviceName/decline"
     val actor              = Actors.GatekeeperUser("GK User")
     val notes              = Some("Service declined")
@@ -229,7 +230,7 @@ class ApiPublisherConnectorSpec
   }
 
   "addComment" should {
-    val serviceName        = "ServiceName" + UUID.randomUUID()
+    val serviceName        = ServiceName("ServiceName" + UUID.randomUUID())
     val url                = s"/service/$serviceName/comment"
     val actor              = Actors.GatekeeperUser("GK User")
     val notes              = "New comment"

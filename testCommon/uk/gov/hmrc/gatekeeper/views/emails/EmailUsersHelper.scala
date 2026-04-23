@@ -78,7 +78,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
 
-    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, handleXmlAppendValue(x))))
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName.value, handleXmlAppendValue(x))))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
   }
@@ -130,7 +130,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size shouldBe selectedAPIs.size * numberOfSets
-    elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
+    elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName.value)
   }
 
   def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Set[ApiCategory], numberOfSets: Int = 1): Unit = {
@@ -164,7 +164,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     val hiddenApiInputs = getElementsBySelector(document, "form#apiFilters input[type=hidden]")
 
     hiddenApiInputs.size shouldBe apis.size * hiddenInputSizeInto
-    hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
+    hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName.value)
   }
 
   def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {

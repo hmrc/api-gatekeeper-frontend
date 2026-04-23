@@ -28,7 +28,7 @@ import play.api.test.Helpers.{INTERNAL_SERVER_ERROR, NO_CONTENT, OK}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
@@ -252,7 +252,7 @@ class DeveloperConnectorSpec
     }
 
     "Delete Email Preferences" should {
-      val serviceName = "mtd-vat-1"
+      val serviceName = ServiceName("mtd-vat-1")
       val url         = s"/developers/email-preferences/$serviceName"
 
       "successfully remove email preferences" in new Setup {
@@ -337,7 +337,7 @@ class DeveloperConnectorSpec
 
         val result = await(connector.fetchByEmailPreferences(
           TopicOptionChoice.BUSINESS_AND_POLICY,
-          maybeApis = Some(Seq("service1", "service2")),
+          maybeApis = Some(Seq(ServiceName("service1"), ServiceName("service2"))),
           maybeApiCategories = Some(Set(ApiCategory.VAT, ApiCategory.AGENTS))
         ))
 

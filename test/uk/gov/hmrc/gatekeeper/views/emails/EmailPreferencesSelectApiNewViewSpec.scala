@@ -44,8 +44,8 @@ class EmailPreferencesSelectApiNewViewSpec extends CommonViewSpec with EmailPref
     val api3              = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", Set.empty, ApiType.XML_API, ApiAccessType.PUBLIC)
     val dropDownApis      = Seq(api1, api2, api3)
 
-    val combinedRestApi1 = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-    val combinedXmlApi3  = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
+    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+    val combinedXmlApi3  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
     val combinedList     = List(combinedRestApi1, combinedXmlApi3)
 
     "show correct title and options when no selectedAPis provided" in new Setup {

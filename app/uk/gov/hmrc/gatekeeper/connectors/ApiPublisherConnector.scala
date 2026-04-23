@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http._
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
@@ -46,12 +47,12 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.map(_.copy(environment = Some(environment))))
   }
 
-  def fetchApprovalSummary(serviceName: String)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  def fetchApprovalSummary(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/service/$serviceName/summary")).execute[APIApprovalSummary]
       .map(_.copy(environment = Some(environment)))
   }
 
-  def approveService(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def approveService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/approve"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
@@ -59,7 +60,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.fold(err => throw err, _ => ()))
   }
 
-  def declineService(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def declineService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/decline"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
@@ -67,7 +68,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.fold(err => throw err, _ => ()))
   }
 
-  def addComment(serviceName: String, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def addComment(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/comment"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, Some(notes))))
       .setHeader("Content-Type" -> "application/json")

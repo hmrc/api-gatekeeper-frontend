@@ -44,7 +44,7 @@
         rows = Seq(
             Seq(TableRow(content = Text("Name")), TableRow(content = Text(api.name))),
             Seq(TableRow(content = Text("Description")), TableRow(content = Text(api.description.getOrElse("")))),
-            Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(api.serviceName))),
+            Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(api.serviceName.value))),
             Seq(TableRow(content = Text("Environment")), TableRow(content = Text(api.environment.getOrElse(Environment.SANDBOX).displayText)))
         )
     ))

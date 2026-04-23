@@ -22,6 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.connectors.{ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
@@ -53,19 +54,19 @@ class DeploymentApprovalService @Inject() (
     } yield (sandbox ++ production).distinct.sortBy(_.createdOn)(Ordering[Option[Instant]].reverse)
   }
 
-  def fetchApprovalSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  def fetchApprovalSummary(serviceName: ServiceName, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     connectorFor(environment).fetchApprovalSummary(serviceName)
   }
 
-  def approveService(serviceName: String, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def approveService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).approveService(serviceName, actor, notes)
   }
 
-  def declineService(serviceName: String, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def declineService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).declineService(serviceName, actor, notes)
   }
 
-  def addComment(serviceName: String, environment: Environment, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def addComment(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).addComment(serviceName, actor, notes)
   }
 

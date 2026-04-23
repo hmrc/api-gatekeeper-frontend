@@ -22,6 +22,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
@@ -56,20 +57,20 @@ trait DeploymentApprovalServiceMockProvider {
     object FetchApprovalSummary {
 
       def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =
-        when(mockDeploymentApprovalService.fetchApprovalSummary(*, eqTo(environment))(*)).thenReturn(successful(approvalSummary))
+        when(mockDeploymentApprovalService.fetchApprovalSummary(*[ServiceName], eqTo(environment))(*)).thenReturn(successful(approvalSummary))
 
       def verifyCalled(environment: Environment) =
-        verify(mockDeploymentApprovalService).fetchApprovalSummary(*, eqTo(environment))(*)
+        verify(mockDeploymentApprovalService).fetchApprovalSummary(*[ServiceName], eqTo(environment))(*)
 
     }
 
     object ApproveService {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.approveService(*, *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
 
       def fails() =
-        when(mockDeploymentApprovalService.approveService(*, *, *, *)(*)).thenReturn(failed((UpstreamErrorResponse(
+        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(*)).thenReturn(failed((UpstreamErrorResponse(
           "Field 'context' must have at least two segments for API 'Hello World'; Context: 'hello'",
           400
         ))))
@@ -79,13 +80,13 @@ trait DeploymentApprovalServiceMockProvider {
     object DeclineService {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.declineService(*, *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.declineService(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
     }
 
     object AddComment {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.addComment(*, *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.addComment(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
     }
   }
 }

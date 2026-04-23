@@ -21,5 +21,5 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 trait CombinedApiHelper {
 
   def simpleAPI(serviceName: String, displayName: String, categories: Set[ApiCategory], apiType: ApiType, accessType: ApiAccessType): CombinedApi =
-    CombinedApi(displayName, serviceName, categories, apiType, accessType)
+    CombinedApi(displayName, ServiceName(serviceName), categories, apiType, accessType)
 }

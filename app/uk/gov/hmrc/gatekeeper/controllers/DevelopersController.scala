@@ -24,6 +24,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -168,7 +169,7 @@ class DevelopersController @Inject() (
 
   def removeEmailPreferencesAction(): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
     def handleValidForm(form: RemoveEmailPreferencesForm): Future[Result]         = {
-      developerService.removeEmailPreferencesByService(form.serviceName) map {
+      developerService.removeEmailPreferencesByService(ServiceName(form.serviceName)) map {
         case EmailPreferencesDeleteSuccessResult => Ok(removeEmailPreferencesView(RemoveEmailPreferencesForm.form.fill(form), true))
         case EmailPreferencesDeleteFailureResult => technicalDifficulties
       }

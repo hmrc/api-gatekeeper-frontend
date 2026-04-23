@@ -44,8 +44,8 @@ class EmailPreferencesSelectSubscribedApiViewSpec extends CommonViewSpec with Em
     val api3              = simpleAPI(serviceName = "serviceName2", displayName = "displayName2", Set.empty, ApiType.XML_API, ApiAccessType.PUBLIC)
     val apis              = Seq(api1, api2, api3)
 
-    val combinedRestApi1    = CombinedApi("displayName1", "serviceName1", Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-    val combinedXmlApi3     = CombinedApi("displayName2", "serviceName2", Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
+    val combinedRestApi1    = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
+    val combinedXmlApi3     = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
     val combinedList        = List(combinedRestApi1, combinedXmlApi3)
     val expectedDestination = "/api-gatekeeper/emails/email-preferences/by-subscribed-api"
 

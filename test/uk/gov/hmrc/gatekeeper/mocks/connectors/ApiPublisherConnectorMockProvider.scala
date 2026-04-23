@@ -20,6 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.gatekeeper.connectors.{ApiPublisherConnector, ProductionApiPublisherConnector, SandboxApiPublisherConnector}
 import uk.gov.hmrc.gatekeeper.models._
 
@@ -41,19 +42,19 @@ trait ApiPublisherConnectorMockProvider {
     }
 
     object FetchApprovalSummary {
-      def returns(summary: APIApprovalSummary) = when(mock.fetchApprovalSummary(*)(*)).thenReturn(successful(summary))
+      def returns(summary: APIApprovalSummary) = when(mock.fetchApprovalSummary(*[ServiceName])(*)).thenReturn(successful(summary))
     }
 
     object ApproveService {
-      def succeeds() = when(mock.approveService(*, *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.approveService(*[ServiceName], *, *)(*)).thenReturn(successful(()))
     }
 
     object DeclineService {
-      def succeeds() = when(mock.declineService(*, *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.declineService(*[ServiceName], *, *)(*)).thenReturn(successful(()))
     }
 
     object AddComment {
-      def succeeds() = when(mock.addComment(*, *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.addComment(*[ServiceName], *, *)(*)).thenReturn(successful(()))
     }
   }
 

@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
@@ -196,7 +196,7 @@ class DeveloperService @Inject() (
 
   def fetchDevelopersByEmailPreferencesPaginated(
       topic: Option[TopicOptionChoice],
-      maybeApis: Option[Seq[String]] = None,
+      maybeApis: Option[Seq[ServiceName]] = None,
       maybeApiCategory: Option[Set[ApiCategory]] = None,
       privateApiMatch: Boolean = false,
       offset: Int,
@@ -213,7 +213,7 @@ class DeveloperService @Inject() (
   def fetchDevelopersBySpecificAPIEmailPreferences(
       topic: TopicOptionChoice,
       apiCategories: Set[ApiCategory],
-      apiNames: List[String],
+      apiNames: List[ServiceName],
       privateApiMatch: Boolean
     )(implicit hc: HeaderCarrier
     ) = {
@@ -224,7 +224,7 @@ class DeveloperService @Inject() (
     developerConnector.fetchByEmailPreferencesPaginated(None, None, Some(apiCategories), privateapimatch = false, offset, limit)
   }
 
-  def fetchDevelopersBySpecificApisEmailPreferences(apis: List[String], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificApisEmailPreferences(apis: List[ServiceName], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferencesPaginated(None, Some(apis.distinct), None, privateapimatch = false, offset, limit)
   }
 
@@ -232,7 +232,7 @@ class DeveloperService @Inject() (
     developerConnector.removeMfa(userId, loggedInUser)
   }
 
-  def removeEmailPreferencesByService(serviceName: String)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
+  def removeEmailPreferencesByService(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
     developerConnector.removeEmailPreferencesByService(serviceName)
   }
 
