@@ -30,7 +30,7 @@ object AppDependencies {
   lazy val testDependencies: Seq[ModuleID] = Seq(
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"                    % bootstrapVersion,
     "org.jsoup"               % "jsoup"                                     % jsoupVersion,
-    "uk.gov.hmrc"            %% "ui-test-runner"                            % "0.53.0",
+    "uk.gov.hmrc"            %% "ui-test-runner"                            % "0.54.0",
     "org.mockito"            %% "mockito-scala-scalatest"                   % mockitoScalaVersion,
     "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"              % tpdDomainVersion,
