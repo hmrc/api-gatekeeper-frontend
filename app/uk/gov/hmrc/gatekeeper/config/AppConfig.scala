@@ -123,7 +123,7 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val gatekeeperApisUrl          = s"$gatekeeperApisBaseUrl/api-gatekeeper-apis"
 
   val gatekeeperOrganisationBaseUrl = baseUrl("api-gatekeeper-organisation-frontend")
-  val gatekeeperOrganisationUrl     = s"$gatekeeperOrganisationBaseUrl/api-gatekeeper-organisation"
+  val gatekeeperOrganisationUrl     = s"$gatekeeperOrganisationBaseUrl/api-gatekeeper-organisation/organisations"
 
   private val apiGatekeeperEmailBaseUrl = baseUrl("api-gatekeeper-email-frontend")
   val apiGatekeeperEmailUrl             = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"
