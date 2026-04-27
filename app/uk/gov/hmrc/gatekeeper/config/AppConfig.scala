@@ -67,6 +67,8 @@ trait AppConfig {
   def gatekeeperApprovalsBaseUrl: String
   def gatekeeperApisBaseUrl: String
   def gatekeeperApisUrl: String
+  def gatekeeperOrganisationBaseUrl: String
+  def gatekeeperOrganisationUrl: String
 
   def apiGatekeeperEmailUrl: String
   def apiGatekeeperEmailUsersUrl: String
@@ -119,6 +121,9 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
   val gatekeeperApprovalsBaseUrl = baseUrl("api-gatekeeper-approvals-frontend")
   val gatekeeperApisBaseUrl      = baseUrl("api-gatekeeper-apis-frontend")
   val gatekeeperApisUrl          = s"$gatekeeperApisBaseUrl/api-gatekeeper-apis"
+
+  val gatekeeperOrganisationBaseUrl = baseUrl("api-gatekeeper-organisation-frontend")
+  val gatekeeperOrganisationUrl     = s"$gatekeeperOrganisationBaseUrl/api-gatekeeper-organisation/organisations"
 
   private val apiGatekeeperEmailBaseUrl = baseUrl("api-gatekeeper-email-frontend")
   val apiGatekeeperEmailUrl             = s"$apiGatekeeperEmailBaseUrl/api-gatekeeper-email/email"

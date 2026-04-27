@@ -119,7 +119,8 @@
         ServiceNavigationItem(content = Text("Applications"), href = routes.ApplicationController.applicationsPage(None).url),
         ServiceNavigationItem(content = Text("Developers"), href = routes.DevelopersController.blankDevelopersPage().url),
         ServiceNavigationItem(content = Text("XML vendors"), href = routes.XmlServicesController.organisationsSearchPage().url),
-        ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url)
+        ServiceNavigationItem(content = Text("Email"), href = routes.EmailsController.landing().url),
+        ServiceNavigationItem(content = Text("Organisations"), href = applicationConfig.gatekeeperOrganisationUrl)
     )
 }
 
