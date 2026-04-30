@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, _}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindOrCreateUserIdRequest, FindUserIdRequest, FindUserIdResponse, SearchParameters}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.dto.RemoveAllMfaRequest
@@ -105,7 +105,7 @@ class DeveloperConnector @Inject() (
 
   def fetchByEmailPreferences(
       topic: TopicOptionChoice,
-      maybeApis: Option[Seq[String]] = None,
+      maybeApis: Option[Seq[ServiceName]] = None,
       maybeApiCategories: Option[Set[ApiCategory]] = None,
       privateapimatch: Boolean = false
     )(implicit hc: HeaderCarrier
@@ -116,7 +116,7 @@ class DeveloperConnector @Inject() (
     val privateapimatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams                    =
       Seq("topic" -> topic.toString) ++ regimes ++
-        maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams
+        maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _.value))) ++ privateapimatchParams
 
     http.get(url"${appConfig.developerBaseUrl}/developers/email-preferences?$queryParams")
       .execute[List[RegisteredUser]]
@@ -124,7 +124,7 @@ class DeveloperConnector @Inject() (
 
   def fetchByEmailPreferencesPaginated(
       maybeTopic: Option[TopicOptionChoice] = None,
-      maybeApis: Option[Seq[String]] = None,
+      maybeApis: Option[Seq[ServiceName]] = None,
       maybeApiCategories: Option[Set[ApiCategory]] = None,
       privateapimatch: Boolean = false,
       offset: Int,
@@ -134,7 +134,7 @@ class DeveloperConnector @Inject() (
     logger.info(s"fetchByEmailPreferencesPaginated topic is $maybeTopic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String, String)] =
       maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString())))
-    val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
+    val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _.value)))
     val topic                          = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
     val privateApiMatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams                     = Seq("offset" -> s"$offset", "limit" -> s"$limit")
@@ -166,7 +166,7 @@ class DeveloperConnector @Inject() (
       .execute[UserPaginatedResponse]
   }
 
-  def removeEmailPreferencesByService(serviceName: String)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
+  def removeEmailPreferencesByService(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
     http.delete(url"${appConfig.developerBaseUrl}/developers/email-preferences/${serviceName}")
       .execute[HttpResponse]
       .map(response =>

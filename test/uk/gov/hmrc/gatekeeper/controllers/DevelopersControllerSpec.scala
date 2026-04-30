@@ -114,7 +114,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show errors on incorrect values submission" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "")))
 
@@ -123,7 +123,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show success panel on correct submission" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 
@@ -132,7 +132,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show failure panel on error" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo("mtd-vat-1"))(*)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 

@@ -18,13 +18,13 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 
 case class EmailOverride(email: List[RegisteredUser], isOverride: Boolean = false)
 
 case class DevelopersEmailQuery(
     topic: Option[TopicOptionChoice] = None,
-    apis: Option[Seq[String]] = None,
+    apis: Option[Seq[ServiceName]] = None,
     apiCategories: Option[Set[ApiCategory]] = None,
     privateapimatch: Boolean = false,
     apiVersionFilter: Option[String] = None,

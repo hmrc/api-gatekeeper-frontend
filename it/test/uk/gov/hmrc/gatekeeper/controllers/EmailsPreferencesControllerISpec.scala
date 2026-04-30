@@ -80,12 +80,12 @@ class EmailsPreferencesControllerISpec extends ServerBaseISpec with BeforeAndAft
   val api6 = simpleAPIDefinition("api-6", "API 6", "api6", Set(ApiCategory.OTHER), "1.0")
   val apis = List(api1, api2, api3)
 
-  val combinedApi1 = simpleAPI("api-1", "API 1", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-  val combinedApi2 = simpleAPI("api-2", "API 2", Set(ApiCategory.AGENTS), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-  val combinedApi3 = simpleAPI("api-3", "API 3", Set(ApiCategory.VAT), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-  val combinedApi4 = simpleAPI("api-4", "API 4", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-  val combinedApi5 = simpleAPI("api-5", "API 5", Set(ApiCategory.OTHER), ApiType.REST_API, Some(ApiAccessType.PUBLIC))
-  val combinedApi6 = simpleAPI("api-6", "API 6", Set(ApiCategory.OTHER), ApiType.XML_API, Some(ApiAccessType.PUBLIC))
+  val combinedApi1 = simpleAPI("api-1", "API 1", Set(ApiCategory.OTHER), ApiType.REST_API, ApiAccessType.PUBLIC)
+  val combinedApi2 = simpleAPI("api-2", "API 2", Set(ApiCategory.AGENTS), ApiType.REST_API, ApiAccessType.PUBLIC)
+  val combinedApi3 = simpleAPI("api-3", "API 3", Set(ApiCategory.VAT), ApiType.REST_API, ApiAccessType.PUBLIC)
+  val combinedApi4 = simpleAPI("api-4", "API 4", Set(ApiCategory.OTHER), ApiType.REST_API, ApiAccessType.PUBLIC)
+  val combinedApi5 = simpleAPI("api-5", "API 5", Set(ApiCategory.OTHER), ApiType.REST_API, ApiAccessType.PUBLIC)
+  val combinedApi6 = simpleAPI("api-6", "API 6", Set(ApiCategory.OTHER), ApiType.XML_API, ApiAccessType.PUBLIC)
   val combinedApis = List(combinedApi1, combinedApi2, combinedApi3)
 
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =

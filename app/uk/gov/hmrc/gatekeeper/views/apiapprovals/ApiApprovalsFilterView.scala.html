@@ -115,7 +115,7 @@
         )),
         rows = apis.map(api =>  Seq(
             TableRow(content = HtmlContent(buildApiLinkHtml(api, request.role.isUser))),
-            TableRow(content = Text(api.serviceName)),
+            TableRow(content = Text(api.serviceName.value)),
             TableRow(content = Text(api.env)),
             TableRow(content = HtmlContent(buildApiApprovalStatusHtml(api.status)))
             ))

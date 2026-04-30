@@ -56,7 +56,8 @@ lazy val microservice = Project(appName, file("."))
       "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
       "uk.gov.hmrc.gatekeeper.config.AppConfig",
       "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.common.domain.models._"
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models._",
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
     )
   )
   .settings(

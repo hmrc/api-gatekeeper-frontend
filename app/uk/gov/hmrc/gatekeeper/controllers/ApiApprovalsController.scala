@@ -25,6 +25,7 @@ import play.api.data.Forms.{mapping, optional, text}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
@@ -150,15 +151,15 @@ class ApiApprovalsController @Inject() (
     ApiApprovalsController.filterForm.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def historyPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def historyPage(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsHistoryView(apiDefinition)))
   }
 
-  def reviewPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def reviewPage(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsReviewView(reviewForm, apiDefinition)))
   }
 
-  def reviewAction(serviceName: String, environment: Environment): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+  def reviewAction(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val requestForm: Form[ReviewForm] = reviewForm.bindFromRequest()
 
     def errors(errors: Form[ReviewForm]) =
@@ -198,11 +199,11 @@ class ApiApprovalsController @Inject() (
     requestForm.fold(errors, updateApiWithValidForm)
   }
 
-  def commentPage(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def commentPage(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsCommentView(commentForm, apiDefinition)))
   }
 
-  def addComment(serviceName: String, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def addComment(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
     val requestForm: Form[CommentForm] = commentForm.bindFromRequest()
 
     def errors(errors: Form[CommentForm]) =
@@ -215,7 +216,7 @@ class ApiApprovalsController @Inject() (
     requestForm.fold(errors, addCommentWithValidForm)
   }
 
-  private def fetchApiDefinitionSummary(serviceName: String, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  private def fetchApiDefinitionSummary(serviceName: ServiceName, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
     deploymentApprovalService.fetchApprovalSummary(serviceName, environment)
   }
 }

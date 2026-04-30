@@ -21,7 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.http.Status
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition, ServiceName}
 import uk.gov.hmrc.gatekeeper.models._
 
 trait DeveloperServiceStub {
@@ -110,7 +110,7 @@ trait DeveloperServiceStub {
       ))
   }
 
-  def primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(users: Seq[RegisteredUser], service: Seq[String], offset: Int, limit: Int): Unit = {
+  def primeDeveloperServiceEmailPreferencesBySelectedSubscribedApisPaginated(users: Seq[RegisteredUser], service: Seq[ServiceName], offset: Int, limit: Int): Unit = {
     val serviceParam     = s"service=${service.head}"
     val paginationParams = s"offset=$offset&limit=$limit"
 

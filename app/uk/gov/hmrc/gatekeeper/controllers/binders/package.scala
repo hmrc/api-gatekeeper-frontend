@@ -235,4 +235,36 @@ package object binders extends ApplicationLogger {
   implicit def bindableSet[T: QueryStringBindable]: QueryStringBindable[Set[T]] =
     QueryStringBindable.bindableSeq[T].transform(_.toSet, _.toSeq)
 
+  implicit def serviceNameQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ServiceName] = new QueryStringBindable[ServiceName] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, ServiceName]] = {
+      for {
+        text <- textBinder.bind(key, params)
+      } yield {
+        text match {
+          case Right(raw) => Right(ServiceName(raw))
+          case _          => Left("Unable to bind a service name")
+        }
+      }
+    }
+
+    override def unbind(key: String, serviceName: ServiceName): String = {
+      textBinder.unbind(key, serviceName.toString())
+    }
+  }
+
+  implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
+
+    override def bind(key: String, value: String): Either[String, ServiceName] = {
+      for {
+        text        <- textBinder.bind(key, value)
+        serviceName <- Right(ServiceName(text))
+      } yield serviceName
+    }
+
+    override def unbind(key: String, serviceName: ServiceName): String = {
+      serviceName.value
+    }
+  }
+
 }

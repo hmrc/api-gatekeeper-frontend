@@ -24,6 +24,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
@@ -32,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPublisherConnectorMockProvider {
-    val serviceName = "ServiceName" + UUID.randomUUID
+    val serviceName = ServiceName("ServiceName" + UUID.randomUUID)
 
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
@@ -121,7 +122,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       result shouldBe expectedSummary
 
       verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
-      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*)(*)
+      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(*)
     }
 
     "fetch the Api definition summary for production" in new Setup {
@@ -133,7 +134,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       result shouldBe expectedSummary
 
       verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
-      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*)(*)
+      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(*)
     }
 
   }
@@ -147,7 +148,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.approveService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).approveService(*, *, *)(*)
+      verify(mockProductionApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
     }
 
     "approve the service in production" in new Setup {
@@ -156,7 +157,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.approveService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).approveService(*, *, *)(*)
+      verify(mockSandboxApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
     }
   }
 
@@ -169,7 +170,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.declineService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).declineService(*, *, *)(*)
+      verify(mockProductionApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
     }
 
     "decline the service in production" in new Setup {
@@ -178,7 +179,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.declineService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).declineService(*, *, *)(*)
+      verify(mockSandboxApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
     }
   }
 
@@ -192,7 +193,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.addComment(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).addComment(*, *, *)(*)
+      verify(mockProductionApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
     }
 
     "add comment in production" in new Setup {
@@ -201,7 +202,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       await(underTest.addComment(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).addComment(*, *, *)(*)
+      verify(mockSandboxApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
     }
   }
 

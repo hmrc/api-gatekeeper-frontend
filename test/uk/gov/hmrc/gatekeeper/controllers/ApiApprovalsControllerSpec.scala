@@ -26,6 +26,7 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import play.filters.csrf.CSRF.TokenProvider
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
@@ -57,7 +58,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
     override val aLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, userToken)
 
-    val serviceName    = "ServiceName" + UUID.randomUUID()
+    val serviceName    = ServiceName("ServiceName" + UUID.randomUUID())
     val mockedURl      = URLEncoder.encode("""http://mock-gatekeeper-frontend/api-gatekeeper/applications""", "UTF-8")
     val gatekeeperUser = Actors.GatekeeperUser("Bobby Example")
     val approveNote    = "Service approved"
@@ -94,7 +95,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
-      contentAsString(result) should include(serviceName)
+      contentAsString(result) should include(serviceName.value)
       contentAsString(result) should include("Production")
       contentAsString(result) should include("Sandbox")
       contentAsString(result) should include("New")
@@ -172,7 +173,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include("Approved")
       contentAsString(result) should include("aName")
       contentAsString(result) should include("aDescription")
-      contentAsString(result) should include(serviceName)
+      contentAsString(result) should include(serviceName.value)
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 
@@ -204,7 +205,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include("API approvals")
       contentAsString(result) should include("aName")
       contentAsString(result) should include("aDescription")
-      contentAsString(result) should include(serviceName)
+      contentAsString(result) should include(serviceName.value)
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 

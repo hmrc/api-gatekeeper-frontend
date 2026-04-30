@@ -26,6 +26,7 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -72,7 +73,7 @@ class ApiCataloguePublishConnectorSpec
 
     "publishByServiceName" should {
 
-      val serviceName = "Hello-World"
+      val serviceName = ServiceName("Hello-World")
       val url         = s"/api-platform-api-catalogue-publish/publish/$serviceName"
 
       "return Right(PublishResponse)" in new Setup {

@@ -17,10 +17,9 @@
 package uk.gov.hmrc.gatekeeper.views.emails
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.gatekeeper.models.{ApiType, CombinedApi}
 
 trait CombinedApiHelper {
 
-  def simpleAPI(serviceName: String, displayName: String, categories: Set[ApiCategory], apiType: ApiType, accessType: Option[ApiAccessType]): CombinedApi =
-    CombinedApi(displayName, serviceName, categories, apiType, accessType)
+  def simpleAPI(serviceName: String, displayName: String, categories: Set[ApiCategory], apiType: ApiType, accessType: ApiAccessType): CombinedApi =
+    CombinedApi(displayName, ServiceName(serviceName), categories, apiType, accessType)
 }

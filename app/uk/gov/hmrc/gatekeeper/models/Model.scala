@@ -24,7 +24,7 @@ import play.api.libs.json._
 import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.http.SessionKeys
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access.Privileged
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{AccessType, OverrideType, _}
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
@@ -344,7 +344,7 @@ object ApiApprovalState {
 }
 
 case class APIApprovalSummary(
-    serviceName: String,
+    serviceName: ServiceName,
     name: String,
     description: Option[String],
     environment: Option[Environment],
@@ -381,7 +381,7 @@ object ApprovalStatus {
   implicit val format: Format[ApprovalStatus] = SealedTraitJsonFormatting.createFormatFor[ApprovalStatus]("ApprovalStatus", apply)
 }
 
-case class ApiApprovalRequest(serviceName: String, actor: Actors.GatekeeperUser, notes: Option[String] = None)
+case class ApiApprovalRequest(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)
 
 object ApiApprovalRequest {
   implicit val format: OFormat[ApiApprovalRequest] = Json.format[ApiApprovalRequest]

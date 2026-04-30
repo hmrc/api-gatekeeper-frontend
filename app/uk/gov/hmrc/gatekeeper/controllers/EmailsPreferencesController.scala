@@ -88,32 +88,32 @@ class EmailsPreferencesController @Inject() (
     SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def selectSpecificApi(selectedAPIs: Option[List[String]], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectSpecificApi(selectedAPIs: Option[List[ServiceName]], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
     } yield Ok(emailPreferencesSelectApiNewView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName), selectedTopic))
   }
 
-  def selectSubscribedApiPage(selectedAPIs: Option[List[String]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectSubscribedApiPage(selectedAPIs: Option[List[ServiceName]]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     for {
       apis         <- apmService.fetchAllCombinedApis()
       selectedApis <- Future.successful(filterSelectedApis(selectedAPIs, apis))
     } yield Ok(emailPreferencesSelectSubscribedApiView(apis.sortBy(_.displayName), selectedApis.sortBy(_.displayName)))
   }
 
-  def selectTopicPage(selectedAPIs: Option[List[String]], selectedTopic: Option[TopicOptionChoice]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def selectTopicPage(selectedAPIs: Option[List[ServiceName]], selectedTopic: Option[TopicOptionChoice]): Action[AnyContent] = anyStrideUserAction { implicit request =>
     Future.successful(Ok(emailPreferencesSelectTopicView(selectedAPIs.get, selectedTopic)))
   }
 
-  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[String]], selectedTopic: Option[TopicOptionChoice]): Action[AnyContent] = anyStrideUserAction { _ =>
+  def addAnotherApiOption(selectOption: String, selectedAPIs: Option[List[ServiceName]], selectedTopic: Option[TopicOptionChoice]): Action[AnyContent] = anyStrideUserAction { _ =>
     selectOption.toUpperCase match {
       case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSpecificApi(selectedAPIs, selectedTopic)))
       case _     => Future.successful(Redirect(routes.EmailsPreferencesController.selectTopicPage(selectedAPIs, selectedTopic)))
     }
   }
 
-  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[String]], offset: Int, limit: Int): Action[AnyContent] =
+  def addAnotherSubscribedApiOption(selectOption: String, selectedAPIs: Option[List[ServiceName]], offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { _ =>
       selectOption.toUpperCase match {
         case "YES" => Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(selectedAPIs)))
@@ -160,7 +160,7 @@ class EmailsPreferencesController @Inject() (
       } yield Ok(emailPreferencesSelectedUserTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic, offset, limit, totalCount))
     }
 
-  private def filterSelectedApis(maybeSelectedAPIs: Option[List[String]], apiList: List[CombinedApi]) =
+  private def filterSelectedApis(maybeSelectedAPIs: Option[List[ServiceName]], apiList: List[CombinedApi]) =
     maybeSelectedAPIs.fold(List.empty[CombinedApi])(selectedAPIs => apiList.filter(api => selectedAPIs.contains(api.serviceName)))
 
   private def handleGettingApiUsers(
@@ -171,7 +171,7 @@ class EmailsPreferencesController @Inject() (
     ): Future[List[RegisteredUser]] = {
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
     // return this is deployed out to all environments
-    val filteredApis = apis.filter(_.accessType.getOrElse(ApiAccessType.PUBLIC) == apiAccessType)
+    val filteredApis = apis.filter(_.accessType == apiAccessType)
     val categories   = filteredApis.flatMap(_.categories).toSet
     val apiNames     = filteredApis.map(_.serviceName)
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
@@ -187,8 +187,8 @@ class EmailsPreferencesController @Inject() (
     })
   }
 
-  def specificApis(selectedAPIs: List[String], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    if (selectedAPIs.forall(_.isEmpty)) {
+  def specificApis(selectedAPIs: List[ServiceName], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    if (selectedAPIs.forall(_.value.isEmpty)) {
       Future.successful(Redirect(routes.EmailsPreferencesController.selectSpecificApi(None, selectedTopic)))
     } else {
       for {
@@ -202,8 +202,8 @@ class EmailsPreferencesController @Inject() (
     }
   }
 
-  def subscribedApis(selectedAPIs: List[String]): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    if (selectedAPIs.forall(_.isEmpty)) {
+  def subscribedApis(selectedAPIs: List[ServiceName]): Action[AnyContent] = anyStrideUserAction { implicit request =>
+    if (selectedAPIs.forall(_.value.isEmpty)) {
       Future.successful(Redirect(routes.EmailsPreferencesController.selectSubscribedApiPage(None)))
     } else {
       for {
@@ -216,7 +216,7 @@ class EmailsPreferencesController @Inject() (
   def selectedApiTopic(
       selectedTopic: Option[TopicOptionChoice] = None,
       maybeSelectedCategory: Option[ApiCategory] = None,
-      selectedAPIs: List[String] = List.empty,
+      selectedAPIs: List[ServiceName] = List.empty,
       offset: Int,
       limit: Int
     ): Action[AnyContent] =
@@ -243,7 +243,7 @@ class EmailsPreferencesController @Inject() (
       ))
     }
 
-  def selectedSubscribedApi(selectedAPIs: List[String] = List.empty, offset: Int, limit: Int): Action[AnyContent] =
+  def selectedSubscribedApi(selectedAPIs: List[ServiceName] = List.empty, offset: Int, limit: Int): Action[AnyContent] =
     anyStrideUserAction { implicit request =>
       for {
         apis                <- apmService.fetchAllCombinedApis()
