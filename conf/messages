@@ -49,8 +49,10 @@ landing.page.api.approvals=API approvals
 landing.page.applications=Applications
 landing.page.developers=Developers
 landing.page.organisations=Organisations
+landing.page.organisations.checks=Organisation checks
 landing.page.xml.vendors=XML vendors
 landing.page.emails=Emails
 landing.page.email.based.on.preferences=Send emails based on preferences
 landing.page.email.based.on.api=Send emails based on API subscription
 landing.page.email.to.all=Send emails to all users
+

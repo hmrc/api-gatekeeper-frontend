@@ -137,11 +137,11 @@
     headBlock = Some(hmrcHead(Some(head))),
     headerBlock = Some(hmrcStandardHeader(
         serviceName = Some(messages("service.name")),
-        serviceUrl = None,
         displayHmrcBanner = false,
         containerClasses = "govuk-width-container",
         serviceNavigation = Some(ServiceNavigation(
             serviceName = Some(messages("service.name")),
+            serviceUrl = Some("/api-gatekeeper"),
             navigation = navigation
         ))
     )),
