@@ -61,7 +61,7 @@ class FormValidationSpec extends AsyncHmrcSpec {
   "UpdateRateLimitForm" should {
 
     "validate a valid filled form" in {
-      val boundForm = UpdateRateLimitForm.form.bind(Map("tier" -> "GOLD"))
+      val boundForm = UpdateRateLimitForm.form.bind(Map("tier" -> "PALLADIUM"))
       boundForm.errors shouldBe List()
       boundForm.globalErrors shouldBe List()
     }

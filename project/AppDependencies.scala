@@ -8,8 +8,8 @@ object AppDependencies {
   lazy val playFrontendVersion = "12.32.0"
 
   val tpdDomainVersion    = "0.15.0"
-  val apiDomainVersion    = "1.3.0"
-  val appDomainVersion    = "1.0.0"
+  val apiDomainVersion    = "1.4.0"
+  val appDomainVersion    = "1.1.0"
   val mockitoScalaVersion = "2.0.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies

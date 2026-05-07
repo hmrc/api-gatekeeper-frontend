@@ -311,14 +311,14 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the service to update the rate limit tier" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.GOLD, gatekeeperUserId))
+      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.COPPER, gatekeeperUserId))
 
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
         case ApplicationCommands.ChangeRateLimitTier(aUser, _, rateLimitTier) =>
           aUser shouldBe gatekeeperUserId
-          rateLimitTier shouldBe RateLimitTier.GOLD
+          rateLimitTier shouldBe RateLimitTier.COPPER
       }
     }
   }
