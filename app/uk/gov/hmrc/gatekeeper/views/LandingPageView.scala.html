@@ -52,6 +52,8 @@ implicit loggedInUser: LoggedInUser, messages: Messages, request: Request[_])
       <div class="tile-body">
         <h2 class="govuk-heading-m">@messages("landing.page.organisations")</h2>
         <ul class="govuk-list">
+          <li><a class="govuk-link govuk-link--novisited-state" href='@{s"${applicationConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-organisation/organisations"}'>@messages("landing.page.organisations")</a></li>
+          <li><a class="govuk-link govuk-link--novisited-state" href='@{s"${applicationConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-organisation/"}'>@messages("landing.page.organisations.checks")</a></li>
           <li><a class="govuk-link govuk-link--novisited-state" href='@{s"${applicationConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations"}'>@messages("landing.page.xml.vendors")</a></li>
         </ul>
       </div>
