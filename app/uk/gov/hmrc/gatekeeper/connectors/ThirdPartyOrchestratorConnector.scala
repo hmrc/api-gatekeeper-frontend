@@ -34,11 +34,9 @@ import org.apache.pekko.util.ByteString
 import org.apache.pekko.stream.Materializer
 import uk.gov.hmrc.http.client.StreamHttpReads
 import org.apache.pekko.stream.scaladsl.JsonFraming
-import higherkindness.droste.data.AttrFImplicits
 import org.apache.pekko.stream.scaladsl.Sink
 import play.api.libs.json.Reads
-import org.apache.commons.lang3.CharSet
-import org.apache.commons.lang3.CharSetUtils
+import com.google.common.base.Charsets
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
@@ -96,32 +94,42 @@ val response: Future[Source[String, _]] = wsClient.url("https://example.com")
   }
  */
 
-
-  def queryStream[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: StreamHttpReads[Source[T,_]]): Future[Source[T,_]] = {
+  def queryStream[S,T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
-    // rawQueryStream(environment)(params)
-    ???
+    rawQueryStream[S,T](environment)(params)(fn)
   }
 
-  def rawQueryStream[T](environment: Environment)(qryStringMap: Map[String, String])(implicit hc: HeaderCarrier, rds: Reads[T]): Future[Seq[T]] = {
-    val x = http
+  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
+    val params = QueryParamsToQueryStringMap.toQuery(qry).map {
+      case (k, vs) => k -> vs.mkString
+    }
+    rawQueryStream[S,S](environment)(params)(identity)
+  }
+
+  def rawQueryStream[S,T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+    http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
       .stream[Source[ByteString,_]]
       .map { response =>
         response.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
       }
+
+      .map { _.map { bytestring =>
+        Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8)))
+        .asOpt
+      }}
+      
+      .map(_.collect {
+        case Some(s) => s
+      })
+
+      .map(_.map(fn))
+
       .flatMap(_.runWith(Sink.seq))
-
-    x.flatMap { _.map { bytestring =>
-      Json.fromJson[T](Json.parse(bytestring.decodeString("UTF-8")))
-    }}
-
-      // .map( src =>
-      //   Json.fromJson[T](Json.parse(src))
-      // )    
-    ???
+      
+      .map(_.toList)
   }
 }
 
