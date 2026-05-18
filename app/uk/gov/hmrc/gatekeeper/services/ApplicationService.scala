@@ -375,7 +375,7 @@ class ApplicationService @Inject() (
   def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    tpoConnector.query[List[QueriedApplication]](env)(qry)
+    tpoConnector.queryStream[List[QueriedApplication]](env)(qry)
       .map(_.map { qas =>
         AppWithSubscriptionsForCsvResponse(
           id = qas.details.id,
