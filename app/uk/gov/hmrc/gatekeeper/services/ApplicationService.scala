@@ -374,9 +374,10 @@ class ApplicationService @Inject() (
 
   def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
-    
-    val fn: QueriedApplication => AppWithSubscriptionsForCsvResponse = 
-        (qa) => AppWithSubscriptionsForCsvResponse(
+
+    val fn: QueriedApplication => AppWithSubscriptionsForCsvResponse =
+      (qa) =>
+        AppWithSubscriptionsForCsvResponse(
           id = qa.details.id,
           name = qa.details.name,
           lastAccess = qa.details.lastAccess,
