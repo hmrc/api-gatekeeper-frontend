@@ -148,7 +148,7 @@ class EmailsController @Inject() (
         publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
         controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.CONTROLLED)
         internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.INTERNAL)
-        combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).distinct
+        combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).sortBy(_.email.text).distinct
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
   }
@@ -157,7 +157,7 @@ class EmailsController @Inject() (
     // withName could throw an exception here
     maybeTopic.map(developerService.fetchDevelopersByEmailPreferences(_)).getOrElse(Future.successful(List.empty))
       .map(users => {
-        val filteredUsers = users.filter(_.verified)
+        val filteredUsers = users.filter(_.verified).sortBy(_.email.text)
         Ok(emailPreferencesTopicView(filteredUsers, usersToEmailCopyText(filteredUsers), maybeTopic))
       })
   }
@@ -174,7 +174,7 @@ class EmailsController @Inject() (
         users               <- topicAndCategory.map(tup =>
                                  developerService.fetchDevelopersByAPICategoryEmailPreferences(tup._1, tup._2)
                                )
-                                 .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified))
+                                 .getOrElse(Future.successful(List.empty)).map(_.filter(_.verified)).map(_.sortBy(_.email.text))
         selectedCategory     = topicAndCategory.map(_._2)
         selectedCategoryName = selectedCategory.map(_.displayText).getOrElse("")
       } yield Ok(emailPreferencesApiCategoryView(
