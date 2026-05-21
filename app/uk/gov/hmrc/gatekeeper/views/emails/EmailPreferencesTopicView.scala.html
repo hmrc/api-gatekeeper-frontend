@@ -27,6 +27,12 @@
 @(users: Seq[RegisteredUser], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
+    @handleTopicPreselection = @{
+        if(maybeTopicFilter.isEmpty) {
+            Some(TopicOptionChoice.BUSINESS_AND_POLICY)
+        } else { maybeTopicFilter }
+    }
+
 @main(
     title = s"${applicationConfig.title} - Email users interested in a topic",
     breadcrumbs = Seq(
@@ -47,10 +53,10 @@
             </h1>
           </legend>
           <div class="govuk-radios" data-module="govuk-radios">
-            @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, maybeTopicFilter)
-            @topicRadioOption(TopicOptionChoice.TECHNICAL, maybeTopicFilter)
-            @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, maybeTopicFilter)
-            @topicRadioOption(TopicOptionChoice.EVENT_INVITES, maybeTopicFilter)
+            @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.TECHNICAL, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.EVENT_INVITES, handleTopicPreselection)
           </div>
         </fieldset>
 
