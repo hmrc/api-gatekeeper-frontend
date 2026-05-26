@@ -69,7 +69,6 @@ class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAd
         mock[EmailPreferencesApiCategoryView],
         mock[EmailPreferencesSpecificApiView],
         mock[EmailPreferencesSelectApiView],
-        mock[EmailPreferencesSelectTopicView],
         mockApplicationService,
         forbiddenView,
         mcc,

@@ -53,7 +53,6 @@ class EmailsController @Inject() (
     emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
     emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
     emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
-    emailPreferencesSelectTopicView: EmailPreferencesSelectTopicView,
     val applicationService: ApplicationService,
     val forbiddenView: ForbiddenView,
     mcc: MessagesControllerComponents,

@@ -279,22 +279,10 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
       }
 
-      "redirect to new select page when SPECIFIC_API passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences-new", validHeaders, "sendEmailPreferences=SPECIFIC_API")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
-      }
-
       "redirect to select page when TAX_REGIME passed in the form" in {
         primeAuthServiceSuccess()
         val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-api-category")
-      }
-
-      "redirect to select tax regime page when TAX_REGIME passed in the form" in {
-        primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences-new", validHeaders, "sendEmailPreferences=TAX_REGIME")
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-tax-regime")
       }
 
       "redirect to select page when TOPIC passed in the form" in {
@@ -357,15 +345,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
       }
 
-      "respond with 200 and render the tax regime page correctly on initial load with selected categories New" in {
-        primeAuthServiceSuccess()
-        val result =
-          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-tax-regime?${categories.map("selectedCategories=" + _).mkString("&")}", validHeaders)
-        result.status shouldBe OK
-
-        validateEmailPreferencesSpecificCategoryPage(Jsoup.parse(result.body), categories)
-      }
-
       "respond with 200 and render the page correctly when only category filter is provided" in {
         primeAuthServiceSuccess()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedCategory=${categories.head}", validHeaders)
@@ -417,16 +396,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateSelectAPIPageWithNonePreviouslySelected(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api")
       }
 
-      "respond with 200 and render the new page correctly on initial load when authorised" in {
-        primeAuthServiceSuccess()
-        primeFetchAllCombinedApisSuccess(combinedApis)
-
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/select-api-new", validHeaders)
-        result.status shouldBe OK
-
-        validateSelectAPIPageWithNonePreviouslySelectedNew(Jsoup.parse(result.body), combinedApis, "/api-gatekeeper/emails/email-preferences/by-specific-api-new")
-      }
-
       "respond with 200 and render the page correctly when selectedAPis provided" in {
         val selectedApis = List(combinedApi4, combinedApi5, combinedApi6)
 
@@ -461,23 +430,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         validateEmailPreferencesSpecificApiPage(Jsoup.parse(result.body), selectedApis)
       }
 
-      "respond with 200 and render the page correctly on initial load with selectedApis New" in {
-        primeAuthServiceSuccess()
-
-        primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
-        val result =
-          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("selectedAPIs=" + _.serviceName).mkString("&")}", validHeaders)
-        result.status shouldBe OK
-
-        validateEmailPreferencesSpecificApiPageNew(Jsoup.parse(result.body), selectedApis)
-      }
-
-      "redirect to select api new page when no selectedApis in query params" in {
-        primeAuthServiceSuccess()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new", validHeaders)
-        validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api-new")
-      }
-
       "redirect to select api page when no selectedApis in query params" in {
         primeAuthServiceSuccess()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api", validHeaders)
@@ -503,13 +455,6 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
         val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
-        result.status shouldBe FORBIDDEN
-      }
-
-      "respond with 403 when specific api new page is not authorised" in {
-        primeAuthServiceFail()
-        val result =
-          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-specific-api-new?${selectedApis.map("&selectedAPIs=" + _.serviceName).mkString}", validHeaders)
         result.status shouldBe FORBIDDEN
       }
 

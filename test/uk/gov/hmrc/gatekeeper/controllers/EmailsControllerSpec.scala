@@ -55,7 +55,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   private lazy val emailPreferencesApiCategoryView     = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   private lazy val mockEmailPreferencesSpecificApiView = mock[EmailPreferencesSpecificApiView]
   private lazy val mockEmailPreferencesSelectApiView   = mock[EmailPreferencesSelectApiView]
-  private lazy val mockEmailPreferencesSelectTopicView = mock[EmailPreferencesSelectTopicView]
 
   running(app) {
 
@@ -66,7 +65,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectTopicView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -173,7 +171,6 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         emailPreferencesApiCategoryView,
         mockEmailPreferencesSpecificApiView,
         mockEmailPreferencesSelectApiView,
-        mockEmailPreferencesSelectTopicView,
         mockApplicationService,
         forbiddenView,
         mcc,
