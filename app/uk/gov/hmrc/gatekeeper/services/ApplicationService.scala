@@ -356,15 +356,15 @@ class ApplicationService @Inject() (
     }
 
     Future.sequence(environments.map(env => {
-      tpoConnector.query[List[ApplicationWithCollaborators]](env)(ApplicationQuery.GeneralOpenEndedApplicationQuery(params))
+      tpoConnector.queryStream[ApplicationWithCollaborators](env)(ApplicationQuery.GeneralOpenEndedApplicationQuery(params))
     }))
       .map(_.flatten)
   }
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val qry                          = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil)
-    val sandboxApplicationsFuture    = tpoConnector.query[List[QueriedApplication]](Environment.SANDBOX)(qry)
-    val productionApplicationsFuture = tpoConnector.query[List[QueriedApplication]](Environment.PRODUCTION)(qry)
+    val sandboxApplicationsFuture    = tpoConnector.queryStream[QueriedApplication](Environment.SANDBOX)(qry)
+    val productionApplicationsFuture = tpoConnector.queryStream[QueriedApplication](Environment.PRODUCTION)(qry)
 
     for {
       sandboxApps    <- sandboxApplicationsFuture.map(_.map(_.asAppWithCollaborators))
@@ -375,14 +375,15 @@ class ApplicationService @Inject() (
   def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    tpoConnector.query[List[QueriedApplication]](env)(qry)
-      .map(_.map { qas =>
+    val fn: QueriedApplication => AppWithSubscriptionsForCsvResponse =
+      (qa) =>
         AppWithSubscriptionsForCsvResponse(
-          id = qas.details.id,
-          name = qas.details.name,
-          lastAccess = qas.details.lastAccess,
-          apiIdentifiers = qas.subscriptions.getOrElse(Set.empty)
+          id = qa.details.id,
+          name = qa.details.name,
+          lastAccess = qa.details.lastAccess,
+          apiIdentifiers = qa.subscriptions.getOrElse(Set.empty)
         )
-      })
+
+    tpoConnector.queryStream[QueriedApplication, AppWithSubscriptionsForCsvResponse](env)(qry)(fn)
   }
 }
