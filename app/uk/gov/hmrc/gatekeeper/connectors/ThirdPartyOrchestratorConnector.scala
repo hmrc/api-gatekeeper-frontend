@@ -25,6 +25,7 @@ import org.apache.pekko.stream.scaladsl.{JsonFraming, Sink, Source}
 import org.apache.pekko.util.ByteString
 
 import play.api.libs.json.{Json, OFormat, Reads}
+import play.mvc.Http
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
@@ -68,6 +69,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
   }
 
   def query[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+
     val qryStringMap = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
@@ -80,16 +82,6 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
       .execute[T]
   }
-
-  /*
-val response: Future[Source[String, _]] = wsClient.url("https://example.com")
-  .stream()
-  .map { response =>
-    response.bodyAsSource
-      .via(Framing.delimiter(ByteString("\n"), maximumFrameLength = 1024))
-      .map(_.utf8String)
-  }
-   */
 
   def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
@@ -108,6 +100,7 @@ val response: Future[Source[String, _]] = wsClient.url("https://example.com")
   def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
       .stream[Source[ByteString, _]]
       .map { response =>
         response.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
