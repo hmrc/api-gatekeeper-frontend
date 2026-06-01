@@ -19,7 +19,13 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.libs.json.{Json, OFormat}
+import com.google.common.base.Charsets
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.{JsonFraming, Sink, Source}
+import org.apache.pekko.util.ByteString
+
+import play.api.libs.json.{Json, OFormat, Reads}
+import play.mvc.Http
 import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
@@ -37,7 +43,7 @@ object ApplicationsByRequest {
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext) {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
@@ -63,6 +69,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
   }
 
   def query[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+
     val qryStringMap = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
@@ -74,6 +81,42 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
       .execute[T]
+  }
+
+  def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+    val params = QueryParamsToQueryStringMap.toQuery(qry).map {
+      case (k, vs) => k -> vs.mkString
+    }
+    rawQueryStream[S, T](environment)(params)(fn)
+  }
+
+  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
+    val params = QueryParamsToQueryStringMap.toQuery(qry).map {
+      case (k, vs) => k -> vs.mkString
+    }
+    rawQueryStream[S, S](environment)(params)(identity)
+  }
+
+  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+    http
+      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
+      .stream[Source[ByteString, _]]
+      .map { response =>
+        response.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
+      }
+      .map {
+        _.map { bytestring =>
+          Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8)))
+            .asOpt
+        }
+      }
+      .map(_.collect {
+        case Some(s) => s
+      })
+      .map(_.map(fn))
+      .flatMap(_.runWith(Sink.seq))
+      .map(_.toList)
   }
 }
 
