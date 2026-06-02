@@ -69,7 +69,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsById(document, "finish") shouldBe true
       elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
       elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
-      elementExistsByText(document, "p", "email@example.com is the only administrator for one or more applications.") shouldBe true
+      elementExistsByText(document, "h2", "email@example.com is the only administrator for one or more applications.") shouldBe true
       elementExistsByText(document, "a", standardApp.details.name.value) shouldBe true
     }
 
@@ -93,7 +93,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsById(document, "finish") shouldBe true
       elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
       elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
-      elementExistsByText(document, "p", "email@example.com is the responsible individual for one or more organisations.") shouldBe true
+      elementExistsByText(document, "h2", "email@example.com is the responsible individual for one or more organisations.") shouldBe true
       elementExistsByText(document, "p", "Org name") shouldBe true
     }
   }

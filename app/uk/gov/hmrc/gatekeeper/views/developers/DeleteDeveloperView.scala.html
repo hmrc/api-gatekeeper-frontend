@@ -51,7 +51,7 @@
     <h1 class="govuk-heading-l">You cannot delete this developer</h1>
 
     @if(!developer.responsibleIndividualOrganisations.isEmpty) {
-      <p class="govuk-body"><span class="govuk-body govuk-!-font-weight-bold">@developer.user.email.text</span> is the responsible individual for one or more organisations.</p>
+      <h2 class="govuk-heading-m">@developer.user.email.text is the responsible individual for one or more organisations.</h2>
       <p class="govuk-body">Organisations cannot exist without a responsible individual.</p>
       <p class="govuk-body">Delete the following organisations or 
         <a class="govuk-link" href="mailto:@{developer.user.email.text}">ask the responsible individual</a>
@@ -63,10 +63,11 @@
           @organisation.organisationName
         </p>
       }
+      <br>
     }
 
     @if(!developer.soleAdminApplications.isEmpty) {
-      <p class="govuk-body"><span class="govuk-body govuk-!-font-weight-bold">@developer.user.email.text</span> is the only administrator for one or more applications.</p>
+      <h2 class="govuk-heading-m">@developer.user.email.text</span> is the only administrator for one or more applications.</h2>
       <p class="govuk-body">Applications cannot exist without an administrator.</p>
       <p class="govuk-body">Delete the following applications or 
         <a class="govuk-link" href="mailto:@{developer.user.email.text}">ask the administrator</a>
@@ -80,6 +81,7 @@
           </a>
         </p>
       }
+      <br>
     }
 
     <a id="finish" href="@routes.DeveloperController.developerPage(developer.user.userId)" class="govuk-button">Finish</a>
