@@ -22,7 +22,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.4.0",
     "commons-net"        % "commons-net"                           % "3.12.0",
     "org.apache.commons" % "commons-csv"                           % "1.14.1",
-    "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "4.3.0",
+    "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "4.4.0",
     "uk.gov.hmrc"       %% "api-platform-application-domain"       % appDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion,
