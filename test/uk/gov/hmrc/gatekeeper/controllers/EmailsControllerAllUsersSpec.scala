@@ -86,7 +86,6 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
         mock[EmailPreferencesApiCategoryView],
         mock[EmailPreferencesSpecificApiView],
         mock[EmailPreferencesSelectApiView],
-        mock[EmailPreferencesSelectTopicView],
         mockApplicationService,
         forbiddenView,
         mcc,
