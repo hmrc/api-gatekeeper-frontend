@@ -27,6 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.{Organisation, OrganisationName}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
@@ -55,9 +56,10 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsById(document, "submit") shouldBe true
       elementExistsById(document, "cancel") shouldBe true
       elementExistsById(document, "finish") shouldBe false
+      elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe true
     }
 
-    "not show the controls to delete the developer when the developer has no apps that they are the sole admin on" in {
+    "not show the controls to delete the developer when the developer has apps that they are the sole admin on" in {
       val app       = standardApp.withCollaborators(admin(LaxEmailAddress("email@example.com")))
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
@@ -65,6 +67,34 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsById(document, "submit") shouldBe false
       elementExistsById(document, "cancel") shouldBe false
       elementExistsById(document, "finish") shouldBe true
+      elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
+      elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
+      elementExistsByText(document, "p", "email@example.com is the only administrator for one or more applications.") shouldBe true
+      elementExistsByText(document, "a", standardApp.details.name.value) shouldBe true
+    }
+
+    "not show the controls to delete the developer when the developer has orgs that they are the responsible individual on" in {
+      val userId    = UserId.random
+      val app       = standardApp.withCollaborators(
+        admin(LaxEmailAddress("email@example.com")),
+        admin(LaxEmailAddress("other@example.com"))
+      )
+      val respIndiv = uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Collaborators.ResponsibleIndividual(userId)
+      val org       = Organisation(OrganisationId.random, OrganisationName("Org name"), Organisation.OrganisationType.UkLimitedCompany, instant, Set(respIndiv))
+      val developer = Developer(
+        user = RegisteredUser(LaxEmailAddress("email@example.com"), userId, "firstname", "lastName", false),
+        applications = List(app),
+        organisations = List(org)
+      )
+
+      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      elementExistsById(document, "submit") shouldBe false
+      elementExistsById(document, "cancel") shouldBe false
+      elementExistsById(document, "finish") shouldBe true
+      elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
+      elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
+      elementExistsByText(document, "p", "email@example.com is the responsible individual for one or more organisations.") shouldBe true
+      elementExistsByText(document, "p", "Org name") shouldBe true
     }
   }
 }

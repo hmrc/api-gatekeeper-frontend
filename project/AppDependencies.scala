@@ -10,6 +10,7 @@ object AppDependencies {
   val tpdDomainVersion    = "0.15.0"
   val apiDomainVersion    = "1.4.0"
   val appDomainVersion    = "1.1.0"
+  val orgDomainVersion    = "0.19.0"
   val mockitoScalaVersion = "2.0.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
@@ -24,7 +25,8 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "4.3.0",
     "uk.gov.hmrc"       %% "api-platform-application-domain"       % appDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion,
-    "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion
+    "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion,
+    "uk.gov.hmrc"       %% "api-platform-organisation-domain"      % orgDomainVersion
   )
 
   lazy val testDependencies: Seq[ModuleID] = Seq(
@@ -34,6 +36,7 @@ object AppDependencies {
     "org.mockito"            %% "mockito-scala-scalatest"                   % mockitoScalaVersion,
     "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
     "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"              % tpdDomainVersion,
-    "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion
+    "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion,
+    "uk.gov.hmrc"            %% "api-platform-organisation-domain-fixtures" % orgDomainVersion
   ).map(_ % "test")
 }

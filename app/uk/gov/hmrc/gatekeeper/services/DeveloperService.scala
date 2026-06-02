@@ -43,6 +43,7 @@ class DeveloperService @Inject() (
     tpoConnector: ThirdPartyOrchestratorConnector,
     commandConnector: ApplicationCommandConnector,
     deskproConnector: ApiPlatformDeskproConnector,
+    organisationConnector: OrganisationConnector,
     xmlService: XmlService,
     val clock: Clock
   )(implicit ec: ExecutionContext
@@ -183,7 +184,8 @@ class DeveloperService @Inject() (
       sandboxApplications    <- fetchApplicationsByUserId(Environment.SANDBOX, userId, includingDeleted)
       productionApplications <- fetchApplicationsByUserId(Environment.PRODUCTION, userId, includingDeleted)
       deskproOrganisations   <- deskproConnector.getOrganisationsForUser(user.email, hc)
-    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations)
+      organisations          <- organisationConnector.fetchOrganisationsByUserId(userId)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations, organisations)
   }
 
   def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {

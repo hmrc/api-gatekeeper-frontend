@@ -76,7 +76,9 @@ trait BaseSpec extends AnyFeatureSpec
         "microservice.services.api-platform-events-subordinate.host"    -> stubHost,
         "microservice.services.api-platform-events-subordinate.port"    -> stubPort,
         "microservice.services.api-platform-events-principal.host"      -> stubHost,
-        "microservice.services.api-platform-events-principal.port"      -> stubPort
+        "microservice.services.api-platform-events-principal.port"      -> stubPort,
+        "microservice.services.api-platform-organisation.host"          -> stubHost,
+        "microservice.services.api-platform-organisation.port"          -> stubPort
       )
       .in(Mode.Prod)
       .build()
