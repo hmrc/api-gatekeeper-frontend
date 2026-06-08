@@ -24,7 +24,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -43,6 +42,7 @@ class DeveloperService @Inject() (
     tpoConnector: ThirdPartyOrchestratorConnector,
     commandConnector: ApplicationCommandConnector,
     deskproConnector: ApiPlatformDeskproConnector,
+    organisationConnector: OrganisationConnector,
     xmlService: XmlService,
     val clock: Clock
   )(implicit ec: ExecutionContext
@@ -183,7 +183,8 @@ class DeveloperService @Inject() (
       sandboxApplications    <- fetchApplicationsByUserId(Environment.SANDBOX, userId, includingDeleted)
       productionApplications <- fetchApplicationsByUserId(Environment.PRODUCTION, userId, includingDeleted)
       deskproOrganisations   <- deskproConnector.getOrganisationsForUser(user.email, hc)
-    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations)
+      organisations          <- organisationConnector.fetchOrganisationsByUserId(userId)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations, organisations)
   }
 
   def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
@@ -265,12 +266,11 @@ class DeveloperService @Inject() (
     }
 
     fetchDeveloper(userId, FetchDeletedApplications.Exclude).flatMap { developer =>
-      val email                               = developer.email
-      val (appsSoleAdminOn, appsTeamMemberOn) = developer.applications.partition(_.isSoleAdmin(email))
+      val email = developer.email
 
-      if (appsSoleAdminOn.isEmpty) {
+      if (developer.soleAdminApplications.isEmpty && developer.responsibleIndividualOrganisations.isEmpty) {
         for {
-          _      <- Future.traverse(appsTeamMemberOn)(removeTeamMemberFromApp(developer))
+          _      <- Future.traverse(developer.applications)(removeTeamMemberFromApp(developer))
           result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
           _      <- xmlService.removeCollaboratorsForUserId(userId, gatekeeperUserName)
           _      <- deskproConnector.markPersonInactive(email, hc)

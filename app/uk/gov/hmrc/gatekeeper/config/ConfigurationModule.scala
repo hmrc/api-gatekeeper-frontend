@@ -38,7 +38,8 @@ class ConfigurationModule extends Module {
       bind[ApmConnectorApiDefinitionModule].to[ApmConnector],
       bind[ApmConnectorApplicationModule].to[ApmConnector],
       bind[ApmConnectorPpnsModule].to[ApmConnector],
-      bind[ApmConnectorSubscriptionFieldsModule].to[ApmConnector]
+      bind[ApmConnectorSubscriptionFieldsModule].to[ApmConnector],
+      bind[OrganisationConnector.Config].toProvider[OrganisationConnectorConfigProvider]
     )
   }
 }

@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, Us
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.pages.ManageTeamMembersPage.whyCantRemoveAdminShowing
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationPage, ApplicationsPage, DeveloperDetailsPage, ManageTeamMembersPage}
-import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, OrganisationStub, ThirdPartyApplicationStub, ThirdPartyDeveloperStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
 class ApiGatekeeperApplicationSpec
@@ -32,7 +32,8 @@ class ApiGatekeeperApplicationSpec
     with XmlServicesStub
     with ThirdPartyDeveloperStub
     with ThirdPartyApplicationStub
-    with ApiPlatformDeskproStub {
+    with ApiPlatformDeskproStub
+    with OrganisationStub {
 
   val developers = List[RegisteredUser](RegisteredUser(unverifiedUser.email, unverifiedUser.userId, unverifiedUser.firstName, unverifiedUser.lastName, unverifiedUser.verified))
 
@@ -144,6 +145,7 @@ class ApiGatekeeperApplicationSpec
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId, MockDataSugar.applicationForDeveloperResponse)
       stubGetOrganisationsForUser(unverifiedUser.email)
+      stubFetchOrganisationsByUserId(unverifiedUser.userId)
 
       When("I select to navigate to a collaborator")
       ApplicationsPage.selectDeveloperByEmail(unverifiedUser.email)
@@ -175,6 +177,7 @@ class ApiGatekeeperApplicationSpec
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId, MockDataSugar.applicationForDeveloperResponse)
       stubGetOrganisationsForUser(unverifiedUser.email)
+      stubFetchOrganisationsByUserId(unverifiedUser.userId)
 
       When("I navigate to team members")
       ApplicationsPage.manageTeamMembers()
@@ -213,6 +216,7 @@ class ApiGatekeeperApplicationSpec
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
       stubApplicationForDeveloper(unverifiedUser.userId, MockDataSugar.applicationForDeveloperResponse)
       stubGetOrganisationsForUser(unverifiedUser.email)
+      stubFetchOrganisationsByUserId(unverifiedUser.userId)
 
       When("I navigate to team members")
       ApplicationsPage.manageTeamMembers()

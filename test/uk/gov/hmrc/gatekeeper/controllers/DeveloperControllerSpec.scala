@@ -180,7 +180,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
 
     "deleteDeveloperPage" should {
 
-      "not allow a user with insifficient enrolments to access the page" in new Setup {
+      "not allow a user with insufficient enrolments to access the page" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         val result = developersController.deleteDeveloperPage(developerId)(aLoggedInRequest)
