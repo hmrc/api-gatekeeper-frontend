@@ -83,6 +83,13 @@ trait DeveloperServiceMockProvider {
       def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(failed(t))
     }
 
+    object PartitionDeveloperApps {
+
+      def returnsFor(developer: Developer, result: (List[ApplicationWithCollaborators], List[ApplicationWithCollaborators])) =
+        when(mockDeveloperService.partitionDeveloperApps(eqTo(developer))(*))
+          .thenReturn(successful(result))
+    }
+
     object DeleteDeveloper {
 
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
