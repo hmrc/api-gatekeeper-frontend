@@ -18,13 +18,22 @@ package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 
 object ApplicationResponseHelper {
 
   implicit class AdminsSyntax(application: ApplicationWithCollaborators) {
 
-    def isSoleAdmin(emailAddress: LaxEmailAddress): Boolean =
-      application.admins.map(_.emailAddress).contains(emailAddress) && application.admins.size == 1
+    def isSoleAdmin(collaboratorUsers: Seq[RegisteredUser], emailAddress: LaxEmailAddress): Boolean = {
+      val adminEmails: Set[LaxEmailAddress] = application.admins.map(_.emailAddress)
+      val soleAdmin                         = adminEmails.contains(emailAddress) && application.admins.size == 1
+
+      lazy val verifiedEmails                            = collaboratorUsers.filter(u => u.verified).map(_.email)
+      lazy val verifiedAdminEmails: Set[LaxEmailAddress] = verifiedEmails.toSet.intersect(adminEmails)
+      lazy val soleVerifiedAdmin                         = verifiedAdminEmails.contains(emailAddress) && verifiedAdminEmails.size == 1
+
+      soleAdmin || soleVerifiedAdmin
+    }
   }
 
   implicit class LocationsSyntax(application: ApplicationWithCollaborators) {

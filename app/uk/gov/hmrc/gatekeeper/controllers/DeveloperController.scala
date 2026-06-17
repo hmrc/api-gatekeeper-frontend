@@ -101,7 +101,11 @@ class DeveloperController @Inject() (
   }
 
   def deleteDeveloperPage(developerIdentifier: UserId) = atLeastSuperUserAction { implicit request =>
-    developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).map(developer => Ok(deleteDeveloperView(developer)))
+    developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).flatMap(developer =>
+      developerService.partitionDeveloperApps(developer).map { partitionedApps =>
+        Ok(deleteDeveloperView(developer, partitionedApps._1))
+      }
+    )
   }
 
   def deleteDeveloperAction(developerId: UserId) = atLeastSuperUserAction { implicit request =>
