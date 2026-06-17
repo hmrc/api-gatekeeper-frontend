@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.HttpReads.Implicits._
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQueries
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
@@ -238,6 +239,22 @@ class DeveloperService @Inject() (
     developerConnector.removeEmailPreferencesByService(serviceName)
   }
 
+  def partitionDeveloperApps(developer: Developer)(implicit hc: HeaderCarrier): Future[(List[ApplicationWithCollaborators], List[ApplicationWithCollaborators])] = {
+    def isSoleVerifiedAdmin(email: LaxEmailAddress, app: ApplicationWithCollaborators)(implicit hc: HeaderCarrier) = {
+      for {
+        collaboratorUsers <- developerConnector.fetchByEmails(app.collaborators.map(_.emailAddress))
+      } yield app.isSoleAdmin(collaboratorUsers, email)
+    }
+
+    val email = developer.email
+    Future.traverse(developer.applications)(app =>
+      isSoleVerifiedAdmin(email, app).map(isSole => (app, isSole))
+    ).map { appsWithFlags: List[(ApplicationWithCollaborators, Boolean)] =>
+      val (appsSoleAdminOn, appsTeamMemberOn) = appsWithFlags.partition(_._2)
+      (appsSoleAdminOn.map(_._1), appsTeamMemberOn.map(_._1))
+    }
+  }
+
   def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
     def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: ApplicationWithCollaborators): Future[Set[LaxEmailAddress]] = {
@@ -273,16 +290,18 @@ class DeveloperService @Inject() (
     fetchDeveloper(userId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email = developer.email
 
-      if (developer.soleAdminApplications.isEmpty && developer.responsibleIndividualOrganisations.isEmpty) {
-        for {
-          _      <- Future.traverse(developer.applications)(removeTeamMemberFromApp(developer))
-          _      <- Future.traverse(developer.organisations)(removeMemberFromOrg(developer))
-          result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
-          _      <- xmlService.removeCollaboratorsForUserId(userId, gatekeeperUserName)
-          _      <- deskproConnector.markPersonInactive(email, hc)
-        } yield (result, developer)
-      } else {
-        Future.successful((DeveloperDeleteFailureResult, developer))
+      partitionDeveloperApps(developer).flatMap { partitionedApps =>
+        if (partitionedApps._1.isEmpty && developer.responsibleIndividualOrganisations.isEmpty) {
+          for {
+            _      <- Future.traverse(partitionedApps._2)(removeTeamMemberFromApp(developer))
+            _      <- Future.traverse(developer.organisations)(removeMemberFromOrg(developer))
+            result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
+            _      <- xmlService.removeCollaboratorsForUserId(userId, gatekeeperUserName)
+            _      <- deskproConnector.markPersonInactive(email, hc)
+          } yield (result, developer)
+        } else {
+          Future.successful((DeveloperDeleteFailureResult, developer))
+        }
       }
     }
   }

@@ -190,6 +190,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       "allow a super user to access the page" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.FetchDeveloper.handles(developer)
+        DeveloperServiceMock.PartitionDeveloperApps.returnsFor(developer = developer, result = (List.empty, developer.applications))
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
         verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(*)

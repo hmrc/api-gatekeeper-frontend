@@ -24,6 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collabor
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
@@ -46,31 +47,44 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
   }
 
   "ApplicationHelper.isSoleAdmin" should {
-    val emailAddress                                = "admin@example.com".toLaxEmail
-    val admin                                       = Collaborators.Administrator(UserId.random, emailAddress)
-    val developer                                   = Collaborators.Developer(UserId.random, emailAddress)
-    val otherAdmin                                  = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
-    val otherDeveloper                              = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
-    def application(teamMembers: Set[Collaborator]) = standardApp.withCollaborators(teamMembers)
+    val emailAddress                                                                                                                                 = "admin@example.com".toLaxEmail
+    val admin                                                                                                                                        = Collaborators.Administrator(UserId.random, emailAddress)
+    val developer                                                                                                                                    = Collaborators.Developer(UserId.random, emailAddress)
+    val otherAdmin                                                                                                                                   = Collaborators.Administrator(UserId.random, "otheradmin@example.com".toLaxEmail)
+    val otherDeveloper                                                                                                                               = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
+    def application(teamMembers: Set[Collaborator])                                                                                                  = standardApp.withCollaborators(teamMembers)
+    def aUser(userId: UserId, email: LaxEmailAddress, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
+      RegisteredUser(email, userId, "Fred", "Example", verified, emailPreferences = emailPreferences)
+    }
 
     "return true when the given email address is the only admin and no other team members" in {
-      val app = application(Set(admin))
-      app.isSoleAdmin(emailAddress) shouldBe true
+      val app               = application(Set(admin))
+      val collaboratorUsers = Seq(aUser(admin.userId, admin.emailAddress))
+      app.isSoleAdmin(collaboratorUsers, admin.emailAddress) shouldBe true
     }
 
     "return true when the given email address is the only admin and other team members exist" in {
-      val app = application(Set(admin, otherDeveloper))
-      app.isSoleAdmin(emailAddress) shouldBe true
+      val app               = application(Set(admin, otherDeveloper))
+      val collaboratorUsers = Seq(aUser(admin.userId, admin.emailAddress), aUser(otherDeveloper.userId, otherDeveloper.emailAddress))
+      app.isSoleAdmin(collaboratorUsers, admin.emailAddress) shouldBe true
     }
 
-    "return false when the given email address is not the only admin" in {
-      val app = application(Set(admin, otherAdmin))
-      app.isSoleAdmin(emailAddress) shouldBe false
+    "return true when the given email address is the only verified admin" in {
+      val app               = application(Set(admin, otherAdmin))
+      val collaboratorUsers = Seq(aUser(admin.userId, admin.emailAddress), aUser(otherAdmin.userId, otherAdmin.emailAddress, verified = false))
+      app.isSoleAdmin(collaboratorUsers, emailAddress) shouldBe true
+    }
+
+    "return false when the given email address is not the only verified admin" in {
+      val app               = application(Set(admin, otherAdmin))
+      val collaboratorUsers = Seq(aUser(admin.userId, admin.emailAddress), aUser(otherAdmin.userId, otherAdmin.emailAddress))
+      app.isSoleAdmin(collaboratorUsers, emailAddress) shouldBe false
     }
 
     "return false when the given email address is not an admin" in {
-      val app = application(Set(developer, otherAdmin))
-      app.isSoleAdmin(emailAddress) shouldBe false
+      val app               = application(Set(developer, otherAdmin))
+      val collaboratorUsers = Seq(aUser(developer.userId, developer.emailAddress), aUser(otherAdmin.userId, otherAdmin.emailAddress))
+      app.isSoleAdmin(collaboratorUsers, developer.emailAddress) shouldBe false
     }
   }
 

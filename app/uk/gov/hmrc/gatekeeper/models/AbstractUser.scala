@@ -21,7 +21,6 @@ import java.time.Instant
 import play.api.libs.functional.syntax._
 import play.api.libs.json.{Reads, _}
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
@@ -142,8 +141,6 @@ case class Developer(
   lazy val status: StatusFilter = AbstractUser.status(user)
 
   lazy val id: String = user.userId.value.toString
-
-  lazy val soleAdminApplications = applications.filter(_.isSoleAdmin(user.email))
 
   lazy val responsibleIndividualOrganisations = organisations.filter(org => org.collaborators.exists(col => col.userId == user.userId && col.isResponsibleIndividual))
 }

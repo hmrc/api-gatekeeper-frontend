@@ -52,7 +52,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       )
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
-      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      val document = Jsoup.parse(deleteDeveloper(developer, List.empty).body)
       elementExistsById(document, "submit") shouldBe true
       elementExistsById(document, "cancel") shouldBe true
       elementExistsById(document, "finish") shouldBe false
@@ -63,7 +63,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       val app       = standardApp.withCollaborators(admin(LaxEmailAddress("email@example.com")))
       val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", false), List(app))
 
-      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      val document = Jsoup.parse(deleteDeveloper(developer, List(standardApp)).body)
       elementExistsById(document, "submit") shouldBe false
       elementExistsById(document, "cancel") shouldBe false
       elementExistsById(document, "finish") shouldBe true
@@ -87,7 +87,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
         organisations = List(org)
       )
 
-      val document = Jsoup.parse(deleteDeveloper(developer).body)
+      val document = Jsoup.parse(deleteDeveloper(developer, List(app)).body)
       elementExistsById(document, "submit") shouldBe false
       elementExistsById(document, "cancel") shouldBe false
       elementExistsById(document, "finish") shouldBe true
