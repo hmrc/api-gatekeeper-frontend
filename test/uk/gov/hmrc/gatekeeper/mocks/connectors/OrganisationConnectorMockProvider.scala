@@ -20,7 +20,7 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId, UserId}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.gatekeeper.connectors._
 
@@ -33,6 +33,17 @@ trait OrganisationConnectorMockProvider {
 
     object FetchOrganisationsByUserId {
       def returns(orgs: List[Organisation]) = when(organisationConnector.fetchOrganisationsByUserId(*[UserId])(*)).thenReturn(successful(orgs))
+    }
+
+    object RemoveCollaboratorFromOrganisation {
+
+      def returns(org: Organisation) =
+        when(organisationConnector.removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(*)).thenReturn(successful(org))
+
+      def verifyCalled(orgId: OrganisationId, userId: UserId, email: LaxEmailAddress) =
+        verify(organisationConnector, times(1)).removeCollaboratorFromOrganisation(eqTo(orgId), eqTo(userId), eqTo(email))(*)
+
+      def verifyNotCalled() = verify(organisationConnector, never).removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(*)
     }
   }
 }

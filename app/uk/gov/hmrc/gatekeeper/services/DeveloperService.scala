@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.Applicat
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
+import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
@@ -282,12 +283,18 @@ class DeveloperService @Inject() (
       } yield result
     }
 
+    def removeMemberFromOrg(developer: Developer)(organisation: Organisation): Future[Organisation] = {
+      organisationConnector.removeCollaboratorFromOrganisation(organisation.id, developer.userId, developer.email)
+    }
+
     fetchDeveloper(userId, FetchDeletedApplications.Exclude).flatMap { developer =>
       val email = developer.email
+
       partitionDeveloperApps(developer).flatMap { partitionedApps =>
         if (partitionedApps._1.isEmpty && developer.responsibleIndividualOrganisations.isEmpty) {
           for {
             _      <- Future.traverse(partitionedApps._2)(removeTeamMemberFromApp(developer))
+            _      <- Future.traverse(developer.organisations)(removeMemberFromOrg(developer))
             result <- developerConnector.deleteDeveloper(DeleteDeveloperRequest(gatekeeperUserName, email.text))
             _      <- xmlService.removeCollaboratorsForUserId(userId, gatekeeperUserName)
             _      <- deskproConnector.markPersonInactive(email, hc)

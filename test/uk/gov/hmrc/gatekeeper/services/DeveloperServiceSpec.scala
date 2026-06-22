@@ -473,9 +473,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val user             = aUser("Fred")
     val developerId      = user.userId
 
-    "delete the developer if they have no associated apps in either sandbox or production" in new Setup {
-
-      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty, organisations = List(organisation))
+    "delete the developer if they have no associated apps in either sandbox or production and no organisations" in new Setup {
+      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty, organisations = List.empty)
       deleteDeveloperWillSucceed
       removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
       ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
@@ -486,6 +485,23 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
+      OrganisationConnectorMock.RemoveCollaboratorFromOrganisation.verifyNotCalled()
+    }
+
+    "delete the developer if they are members of an organisation and have no associated apps in either sandbox or production" in new Setup {
+      fetchDeveloperWillReturn(user, false, productionApps = List.empty, sandboxApps = List.empty, organisations = List(organisation))
+      deleteDeveloperWillSucceed
+      removeXmlCollaboratorsForUserIdWillSucceed(developerId, gatekeeperUserId)
+      ApiPlatformDeskproConnectorMock.MarkPersonInactive.suceeds()
+      OrganisationConnectorMock.RemoveCollaboratorFromOrganisation.returns(organisation)
+
+      val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
+      result shouldBe DeveloperDeleteSuccessResult
+
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
+      CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
+      OrganisationConnectorMock.RemoveCollaboratorFromOrganisation.verifyCalled(organisation.id, developerId, user.email)
     }
 
     "remove the user from their apps and email other verified admins on each production app before deleting the user" in new Setup {
