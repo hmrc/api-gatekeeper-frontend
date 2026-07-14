@@ -21,8 +21,11 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(developer: Developer, soleAdminApps: List[ApplicationWithCollaborators])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -43,7 +46,12 @@
       @helper.CSRF.formField
       <h2 class="govuk-heading-m">Are you sure you want to delete this developer?</h2>
       <div class="govuk-button-group">
-        <button id="submit" class="govuk-button" type="submit">Delete developer</button>
+        @govukButton(Button(
+          id = Some("submit"),
+          content = Text("Delete developer"),
+          inputType = Some("submit"),
+          preventDoubleClick = Some(true)
+        ))
         <a id="cancel" href="@routes.DeveloperController.developerPage(developer.user.userId)" class="govuk-link">Cancel</a>
       </div>
     }

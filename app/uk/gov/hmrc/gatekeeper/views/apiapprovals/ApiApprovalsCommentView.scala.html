@@ -72,7 +72,8 @@
                     @govukButton(Button(
                         id = Some("submit"),
                         content = Text("Send comment"),
-                        inputType = Some("submit")
+                        inputType = Some("submit"),
+                        preventDoubleClick = Some(true)
                         ))
                     <a href="@{routes.ApiApprovalsController.filterPage()}" class="govuk-link govuk-link--no-visited-state">Cancel</a>
                 </div>

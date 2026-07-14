@@ -23,8 +23,11 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 @import uk.gov.hmrc.gatekeeper.views.helper.application.GrantLengthDisplayer
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[UpdateGrantLengthForm], grantLengthsToDisplay: List[GrantLength])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -80,7 +83,12 @@
       </fieldset>
     </div>
     <div class="govuk-button-group">
-      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Change grant length</button>
+      @govukButton(Button(
+        id = Some("submit"),
+        content = Text("Change grant length"),
+        inputType = Some("submit"),
+        preventDoubleClick = Some(true)
+      ))
       <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }

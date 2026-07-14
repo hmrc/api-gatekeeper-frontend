@@ -23,8 +23,11 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
@@ -79,7 +82,12 @@
     }
 
     <div class="govuk-button-group">
-      <button id="@{IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr)}-submit" class="govuk-button" type="submit" data-module="govuk-button">Save changes</button>
+      @govukButton(Button(
+        id = Some(s"${IdFormatter.identifier(subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr)}-submit"),
+        content = Text("Save changes"),
+        inputType = Some("submit"),
+        preventDoubleClick = Some(true)
+      ))
       <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
