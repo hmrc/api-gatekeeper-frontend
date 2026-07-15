@@ -20,8 +20,11 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
 
@@ -80,7 +83,12 @@
     @helper.CSRF.formField
 
     <div class="govuk-button-group">
-      <button id="unblock-application" class="govuk-button" type="submit">Unblock application</button>
+      @govukButton(Button(
+      id = Some("unblock-application"),
+      content = Text("Unblock application"),
+      inputType = Some("submit"),
+      preventDoubleClick = Some(true)
+    ))
       <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }

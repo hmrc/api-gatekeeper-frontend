@@ -21,8 +21,11 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[RemoveTeamMemberConfirmationForm], email: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -84,7 +87,12 @@
     </div>
 
     <div class="govuk-button-group">
-      <button id="submit" class="govuk-button" type="submit">Submit</button>
+      @govukButton(Button(
+        id = Some("submit"),
+        content = Text("Submit"),
+        inputType = Some("submit"),
+        preventDoubleClick = Some(true)
+      ))
       <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }

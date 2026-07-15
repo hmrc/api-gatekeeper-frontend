@@ -22,8 +22,11 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RateLimitTier
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -81,7 +84,12 @@
     }
 
     <div class="govuk-button-group">
-      <button id="submit" class="govuk-button" data-module="govuk-button" type="submit">Save and return</button>
+      @govukButton(Button(
+        id = Some("submit"),
+        content = Text("Save and return"),
+        inputType = Some("submit"),
+        preventDoubleClick = Some(true)
+      ))
       <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }

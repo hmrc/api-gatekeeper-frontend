@@ -21,8 +21,11 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[UpdateApplicationNameForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -61,7 +64,12 @@
         <input class="govuk-input govuk-input--width-20" id="application-name" name="applicationName" type="text" value="@form.data.get("applicationName")">
       </div>
       <div class="govuk-button-group">
-        <button id="submit" class="govuk-button" type="submit">Continue</button>
+        @govukButton(Button(
+          id = Some("submit"),
+          content = Text("Continue"),
+          inputType = Some("submit"),
+          preventDoubleClick = Some(true)
+        ))
         <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
       </div>
     }

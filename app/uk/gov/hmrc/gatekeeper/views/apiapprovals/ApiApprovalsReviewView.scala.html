@@ -25,8 +25,10 @@
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.table.TableRow
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
 
-@this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount, govukTable: GovukTable)
+@this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount, govukTable: GovukTable, govukButton: GovukButton)
 
 @(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
 
@@ -102,7 +104,11 @@
             </fieldset>
         </div>
         <div class="govuk-button-group">
-            <button type="submit" class="govuk-button" data-module="govuk-button" data-govuk-button-init="">Confirm and send</button>
+            @govukButton(Button(
+                content = Text("Confirm and send"),
+                inputType = Some("submit"),
+                preventDoubleClick = Some(true)
+            ))
             <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApiApprovalsController.filterPage()}">Cancel</a>
         </div>
 

@@ -23,8 +23,11 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig)
+@this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
 @(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
@@ -82,7 +85,12 @@
 
         <br>
         <div class="govuk-button-group">
-            <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Continue</button>
+            @govukButton(Button(
+                id = Some("submit"),
+                content = Text("Continue"),
+                inputType = Some("submit"),
+                preventDoubleClick = Some(true)
+            ))
             <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
         </div>
     </div>

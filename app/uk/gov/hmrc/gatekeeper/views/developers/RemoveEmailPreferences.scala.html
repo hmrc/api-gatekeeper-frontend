@@ -21,8 +21,10 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 @import uk.gov.hmrc.govukfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Button
+@import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
-@this(main: MainView, applicationConfig: AppConfig, govukPanel: GovukPanel)
+@this(main: MainView, applicationConfig: AppConfig, govukPanel: GovukPanel, govukButton: GovukButton)
 @(form: Form[RemoveEmailPreferencesForm], successfullyRemoved: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider:
 MessagesProvider)
 
@@ -48,7 +50,12 @@ MessagesProvider)
             </div>
         </div>
         <br>
-        <button id="submit" class="govuk-button" type="submit" data-module="govuk-button">Delete</button>
+        @govukButton(Button(
+            id = Some("submit"),
+            content = Text("Delete"),
+            inputType = Some("submit"),
+            preventDoubleClick = Some(true)
+        ))
     }
     }
 }
