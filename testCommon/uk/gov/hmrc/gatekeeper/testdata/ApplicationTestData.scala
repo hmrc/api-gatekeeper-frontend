@@ -30,7 +30,6 @@ object ApplicationTestData extends ApplicationBuilder with CommonTestData with C
     .withName(applicationName)
     .withDescription(applicationDescription)
     .withClientId(ClientId("qDxLu6_zZVGurMX7NA7g2Wd5T5Ia"))
-    .withGatewayId("12345")
     .deployedToProduction
     .withCollaborators(collaboratorsAdminAndUnverifiedDev)
     .withState(productionState)

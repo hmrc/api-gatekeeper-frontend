@@ -342,7 +342,15 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockProductionApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None)))(*)
+      verify(mockProductionApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(
+        name,
+        CreationAccess.Privileged,
+        Some(description),
+        environment,
+        admin.toSet,
+        None,
+        None
+      )))(*)
       verify(mockSandboxApplicationConnector, never).createPrivApp(*)(*)
     }
 
@@ -355,7 +363,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None)))(*)
+      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None, None)))(*)
       verify(mockProductionApplicationConnector, never).createPrivApp(*)(*)
     }
   }
