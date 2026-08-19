@@ -36,7 +36,6 @@ trait ApmConnectorMock {
                |       "id": "${applicationId.value.toString()}",
                |       "clientId": "qDxLu6_zZVGurMX7NA7g2Wd5T5Ia",
                |       "blocked": false,
-               |       "gatewayId": "12345",
                |       "rateLimitTier": "BRONZE",
                |       "name": "My new app",
                |       "createdOn": "2016-04-08T10:24:40.651Z",

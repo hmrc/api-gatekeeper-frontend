@@ -106,44 +106,6 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures {
   val deskproOrganisationId = uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1")
   val deskproOrganisation   = DeskproOrganisation(deskproOrganisationId, "Deskpro organisation 1", List.empty)
 
-  val approvedApplications =
-    s"""
-       |[
-       |  {
-       |    "id": "$approvedApp1",
-       |    "clientId": "clientid1",
-       |    "gatewayId": "gatewayId1",
-       |    "name": "Application",
-       |    "submittedOn": 1458832690624,
-       |    "state": "PENDING_REQUESTER_VERIFICATION"
-       |  },
-       |  {
-       |    "id": "$approvedApp2",
-       |    "clientId": "clientid2",
-       |    "gatewayId": "gatewayId2",
-       |    "name": "ZApplication",
-       |    "submittedOn": 1458659208000,
-       |    "state": "PRODUCTION"
-       |  },
-       |  {
-       |    "id": "$approvedApp3",
-       |    "clientId": "clientid3",
-       |    "gatewayId": "gatewayId3",
-       |    "name": "rapplication",
-       |    "submittedOn": 1458831410657,
-       |    "state": "PENDING_REQUESTER_VERIFICATION"
-       |  },
-       |  {
-       |    "id": "$approvedApp4",
-       |    "clientId": "clientid4",
-       |    "gatewayId": "gatewayId4",
-       |    "name": "BApplication",
-       |    "submittedOn": 1458832728156,
-       |    "state": "PRODUCTION"
-       |  }
-       |]
-    """.stripMargin
-
   val approvedApp1Model = standardApp
     .withId(approvedApp1)
     .withCollaborators(
