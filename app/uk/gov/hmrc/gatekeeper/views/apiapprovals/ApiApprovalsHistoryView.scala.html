@@ -16,11 +16,12 @@
 
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+@import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{NEW, RESUBMITTED}
-@import uk.gov.hmrc.gatekeeper.views.helper.{DateFormatter, ExtractUser, HistoryOrdering, StatusWording}
+@import uk.gov.hmrc.gatekeeper.views.helper.{ExtractUser, HistoryOrdering, StatusWording}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.{BackLink, Button, Table, TableRow, Text}
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukBackLink, GovukButton, GovukTable}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -46,8 +47,8 @@
             Seq(TableRow(content = Text("Description")), TableRow(content = Text(approvalSummary.description.getOrElse("")))),
             Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(approvalSummary.serviceName.value))),
             Seq(TableRow(content = Text("Environment")), TableRow(content = Text(approvalSummary.environment.getOrElse(Environment.SANDBOX).displayText))),
-            Seq(TableRow(content = Text("Last update")), TableRow(content = Text(DateFormatter.getFormattedDate(approvalSummary.lastUpdated)))),
-            Seq(TableRow(content = Text("Submission date")), TableRow(content = Text(DateFormatter.getFormattedDate(approvalSummary.createdOn))))
+            Seq(TableRow(content = Text("Last update")), TableRow(content = Text(approvalSummary.lastUpdated.fold("")(DateFormatter.formatTwoDigitDay)))),
+            Seq(TableRow(content = Text("Submission date")), TableRow(content = Text(approvalSummary.createdOn.fold("")(DateFormatter.formatTwoDigitDay))))
         )
     ))
 
@@ -69,7 +70,7 @@
             Event(
                 title = StatusWording.displayStatus(event.status) + " by " + ExtractUser.displayUser(event.actor) ,
                 content = "<h2 class='govuk-heading-s'>Comment</h2><p class='govuk-body'>" + event.notes.getOrElse("No comment") + "</p>",
-                time = DateFormatter.getFormattedDate(Some(event.changedAt))
+                time = DateFormatter.formatTwoDigitDay(event.changedAt)
             )
         )
     ))
