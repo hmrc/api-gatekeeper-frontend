@@ -45,22 +45,6 @@ object ApplicationFormatter {
   def getCreatedOn(app: ApplicationWithCollaborators): String = {
     dateFormatter.format(app.details.createdOn.atOffset(ZoneOffset.UTC))
   }
-
-  // Caution: defaulting now = LocalDateTime.now() will not use UTC
-  def getLastAccess(app: ApplicationWithCollaborators)(now: LocalDateTime): String = {
-    app.details.lastAccess match {
-      case Some(lastAccess) =>
-        val lastAccessDate = lastAccess.atOffset(ZoneOffset.UTC).toLocalDate()
-        if (ChronoUnit.SECONDS.between(app.details.createdOn, lastAccess) == 0) {
-          "No API called"
-        } else if (ChronoUnit.DAYS.between(initialLastAccessDate, lastAccessDate.atStartOfDay()) > 0) {
-          dateFormatter.format(lastAccessDate)
-        } else {
-          s"More than ${ChronoUnit.MONTHS.between(lastAccessDate, now)} months ago"
-        }
-      case None             => "No API called"
-    }
-  }
 }
 
 object ApplicationSubmission {

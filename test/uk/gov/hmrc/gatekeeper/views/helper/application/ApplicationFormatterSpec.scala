@@ -24,7 +24,7 @@ import org.scalatest.BeforeAndAfterAll
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.views.helper.application.ApplicationFormatter.{getCreatedOn, getLastAccess, initialLastAccessDate}
+import uk.gov.hmrc.gatekeeper.views.helper.application.ApplicationFormatter.{getCreatedOn, initialLastAccessDate}
 
 class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with ApplicationBuilder {
   val FixedTimeNow: LocalDateTime = LocalDateTime.of(2019, 9, 1, 0, 30, 0, 0)
@@ -35,41 +35,6 @@ class ApplicationFormatterSpec extends AsyncHmrcSpec with BeforeAndAfterAll with
     "return the createdOn value with long date format" in {
       val createdOn = LocalDateTime.of(2019, 1, 1, 0, 0, 0, 0).toInstant(ZoneOffset.UTC)
       getCreatedOn(DefaultApplication.withCreatedOn(createdOn)) shouldBe "01 January 2019"
-    }
-  }
-
-  "getLastAccess" should {
-    "return the lastAccess value with long date format for dates after the initial last access date" in {
-      val lastAccessDate = initialLastAccessDate.plusDays(1).toInstant(ZoneOffset.UTC)
-      val createdOnDate  = lastAccessDate.minus(1, ChronoUnit.HOURS)
-      val app            = DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(lastAccessDate)
-      getLastAccess(app)(FixedTimeNow) shouldBe "26 June 2019"
-    }
-
-    "use inexact format for dates before the initial last access date" in {
-      val lastAccessDate = initialLastAccessDate.minusDays(1).toInstant(ZoneOffset.UTC)
-      val createdOnDate  = lastAccessDate.minus(1, ChronoUnit.HOURS)
-      val app            = DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(lastAccessDate)
-      getLastAccess(app)(FixedTimeNow) shouldBe "More than 2 months ago"
-    }
-
-    "use inexact format for dates on the initial last access date" in {
-      val lastAccessDate = initialLastAccessDate.plusHours(3).toInstant(ZoneOffset.UTC)
-      val createdOnDate  = lastAccessDate.minus(1, ChronoUnit.HOURS)
-      val app            = DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(lastAccessDate)
-      getLastAccess(app)(FixedTimeNow) shouldBe "More than 2 months ago"
-    }
-
-    "display 'never used' if the last access date is the same as the created date" in {
-      val createdOnDate = initialLastAccessDate.plusHours(3).toInstant(ZoneOffset.UTC)
-      val app           = DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate)
-      getLastAccess(app)(FixedTimeNow) shouldBe "No API called"
-    }
-
-    "display 'never used' if the last access date is within a second of the created date" in {
-      val createdOnDate = initialLastAccessDate.plusHours(3).toInstant(ZoneOffset.UTC)
-      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.plusMillis(900)))(FixedTimeNow) shouldBe "No API called"
-      getLastAccess(DefaultApplication.withCreatedOn(createdOnDate).withLastAccess(createdOnDate.minusMillis(900)))(FixedTimeNow) shouldBe "No API called"
     }
   }
 }
