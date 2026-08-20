@@ -55,7 +55,6 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
       CoreApplication(
         id = applicationId,
         applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
-        gatewayId = "gateway-id",
         name = ApplicationName("Petes test application"),
         deployedTo = Environment.PRODUCTION,
         description = Some("Petes test application description"),

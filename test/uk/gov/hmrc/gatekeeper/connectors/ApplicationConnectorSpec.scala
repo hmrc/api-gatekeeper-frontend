@@ -113,7 +113,7 @@ class ApplicationConnectorSpec
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None)
+      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None, None)
 
       val request               = Json.toJson(createPrivAppRequest).toString
       val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.token.clientId, totpSecrets, appAccess)

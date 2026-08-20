@@ -265,7 +265,8 @@ class ApplicationService @Inject() (
       description = Some(appDescription).filterNot(_.isBlank()),
       environment = appEnv,
       collaborators.toSet,
-      subscriptions = None
+      subscriptions = None,
+      organisationId = None
     )
 
     appEnv match {

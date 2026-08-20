@@ -21,11 +21,11 @@ import java.time.temporal.ChronoUnit
 import java.time.{Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CheckInformation, StateHistory, StateHistoryHelper}
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
 import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
 
 object ViewFormat {
-  val date: DateTimeFormatter                  = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm")
-  def formatWithTime(instant: Instant): String = date.format(instant.atOffset(ZoneOffset.UTC))
+  def formatWithTime(instant: Instant): String = DateFormatter.twoDigitDayWithTimeFormatter.format(instant.atOffset(ZoneOffset.UTC))
 }
 
 object ApplicationPublicDescription {
@@ -39,32 +39,14 @@ object ApplicationPublicDescription {
 }
 
 object ApplicationFormatter {
-  val dateFormatter         = DateTimeFormatter.ofPattern("dd MMMM yyyy")
   val initialLastAccessDate = LocalDateTime.of(2019, 6, 25, 0, 0)
 
   def getCreatedOn(app: ApplicationWithCollaborators): String = {
-    dateFormatter.format(app.details.createdOn.atOffset(ZoneOffset.UTC))
-  }
-
-  // Caution: defaulting now = LocalDateTime.now() will not use UTC
-  def getLastAccess(app: ApplicationWithCollaborators)(now: LocalDateTime): String = {
-    app.details.lastAccess match {
-      case Some(lastAccess) =>
-        val lastAccessDate = lastAccess.atOffset(ZoneOffset.UTC).toLocalDate()
-        if (ChronoUnit.SECONDS.between(app.details.createdOn, lastAccess) == 0) {
-          "No API called"
-        } else if (ChronoUnit.DAYS.between(initialLastAccessDate, lastAccessDate.atStartOfDay()) > 0) {
-          dateFormatter.format(lastAccessDate)
-        } else {
-          s"More than ${ChronoUnit.MONTHS.between(lastAccessDate, now)} months ago"
-        }
-      case None             => "No API called"
-    }
+    DateFormatter.formatTwoDigitDay(app.details.createdOn)
   }
 }
 
 object ApplicationSubmission {
-  val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
   private def getLastSubmission(stateHistory: Seq[StateHistory]): Option[StateHistory] =
     stateHistory.filter(_.state.isPendingGatekeeperApproval)
@@ -81,13 +63,12 @@ object ApplicationSubmission {
   def getSubmittedOn(stateHistory: Seq[StateHistory]): Option[String] = {
     for {
       submission  <- getLastSubmission(stateHistory)
-      submittedOn <- Some(dateFormatter.format(submission.changedAt.atOffset(ZoneOffset.UTC)))
+      submittedOn <- Some(DateFormatter.formatTwoDigitDay(submission.changedAt))
     } yield submittedOn
   }
 }
 
 object ApplicationReview {
-  val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
 
   private def getLastApproval(history: Seq[StateHistory]) =
     history.filter(_.state.isPendingRequesterVerification)
@@ -95,7 +76,7 @@ object ApplicationReview {
       .lastOption
 
   def getApprovedOn(history: Seq[StateHistory]): Option[String] =
-    getLastApproval(history).map(approval => dateFormatter.format(approval.changedAt.atOffset(ZoneOffset.UTC)))
+    getLastApproval(history).map(approval => DateFormatter.formatTwoDigitDay(approval.changedAt))
 
   def getApprovedBy(history: Seq[StateHistory]): Option[String] = getLastApproval(history).map(_.actor.id)
 

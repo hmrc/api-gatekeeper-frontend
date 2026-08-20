@@ -148,7 +148,6 @@ class ApplicationController @Inject() (
       ColumnDefinition("Name", (app => app.name.value)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
-      ColumnDefinition("Gateway ID", (app => app.details.gatewayId)),
       ColumnDefinition("Environment", (app => app.deployedTo.toString)),
       ColumnDefinition("Status", (app => app.state.name.displayText)),
       ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),

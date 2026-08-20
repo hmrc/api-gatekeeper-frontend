@@ -16,25 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper
 
-import java.time.format.DateTimeFormatter
 import java.time.{Instant, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.{GatekeeperUser, Process}
 import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, FAILED, NEW, RESUBMITTED}
 import uk.gov.hmrc.gatekeeper.models.{ApiApprovalState, ApprovalStatus}
-
-object DateFormatter {
-
-  val dateFormatter = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-
-  def getFormattedDate(date: Option[Instant]): String = {
-    date match {
-      case None             => ""
-      case Some(d: Instant) => dateFormatter.format(d.atOffset(ZoneOffset.UTC).toLocalDateTime)
-    }
-  }
-}
 
 object ExtractUser {
 

@@ -20,7 +20,10 @@
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
+@import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.RateLimitTier
+
+@import java.time.ZoneId
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -36,108 +39,106 @@
     )
   )
 ) {
-  @defining(DateTimeFormatter.ofPattern("dd MMMM yyyy")) { dateFormatter =>
-    @if(flash.get("success").isDefined) {
-      <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
-        <div class="govuk-notification-banner__content">
-          <p class="govuk-notification-banner__heading" success-message>
-            @flash.get("success").getOrElse("")
-          </p>
-        </div>
+  @if(flash.get("success").isDefined) {
+    <div class="govuk-notification-banner" role="region" aria-labelledby="govuk-notification-banner-title" data-module="govuk-notification-banner">
+      <div class="govuk-notification-banner__content">
+        <p class="govuk-notification-banner__heading" success-message>
+          @flash.get("success").getOrElse("")
+        </p>
+      </div>
+    </div>
+  }
+
+  <h1 class="govuk-heading-l">@application.details.name</h1>
+
+  <details class="govuk-details" data-module="govuk-details">
+    @if(application.verified) {
+      <summary class="govuk-details__summary">
+        <span data-status class="govuk-details__summary-text">Verified</span>
+      </summary>
+      <div>
+        <p data-summary class="govuk-details__text">
+          The submitter has verified that they still have access to the email address associated with this application.
+        </p>
+      </div>
+    } else {
+      <summary class="govuk-details__summary">
+        <span data-status class="govuk-details__summary-text">
+          Not Verified
+        </span>
+      </summary>
+      <div>
+        <p data-summary class="govuk-details__text">
+          The submitter has not verified that they still have access to the email address associated with this application. (<a resend-email class="govuk-link" href="@routes.ApplicationController.resendVerification(application.details.id)">Resend verify email</a>)
+        </p>
       </div>
     }
+  </details>
 
-    <h1 class="govuk-heading-l">@application.details.name</h1>
+  <h2 class="govuk-heading-m">Description:</h2>
 
-    <details class="govuk-details" data-module="govuk-details">
-      @if(application.verified) {
-        <summary class="govuk-details__summary">
-          <span data-status class="govuk-details__summary-text">Verified</span>
-        </summary>
-        <div>
-          <p data-summary class="govuk-details__text">
-            The submitter has verified that they still have access to the email address associated with this application.
-          </p>
-        </div>
-      } else {
-        <summary class="govuk-details__summary">
-          <span data-status class="govuk-details__summary-text">
-            Not Verified
-          </span>
-        </summary>
-        <div>
-          <p data-summary class="govuk-details__text">
-            The submitter has not verified that they still have access to the email address associated with this application. (<a resend-email class="govuk-link" href="@routes.ApplicationController.resendVerification(application.details.id)">Resend verify email</a>)
-          </p>
-        </div>
-      }
-    </details>
-
-    <h2 class="govuk-heading-m">Description:</h2>
-
-    @if(application.details.description.nonEmpty) {
-      <p data-description class="govuk-body">@application.details.description</p>
-    } else {
-      <p data-description class="govuk-body">No description added</p>
-    }
-
-    @if(application.details.rateLimitTier.isDefined) {
-      @helper.form(action = routes.ApplicationController.handleUpdateRateLimitTier(application.details.id)) {
-        <details class="govuk-details" data-module="govuk-details">
-          <summary class="govuk-details__summary">
-            <span id="rate-limit-tier" class="govuk-details__summary-text">Rate limit tier: @application.details.rateLimitTier</span>
-          </summary>
-          <div class="govuk-details__text">
-            @helper.CSRF.formField
-            <table class="govuk-table">
-              <caption class="govuk-visually-hidden">Table showing rate limit tier</caption>
-              <tbody id="rate-limit-tier-table" class="govuk-table__body">
-                <tr class="govuk-table__row">
-                  @for(t <- RateLimitTier.orderedForDisplay) {
-                    <td class="govuk-table__cell">
-                      <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
-                    </td>
-                  }
-                  <td  class="govuk-table__cell">
-                    <button id="rate-limit-tier-save" class="govuk-button" type="submit">Save new rate limit tier</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </details>
-      }
-    }
-
-    <h2 class="govuk-heading-m">Submitter:</h2>
-
-    <p data-submitter-name class="govuk-body">@application.details.submission.submitterName</p>
-    <p data-submitter-email class="govuk-body">@application.details.submission.submitterEmail</p>
-
-    <h2 class="govuk-heading-m">Admins:</h2>
-
-    <table class="govuk-table">
-      <caption class="govuk-visually-hidden">Table showing administrators</caption>
-      <thead class="govuk-table__head">
-        <tr class="govuk-table__row">
-          <th scope="col" class="govuk-table__header">Name</th>
-          <th scope="col" class="govuk-table__header">Email</th>
-        </tr>
-      </thead>
-      <tbody id="admins" class="govuk-table__body">
-        @for(admin <- application.admins) {
-          <tr data-admin-@admin.email class="govuk-table__row">
-            <td class="govuk-table__cell">@admin.fullName</td>
-            <td class="govuk-table__cell">@admin.email</td>
-          </tr>
-        }
-      </tbody>
-    </table>
-
-    <p data-submitted-on class="govuk-body">Submitted: @{dateFormatter.format(application.details.submission.submittedOn)}</p>
-    <p data-approved-on class="govuk-body">Approved: @{dateFormatter.format(application.approvedOn)}</p>
-    <p data-approved-by class="govuk-body">Approved by: @application.approvedBy</p>
-    <br/>
-    <a data-back-link class="govuk-link" href="dashboard">Go back to the applications list</a>
+  @if(application.details.description.nonEmpty) {
+    <p data-description class="govuk-body">@application.details.description</p>
+  } else {
+    <p data-description class="govuk-body">No description added</p>
   }
+
+  @if(application.details.rateLimitTier.isDefined) {
+    @helper.form(action = routes.ApplicationController.handleUpdateRateLimitTier(application.details.id)) {
+      <details class="govuk-details" data-module="govuk-details">
+        <summary class="govuk-details__summary">
+          <span id="rate-limit-tier" class="govuk-details__summary-text">Rate limit tier: @application.details.rateLimitTier</span>
+        </summary>
+        <div class="govuk-details__text">
+          @helper.CSRF.formField
+          <table class="govuk-table">
+            <caption class="govuk-visually-hidden">Table showing rate limit tier</caption>
+            <tbody id="rate-limit-tier-table" class="govuk-table__body">
+              <tr class="govuk-table__row">
+                @for(t <- RateLimitTier.orderedForDisplay) {
+                  <td class="govuk-table__cell">
+                    <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
+                  </td>
+                }
+                <td  class="govuk-table__cell">
+                  <button id="rate-limit-tier-save" class="govuk-button" type="submit">Save new rate limit tier</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </details>
+    }
+  }
+
+  <h2 class="govuk-heading-m">Submitter:</h2>
+
+  <p data-submitter-name class="govuk-body">@application.details.submission.submitterName</p>
+  <p data-submitter-email class="govuk-body">@application.details.submission.submitterEmail</p>
+
+  <h2 class="govuk-heading-m">Admins:</h2>
+
+  <table class="govuk-table">
+    <caption class="govuk-visually-hidden">Table showing administrators</caption>
+    <thead class="govuk-table__head">
+      <tr class="govuk-table__row">
+        <th scope="col" class="govuk-table__header">Name</th>
+        <th scope="col" class="govuk-table__header">Email</th>
+      </tr>
+    </thead>
+    <tbody id="admins" class="govuk-table__body">
+      @for(admin <- application.admins) {
+        <tr data-admin-@admin.email class="govuk-table__row">
+          <td class="govuk-table__cell">@admin.fullName</td>
+          <td class="govuk-table__cell">@admin.email</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <p data-submitted-on class="govuk-body">Submitted: @{DateFormatter.formatTwoDigitDay(application.details.submission.submittedOn)}</p>
+  <p data-approved-on class="govuk-body">Approved: @{DateFormatter.formatTwoDigitDay(application.approvedOn.atZone(ZoneId.of("UTC")).toInstant())}</p>
+  <p data-approved-by class="govuk-body">Approved by: @application.approvedBy</p>
+  <br/>
+  <a data-back-link class="govuk-link" href="dashboard">Go back to the applications list</a>
 }

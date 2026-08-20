@@ -7,10 +7,11 @@ object AppDependencies {
   lazy val bootstrapVersion  = "10.7.0"
   lazy val playFrontendVersion = "12.32.0"
 
-  val tpdDomainVersion    = "0.15.0"
-  val apiDomainVersion    = "1.4.0"
-  val appDomainVersion    = "1.1.0"
-  val orgDomainVersion    = "0.19.0"
+  val commonDomainVersion = "1.4.0"
+  val tpdDomainVersion    = "1.3.0"
+  val apiDomainVersion    = "1.8.0"
+  val appDomainVersion    = "1.6.0"
+  val orgDomainVersion    = "1.6.0"
   val mockitoScalaVersion = "2.0.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
@@ -23,6 +24,7 @@ object AppDependencies {
     "commons-net"        % "commons-net"                           % "3.12.0",
     "org.apache.commons" % "commons-csv"                           % "1.14.1",
     "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "4.4.0",
+    "uk.gov.hmrc"       %% "api-platform-common-domain"            % commonDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-application-domain"       % appDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-api-domain"               % apiDomainVersion,
     "uk.gov.hmrc"       %% "api-platform-tpd-domain"               % tpdDomainVersion,
@@ -35,7 +37,7 @@ object AppDependencies {
     "uk.gov.hmrc"            %% "ui-test-runner"                            % "0.54.0",
     "org.mockito"            %% "mockito-scala-scalatest"                   % mockitoScalaVersion,
     "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
-    "uk.gov.hmrc"            %% "api-platform-test-tpd-domain"              % tpdDomainVersion,
+    "uk.gov.hmrc"            %% "api-platform-tpd-domain-fixtures"          % tpdDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-organisation-domain-fixtures" % orgDomainVersion
   ).map(_ % "test")

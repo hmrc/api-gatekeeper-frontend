@@ -36,7 +36,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   def buildApplication(
       id: ApplicationId = ApplicationId.random,
       clientId: ClientId = ClientId.random,
-      gatewayId: String = "",
       name: Option[String] = None,
       deployedTo: Environment = Environment.SANDBOX,
       description: Option[String] = None,
@@ -66,7 +65,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       CoreApplication(
         id,
         applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = lastAccessTokenUsage),
-        gatewayId,
         ApplicationName(name.getOrElse(s"${id.value}-name")),
         deployedTo,
         Some(description.getOrElse(s"${id.value}-description")),
@@ -99,7 +97,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     buildApplication(
       ApplicationId.random,
       ClientId("clientid"),
-      "gatewayId",
       Some("appName"),
       Environment.PRODUCTION,
       None,
@@ -195,7 +192,6 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
 
     def withId(id: ApplicationId)        = app.modify(_.copy(id = id))
     def withClientId(clientId: ClientId) = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
-    def withGatewayId(gatewayId: String) = app.modify(_.copy(gatewayId = gatewayId))
 
     def withName(name: ApplicationName)      = app.modify(_.copy(name = name))
     def withDescription(description: String) = app.modify(_.copy(description = Some(description)))

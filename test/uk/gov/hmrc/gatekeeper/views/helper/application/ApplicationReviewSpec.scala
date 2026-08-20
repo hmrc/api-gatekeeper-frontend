@@ -20,22 +20,21 @@ import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
-import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
+import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
-class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder {
+class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder with FixedClock {
   "ApplicationsReview" when {
     "application is approved" should {
-      val now            = LocalDateTime.now()
-      val dateFormatter  = DateTimeFormatter.ofPattern("dd MMMM yyyy")
-      val stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, Instant.now()))
+      val stateHistories = List(aStateHistory(PENDING_REQUESTER_VERIFICATION, instant))
       val appResponse    = anApplicationResponseWith(aCheckInformation())
 
       "approved by return Some" in {
         ApplicationReview.getApprovedBy(stateHistories) shouldBe Some("Unknown")
       }
       "approved on return Some" in {
-        ApplicationReview.getApprovedOn(stateHistories) shouldBe Some(dateFormatter.format(now))
+        ApplicationReview.getApprovedOn(stateHistories) shouldBe Some(DateFormatter.formatTwoDigitDay(instant))
       }
       "review contact name return Some" in {
         ApplicationReview.getReviewContactName(appResponse.details.checkInformation) shouldBe Some("contactFullName")

@@ -32,7 +32,6 @@ trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsT
     .withName(applicationName)
     .withDescription("application for test")
     .withClientId(ClientId("qDxLu6_zZVGurMX7NA7g2Wd5T5Ia"))
-    .withGatewayId("12345")
     .deployedToProduction
     .withCollaborators(collaboratorsDevAndUnverifiedAdmin)
     .withState(stateForFetchAppResponseByEmail)

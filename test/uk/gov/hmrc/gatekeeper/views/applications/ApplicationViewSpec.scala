@@ -28,6 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.models._
@@ -482,6 +483,6 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
   }
 
   private def formatTermsOfUseAgreedDateTime(termsOfUseAgreement: TermsOfUseAgreement) = {
-    DateTimeFormatter.ofPattern("dd MMMM yyyy").format(termsOfUseAgreement.timeStamp)
+    DateFormatter.formatTwoDigitDay(termsOfUseAgreement.timeStamp)
   }
 }
