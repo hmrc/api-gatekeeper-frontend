@@ -35,6 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import scala.concurrent.duration.DurationInt
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
@@ -100,21 +101,18 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
   def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
       .stream[Source[ByteString, _]]
-      .map { response =>
-        response.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
-      }
       .map {
-        _.map { bytestring =>
-          Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8)))
-            .asOpt
-        }
+        _.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
+          .map { bytestring =>
+            Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8))).asOpt
+          }
+          .collect {
+            case Some(s) => fn(s)
+          }
       }
-      .map(_.collect {
-        case Some(s) => s
-      })
-      .map(_.map(fn))
       .flatMap(_.runWith(Sink.seq))
       .map(_.toList)
   }
