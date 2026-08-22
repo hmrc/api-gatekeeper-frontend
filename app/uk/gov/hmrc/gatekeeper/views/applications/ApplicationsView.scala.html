@@ -26,11 +26,11 @@
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedApplications, apis: Map[String, Seq[VersionSummary]], isSuperUser: Boolean, params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(
-implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
+@(paginatedApplications: PaginatedApplications, apis: Map[String, Seq[VersionSummary]], params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: LoggedInRequest[_])
 
 @pageUrl(extra: (String, String)) = @{
   val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")
@@ -52,7 +52,7 @@ implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request
 
     <h1 class="govuk-heading-l" id="applications-title">Applications</h1>
 
-    @if(isSuperUser) {
+    @if(request.role.isAdvancedUser) {
       <a id="create-privileged-application" href="@{routes.ApplicationController.createPrivApplicationPage()}" class="govuk-button" style="float: right;">
         Add privileged application
       </a>

@@ -35,6 +35,7 @@ package uk.gov.hmrc.gatekeeper.views
 import java.time.{Instant, LocalDateTime, Period}
 
 import org.jsoup.Jsoup
+import org.scalatest.prop.TableDrivenPropertyChecks
 
 import play.twirl.api.HtmlFormat
 
@@ -43,13 +44,13 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRole, GatekeeperRoles, LoggedInRequest, LoggedInUser}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
-class ApplicationsViewSpec extends CommonViewSpec {
+class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks {
 
   trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
@@ -86,13 +87,24 @@ class ApplicationsViewSpec extends CommonViewSpec {
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
-    val applicationViewWithNoApis: () => HtmlFormat.Appendable =
-      () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApis: () => HtmlFormat.Appendable   = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), apis, false, Map.empty, getApprovalsUrl)
+    def applicationViewWithNoApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
+      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
+    }
 
-    val applicationViewWithApplication: () => HtmlFormat.Appendable =
-      () => applicationsView(PaginatedApplications(applications, 1, 4, 4, 4), Map.empty, false, Map.empty, getApprovalsUrl)
-    val applicationViewWithApplicationDocument                      = Jsoup.parse(applicationViewWithApplication().body)
+    def applicationViewWithApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
+      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), apis, Map.empty, getApprovalsUrl)
+    }
+
+    def applicationViewWithApplication(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
+      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      applicationsView(PaginatedApplications(applications, 1, 4, 4, 4), Map.empty, Map.empty, getApprovalsUrl)
+    }
+
+    def applicationViewWithApplicationDocument(role: GatekeeperRole = GatekeeperRoles.USER) = {
+      Jsoup.parse(applicationViewWithApplication(role).body)
+    }
   }
 
   "ApplicationsView" when {
@@ -130,22 +142,22 @@ class ApplicationsViewSpec extends CommonViewSpec {
 
     "Called with application" should {
       "Display all five applications in all five states" in new Setup {
-        applicationViewWithApplicationDocument.select(s"#app-name-0").text() shouldBe "Testing App"
-        applicationViewWithApplicationDocument.select(s"#app-name-1").text() shouldBe "Pending Gatekeeper Approval App"
-        applicationViewWithApplicationDocument.select(s"#app-name-2").text() shouldBe "Pending Requester Verification App"
-        applicationViewWithApplicationDocument.select(s"#app-name-3").text() shouldBe "Production App"
-        applicationViewWithApplicationDocument.select(s"#app-name-4").text() shouldBe "Blocked Production App"
+        applicationViewWithApplicationDocument().select(s"#app-name-0").text() shouldBe "Testing App"
+        applicationViewWithApplicationDocument().select(s"#app-name-1").text() shouldBe "Pending Gatekeeper Approval App"
+        applicationViewWithApplicationDocument().select(s"#app-name-2").text() shouldBe "Pending Requester Verification App"
+        applicationViewWithApplicationDocument().select(s"#app-name-3").text() shouldBe "Production App"
+        applicationViewWithApplicationDocument().select(s"#app-name-4").text() shouldBe "Blocked Production App"
 
-        applicationViewWithApplicationDocument.select(s"#app-status-0").text() shouldBe "Created"
-        applicationViewWithApplicationDocument.select(s"#app-status-1").text() shouldBe "Pending gatekeeper check"
-        applicationViewWithApplicationDocument.select(s"#app-status-2").text() shouldBe "Pending submitter verification"
-        applicationViewWithApplicationDocument.select(s"#app-status-3").text() shouldBe "Active"
-        applicationViewWithApplicationDocument.select(s"#app-status-4").text() shouldBe "Blocked"
+        applicationViewWithApplicationDocument().select(s"#app-status-0").text() shouldBe "Created"
+        applicationViewWithApplicationDocument().select(s"#app-status-1").text() shouldBe "Pending gatekeeper check"
+        applicationViewWithApplicationDocument().select(s"#app-status-2").text() shouldBe "Pending submitter verification"
+        applicationViewWithApplicationDocument().select(s"#app-status-3").text() shouldBe "Active"
+        applicationViewWithApplicationDocument().select(s"#app-status-4").text() shouldBe "Blocked"
       }
 
       "Display filter by status entries in correct order" in new Setup {
 
-        val status = applicationViewWithApplicationDocument.select(s"#status")
+        val status = applicationViewWithApplicationDocument().select(s"#status")
 
         status.get(0).child(0).text() shouldBe "All - Excluding deleted"
         status.get(0).child(1).text() shouldBe "All"
@@ -160,7 +172,7 @@ class ApplicationsViewSpec extends CommonViewSpec {
       }
 
       "Access type filter entries in correct order" in new Setup {
-        val status = applicationViewWithApplicationDocument.select(s"#access_type")
+        val status = applicationViewWithApplicationDocument().select(s"#access_type")
 
         status.get(0).child(0).text() shouldBe "All"
         status.get(0).child(1).text() shouldBe "Standard"
@@ -170,19 +182,25 @@ class ApplicationsViewSpec extends CommonViewSpec {
       }
     }
 
-    "Called by a superuser" should {
+    "Called by various users" should {
+      val rolesTable = Table(
+        ("role", "expected button"),
+        (GatekeeperRoles.READ_ONLY, false),
+        (GatekeeperRoles.USER, false),
+        (GatekeeperRoles.ADVANCEDUSER, true),
+        (GatekeeperRoles.SUPERUSER, true),
+        (GatekeeperRoles.ADMIN, true)
+      )
 
-      "Display the 'Add privileged application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, true, Map.empty, getApprovalsUrl)
-        applicationView().body should include("""Add privileged application""")
-      }
-    }
-
-    "Called by a non-superuser" should {
-
-      "Not display the 'Add privileged application' button" in new Setup {
-        val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, false, Map.empty, getApprovalsUrl)
-        applicationView().body shouldNot include("""Add privileged application""")
+      "Display the 'Add privileged application' button on for appropriate user roles" in new Setup {
+        for (r <- rolesTable) {
+          implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
+          val applicationView: () => HtmlFormat.Appendable     = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
+          if (r._2)
+            applicationView().body should include("""Add privileged application""")
+          else
+            applicationView().body shouldNot include("""Add privileged application""")
+        }
       }
     }
   }
