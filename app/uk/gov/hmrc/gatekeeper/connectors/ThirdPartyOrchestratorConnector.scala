@@ -17,6 +17,7 @@
 package uk.gov.hmrc.gatekeeper.connectors
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.duration.DurationInt
 import scala.concurrent.{ExecutionContext, Future}
 
 import com.google.common.base.Charsets
@@ -35,7 +36,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import scala.concurrent.duration.DurationInt
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
