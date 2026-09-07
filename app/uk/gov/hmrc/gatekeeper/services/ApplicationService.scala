@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.Clock
+import java.time.{Clock, Instant}
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -374,17 +374,18 @@ class ApplicationService @Inject() (
   }
 
   def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
-    val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Param.ExcludeDeletedQP :: Nil, wantSubscriptions = true)
+    import play.api.libs.json._
+    import play.api.libs.functional.syntax._
 
-    val fn: QueriedApplication => AppWithSubscriptionsForCsvResponse =
-      (qa) =>
-        AppWithSubscriptionsForCsvResponse(
-          id = qa.details.id,
-          name = qa.details.name,
-          lastAccess = qa.details.lastAccess,
-          apiIdentifiers = qa.subscriptions.getOrElse(Set.empty)
-        )
+    implicit val rds: Reads[AppWithSubscriptionsForCsvResponse] = (
+      (JsPath \ "details" \ "id").read[ApplicationId] and
+        (JsPath \ "details" \ "name").read[ApplicationName] and
+        (JsPath \ "details" \ "lastAccess").readNullable[Instant] and
+        (JsPath \ "subscriptions").readNullable[Set[ApiIdentifier]].map(_.getOrElse(Set.empty))
+    )(AppWithSubscriptionsForCsvResponse.apply _)
 
-    tpoConnector.queryStream[QueriedApplication, AppWithSubscriptionsForCsvResponse](env)(qry)(fn)
+    val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
+
+    tpoConnector.queryStream[AppWithSubscriptionsForCsvResponse](env)(qry)
   }
 }
