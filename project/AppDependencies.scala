@@ -35,8 +35,8 @@ object AppDependencies {
     "uk.gov.hmrc"            %% "bootstrap-test-play-30"                    % bootstrapVersion,
     "org.jsoup"               % "jsoup"                                     % jsoupVersion,
     "uk.gov.hmrc"            %% "ui-test-runner"                            % "0.54.0",
-    "org.mockito"            %% "mockito-scala-scalatest"                   % mockitoScalaVersion,
     "org.scalacheck"         %% "scalacheck"                                % scalaCheckVersion,
+    "uk.gov.hmrc"            %% "api-platform-common-domain-fixtures"       % commonDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-tpd-domain-fixtures"          % tpdDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-application-domain-fixtures"  % appDomainVersion,
     "uk.gov.hmrc"            %% "api-platform-organisation-domain-fixtures" % orgDomainVersion
