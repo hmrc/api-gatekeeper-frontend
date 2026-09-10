@@ -40,8 +40,9 @@ trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
   implicit val fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
 
-  val msgRequest        = new MessagesRequest(fakeRequest, messagesApi)
-  val strideUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
-  val superUserRequest  = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
-  val adminRequest      = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
+  val msgRequest          = new MessagesRequest(fakeRequest, messagesApi)
+  val strideUserRequest   = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)
+  val advancedUserRequest = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADVANCEDUSER, msgRequest)
+  val superUserRequest    = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.SUPERUSER, msgRequest)
+  val adminRequest        = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.ADMIN, msgRequest)
 }

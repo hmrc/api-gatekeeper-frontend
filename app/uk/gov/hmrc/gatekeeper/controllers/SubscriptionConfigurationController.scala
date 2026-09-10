@@ -54,7 +54,7 @@ class SubscriptionConfigurationController @Inject() (
 
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
-  def listConfigurations(appId: ApplicationId): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def listConfigurations(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
@@ -63,7 +63,7 @@ class SubscriptionConfigurationController @Inject() (
     }
   }
 
-  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def editConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {
@@ -79,7 +79,7 @@ class SubscriptionConfigurationController @Inject() (
     }
   }
 
-  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastSuperUserAction { implicit request =>
+  def saveConfigurations(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
       app =>
         {

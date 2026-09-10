@@ -58,7 +58,7 @@ class RedirectUrisController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  def manageLoginRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageLoginRedirectUriPage(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       app.access match {
         case Access.Standard(redirects, _, _, _, _, _, _) =>
@@ -69,7 +69,7 @@ class RedirectUrisController @Inject() (
     }
   }
 
-  def managePostLogoutRedirectUriPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def managePostLogoutRedirectUriPage(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       app.access match {
         case Access.Standard(_, redirects, _, _, _, _, _) =>
@@ -80,7 +80,7 @@ class RedirectUrisController @Inject() (
     }
   }
 
-  def manageLoginRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def manageLoginRedirectUriAction(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: LoginRedirectUriForm) = {
         redirectUriService.manageLoginRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
@@ -96,7 +96,7 @@ class RedirectUrisController @Inject() (
     }
   }
 
-  def managePostLogoutRedirectUriAction(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
+  def managePostLogoutRedirectUriAction(appId: ApplicationId) = atLeastAdvancedUserAction { implicit request =>
     withApp(appId) { app =>
       def handleValidForm(form: PostLogoutRedirectUriForm) = {
         redirectUriService.managePostLogoutRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>

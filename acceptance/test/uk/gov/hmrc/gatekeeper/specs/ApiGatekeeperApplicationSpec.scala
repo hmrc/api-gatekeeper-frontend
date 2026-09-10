@@ -160,7 +160,7 @@ class ApiGatekeeperApplicationSpec
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper(app)
+      signInAdvancedUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData, List(verifiedAdminUser), stateHistories, applicationId)
@@ -199,7 +199,7 @@ class ApiGatekeeperApplicationSpec
       Given("I have successfully logged in to the API Gatekeeper")
       stubPaginatedApplicationList()
       stubApiDefinition()
-      signInGatekeeper(app)
+      signInAdvancedUserGatekeeper(app)
 
       on(ApplicationsPage)
       stubApplication(applicationWithSubscriptionData2, List(verifiedAdminUser, verifiedAdminUser2), stateHistories, applicationId)

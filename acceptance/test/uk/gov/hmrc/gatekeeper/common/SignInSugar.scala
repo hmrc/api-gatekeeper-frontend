@@ -21,6 +21,7 @@ import com.github.tomakehurst.wiremock.client.WireMock._
 import play.api.Application
 import play.api.http.Status.{OK, SEE_OTHER}
 
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRole, GatekeeperRoles}
 import uk.gov.hmrc.gatekeeper.pages.ApplicationsPage
 import uk.gov.hmrc.gatekeeper.utils.MockCookies
 
@@ -124,8 +125,16 @@ trait SignInSugar {
       |}
     """.stripMargin
 
-  def signInGatekeeper(app: Application) = {
+  def signInGatekeeper(app: Application, role: GatekeeperRole = GatekeeperRoles.USER) = {
+    role match {
+      case GatekeeperRoles.USER         => signInUserGatekeeper(app)
+      case GatekeeperRoles.ADVANCEDUSER => signInAdvancedUserGatekeeper(app)
+      case GatekeeperRoles.SUPERUSER    => signInSuperUserGatekeeper(app)
+      case GatekeeperRoles.ADMIN        => signInAdminUserGatekeeper(app)
+    }
+  }
 
+  def signInUserGatekeeper(app: Application) = {
     val responseJson =
       s"""{
          |  "optionalName": {"name":"$gatekeeperId","lastName":"Smith"},
