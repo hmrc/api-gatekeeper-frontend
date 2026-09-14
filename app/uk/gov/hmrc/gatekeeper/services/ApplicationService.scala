@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import java.time.{Clock, Instant}
+import java.time.Clock
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -387,7 +387,7 @@ class ApplicationService @Inject() (
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
     implicit val fmt = Output.fmt[SimpleApp]
-    
+
     tpoConnector.queryStream[Output](env)(qry).map(decompressStream)
   }
 }

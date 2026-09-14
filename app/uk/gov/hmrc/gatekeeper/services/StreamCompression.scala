@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.gatekeeper.services
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApiIdentifier
-import play.api.libs.json._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import java.time.Instant
+import scala.collection.mutable.{ArrayBuffer, ListBuffer, Map}
+
+import play.api.libs.json._
 import uk.gov.hmrc.play.json.Union
-import scala.collection.mutable.{ListBuffer, Map}
-import scala.collection.mutable.ArrayBuffer
+
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 
 sealed trait Output
 
 case class OutputApp[A](
-  app: A,
-  subscriptions: Option[Set[Int]] = None
-)(implicit val fmt: Format[A] ) extends Output
+    app: A,
+    subscriptions: Option[Set[Int]] = None
+  )(implicit val fmt: Format[A]
+  ) extends Output
 
 case class OutputSubscription(apiIdentifier: ApiIdentifier) extends Output
-
 
 object OutputApp {
   implicit def fmt[A](implicit fmt: OFormat[A]): OFormat[OutputApp[A]] = Json.format[OutputApp[A]]
@@ -45,23 +45,23 @@ object OutputSubscription {
 }
 
 object Output {
-    def fmt[A](implicit fmt: OFormat[A]): OFormat[Output] = Union.from[Output]("otype")
+
+  def fmt[A](implicit fmt: OFormat[A]): OFormat[Output] = Union.from[Output]("otype")
     .and[OutputApp[A]]("app")
     .and[OutputSubscription]("sub")
     .format
 }
 
 case class SimpleApp(
-  id: ApplicationId,
-  name: ApplicationName,
-  createdOn: Instant,
-  lastAccess: Instant
-)
+    id: ApplicationId,
+    name: ApplicationName,
+    createdOn: Instant,
+    lastAccess: Instant
+  )
 
 object SimpleApp {
   implicit val fmt: OFormat[SimpleApp] = Json.format[SimpleApp]
 }
-
 
 object StreamCompression {
   type LookupTable = Map[ApiIdentifier, Int]
@@ -77,11 +77,11 @@ object StreamCompression {
   private val decompress: fn = (lookupTable, outputs) => {
     val resultList = ListBuffer.empty[AppWithSubscriptionsForCsvResponse]
 
-    outputs.foreach( _ match {
-      case OutputSubscription(id) => lookupTable.append(id)
+    outputs.foreach(_ match {
+      case OutputSubscription(id)                                         => lookupTable.append(id)
       case OutputApp(SimpleApp(id, name, createdOn, lastAccess), subKeys) =>
-        val subs: Option[Set[ApiIdentifier]] = subKeys.map(_.map(k => lookupTable(k-1)))
-        val oLastAccess = Some(lastAccess).filterNot(_.getEpochSecond() == createdOn.getEpochSecond())
+        val subs: Option[Set[ApiIdentifier]] = subKeys.map(_.map(k => lookupTable(k - 1)))
+        val oLastAccess                      = Some(lastAccess).filterNot(_.getEpochSecond() == createdOn.getEpochSecond())
         resultList.append(AppWithSubscriptionsForCsvResponse(id, name, oLastAccess, subs.getOrElse(Set.empty)))
     })
 
