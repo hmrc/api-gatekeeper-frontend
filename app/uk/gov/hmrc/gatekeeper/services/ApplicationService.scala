@@ -33,6 +33,7 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptio
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import uk.gov.hmrc.gatekeeper.services.StreamCompression.decompressStream
 
 @Singleton
 class ApplicationService @Inject() (
@@ -374,18 +375,19 @@ class ApplicationService @Inject() (
   }
 
   def fetchApplicationsWithSubscriptions(env: Environment)(implicit hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
-    import play.api.libs.json._
-    import play.api.libs.functional.syntax._
-
-    implicit val rds: Reads[AppWithSubscriptionsForCsvResponse] = (
-      (JsPath \ "details" \ "id").read[ApplicationId] and
-        (JsPath \ "details" \ "name").read[ApplicationName] and
-        (JsPath \ "details" \ "lastAccess").readNullable[Instant] and
-        (JsPath \ "subscriptions").readNullable[Set[ApiIdentifier]].map(_.getOrElse(Set.empty))
-    )(AppWithSubscriptionsForCsvResponse.apply _)
+    // import play.api.libs.json._
+    // import play.api.libs.functional.syntax._
+    // implicit val rds: Reads[AppWithSubscriptionsForCsvResponse] = (
+    //   (JsPath \ "details" \ "id").read[ApplicationId] and
+    //     (JsPath \ "details" \ "name").read[ApplicationName] and
+    //     (JsPath \ "details" \ "lastAccess").readNullable[Instant] and
+    //     (JsPath \ "subscriptions").readNullable[Set[ApiIdentifier]].map(_.getOrElse(Set.empty))
+    // )(AppWithSubscriptionsForCsvResponse.apply _)
 
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    tpoConnector.queryStream[AppWithSubscriptionsForCsvResponse](env)(qry)
+    implicit val fmt = Output.fmt[SimpleApp]
+    
+    tpoConnector.queryStream[Output](env)(qry).map(decompressStream)
   }
 }
