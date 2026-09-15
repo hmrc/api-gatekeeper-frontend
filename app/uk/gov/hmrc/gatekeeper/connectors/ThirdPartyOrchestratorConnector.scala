@@ -36,12 +36,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.services.OutputApp
-import uk.gov.hmrc.gatekeeper.services.SimpleApp
-import uk.gov.hmrc.play.bootstrap.config.AppName
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
-import java.time.Clock
-import uk.gov.hmrc.gatekeeper.services.Output
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
@@ -50,7 +44,7 @@ object ApplicationsByRequest {
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config, clock: Clock)(implicit ec: ExecutionContext, mat: Materializer) {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
@@ -110,14 +104,14 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
       .stream[Source[ByteString, _]]
-      .map { 
+      .map {
         _.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
-        .map { bytestring =>
-          Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8))).asOpt
-        }
-        .collect {
-          case Some(s) => fn(s)
-        }
+          .map { bytestring =>
+            Json.fromJson[S](Json.parse(bytestring.decodeString(Charsets.UTF_8))).asOpt
+          }
+          .collect {
+            case Some(s) => fn(s)
+          }
       }
       .flatMap(_.runWith(Sink.seq))
       .map(_.toList)

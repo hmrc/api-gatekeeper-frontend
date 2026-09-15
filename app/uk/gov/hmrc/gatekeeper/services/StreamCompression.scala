@@ -36,7 +36,7 @@ case class OutputSubscription(apiIdentifier: ApiIdentifier) extends Output
 
 object OutputApp {
   def writes[A](implicit w: OWrites[A]): OWrites[OutputApp[A]] = Json.writes[OutputApp[A]]
-  def reads[A](implicit r: Reads[A]): Reads[OutputApp[A]] = Json.reads[OutputApp[A]]
+  def reads[A](implicit r: Reads[A]): Reads[OutputApp[A]]      = Json.reads[OutputApp[A]]
 }
 
 object OutputSubscription {
@@ -54,6 +54,7 @@ object Output {
       case oa: OutputApp[A]                  => y.writes(oa)
     }
   }
+
   def reads[A](implicit aReads: Reads[A]): Reads[Output] = new Reads[Output] {
     val x: Reads[ApiIdentifier] = implicitly
     val y: Reads[OutputApp[A]]  = OutputApp.reads[A]
