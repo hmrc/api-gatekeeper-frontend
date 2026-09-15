@@ -386,8 +386,10 @@ class ApplicationService @Inject() (
 
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
-    implicit val fmt = Output.fmt[SimpleApp]
+    implicit val rdr = Output.reads[SimpleApp]
 
-    tpoConnector.queryStream[Output](env)(qry).map(decompressStream)
+    val x = tpoConnector.queryStream[Output](env)(qry)
+    x.foreach(println(_))
+    x.map(decompressStream)
   }
 }

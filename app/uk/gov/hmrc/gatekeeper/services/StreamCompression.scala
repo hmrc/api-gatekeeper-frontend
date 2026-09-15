@@ -20,7 +20,6 @@ import java.time.Instant
 import scala.collection.mutable.{ArrayBuffer, ListBuffer, Map}
 
 import play.api.libs.json._
-import uk.gov.hmrc.play.json.Union
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId}
@@ -31,25 +30,40 @@ sealed trait Output
 case class OutputApp[A](
     app: A,
     subscriptions: Option[Set[Int]] = None
-  )(implicit val fmt: Format[A]
   ) extends Output
 
 case class OutputSubscription(apiIdentifier: ApiIdentifier) extends Output
 
 object OutputApp {
-  implicit def fmt[A](implicit fmt: OFormat[A]): OFormat[OutputApp[A]] = Json.format[OutputApp[A]]
+  def writes[A](implicit w: OWrites[A]): OWrites[OutputApp[A]] = Json.writes[OutputApp[A]]
+  def reads[A](implicit r: Reads[A]): Reads[OutputApp[A]] = Json.reads[OutputApp[A]]
 }
 
 object OutputSubscription {
-  implicit val fmt: OFormat[OutputSubscription] = Json.format[OutputSubscription]
+  implicit val fmt: Format[OutputSubscription] = Json.valueFormat[OutputSubscription]
 }
 
 object Output {
 
-  def fmt[A](implicit fmt: OFormat[A]): OFormat[Output] = Union.from[Output]("otype")
-    .and[OutputApp[A]]("app")
-    .and[OutputSubscription]("sub")
-    .format
+  def writes[A](implicit aWrites: OWrites[A]): OWrites[Output] = new OWrites[Output] {
+    val x: OWrites[ApiIdentifier] = implicitly
+    val y: OWrites[OutputApp[A]]  = OutputApp.writes[A]
+
+    def writes(o: Output): JsObject = o match {
+      case OutputSubscription(apiIdentifier) => x.writes(apiIdentifier)
+      case oa: OutputApp[A]                  => y.writes(oa)
+    }
+  }
+  def reads[A](implicit aReads: Reads[A]): Reads[Output] = new Reads[Output] {
+    val x: Reads[ApiIdentifier] = implicitly
+    val y: Reads[OutputApp[A]]  = OutputApp.reads[A]
+
+    override def reads(json: JsValue): JsResult[Output] = {
+      x.reads(json).map(OutputSubscription.apply).orElse(
+        y.reads(json)
+      )
+    }
+  }
 }
 
 case class SimpleApp(
