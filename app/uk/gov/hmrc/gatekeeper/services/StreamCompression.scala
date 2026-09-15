@@ -17,13 +17,14 @@
 package uk.gov.hmrc.gatekeeper.services
 
 import java.time.Instant
-import scala.collection.mutable.{ArrayBuffer, ListBuffer, Map}
+import scala.collection.mutable.{ArrayBuffer, Map}
 
 import play.api.libs.json._
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiIdentifier, ApplicationId}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 sealed trait Output
 
@@ -78,13 +79,16 @@ object SimpleApp {
   implicit val fmt: OFormat[SimpleApp] = Json.format[SimpleApp]
 }
 
-object StreamCompression {
+object StreamCompression extends ApplicationLogger {
   type LookupTable = Map[ApiIdentifier, Int]
 
   def decompressStream(in: List[Output]): List[AppWithSubscriptionsForCsvResponse] = {
     val buf = ArrayBuffer.empty[ApiIdentifier]
 
-    decompress(buf, in)._2
+    val (_, results) = decompress(buf, in)
+    logger.info(s"Stream buffer contents = ${buf.size}")
+
+    results
   }
 
   type fn = (ArrayBuffer[ApiIdentifier], List[Output]) => (ArrayBuffer[ApiIdentifier], List[AppWithSubscriptionsForCsvResponse])
