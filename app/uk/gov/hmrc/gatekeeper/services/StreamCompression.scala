@@ -90,12 +90,12 @@ object StreamCompression {
   type fn = (ArrayBuffer[ApiIdentifier], List[Output]) => (ArrayBuffer[ApiIdentifier], List[AppWithSubscriptionsForCsvResponse])
 
   private val decompress: fn = (lookupTable, outputs) => {
-    val resultList = ListBuffer.empty[AppWithSubscriptionsForCsvResponse]
+    val resultList = ArrayBuffer.empty[AppWithSubscriptionsForCsvResponse]
 
     outputs.foreach(_ match {
       case OutputSubscription(id)                                         => lookupTable.append(id)
       case OutputApp(SimpleApp(id, name, createdOn, lastAccess), subKeys) =>
-        val subs: Option[Set[ApiIdentifier]] = subKeys.map(_.map(k => lookupTable(k - 1)))
+        val subs: Option[Set[ApiIdentifier]] = subKeys.map(_.map(k => lookupTable.apply(k - 1)))
         val oLastAccess                      = Some(lastAccess).filterNot(_.getEpochSecond() == createdOn.getEpochSecond())
         resultList.append(AppWithSubscriptionsForCsvResponse(id, name, oLastAccess, subs.getOrElse(Set.empty)))
     })
