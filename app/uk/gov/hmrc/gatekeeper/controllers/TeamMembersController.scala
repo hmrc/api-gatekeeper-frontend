@@ -48,9 +48,9 @@ trait WithRestrictedApp {
   def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.access match {
-        case _: Access.Standard            => f(app)
-        case _ if request.role.isSuperUser => f(app)
-        case _                             => successful(Forbidden(forbiddenView()))
+        case _: Access.Standard               => f(app)
+        case _ if request.role.isAdvancedUser => f(app)
+        case _                                => successful(Forbidden(forbiddenView()))
       }
     }
   }
