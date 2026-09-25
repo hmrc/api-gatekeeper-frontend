@@ -57,19 +57,12 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
   def aDeveloper(name: String, apps: List[ApplicationWithCollaborators] = List.empty, verified: Boolean = true, orgs: Option[List[DeskproOrganisation]] = None) = {
     val email = s"$name@example.com".toLaxEmail
-    Developer(
-      user = RegisteredUser(email, idOf(email), name, s"${name}son", verified),
-      applications = apps,
-      deskproOrganisations = orgs
-    )
+    Developer(user = RegisteredUser(email, idOf(email), name, s"${name}son", verified), applications = apps)
   }
 
   def anUnregisteredDeveloper(name: String, apps: List[ApplicationWithCollaborators] = List.empty) = {
     val email = s"$name@example.com".toLaxEmail
-    Developer(
-      UnregisteredUser(email, idOf(email)),
-      apps
-    )
+    Developer(UnregisteredUser(email, idOf(email)), apps)
   }
 
   def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationWithCollaborators =
@@ -142,7 +135,6 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       DeveloperConnectorMock.FetchById.handles(user)
       XmlServiceMock.GetXmlServicesForUser.returnsApis(user, xmlServiceNames)
       XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(user.userId, List(orgOne))
-      ApiPlatformDeskproConnectorMock.GetOrganisationsForUser.returns(Some(deskproOrganisations))
       OrganisationConnectorMock.FetchOrganisationsByUserId.returns(organisations)
 
       TPOConnectorMock.Query.returnsForQry(Environment.PRODUCTION)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), productionApps)
@@ -372,7 +364,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       val result = await(underTest.fetchDeveloper(developer.userId, FetchDeletedApplications.Include))
 
-      result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne), Some(deskproOrganisations), List(organisation))
+      result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne), List(organisation))
       verify(mockDeveloperConnector).fetchByUserId(eqTo(developer.userId))(*)
     }
 
@@ -402,40 +394,19 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     "fetch the developer when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user, true, organisations = List(organisation))
 
-      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(
-        user,
-        List.empty,
-        xmlServiceNames,
-        List(orgOne),
-        Some(deskproOrganisations),
-        List(organisation)
-      )
+      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), List(organisation))
     }
 
     "fetch the developer not including deleted applications when requested by userId" in new Setup {
       fetchDeveloperWillReturn(user, false, organisations = List(organisation))
 
-      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(
-        user,
-        List.empty,
-        xmlServiceNames,
-        List(orgOne),
-        Some(deskproOrganisations),
-        List(organisation)
-      )
+      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Exclude)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), List(organisation))
     }
 
     "fetch the developer when requested by userId as developerId" in new Setup {
       fetchDeveloperWillReturn(user, true, organisations = List(organisation))
 
-      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(
-        user,
-        List.empty,
-        xmlServiceNames,
-        List(orgOne),
-        Some(deskproOrganisations),
-        List(organisation)
-      )
+      await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include)) shouldBe Developer(user, List.empty, xmlServiceNames, List(orgOne), List(organisation))
     }
 
     "returns UpstreamErrorResponse when call to GetXmlServicesForUser fails" in new Setup {

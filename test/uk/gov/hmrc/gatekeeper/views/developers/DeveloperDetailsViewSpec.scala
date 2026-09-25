@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.developers
 
-import java.time.{Instant, LocalDateTime}
+import java.time.Instant
 import java.util.UUID
 
 import org.jsoup.Jsoup
@@ -24,16 +24,13 @@ import org.jsoup.nodes.Document
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
-import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
-import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar.deskproOrganisation
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
@@ -78,10 +75,9 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollab
       elementExistsByText(document, "h1", developer.email.text) shouldBe true
       document.getElementById("first-name").text shouldBe developer.firstName
       document.getElementById("last-name").text shouldBe developer.lastName
-      document.getElementById("organisations").text shouldBe (developer.deskproOrganisations match {
-        case Some(orgs) if orgs.size > 0 => orgs.head.organisationName
-        case Some(orgs)                  => ""
-        case None                        => "Unavailable"
+      document.getElementById("organisations").text shouldBe (developer.organisations match {
+        case org :: _ => org.organisationName
+        case Nil      => ""
       })
       document.getElementById("status").text shouldBe (developer.status match {
         case UnverifiedStatus => "not yet verified"
@@ -154,31 +150,18 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollab
     }
 
     "show verified developer details with organisation when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(
-        user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
-        applications = List.empty,
-        deskproOrganisations = Some(List(DeskproOrganisation(uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1"), "Deskpro Organisaion 1", List.empty)))
-      )
+      val verifiedDeveloper = Developer(user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), applications = List.empty)
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show verified developer details with no organisations when logged in as superuser" in new Setup {
-      val verifiedDeveloper = Developer(
-        user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
-        applications = List.empty,
-        deskproOrganisations = Some(List.empty)
-      )
+      val verifiedDeveloper = Developer(user = RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), applications = List.empty)
       testDeveloperDetails(verifiedDeveloper)
     }
 
     "show developer with organisation when logged in as superuser" in new Setup {
       val verifiedDeveloper =
-        Developer(
-          RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true),
-          List.empty,
-          xmlServiceNames,
-          xmlOrganisations
-        )
+        Developer(RegisteredUser("email@example.com".toLaxEmail, UserId.random, "firstname", "lastName", true), List.empty, xmlServiceNames, xmlOrganisations)
 
       testDeveloperDetails(verifiedDeveloper)
     }
