@@ -81,11 +81,8 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       )
       val respIndiv = uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Collaborators.ResponsibleIndividual(userId)
       val org       = Organisation(OrganisationId.random, OrganisationName("Org name"), Organisation.OrganisationType.UkLimitedCompany, instant, Set(respIndiv))
-      val developer = Developer(
-        user = RegisteredUser(LaxEmailAddress("email@example.com"), userId, "firstname", "lastName", false),
-        applications = List(app),
-        organisations = List(org)
-      )
+      val developer =
+        Developer(user = RegisteredUser(LaxEmailAddress("email@example.com"), userId, "firstname", "lastName", false), applications = List(app), organisations = List(org))
 
       val document = Jsoup.parse(deleteDeveloper(developer, List(app)).body)
       elementExistsById(document, "submit") shouldBe false

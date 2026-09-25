@@ -47,10 +47,6 @@ trait ApiPlatformDeskproConnectorMockProvider {
 
     }
 
-    object GetOrganisationsForUser {
-      def returns(orgs: Option[List[DeskproOrganisation]]) = when(apiPlatformDeskproConnector.getOrganisationsForUser(*[LaxEmailAddress], *)).thenReturn(successful(orgs))
-    }
-
     object MarkPersonInactive {
       def suceeds() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveSuccess))
 

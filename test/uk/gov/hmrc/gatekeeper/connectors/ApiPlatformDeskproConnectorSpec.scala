@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock.{verify => wireMockVerify, _}
+import com.github.tomakehurst.wiremock.client.WireMock.{verify => _, _}
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.Status.NOT_FOUND
@@ -27,10 +27,10 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, LaxEmailAddressData}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, GetOrganisationsForUserRequest, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.DeskproTicket
 import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -117,79 +117,4 @@ class ApiPlatformDeskproConnectorSpec
     }
   }
 
-  "getOrganisationsForUser" should {
-    "return organisation" in new Setup {
-      val url              = "/organisation/query"
-      val userEmailAddress = LaxEmailAddress("bobfleming@example.com")
-      val payload          = Json.toJson(organisationsForUser)
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
-          .willReturn(
-            aResponse()
-              .withStatus(OK)
-              .withBody(payload.toString)
-          )
-      )
-
-      val result = await(underTest.getOrganisationsForUser(userEmailAddress, hc))
-
-      result shouldBe Some(organisationsForUser)
-    }
-
-    "return empty list if error" in new Setup {
-      val url              = "/organisation/query"
-      val userEmailAddress = LaxEmailAddress("bobfleming@example.com")
-
-      stubFor(
-        post(urlEqualTo(url))
-          .withJsonRequestBody(GetOrganisationsForUserRequest(userEmailAddress))
-          .willReturn(
-            aResponse()
-              .withStatus(INTERNAL_SERVER_ERROR)
-          )
-      )
-
-      val result = await(underTest.getOrganisationsForUser(userEmailAddress, hc))
-
-      result shouldBe None
-    }
-
-    "markPersonInactive" should {
-      val email        = LaxEmailAddressData.one
-      val expectedBody = Json.toJson(ApiPlatformDeskproConnector.MarkPersonInactiveRequest(email)).toString()
-
-      "mark person as inactive" in new Setup {
-        stubFor(
-          post(urlEqualTo("/person/mark-inactive")).willReturn(
-            aResponse()
-              .withStatus(200)
-              .withHeader("Content-Type", "application/json")
-          )
-        )
-
-        await(underTest.markPersonInactive(email, hc)) shouldBe MarkPersonInactiveSuccess
-        wireMockVerify(1, postRequestedFor(urlEqualTo("/person/mark-inactive")).withRequestBody(equalTo(expectedBody)))
-      }
-
-      "Return MarkPersonInactiveFailed for an 500 response" in new Setup {
-        stubFor(post(urlEqualTo("/person/mark-inactive")).willReturn(aResponse().withStatus(500)))
-
-        await(underTest.markPersonInactive(email, hc)) shouldBe MarkPersonInactiveFailed
-      }
-
-      "Return MarkPersonInactiveFailed for an 404 response" in new Setup {
-        stubFor(post(urlEqualTo("/person/mark-inactive")).willReturn(aResponse().withStatus(404)))
-
-        await(underTest.markPersonInactive(email, hc)) shouldBe MarkPersonInactiveFailed
-      }
-
-      "Return MarkPersonInactiveFailed for an 401 response" in new Setup {
-        stubFor(post(urlEqualTo("/person/mark-inactive")).willReturn(aResponse().withStatus(401)))
-
-        await(underTest.markPersonInactive(email, hc)) shouldBe MarkPersonInactiveFailed
-      }
-    }
-  }
 }
