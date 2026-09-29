@@ -42,14 +42,6 @@ class ApiPlatformDeskproConnector @Inject() (
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
   }
 
-  def getOrganisationsForUser(userEmailAddress: LaxEmailAddress, hc: HeaderCarrier): Future[Option[List[DeskproOrganisation]]] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
-    http.post(url"${config.serviceBaseUrl}/organisation/query")
-      .withBody(Json.toJson(ApiPlatformDeskproConnector.GetOrganisationsForUserRequest(userEmailAddress)))
-      .execute[Option[List[DeskproOrganisation]]]
-      .recover(handleUpstreamErrors[Option[List[DeskproOrganisation]]](None))
-  }
-
   def markPersonInactive(email: LaxEmailAddress, hc: HeaderCarrier): Future[MarkPersonInactiveResult] = {
     implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.post(url"${config.serviceBaseUrl}/person/mark-inactive")

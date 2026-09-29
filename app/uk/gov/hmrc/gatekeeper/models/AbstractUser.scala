@@ -27,7 +27,6 @@ import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User.{DefaultInstantReads, DefaultInstantWrites}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
-import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
@@ -94,7 +93,6 @@ case class Developer(
     applications: List[ApplicationWithCollaborators],
     xmlServiceNames: Set[String] = Set.empty,
     xmlOrganisations: List[XmlOrganisation] = List.empty,
-    deskproOrganisations: Option[List[DeskproOrganisation]] = None,
     organisations: List[Organisation] = List.empty
   ) {
   lazy val fullName = user.fullName

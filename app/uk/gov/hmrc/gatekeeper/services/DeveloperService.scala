@@ -184,9 +184,8 @@ class DeveloperService @Inject() (
       xmlOrganisations       <- xmlService.findOrganisationsByUserId(userId)
       sandboxApplications    <- fetchApplicationsByUserId(Environment.SANDBOX, userId, includingDeleted)
       productionApplications <- fetchApplicationsByUserId(Environment.PRODUCTION, userId, includingDeleted)
-      deskproOrganisations   <- deskproConnector.getOrganisationsForUser(user.email, hc)
       organisations          <- organisationConnector.fetchOrganisationsByUserId(userId)
-    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, deskproOrganisations, organisations)
+    } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, organisations)
   }
 
   def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {

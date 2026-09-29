@@ -22,13 +22,12 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.pages._
-import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformDeskproStub, OrganisationStub, XmlServicesStub}
+import uk.gov.hmrc.gatekeeper.stubs.{OrganisationStub, XmlServicesStub}
 
 class ApiGatekeeperDeveloperDetailsSpec
     extends ApiGatekeeperBaseSpec
     with Assertions
     with XmlServicesStub
-    with ApiPlatformDeskproStub
     with OrganisationStub {
   val developers = List[RegisteredUser](RegisteredUser("joe.bloggs@example.co.uk".toLaxEmail, UserId.random, "joe", "bloggs", false))
 
@@ -52,7 +51,6 @@ class ApiGatekeeperDeveloperDetailsSpec
       stubGetXmlApiForCategories()
       stubGetAllXmlApis()
       stubGetXmlOrganisationsForUser(unverifiedUser.userId)
-      stubGetOrganisationsForUser(unverifiedUser.email)
       stubFetchOrganisationsByUserId(unverifiedUser.userId)
 
       signInGatekeeper(app)
@@ -75,7 +73,7 @@ class ApiGatekeeperDeveloperDetailsSpec
       assert(DeveloperDetailsPage.firstName() == unverifiedUser.firstName)
       assert(DeveloperDetailsPage.lastName() == unverifiedUser.lastName)
       assert(DeveloperDetailsPage.status() == "not yet verified")
-      assert(DeveloperDetailsPage.organisations() == "Deskpro Organisation 1\nDeskpro Organisation 2")
+      assert(DeveloperDetailsPage.organisations() == "Org name")
       assert(DeveloperDetailsPage.mfaHeading() == "Multi-factor authentication")
 
       When("I select an associated application")
