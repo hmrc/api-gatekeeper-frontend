@@ -199,7 +199,7 @@
         }
     }
     <br>
-    @if(loggedInRequest.role.isSuperUser) {
+    @if(loggedInRequest.role.isAdvancedUser) {
         <a id="delete-developer"
            href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId)}"
            class="govuk-button govuk-button--secondary">Remove developer

@@ -100,7 +100,7 @@ class DeveloperController @Inject() (
     RemoveMfaConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
   }
 
-  def deleteDeveloperPage(developerIdentifier: UserId) = atLeastSuperUserAction { implicit request =>
+  def deleteDeveloperPage(developerIdentifier: UserId) = atLeastAdvancedUserAction { implicit request =>
     developerService.fetchDeveloper(developerIdentifier, FetchDeletedApplications.Exclude).flatMap(developer =>
       developerService.partitionDeveloperApps(developer).map { partitionedApps =>
         Ok(deleteDeveloperView(developer, partitionedApps._1))
@@ -108,7 +108,7 @@ class DeveloperController @Inject() (
     )
   }
 
-  def deleteDeveloperAction(developerId: UserId) = atLeastSuperUserAction { implicit request =>
+  def deleteDeveloperAction(developerId: UserId) = atLeastAdvancedUserAction { implicit request =>
     developerService.deleteDeveloper(developerId, loggedIn.userFullName.get).map {
       case (DeveloperDeleteSuccessResult, developer) => Ok(deleteDeveloperSuccessView(developer.email.text))
       case _                                         => technicalDifficulties
