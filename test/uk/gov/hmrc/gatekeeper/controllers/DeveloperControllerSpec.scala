@@ -69,7 +69,6 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       val loggedInUser                       = "Bobby Example"
       override val aLoggedInRequest          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
       override val aSuperUserLoggedInRequest = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
-      val anAdvancedUserLoggedInRequest      = FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
 
       val developersController = new DeveloperController(
         mockDeveloperService,
