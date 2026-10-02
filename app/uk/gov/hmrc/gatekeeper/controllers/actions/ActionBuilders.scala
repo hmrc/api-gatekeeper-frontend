@@ -40,7 +40,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithCollaborators => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(implicit request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -54,7 +54,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: (ApplicationWithCollaborators, Access.Standard) => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(implicit request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -70,7 +70,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithSubscriptionFields => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(implicit request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -84,7 +84,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithSubscriptionFieldsAndStateHistory => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(implicit request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -110,7 +110,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(implicit request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {

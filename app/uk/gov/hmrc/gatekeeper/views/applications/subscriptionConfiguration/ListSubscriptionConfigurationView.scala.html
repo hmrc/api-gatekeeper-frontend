@@ -25,7 +25,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, subscriptionVersions: Seq[SubscriptionVersion])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @pageTitle = @{"Subscription configuration"}
 

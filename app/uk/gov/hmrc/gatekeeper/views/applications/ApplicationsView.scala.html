@@ -30,7 +30,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(paginatedApplications: PaginatedApplications, apis: Map[String, Seq[VersionSummary]], params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: LoggedInRequest[_])
+@(paginatedApplications: PaginatedApplications, apis: Map[String, Seq[VersionSummary]], params: Map[String, String], gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: LoggedInRequest[?])
 
 @pageUrl(extra: (String, String)) = @{
   val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")

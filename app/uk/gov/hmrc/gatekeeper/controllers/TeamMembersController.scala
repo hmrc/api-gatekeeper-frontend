@@ -45,7 +45,7 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 trait WithRestrictedApp {
   self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[?], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.access match {
         case _: Access.Standard               => f(app)

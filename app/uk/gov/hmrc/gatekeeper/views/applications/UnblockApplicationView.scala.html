@@ -26,7 +26,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
+@(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[?], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Unblock Application",

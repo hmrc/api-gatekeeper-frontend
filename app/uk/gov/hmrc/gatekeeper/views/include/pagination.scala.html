@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(page: Int, pageSize: Int, matching: Int, total: Int, numDocs: Int, baseUri: String, params: Map[String, String])(implicit request: Request[_])
+@(page: Int, pageSize: Int, matching: Int, total: Int, numDocs: Int, baseUri: String, params: Map[String, String])(implicit request: Request[?])
 
 @pageUrl(extra: (String, String)) = @{
   val qs = (params ++ Map(extra)).map { case (k, v) => s"$k=$v" }.mkString("&")

@@ -92,7 +92,7 @@ class TeamMembersControllerSpec
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationQueryServiceMock.FetchApplication.returns(privilegedApplication)
-            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -119,7 +119,7 @@ class TeamMembersControllerSpec
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationQueryServiceMock.FetchApplication.returns(ropcApplication)
-            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
 
@@ -143,7 +143,7 @@ class TeamMembersControllerSpec
         "the user is a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
             givenTheAppWillBeReturned()
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aSuperUserLoggedInRequest)
@@ -155,7 +155,7 @@ class TeamMembersControllerSpec
         "the user is not a superuser" should {
           "show 200 OK" in new Setup {
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+            DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
             givenTheAppWillBeReturned()
 
             val result = addToken(underTest.manageTeamMembers(applicationId))(aLoggedInRequest)

@@ -96,7 +96,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   def callGetEndpoint(url: String, headers: List[(String, String)]): WSResponse =
     wsClient
       .url(url)
-      .withHttpHeaders(headers: _*)
+      .withHttpHeaders(headers*)
       .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .get()
@@ -105,7 +105,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
   def callPostEndpoint(url: String, headers: List[(String, String)], body: String): WSResponse =
     wsClient
       .url(url)
-      .withHttpHeaders(headers: _*)
+      .withHttpHeaders(headers*)
       .withCookies(MockCookies.makeWsCookie(app))
       .withFollowRedirects(false)
       .post(body)
@@ -231,7 +231,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeDefinitionServiceSuccessWithAPIs(apisAsMap)
 
         val collaborators = verifiedUsers.map(user => Collaborators.Administrator(user.userId, user.email))
-        val apps          = List(standardApp.withCollaborators(collaborators: _*), standardApp2.withCollaborators(collaborators: _*))
+        val apps          = List(standardApp.withCollaborators(collaborators*), standardApp2.withCollaborators(collaborators*))
 
         primeApplicationServiceFetchApplicationBySubscription(apis.head, apps)
 

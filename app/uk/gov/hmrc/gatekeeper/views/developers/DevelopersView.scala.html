@@ -26,7 +26,7 @@
 @(users: Seq[AbstractUser],
 emails: String,
 apiVersions : Seq[DropDownValue],
-form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+form: Form[DevelopersSearchForm])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Developers") {
   <h1 class="govuk-heading-l">Developers</h1>

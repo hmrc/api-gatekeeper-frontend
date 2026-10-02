@@ -21,7 +21,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @()(
-implicit loggedInUser: LoggedInUser, messages: Messages, request: Request[_])
+implicit loggedInUser: LoggedInUser, messages: Messages, request: Request[?])
 
 @main(title = s"${applicationConfig.title} - API Gatekeeper") {
 

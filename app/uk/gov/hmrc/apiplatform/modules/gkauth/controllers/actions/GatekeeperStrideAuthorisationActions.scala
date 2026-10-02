@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, Ga
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
 
 trait ForbiddenHandler {
-  def handle(msgResult: MessagesRequest[_]): Result
+  def handle(msgResult: MessagesRequest[?]): Result
 }
 
 trait GatekeeperStrideAuthorisationActions {
@@ -45,21 +45,21 @@ trait GatekeeperStrideAuthorisationActions {
       }
     }
 
-  private def gatekeeperRoleAction(minimumRoleRequired: GatekeeperStrideRole)(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+  private def gatekeeperRoleAction(minimumRoleRequired: GatekeeperStrideRole)(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] =
     Action.async { implicit request =>
       gatekeeperRoleActionRefiner(minimumRoleRequired).invokeBlock(request, block)
     }
 
-  def anyStrideUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+  def anyStrideUserAction(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.USER)(block)
 
-  def atLeastAdvancedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+  def atLeastAdvancedUserAction(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.ADVANCEDUSER)(block)
 
-  def atLeastSuperUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+  def atLeastSuperUserAction(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.SUPERUSER)(block)
 
-  def adminOnlyAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] =
+  def adminOnlyAction(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] =
     gatekeeperRoleAction(GatekeeperRoles.ADMIN)(block)
 }
 
@@ -96,7 +96,7 @@ trait GatekeeperAuthorisationActions {
     }
   }
 
-  def anyAuthenticatedUserAction(block: LoggedInRequest[_] => Future[Result]): Action[AnyContent] = {
+  def anyAuthenticatedUserAction(block: LoggedInRequest[?] => Future[Result]): Action[AnyContent] = {
     Action.async { implicit request =>
       (
         anyAuthenticatedUserRefiner

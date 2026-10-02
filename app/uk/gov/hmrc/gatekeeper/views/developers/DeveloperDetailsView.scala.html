@@ -31,7 +31,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
+@(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[?])
 
 @renderOrganisations(orgList: List[Organisation]) = {
     @for(org <- orgList) {

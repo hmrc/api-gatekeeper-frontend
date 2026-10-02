@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators, reason: String)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, reason: String)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
 

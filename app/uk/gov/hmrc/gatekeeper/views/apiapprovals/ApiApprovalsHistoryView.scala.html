@@ -31,7 +31,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukBackLink: GovukBackLink, govukTable: GovukTable, govukButton: GovukButton, hmrcTimeline: HmrcTimeline)
 
-@(approvalSummary: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(approvalSummary: APIApprovalSummary)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"API approval request details ${approvalSummary.name} - ${applicationConfig.title}",
     backLink = Some(BackLink.mimicsBrowserBackButtonViaJavaScript),

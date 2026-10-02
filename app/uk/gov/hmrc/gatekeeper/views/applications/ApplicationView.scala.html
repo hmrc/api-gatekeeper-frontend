@@ -40,7 +40,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, clock: Clock)
 
-@(model: ApplicationViewModel)(implicit request: LoggedInRequest[_], flash: Flash)
+@(model: ApplicationViewModel)(implicit request: LoggedInRequest[?], flash: Flash)
 
 @access = @{model.application.access}
 @application = @{model.application}

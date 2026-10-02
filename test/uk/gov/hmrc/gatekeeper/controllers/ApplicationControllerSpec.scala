@@ -406,7 +406,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           state = ApplicationState(name = State.DELETED, updatedOn = instant),
           lastActionActor = ActorType.GATEKEEPER
         )
-        ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse): _*)
+        ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse)*)
 
         val eventualResult: Future[Result] = underTest.applicationsPageCsv()(aLoggedInRequestForDeletedApps)
 
@@ -1626,7 +1626,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
         when(mockTermsOfUseService.getAgreementDetails(application2.details)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
           "ri@example.com",
           "12 March 2023",
@@ -1658,7 +1658,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
 
         val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 

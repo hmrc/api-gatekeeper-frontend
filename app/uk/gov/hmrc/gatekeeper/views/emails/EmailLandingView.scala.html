@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@()(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @disabledFlag(enabled: Boolean) = @{if(!enabled){" disabled"} else {""}}
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}

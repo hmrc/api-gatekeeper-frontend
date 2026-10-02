@@ -26,7 +26,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[Set[String]])(implicit request: LoggedInRequest[_])
+@(application: ApplicationWithCollaborators, form: Form[Set[String]])(implicit request: LoggedInRequest[?])
 
 @main(
   title = s"${applicationConfig.title} - Manage scopes",

@@ -100,7 +100,7 @@
 @beforeContent = {
   @if(submenuItems.nonEmpty){ @submenu }
     <div class="before-content-banner">
-        @include.breadcrumbs(breadcrumbs: _*)
+        @include.breadcrumbs(breadcrumbs*)
         @buildBackLink(backLink)
         @userBanner
     </div>

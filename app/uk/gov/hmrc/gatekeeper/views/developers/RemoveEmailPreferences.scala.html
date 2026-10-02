@@ -25,7 +25,7 @@
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 
 @this(main: MainView, applicationConfig: AppConfig, govukPanel: GovukPanel, govukButton: GovukButton)
-@(form: Form[RemoveEmailPreferencesForm], successfullyRemoved: Boolean)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider:
+@(form: Form[RemoveEmailPreferencesForm], successfullyRemoved: Boolean)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider:
 MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Remove Email Preferences From All developers") {

@@ -24,7 +24,7 @@
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
-@(application: ApplicationWithCollaborators, collaboratorUsers: List[RegisteredUser])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, collaboratorUsers: List[RegisteredUser])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage Team Members",

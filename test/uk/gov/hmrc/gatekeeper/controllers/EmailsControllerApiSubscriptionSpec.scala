@@ -72,7 +72,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
 
-      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
       def givenViewIsPassedCorrectUsers(users: List[RegisteredUser], emailString: String) = {
         when(mockEmailApiSubscriptionsView.apply(*, eqTo(users), eqTo(emailString), *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
@@ -103,16 +103,16 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       val twoApis = List(api1, api2)
 
       def givenApiDefinition2Apis() = {
-        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis*)
       }
 
       def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications*)
       }
 
       def givenDevelopersByEmail(users: List[RegisteredUser]) = {
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users*)
       }
 
       val underTest = new EmailsController(

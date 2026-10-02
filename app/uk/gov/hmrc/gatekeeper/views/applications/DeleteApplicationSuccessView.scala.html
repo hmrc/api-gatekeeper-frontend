@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators)(implicit request: Request[?], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Application Deleted",

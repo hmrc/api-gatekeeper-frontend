@@ -248,7 +248,7 @@ class DeveloperService @Inject() (
     val email = developer.email
     Future.traverse(developer.applications)(app =>
       isSoleVerifiedAdmin(email, app).map(isSole => (app, isSole))
-    ).map { appsWithFlags: List[(ApplicationWithCollaborators, Boolean)] =>
+    ).map { (appsWithFlags: List[(ApplicationWithCollaborators, Boolean)]) =>
       val (appsSoleAdminOn, appsTeamMemberOn) = appsWithFlags.partition(_._2)
       (appsSoleAdminOn.map(_._1), appsTeamMemberOn.map(_._1))
     }

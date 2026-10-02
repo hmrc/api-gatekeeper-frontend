@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@(form: Form[_])(implicit messages: Messages)
+@(form: Form[?])(implicit messages: Messages)
 
 @if(form.errors.nonEmpty) {
   <div class="govuk-error-summary" id="error-summary-display" aria-labelledby="error-summary-heading" role="alert" data-module="govuk-error-summary">

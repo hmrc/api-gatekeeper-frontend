@@ -29,7 +29,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(organisationWithApps: OrganisationWithApps, gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[_])
+@(organisationWithApps: OrganisationWithApps, gatekeeperApprovalsUrlFn: (ApplicationId, Environment) => String)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, request: Request[?])
 
 @main(title = s"${applicationConfig.title} - ${organisationWithApps.organisationName}") {
   @defining(new DateTimeFormatterBuilder()

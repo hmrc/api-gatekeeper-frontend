@@ -22,7 +22,7 @@
 
  @this(main: MainView, applicationConfig: AppConfig)
 
- @(sandboxBoxes: (Int, Int, Int), productionBoxes: (Int, Int, Int), appBoxMap: List[(ApplicationId, List[Box])])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+ @(sandboxBoxes: (Int, Int, Int), productionBoxes: (Int, Int, Int), appBoxMap: List[(ApplicationId, List[Box])])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
  @main(title = s"${applicationConfig.title} - PPNS Boxes") {
   <h1>Sandbox Box Count: @sandboxBoxes._1</h1>

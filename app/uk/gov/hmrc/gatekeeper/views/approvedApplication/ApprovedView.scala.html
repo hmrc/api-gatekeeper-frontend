@@ -27,7 +27,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApprovedApplication)(implicit request: Request[_], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
+@(application: ApprovedApplication)(implicit request: Request[?], loggedInUser: LoggedInUser, flash: Flash, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Dashboard",

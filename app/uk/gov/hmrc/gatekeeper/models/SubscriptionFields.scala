@@ -31,7 +31,7 @@ object SubscriptionFields {
     type Alias = Map[FieldName, FieldValue]
   }
 
-  def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl: _*)
+  def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl*)
 
   case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: List[SubscriptionFieldValue])
 

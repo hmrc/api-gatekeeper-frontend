@@ -30,7 +30,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukCharacterCount: GovukCharacterCount, govukTable: GovukTable, govukButton: GovukButton)
 
-@(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
+@(form: Form[ReviewForm], api: APIApprovalSummary)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, messages: Messages)
 
 @main(title = s"API approval request details ${api.name} - ${applicationConfig.title}",submenuItems = SubmenuItem.ApiApprovalsMenu(applicationConfig)) {
 

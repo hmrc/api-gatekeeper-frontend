@@ -151,7 +151,7 @@ class DevelopersController @Inject() (
     )
   }
 
-  def combineUsersIntoPage(allFoundUsers: Future[List[AbstractUser]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
+  def combineUsersIntoPage(allFoundUsers: Future[List[AbstractUser]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[?]) = {
     for {
       users          <- allFoundUsers
       registeredUsers = users.collect {

@@ -27,7 +27,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, adminEmails: Set[String], form: Form[UpdateApplicationNameAdminEmailForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, adminEmails: Set[String], form: Form[UpdateApplicationNameAdminEmailForm])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Which admin requested the application name change?",
