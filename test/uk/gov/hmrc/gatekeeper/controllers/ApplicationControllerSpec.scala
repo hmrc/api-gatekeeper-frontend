@@ -183,7 +183,7 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -197,11 +197,11 @@ class ApplicationControllerSpec
           "status"   -> "EXCLUDING_DELETED"
         )
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.PRODUCTION))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.Production))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Production), eqTo(expectedParams))(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
       }
 
@@ -209,11 +209,11 @@ class ApplicationControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.SANDBOX))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.Sandbox))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), *)(*)
         verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
       }
 
@@ -237,7 +237,7 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(*)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
@@ -296,7 +296,7 @@ class ApplicationControllerSpec
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
@@ -336,7 +336,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
@@ -376,7 +376,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
@@ -393,7 +393,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
             Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
@@ -403,7 +403,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccess = Some(Instant.parse("2002-02-03T13:02:01Z")),
           lastAccessTokenUsage = Some(Instant.parse("2003-02-03T14:02:03Z")),
           access = Access.Standard(),
-          state = ApplicationState(name = State.DELETED, updatedOn = instant),
+          state = ApplicationState(name = State.Deleted, updatedOn = instant),
           lastActionActor = ActorType.GATEKEEPER
         )
         ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse)*)
@@ -1306,7 +1306,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1326,7 +1326,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1345,7 +1345,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", "HMRC"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1363,7 +1363,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", "P"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1381,7 +1381,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", "Pete£"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1400,7 +1400,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.SANDBOX,
+            Environment.Sandbox,
             clientId,
             totp,
             privAccess
@@ -1408,7 +1408,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.SANDBOX.toString),
+              ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1427,7 +1427,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.SANDBOX,
+            Environment.Sandbox,
             clientId,
             totp,
             privAccess
@@ -1435,7 +1435,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.SANDBOX.toString),
+              ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1454,7 +1454,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.PRODUCTION,
+            Environment.Production,
             clientId,
             totp,
             privAccess
@@ -1462,7 +1462,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1480,7 +1480,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", appName.value),
               ("applicationDescription", ""),
               ("adminEmail", adminEmail.text)
@@ -1498,7 +1498,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "")
@@ -1515,7 +1515,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+              ("environment", Environment.Production.toString),
               ("applicationName", appName.value),
               ("applicationDescription", description),
               ("adminEmail", "notAValidEmailAddress")
@@ -1537,7 +1537,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             val result = addToken(underTest.createPrivApplicationAction())(
               aLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.PRODUCTION.toString),
+                ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName.value),
                 ("applicationDescription", description),
@@ -1554,11 +1554,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Production, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.PRODUCTION.toString),
+                ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName.value),
                 ("applicationDescription", description),
@@ -1583,11 +1583,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Sandbox, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.SANDBOX.toString),
+                ("environment", Environment.Sandbox.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName.value),
                 ("applicationDescription", description),
@@ -1619,7 +1619,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.Production)))
         ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
@@ -1645,13 +1645,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = DefaultApplication.withState(ApplicationState(State.DELETED, updatedOn = instant))
+        val application2                    = DefaultApplication.withState(ApplicationState(State.Deleted, updatedOn = instant))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application2.details, application2.collaborators, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.Production)))
         ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)

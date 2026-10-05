@@ -21,29 +21,29 @@ object StateHelper {
   implicit class StateSyntax(state: State) {
 
     val displayText: String = state match {
-      case State.TESTING                                     => "Created"
-      case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => "Pending Responsible Individual Verification"
-      case State.PENDING_GATEKEEPER_APPROVAL                 => "Pending gatekeeper check"
-      case State.PENDING_REQUESTER_VERIFICATION              => "Pending submitter verification"
-      case State.PRE_PRODUCTION                              => "Active"
-      case State.PRODUCTION                                  => "Active"
-      case State.DELETED                                     => "Deleted"
+      case State.Testing                                     => "Created"
+      case State.PendingResponsibleIndividualVerification => "Pending Responsible Individual Verification"
+      case State.PendingGatekeeperApproval                 => "Pending gatekeeper check"
+      case State.PendingRequesterVerification              => "Pending submitter verification"
+      case State.PreProduction                              => "Active"
+      case State.Production                                  => "Active"
+      case State.Deleted                                     => "Deleted"
     }
 
     val additionalInformation: String = state match {
-      case State.TESTING                                     =>
+      case State.Testing                                     =>
         "A production application that its admin has created but not submitted for checking"
-      case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION =>
+      case State.PendingResponsibleIndividualVerification =>
         "A production application that has been submitted for checking, but the responsible individual has not completed the email verification process"
-      case State.PENDING_GATEKEEPER_APPROVAL                 =>
+      case State.PendingGatekeeperApproval                 =>
         "A production application that one of its admins has submitted for checking"
-      case State.PENDING_REQUESTER_VERIFICATION              =>
+      case State.PendingRequesterVerification              =>
         "A production application that has passed checking in Gatekeeper but the submitter has not completed the email verification process"
-      case State.PRE_PRODUCTION                              =>
+      case State.PreProduction                              =>
         "A production application that has passed checking, been verified, and is waiting for the user to confirm that they have carried out some initial setup"
-      case State.PRODUCTION                                  =>
+      case State.Production                                  =>
         "A production application that has passed checking, been verified and set up, and is therefore fully active - or any sandbox application"
-      case State.DELETED                                     =>
+      case State.Deleted                                     =>
         "An application that has been deleted and is no longer active"
     }
   }

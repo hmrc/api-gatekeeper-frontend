@@ -170,7 +170,7 @@ class ApiApprovalsController @Inject() (
         case true  => deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get, approveDetail)
             .flatMap(_ =>
               environment match {
-                case (environment) if (environment == Environment.PRODUCTION) && approve => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
+                case (environment) if (environment == Environment.Production) && approve => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
                 case _                                                                   => successful(())
               }
             )

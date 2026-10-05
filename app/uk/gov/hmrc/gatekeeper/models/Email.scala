@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
 
 // TODO - Remove Enumeration
 object EmailOptionChoice extends Enumeration {
@@ -79,7 +79,7 @@ object TopicOptionChoice {
   def unsafeApply(text: String): TopicOptionChoice =
     apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Topic Option Choice"))
 
-  implicit val formatTopicOptionAndChoice: Format[TopicOptionChoice] = SealedTraitJsonFormatting.createFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
+  implicit val formatTopicOptionAndChoice: Format[TopicOptionChoice] = SimpleEnumJsonFormatting.createStringFormatFor[TopicOptionChoice]("Topic Option Choice", apply, _.toString().toUpperCase())
 
   val optionLabel: TopicOptionChoice => String = {
     case BUSINESS_AND_POLICY => "Business and policy"

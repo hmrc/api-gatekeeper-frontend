@@ -59,14 +59,14 @@ class ApplicationQueryServiceSpec
     val app = standardApp
 
     "get from production" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.PRODUCTION)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.Production)(qry, Some(app))
 
       await(qryService.fetchApplication(app.id)) shouldBe Some(app)
     }
 
     "get from sandbox" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.PRODUCTION)(qry, None)
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.SANDBOX)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.Production)(qry, None)
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithCollaborators]](Environment.Sandbox)(qry, Some(app))
 
       await(qryService.fetchApplication(app.id)) shouldBe Some(app)
     }
@@ -77,14 +77,14 @@ class ApplicationQueryServiceSpec
     val app = standardApp.withSubscriptions(someSubscriptions).withFieldValues(ApiFieldMap.empty)
 
     "get from production" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.Production)(qry, Some(app))
 
       await(qryService.fetchApplicationWithSubscriptionFields(app.id)) shouldBe Some(app)
     }
 
     "get from sandbox" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION)(qry, None)
-      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.Production)(qry, None)
+      TPOConnectorMock.Query.returnsForQry[Option[ApplicationWithSubscriptionFields]](Environment.Sandbox)(qry, Some(app))
 
       await(qryService.fetchApplicationWithSubscriptionFields(app.id)) shouldBe Some(app)
     }
@@ -96,7 +96,7 @@ class ApplicationQueryServiceSpec
     val app          = QueriedApplication(standardApp.details, standardApp.collaborators, Some(someSubscriptions), Some(ApiFieldMap.empty), Some(stateHistory))
 
     "get from production" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.PRODUCTION)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.Production)(qry, Some(app))
 
       await(qryService.fetchApplicationWithSubscriptionFieldsAndHistory(app.details.id)) shouldBe Some(ApplicationWithSubscriptionFieldsAndStateHistory(
         app.asAppSubsFields.get,
@@ -105,8 +105,8 @@ class ApplicationQueryServiceSpec
     }
 
     "get from sandbox" in new Setup {
-      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.PRODUCTION)(qry, None)
-      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.SANDBOX)(qry, Some(app))
+      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.Production)(qry, None)
+      TPOConnectorMock.Query.returnsForQry[Option[QueriedApplication]](Environment.Sandbox)(qry, Some(app))
 
       await(qryService.fetchApplicationWithSubscriptionFieldsAndHistory(app.details.id)) shouldBe Some(ApplicationWithSubscriptionFieldsAndStateHistory(
         app.asAppSubsFields.get,

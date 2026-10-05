@@ -270,15 +270,15 @@ class ApplicationService @Inject() (
     )
 
     appEnv match {
-      case Environment.PRODUCTION => productionApplicationConnector.createPrivApp(req)
-      case Environment.SANDBOX    => sandboxApplicationConnector.createPrivApp(req)
+      case Environment.Production => productionApplicationConnector.createPrivApp(req)
+      case Environment.Sandbox    => sandboxApplicationConnector.createPrivApp(req)
     }
   }
 
   def applicationConnectorFor(application: ApplicationWithCollaborators): ApplicationConnector = applicationConnectorFor(Some(application.deployedTo))
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
-    if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
+    if (environment.contains(Environment.Production)) productionApplicationConnector else sandboxApplicationConnector
 
   def apiScopeConnectorFor(application: ApplicationWithCollaborators): ApiScopeConnector =
     if (application.isProduction) productionApiScopeConnector else sandboxApiScopeConnector
@@ -344,9 +344,9 @@ class ApplicationService @Inject() (
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val environments: List[Environment] = envFilter match {
-      case ProductionEnvironment => List(Environment.PRODUCTION)
-      case SandboxEnvironment    => List(Environment.SANDBOX)
-      case AnyEnvironment        => List(Environment.PRODUCTION, Environment.SANDBOX)
+      case ProductionEnvironment => List(Environment.Production)
+      case SandboxEnvironment    => List(Environment.Sandbox)
+      case AnyEnvironment        => List(Environment.Production, Environment.Sandbox)
     }
 
     val params = apiFilter match {
@@ -364,8 +364,8 @@ class ApplicationService @Inject() (
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val qry                          = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil)
-    val sandboxApplicationsFuture    = tpoConnector.queryStream[QueriedApplication](Environment.SANDBOX)(qry)
-    val productionApplicationsFuture = tpoConnector.queryStream[QueriedApplication](Environment.PRODUCTION)(qry)
+    val sandboxApplicationsFuture    = tpoConnector.queryStream[QueriedApplication](Environment.Sandbox)(qry)
+    val productionApplicationsFuture = tpoConnector.queryStream[QueriedApplication](Environment.Production)(qry)
 
     for {
       sandboxApps    <- sandboxApplicationsFuture.map(_.map(_.asAppWithCollaborators))

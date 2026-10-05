@@ -53,7 +53,7 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
   }
 
   def subsFieldsCsv()(implicit hc: HeaderCarrier): Future[String] = {
-    apmConnector.subsFieldsCsv(Environment.PRODUCTION)
+    apmConnector.subsFieldsCsv(Environment.Production)
   }
 
   def saveFieldValues(

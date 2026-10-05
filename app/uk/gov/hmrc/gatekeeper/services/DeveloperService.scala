@@ -182,8 +182,8 @@ class DeveloperService @Inject() (
       user                   <- developerConnector.fetchByUserId(userId)
       xmlServiceNames        <- xmlService.getXmlServicesForUser(user.asInstanceOf[RegisteredUser])
       xmlOrganisations       <- xmlService.findOrganisationsByUserId(userId)
-      sandboxApplications    <- fetchApplicationsByUserId(Environment.SANDBOX, userId, includingDeleted)
-      productionApplications <- fetchApplicationsByUserId(Environment.PRODUCTION, userId, includingDeleted)
+      sandboxApplications    <- fetchApplicationsByUserId(Environment.Sandbox, userId, includingDeleted)
+      productionApplications <- fetchApplicationsByUserId(Environment.Production, userId, includingDeleted)
       organisations          <- organisationConnector.fetchOrganisationsByUserId(userId)
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, organisations)
   }

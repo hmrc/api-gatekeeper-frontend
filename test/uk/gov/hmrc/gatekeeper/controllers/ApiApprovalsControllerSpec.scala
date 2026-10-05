@@ -87,8 +87,8 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.SearchServices.thenReturn(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox)),
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = APPROVED)
       )
 
       val result = underTest.filterPage(false)(aLoggedInRequest.withCSRFToken)
@@ -161,11 +161,11 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Production)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = APPROVED)
       )
 
-      val result = underTest.historyPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.historyPage(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approvals")
@@ -177,14 +177,14 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Production)
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.historyPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
+      val result = underTest.historyPage(serviceName, Environment.Production)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -195,11 +195,11 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Production)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = APPROVED)
       )
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.reviewPage(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approvals")
@@ -209,14 +209,14 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Production)
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.reviewPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
+      val result = underTest.reviewPage(serviceName, Environment.Production)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -227,23 +227,23 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Production)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = APPROVED)
       )
 
-      val result = underTest.commentPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
+      val result = underTest.commentPage(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"Add a comment for the aName API")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.PRODUCTION)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Production)
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.commentPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
+      val result = underTest.commentPage(serviceName, Environment.Production)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -259,12 +259,12 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been approved")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
     }
 
     "call declineService if decline is selected on the review page and show the declined success page" in new Setup {
@@ -276,12 +276,12 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false", "declineDetail" -> declineNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been declined")
 
-      verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(*)
+      verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(*)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -289,18 +289,18 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Sandbox)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = NEW)
       )
 
       val request = aLoggedInRequest
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Please select an option")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Sandbox)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -308,18 +308,18 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Sandbox)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = NEW)
       )
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false")
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Enter the reasons for declining the API")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Sandbox)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -333,13 +333,13 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
-      val result = underTest.reviewAction(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"API was successfully approved but publishing failed. Please check API Approval history for the error details.")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
-      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(error))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(error))(*)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -347,7 +347,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.reviewAction(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
+      val result = underTest.reviewAction(serviceName, Environment.Production)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }
@@ -363,37 +363,37 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("comment" -> comment)
 
-      val result = underTest.addComment(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.addComment(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe OK
       contentAsString(result) should include(s"Your comment has been added for the $serviceName API")
 
-      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.SANDBOX), eqTo(gatekeeperUser), eqTo(comment))(*)
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(comment))(*)
     }
 
     "fail form validation when no no comment entered" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Sandbox)(
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = NEW)
       )
 
       val request = aLoggedInRequest
 
-      val result = underTest.addComment(serviceName, Environment.SANDBOX)(request.withCSRFToken)
+      val result = underTest.addComment(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"Comment is required")
 
-      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.SANDBOX)
+      DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Sandbox)
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.sessionRecordNotFound
 
-      val result = underTest.addComment(serviceName, Environment.PRODUCTION)(aLoggedInRequest)
+      val result = underTest.addComment(serviceName, Environment.Production)(aLoggedInRequest)
 
       status(result) shouldBe SEE_OTHER
     }

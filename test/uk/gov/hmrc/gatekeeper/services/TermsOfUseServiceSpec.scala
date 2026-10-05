@@ -42,7 +42,7 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val stdAppAgreement       = TermsOfUseAcceptance(responsibleIndividual, instant, SubmissionId.random)
 
   val importantSubmissionData    =
-    ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
+    ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocation.InDesktopSoftware, PrivacyPolicyLocation.InDesktopSoftware, List(stdAppAgreement))
   val appWithCheckInfoAgreements = DefaultApplication.modify(_.copy(checkInformation = Some(checkInformation)))
   val appWithStdAppAgreements    = appWithNoAgreements.withAccess(Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
   val nonStdApp                  = appWithNoAgreements.withAccess(Access.Privileged())

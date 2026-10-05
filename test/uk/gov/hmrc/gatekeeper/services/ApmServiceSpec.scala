@@ -71,7 +71,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         ApmConnectorMock.GetAllFieldDefinitions.returns(Map.empty)
 
-        val result = await(apmService.getAllFieldDefinitions(Environment.PRODUCTION))
+        val result = await(apmService.getAllFieldDefinitions(Environment.Production))
 
         result shouldBe Map.empty
       }

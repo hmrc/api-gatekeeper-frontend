@@ -94,8 +94,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)()
 
         val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -106,36 +106,36 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)()
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicDefinition, privateDefinition)
 
-        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.SANDBOX))
+        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.Sandbox))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
-        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.PRODUCTION)
-        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.SANDBOX)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.Production)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.Sandbox)
       }
 
       "Return a combination of public and private APIs in production" in new Setup {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)()
 
-        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.PRODUCTION))
+        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.Production))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
-        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.PRODUCTION)
-        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.SANDBOX)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.Production)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.Sandbox)
       }
 
       "Include no duplicates" in new Setup {
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicDefinition, privateDefinition)
 
         val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -150,16 +150,16 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       val publicSandbox  = publicDefinition.copy(name = "sandbox-public")
       val privateSandbox = privateDefinition.copy(name = "sandbox-private")
 
-      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicSandbox, privateSandbox)
+      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicSandbox, privateSandbox)
 
       val allDefinitions: List[(ApiDefinition, Environment)] = await(definitionService.apis)
 
       allDefinitions shouldBe Seq(
-        (privateDefinition, Environment.PRODUCTION),
-        (publicDefinition, Environment.PRODUCTION),
-        (privateSandbox, Environment.SANDBOX),
-        (publicSandbox, Environment.SANDBOX)
+        (privateDefinition, Environment.Production),
+        (publicDefinition, Environment.Production),
+        (privateSandbox, Environment.Sandbox),
+        (publicSandbox, Environment.Sandbox)
       )
     }
   }

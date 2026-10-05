@@ -81,7 +81,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
   val useProxy       = appConfig.apiPublisherSandboxUseProxy
   val bearerToken    = appConfig.apiPublisherSandboxBearerToken
@@ -95,7 +95,7 @@ class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http
 class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

@@ -37,7 +37,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       id: ApplicationId = ApplicationId.random,
       clientId: ClientId = ClientId.random,
       name: Option[String] = None,
-      deployedTo: Environment = Environment.SANDBOX,
+      deployedTo: Environment = Environment.Sandbox,
       description: Option[String] = None,
       collaborators: Set[Collaborator] = Set.empty,
       createdOn: Instant = instant,
@@ -45,7 +45,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       lastAccessTokenUsage: Option[Instant] = Some(instant),
       grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS,
       access: Access = Access.Standard(),
-      state: ApplicationState = ApplicationState(State.PRODUCTION, updatedOn = instant),
+      state: ApplicationState = ApplicationState(State.Production, updatedOn = instant),
       rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
@@ -98,7 +98,7 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       ApplicationId.random,
       ClientId("clientid"),
       Some("appName"),
-      Environment.PRODUCTION,
+      Environment.Production,
       None,
       Set.empty,
       createdOn,
@@ -177,15 +177,15 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   }
 
   implicit class ApplicationStateExtension(applicationState: ApplicationState) {
-    def inProduction        = applicationState.copy(name = State.PRODUCTION)
-    def inTesting           = applicationState.copy(name = State.TESTING)
-    def pendingGKApproval   = applicationState.copy(name = State.PENDING_GATEKEEPER_APPROVAL)
-    def pendingVerification = applicationState.copy(name = State.PENDING_REQUESTER_VERIFICATION)
+    def inProduction        = applicationState.copy(name = State.Production)
+    def inTesting           = applicationState.copy(name = State.Testing)
+    def pendingGKApproval   = applicationState.copy(name = State.PendingGatekeeperApproval)
+    def pendingVerification = applicationState.copy(name = State.PendingRequesterVerification)
   }
 
   implicit class ApplicationExtension(app: ApplicationWithCollaborators) {
-    def deployedToProduction = app.withEnvironment(Environment.PRODUCTION)
-    def deployedToSandbox    = app.withEnvironment(Environment.SANDBOX)
+    def deployedToProduction = app.withEnvironment(Environment.Production)
+    def deployedToSandbox    = app.withEnvironment(Environment.Sandbox)
 
     def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)

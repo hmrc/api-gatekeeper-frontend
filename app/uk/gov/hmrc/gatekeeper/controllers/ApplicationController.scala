@@ -100,11 +100,11 @@ class ApplicationController @Inject() (
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                                   = environment.getOrElse(Environment.SANDBOX)
+    val env                                                   = environment.getOrElse(Environment.Sandbox)
     val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url
@@ -117,7 +117,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                       = environment.getOrElse(Environment.SANDBOX)
+    val env                       = environment.getOrElse(Environment.Sandbox)
     val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
@@ -222,7 +222,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationWithSubscriptionsCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = environment.getOrElse(Environment.SANDBOX)
+    val env = environment.getOrElse(Environment.Sandbox)
     for {
       appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
     } yield Ok(toCsvContent(appsWithSubs, env))

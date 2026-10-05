@@ -39,7 +39,7 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
 
     val appId      = ApplicationId.random
     val appName    = ApplicationName("This is my app name")
-    val env        = Environment.PRODUCTION
+    val env        = Environment.Production
     val clientId   = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
 

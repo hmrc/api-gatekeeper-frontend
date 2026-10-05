@@ -214,7 +214,7 @@ class EmailsController @Inject() (
         appsSubscribedToSelectedApiSandBox: List[ApplicationWithCollaborators]    <- applicationService.fetchApplications(apiFilter, SandboxEnvironment)
         appsSubscribedToSelectedApiProduction: List[ApplicationWithCollaborators] <- applicationService.fetchApplications(apiFilter, ProductionEnvironment)
         allApps: List[ApplicationWithCollaborators]                                = appsSubscribedToSelectedApiSandBox ++ appsSubscribedToSelectedApiProduction
-        allAppsNotDeleted: List[ApplicationWithCollaborators]                      = allApps.filter(_.details.state.name != State.DELETED)
+        allAppsNotDeleted: List[ApplicationWithCollaborators]                      = allApps.filter(_.details.state.name != State.Deleted)
         allCollaborators: Set[Collaborator]                                        = allAppsNotDeleted.map(_.collaborators).flatten.toSet
         allCollaboratorEmails: Set[LaxEmailAddress]                                = allCollaborators.map(_.emailAddress)
         allRegisteredUsers: List[RegisteredUser]                                  <- developerService.fetchDevelopersByEmails(allCollaboratorEmails)

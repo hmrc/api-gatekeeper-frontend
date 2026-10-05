@@ -90,10 +90,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val mockResult = Future.successful(mock[PaginatedApplications])
 
     "ignores status of ALL" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("status" -> "ALL")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -101,10 +101,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "ignores valid params (e.g. accessType) when empty" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map(ParamNames.AccessType -> "")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -112,10 +112,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "converts page to pageNbr" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("page" -> "2")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -123,11 +123,11 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "split apiSubscription" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "Hello--1.0")
 
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -136,10 +136,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "converts ANY to HasSubscriptions" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "ANY")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -147,10 +147,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "converts NONE to NoSubscriptions" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "NONE")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -158,10 +158,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "filters out irrelevant params" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "NONE", "submit" -> "", "bobbins" -> "hello")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[String, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
@@ -334,7 +334,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val description = "App description"
 
     "call the production connector to create a new app in production" in new Setup {
-      val environment = Environment.PRODUCTION
+      val environment = Environment.Production
 
       ApplicationConnectorMock.Prod.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
@@ -355,7 +355,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     }
 
     "call the sandbox connector to create a new app in sandbox" in new Setup {
-      val environment = Environment.SANDBOX
+      val environment = Environment.Sandbox
 
       ApplicationConnectorMock.Sandbox.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 

@@ -56,7 +56,7 @@ class ApiPublisherConnectorSpec
     val url         = "/services"
 
     "return all API approval summaries" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), status = APPROVED))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.Production), status = APPROVED))
       val payload  = Json.toJson(response)
 
       stubFor(
@@ -91,7 +91,7 @@ class ApiPublisherConnectorSpec
     val url         = "/services/search?status=APPROVED"
 
     "return an API approval summary" in new Setup {
-      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.PRODUCTION), status = APPROVED))
+      val response = Seq(APIApprovalSummary(serviceName, "aName", None, Some(Environment.Production), status = APPROVED))
       val payload  = Json.toJson(response)
 
       stubFor(
@@ -128,7 +128,7 @@ class ApiPublisherConnectorSpec
     val url         = s"/service/$serviceName/summary"
 
     "return approval summary for an API" in new Setup {
-      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(Environment.PRODUCTION))
+      val validResponse = APIApprovalSummary(serviceName, "aName", Some("aDescription"), Some(Environment.Production))
 
       stubFor(
         get(urlEqualTo(url))

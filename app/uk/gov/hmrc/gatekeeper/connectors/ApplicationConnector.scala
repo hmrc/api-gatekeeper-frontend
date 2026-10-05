@@ -95,7 +95,7 @@ class SandboxApplicationConnector @Inject() (
   )(implicit override val ec: ExecutionContext
   ) extends ApplicationConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.applicationSandboxBaseUrl
   val useProxy       = appConfig.applicationSandboxUseProxy
   val bearerToken    = appConfig.applicationSandboxBearerToken
@@ -112,7 +112,7 @@ class ProductionApplicationConnector @Inject() (
   )(implicit override val ec: ExecutionContext
   ) extends ApplicationConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.applicationProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

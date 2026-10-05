@@ -65,16 +65,16 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     Developer(UnregisteredUser(email, idOf(email)), apps)
   }
 
-  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.PRODUCTION): ApplicationWithCollaborators =
+  def anApp(name: String, collaborators: Set[Collaborator], deployedTo: Environment = Environment.Production): ApplicationWithCollaborators =
     standardApp
       .withId(ApplicationId.random)
       .withCollaborators(collaborators)
       .withName(ApplicationName(name))
       .withEnvironment(deployedTo)
 
-  def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.PRODUCTION)
+  def aProdApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.Production)
 
-  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.SANDBOX)
+  def aSandboxApp(name: String, collaborators: Set[Collaborator]): ApplicationWithCollaborators = anApp(name, collaborators, deployedTo = Environment.Sandbox)
 
   val prodAppId = ApplicationId.random
 
@@ -137,8 +137,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       XmlServiceMock.GetXmlOrganisationsForUser.returnsOrganisations(user.userId, List(orgOne))
       OrganisationConnectorMock.FetchOrganisationsByUserId.returns(organisations)
 
-      TPOConnectorMock.Query.returnsForQry(Environment.PRODUCTION)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), productionApps)
-      TPOConnectorMock.Query.returnsForQry(Environment.SANDBOX)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), sandboxApps)
+      TPOConnectorMock.Query.returnsForQry(Environment.Production)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), productionApps)
+      TPOConnectorMock.Query.returnsForQry(Environment.Sandbox)(ApplicationQueries.applicationsByUserId(user.userId, includeDeleted), sandboxApps)
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {

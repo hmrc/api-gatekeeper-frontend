@@ -46,7 +46,7 @@
             Seq(TableRow(content = Text("Status")), TableRow(content = HtmlContent(buildApiApprovalStatusHtml(approvalSummary.status)))),
             Seq(TableRow(content = Text("Description")), TableRow(content = Text(approvalSummary.description.getOrElse("")))),
             Seq(TableRow(content = Text("Service ID")), TableRow(content = Text(approvalSummary.serviceName.value))),
-            Seq(TableRow(content = Text("Environment")), TableRow(content = Text(approvalSummary.environment.getOrElse(Environment.SANDBOX).displayText))),
+            Seq(TableRow(content = Text("Environment")), TableRow(content = Text(approvalSummary.environment.getOrElse(Environment.Sandbox).displayText))),
             Seq(TableRow(content = Text("Last update")), TableRow(content = Text(approvalSummary.lastUpdated.fold("")(DateFormatter.formatTwoDigitDay)))),
             Seq(TableRow(content = Text("Submission date")), TableRow(content = Text(approvalSummary.createdOn.fold("")(DateFormatter.formatTwoDigitDay))))
         )

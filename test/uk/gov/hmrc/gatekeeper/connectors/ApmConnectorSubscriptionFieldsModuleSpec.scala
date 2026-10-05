@@ -57,7 +57,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
   "urlSubscriptionFieldValues" should {
     "return simple url" in {
       val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues("http://example.com/subscription-fields")(
-        Environment.PRODUCTION,
+        Environment.Production,
         ClientId("1"),
         ApiContext("path"),
         ApiVersionNbr("1")
@@ -66,7 +66,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
     }
     "return complex encoded url" in {
       val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues("http://example.com/subscription-fields")(
-        Environment.PRODUCTION,
+        Environment.Production,
         ClientId("1 2"),
         ApiContext("path1/path2"),
         ApiVersionNbr("1.0 demo")
@@ -90,7 +90,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
           )
       )
 
-      await(underTest.subsFieldsCsv(Environment.PRODUCTION))
+      await(underTest.subsFieldsCsv(Environment.Production))
     }
   }
 
@@ -108,7 +108,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
               .withStatus(OK)
           )
       )
-      val result   = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
+      val result   = await(underTest.getAllFieldDefinitions(Environment.Production))
 
       result shouldBe response
     }
@@ -116,7 +116,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
 
   "saveFieldValues" should {
     val valuePath = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(wireMockUrl + "/subscription-fields")(
-      Environment.PRODUCTION,
+      Environment.Production,
       clientIdOne,
       apiContextOne,
       apiVersionNbrOne
@@ -135,7 +135,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
               .withStatus(OK)
           )
       )
-      val result = await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+      val result = await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
 
       result shouldBe SaveSubscriptionFieldsSuccessResponse
     }
@@ -150,7 +150,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+        await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
       }
     }
 
@@ -165,7 +165,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+        await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
       }.statusCode shouldBe NOT_FOUND
     }
   }

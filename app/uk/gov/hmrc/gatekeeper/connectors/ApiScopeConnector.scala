@@ -51,7 +51,7 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
 class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
   val useProxy       = appConfig.apiScopeSandboxUseProxy
   val bearerToken    = appConfig.apiScopeSandboxBearerToken
@@ -65,7 +65,7 @@ class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: Ht
 class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

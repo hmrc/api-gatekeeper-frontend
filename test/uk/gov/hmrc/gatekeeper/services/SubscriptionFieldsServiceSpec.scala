@@ -53,13 +53,13 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       await(service.saveFieldValues(productionApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockApmConnectorModule).saveFieldValues(
-        eqTo(Environment.PRODUCTION),
+        eqTo(Environment.Production),
         eqTo(productionApplication.clientId),
         eqTo(apiIdentifier.context),
         eqTo(apiIdentifier.versionNbr),
         eqTo(fields)
       )(*)
-      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.SANDBOX), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.Sandbox), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 
@@ -74,9 +74,9 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       await(service.saveFieldValues(sandboxApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockApmConnectorModule)
-        .saveFieldValues(eqTo(Environment.SANDBOX), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(Environment.Sandbox), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
       verify(mockApmConnectorModule, never)
-        .saveFieldValues(eqTo(Environment.PRODUCTION), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+        .saveFieldValues(eqTo(Environment.Production), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
     }
   }
 }

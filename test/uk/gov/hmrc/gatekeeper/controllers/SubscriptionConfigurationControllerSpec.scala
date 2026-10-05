@@ -112,7 +112,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(fields.head._2.value)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
 
     }
 
@@ -158,7 +158,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(fields.head._2.value)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {

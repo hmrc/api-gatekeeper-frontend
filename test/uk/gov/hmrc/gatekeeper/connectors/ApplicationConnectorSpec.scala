@@ -81,11 +81,11 @@ class ApplicationConnectorSpec
           "app 1 name",
           1,
           List(
-            ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now),
-            ApplicationStateHistoryItem(State.PRODUCTION, LocalDateTime.now)
+            ApplicationStateHistoryItem(State.Testing, LocalDateTime.now),
+            ApplicationStateHistoryItem(State.Production, LocalDateTime.now)
           )
         ),
-        ApplicationStateHistory(ApplicationId.random, "app 2 name", 2, List(ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now)))
+        ApplicationStateHistory(ApplicationId.random, "app 2 name", 2, List(ApplicationStateHistoryItem(State.Testing, LocalDateTime.now)))
       )
       val payload                        = Json.toJson(applicationsWithStateHistories).toString
 
@@ -113,10 +113,10 @@ class ApplicationConnectorSpec
       val totpSecrets    = Some(TotpSecrets("secret"))
       val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
 
-      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None, None)
+      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.Production, admin.toSet, None, None)
 
       val request               = Json.toJson(createPrivAppRequest).toString
-      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.token.clientId, totpSecrets, appAccess)
+      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.Production, app.token.clientId, totpSecrets, appAccess)
       val response              =
         s"""{
            |  "details": ${Json.toJson(app).toString()},

@@ -64,7 +64,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         BoxCreator(ClientId("clientId")),
         Some(anAppId),
         Some(boxSubscriber),
-        Environment.PRODUCTION
+        Environment.Production
       )
 
       val expectedCsv = s"""|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl

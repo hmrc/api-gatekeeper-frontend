@@ -43,8 +43,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchAllServices" should {
     "fetch all the services" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production)))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = APPROVED))
       ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries*)
       ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries*)
 
@@ -58,8 +58,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "searchServices" should {
     "call production Api publisher connector correctly" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = APPROVED))
       ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries*)
       ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries*)
 
@@ -71,12 +71,12 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "returns results sorted in order of newest first (created date descending)" in new Setup {
-      val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.Production), status = APPROVED)
       val sandboxSummary1 = APIApprovalSummary(
         serviceName,
         "sandboxSummary1",
         Option("aDescription"),
-        Some(Environment.SANDBOX),
+        Some(Environment.Sandbox),
         status = APPROVED,
         createdOn = prodSummary1.createdOn.map(_.plusSeconds(1))
       )
@@ -84,7 +84,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
         serviceName,
         "prodSummary2",
         Option("aDescription"),
-        Some(Environment.PRODUCTION),
+        Some(Environment.Production),
         status = APPROVED,
         createdOn = sandboxSummary1.createdOn.map(_.plusSeconds(1))
       )
@@ -92,11 +92,11 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
         serviceName,
         "sandboxSummary2",
         Option("aDescription"),
-        Some(Environment.SANDBOX),
+        Some(Environment.Sandbox),
         status = APPROVED,
         createdOn = prodSummary2.createdOn.map(_.plusSeconds(1))
       )
-      val sandboxSummary3 = APIApprovalSummary(serviceName, "sandboxSummary2", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED, createdOn = None)
+      val sandboxSummary3 = APIApprovalSummary(serviceName, "sandboxSummary2", Option("aDescription"), Some(Environment.Sandbox), status = APPROVED, createdOn = None)
 
       val expectedProductionSummaries = List(prodSummary1, prodSummary2)
       val expectedSandboxSummaries    = List(sandboxSummary1, sandboxSummary2, sandboxSummary3)
@@ -114,10 +114,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "fetchApiDefinitionSummary" should {
     "fetch the Api definition summary for sandbox" in new Setup {
-      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX))
+      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox))
       ApiPublisherConnectorMock.Sandbox.FetchApprovalSummary.returns(expectedSummary)
 
-      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.SANDBOX))
+      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.Sandbox))
 
       result shouldBe expectedSummary
 
@@ -126,10 +126,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "fetch the Api definition summary for production" in new Setup {
-      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION))
+      val expectedSummary = APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production))
       ApiPublisherConnectorMock.Prod.FetchApprovalSummary.returns(expectedSummary)
 
-      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.PRODUCTION))
+      val result = await(underTest.fetchApprovalSummary(serviceName, Environment.Production))
 
       result shouldBe expectedSummary
 
@@ -145,7 +145,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "approve the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
+      await(underTest.approveService(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockProductionApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
@@ -154,7 +154,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "approve the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.ApproveService.succeeds()
 
-      await(underTest.approveService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
+      await(underTest.approveService(serviceName, Environment.Production, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockSandboxApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
@@ -167,7 +167,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "decline the service in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.DeclineService.succeeds()
 
-      await(underTest.declineService(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
+      await(underTest.declineService(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockProductionApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
@@ -176,7 +176,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "decline the service in production" in new Setup {
       ApiPublisherConnectorMock.Prod.DeclineService.succeeds()
 
-      await(underTest.declineService(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
+      await(underTest.declineService(serviceName, Environment.Production, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockSandboxApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
@@ -190,7 +190,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "add comment in sandbox" in new Setup {
       ApiPublisherConnectorMock.Sandbox.AddComment.succeeds()
 
-      await(underTest.addComment(serviceName, Environment.SANDBOX, gatekeeperUser, notes))
+      await(underTest.addComment(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
       verify(mockSandboxApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockProductionApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
@@ -199,7 +199,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "add comment in production" in new Setup {
       ApiPublisherConnectorMock.Prod.AddComment.succeeds()
 
-      await(underTest.addComment(serviceName, Environment.PRODUCTION, gatekeeperUser, notes))
+      await(underTest.addComment(serviceName, Environment.Production, gatekeeperUser, notes))
 
       verify(mockProductionApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
       verify(mockSandboxApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
@@ -208,13 +208,13 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "connectorFor" should {
     "return the sandbox API publisher connector when asked for sandbox" in new Setup {
-      val connector = underTest.connectorFor(Environment.SANDBOX)
+      val connector = underTest.connectorFor(Environment.Sandbox)
 
       connector shouldBe mockSandboxApiPublisherConnector
     }
 
     "return the production API publisher connector when asked for production" in new Setup {
-      val connector = underTest.connectorFor(Environment.PRODUCTION)
+      val connector = underTest.connectorFor(Environment.Production)
 
       connector shouldBe mockProductionApiPublisherConnector
     }

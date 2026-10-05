@@ -290,7 +290,7 @@ object DeleteDeveloperRequest {
 }
 
 final case class CreatePrivAppForm(
-    environment: Environment = Environment.SANDBOX,
+    environment: Environment = Environment.Sandbox,
     applicationName: String = "",
     applicationDescription: String = "",
     adminEmail: String = ""
@@ -377,8 +377,8 @@ object ApprovalStatus {
   def unsafeApply(text: String): ApprovalStatus = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid ApprovalStatus"))
 
   import play.api.libs.json.Format
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
-  implicit val format: Format[ApprovalStatus] = SealedTraitJsonFormatting.createFormatFor[ApprovalStatus]("ApprovalStatus", apply)
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
+  implicit val format: Format[ApprovalStatus] = SimpleEnumJsonFormatting.createStringFormatFor[ApprovalStatus]("ApprovalStatus", apply, _.toString().toUpperCase())
 }
 
 case class ApiApprovalRequest(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)

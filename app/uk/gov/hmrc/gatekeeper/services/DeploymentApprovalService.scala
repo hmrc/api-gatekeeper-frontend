@@ -70,5 +70,5 @@ class DeploymentApprovalService @Inject() (
     connectorFor(environment).addComment(serviceName, actor, notes)
   }
 
-  def connectorFor(environment: Environment) = if (environment == Environment.PRODUCTION) productionApiPublisherConnector else sandboxApiPublisherConnector
+  def connectorFor(environment: Environment) = if (environment == Environment.Production) productionApiPublisherConnector else sandboxApiPublisherConnector
 }
