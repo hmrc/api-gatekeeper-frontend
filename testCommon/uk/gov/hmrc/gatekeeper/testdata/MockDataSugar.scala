@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, OrganisationIdFixtures, UserId}
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlApi, XmlOrganisation, XmlOrganisationId}
 
 object MockDataSugar extends ApplicationWithSubscriptionsFixtures with OrganisationIdFixtures {
   val approvedApp1 = ApplicationId.unsafeApply("df0c32b6-bbb7-46eb-ba50-e6e5459162ff")
@@ -100,7 +100,7 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures with Organisat
   )
 
   val xmlApis          = Json.toJson(Seq(xmlApiOne)).toString
-  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
+  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = XmlOrganisationId(UUID.randomUUID()), collaborators = List.empty)
   val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
   val deskproOrganisationId = organisationIdOne
