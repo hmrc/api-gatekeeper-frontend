@@ -41,10 +41,10 @@ import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, OrganisationConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlOrganisation, XmlOrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
-class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationBuilder {
+class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with ApplicationBuilder with OrganisationIdFixtures {
 
   def aUser(name: String, verified: Boolean = true, emailPreferences: EmailPreferences = EmailPreferences.noPreferences) = {
     val email = s"$name@example.com".toLaxEmail
@@ -111,11 +111,11 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val commonUsers                 = List(verifiedAdminUser, unverifiedUser, developerUser)
     val apiContext                  = ApiContext("api")
     val apiVersion                  = ApiVersionNbr.random
-    val deskproOrganisations        = List(DeskproOrganisation(uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1"), "org name 1", List.empty))
+    val deskproOrganisations        = List(DeskproOrganisation(organisationIdOne, "org name 1", List.empty))
     val organisationId              = uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationId.random
     val organisation                = Organisation(organisationId, OrganisationName("Org name"), Organisation.OrganisationType.UkLimitedCompany, instant, Set.empty)
 
-    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
+    val orgOne = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = XmlOrganisationId(UUID.randomUUID()), collaborators = List.empty)
 
     val xmlServiceNames = Set("XML API one", "XML API two")
     val offset          = 0

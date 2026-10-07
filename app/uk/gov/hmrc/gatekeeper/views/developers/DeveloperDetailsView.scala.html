@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-@import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
+@import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
@@ -31,7 +31,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developer: Developer, gatekeeperXmlServicesUrlFn: (OrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
+@(developer: Developer, gatekeeperXmlServicesUrlFn: (XmlOrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
 
 @renderOrganisations(orgList: List[Organisation]) = {
     @for(org <- orgList) {

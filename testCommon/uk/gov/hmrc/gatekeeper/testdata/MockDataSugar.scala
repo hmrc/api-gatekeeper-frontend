@@ -24,12 +24,12 @@ import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionsFixtures, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, OrganisationIdFixtures, UserId}
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlApi, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlApi, XmlOrganisation, XmlOrganisationId}
 
-object MockDataSugar extends ApplicationWithSubscriptionsFixtures {
+object MockDataSugar extends ApplicationWithSubscriptionsFixtures with OrganisationIdFixtures {
   val approvedApp1 = ApplicationId.unsafeApply("df0c32b6-bbb7-46eb-ba50-e6e5459162ff")
   val approvedApp2 = ApplicationId.unsafeApply("a4b47c82-5888-41fd-aa83-da2bbd4679d1")
   val approvedApp3 = ApplicationId.unsafeApply("9688ad02-230e-42b7-8f9a-be593565bfdc")
@@ -100,10 +100,10 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures {
   )
 
   val xmlApis          = Json.toJson(Seq(xmlApiOne)).toString
-  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty)
+  val orgOne           = XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = XmlOrganisationId(UUID.randomUUID()), collaborators = List.empty)
   val xmlOrganisations = Json.toJson(List(orgOne)).toString
 
-  val deskproOrganisationId = uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId("1")
+  val deskproOrganisationId = organisationIdOne
   val deskproOrganisation   = DeskproOrganisation(deskproOrganisationId, "Deskpro organisation 1", List.empty)
 
   val approvedApp1Model = standardApp

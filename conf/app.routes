@@ -77,7 +77,7 @@ POST        /applications/:id/team-members/remove                             uk
 GET         /applications/:id/test-get-from-tpo                               uk.gov.hmrc.gatekeeper.controllers.ThirdPartyOrchestratorTestController.page(id: ApplicationId)
 GET         /applications/:id/test-get-from-admin-api                         uk.gov.hmrc.gatekeeper.controllers.ApiPlatformAdminApiTestController.page(id: ApplicationId)
 
-GET         /organisations/:id/applications                                   uk.gov.hmrc.gatekeeper.controllers.OrganisationController.organisationPage(id:  uk.gov.hmrc.gatekeeper.models.organisations.OrganisationId)
+GET         /organisations/:id/applications                                   uk.gov.hmrc.gatekeeper.controllers.OrganisationController.organisationPage(id: OrganisationId)
 
 GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 

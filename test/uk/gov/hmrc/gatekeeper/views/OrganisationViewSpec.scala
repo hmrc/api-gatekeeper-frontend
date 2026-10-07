@@ -34,12 +34,12 @@ package uk.gov.hmrc.gatekeeper.views
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, _}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.AppConfig
 import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
-import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
+import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 import uk.gov.hmrc.gatekeeper.views.html.applications.OrganisationView
 
 class OrganisationViewSpec extends CommonViewSpec {
@@ -53,7 +53,6 @@ class OrganisationViewSpec extends CommonViewSpec {
     val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
     val organisationName     = "Organisation Name"
     val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
-    val organisationId       = OrganisationId("1")
 
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 

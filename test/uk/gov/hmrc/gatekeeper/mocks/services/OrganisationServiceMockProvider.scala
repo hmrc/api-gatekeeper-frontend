@@ -22,7 +22,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationId
+import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 import uk.gov.hmrc.gatekeeper.services.OrganisationService
 
 trait OrganisationServiceMockProvider {

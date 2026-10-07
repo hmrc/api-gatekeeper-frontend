@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.OrganisationId
+import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationQueryService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.developers._
@@ -64,7 +64,7 @@ class DeveloperController @Inject() (
     with ApplicationLogger {
 
   def developerPage(developerId: UserId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val buildGateKeeperXmlServicesUrlFn: (OrganisationId) => String = (organisationId) =>
+    val buildGateKeeperXmlServicesUrlFn: (XmlOrganisationId) => String = (organisationId) =>
       s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
     developerService.fetchDeveloper(developerId, FetchDeletedApplications.Include).map(developer => Ok(developerDetailsView(developer, buildGateKeeperXmlServicesUrlFn)))

@@ -27,11 +27,11 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationIdFixtures}
 import uk.gov.hmrc.apiplatform.modules.common.utils._
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.DeskproTicket
-import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId}
+import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiPlatformDeskproConnectorSpec
@@ -41,7 +41,7 @@ class ApiPlatformDeskproConnectorSpec
     with UrlEncoding
     with FixedClock {
 
-  trait Setup {
+  trait Setup extends OrganisationIdFixtures {
     implicit val hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
@@ -49,9 +49,8 @@ class ApiPlatformDeskproConnectorSpec
     val mockConnectorConfig: ApiPlatformDeskproConnector.Config = mock[ApiPlatformDeskproConnector.Config]
     when(mockConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    val organisationId: OrganisationId = OrganisationId("1")
-    val organisation                   = DeskproOrganisation(organisationId, "test org", List(DeskproPerson("Bob", "bob@example.com".toLaxEmail)))
-    val organisationsForUser           = List(DeskproOrganisation(organisationId, "test org 1", List.empty), DeskproOrganisation(OrganisationId("2"), "test org 2", List.empty))
+    val organisation         = DeskproOrganisation(organisationIdOne, "test org", List(DeskproPerson("Bob", "bob@example.com".toLaxEmail)))
+    val organisationsForUser = List(DeskproOrganisation(organisationIdOne, "test org 1", List.empty), DeskproOrganisation(organisationIdTwo, "test org 2", List.empty))
 
     val ticketId: Int = 123
     val personId: Int = 16
@@ -62,7 +61,7 @@ class ApiPlatformDeskproConnectorSpec
 
   "getOrganisation" should {
     "return organisation" in new Setup {
-      val url     = s"/organisation/1"
+      val url     = s"/organisation/$organisationIdOne"
       val payload = Json.toJson(organisation)
 
       stubFor(
@@ -74,7 +73,7 @@ class ApiPlatformDeskproConnectorSpec
           )
       )
 
-      val result = await(underTest.getOrganisation(organisationId, hc))
+      val result = await(underTest.getOrganisation(organisationIdOne, hc))
 
       result shouldBe organisation
     }

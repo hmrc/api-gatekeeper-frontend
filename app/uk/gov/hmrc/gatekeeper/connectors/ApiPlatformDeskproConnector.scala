@@ -26,9 +26,9 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveResult, MarkPersonInactiveSuccess}
-import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
+import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 @Singleton
 class ApiPlatformDeskproConnector @Inject() (

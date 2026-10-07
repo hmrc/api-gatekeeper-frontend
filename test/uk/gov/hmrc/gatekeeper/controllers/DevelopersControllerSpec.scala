@@ -35,7 +35,7 @@ import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailT
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, TaxRegimeInterests}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, OrganisationId, VendorId, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, VendorId, XmlOrganisation, XmlOrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -214,13 +214,13 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           )
 
         private val xmlOrg1 = XmlOrganisation(
-          OrganisationId(UUID.randomUUID()),
+          XmlOrganisationId(UUID.randomUUID()),
           VendorId(1),
           "xml org name 1",
           List(Collaborator(userId3, LaxEmailAddress("developer3@example.com")))
         )
         private val xmlOrg2 = XmlOrganisation(
-          OrganisationId(UUID.randomUUID()),
+          XmlOrganisationId(UUID.randomUUID()),
           VendorId(2),
           "xml org name 2",
           List(Collaborator(userId1, LaxEmailAddress("developer1@example.com")), Collaborator(userId3, LaxEmailAddress("developer3@example.com")))

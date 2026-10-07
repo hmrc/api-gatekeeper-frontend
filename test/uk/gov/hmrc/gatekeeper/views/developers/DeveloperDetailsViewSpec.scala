@@ -30,7 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.models.xml.{OrganisationId, VendorId, XmlOrganisation}
+import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlOrganisation, XmlOrganisationId}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
@@ -42,9 +42,10 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollab
 
     val xmlServiceNames = Set("XML Service 1", "XML Service 2", "XML Service 3")
 
-    val xmlOrganisations = List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = OrganisationId(UUID.randomUUID()), collaborators = List.empty))
+    val xmlOrganisations =
+      List(XmlOrganisation(name = "Organisation one", vendorId = VendorId(1), organisationId = XmlOrganisationId(UUID.randomUUID()), collaborators = List.empty))
 
-    val buildXmlServicesFeUrl: (OrganisationId) => String = (organisationId) =>
+    val buildXmlServicesFeUrl: (XmlOrganisationId) => String = (organisationId) =>
       s"/api-gatekeeper-xml-services/organisations/${organisationId.value}"
 
     val smsMfaDetailVerified: SmsMfaDetail =
