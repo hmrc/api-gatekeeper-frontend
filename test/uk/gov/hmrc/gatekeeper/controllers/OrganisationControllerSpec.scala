@@ -27,11 +27,12 @@ import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationIdFixtures
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.mocks.services.OrganisationServiceMockProvider
-import uk.gov.hmrc.gatekeeper.models.organisations.{OrganisationId, OrganisationWithApps}
+import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
@@ -43,6 +44,7 @@ class OrganisationControllerSpec
     with TitleChecker
     with CollaboratorTracker
     with ApplicationWithCollaboratorsFixtures
+    with OrganisationIdFixtures
     with FixedClock {
 
   implicit val materializer: Materializer = app.materializer
@@ -64,7 +66,6 @@ class OrganisationControllerSpec
       val applicationResponse  = standardApp
       val organisationName     = "Organisation Name"
       val organisationWithApps = OrganisationWithApps(organisationName, List(applicationResponse))
-      val organisationId       = OrganisationId("1")
 
       LdapAuthorisationServiceMock.Auth.notAuthorised
 
@@ -84,9 +85,9 @@ class OrganisationControllerSpec
     "organisationPage" should {
       "on request get applications for organisation" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        OrganisationServiceMock.FetchApplicationsForOrganisation.returns(organisationId)(organisationWithApps)
+        OrganisationServiceMock.FetchApplicationsForOrganisation.returns(organisationIdOne)(organisationWithApps)
 
-        val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.organisationPage(organisationIdOne)(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
         titleOf(eventualResult) shouldBe s"Unit Test Title - $organisationName"
@@ -99,7 +100,7 @@ class OrganisationControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         OrganisationServiceMock.FetchApplicationsForOrganisation.returnsNotFound()
 
-        val eventualResult: Future[Result] = underTest.organisationPage(organisationId)(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.organisationPage(organisationIdOne)(aLoggedInRequest)
 
         status(eventualResult) shouldBe NOT_FOUND
         titleOf(eventualResult) shouldBe s"Page not found"

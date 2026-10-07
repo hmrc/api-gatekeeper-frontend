@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models.organisations
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
 
 case class DeskproOrganisation(organisationId: OrganisationId, organisationName: String, people: List[DeskproPerson])
 

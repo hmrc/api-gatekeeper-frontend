@@ -23,10 +23,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
 import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, OrganisationId}
+import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 trait ApiPlatformDeskproConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>

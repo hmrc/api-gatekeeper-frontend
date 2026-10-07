@@ -24,21 +24,21 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationIdFixtures
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
-import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationId, OrganisationWithApps}
+import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, DeskproPerson, OrganisationWithApps}
 
-class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures {
+class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with OrganisationIdFixtures {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
     implicit val hc: HeaderCarrier = new HeaderCarrier
 
     val organisationService = new OrganisationService(apiPlatformDeskproConnector, TPOConnectorMock.aMock)
 
-    val organisationId      = OrganisationId("1")
     val organisationName    = "Org Name"
     val email               = "bob@example.com".toLaxEmail
-    val organisation        = DeskproOrganisation(organisationId, organisationName, List(DeskproPerson("name", email)))
+    val organisation        = DeskproOrganisation(organisationIdOne, organisationName, List(DeskproPerson("name", email)))
     val applicationResponse = standardApp
   }
 
@@ -48,7 +48,7 @@ class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollabor
         ApiPlatformDeskproConnectorMock.GetOrganisation.returns(organisation)
         TPOConnectorMock.GetApplicationsByEmails.returns(List(email))(applicationResponse)
 
-        val result = await(organisationService.fetchOrganisationWithApplications(organisationId))
+        val result = await(organisationService.fetchOrganisationWithApplications(organisationIdOne))
 
         result shouldBe OrganisationWithApps(organisationName, List(applicationResponse))
       }
