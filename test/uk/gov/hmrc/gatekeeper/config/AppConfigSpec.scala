@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.config
+package uk.gov.hmrc.gatekeeper.common.config
 
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 
@@ -22,6 +22,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 class AppConfigSpec extends AsyncHmrcSpec with GuiceOneAppPerTest {
 

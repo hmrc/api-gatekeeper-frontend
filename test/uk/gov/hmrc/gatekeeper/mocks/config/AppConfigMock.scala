@@ -18,7 +18,7 @@ package mocks.config
 
 import org.mockito.MockitoSugar
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 trait AppConfigMock extends MockitoSugar {
   implicit val mockConfig: AppConfig = mock[AppConfig]

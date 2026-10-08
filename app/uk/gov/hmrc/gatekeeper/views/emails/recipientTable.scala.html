@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.gatekeeper.models._
 
 @import play.api.libs.json.JsValue
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import play.api.libs.json.Json
 
 @(users: Seq[AbstractUser], emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)

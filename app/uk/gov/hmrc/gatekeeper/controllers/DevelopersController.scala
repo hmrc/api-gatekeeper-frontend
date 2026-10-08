@@ -33,7 +33,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation

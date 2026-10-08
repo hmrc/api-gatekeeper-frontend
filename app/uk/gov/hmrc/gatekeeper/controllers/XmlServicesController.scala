@@ -22,7 +22,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 @Singleton
 class XmlServicesController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {

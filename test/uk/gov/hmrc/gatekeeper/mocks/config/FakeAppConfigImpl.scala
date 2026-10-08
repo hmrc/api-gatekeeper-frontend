@@ -22,7 +22,7 @@ import com.google.inject.Singleton
 
 import play.api.Configuration
 
-import uk.gov.hmrc.gatekeeper.config.AppConfigImpl
+import uk.gov.hmrc.gatekeeper.common.config.AppConfigImpl
 
 @Singleton
 class FakeAppConfigImpl @Inject() (config: Configuration)
