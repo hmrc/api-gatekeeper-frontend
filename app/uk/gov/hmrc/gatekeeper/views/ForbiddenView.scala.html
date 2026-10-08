@@ -16,7 +16,7 @@
 
 @this(main: MainView)
 
-@()(implicit request : Request[_], messagesProvider: MessagesProvider)
+@()(implicit request : Request[?], messagesProvider: MessagesProvider)
 
 @main(title = "Forbidden") {
   <h1 class="govuk-heading-l">You do not have permission to access Gatekeeper</h1>

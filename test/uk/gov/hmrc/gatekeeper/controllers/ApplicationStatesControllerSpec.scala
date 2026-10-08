@@ -51,7 +51,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec {
       "return csv data for ldap authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges)*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -59,7 +59,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec {
 
       "return csv data for stride authorised user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges)*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentAsString(result) shouldBe expectedCsv
@@ -68,7 +68,7 @@ class ApplicationStatesControllerSpec extends ControllerBaseSpec {
       "return csv data with correct headers" in new Setup {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
-        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges): _*)
+        ApplicationServiceMock.FetchProdAppStateHistories.thenReturn(unsafeWrapArray(appStateHistoryChanges)*)
         val result = underTest.csv()(aLoggedInRequest)
         status(result) shouldBe OK
         contentType(result) shouldBe Some("text/csv")

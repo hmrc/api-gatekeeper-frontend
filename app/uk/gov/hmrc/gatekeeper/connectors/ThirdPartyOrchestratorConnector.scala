@@ -103,7 +103,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
       .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
-      .stream[Source[ByteString, _]]
+      .stream[Source[ByteString, ?]]
       .map {
         _.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
           .map { bytestring =>

@@ -97,12 +97,12 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter      = StatusFilter(None)
         val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified))
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps*)
         FetchAllApiDefinitions.inAny.returns()
-        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps: _*)(developers: _*)
-        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers: _*)
-        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps: _*)(users: _*)(developers: _*)
-        DeveloperServiceMock.FetchUsers.returns(users: _*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps*)(developers*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps*)(users*)(developers*)
+        DeveloperServiceMock.FetchUsers.returns(users*)
       }
 
       DeveloperServiceMock.RemoveMfa.returns(user)

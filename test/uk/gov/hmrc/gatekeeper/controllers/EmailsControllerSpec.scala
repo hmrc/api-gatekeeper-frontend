@@ -103,11 +103,11 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
 
-      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
-      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
+      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified*)
 
-      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
+      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users*)
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
@@ -136,16 +136,16 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val twoApis = List(api1, api2)
 
       def givenApiDefinition2Apis() = {
-        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis*)
       }
 
       def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications*)
       }
 
       def givenDevelopersByEmail(users: List[RegisteredUser]) = {
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users*)
       }
 
       val serviceNameOne   = ServiceName("serviceNameOne")
@@ -346,7 +346,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
         when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
-        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users: _*)
+        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users*)
 
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
 
@@ -400,7 +400,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users*)
 
         val request                = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
         val result: Future[Result] = underTest.emailPreferencesTopic(Some(TopicOptionChoice.TECHNICAL))(request)
@@ -438,7 +438,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users*)
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
         val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.TECHNICAL), Some(category1))(request)

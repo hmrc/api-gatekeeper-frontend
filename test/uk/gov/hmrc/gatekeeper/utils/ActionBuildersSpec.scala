@@ -56,7 +56,7 @@ class ActionBuildersSpec extends ControllerBaseSpec {
     implicit val aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
     implicit val messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
-    val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
+    val actionReturns200Body: Request[?] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 
     val expectedResult = "result text"
   }

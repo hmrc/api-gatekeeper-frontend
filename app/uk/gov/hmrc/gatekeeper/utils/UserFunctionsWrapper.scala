@@ -29,7 +29,7 @@ trait UserFunctionsWrapper {
     }
   }
 
-  def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
+  def getQueryParametersAsKeyValues(request: LoggedInRequest[?]) = {
     request.queryString.map { case (k, v) => k -> v.mkString }
   }
 

@@ -44,8 +44,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "fetch all the services" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production)))
       val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = ApprovalStatus.APPROVED))
-      ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries: _*)
-      ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries: _*)
+      ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries*)
+      ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries*)
 
       val result = await(underTest.fetchAllServices())
 
@@ -59,8 +59,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     "call production Api publisher connector correctly" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = ApprovalStatus.APPROVED))
       val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = ApprovalStatus.APPROVED))
-      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
-      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
+      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries*)
+      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries*)
 
       val result = await(underTest.searchServices(Seq("status" -> "NEW", "status" -> "APPROVED")))
 
@@ -100,8 +100,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
       val expectedProductionSummaries = List(prodSummary1, prodSummary2)
       val expectedSandboxSummaries    = List(sandboxSummary1, sandboxSummary2, sandboxSummary3)
 
-      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
-      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
+      ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries*)
+      ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries*)
 
       val result = await(underTest.searchServices(Seq("status" -> "NEW", "status" -> "APPROVED")))
 

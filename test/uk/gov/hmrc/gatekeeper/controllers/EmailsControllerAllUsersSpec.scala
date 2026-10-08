@@ -68,9 +68,9 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
       val users3Verified1Unverified = users ++ List(unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
 
-      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
-      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
+      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified*)
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
