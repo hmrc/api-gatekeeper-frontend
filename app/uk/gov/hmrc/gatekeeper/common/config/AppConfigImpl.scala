@@ -22,10 +22,9 @@ import com.google.inject.Singleton
 
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-import uk.gov.hmrc.apiplatform.modules.common
 
 @Singleton
-class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with common.config.EBbridgeConfigHelper {
+class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with EBbridgeConfigHelper {
 
   def title = "HMRC API Gatekeeper"
 
