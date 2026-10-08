@@ -86,8 +86,8 @@ class ApiDefinitionController @Inject() (
         apiDefinition.context,
         v.versionNbr,
         v.versionSource,
-        v.status.displayText,
-        v.access.displayText,
+        v.status.toString,
+        v.access.toString,
         environment
       )
     )

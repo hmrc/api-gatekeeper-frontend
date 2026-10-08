@@ -107,7 +107,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include("Subscription configuration")
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(versionData.status.displayText)
+      responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
       responseBody should include(fields.head._2.value)
 
@@ -146,13 +146,13 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${versionData.status.displayText}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${versionData.status.toString}"
 
       val responseBody = Helpers.contentAsString(result)
 
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(versionData.status.displayText)
+      responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.description)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
       responseBody should include(fields.head._2.value)

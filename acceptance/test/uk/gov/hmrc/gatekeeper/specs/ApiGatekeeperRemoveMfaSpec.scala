@@ -88,9 +88,9 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA detail types and names")
-      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AuthenticatorApp.displayText)
+      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AuthenticatorApp.toString)
       assert(DeveloperDetailsPage.authAppMfaName() == "On (Google Auth App)")
-      assert(DeveloperDetailsPage.smsMfaType() == MfaType.Sms.displayText)
+      assert(DeveloperDetailsPage.smsMfaType() == MfaType.Sms.toString)
       assert(DeveloperDetailsPage.smsMfaName() == "On (****6789)")
 
       Then("I can see the link to remove MFA")

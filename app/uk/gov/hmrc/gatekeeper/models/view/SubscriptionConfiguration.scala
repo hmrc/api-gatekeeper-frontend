@@ -46,7 +46,7 @@ object SubscriptionVersion {
           apiDefinition.name,
           contextMap._1,
           versionMap._1,
-          apiDefinition.versions(versionMap._1).status.displayText,
+          apiDefinition.versions(versionMap._1).status.toString,
           toSubscriptionFields(versionMap._2)
         )
       })
