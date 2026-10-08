@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.common.config
+package uk.gov.hmrc.gatekeeper.common.modules
 
 import java.time.Clock
 
