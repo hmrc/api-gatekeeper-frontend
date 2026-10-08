@@ -2,13 +2,13 @@
 
 GET         /                                                                 uk.gov.hmrc.gatekeeper.controllers.LandingPageController.landingPage()
 
-POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: ApplicationId)
+POST        /update-rate-limit-tier                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.handleUpdateRateLimitTier(id: SimpleApplicationId)
 
-GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: UserId)
-GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperPage(developerIdentifier: UserId)
-POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperAction(developerIdentifier: UserId)
-GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: UserId)
-POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: UserId)
+GET         /developer                                                        uk.gov.hmrc.gatekeeper.controllers.DeveloperController.developerPage(developerIdentifier: SimpleUserId)
+GET         /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperPage(developerIdentifier: SimpleUserId)
+POST        /developer/delete                                                 uk.gov.hmrc.gatekeeper.controllers.DeveloperController.deleteDeveloperAction(developerIdentifier: SimpleUserId)
+GET         /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaPage(developerIdentifier: SimpleUserId)
+POST        /developer/mfa/remove                                             uk.gov.hmrc.gatekeeper.controllers.DeveloperController.removeMfaAction(developerIdentifier: SimpleUserId)
 
 GET         /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.blankDevelopersPage()
 POST        /developers                                                       uk.gov.hmrc.gatekeeper.controllers.DevelopersController.developersPage()
@@ -22,86 +22,86 @@ GET         /applications/csv                                                 uk
 GET         /applications/states/csv                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationStatesController.csv()
 GET         /applications/subscriptions/csv                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationWithSubscriptionsCsv(environment: Option[Environment] ?= None)
 
-GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: ApplicationId)
+GET         /applications/:id                                                 uk.gov.hmrc.gatekeeper.controllers.ApplicationController.applicationPage(id: SimpleApplicationId)
 
-GET         /applications/:id/events                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController.page(id: ApplicationId)
+GET         /applications/:id/events                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController.page(id: SimpleApplicationId)
 
-GET         /applications/:id/resend-verification                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.resendVerification(id: ApplicationId)
+GET         /applications/:id/resend-verification                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.resendVerification(id: SimpleApplicationId)
 
-GET         /applications/:id/access/scopes                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageScopes(id: ApplicationId)
-POST        /applications/:id/access/scopes                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateScopes(id: ApplicationId)
+GET         /applications/:id/access/scopes                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageScopes(id: SimpleApplicationId)
+POST        /applications/:id/access/scopes                                   uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateScopes(id: SimpleApplicationId)
 
-GET         /applications/:id/ip-allowlist                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.viewIpAllowlistPage(id: ApplicationId)
-GET         /applications/:id/ip-allowlist/manage                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageIpAllowlistPage(id: ApplicationId)
-POST        /applications/:id/ip-allowlist/manage                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageIpAllowlistAction(id: ApplicationId)
+GET         /applications/:id/ip-allowlist                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.viewIpAllowlistPage(id: SimpleApplicationId)
+GET         /applications/:id/ip-allowlist/manage                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageIpAllowlistPage(id: SimpleApplicationId)
+POST        /applications/:id/ip-allowlist/manage                             uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageIpAllowlistAction(id: SimpleApplicationId)
 
-GET         /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriPage(id: ApplicationId)
-POST        /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriAction(id: ApplicationId)
+GET         /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriPage(id: SimpleApplicationId)
+POST        /applications/:id/redirect-uris/manage                            uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.manageLoginRedirectUriAction(id: SimpleApplicationId)
 
-GET         /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriPage(id: ApplicationId)
-POST        /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriAction(id: ApplicationId)
+GET         /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriPage(id: SimpleApplicationId)
+POST        /applications/:id/post-logout-redirect-uris/manage                uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.managePostLogoutRedirectUriAction(id: SimpleApplicationId)
 
-GET         /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageAccessOverrides(id: ApplicationId)
-POST        /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAccessOverrides(id: ApplicationId)
+GET         /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageAccessOverrides(id: SimpleApplicationId)
+POST        /applications/:id/access/overrides                                uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateAccessOverrides(id: SimpleApplicationId)
 
-GET         /applications/:id/subscriptions                                   uk.gov.hmrc.gatekeeper.controllers.SubscriptionController.manageSubscription(id: ApplicationId)
-POST        /applications/:id/subscriptions                                   uk.gov.hmrc.gatekeeper.controllers.SubscriptionController.updateSubscription(id: ApplicationId, context: ApiContext, version: ApiVersionNbr)
+GET         /applications/:id/subscriptions                                   uk.gov.hmrc.gatekeeper.controllers.SubscriptionController.manageSubscription(id: SimpleApplicationId)
+POST        /applications/:id/subscriptions                                   uk.gov.hmrc.gatekeeper.controllers.SubscriptionController.updateSubscription(id: SimpleApplicationId, context: SimpleApiContext, version: SimpleApiVersionNbr)
 
-GET         /applications/:id/subscriptions-configuration                     uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.listConfigurations(id: ApplicationId)
-GET         /applications/:id/subscriptions-configuration/:context/:version   uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.editConfigurations(id: ApplicationId, context: ApiContext, version: ApiVersionNbr)
-POST        /applications/:id/subscriptions-configuration/:context/:version   uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.saveConfigurations(id: ApplicationId, context: ApiContext, version: ApiVersionNbr)
+GET         /applications/:id/subscriptions-configuration                     uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.listConfigurations(id: SimpleApplicationId)
+GET         /applications/:id/subscriptions-configuration/:context/:version   uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.editConfigurations(id: SimpleApplicationId, context: SimpleApiContext, version: SimpleApiVersionNbr)
+POST        /applications/:id/subscriptions-configuration/:context/:version   uk.gov.hmrc.gatekeeper.controllers.SubscriptionConfigurationController.saveConfigurations(id: SimpleApplicationId, context: SimpleApiContext, version: SimpleApiVersionNbr)
 
-GET         /applications/:id/name                                            uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNamePage(id: ApplicationId)
-POST        /applications/:id/name                                            uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAction(id: ApplicationId)
-GET         /applications/:id/name/admin-email                                uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(id: ApplicationId)
-POST        /applications/:id/name/admin-email                                uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(id: ApplicationId)
-GET         /applications/:id/name/updated                                    uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameSuccessPage(id: ApplicationId)
+GET         /applications/:id/name                                            uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNamePage(id: SimpleApplicationId)
+POST        /applications/:id/name                                            uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAction(id: SimpleApplicationId)
+GET         /applications/:id/name/admin-email                                uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(id: SimpleApplicationId)
+POST        /applications/:id/name/admin-email                                uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameAdminEmailAction(id: SimpleApplicationId)
+GET         /applications/:id/name/updated                                    uk.gov.hmrc.gatekeeper.controllers.UpdateApplicationNameController.updateApplicationNameSuccessPage(id: SimpleApplicationId)
 
-GET         /applications/:id/rate-limit                                      uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageRateLimitTier(id: ApplicationId)
-POST        /applications/:id/rate-limit                                      uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateRateLimitTier(id: ApplicationId)
+GET         /applications/:id/rate-limit                                      uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageRateLimitTier(id: SimpleApplicationId)
+POST        /applications/:id/rate-limit                                      uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateRateLimitTier(id: SimpleApplicationId)
 
-GET         /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageGrantLength(id: ApplicationId)
-POST        /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateGrantLength(id: ApplicationId)
+GET         /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageGrantLength(id: SimpleApplicationId)
+POST        /applications/:id/grant-length                                    uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateGrantLength(id: SimpleApplicationId)
 
-GET         /applications/:id/delete-restriction                               uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageDeleteRestriction(id: ApplicationId)
-POST        /applications/:id/delete-restriction/previously-disabled           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(id: ApplicationId)
-POST        /applications/:id/delete-restriction/previously-enabled            uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyEnabled(id: ApplicationId)
+GET         /applications/:id/delete-restriction                               uk.gov.hmrc.gatekeeper.controllers.ApplicationController.manageDeleteRestriction(id: SimpleApplicationId)
+POST        /applications/:id/delete-restriction/previously-disabled           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(id: SimpleApplicationId)
+POST        /applications/:id/delete-restriction/previously-enabled            uk.gov.hmrc.gatekeeper.controllers.ApplicationController.updateDeleteRestrictionPreviouslyEnabled(id: SimpleApplicationId)
 
 
-GET         /applications/:id/team-members                                    uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.manageTeamMembers(id: ApplicationId)
-GET         /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMember(id: ApplicationId)
-POST        /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMemberAction(id: ApplicationId)
-POST        /applications/:id/team-members/remove-confirmation                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMember(id: ApplicationId)
-POST        /applications/:id/team-members/remove                             uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMemberAction(id: ApplicationId)
+GET         /applications/:id/team-members                                    uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.manageTeamMembers(id: SimpleApplicationId)
+GET         /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMember(id: SimpleApplicationId)
+POST        /applications/:id/team-members/add                                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.addTeamMemberAction(id: SimpleApplicationId)
+POST        /applications/:id/team-members/remove-confirmation                uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMember(id: SimpleApplicationId)
+POST        /applications/:id/team-members/remove                             uk.gov.hmrc.gatekeeper.controllers.TeamMembersController.removeTeamMemberAction(id: SimpleApplicationId)
 
-GET         /applications/:id/test-get-from-tpo                               uk.gov.hmrc.gatekeeper.controllers.ThirdPartyOrchestratorTestController.page(id: ApplicationId)
-GET         /applications/:id/test-get-from-admin-api                         uk.gov.hmrc.gatekeeper.controllers.ApiPlatformAdminApiTestController.page(id: ApplicationId)
+GET         /applications/:id/test-get-from-tpo                               uk.gov.hmrc.gatekeeper.controllers.ThirdPartyOrchestratorTestController.page(id: SimpleApplicationId)
+GET         /applications/:id/test-get-from-admin-api                         uk.gov.hmrc.gatekeeper.controllers.ApiPlatformAdminApiTestController.page(id: SimpleApplicationId)
 
-GET         /organisations/:id/applications                                   uk.gov.hmrc.gatekeeper.controllers.OrganisationController.organisationPage(id: OrganisationId)
+GET         /organisations/:id/applications                                   uk.gov.hmrc.gatekeeper.controllers.OrganisationController.organisationPage(id: SimpleOrganisationId)
 
 GET         /assets/*file                                                     @controllers.Assets.versioned(path="/public", file: Asset)
 
 GET         /xml-organisations                                                uk.gov.hmrc.gatekeeper.controllers.XmlServicesController.organisationsSearchPage()
 GET         /terms-of-use                                                     uk.gov.hmrc.gatekeeper.controllers.TermsOfUseController.page()
 
-GET         /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationPage(id: ApplicationId)
-POST        /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationAction(id: ApplicationId)
+GET         /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationPage(id: SimpleApplicationId)
+POST        /applications/:id/delete                                          uk.gov.hmrc.gatekeeper.controllers.ApplicationController.deleteApplicationAction(id: SimpleApplicationId)
 
-GET         /applications/:id/block                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.blockApplicationPage(id: ApplicationId)
-POST        /applications/:id/block                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.blockApplicationAction(id: ApplicationId)
+GET         /applications/:id/block                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.blockApplicationPage(id: SimpleApplicationId)
+POST        /applications/:id/block                                           uk.gov.hmrc.gatekeeper.controllers.ApplicationController.blockApplicationAction(id: SimpleApplicationId)
 
-GET         /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationPage(id: ApplicationId)
-POST        /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationAction(id: ApplicationId)
+GET         /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationPage(id: SimpleApplicationId)
+POST        /applications/:id/unblock                                         uk.gov.hmrc.gatekeeper.controllers.ApplicationController.unblockApplicationAction(id: SimpleApplicationId)
 
 GET         /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationPage()
 POST        /application/add                                                  uk.gov.hmrc.gatekeeper.controllers.ApplicationController.createPrivApplicationAction()
 
 GET         /api-approvals                                                    uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.filterPage(defaultFiltering: Boolean ?= true)
-GET         /api-approvals/:environment/:serviceName/history                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.historyPage(serviceName: ServiceName, environment: Environment)
-GET         /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewPage(serviceName: ServiceName, environment: Environment)
-POST        /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewAction(serviceName: ServiceName, environment: Environment)
-GET         /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.commentPage(serviceName: ServiceName, environment: Environment)
-POST        /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.addComment(serviceName: ServiceName, environment: Environment)
+GET         /api-approvals/:environment/:serviceName/history                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.historyPage(serviceName: SimpleServiceName, environment: Environment)
+GET         /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewPage(serviceName: SimpleServiceName, environment: Environment)
+POST        /api-approvals/:environment/:serviceName/review                   uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.reviewAction(serviceName: SimpleServiceName, environment: Environment)
+GET         /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.commentPage(serviceName: SimpleServiceName, environment: Environment)
+POST        /api-approvals/:environment/:serviceName/comment                  uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.addComment(serviceName: SimpleServiceName, environment: Environment)
 
 
 GET         /apis                                                             uk.gov.hmrc.gatekeeper.controllers.ApiDefinitionController.apis()
@@ -123,9 +123,9 @@ GET         /emails/api-subscribers                                           uk
 GET         /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesChoice()
 POST        /emails/email-preferences                                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.chooseEmailPreferences()
 GET         /emails/email-preferences/by-topic                                uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesTopic(selectedTopic: Option[TopicOptionChoice])
-GET         /emails/email-preferences/select-api                              uk.gov.hmrc.gatekeeper.controllers.EmailsController.selectSpecificApi(selectedAPIs: Option[List[ServiceName]])
+GET         /emails/email-preferences/select-api                              uk.gov.hmrc.gatekeeper.controllers.EmailsController.selectSpecificApi(selectedAPIs: Option[List[SimpleServiceName]])
 GET         /emails/email-preferences/by-api-category                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesApiCategory(selectedTopic: Option[TopicOptionChoice], selectedCategory:Option[ApiCategory])
-GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[ServiceName], selectedTopic: Option[TopicOptionChoice])
+GET         /emails/email-preferences/by-specific-api                         uk.gov.hmrc.gatekeeper.controllers.EmailsController.emailPreferencesSpecificApis(selectedAPIs: List[SimpleServiceName], selectedTopic: Option[TopicOptionChoice])
 
 GET         /boxes/csv                                                        uk.gov.hmrc.gatekeeper.controllers.BoxesController.getAll()
 GET         /boxes                                                            uk.gov.hmrc.gatekeeper.controllers.BoxesController.page()

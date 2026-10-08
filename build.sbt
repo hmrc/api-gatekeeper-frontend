@@ -8,7 +8,7 @@ lazy val appName = "api-gatekeeper-frontend"
 Global / bloopAggregateSourceDependencies := true
 Global / bloopExportJarClassifiers := Some(Set("sources"))
 
-ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / scalaVersion := "3.7.4"
 ThisBuild / majorVersion := 0
 ThisBuild / evictionWarningOptions := EvictionWarningOptions.default.withWarnScalaVersionEviction(false)
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
@@ -39,25 +39,27 @@ lazy val microservice = Project(appName, file("."))
   .settings(ScoverageSettings())
   .settings(
     routesImport ++= Seq(
-      "uk.gov.hmrc.gatekeeper.controllers.binders._",
-      "uk.gov.hmrc.gatekeeper.models._",
-      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.common.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._"
+      "uk.gov.hmrc.gatekeeper.controllers.binders.*",
+      "uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.*",
+      "uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.Conversions.given",
+      "uk.gov.hmrc.gatekeeper.models.*",
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models.*",
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models.*",
+      "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*"
     )
   )
   .settings(
     TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",
-      "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
+      "uk.gov.hmrc.hmrcfrontend.views.html.helpers.*",
       "uk.gov.hmrc.gatekeeper.common.config.AppConfig",
-      "uk.gov.hmrc.gatekeeper.views.html._",
-      "uk.gov.hmrc.gatekeeper.views.html.include._",
+      "uk.gov.hmrc.gatekeeper.views.html.*",
+      "uk.gov.hmrc.gatekeeper.views.html.include.*",
       "uk.gov.hmrc.gatekeeper.controllers",
-      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.common.domain.models._",
-      "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models.*",
+      "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*",
+      "uk.gov.hmrc.apiplatform.modules.common.domain.models.*",
+      "uk.gov.hmrc.apiplatform.modules.apis.domain.models.*",
     )
   )
   .settings(
