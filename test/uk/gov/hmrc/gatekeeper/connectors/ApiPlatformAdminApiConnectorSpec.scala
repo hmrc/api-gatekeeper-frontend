@@ -82,7 +82,7 @@ class ApiPlatformAdminApiConnectorSpec
     ApplicationWithUsers(
       applicationId = applicationId,
       name = "Petes test application",
-      environment = Environment.PRODUCTION,
+      environment = Environment.Production,
       users = Set(User(userId, LaxEmailAddress("bob@example.com"), "Bob", "Fleming"))
     )
   }

@@ -42,8 +42,8 @@ object ApiPlatformEventsConnector {
 class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
 
   protected def connectorFor(deployedTo: Environment): ApiPlatformEventsConnector = deployedTo match {
-    case Environment.PRODUCTION => principal
-    case Environment.SANDBOX    => subordinate
+    case Environment.Production => principal
+    case Environment.Sandbox    => subordinate
   }
 
   def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(implicit hc: HeaderCarrier): Future[QueryableValues] =
@@ -108,7 +108,7 @@ class SubordinateApiPlatformEventsConnector @Inject() (
   ) extends ApiPlatformEventsConnector {
 
   val serviceBaseUrl: String = config.serviceBaseUrl
-  val environment            = Environment.SANDBOX
+  val environment            = Environment.Sandbox
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder =
     EbridgeConfigurator.configure(config.useProxy, config.bearerToken, config.apiKey)(requestBuilder)
@@ -128,7 +128,7 @@ class PrincipalApiPlatformEventsConnector @Inject() (
   )(implicit val ec: ExecutionContext
   ) extends ApiPlatformEventsConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = config.serviceBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

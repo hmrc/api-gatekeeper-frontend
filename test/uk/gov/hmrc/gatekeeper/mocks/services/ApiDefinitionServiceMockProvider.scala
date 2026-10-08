@@ -31,8 +31,8 @@ trait ApiDefinitionServiceMockProvider {
 
   object FetchAllApiDefinitions {
 
-    def inProd    = Calling(Some(Environment.PRODUCTION))
-    def inSandbox = Calling(Some(Environment.SANDBOX))
+    def inProd    = Calling(Some(Environment.Production))
+    def inSandbox = Calling(Some(Environment.Sandbox))
     def inBoth    = Calling(None)
     def inAny     = Calling()
 

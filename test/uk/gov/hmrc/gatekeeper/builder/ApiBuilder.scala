@@ -30,9 +30,9 @@ trait ApiBuilder {
     def retired                          = versionData.copy(status = ApiStatus.RETIRED)
 
     def withAccess(newAccess: ApiAccessType) = versionData.copy(access = newAccess)
-    def publicAccess                         = this.withAccess(ApiAccessType.PUBLIC)
-    def controlledAccess                     = this.withAccess(ApiAccessType.CONTROLLED)
-    def internalAccess                       = this.withAccess(ApiAccessType.INTERNAL)
+    def publicAccess                         = this.withAccess(ApiAccessType.Public)
+    def controlledAccess                     = this.withAccess(ApiAccessType.Controlled)
+    def internalAccess                       = this.withAccess(ApiAccessType.Internal)
   }
 
   implicit class ApiDefinitionSyntax(apiDefinition: ApiDefinition) {
@@ -47,7 +47,7 @@ trait ApiBuilder {
     def withContext(apiContext: ApiContext) = apiDefinition.copy(context = apiContext)
   }
 
-  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty)
+  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, ApiAccessType.Public, List.empty)
 
   val DefaultServiceName = ServiceName("A-Service")
   val DefaultName        = "API Name"

@@ -179,13 +179,13 @@
                   @application.details.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
-                  @defining( if(application.details.blocked && application.state.name != State.DELETED) ("status status--not-verified", "Blocked") else application.state.name match {
-                  case State.PRODUCTION => ("status status--verified", "Active")
-                  case State.PRE_PRODUCTION => ("status status--verified", "Active")
-                  case State.DELETED => ("status status--not-verified", "Deleted")
-                  case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
-                  case State.PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
-                  case State.PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                  @defining( if(application.details.blocked && application.state.name != State.Deleted) ("status status--not-verified", "Blocked") else application.state.name match {
+                  case State.Production => ("status status--verified", "Active")
+                  case State.PreProduction => ("status status--verified", "Active")
+                  case State.Deleted => ("status status--not-verified", "Deleted")
+                  case State.PendingResponsibleIndividualVerification => ("status status--not-verified", "Pending responsible individual verification")
+                  case State.PendingGatekeeperApproval => ("status status--not-verified", "Pending gatekeeper check")
+                  case State.PendingRequesterVerification => ("status status--not-verified", "Pending submitter verification")
                   case _ => ("status", "Created")
                   }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                 </td>

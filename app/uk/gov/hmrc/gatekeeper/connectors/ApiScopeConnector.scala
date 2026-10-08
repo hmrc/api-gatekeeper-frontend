@@ -27,8 +27,9 @@ import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
+import play.api.libs.ws.JsonBodyWritables
 
-abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
+abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends JsonBodyWritables {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -51,7 +52,7 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
 class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
   val useProxy       = appConfig.apiScopeSandboxUseProxy
   val bearerToken    = appConfig.apiScopeSandboxBearerToken
@@ -65,7 +66,7 @@ class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: Ht
 class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

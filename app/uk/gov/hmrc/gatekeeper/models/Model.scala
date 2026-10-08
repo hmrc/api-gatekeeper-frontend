@@ -290,7 +290,7 @@ object DeleteDeveloperRequest {
 }
 
 final case class CreatePrivAppForm(
-    environment: Environment = Environment.SANDBOX,
+    environment: Environment = Environment.Sandbox,
     applicationName: String = "",
     applicationDescription: String = "",
     adminEmail: String = ""

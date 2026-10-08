@@ -82,7 +82,7 @@ class ApiGatekeeperDeveloperSpec
       DeveloperPage.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
       And("I pick an environment")
-      DeveloperPage.selectByEnvironment(Environment.PRODUCTION)
+      DeveloperPage.selectByEnvironment(Environment.Production)
 
       And("I pick a Developer Status")
       DeveloperPage.selectByDeveloperStatus("VERIFIED")

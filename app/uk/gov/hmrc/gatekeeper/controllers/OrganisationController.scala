@@ -59,7 +59,7 @@ class OrganisationController @Inject() (
 
   def organisationPage(orgId: OrganisationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url

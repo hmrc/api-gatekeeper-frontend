@@ -148,13 +148,13 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
 
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
     }
   }
 
   "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Fields and State History" in new AppWithSubscriptionDataSetup {
-      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.PRODUCTION))
+      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.Production))
       val app          = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubsFields, stateHistory)
       ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(app)
 

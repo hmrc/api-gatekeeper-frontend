@@ -125,11 +125,11 @@ class EmailsController @Inject() (
     selectedTopic.fold(Future.successful(List.empty[RegisteredUser]))(topic => {
       (apiAccessType, filteredApis) match {
         case (_, Nil)                      => successful(List.empty[RegisteredUser])
-        case (ApiAccessType.PUBLIC, _)     =>
+        case (ApiAccessType.Public, _)     =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = false).map(_.filter(_.verified))
-        case (ApiAccessType.CONTROLLED, _) =>
+        case (ApiAccessType.Controlled, _) =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
-        case (ApiAccessType.INTERNAL, _)   =>
+        case (ApiAccessType.Internal, _)   =>
           developerService.fetchDevelopersBySpecificAPIEmailPreferences(topic, categories, apiNames, privateApiMatch = true).map(_.filter(_.verified))
       }
     })
@@ -142,9 +142,9 @@ class EmailsController @Inject() (
       for {
         apis            <- apmService.fetchAllCombinedApis()
         filteredApis     = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.PUBLIC)
-        controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.CONTROLLED)
-        internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.INTERNAL)
+        publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Public)
+        controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Controlled)
+        internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Internal)
         combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).sortBy(_.email.text).distinct
       } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
     }
@@ -212,7 +212,7 @@ class EmailsController @Inject() (
         appsSubscribedToSelectedApiSandBox: List[ApplicationWithCollaborators]    <- applicationService.fetchApplications(apiFilter, SandboxEnvironment)
         appsSubscribedToSelectedApiProduction: List[ApplicationWithCollaborators] <- applicationService.fetchApplications(apiFilter, ProductionEnvironment)
         allApps: List[ApplicationWithCollaborators]                                = appsSubscribedToSelectedApiSandBox ++ appsSubscribedToSelectedApiProduction
-        allAppsNotDeleted: List[ApplicationWithCollaborators]                      = allApps.filter(_.details.state.name != State.DELETED)
+        allAppsNotDeleted: List[ApplicationWithCollaborators]                      = allApps.filter(_.details.state.name != State.Deleted)
         allCollaborators: Set[Collaborator]                                        = allAppsNotDeleted.map(_.collaborators).flatten.toSet
         allCollaboratorEmails: Set[LaxEmailAddress]                                = allCollaborators.map(_.emailAddress)
         allRegisteredUsers: List[RegisteredUser]                                  <- developerService.fetchDevelopersByEmails(allCollaboratorEmails)

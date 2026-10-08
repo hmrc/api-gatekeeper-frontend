@@ -73,16 +73,16 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
     val applications    = List[ApplicationWithCollaborators](
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Testing App")).withState(ApplicationState(updatedOn = Instant.now())),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Gatekeeper Approval App")).withState(ApplicationState(
-        name = State.PENDING_GATEKEEPER_APPROVAL,
+        name = State.PendingGatekeeperApproval,
         updatedOn = Instant.now()
       )),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Requester Verification App")).withState(ApplicationState(
-        name = State.PENDING_REQUESTER_VERIFICATION,
+        name = State.PendingRequesterVerification,
         updatedOn = Instant.now()
       )),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState(ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState(ApplicationState(name = State.Production, updatedOn = Instant.now())),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Blocked Production App")).withState(
-        ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
+        ApplicationState(name = State.Production, updatedOn = Instant.now())
       ).withBlocked(true)
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"

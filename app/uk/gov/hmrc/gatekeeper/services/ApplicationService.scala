@@ -270,15 +270,15 @@ class ApplicationService @Inject() (
     )
 
     appEnv match {
-      case Environment.PRODUCTION => productionApplicationConnector.createPrivApp(req)
-      case Environment.SANDBOX    => sandboxApplicationConnector.createPrivApp(req)
+      case Environment.Production => productionApplicationConnector.createPrivApp(req)
+      case Environment.Sandbox    => sandboxApplicationConnector.createPrivApp(req)
     }
   }
 
   def applicationConnectorFor(application: ApplicationWithCollaborators): ApplicationConnector = applicationConnectorFor(Some(application.deployedTo))
 
   def applicationConnectorFor(environment: Option[Environment]): ApplicationConnector =
-    if (environment.contains(Environment.PRODUCTION)) productionApplicationConnector else sandboxApplicationConnector
+    if (environment.contains(Environment.Production)) productionApplicationConnector else sandboxApplicationConnector
 
   def apiScopeConnectorFor(application: ApplicationWithCollaborators): ApiScopeConnector =
     if (application.isProduction) productionApiScopeConnector else sandboxApiScopeConnector
@@ -299,16 +299,16 @@ class ApplicationService @Inject() (
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
   val validSearchParams = List(
-    ParamNames.AccessType,
-    ParamNames.ApiContext,
-    ParamNames.ApiVersionNbr,
-    ParamNames.Status,
-    ParamNames.HasSubscriptions,
-    ParamNames.NoSubscriptions,
-    ParamNames.Search,
-    ParamNames.PageSize,
-    ParamNames.PageNbr,
-    ParamNames.Sort
+    ParamName.AccessType,
+    ParamName.ApiContext,
+    ParamName.ApiVersionNbr,
+    ParamName.Status,
+    ParamName.HasSubscriptions,
+    ParamName.NoSubscriptions,
+    ParamName.Search,
+    ParamName.PageSize,
+    ParamName.PageNbr,
+    ParamName.Sort
   )
 
   def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
@@ -323,14 +323,14 @@ class ApplicationService @Inject() (
         case ("page" -> v)             => List(("pageNbr" -> v))
         case ("apiSubscription", text) =>
           if (text == "ANY")
-            List((ParamNames.HasSubscriptions -> ""))
+            List((ParamName.HasSubscriptions -> ""))
           else if (text == "NONE")
-            List((ParamNames.NoSubscriptions -> ""))
+            List((ParamName.NoSubscriptions -> ""))
           else {
             text.split("--").toList.filterNot(_.isBlank()) match {
               case Nil                       => Nil
-              case context :: Nil            => List((ParamNames.ApiContext -> context))
-              case context :: version :: Nil => List((ParamNames.ApiContext -> context), (ParamNames.ApiVersionNbr -> version))
+              case context :: Nil            => List((ParamName.ApiContext -> context))
+              case context :: version :: Nil => List((ParamName.ApiContext -> context), (ParamName.ApiVersionNbr -> version))
               case _                         => Nil
             }
           }
@@ -344,9 +344,9 @@ class ApplicationService @Inject() (
 
   def fetchApplications(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter)(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val environments: List[Environment] = envFilter match {
-      case ProductionEnvironment => List(Environment.PRODUCTION)
-      case SandboxEnvironment    => List(Environment.SANDBOX)
-      case AnyEnvironment        => List(Environment.PRODUCTION, Environment.SANDBOX)
+      case ProductionEnvironment => List(Environment.Production)
+      case SandboxEnvironment    => List(Environment.Sandbox)
+      case AnyEnvironment        => List(Environment.Production, Environment.Sandbox)
     }
 
     val params = apiFilter match {
@@ -364,8 +364,8 @@ class ApplicationService @Inject() (
 
   def fetchApplications(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     val qry                          = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil)
-    val sandboxApplicationsFuture    = tpoConnector.queryStream[QueriedApplication](Environment.SANDBOX)(qry)
-    val productionApplicationsFuture = tpoConnector.queryStream[QueriedApplication](Environment.PRODUCTION)(qry)
+    val sandboxApplicationsFuture    = tpoConnector.queryStream[QueriedApplication](Environment.Sandbox)(qry)
+    val productionApplicationsFuture = tpoConnector.queryStream[QueriedApplication](Environment.Production)(qry)
 
     for {
       sandboxApps    <- sandboxApplicationsFuture.map(_.map(_.asAppWithCollaborators))

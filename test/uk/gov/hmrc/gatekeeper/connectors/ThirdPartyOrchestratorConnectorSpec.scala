@@ -122,7 +122,7 @@ class ThirdPartyOrchestratorConnectorSpec
               .withJsonBody(expectedResponse)
           )
       )
-      val result = await(underTest.validateName(applicationName, Some(appId), Environment.PRODUCTION))
+      val result = await(underTest.validateName(applicationName, Some(appId), Environment.Production))
       result shouldBe ApplicationNameValidationResult.Valid
     }
 
@@ -141,7 +141,7 @@ class ThirdPartyOrchestratorConnectorSpec
               .withJsonBody(expectedResponse)
           )
       )
-      val result = await(underTest.validateName(applicationName, None, Environment.PRODUCTION))
+      val result = await(underTest.validateName(applicationName, None, Environment.Production))
       result shouldBe ApplicationNameValidationResult.Invalid
     }
 

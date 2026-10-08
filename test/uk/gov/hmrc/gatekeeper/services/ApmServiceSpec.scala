@@ -39,7 +39,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       ServiceName("serviceName1"),
       Set(ApiCategory.CUSTOMS),
       ApiType.REST_API,
-      ApiAccessType.PUBLIC
+      ApiAccessType.Public
     )
 
     val combinedXmlApi2 = CombinedApi(
@@ -47,7 +47,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
       ServiceName("serviceName2"),
       Set(ApiCategory.VAT),
       ApiType.XML_API,
-      ApiAccessType.PUBLIC
+      ApiAccessType.Public
     )
     val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 
@@ -71,7 +71,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         ApmConnectorMock.GetAllFieldDefinitions.returns(Map.empty)
 
-        val result = await(apmService.getAllFieldDefinitions(Environment.PRODUCTION))
+        val result = await(apmService.getAllFieldDefinitions(Environment.Production))
 
         result shouldBe Map.empty
       }

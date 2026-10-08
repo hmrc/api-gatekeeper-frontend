@@ -20,6 +20,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
 import uk.gov.hmrc.http.client.HttpClientV2
+import play.api.libs.ws.JsonBodyWritables
 
 object ApmConnector {
 
@@ -28,7 +29,7 @@ object ApmConnector {
     )
 }
 
-trait ApmConnectorModule {
+trait ApmConnectorModule extends JsonBodyWritables {
   def http: HttpClientV2
   def config: ApmConnector.Config
   implicit def ec: ExecutionContext

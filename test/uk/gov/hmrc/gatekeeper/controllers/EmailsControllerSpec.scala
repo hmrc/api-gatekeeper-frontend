@@ -117,7 +117,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         None,
         List(category1)
@@ -128,7 +128,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
         false,
         None,
         List(category2)
@@ -152,9 +152,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val serviceNameTwo   = ServiceName("serviceNameTwo")
       val serviceNameThree = ServiceName("serviceNameThree")
 
-      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
-      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.INTERNAL)
+      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.Public)
+      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.Public)
+      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.Internal)
       val combinedApisList        = List(combinedRestApi, combinedXmlApi, combinedInternalRestApi)
 
       val underTest = new EmailsController(

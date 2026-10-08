@@ -59,7 +59,7 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
         TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
         TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))
       ),
-      topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
+      topics = Set(EmailTopic.Technical, EmailTopic.BusinessAndPolicy)
     )
 
     val restEmailPreferences = emailPreferences.copy(interests = restEmailPrefInterests)

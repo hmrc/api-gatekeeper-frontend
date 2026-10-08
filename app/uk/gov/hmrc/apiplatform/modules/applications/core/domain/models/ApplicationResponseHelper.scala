@@ -38,8 +38,8 @@ object ApplicationResponseHelper {
 
   implicit class LocationsSyntax(application: ApplicationWithCollaborators) {
 
-    def privacyPolicyLocation: PrivacyPolicyLocation = application.privacyPolicyLocation.getOrElse(PrivacyPolicyLocations.NoneProvided)
+    def privacyPolicyLocation: PrivacyPolicyLocation = application.privacyPolicyLocation.getOrElse(PrivacyPolicyLocation.NoneProvided)
 
-    def termsAndConditionsLocation: TermsAndConditionsLocation = application.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocations.NoneProvided)
+    def termsAndConditionsLocation: TermsAndConditionsLocation = application.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocation.NoneProvided)
   }
 }

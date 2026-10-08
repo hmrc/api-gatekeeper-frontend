@@ -100,11 +100,11 @@ class ApplicationController @Inject() (
   implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
 
   def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                                   = environment.getOrElse(Environment.SANDBOX)
+    val env                                                   = environment.getOrElse(Environment.Sandbox)
     val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
         routes.ApplicationController.applicationPage(appId).url
@@ -117,7 +117,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                       = environment.getOrElse(Environment.SANDBOX)
+    val env                       = environment.getOrElse(Environment.Sandbox)
     val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
@@ -165,7 +165,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Last API call with server token", (app => app.details.token.lastAccessTokenUsage.fold("")(_.toString))),
-      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DO_NOT_DELETE).toString)),
+      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DoNotDelete).toString)),
       ColumnDefinition("Number of Redirect URIs", (nbrOfLoginRedirectUris(_).toString)),
       ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))
     ) ++ (
@@ -222,7 +222,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationWithSubscriptionsCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = environment.getOrElse(Environment.SANDBOX)
+    val env = environment.getOrElse(Environment.Sandbox)
     for {
       appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
     } yield Ok(toCsvContent(appsWithSubs, env))
@@ -528,7 +528,7 @@ class ApplicationController @Inject() (
         )))
       }
 
-      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION) {
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction) {
         Future.successful(Ok(manageDeleteRestrictionDisabledView(app, DeleteRestrictionPreviouslyDisabledForm.form)))
       } else {
         handleDeleteRestrictionEnabled(app)
@@ -586,7 +586,7 @@ class ApplicationController @Inject() (
 
   def deleteApplicationPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION)
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction)
         Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
       else
         Future.successful(Ok(applicationProtectedFromDeletionView(

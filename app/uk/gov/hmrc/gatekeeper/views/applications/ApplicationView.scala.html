@@ -19,7 +19,7 @@
 @import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-@import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocations, TermsAndConditionsLocations}
+@import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocation, TermsAndConditionsLocation}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
 @import uk.gov.hmrc.gatekeeper.models.view._
 @import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
@@ -33,7 +33,7 @@
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import java.time.{Clock, LocalDateTime, Instant}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DoNotDelete
 
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles.ADMIN.isAdvancedUser
 
@@ -106,12 +106,12 @@
           </thead>
           <tbody class="govuk-table__body">
             @overrides.toList.map {
-              case _ @ OverrideFlag.PersistLogin => {@buildOverrideRow(OverrideType.PERSIST_LOGIN_AFTER_GRANT)}
-              case or: OverrideFlag.SuppressIvForAgents => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_AGENTS, or.scopes)}
-              case or: OverrideFlag.SuppressIvForOrganisations => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS, or.scopes)}
-              case or: OverrideFlag.SuppressIvForIndividuals => {@buildOverrideRow(OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS, or.scopes)}
-              case or: OverrideFlag.GrantWithoutConsent => {@buildOverrideRow(OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT, or.scopes)}
-              case or: OverrideFlag.OriginOverride => {@buildOverrideRow(OverrideType.ORIGIN_OVERRIDE, Set(or.origin))}
+              case _ @ OverrideFlag.PersistLogin => {@buildOverrideRow(OverrideType.PersistLoginAfterGrant)}
+              case or: OverrideFlag.SuppressIvForAgents => {@buildOverrideRow(OverrideType.SuppressIvForAgents, or.scopes)}
+              case or: OverrideFlag.SuppressIvForOrganisations => {@buildOverrideRow(OverrideType.SuppressIvForOrganisations, or.scopes)}
+              case or: OverrideFlag.SuppressIvForIndividuals => {@buildOverrideRow(OverrideType.SuppressIvForIndividuals, or.scopes)}
+              case or: OverrideFlag.GrantWithoutConsent => {@buildOverrideRow(OverrideType.GrantWithoutTaxpayerConsent, or.scopes)}
+              case or: OverrideFlag.OriginOverride => {@buildOverrideRow(OverrideType.OriginOverride, Set(or.origin))}
             }
           </tbody>
         </table>
@@ -570,7 +570,7 @@
         </table>
         @if(application.collaborators.nonEmpty) {
           <span id="all-team" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators)</span>
-          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(Collaborator.Roles.ADMINISTRATOR))</span>
+          <span id="all-admin" class="govuk-visually-hidden" aria-hidden="true">@EmailsFormatter.format(application.collaborators, Some(Collaborator.Role.Administrator))</span>
           <button id="copy-team-emails-to-clip" class="govuk-button govuk-!-margin-bottom-3" data-clip-text>Copy all team member email addresses</button>
           <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button>
         }

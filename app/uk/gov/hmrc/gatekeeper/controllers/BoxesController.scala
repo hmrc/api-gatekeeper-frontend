@@ -70,8 +70,8 @@ class BoxesController @Inject() (
     }
 
     apmService.fetchAllBoxes().map(boxes => {
-      val sandboxMetrics: (Int, Int, Int)             = getMetrics(boxes, Environment.SANDBOX)
-      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.PRODUCTION)
+      val sandboxMetrics: (Int, Int, Int)             = getMetrics(boxes, Environment.Sandbox)
+      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.Production)
       val appBoxMap: List[(ApplicationId, List[Box])] = boxes.filter(_.applicationId.isDefined).groupBy(_.applicationId.get).toList.sortBy(_._2.size).reverse
 
       Ok(boxesView(sandboxMetrics, productionMetrics, appBoxMap))

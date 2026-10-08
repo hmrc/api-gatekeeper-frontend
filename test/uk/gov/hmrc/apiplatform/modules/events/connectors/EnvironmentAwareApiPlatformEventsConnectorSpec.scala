@@ -48,7 +48,7 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
   "Call subordinate when environment is SANDBOX" in new Setup {
 
-    await(connector.fetchQueryableValues(appId, Environment.SANDBOX))
+    await(connector.fetchQueryableValues(appId, Environment.Sandbox))
 
     verify(subordinate, times(1)).fetchQueryableValues(eqTo(appId))(*)
     verify(principal, never).fetchQueryableValues(*[ApplicationId])(*)
@@ -56,7 +56,7 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
   "Call principal when environment is PRODUCTION" in new Setup {
 
-    await(connector.fetchQueryableValues(appId, Environment.PRODUCTION))
+    await(connector.fetchQueryableValues(appId, Environment.Production))
 
     verify(subordinate, never).fetchQueryableValues(eqTo(appId))(*)
     verify(principal, times(1)).fetchQueryableValues(*[ApplicationId])(*)

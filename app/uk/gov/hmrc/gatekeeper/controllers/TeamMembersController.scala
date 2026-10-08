@@ -105,8 +105,8 @@ class TeamMembersController @Inject() (
 
         for {
           user        <- developerService.fetchOrCreateUser(emailAddress)
-          role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Roles.DEVELOPER)
-          collaborator = if (role == Collaborator.Roles.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
+          role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Role.Developer)
+          collaborator = if (role == Collaborator.Role.Developer) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
           result      <- teamMemberService.addTeamMember(app, collaborator, gatekeeperUser.get)
                            .map {
                              case Right(())                                                               => successResult

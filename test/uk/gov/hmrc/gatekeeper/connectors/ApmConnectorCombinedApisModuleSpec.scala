@@ -47,8 +47,8 @@ class ApmConnectorCombinedApisModuleSpec
 
     val underTest: ApmConnectoCombinedApisModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-    val combinedXmlApi2  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
+    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.Public)
+    val combinedXmlApi2  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.Public)
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
   }
 
@@ -84,7 +84,7 @@ class ApmConnectorCombinedApisModuleSpec
       )
 
       val result = await(underTest.fetchAllCombinedApis())
-      result shouldBe List(combinedRestApi1.copy(accessType = ApiAccessType.INTERNAL))
+      result shouldBe List(combinedRestApi1.copy(accessType = ApiAccessType.Internal))
     }
 
     "returns exception when backend returns error" in new Setup {

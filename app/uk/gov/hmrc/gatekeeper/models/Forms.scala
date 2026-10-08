@@ -123,22 +123,22 @@ object Forms {
         }
       }
 
-      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PERSIST_LOGIN_AFTER_GRANT)
+      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PersistLoginAfterGrant)
 
       val (originOverrideEnabled, originOverrideValue) =
-        overrideWithScopes(overrides, OverrideType.ORIGIN_OVERRIDE)
+        overrideWithScopes(overrides, OverrideType.OriginOverride)
 
       val (grantWithoutConsentEnabled, grantWithoutConsentScopes) =
-        overrideWithScopes(overrides, OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT)
+        overrideWithScopes(overrides, OverrideType.GrantWithoutTaxpayerConsent)
 
       val (suppressIvForAgentsEnabled, suppressIvForAgentsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_AGENTS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForAgents)
 
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForOrganisations)
 
       val (suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForIndividuals)
 
       Some((
         persistLoginEnabled,

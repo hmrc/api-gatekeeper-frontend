@@ -28,8 +28,9 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
+import play.api.libs.ws.JsonBodyWritables
 
-abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
+abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends JsonBodyWritables {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -81,7 +82,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
   val useProxy       = appConfig.apiPublisherSandboxUseProxy
   val bearerToken    = appConfig.apiPublisherSandboxBearerToken
@@ -95,7 +96,7 @@ class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http
 class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

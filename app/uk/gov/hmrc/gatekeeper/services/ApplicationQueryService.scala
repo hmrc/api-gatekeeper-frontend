@@ -43,8 +43,8 @@ class ApplicationQueryService @Inject() (
   def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     val qry = ApplicationQuery.ById(appId, Nil)
 
-    OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.Sandbox)(qry))
     )
       .value
   }
@@ -52,8 +52,8 @@ class ApplicationQueryService @Inject() (
   def fetchApplicationWithSubscriptionFields(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
 
-    OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Sandbox)(qry))
     )
       .value
   }
@@ -61,8 +61,8 @@ class ApplicationQueryService @Inject() (
   def fetchApplicationWithSubscriptionFieldsAndHistory(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFieldsAndStateHistory]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true, wantStateHistory = true)
 
-    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.Sandbox)(qry))
     )
       .map(qa => ApplicationWithSubscriptionFieldsAndStateHistory(qa.asAppSubsFields.get, qa.stateHistory.get))
       .value

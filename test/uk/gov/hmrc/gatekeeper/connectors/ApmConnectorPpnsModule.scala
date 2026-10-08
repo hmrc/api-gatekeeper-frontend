@@ -49,7 +49,7 @@ class ApmConnectorPpnsModuleSpec
     val underTest: ApmConnectorPpnsModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationIdOne), Some(boxSubscriber), Environment.PRODUCTION)
+    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationIdOne), Some(boxSubscriber), Environment.Production)
 
   }
 
@@ -63,7 +63,7 @@ class ApmConnectorPpnsModuleSpec
         BoxCreator(ClientId("myClientIs6")),
         None,
         Some(BoxSubscriber("testurl.co.uk", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)),
-        Environment.PRODUCTION
+        Environment.Production
       )
 
       val text = """[{

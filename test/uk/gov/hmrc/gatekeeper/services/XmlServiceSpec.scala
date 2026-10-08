@@ -72,7 +72,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
         TaxRegimeInterests("CUSTOMS", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName)),
         TaxRegimeInterests("VAT", Set.empty)
       ),
-      topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
+      topics = Set(EmailTopic.Technical, EmailTopic.BusinessAndPolicy)
     )
 
     val user = aUser("Fred", emailPreferences = emailPreferences)

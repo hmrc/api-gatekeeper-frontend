@@ -24,8 +24,8 @@ trait CollaboratorsBuilder {
 
   def buildCollaborators(collaborators: Seq[(String, Collaborator.Role)]): Set[Collaborator] = {
     collaborators.map {
-      case (email, Collaborator.Roles.ADMINISTRATOR) => Collaborators.Administrator(UserId.random, email.toLaxEmail)
-      case (email, Collaborator.Roles.DEVELOPER)     => Collaborators.Developer(UserId.random, email.toLaxEmail)
+      case (email, Collaborator.Role.Administrator) => Collaborators.Administrator(UserId.random, email.toLaxEmail)
+      case (email, Collaborator.Role.Developer)     => Collaborators.Developer(UserId.random, email.toLaxEmail)
     }.toSet
   }
 }

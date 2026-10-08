@@ -28,32 +28,32 @@ import uk.gov.hmrc.gatekeeper.builder.StateHistoryBuilder
 trait StateHistoryTestData extends FixedClock with StateHistoryBuilder with CommonTestData {
 
   val stateHistories = List(
-    buildStateHistory(applicationId, State.TESTING, Actors.AppCollaborator(administratorEmail), LocalDateTime.parse("2019-08-22T10:21:50.160").toInstant(ZoneOffset.UTC)),
+    buildStateHistory(applicationId, State.Testing, Actors.AppCollaborator(administratorEmail), LocalDateTime.parse("2019-08-22T10:21:50.160").toInstant(ZoneOffset.UTC)),
     buildStateHistory(
       applicationId,
-      State.PENDING_GATEKEEPER_APPROVAL,
+      State.PendingGatekeeperApproval,
       Actors.AppCollaborator(administratorEmail),
       LocalDateTime.parse("2019-08-22T10:23:10.644").toInstant(ZoneOffset.UTC)
     ),
     buildStateHistory(
       applicationId,
-      State.PENDING_REQUESTER_VERIFICATION,
+      State.PendingRequesterVerification,
       Actors.GatekeeperUser("gatekeeper.username"),
       LocalDateTime.parse("2020-07-22T14:12:38.686").toInstant(ZoneOffset.UTC)
     ),
-    buildStateHistory(applicationId, State.PRODUCTION, Actors.GatekeeperUser("gatekeeper.username"), LocalDateTime.parse("2020-07-22T15:12:38.686").toInstant(ZoneOffset.UTC))
+    buildStateHistory(applicationId, State.Production, Actors.GatekeeperUser("gatekeeper.username"), LocalDateTime.parse("2020-07-22T15:12:38.686").toInstant(ZoneOffset.UTC))
   )
 
   val pendingApprovalStateHistory = List(
     buildStateHistory(
       pendingApprovalApplicationId,
-      State.PENDING_GATEKEEPER_APPROVAL,
+      State.PendingGatekeeperApproval,
       Actors.AppCollaborator(administratorEmail),
       LocalDateTime.parse("2019-08-22T10:23:10.644").toInstant(ZoneOffset.UTC)
     ),
     buildStateHistory(
       pendingApprovalApplicationId,
-      State.PENDING_REQUESTER_VERIFICATION,
+      State.PendingRequesterVerification,
       Actors.GatekeeperUser("gatekeeper.username"),
       LocalDateTime.parse("2020-07-22T14:12:38.686").toInstant(ZoneOffset.UTC)
     )
