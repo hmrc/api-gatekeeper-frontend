@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 
 trait ApmConnectorApplicationModule extends ApmConnectorModule {
-  private[this] val baseUrl = s"${config.serviceBaseUrl}/applications"
+  private val baseUrl = s"${config.serviceBaseUrl}/applications"
 
   // TODO - better return type
   // TODO - better error handling for expected errors

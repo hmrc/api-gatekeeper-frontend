@@ -26,12 +26,12 @@ trait ApmConnectorPpnsModule extends ApmConnectorModule {
   import play.api.libs.json._
   import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
 
-  private[this] val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
+  private val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
 
-  private[this] implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
-  private[this] implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
-  private[this] implicit val readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
-  private[this] implicit val readsBox: Reads[Box]                     = Json.reads[Box]
+  private implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
+  private implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
+  private implicit val readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
+  private implicit val readsBox: Reads[Box]                     = Json.reads[Box]
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     http.get(url"${baseUrl}/boxes")
