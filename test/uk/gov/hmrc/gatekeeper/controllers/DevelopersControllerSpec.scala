@@ -31,8 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
-import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, TaxRegimeInterests}
+import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, VendorId, XmlOrganisation, XmlOrganisationId}
@@ -200,7 +199,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
           SmsMfaDetail(MfaId(UUID.randomUUID()), "Dev3's phone", instant, "01234 567890", false),
           AuthenticatorAppMfaDetail(MfaId(UUID.randomUUID()), "Dev3's app", instant, true)
         )
-        private val emailPref3  = EmailPreferences(List.empty, Set(EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL, BUSINESS_AND_POLICY))
+        private val emailPref3  = EmailPreferences(List.empty, Set(EmailTopic.EVENT_INVITES, EmailTopic.RELEASE_SCHEDULES, EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY))
         private val user3       =
           RegisteredUser(
             LaxEmailAddress("developer3@example.com"),

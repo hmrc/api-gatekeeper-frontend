@@ -38,7 +38,6 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
@@ -184,7 +183,7 @@ class ApplicationControllerSpec
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
         verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.SANDBOX))(*)
       }
 
       "on request for production all except deleted production applications supplied" in new Setup {
@@ -202,7 +201,7 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(PRODUCTION))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.PRODUCTION))(*)
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
@@ -214,7 +213,7 @@ class ApplicationControllerSpec
         status(eventualResult) shouldBe OK
 
         verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(SANDBOX))(*)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.SANDBOX))(*)
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {

@@ -27,7 +27,6 @@ import play.api.test.Helpers._
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment.PRODUCTION
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
@@ -69,7 +68,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       )
       val apiDefinition = ApiDefinition(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, None, List(ApiCategory.OTHER))
 
-      Apis.returns((apiDefinition, PRODUCTION))
+      Apis.returns((apiDefinition, Environment.PRODUCTION))
 
       val result = controller.apis()(aLoggedInRequest)
 

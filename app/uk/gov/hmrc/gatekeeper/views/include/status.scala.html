@@ -20,8 +20,8 @@
 @(application: ApplicationWithCollaborators)
 @defining(
     application.state.name match {
-        case PRODUCTION => ("status status--verified", "Approved")
-        case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION | PENDING_GATEKEEPER_APPROVAL | PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending")
+        case State.PRODUCTION => ("status status--verified", "Approved")
+        case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION | State.PENDING_GATEKEEPER_APPROVAL | State.PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending")
         case _ => ("status", "Testing")
     }
 ) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }

@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 @import uk.gov.hmrc.gatekeeper.models.VersionSummary
@@ -180,13 +179,13 @@
                   @application.details.deployedTo.displayText
                 </td>
                 <td id="app-status-@index" class="govuk-table__cell">
-                  @defining( if(application.details.blocked && application.state.name != DELETED) ("status status--not-verified", "Blocked") else application.state.name match {
-                  case PRODUCTION => ("status status--verified", "Active")
-                  case PRE_PRODUCTION => ("status status--verified", "Active")
-                  case DELETED => ("status status--not-verified", "Deleted")
-                  case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
-                  case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
-                  case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                  @defining( if(application.details.blocked && application.state.name != State.DELETED) ("status status--not-verified", "Blocked") else application.state.name match {
+                  case State.PRODUCTION => ("status status--verified", "Active")
+                  case State.PRE_PRODUCTION => ("status status--verified", "Active")
+                  case State.DELETED => ("status status--not-verified", "Deleted")
+                  case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
+                  case State.PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+                  case State.PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                   case _ => ("status", "Created")
                   }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                 </td>

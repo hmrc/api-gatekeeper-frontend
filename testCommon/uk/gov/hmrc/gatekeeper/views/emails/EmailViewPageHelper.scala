@@ -20,10 +20,7 @@ import org.jsoup.nodes.Document
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition, ApiVersion, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES}
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{SPECIFIC_API, TAX_REGIME, TOPIC}
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, TopicOptionChoice}
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
@@ -44,10 +41,10 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
   def validateLandingPage(document: Document): Unit = {
     validatePageHeader(document, "Send emails to users based on")
 
-    verifyEmailOptions(EMAIL_PREFERENCES, document, isDisabled = false)
-    verifyEmailOptions(API_SUBSCRIPTION, document, isDisabled = false)
-    verifyEmailOptions(EMAIL_ALL_USERS, document, isDisabled = false)
-    elementExistsByIdWithAttr(document, EMAIL_PREFERENCES.toString, "checked") shouldBe true
+    verifyEmailOptions(EmailOptionChoice.EMAIL_PREFERENCES, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.API_SUBSCRIPTION, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.EMAIL_ALL_USERS, document, isDisabled = false)
+    elementExistsByIdWithAttr(document, EmailOptionChoice.EMAIL_PREFERENCES.toString, "checked") shouldBe true
 
     validateButtonText(document, "submit", "Continue")
   }
@@ -162,9 +159,9 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
   def validateEmailPreferencesChoicePage(document: Document): Unit = {
     validatePageHeader(document, "Who do you want to email?")
 
-    verifyEmailPreferencesChoiceOptions(SPECIFIC_API, document)
-    verifyEmailPreferencesChoiceOptions(TAX_REGIME, document)
-    verifyEmailPreferencesChoiceOptions(TOPIC, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.SPECIFIC_API, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TAX_REGIME, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TOPIC, document)
   }
 
   def validateEmailPreferencesChoiceNewPage(document: Document): Unit = {
@@ -178,7 +175,7 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 
   def validateEmailPreferencesTopicPage(document: Document) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
-    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    checkElementsExistById(document, TopicOptionChoice.values.map(_.toString).toSeq)
 
     validateButtonText(document, "filter", "Filter")
 
@@ -188,12 +185,12 @@ trait EmailPreferencesTopicViewHelper extends EmailUsersHelper with UserTableHel
 
   def validateEmailPreferencesSelectTopicPage(document: Document) = {
     elementExistsByText(document, "h1", "Select the topic of the email") shouldBe true
-    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    checkElementsExistById(document, TopicOptionChoice.values.map(_.toString).toSeq)
   }
 
   def validateEmailPreferencesTopicResultsPage(document: Document, selectedTopic: TopicOptionChoice, users: Seq[RegisteredUser]) = {
     elementExistsByText(document, "h1", "Email users interested in a topic") shouldBe true
-    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    checkElementsExistById(document, TopicOptionChoice.values.map(_.toString).toSeq)
     isElementChecked(document, selectedTopic.toString)
     validateButtonText(document, "filter", "Filter Again")
     elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
@@ -218,7 +215,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
   private def validateStaticPageElements(document: Document, categories: Set[ApiCategory]) = {
     validatePageHeader(document, "Email users interested in a tax regime")
     validateCategoryDropDown(document, categories)
-    checkElementsExistById(document, Seq(BUSINESS_AND_POLICY.toString, TECHNICAL.toString, RELEASE_SCHEDULES.toString, EVENT_INVITES.toString))
+    checkElementsExistById(document, TopicOptionChoice.values.map(_.toString).toSeq)
   }
 
   private def validateStaticPageElementsInTaxRegime(document: Document, categories: Set[ApiCategory], expectedDestination: String) = {

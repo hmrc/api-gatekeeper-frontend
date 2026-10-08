@@ -47,15 +47,15 @@ object EmailPreferencesChoice extends Enumeration {
   implicit val emailPreferencesChoiceFormat: Format[EmailPreferencesChoice] = Json.formatEnum(EmailPreferencesChoice)
 
   val optionLabel: EmailPreferencesChoice => String = {
-    case SPECIFIC_API => "Users interested in a specific API or APIs"
-    case TAX_REGIME   => "Users interested in a tax regime"
-    case TOPIC        => "Users interested in a topic"
+    case EmailPreferencesChoice.SPECIFIC_API => "Users interested in a specific API or APIs"
+    case EmailPreferencesChoice.TAX_REGIME   => "Users interested in a tax regime"
+    case EmailPreferencesChoice.TOPIC        => "Users interested in a topic"
   }
 
   val optionHint: EmailPreferencesChoice => String = {
-    case SPECIFIC_API => "For example, VAT MTD, PAYE Online"
-    case TAX_REGIME   => "For example, Income Tax"
-    case TOPIC        => "For example, event invites"
+    case EmailPreferencesChoice.SPECIFIC_API => "For example, VAT MTD, PAYE Online"
+    case EmailPreferencesChoice.TAX_REGIME   => "For example, Income Tax"
+    case EmailPreferencesChoice.TOPIC        => "For example, event invites"
   }
 }
 
@@ -82,16 +82,16 @@ object TopicOptionChoice {
   implicit val formatTopicOptionAndChoice: Format[TopicOptionChoice] = SealedTraitJsonFormatting.createFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
 
   val optionLabel: TopicOptionChoice => String = {
-    case BUSINESS_AND_POLICY => "Business and policy"
-    case TECHNICAL           => "Technical"
-    case RELEASE_SCHEDULES   => "Release schedules"
-    case EVENT_INVITES       => "Event Invites"
+    case TopicOptionChoice.BUSINESS_AND_POLICY => "Business and policy"
+    case TopicOptionChoice.TECHNICAL           => "Technical"
+    case TopicOptionChoice.RELEASE_SCHEDULES   => "Release schedules"
+    case TopicOptionChoice.EVENT_INVITES       => "Event Invites"
   }
 
   val optionHint: TopicOptionChoice => String = {
-    case BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support."
-    case TECHNICAL           => "Specifications, service guides, bux fixes and known errors."
-    case RELEASE_SCHEDULES   => "Notifications about planned releases and outages."
-    case EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities."
+    case TopicOptionChoice.BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support."
+    case TopicOptionChoice.TECHNICAL           => "Specifications, service guides, bux fixes and known errors."
+    case TopicOptionChoice.RELEASE_SCHEDULES   => "Notifications about planned releases and outages."
+    case TopicOptionChoice.EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities."
   }
 }

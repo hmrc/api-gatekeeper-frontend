@@ -27,8 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
-import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.APPROVED
+import uk.gov.hmrc.gatekeeper.models.{APIApprovalSummary, ApprovalStatus}
 
 class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
@@ -44,7 +43,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
   "fetchAllServices" should {
     "fetch all the services" in new Setup {
       val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION)))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.APPROVED))
       ApiPublisherConnectorMock.Prod.FetchAll.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.FetchAll.returns(expectedSandboxSummaries: _*)
 
@@ -58,8 +57,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
   "searchServices" should {
     "call production Api publisher connector correctly" in new Setup {
-      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED))
-      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED))
+      val expectedProductionSummaries = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED))
+      val expectedSandboxSummaries    = List(APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.APPROVED))
       ApiPublisherConnectorMock.Prod.SearchServices.returns(expectedProductionSummaries: _*)
       ApiPublisherConnectorMock.Sandbox.SearchServices.returns(expectedSandboxSummaries: _*)
 
@@ -71,13 +70,13 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
     }
 
     "returns results sorted in order of newest first (created date descending)" in new Setup {
-      val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+      val prodSummary1    = APIApprovalSummary(serviceName, "prodSummary1", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED)
       val sandboxSummary1 = APIApprovalSummary(
         serviceName,
         "sandboxSummary1",
         Option("aDescription"),
         Some(Environment.SANDBOX),
-        status = APPROVED,
+        status = ApprovalStatus.APPROVED,
         createdOn = prodSummary1.createdOn.map(_.plusSeconds(1))
       )
       val prodSummary2    = APIApprovalSummary(
@@ -85,7 +84,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
         "prodSummary2",
         Option("aDescription"),
         Some(Environment.PRODUCTION),
-        status = APPROVED,
+        status = ApprovalStatus.APPROVED,
         createdOn = sandboxSummary1.createdOn.map(_.plusSeconds(1))
       )
       val sandboxSummary2 = APIApprovalSummary(
@@ -93,10 +92,10 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
         "sandboxSummary2",
         Option("aDescription"),
         Some(Environment.SANDBOX),
-        status = APPROVED,
+        status = ApprovalStatus.APPROVED,
         createdOn = prodSummary2.createdOn.map(_.plusSeconds(1))
       )
-      val sandboxSummary3 = APIApprovalSummary(serviceName, "sandboxSummary2", Option("aDescription"), Some(Environment.SANDBOX), status = APPROVED, createdOn = None)
+      val sandboxSummary3 = APIApprovalSummary(serviceName, "sandboxSummary2", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.APPROVED, createdOn = None)
 
       val expectedProductionSummaries = List(prodSummary1, prodSummary2)
       val expectedSandboxSummaries    = List(sandboxSummary1, sandboxSummary2, sandboxSummary3)

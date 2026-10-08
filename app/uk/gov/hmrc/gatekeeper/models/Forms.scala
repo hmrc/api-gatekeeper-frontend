@@ -30,8 +30,8 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
 
 object Forms {

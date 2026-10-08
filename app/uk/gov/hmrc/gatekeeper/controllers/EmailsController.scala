@@ -31,8 +31,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice._
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice._
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
@@ -73,9 +71,9 @@ class EmailsController @Inject() (
   def chooseEmailOption(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleValidForm(form: SendEmailChoice): Future[Result] = {
       form.sendEmailChoice match {
-        case EMAIL_PREFERENCES => Future.successful(Redirect(routes.EmailsController.emailPreferencesChoice()))
-        case API_SUBSCRIPTION  => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
-        case EMAIL_ALL_USERS   => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
+        case EmailOptionChoice.EMAIL_PREFERENCES => Future.successful(Redirect(routes.EmailsController.emailPreferencesChoice()))
+        case EmailOptionChoice.API_SUBSCRIPTION  => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
+        case EmailOptionChoice.EMAIL_ALL_USERS   => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
       }
     }
 
@@ -92,9 +90,9 @@ class EmailsController @Inject() (
   def chooseEmailPreferences(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleValidForm(form: SendEmailPreferencesChoice): Future[Result]   = {
       form.sendEmailPreferences match {
-        case SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
-        case TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
-        case TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
+        case EmailPreferencesChoice.SPECIFIC_API => Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
+        case EmailPreferencesChoice.TAX_REGIME   => Future.successful(Redirect(routes.EmailsController.emailPreferencesApiCategory(None, None)))
+        case EmailPreferencesChoice.TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
     def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
