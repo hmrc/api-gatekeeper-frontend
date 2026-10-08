@@ -55,7 +55,7 @@ class OrganisationController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def organisationPage(orgId: OrganisationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>

@@ -41,7 +41,7 @@
 ){
   <div class="content__body full-width">
     <div><h1 class="govuk-heading-l" id="pageTitle">Email all users subscribed to an API</h1></div>
-      @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
+      @defining(params.get("apiVersionFilter")) { (apiVersionFilter: Option[String]) =>
       <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
         <div class="govuk-form-group">
           <label class="govuk-label" for="apiVersionFilter">Select an API from the list</label>

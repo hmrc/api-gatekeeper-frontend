@@ -53,7 +53,7 @@ class SubscriptionConfigurationController @Inject() (
     override val ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper with ActionBuilders {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def listConfigurations(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {

@@ -97,7 +97,7 @@ class ApplicationController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env                                                   = environment.getOrElse(Environment.Sandbox)

@@ -156,19 +156,19 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  // implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
+  implicit def environmentPathBinder(implicit textBinder: PathBindable[String]): PathBindable[Environment] = new PathBindable[Environment] {
 
-  //   override def bind(key: String, value: String): Either[String, Environment] = {
-  //     for {
-  //       text <- textBinder.bind(key, value)
-  //       env  <- Environment.apply(text).toRight("Not a valid environment")
-  //     } yield env
-  //   }
+    override def bind(key: String, value: String): Either[String, Environment] = {
+      for {
+        text <- textBinder.bind(key, value)
+        env  <- Environment.apply(text).toRight("Not a valid environment")
+      } yield env
+    }
 
-  //   override def unbind(key: String, env: Environment): String = {
-  //     env.toString.toLowerCase
-  //   }
-  // }
+    override def unbind(key: String, env: Environment): String = {
+      env.toString.toLowerCase
+    }
+  }
 
   implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 

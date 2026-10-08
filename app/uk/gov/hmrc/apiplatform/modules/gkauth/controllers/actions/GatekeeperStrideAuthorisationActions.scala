@@ -64,7 +64,7 @@ trait GatekeeperStrideAuthorisationActions {
 }
 
 trait GatekeeperAuthorisationActions {
-  self: FrontendBaseController with GatekeeperStrideAuthorisationActions =>
+  self: FrontendBaseController & GatekeeperStrideAuthorisationActions =>
 
   def ldapAuthorisationService: LdapAuthorisationService
 

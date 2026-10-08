@@ -102,10 +102,10 @@ object Forms {
 
       val persistLogin               = if (persistLoginEnabled) Some(OverrideFlag.PersistLogin) else None
       val originOverride             = if (originOverrideEnabled) Some(OverrideFlag.OriginOverride(originOverrideValue.get)) else None
-      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent)
-      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents)
-      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations)
-      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals)
+      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent.apply)
+      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents.apply)
+      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations.apply)
+      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals.apply)
 
       Set(persistLogin, originOverride, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
     }

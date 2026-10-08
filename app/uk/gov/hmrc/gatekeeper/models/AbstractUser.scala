@@ -77,7 +77,7 @@ object RegisteredUser {
       (JsPath \ "registrationTime").readNullable[Instant] and
       (JsPath \ "failedLogins").readWithDefault[Int](0) and
       (JsPath \ "lastLogin").readNullable[Instant]
-  )(RegisteredUser.apply _)
+  )(RegisteredUser.apply)
 
   val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
   implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)

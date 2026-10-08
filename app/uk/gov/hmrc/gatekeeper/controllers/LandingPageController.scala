@@ -51,7 +51,7 @@ class LandingPageController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def landingPage(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     Future.successful(Ok(landingPageView()))

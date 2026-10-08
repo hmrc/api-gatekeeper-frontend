@@ -382,7 +382,7 @@ class ApplicationService @Inject() (
         (JsPath \ "details" \ "name").read[ApplicationName] and
         (JsPath \ "details" \ "lastAccess").readNullable[Instant] and
         (JsPath \ "subscriptions").readNullable[Set[ApiIdentifier]].map(_.getOrElse(Set.empty))
-    )(AppWithSubscriptionsForCsvResponse.apply _)
+    )(AppWithSubscriptionsForCsvResponse.apply)
 
     val qry = ApplicationQuery.GeneralOpenEndedApplicationQuery(Nil, wantSubscriptions = true)
 
