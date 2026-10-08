@@ -32,9 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{API_SUBSCRIPTION, EMAIL_ALL_USERS, EMAIL_PREFERENCES, EmailOptionChoice}
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.{EmailPreferencesChoice, SPECIFIC_API, TAX_REGIME, TOPIC}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, _}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.emails._
@@ -72,13 +70,13 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice.EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
           .withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
 
-      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice.EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
@@ -183,7 +181,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "choose email option" should {
       "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_ALL_USERS))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_ALL_USERS))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/all-users/information")
@@ -192,7 +190,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(API_SUBSCRIPTION))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.API_SUBSCRIPTION))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/api-subscription/information")
@@ -200,7 +198,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EMAIL_PREFERENCES))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_PREFERENCES))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences")
@@ -210,7 +208,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TOPIC))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TOPIC))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-topic")
@@ -218,7 +216,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(SPECIFIC_API))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.SPECIFIC_API))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api")
@@ -226,7 +224,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(TAX_REGIME))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TAX_REGIME))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")

@@ -14,10 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
 @import uk.gov.hmrc.gatekeeper.controllers._
 @import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -172,12 +170,12 @@
                     </dd>
                     <dd class="govuk-summary-list__value" id="production-status-@idx">
                         @defining(app.state.name match {
-                            case PRODUCTION => ("status status--verified", "Active")
-                            case PRE_PRODUCTION => ("status status--verified", "Active")
-                            case DELETED => ("status status--not-verified", "Deleted")
-                            case PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
-                            case PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
-                            case PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                            case State.PRODUCTION => ("status status--verified", "Active")
+                            case State.PRE_PRODUCTION => ("status status--verified", "Active")
+                            case State.DELETED => ("status status--not-verified", "Deleted")
+                            case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
+                            case State.PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
+                            case State.PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
                             case _ => ("status", "Created")
                         }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                     </dd>

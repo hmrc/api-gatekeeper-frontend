@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.apiplatform.modules.common.config
+package uk.gov.hmrc.gatekeeper.common.config
 
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 

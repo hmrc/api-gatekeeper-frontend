@@ -24,6 +24,7 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 @Singleton

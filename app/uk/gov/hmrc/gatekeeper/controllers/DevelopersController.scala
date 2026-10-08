@@ -31,9 +31,8 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic
-import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic.{BUSINESS_AND_POLICY, EVENT_INVITES, RELEASE_SCHEDULES, TECHNICAL}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
@@ -97,10 +96,10 @@ class DevelopersController @Inject() (
         ColumnDefinition("Email", (app => app.email.text)),
         ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
         ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
-        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, BUSINESS_AND_POLICY).toString())),
-        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, TECHNICAL).toString())),
-        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, RELEASE_SCHEDULES).toString())),
-        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EVENT_INVITES).toString())),
+        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, EmailTopic.BUSINESS_AND_POLICY).toString())),
+        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, EmailTopic.TECHNICAL).toString())),
+        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, EmailTopic.RELEASE_SCHEDULES).toString())),
+        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EmailTopic.EVENT_INVITES).toString())),
         ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
         ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
         ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),

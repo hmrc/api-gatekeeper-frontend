@@ -36,8 +36,7 @@ trait ApiCataloguePublishConnectorMockProvider {
 
       def returnRight() = when(mockApiCataloguePublishConnector.publishByServiceName(*[ServiceName])(*)).thenReturn(successful(Right(PublishResponse(
         id = "id",
-        publisherReference = "publisherReference",
-        platformType = "platformType"
+        publisherReference = "publisherReference"
       ))))
 
       def returnLeft() =

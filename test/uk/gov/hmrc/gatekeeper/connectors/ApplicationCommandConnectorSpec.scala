@@ -80,7 +80,7 @@ class ApplicationCommandConnectorSpec
     }
 
     "handle getting a failure response" in new Setup {
-      import uk.gov.hmrc.apiplatform.modules.common.services.NonEmptyListFormatters._
+      import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
       val failures: NonEmptyList[CommandFailure] = NonEmptyList.one(CommandFailures.ApplicationNotFound)
 
       stubFor(

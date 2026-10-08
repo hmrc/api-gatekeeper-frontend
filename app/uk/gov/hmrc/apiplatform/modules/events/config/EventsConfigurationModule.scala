@@ -22,8 +22,8 @@ import play.api.inject.Module
 import play.api.{Configuration, Environment}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
-import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
 import uk.gov.hmrc.apiplatform.modules.events.connectors._
+import uk.gov.hmrc.gatekeeper.common.config.EBbridgeConfigHelper
 
 class EventsConfigurationModule extends Module {
 

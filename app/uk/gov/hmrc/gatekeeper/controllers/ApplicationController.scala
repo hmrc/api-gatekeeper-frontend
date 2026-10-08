@@ -28,7 +28,6 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.{DO_NOT_DELETE, NO_RESTRICTION}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
@@ -38,7 +37,8 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
-import uk.gov.hmrc.gatekeeper.config.{AppConfig, ErrorHandler}
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms._
@@ -165,7 +165,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Last API call with server token", (app => app.details.token.lastAccessTokenUsage.fold("")(_.toString))),
-      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE).toString)),
+      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DO_NOT_DELETE).toString)),
       ColumnDefinition("Number of Redirect URIs", (nbrOfLoginRedirectUris(_).toString)),
       ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))
     ) ++ (
@@ -528,7 +528,7 @@ class ApplicationController @Inject() (
         )))
       }
 
-      if (app.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION) {
         Future.successful(Ok(manageDeleteRestrictionDisabledView(app, DeleteRestrictionPreviouslyDisabledForm.form)))
       } else {
         handleDeleteRestrictionEnabled(app)
@@ -586,7 +586,7 @@ class ApplicationController @Inject() (
 
   def deleteApplicationPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      if (app.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION)
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION)
         Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
       else
         Future.successful(Ok(applicationProtectedFromDeletionView(

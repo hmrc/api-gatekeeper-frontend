@@ -17,10 +17,10 @@
 @import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
-@import uk.gov.hmrc.gatekeeper.config.AppConfig
+@import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{NEW, RESUBMITTED}
+@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus
 @import uk.gov.hmrc.gatekeeper.views.helper.{ExtractUser, HistoryOrdering, StatusWording}
 @import uk.gov.hmrc.govukfrontend.views.Aliases.{BackLink, Button, Table, TableRow, Text}
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukBackLink, GovukButton, GovukTable}
@@ -52,7 +52,7 @@
         )
     ))
 
-        @if(approvalSummary.status == NEW || approvalSummary.status == RESUBMITTED) {
+        @if(approvalSummary.status == ApprovalStatus.NEW || approvalSummary.status == ApprovalStatus.RESUBMITTED) {
                 <div class="govuk-button-group">
                     @govukButton(Button(
                         id = Some("reviewApi"),

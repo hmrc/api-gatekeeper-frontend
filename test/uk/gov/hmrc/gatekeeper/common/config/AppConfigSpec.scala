@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.config
+package uk.gov.hmrc.gatekeeper.common.config
 
 import org.scalatestplus.play.guice.GuiceOneAppPerTest
 

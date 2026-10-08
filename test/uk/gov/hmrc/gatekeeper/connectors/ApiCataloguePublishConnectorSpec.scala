@@ -78,7 +78,7 @@ class ApiCataloguePublishConnectorSpec
 
       "return Right(PublishResponse)" in new Setup {
 
-        val expectedPublishResponse: PublishResponse = PublishResponse("id", "publishReference", "platformType")
+        val expectedPublishResponse: PublishResponse = PublishResponse("id", "publishReference")
         val responseAsJsonString: String             = Json.toJson(expectedPublishResponse).toString
 
         primePostWithBody(url, OK, responseAsJsonString)

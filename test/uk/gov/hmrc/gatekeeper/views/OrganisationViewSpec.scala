@@ -37,7 +37,7 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, _}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.mocks.ApplicationResponseBuilder
 import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 import uk.gov.hmrc.gatekeeper.views.html.applications.OrganisationView

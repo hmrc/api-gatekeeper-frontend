@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,65 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.gatekeeper.config
+package uk.gov.hmrc.gatekeeper.common.config
 
 import javax.inject.Inject
 
-import com.google.inject.{ImplementedBy, Singleton}
+import com.google.inject.Singleton
 
 import play.api.{ConfigLoader, Configuration}
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
-
-import uk.gov.hmrc.apiplatform.modules.common.config.EBbridgeConfigHelper
-
-@ImplementedBy(classOf[AppConfigImpl])
-trait AppConfig {
-  def title: String
-
-  def appName: String
-
-  def devHubBaseUrl: String
-
-  def apiScopeSandboxBaseUrl: String
-  def apiScopeSandboxUseProxy: Boolean
-  def apiScopeSandboxBearerToken: String
-  def apiScopeSandboxApiKey: String
-  def apiScopeProductionBaseUrl: String
-
-  def applicationSandboxBaseUrl: String
-  def applicationSandboxUseProxy: Boolean
-  def applicationSandboxBearerToken: String
-  def applicationSandboxApiKey: String
-  def applicationProductionBaseUrl: String
-
-  def authBaseUrl: String
-  def strideLoginUrl: String
-  def developerBaseUrl: String
-
-  def subscriptionFieldsSandboxBaseUrl: String
-  def subscriptionFieldsSandboxUseProxy: Boolean
-  def subscriptionFieldsSandboxBearerToken: String
-  def subscriptionFieldsSandboxApiKey: String
-  def subscriptionFieldsProductionBaseUrl: String
-
-  def apiPublisherSandboxBaseUrl: String
-  def apiPublisherSandboxUseProxy: Boolean
-  def apiPublisherSandboxBearerToken: String
-  def apiPublisherSandboxApiKey: String
-  def apiPublisherProductionBaseUrl: String
-
-  def gatekeeperXmlServicesBaseUrl: String
-
-  def gatekeeperApprovalsEnabled: Boolean
-  def gatekeeperApprovalsBaseUrl: String
-  def gatekeeperApisBaseUrl: String
-  def gatekeeperApisUrl: String
-  def gatekeeperOrganisationBaseUrl: String
-  def gatekeeperOrganisationUrl: String
-
-  def apiGatekeeperEmailUrl: String
-  def apiGatekeeperEmailUsersUrl: String
-}
 
 @Singleton
 class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(config) with AppConfig with EBbridgeConfigHelper {

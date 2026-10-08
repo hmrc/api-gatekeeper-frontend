@@ -58,12 +58,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     validateCategoryDropDown(document, categories)
     checkElementsExistById(
       document,
-      Seq(
-        TopicOptionChoice.BUSINESS_AND_POLICY.toString,
-        TopicOptionChoice.TECHNICAL.toString,
-        TopicOptionChoice.RELEASE_SCHEDULES.toString,
-        TopicOptionChoice.EVENT_INVITES.toString
-      )
+      TopicOptionChoice.values.map(_.toString).toSeq
     )
   }
 
@@ -81,7 +76,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -90,7 +85,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
     }

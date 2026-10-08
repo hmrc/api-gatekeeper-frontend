@@ -50,11 +50,11 @@ lazy val microservice = Project(appName, file("."))
     TwirlKeys.templateImports ++= Seq(
       "views.html.helper.CSPNonce",
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
+      "uk.gov.hmrc.gatekeeper.common.config.AppConfig",
       "uk.gov.hmrc.gatekeeper.views.html._",
       "uk.gov.hmrc.gatekeeper.views.html.include._",
       "uk.gov.hmrc.gatekeeper.controllers",
       "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",
-      "uk.gov.hmrc.gatekeeper.config.AppConfig",
       "uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._",
       "uk.gov.hmrc.apiplatform.modules.common.domain.models._",
       "uk.gov.hmrc.apiplatform.modules.apis.domain.models._",

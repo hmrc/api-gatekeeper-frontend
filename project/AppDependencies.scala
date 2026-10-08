@@ -4,7 +4,7 @@ object AppDependencies {
 
   lazy val jsoupVersion      = "1.22.1"
   lazy val scalaCheckVersion = "1.17.0"
-  lazy val bootstrapVersion  = "10.7.0"
+  lazy val bootstrapVersion  = "10.8.0"
   lazy val playFrontendVersion = "13.14.0"
 
   val commonDomainVersion = "1.4.0"
@@ -12,7 +12,6 @@ object AppDependencies {
   val apiDomainVersion    = "1.8.0"
   val appDomainVersion    = "1.6.0"
   val orgDomainVersion    = "1.23.0"
-  val mockitoScalaVersion = "2.0.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
 

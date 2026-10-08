@@ -32,8 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, NEW}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.{ApprovalStatus, _}
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
@@ -88,7 +87,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       DeploymentApprovalServiceMock.SearchServices.thenReturn(
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX)),
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED)
       )
 
       val result = underTest.filterPage(false)(aLoggedInRequest.withCSRFToken)
@@ -162,7 +161,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED)
       )
 
       val result = underTest.historyPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
@@ -196,7 +195,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED)
       )
 
       val result = underTest.reviewPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
@@ -228,7 +227,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.PRODUCTION)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = APPROVED)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.PRODUCTION), status = ApprovalStatus.APPROVED)
       )
 
       val result = underTest.commentPage(serviceName, Environment.PRODUCTION)(aLoggedInRequest.withCSRFToken)
@@ -290,7 +289,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.NEW)
       )
 
       val request = aLoggedInRequest
@@ -309,7 +308,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.NEW)
       )
 
       val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false")
@@ -376,7 +375,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.SANDBOX)(
-        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = NEW)
+        APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.SANDBOX), status = ApprovalStatus.NEW)
       )
 
       val request = aLoggedInRequest

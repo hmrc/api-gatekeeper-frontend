@@ -16,13 +16,12 @@
 
 @import uk.gov.hmrc.gatekeeper.models.ApprovalStatus
 
-@import uk.gov.hmrc.gatekeeper.models.ApprovalStatus._
 @(status: ApprovalStatus)
   @{
     status match {
-        case NEW => <strong class='govuk-tag govuk-tag--green'>New</strong>
-        case APPROVED => <strong class='govuk-tag govuk-tag--purple'>Approved</strong>
-        case FAILED => <strong class='govuk-tag govuk-tag--red'>Failed</strong>
-        case RESUBMITTED => <strong class='govuk-tag govuk-tag--light-blue'>Re-submitted</strong>
+        case ApprovalStatus.NEW => <strong class='govuk-tag govuk-tag--green'>New</strong>
+        case ApprovalStatus.APPROVED => <strong class='govuk-tag govuk-tag--purple'>Approved</strong>
+        case ApprovalStatus.FAILED => <strong class='govuk-tag govuk-tag--red'>Failed</strong>
+        case ApprovalStatus.RESUBMITTED => <strong class='govuk-tag govuk-tag--light-blue'>Re-submitted</strong>
     }
   }

@@ -20,7 +20,6 @@ import java.time.{Instant, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.{GatekeeperUser, Process}
-import uk.gov.hmrc.gatekeeper.models.ApprovalStatus.{APPROVED, FAILED, NEW, RESUBMITTED}
 import uk.gov.hmrc.gatekeeper.models.{ApiApprovalState, ApprovalStatus}
 
 object ExtractUser {
@@ -38,11 +37,11 @@ object StatusWording {
 
   def displayStatus(status: Option[ApprovalStatus]): String = {
     status match {
-      case Some(NEW)         => "API approval request submitted"
-      case Some(RESUBMITTED) => "API approval request submitted"
-      case Some(FAILED)      => "API approval request rejected"
-      case Some(APPROVED)    => "API approval request approved"
-      case None              => "Update"
+      case Some(ApprovalStatus.NEW)         => "API approval request submitted"
+      case Some(ApprovalStatus.RESUBMITTED) => "API approval request submitted"
+      case Some(ApprovalStatus.FAILED)      => "API approval request rejected"
+      case Some(ApprovalStatus.APPROVED)    => "API approval request approved"
+      case None                             => "Update"
     }
   }
 }

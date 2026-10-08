@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models.view
 
-import uk.gov.hmrc.gatekeeper.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.controllers.routes
 
 case class SubmenuItem(name: String, href: Option[String])
