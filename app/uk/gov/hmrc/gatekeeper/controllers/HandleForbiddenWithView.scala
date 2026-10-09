@@ -23,9 +23,8 @@ import play.api.mvc.Results.Forbidden
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
 import uk.gov.hmrc.gatekeeper.views.html.ForbiddenView
-import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
-class HandleForbiddenWithView @Inject() (forbiddenView: ForbiddenView) extends ForbiddenHandler with JsonBodyWritables {
-  def handle(m: MessagesRequest[?]) = Forbidden(forbiddenView()(_, m.messages))
+class HandleForbiddenWithView @Inject() (forbiddenView: ForbiddenView) extends ForbiddenHandler {
+  def handle(m: MessagesRequest[?]) = Forbidden(forbiddenView()(using m, m.messages))
 }

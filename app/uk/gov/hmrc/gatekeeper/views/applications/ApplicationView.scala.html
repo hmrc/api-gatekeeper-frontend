@@ -193,7 +193,7 @@
       @subscription._1
       @{
         subscription._2.map(data => 
-          data._1.value + " (" + data._2.displayText + ")"
+          data._1.value + " (" + data._2.toString + ")"
 
         ).mkString(", ")
       }
@@ -288,7 +288,7 @@
             Application name
         </dt>
         <dd class="govuk-summary-list__value" data-name-id>
-            @application.name.value
+            @application.name
         </dd>
         <dd class="govuk-summary-list__actions">
         @if(application.isProduction && application.state.name.isApproved) {
@@ -341,7 +341,7 @@
         Rate limit tier
       </dt>
       <dd class="govuk-summary-list__value" data-rate-limit>
-        @application.details.rateLimitTier.displayText
+        @application.details.rateLimitTier.toString
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -420,7 +420,7 @@
         Access type
       </dt>
       <dd class="govuk-summary-list__value" data-access-type>
-        @access.accessType.displayText
+        @access.accessType.toString
       </dd>
       <dd class="govuk-summary-list__actions">
       </dd>
@@ -443,7 +443,7 @@
         Application protected from being deleted
       </dt>
       <dd class="govuk-summary-list__value" data-application-protected-from-deletion>
-        @{if (application.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE) "Yes" else "No"}
+        @{if (application.details.deleteRestriction.deleteRestrictionType == DeleteRestriction.DoNotDelete) "Yes" else "No"}
       </dd>
       @if(request.role.isAdvancedUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
@@ -575,7 +575,7 @@
           <button id="copy-admin-emails-to-clip" class="govuk-button govuk-!-margin-bottom-0" data-clip-text>Copy admin email addresses</button>
         }
       </dd>
-      @if(!application.state.isDeleted && (request.role.isAdvancedUser || access.accessType == AccessType.STANDARD)) {
+      @if(!application.state.isDeleted && (request.role.isAdvancedUser || access.accessType == AccessType.Standard)) {
         <dd class="govuk-summary-list__actions">
           <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}">
             Manage<span class="govuk-visually-hidden"> team members</span>

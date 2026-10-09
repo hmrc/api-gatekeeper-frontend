@@ -64,7 +64,7 @@
   @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
-    @for(t <- RateLimitTier.orderedForDisplay) {
+    @for(t <- RateLimitTier.values) {
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-visually-hidden">
@@ -74,7 +74,7 @@
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == t) {checked}>
               <label class="govuk-label govuk-radios__label" for="@t">
-                @t.displayText
+                @t.toString
               </label>
             </div>
           </div>

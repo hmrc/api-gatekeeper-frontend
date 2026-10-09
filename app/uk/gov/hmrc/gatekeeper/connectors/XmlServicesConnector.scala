@@ -35,7 +35,7 @@ import uk.gov.hmrc.gatekeeper.models.{
   RemoveAllCollaboratorsForUserIdResult,
   RemoveAllCollaboratorsForUserIdSuccessResult
 }
-import play.libs.ws.JsonBodyWritables
+import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
 class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging with JsonBodyWritables {

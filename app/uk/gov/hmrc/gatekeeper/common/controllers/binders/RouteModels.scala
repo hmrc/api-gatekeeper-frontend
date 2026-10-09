@@ -46,6 +46,12 @@ object RouteModels {
 
     given Conversion[OrganisationId, SimpleOrganisationId] with
       def apply(x: OrganisationId): SimpleOrganisationId = SimpleOrganisationId(x.value)
+
+    given Conversion[ApiContext, SimpleApiContext] with
+      def apply(x: ApiContext): SimpleApiContext = x.value
+
+    given Conversion[ApiVersionNbr, SimpleApiVersionNbr] with
+      def apply(x: ApiVersionNbr): SimpleApiVersionNbr = x.value
   }  
 
   object Conversions {

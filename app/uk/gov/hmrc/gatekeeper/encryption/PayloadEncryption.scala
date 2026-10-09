@@ -63,7 +63,7 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 
 private[encryption] class LocalCrypto(anEncryptionKey: String) extends Encrypter with Decrypter {
 
-  implicit val aesCrypto: Encrypter with Decrypter = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
+  implicit val aesCrypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
 
   override def encrypt(plain: PlainContent): Crypted = aesCrypto.encrypt(plain)
 

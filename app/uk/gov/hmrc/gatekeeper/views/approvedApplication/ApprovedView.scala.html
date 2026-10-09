@@ -94,7 +94,7 @@
             <caption class="govuk-visually-hidden">Table showing rate limit tier</caption>
             <tbody id="rate-limit-tier-table" class="govuk-table__body">
               <tr class="govuk-table__row">
-                @for(t <- RateLimitTier.orderedForDisplay) {
+                @for(t <- RateLimitTier.values) {
                   <td class="govuk-table__cell">
                     <input type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == Some(t)) {checked}>@t
                   </td>

@@ -313,14 +313,14 @@ class ApplicationService @Inject() (
 
   def searchApplications(env: Environment, params: Map[String, String])(implicit hc: HeaderCarrier): Future[PaginatedApplications] = {
 
-    val filteredParams = params
+    val filteredParams: Map[ParamName, String] = params
       .filterNot {
         case (_, "")           => true
         case ("status", "ALL") => true
         case _                 => false
       }
       .flatMap {
-        case ("page" -> v)             => List(("pageNbr" -> v))
+        case ("page" -> v)             => List((ParamName.PageNbr -> v))
         case ("apiSubscription", text) =>
           if (text == "ANY")
             List((ParamName.HasSubscriptions -> ""))
@@ -334,10 +334,7 @@ class ApplicationService @Inject() (
               case _                         => Nil
             }
           }
-        case x                         => List(x)
-      }.toMap
-      .filter {
-        case (k, v) => validSearchParams.find(_.equalsIgnoreCase(k)).isDefined
+        case (k,v)                           => validSearchParams.find(p => p.text.equalsIgnoreCase(k)).map(p => (p -> v))
       }
     tpoConnector.rawQuery[PaginatedApplications](env)(filteredParams)
   }

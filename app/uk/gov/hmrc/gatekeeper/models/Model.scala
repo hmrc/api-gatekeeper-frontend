@@ -339,6 +339,7 @@ case class ApiApprovalState(
   )
 
 object ApiApprovalState {
+  import Actor.given
   implicit val stateFormat: Format[ApiApprovalState] = Json.format[ApiApprovalState]
 
 }
@@ -384,7 +385,8 @@ object ApprovalStatus {
 case class ApiApprovalRequest(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)
 
 object ApiApprovalRequest {
-  implicit val format: OFormat[ApiApprovalRequest] = Json.format[ApiApprovalRequest]
+  import Actor.given
+  given OFormat[ApiApprovalRequest] = Json.format[ApiApprovalRequest]
 }
 
 class UpdateApiDefinitionsFailed extends Throwable

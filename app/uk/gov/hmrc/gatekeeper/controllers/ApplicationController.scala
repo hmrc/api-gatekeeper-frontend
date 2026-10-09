@@ -695,7 +695,7 @@ class ApplicationController @Inject() (
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
-                result.flashing("success" -> s"Rate limit tier has been changed to ${tier.displayText}")
+                result.flashing("success" -> s"Rate limit tier has been changed to $tier}")
               case _                              =>
                 result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
             }
