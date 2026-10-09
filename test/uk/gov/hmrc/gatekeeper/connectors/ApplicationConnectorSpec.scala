@@ -111,7 +111,7 @@ class ApplicationConnectorSpec
       val app            = privilegedCoreApp.copy(description = Some(appDescription))
       val admin          = List(administrator)
       val totpSecrets    = Some(TotpSecrets("secret"))
-      val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
+      val appAccess      = AppAccess(AccessType.Privileged, List())
 
       val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.Production, admin.toSet, None, None)
 

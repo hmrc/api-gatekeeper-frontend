@@ -95,9 +95,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
-      val category1                 = ApiCategory.EXAMPLE
-      val category2                 = ApiCategory.VAT
-      val category3                 = ApiCategory.AGENTS
+      val category1                 = ApiCategory.Example
+      val category2                 = ApiCategory.Vat
+      val category3                 = ApiCategory.Agents
       val categorySet               = Set(category1, category2, category3)
 
       val apiVersion1 = ApiVersionNbr("1.0")
@@ -117,7 +117,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category1)
@@ -128,7 +128,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category2)
@@ -152,9 +152,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val serviceNameTwo   = ServiceName("serviceNameTwo")
       val serviceNameThree = ServiceName("serviceNameThree")
 
-      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.RestApi, ApiAccessType.Public)
-      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XmlApi, ApiAccessType.Public)
-      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.RestApi, ApiAccessType.Internal)
+      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.Customs), ApiType.RestApi, ApiAccessType.Public)
+      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.Vat), ApiType.XmlApi, ApiAccessType.Public)
+      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.Customs), ApiType.RestApi, ApiAccessType.Internal)
       val combinedApisList        = List(combinedRestApi, combinedXmlApi, combinedInternalRestApi)
 
       val underTest = new EmailsController(
@@ -357,10 +357,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.CUSTOMS)), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.Customs)), eqTo(List(serviceNameThree)), eqTo(true))(*)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
           eqTo(selectedTopic),
-          eqTo(Set(ApiCategory.CUSTOMS, ApiCategory.VAT)),
+          eqTo(Set(ApiCategory.Customs, ApiCategory.Vat)),
           eqTo(List(serviceNameOne, serviceNameTwo)),
           eqTo(false)
         )(*)

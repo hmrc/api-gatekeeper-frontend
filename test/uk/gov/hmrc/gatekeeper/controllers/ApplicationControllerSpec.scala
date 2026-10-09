@@ -403,7 +403,7 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           lastAccessTokenUsage = Some(Instant.parse("2003-02-03T14:02:03Z")),
           access = Access.Standard(),
           state = ApplicationState(name = State.Deleted, updatedOn = instant),
-          lastActionActor = ActorType.GATEKEEPER
+          lastActionActor = ActorType.Gatekeeper
         )
         ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse)*)
 
@@ -1202,7 +1202,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.Gold), eqTo("Bobby Example"))(*)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1235,7 +1235,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
     }
 
     "handleUpdateRateLimitTier" should {
-      val tier = RateLimitTier.GOLD
+      val tier = RateLimitTier.Gold
 
       "change the rate limit for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
@@ -1274,13 +1274,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
     "createPrivApp" should {
       val appName              = ApplicationName("My New App")
-      val privilegedAccessType = AccessType.PRIVILEGED
+      val privilegedAccessType = AccessType.Privileged
       val description          = "An application description"
       val adminEmail           = "emailAddress@example.com".toLaxEmail
       val clientId             = ClientId.random
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
-      val privAccess           = AppAccess(AccessType.PRIVILEGED, List.empty)
+      val privAccess           = AppAccess(AccessType.Privileged, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {

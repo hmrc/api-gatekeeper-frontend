@@ -37,7 +37,7 @@ object ApplicationTestData extends ApplicationBuilder with CommonTestData with C
     .withCheckInformation(defaultCheckInformation)
     .withIpAllowlist(IpAllowlist())
     .unblocked
-    .withRateLimitTier(RateLimitTier.BRONZE)
+    .withRateLimitTier(RateLimitTier.Bronze)
     .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))
     .withLastAccess(Instant.parse("2019-07-01T00:00:00.000Z"))
 

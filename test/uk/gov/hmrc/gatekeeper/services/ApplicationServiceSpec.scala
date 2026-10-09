@@ -311,14 +311,14 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the service to update the rate limit tier" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.COPPER, gatekeeperUserId))
+      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.Copper, gatekeeperUserId))
 
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
         case ApplicationCommands.ChangeRateLimitTier(aUser, _, rateLimitTier) =>
           aUser shouldBe gatekeeperUserId
-          rateLimitTier shouldBe RateLimitTier.COPPER
+          rateLimitTier shouldBe RateLimitTier.Copper
       }
     }
   }
@@ -326,7 +326,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "createPrivApp" should {
     val admin       = List(Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail))
     val totpSecrets = Some(TotpSecrets("secret"))
-    val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
+    val appAccess   = AppAccess(AccessType.Privileged, List.empty)
 
     val name        = ApplicationName("New app")
     val appId       = ApplicationId.random

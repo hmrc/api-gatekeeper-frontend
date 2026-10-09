@@ -46,14 +46,14 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       grantLength: GrantLength = GrantLength.EIGHTEEN_MONTHS,
       access: Access = Access.Standard(),
       state: ApplicationState = ApplicationState(State.Production, updatedOn = instant),
-      rateLimitTier: RateLimitTier = RateLimitTier.BRONZE,
+      rateLimitTier: RateLimitTier = RateLimitTier.Bronze,
       checkInformation: Option[CheckInformation] = None,
       blocked: Boolean = false,
       ipAllowlist: IpAllowlist = IpAllowlist(),
       loginRedirectUris: List[LoginRedirectUri] = List.empty,
       postLogoutRedirectUris: List[PostLogoutRedirectUri] = List.empty,
       deleteRestriction: DeleteRestriction = DeleteRestriction.NoRestriction,
-      lastActionActor: ActorType = ActorType.UNKNOWN
+      lastActionActor: ActorType = ActorType.Unknown
     ): ApplicationWithCollaborators = {
 
     val access2 = access match {

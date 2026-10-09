@@ -43,10 +43,10 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "publicAPI",
       "public api.",
       ApiContext.random,
-      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
       None,
-      List(ApiCategory.OTHER)
+      List(ApiCategory.Other)
     )
 
     val privateDefinition = ApiDefinition(
@@ -55,15 +55,15 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       "privateAPI",
       "private api.",
       ApiContext.random,
-      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
       None,
-      List(ApiCategory.OTHER)
+      List(ApiCategory.Other)
     )
 
-    val version1 = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.BETA, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)
-    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.BETA, ApiAccessType.Controlled, List.empty, false, None, ApiVersionSource.UNKNOWN)
-    val version3 = ApiVersion(ApiVersionNbr("3.0"), ApiStatus.BETA, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.UNKNOWN)
+    val version1 = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)
+    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.Beta, ApiAccessType.Controlled, List.empty, false, None, ApiVersionSource.Unknown)
+    val version3 = ApiVersion(ApiVersionNbr("3.0"), ApiStatus.Beta, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.Unknown)
 
     val customsDeclarations1 = ApiDefinition(
       serviceName = ServiceName("customs-declarations"),
@@ -72,7 +72,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
       versions = Map(version1.versionNbr -> version1),
-      categories = List(ApiCategory.CUSTOMS)
+      categories = List(ApiCategory.Customs)
     )
 
     val customsDeclarations2 = ApiDefinition(
@@ -82,7 +82,7 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
       description = "Single WCO-compliant Customs Declarations API",
       context = ApiContext("customs/declarations"),
       versions = Map(version2.versionNbr -> version2.copy(), version3.versionNbr -> version3.copy()),
-      categories = List(ApiCategory.CUSTOMS)
+      categories = List(ApiCategory.Customs)
     )
   }
 

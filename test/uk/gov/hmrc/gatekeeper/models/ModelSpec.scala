@@ -91,18 +91,18 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "AccessType" should {
 
     "contain all access types" in {
-      AccessType.values shouldBe List(AccessType.STANDARD, AccessType.PRIVILEGED, AccessType.ROPC)
+      AccessType.values shouldBe List(AccessType.Standard, AccessType.Privileged, AccessType.Ropc)
     }
 
     "convert strings with any case to AccessType" in {
-      AccessType.apply("standard") shouldBe Some(AccessType.STANDARD)
-      AccessType.apply("Standard") shouldBe Some(AccessType.STANDARD)
+      AccessType.apply("standard") shouldBe Some(AccessType.Standard)
+      AccessType.apply("Standard") shouldBe Some(AccessType.Standard)
 
-      AccessType.apply("privileged") shouldBe Some(AccessType.PRIVILEGED)
-      AccessType.apply("priVILeged") shouldBe Some(AccessType.PRIVILEGED)
+      AccessType.apply("privileged") shouldBe Some(AccessType.Privileged)
+      AccessType.apply("priVILeged") shouldBe Some(AccessType.Privileged)
 
-      AccessType.apply("ropc") shouldBe Some(AccessType.ROPC)
-      AccessType.apply("ROPC") shouldBe Some(AccessType.ROPC)
+      AccessType.apply("ropc") shouldBe Some(AccessType.Ropc)
+      AccessType.apply("ROPC") shouldBe Some(AccessType.Ropc)
     }
 
     "convert unknown strings to None" in {
@@ -132,7 +132,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe Some(TotpSecrets(totp))
     }
 
@@ -150,7 +150,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe Some(TotpSecrets(totp))
     }
 
@@ -166,7 +166,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe None
     }
   }

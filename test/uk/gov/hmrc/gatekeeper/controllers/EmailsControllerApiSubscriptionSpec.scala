@@ -66,8 +66,8 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       val verifiedUser3  = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "verifiedUserC", "3", true)
       val users          = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val verified2Users = List(verifiedUser1, verifiedUser2)
-      val category1      = ApiCategory.EXAMPLE
-      val category2      = ApiCategory.VAT
+      val category1      = ApiCategory.Example
+      val category2      = ApiCategory.Vat
 
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
@@ -84,7 +84,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         "serviceName",
         "serviceDesc",
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category1)
@@ -95,7 +95,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         "service2Name",
         "service2Desc",
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category2)

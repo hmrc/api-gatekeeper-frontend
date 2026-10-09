@@ -37,7 +37,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     val combinedRestApi1 = CombinedApi(
       "displayName1",
       ServiceName("serviceName1"),
-      Set(ApiCategory.CUSTOMS),
+      Set(ApiCategory.Customs),
       ApiType.RestApi,
       ApiAccessType.Public
     )
@@ -45,7 +45,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     val combinedXmlApi2 = CombinedApi(
       "displayName2",
       ServiceName("serviceName2"),
-      Set(ApiCategory.VAT),
+      Set(ApiCategory.Vat),
       ApiType.XmlApi,
       ApiAccessType.Public
     )

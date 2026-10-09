@@ -46,7 +46,7 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
     "a privileged application is created" should {
       "render" in new Setup {
 
-        val accessType = Some(AccessType.PRIVILEGED)
+        val accessType = Some(AccessType.Privileged)
         val totp       = Some(TotpSecrets(totpSecret))
 
         implicit val loggedInUser: LoggedInUser = LoggedInUser(Some(""))

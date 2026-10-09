@@ -75,14 +75,14 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       (
         "My API Name",
         List(
-          (VersionOne, ApiStatus.STABLE),
-          (VersionTwo, ApiStatus.BETA)
+          (VersionOne, ApiStatus.Stable),
+          (VersionTwo, ApiStatus.Beta)
         )
       ),
       (
         "My Other API Name",
         List(
-          (VersionOne, ApiStatus.STABLE)
+          (VersionOne, ApiStatus.Stable)
         )
       )
     )

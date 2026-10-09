@@ -63,11 +63,11 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
         grantLength = GrantLength.EIGHTEEN_MONTHS,
         access = standardAccess,
         state = ApplicationState(name = State.Testing, updatedOn = Instant.parse("2022-10-08T12:24:31.123Z")),
-        rateLimitTier = RateLimitTier.BRONZE,
+        rateLimitTier = RateLimitTier.Bronze,
         checkInformation = None,
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
-        lastActionActor = ActorType.UNKNOWN,
+        lastActionActor = ActorType.Unknown,
         deleteRestriction = DeleteRestriction.NoRestriction,
         organisationId = None
       ),
