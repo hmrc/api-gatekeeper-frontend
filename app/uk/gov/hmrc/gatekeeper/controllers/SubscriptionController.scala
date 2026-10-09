@@ -45,7 +45,6 @@ object SubscriptionController {
 
   object SubsForm {
     import play.api.data.Forms._
-    import play.api.data._
 
     lazy val form = Form[SubsForm](
       mapping(

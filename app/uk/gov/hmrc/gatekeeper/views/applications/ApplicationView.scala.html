@@ -179,10 +179,6 @@
   </div>
 }
 
-@renderExternalUrl(url: String) = {
-  <a href="@url" class="govuk-link" target="_blank">@url</a> (opens in a new window)
-}
-
 @renderTermsOfUseInfo(termsOfUseAgreement: TermsOfUseAgreementDisplayDetails) = {
   v@termsOfUseAgreement.version agreed by @termsOfUseAgreement.emailAddress on @termsOfUseAgreement.date
 }
