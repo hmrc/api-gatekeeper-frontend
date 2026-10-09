@@ -73,7 +73,7 @@ object ApplicationEventsController {
       mapping(
         "eventTag"  -> optional(text),
         "actorType" -> optional(text)
-      )(QueryForm.apply)(QueryForm.unapply)
+      )(QueryForm.apply)(qf => Some(qf.eventTag, qf.actorType))
     )
   }
 }

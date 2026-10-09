@@ -50,7 +50,7 @@ object SubscriptionController {
     lazy val form = Form[SubsForm](
       mapping(
         "subscribed" -> boolean
-      )(SubsForm.apply)(SubsForm.unapply)
+      )(SubsForm.apply)(f => Some(f.subscribed))
     )
   }
 }

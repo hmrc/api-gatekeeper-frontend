@@ -67,10 +67,10 @@ object EditApiMetadataForm {
       "fields" -> list(
         mapping(
           "name"  -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
-          "value" -> text.transform[FieldValue](FieldValue(_), identity)
-        )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
+          "value" -> text.transform[FieldValue](FieldValue(_), _.toString)
+        )(SubscriptionFieldValueForm.apply)(sf => Some(sf.name, sf.value))
       )
-    )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
+    )(EditApiMetadataForm.apply)(f => Some(f.fields))
   )
 
   def toFields(form: EditApiMetadataForm): Fields.Alias = {

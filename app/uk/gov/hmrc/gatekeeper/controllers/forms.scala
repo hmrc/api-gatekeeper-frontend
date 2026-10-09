@@ -28,8 +28,6 @@ class HandleUpliftForm(val action: String, val reason: Option[String]) {}
 object HandleUpliftForm {
   def apply(action: Option[String], reason: Option[String]): HandleUpliftForm = new HandleUpliftForm(action.getOrElse(""), reason)
 
-  def unapply(form: HandleUpliftForm): Option[(Option[String], Option[String])] = Some((Some(form.action), form.reason))
-
   private def actionValidator =
     optional(text).verifying("invalid.action", action => UpliftAction.from(action.getOrElse("")).isDefined)
 
@@ -37,7 +35,7 @@ object HandleUpliftForm {
     mapping(
       "action" -> actionValidator,
       "reason" -> mandatoryIfEqual("action", "REJECT", nonEmptyText)
-    )(HandleUpliftForm.apply)(HandleUpliftForm.unapply)
+    )(HandleUpliftForm.apply)(f => Some(Some(f.action), f.reason))
   )
 }
 
@@ -56,7 +54,7 @@ object DevelopersSearchForm {
       "apiVersionFilter"      -> optional(nonEmptyText),
       "environmentFilter"     -> optional(nonEmptyText),
       "developerStatusFilter" -> optional(nonEmptyText)
-    )(DevelopersSearchForm.apply)(DevelopersSearchForm.unapply)
+    )(DevelopersSearchForm.apply)(f => Some(f.maybeTextFilter, f.maybeApiVersionFilter, f.maybeEnvironmentFilter, f.maybeDeveloperStatusFilter))
   )
 }
 
@@ -67,7 +65,7 @@ object UpdateRateLimitForm {
   val form: Form[UpdateRateLimitForm] = Form(
     mapping(
       "tier" -> nonEmptyText
-    )(UpdateRateLimitForm.apply)(UpdateRateLimitForm.unapply)
+    )(UpdateRateLimitForm.apply)(f => Some(f.tier))
   )
 }
 
@@ -78,7 +76,7 @@ object HandleApprovalForm {
   lazy val form = Form(
     mapping(
       "approval_confirmation" -> text(0, 20)
-    )(HandleApprovalForm.apply)(HandleApprovalForm.unapply)
+    )(HandleApprovalForm.apply)(f => Some(f.approval_confirmation))
   )
 
   def unrecognisedAction(form: Form[HandleApprovalForm]) = {

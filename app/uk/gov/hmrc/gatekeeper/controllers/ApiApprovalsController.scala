@@ -54,7 +54,7 @@ object ApiApprovalsController {
       "approvedStatus"    -> optional(text),
       "failedStatus"      -> optional(text),
       "resubmittedStatus" -> optional(text)
-    )(FilterForm.apply)(FilterForm.unapply)
+    )(FilterForm.apply)(ff => Some(ff.newStatus, ff.approvedStatus, ff.failedStatus, ff.resubmittedStatus))
   )
 
   case class ReviewForm(
@@ -68,7 +68,7 @@ object ApiApprovalsController {
       "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
       "approveDetail" -> optional(text(maxLength = 500)),
       "declineDetail" -> optional(text(maxLength = 500))
-    )(ReviewForm.apply)(ReviewForm.unapply)
+    )(ReviewForm.apply)(rf => Some(rf.approve, rf.approveDetail, rf.declineDetail))
       .verifying(
         "api.approvals.review.decline.reason.required",
         fields =>
@@ -86,7 +86,7 @@ object ApiApprovalsController {
   val commentForm: Form[CommentForm] = Form(
     mapping(
       "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined)
-    )(CommentForm.apply)(CommentForm.unapply)
+    )(CommentForm.apply)(cf => Some(cf.comment))
   )
 }
 
