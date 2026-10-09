@@ -24,18 +24,18 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.RedirectUrisService
 
 trait RedirectUrisServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockRedirectUrisService = mock[RedirectUrisService]
 
   object RedirectUrisServiceMock {
 
     object ManageLoginRedirectUris {
-      def succeeds() = when(mockRedirectUrisService.manageLoginRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockRedirectUrisService.manageLoginRedirectUris(*, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object ManagePostLogoutRedirectUris {
-      def succeeds() = when(mockRedirectUrisService.managePostLogoutRedirectUris(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockRedirectUrisService.managePostLogoutRedirectUris(*, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
   }
 }

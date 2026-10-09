@@ -27,34 +27,34 @@ import uk.gov.hmrc.gatekeeper.models.ApiDefinitionFields
 import uk.gov.hmrc.gatekeeper.services.ApmService
 
 trait ApmServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockApmService = mock[ApmService]
 
   object ApmServiceMock {
 
     object FetchNonOpenApiDefinitions {
-      private val whenClause = when(mockApmService.fetchNonOpenApis(*[Environment])(*))
+      private val whenClause = when(mockApmService.fetchNonOpenApis(*[Environment])(using *))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
     }
 
     def fetchAllPossibleSubscriptionsReturns(returns: List[ApiDefinition]) = {
-      when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(*))
+      when(mockApmService.fetchAllPossibleSubscriptions(*[ApplicationId])(using *))
         .thenReturn(Future.successful(returns))
     }
 
     def getAllFieldDefinitionsReturns(returns: ApiDefinitionFields.Alias) = {
-      when(mockApmService.getAllFieldDefinitions(*[Environment])(*))
+      when(mockApmService.getAllFieldDefinitions(*[Environment])(using *))
         .thenReturn(Future.successful(returns))
     }
 
     def verifyAllPossibleSubscriptions(applicationId: ApplicationId) = {
-      verify(mockApmService).fetchAllPossibleSubscriptions(eqTo(applicationId))(*)
+      verify(mockApmService).fetchAllPossibleSubscriptions(eqTo(applicationId))(using *)
     }
 
     def verifyGetAllFieldDefinitionsReturns(environment: Environment) = {
-      verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(*)
+      verify(mockApmService).getAllFieldDefinitions(eqTo(environment))(using *)
     }
   }
 }

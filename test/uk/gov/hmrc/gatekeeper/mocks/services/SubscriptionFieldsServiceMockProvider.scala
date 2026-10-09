@@ -26,7 +26,7 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptio
 import uk.gov.hmrc.gatekeeper.services.SubscriptionFieldsService
 
 trait SubscriptionFieldsServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockSubscriptionFieldsService = mock[SubscriptionFieldsService]
 
@@ -35,15 +35,15 @@ trait SubscriptionFieldsServiceMockProvider {
     object SaveFieldValues {
 
       def succeeds() =
-        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(*))
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(using *))
           .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       def failsWithFieldErrors(fieldErrors: Map[String, String]) =
-        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(*))
+        when(mockSubscriptionFieldsService.saveFieldValues(*, *[ApiContext], *[ApiVersionNbr], *)(using *))
           .thenReturn(successful(SaveSubscriptionFieldsFailureResponse(fieldErrors)))
 
       def verifyParams(application: CoreApplication, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias) =
-        verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(*)
+        verify(mockSubscriptionFieldsService).saveFieldValues(eqTo(application), eqTo(apiContext), eqTo(apiVersion), eqTo(fields))(using *)
     }
   }
 }

@@ -52,7 +52,6 @@ import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisp
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class ApplicationControllerSpec
@@ -179,8 +178,8 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(using *)
       }
 
       "on request for production all except deleted production applications supplied" in new Setup {
@@ -197,8 +196,8 @@ class ApplicationControllerSpec
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.Production), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Production))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Production), eqTo(expectedParams))(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Production))(using *)
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
@@ -209,8 +208,8 @@ class ApplicationControllerSpec
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), *)(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), *)(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(using *)
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
@@ -233,7 +232,7 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(using *)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
@@ -469,11 +468,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         val appCaptor          = ArgCaptor[ApplicationWithCollaborators]
         val gatekeeperIdCaptor = ArgCaptor[String]
-        when(mockApplicationService.resendVerification(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+        when(mockApplicationService.resendVerification(*, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
-        verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(*)
+        verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(using *)
         appCaptor hasCaptured basicApplication
         gatekeeperIdCaptor hasCaptured "Bobby Example"
       }
@@ -532,7 +531,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService)
-          .updateScopes(eqTo(application), eqTo(Set("hello", "individual-benefits")), eqTo("Bobby Example"))(*)
+          .updateScopes(eqTo(application), eqTo(Set("hello", "individual-benefits")), eqTo("Bobby Example"))(using *)
 
       }
 
@@ -545,7 +544,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(using *)
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
@@ -570,7 +569,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(using *)
       }
     }
 
@@ -634,7 +633,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), *, *)(*)
+        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), *, *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -648,7 +647,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -662,7 +661,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(using *)
       }
     }
 
@@ -736,7 +735,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "call the service to enable deletion restriction when a valid form is submitted for a super user" in new Setup {
@@ -752,7 +751,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(false), *, eqTo(reason))(using *)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -766,7 +765,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a normal user" in new Setup {
@@ -780,7 +779,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, eqTo(noReason))(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, eqTo(noReason))(using *)
       }
     }
 
@@ -802,7 +801,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "call the service to disable deletion restriction when a valid form is submitted for a super user" in new Setup {
@@ -818,7 +817,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by an admin user" in new Setup {
@@ -833,7 +832,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe OK
         contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by a super user" in new Setup {
@@ -848,7 +847,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe OK
         contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -862,7 +861,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return a forbidden when form submitted for a normal user" in new Setup {
@@ -876,7 +875,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
     }
 
@@ -959,7 +958,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage the IP allowlist using the app service for a super user" in new Setup {
@@ -972,7 +971,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "clear the IP allowlist when allowlistedIps is empty" in new Setup {
@@ -985,7 +984,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set()), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set()), eqTo("Bobby Example"))(using *)
       }
 
       "fail validation when clearing a required IP allowlist" in new Setup {
@@ -998,7 +997,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
         contentAsString(result) should include("The IP allow list is mandatory for this application")
-        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
+        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(using *)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -1023,7 +1022,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
+          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(using *)
         }
       }
 
@@ -1114,7 +1113,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             OverrideFlag.OriginOverride("ngc")
           )),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
 
       }
 
@@ -1132,7 +1131,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(using *)
 
       }
 
@@ -1147,7 +1146,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(using *)
       }
     }
 
@@ -1199,7 +1198,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.Gold), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.Gold), eqTo("Bobby Example"))(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1213,7 +1212,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1227,7 +1226,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
       }
     }
 
@@ -1243,7 +1242,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
-        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(hcCaptor.capture()))
+        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(using hcCaptor.capture()))
           .thenReturn(successful(ApplicationUpdateSuccessResult))
 
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
@@ -1253,7 +1252,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         newTierCaptor.getValue shouldBe tier
         userCaptor.getValue() shouldBe "Bobby Example"
 
-        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(hcCaptor.getValue)
+        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(using hcCaptor.getValue)
 
       }
 
@@ -1264,7 +1263,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
 
       }
     }
@@ -1702,7 +1701,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
+        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(using *)
       }
 
       "call the service to block application when a valid form is submitted for an admin even when app name has trailing spaces" in new Setup {
@@ -1718,7 +1717,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).blockApplication(eqTo(applicationWithSpaces), *)(*)
+        verify(mockApplicationService).blockApplication(eqTo(applicationWithSpaces), *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1732,7 +1731,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*)
+        verify(mockApplicationService, never).blockApplication(*, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1746,7 +1745,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*)
+        verify(mockApplicationService, never).blockApplication(*, *)(using *)
       }
 
     }
@@ -1787,7 +1786,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
+        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1801,7 +1800,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*)
+        verify(mockApplicationService, never).unblockApplication(*, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1815,7 +1814,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*)
+        verify(mockApplicationService, never).unblockApplication(*, *)(using *)
       }
     }
 

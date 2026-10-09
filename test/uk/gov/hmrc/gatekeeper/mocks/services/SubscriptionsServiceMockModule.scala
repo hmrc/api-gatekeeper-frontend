@@ -38,28 +38,28 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
 
       def succeeds() = {
         val mockApp = mock[ApplicationWithCollaborators]
-        when(aMock.subscribeToApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
+        when(aMock.subscribeToApi(*, *, *)(using *)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
       def verifyCalledWith(app: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
-        verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
+        verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(using *)
 
       def verifyNotCalled() =
-        verify(aMock, never).subscribeToApi(*, *, *)(*)
+        verify(aMock, never).subscribeToApi(*, *, *)(using *)
     }
 
     object UnsubscribeFromApi {
 
       def succeeds() = {
         val mockApp = mock[ApplicationWithCollaborators]
-        when(aMock.unsubscribeFromApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
+        when(aMock.unsubscribeFromApi(*, *, *)(using *)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
       def verifyCalledWith(app: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
-        verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
+        verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(using *)
 
       def verifyNotCalled() =
-        verify(aMock, never).unsubscribeFromApi(*, *, *)(*)
+        verify(aMock, never).unsubscribeFromApi(*, *, *)(using *)
     }
   }
 

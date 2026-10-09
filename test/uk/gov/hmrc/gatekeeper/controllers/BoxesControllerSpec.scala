@@ -74,7 +74,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       "return a CSV of all boxes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
+        when(apmService.fetchAllBoxes()(using *)).thenReturn(Future.successful(List(box)))
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK
@@ -85,7 +85,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
 
-        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
+        when(apmService.fetchAllBoxes()(using *)).thenReturn(Future.successful(List(box)))
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK

@@ -36,8 +36,8 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
     val principal: PrincipalApiPlatformEventsConnector     = mock[PrincipalApiPlatformEventsConnector]
 
     val emptyValues: QueryableValues = QueryableValues(List.empty, List.empty)
-    when(subordinate.fetchQueryableValues(*[ApplicationId])(*)).thenReturn(successful(emptyValues))
-    when(principal.fetchQueryableValues(*[ApplicationId])(*)).thenReturn(successful(emptyValues))
+    when(subordinate.fetchQueryableValues(*[ApplicationId])(using *)).thenReturn(successful(emptyValues))
+    when(principal.fetchQueryableValues(*[ApplicationId])(using *)).thenReturn(successful(emptyValues))
 
     val connector = new EnvironmentAwareApiPlatformEventsConnector(subordinate, principal)
 
@@ -50,15 +50,15 @@ class EnvironmentAwareApiPlatformEventsConnectorSpec
 
     await(connector.fetchQueryableValues(appId, Environment.Sandbox))
 
-    verify(subordinate, times(1)).fetchQueryableValues(eqTo(appId))(*)
-    verify(principal, never).fetchQueryableValues(*[ApplicationId])(*)
+    verify(subordinate, times(1)).fetchQueryableValues(eqTo(appId))(using *)
+    verify(principal, never).fetchQueryableValues(*[ApplicationId])(using *)
   }
 
   "Call principal when environment is PRODUCTION" in new Setup {
 
     await(connector.fetchQueryableValues(appId, Environment.Production))
 
-    verify(subordinate, never).fetchQueryableValues(eqTo(appId))(*)
-    verify(principal, times(1)).fetchQueryableValues(*[ApplicationId])(*)
+    verify(subordinate, never).fetchQueryableValues(eqTo(appId))(using *)
+    verify(principal, times(1)).fetchQueryableValues(*[ApplicationId])(using *)
   }
 }

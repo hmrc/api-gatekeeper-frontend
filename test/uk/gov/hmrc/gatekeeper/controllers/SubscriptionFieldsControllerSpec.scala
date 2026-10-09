@@ -46,7 +46,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
                               |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl
                               |""".stripMargin
 
-      when(apmService.subsFieldsCsv()(*)).thenReturn(Future.successful(expectedValues))
+      when(apmService.subsFieldsCsv()(using *)).thenReturn(Future.successful(expectedValues))
 
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 

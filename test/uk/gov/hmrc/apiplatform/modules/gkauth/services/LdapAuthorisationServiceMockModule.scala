@@ -26,7 +26,7 @@ import play.api.mvc.MessagesRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 trait LdapAuthorisationServiceMockModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   protected trait BaseLdapAuthorisationServiceMock {
     def aMock: LdapAuthorisationService

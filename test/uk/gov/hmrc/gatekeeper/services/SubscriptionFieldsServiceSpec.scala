@@ -45,7 +45,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
   "When application is deployedTo production then principal connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
@@ -58,15 +58,15 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
         eqTo(apiIdentifier.context),
         eqTo(apiIdentifier.versionNbr),
         eqTo(fields)
-      )(*)
-      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.Sandbox), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+      )(using *)
+      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.Sandbox), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *)
     }
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
@@ -74,9 +74,9 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       await(service.saveFieldValues(sandboxApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockApmConnectorModule)
-        .saveFieldValues(eqTo(Environment.Sandbox), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(Environment.Sandbox), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(using *)
       verify(mockApmConnectorModule, never)
-        .saveFieldValues(eqTo(Environment.Production), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+        .saveFieldValues(eqTo(Environment.Production), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *)
     }
   }
 }

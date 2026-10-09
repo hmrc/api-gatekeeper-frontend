@@ -26,28 +26,28 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 
 trait DeveloperConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockDeveloperConnector = mock[DeveloperConnector]
 
   object DeveloperConnectorMock {
 
     object FetchByEmail {
-      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(*)).thenReturn(successful(user))
+      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByEmail(eqTo(user.email))(using *)).thenReturn(successful(user))
     }
 
     object FetchByUserId {
-      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
+      def handles(user: AbstractUser) = when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(using *)).thenReturn(successful(user))
     }
 
     object RemoveEmailPreferencesByService {
-      def returns(response: EmailPreferencesDeleteResult) = when(mockDeveloperConnector.removeEmailPreferencesByService(*[ServiceName])(*)).thenReturn(successful(response))
+      def returns(response: EmailPreferencesDeleteResult) = when(mockDeveloperConnector.removeEmailPreferencesByService(*[ServiceName])(using *)).thenReturn(successful(response))
     }
 
     object FetchById {
 
       def handles(user: AbstractUser) = {
-        when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(*)).thenReturn(successful(user))
+        when(mockDeveloperConnector.fetchByUserId(eqTo(user.userId))(using *)).thenReturn(successful(user))
       }
     }
 
@@ -61,7 +61,7 @@ trait DeveloperConnectorMockProvider {
         )(
           users: RegisteredUser*
         ) =
-        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateapimatch))(*))
+        when(mockDeveloperConnector.fetchByEmailPreferences(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateapimatch))(using *))
           .thenReturn(successful(users.toList))
     }
 
@@ -77,24 +77,24 @@ trait DeveloperConnectorMockProvider {
         )(
           users: RegisteredUser*
         ) =
-        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(*))
+        when(mockDeveloperConnector.fetchByEmailPreferencesPaginated(eqTo(topic), eqTo(maybeApis), eqTo(maybeApiCategories), eqTo(privateApiMatch), eqTo(offset), eqTo(limit))(using *))
           .thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
 
     object FetchByEmails {
-      def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*) = when(mockDeveloperConnector.fetchByEmails(*)(using *)).thenReturn(successful(users.toList))
 
       def returnsFor(emails: Set[LaxEmailAddress])(users: RegisteredUser*) =
-        when(mockDeveloperConnector.fetchByEmails(eqTo(emails))(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperConnector.fetchByEmails(eqTo(emails))(using *)).thenReturn(successful(users.toList))
     }
 
     object SearchDevelopers {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperConnector.searchDevelopers(*, *)(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperConnector.searchDevelopers(*, *)(using *)).thenReturn(successful(users.toList))
 
       def returnsFor(maybeEmail: Option[String], status: DeveloperStatusFilter.DeveloperStatusFilter)(users: RegisteredUser*) =
-        when(mockDeveloperConnector.searchDevelopers(eqTo(maybeEmail), eqTo(status))(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperConnector.searchDevelopers(eqTo(maybeEmail), eqTo(status))(using *)).thenReturn(successful(users.toList))
     }
   }
 }

@@ -46,7 +46,7 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
     trait Setup extends ControllerSetupBase {
       val mockEmailAllUsersView = mock[EmailAllUsersView]
 
-      when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersView.apply(*, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -104,7 +104,7 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
@@ -114,7 +114,7 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should return forbidden when not logged in to Stride Auth" in new Setup {
@@ -133,7 +133,7 @@ class EmailsControllerAllUsersSpec extends ControllerBaseSpec with WithCSRFAddTo
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(using *, *, *)
       }
     }
   }

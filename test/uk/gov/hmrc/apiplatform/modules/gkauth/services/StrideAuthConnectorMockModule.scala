@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperStrideRole
 
 trait StrideAuthConnectorMockModule {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val strideAuthRoles: StrideAuthRoles
 
@@ -55,37 +55,37 @@ trait StrideAuthConnectorMockModule {
       def returnsAdminEnrolledUserWhenSufficient(name: Name = defaultName) = {
         val retrievalOk: ~[Option[Name], Enrolments] = new ~(Some(name), Enrolments(Set(Enrolment(adminRole))))
 
-        when(aMock.authorise[~[Option[Name], Enrolments]](*, *)(*, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](*, *)(using *, *)).thenReturn(Future.successful(retrievalOk))
       }
 
       def returnsSuperuserEnrolledUserWhenSufficient(name: Name = defaultName) = {
         val retrievalOk: ~[Option[Name], Enrolments] = new ~(Some(name), Enrolments(Set(Enrolment(superUserRole))))
 
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(*, *)).thenReturn(Future.successful(retrievalOk))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(*, *)).thenReturn(Future.successful(retrievalOk))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(*, *)).thenReturn(Future.successful(retrievalOk))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(using *, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(using *, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(using *, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
       }
 
       def returnsAdvancedUserEnrolledUserWhenSufficient(name: Name = defaultName) = {
         val retrievalOk: ~[Option[Name], Enrolments] = new ~(Some(name), Enrolments(Set(Enrolment(advancedUserRole))))
 
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(*, *)).thenReturn(Future.successful(retrievalOk))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(using *, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
       }
 
       def returnsUserEnrolledUserWhenSufficient(name: Name = defaultName) = {
         val retrievalOk: ~[Option[Name], Enrolments] = new ~(Some(name), Enrolments(Set(Enrolment(userRole))))
 
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(*, *)).thenReturn(Future.successful(retrievalOk))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
-        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(*, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateUserRole), *)(using *, *)).thenReturn(Future.successful(retrievalOk))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdvancedUserRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateSuperUserRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
+        when(aMock.authorise[~[Option[Name], Enrolments]](eqTo(predicateAdminRole), *)(using *, *)).thenReturn(Future.failed(new InsufficientEnrolments))
       }
 
-      def failsWithNoActiveSession = when(aMock.authorise(*, *)(*, *)).thenReturn(Future.failed(SessionRecordNotFound()))
+      def failsWithNoActiveSession = when(aMock.authorise(*, *)(using *, *)).thenReturn(Future.failed(SessionRecordNotFound()))
     }
   }
 

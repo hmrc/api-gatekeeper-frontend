@@ -263,7 +263,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been approved")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(using *)
     }
 
     "call declineService if decline is selected on the review page and show the declined success page" in new Setup {
@@ -280,7 +280,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       status(result) shouldBe OK
       contentAsString(result) should include(s"The $serviceName has been declined")
 
-      verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(*)
+      verify(mockDeploymentApprovalService).declineService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(declineNote)))(using *)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -337,8 +337,8 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include(s"API was successfully approved but publishing failed. Please check API Approval history for the error details.")
 
-      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(*)
-      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(error))(*)
+      verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(using *)
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(error))(using *)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
     }
 
@@ -367,7 +367,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       status(result) shouldBe OK
       contentAsString(result) should include(s"Your comment has been added for the $serviceName API")
 
-      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(comment))(*)
+      verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(comment))(using *)
     }
 
     "fail form validation when no no comment entered" in new Setup {

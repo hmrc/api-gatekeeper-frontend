@@ -113,7 +113,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show errors on incorrect values submission" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "")))
 
@@ -122,7 +122,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show success panel on correct submission" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 
@@ -131,7 +131,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       "show failure panel on error" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
-        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(*)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
+        when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
 
         val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 
@@ -276,7 +276,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         await(result)
 
-        verify(mockDeveloperService, never).searchDevelopers(*)(*)
+        verify(mockDeveloperService, never).searchDevelopers(*)(using *)
       }
 
       "allow searching by email or partial email" in new Setup {
@@ -296,7 +296,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(emailAddress)
 
         val expectedFilter = DevelopersSearchFilter(Some(partialEmailAddress))
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(using *)
       }
 
       "remember the search filter text on submit" in new Setup {
@@ -347,7 +347,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
         val filter         = ApiContextVersion(ApiContext("api-definition"), apiVersion1)
         val expectedFilter = DevelopersSearchFilter(maybeApiFilter = Some(filter))
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(using *)
       }
 
       "show an api version filter dropdown with correct display text" in new Setup {
@@ -433,7 +433,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(emailAddress)
 
         val expectedFilter = DevelopersSearchFilter(developerStatusFilter = DeveloperStatusFilter.VerifiedStatus)
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(using *)
       }
 
       "allow searching by environmentFilter" in new Setup {
@@ -453,7 +453,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         contentAsString(result) should include(emailAddress)
 
         val expectedFilter = DevelopersSearchFilter(environmentFilter = ProductionEnvironment)
-        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(*)
+        verify(mockDeveloperService).searchDevelopers(eqTo(expectedFilter))(using *)
       }
     }
   }

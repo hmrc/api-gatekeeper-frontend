@@ -24,7 +24,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.ApiScope
 
 trait ApiScopeConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockSandboxApiScopeConnector    = mock[SandboxApiScopeConnector]
   val mockProductionApiScopeConnector = mock[ProductionApiScopeConnector]
@@ -33,7 +33,7 @@ trait ApiScopeConnectorMockProvider {
     val mock: ApiScopeConnector
 
     object FetchAll {
-      def returns(scopes: ApiScope*) = when(mockProductionApiScopeConnector.fetchAll()(*)).thenReturn(successful(scopes.toList))
+      def returns(scopes: ApiScope*) = when(mockProductionApiScopeConnector.fetchAll()(using *)).thenReturn(successful(scopes.toList))
     }
 
   }

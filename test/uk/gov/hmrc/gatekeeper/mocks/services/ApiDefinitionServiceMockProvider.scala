@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
 
 trait ApiDefinitionServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockApiDefinitionService = mock[ApiDefinitionService]
 
@@ -37,7 +37,7 @@ trait ApiDefinitionServiceMockProvider {
     def inAny     = Calling()
 
     class Calling private (cond: Option[Environment]) {
-      private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(*))
+      private val whenClause = when(mockApiDefinitionService.fetchAllApiDefinitions(cond)(using *))
 
       def returns(apiDefinitions: ApiDefinition*) = whenClause.thenReturn(successful(apiDefinitions.toList))
       def throws(throwable: Throwable)            = whenClause.thenReturn(failed(throwable))
@@ -52,7 +52,7 @@ trait ApiDefinitionServiceMockProvider {
   }
 
   object Apis {
-    private val whenClause = when(mockApiDefinitionService.apis(*))
+    private val whenClause = when(mockApiDefinitionService.apis(using *))
 
     def returns(results: (ApiDefinition, Environment)*) = whenClause.thenReturn(successful(results.toList))
     def throws(throwable: Throwable)                    = whenClause.thenReturn(failed(throwable))

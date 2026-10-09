@@ -25,25 +25,25 @@ import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.gatekeeper.connectors._
 
 trait OrganisationConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val organisationConnector = mock[OrganisationConnector]
 
   object OrganisationConnectorMock {
 
     object FetchOrganisationsByUserId {
-      def returns(orgs: List[Organisation]) = when(organisationConnector.fetchOrganisationsByUserId(*[UserId])(*)).thenReturn(successful(orgs))
+      def returns(orgs: List[Organisation]) = when(organisationConnector.fetchOrganisationsByUserId(*[UserId])(using *)).thenReturn(successful(orgs))
     }
 
     object RemoveCollaboratorFromOrganisation {
 
       def returns(org: Organisation) =
-        when(organisationConnector.removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(*)).thenReturn(successful(org))
+        when(organisationConnector.removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(using *)).thenReturn(successful(org))
 
       def verifyCalled(orgId: OrganisationId, userId: UserId, email: LaxEmailAddress) =
-        verify(organisationConnector, times(1)).removeCollaboratorFromOrganisation(eqTo(orgId), eqTo(userId), eqTo(email))(*)
+        verify(organisationConnector, times(1)).removeCollaboratorFromOrganisation(eqTo(orgId), eqTo(userId), eqTo(email))(using *)
 
-      def verifyNotCalled() = verify(organisationConnector, never).removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(*)
+      def verifyNotCalled() = verify(organisationConnector, never).removeCollaboratorFromOrganisation(*[OrganisationId], *[UserId], *[LaxEmailAddress])(using *)
     }
   }
 }

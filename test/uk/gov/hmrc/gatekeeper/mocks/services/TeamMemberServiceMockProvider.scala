@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAdd
 import uk.gov.hmrc.gatekeeper.services.TeamMemberService
 
 trait TeamMemberServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockTeamMemberService = mock[TeamMemberService]
 
@@ -36,29 +36,29 @@ trait TeamMemberServiceMockProvider {
     object AddTeamMember {
       import cats.syntax.either._
 
-      def succeeds() = when(mockTeamMemberService.addTeamMember(*, *, *)(*)).thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
+      def succeeds() = when(mockTeamMemberService.addTeamMember(*, *, *)(using *)).thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
 
       def failsDueToExistingAlready() =
-        when(mockTeamMemberService.addTeamMember(*, *, *)(*))
+        when(mockTeamMemberService.addTeamMember(*, *, *)(using *))
           .thenReturn(successful(NonEmptyList.one(CommandFailures.CollaboratorAlreadyExistsOnApp).asLeft[Unit]))
 
       def verifyCalledWith(application: ApplicationWithCollaborators, collaborator: Collaborator, gatekeeperUser: Actors.GatekeeperUser) =
-        verify(mockTeamMemberService).addTeamMember(eqTo(application), eqTo(collaborator), eqTo(gatekeeperUser))(*)
+        verify(mockTeamMemberService).addTeamMember(eqTo(application), eqTo(collaborator), eqTo(gatekeeperUser))(using *)
     }
 
     object RemoveTeamMember {
       import cats.syntax.either._
 
       def succeeds() =
-        when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
+        when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(using *))
           .thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
 
       def failsDueToLastAdmin() =
-        when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(*))
+        when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(using *))
           .thenReturn(successful(NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin).asLeft[Unit]))
 
       def verifyCalledWith(application: ApplicationWithCollaborators, emailToRemove: LaxEmailAddress, gatekeeperUser: Actors.GatekeeperUser) =
-        verify(mockTeamMemberService).removeTeamMember(eqTo(application), eqTo(emailToRemove), eqTo(gatekeeperUser))(*)
+        verify(mockTeamMemberService).removeTeamMember(eqTo(application), eqTo(emailToRemove), eqTo(gatekeeperUser))(using *)
     }
   }
 }

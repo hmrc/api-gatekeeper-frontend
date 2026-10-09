@@ -144,7 +144,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(using *)
       }
 
       "allow a normal user to access the page and not confirm removal" in new Setup {
@@ -155,7 +155,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId}")
-        verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+        verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(using *)
       }
 
       "return an internal server error when no radio buttons are selected" in new Setup {
@@ -191,7 +191,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         DeveloperServiceMock.PartitionDeveloperApps.returnsFor(developer = developer, result = (List.empty, developer.applications))
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(*)
+        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(using *)
       }
     }
 
@@ -208,7 +208,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteSuccessResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(*)
+        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(using *)
       }
 
       "return an internal server error when the delete fails" in new Setup {

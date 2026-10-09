@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
 
 trait DeploymentApprovalServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockDeploymentApprovalService = mock[DeploymentApprovalService]
 
@@ -37,40 +37,40 @@ trait DeploymentApprovalServiceMockProvider {
     object FetchAllServices {
 
       def returns(approvalSummaries: APIApprovalSummary*) =
-        when(mockDeploymentApprovalService.fetchAllServices()(*)).thenReturn(successful(approvalSummaries.toList))
+        when(mockDeploymentApprovalService.fetchAllServices()(using *)).thenReturn(successful(approvalSummaries.toList))
     }
 
     object SearchServices {
 
       def thenReturn(approvalSummaries: APIApprovalSummary*) = {
-        when(mockDeploymentApprovalService.searchServices(*)(*)).thenReturn(successful(approvalSummaries.toList))
+        when(mockDeploymentApprovalService.searchServices(*)(using *)).thenReturn(successful(approvalSummaries.toList))
       }
 
       def thenNotFound() = {
-        when(mockDeploymentApprovalService.searchServices(*)(*)).thenReturn(successful(List.empty))
+        when(mockDeploymentApprovalService.searchServices(*)(using *)).thenReturn(successful(List.empty))
       }
 
       def verifyCalled(params: Seq[(String, String)]) =
-        verify(mockDeploymentApprovalService).searchServices(eqTo(params))(*)
+        verify(mockDeploymentApprovalService).searchServices(eqTo(params))(using *)
     }
 
     object FetchApprovalSummary {
 
       def returnsForEnv(environment: Environment)(approvalSummary: APIApprovalSummary) =
-        when(mockDeploymentApprovalService.fetchApprovalSummary(*[ServiceName], eqTo(environment))(*)).thenReturn(successful(approvalSummary))
+        when(mockDeploymentApprovalService.fetchApprovalSummary(*[ServiceName], eqTo(environment))(using *)).thenReturn(successful(approvalSummary))
 
       def verifyCalled(environment: Environment) =
-        verify(mockDeploymentApprovalService).fetchApprovalSummary(*[ServiceName], eqTo(environment))(*)
+        verify(mockDeploymentApprovalService).fetchApprovalSummary(*[ServiceName], eqTo(environment))(using *)
 
     }
 
     object ApproveService {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(using *)).thenReturn(successful(()))
 
       def fails() =
-        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(*)).thenReturn(failed((UpstreamErrorResponse(
+        when(mockDeploymentApprovalService.approveService(*[ServiceName], *, *, *)(using *)).thenReturn(failed((UpstreamErrorResponse(
           "Field 'context' must have at least two segments for API 'Hello World'; Context: 'hello'",
           400
         ))))
@@ -80,13 +80,13 @@ trait DeploymentApprovalServiceMockProvider {
     object DeclineService {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.declineService(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.declineService(*[ServiceName], *, *, *)(using *)).thenReturn(successful(()))
     }
 
     object AddComment {
 
       def succeeds() =
-        when(mockDeploymentApprovalService.addComment(*[ServiceName], *, *, *)(*)).thenReturn(successful(()))
+        when(mockDeploymentApprovalService.addComment(*[ServiceName], *, *, *)(using *)).thenReturn(successful(()))
     }
   }
 }

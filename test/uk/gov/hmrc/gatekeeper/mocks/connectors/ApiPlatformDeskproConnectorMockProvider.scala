@@ -29,7 +29,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 trait ApiPlatformDeskproConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val apiPlatformDeskproConnector = mock[ApiPlatformDeskproConnector]
 

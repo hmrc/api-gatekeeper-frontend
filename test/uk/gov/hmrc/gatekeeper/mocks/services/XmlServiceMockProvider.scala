@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.services.XmlService
 
 trait XmlServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockXmlService = mock[XmlService]
 
@@ -37,25 +37,25 @@ trait XmlServiceMockProvider {
     object GetXmlServicesForUser {
 
       def returnsApis(user: RegisteredUser, xmlServiceNames: Set[String]) =
-        when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenReturn(successful(xmlServiceNames))
+        when(mockXmlService.getXmlServicesForUser(eqTo(user))(using *)).thenReturn(successful(xmlServiceNames))
 
       def returnsError(user: RegisteredUser) =
-        when(mockXmlService.getXmlServicesForUser(eqTo(user))(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+        when(mockXmlService.getXmlServicesForUser(eqTo(user))(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
 
     object GetXmlOrganisationsForUser {
 
       def returnsOrganisations(userId: UserId, xmlOrganisations: List[XmlOrganisation]) =
-        when(mockXmlService.findOrganisationsByUserId(eqTo(userId))(*)).thenReturn(successful(xmlOrganisations))
+        when(mockXmlService.findOrganisationsByUserId(eqTo(userId))(using *)).thenReturn(successful(xmlOrganisations))
 
       def returnsError() =
-        when(mockXmlService.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+        when(mockXmlService.findOrganisationsByUserId(*[UserId])(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
 
     object GetAllXmlOrganisations {
 
       def returns(xmlOrganisations: List[XmlOrganisation]) =
-        when(mockXmlService.getAllOrganisations()(*)).thenReturn(successful(xmlOrganisations))
+        when(mockXmlService.getAllOrganisations()(using *)).thenReturn(successful(xmlOrganisations))
     }
   }
 

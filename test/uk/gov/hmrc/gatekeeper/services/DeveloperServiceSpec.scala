@@ -139,7 +139,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     }
 
     def fetchDevelopersWillReturnTheRequestedUsers = {
-      when(mockDeveloperConnector.fetchByEmails(*)(*)).thenAnswer((invocationOnMock: InvocationOnMock) => {
+      when(mockDeveloperConnector.fetchByEmails(*)(using *)).thenAnswer((invocationOnMock: InvocationOnMock) => {
         val developersRequested = invocationOnMock.getArguments()(0).asInstanceOf[Iterable[LaxEmailAddress]].toSet
         successful(commonUsers.filter(user => developersRequested.contains(user.email)))
       })
@@ -147,13 +147,13 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
     // TODO
     def deleteDeveloperWillSucceed = {
-      when(mockDeveloperConnector.deleteDeveloper(*)(*))
+      when(mockDeveloperConnector.deleteDeveloper(*)(using *))
         .thenReturn(successful(DeveloperDeleteSuccessResult))
       CommandConnectorMock.IssueCommand.ToRemoveCollaborator.succeeds()
     }
 
     def removeXmlCollaboratorsForUserIdWillSucceed(userId: UserId, gatekeeperUser: String) = {
-      when(mockXmlService.removeCollaboratorsForUserId(eqTo(userId), eqTo(gatekeeperUser))(*))
+      when(mockXmlService.removeCollaboratorsForUserId(eqTo(userId), eqTo(gatekeeperUser))(using *))
         .thenReturn(successful(RemoveAllCollaboratorsForUserIdSuccessResult))
     }
 
@@ -177,7 +177,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     }
 
     def removeMfaReturnWillReturn(user: RegisteredUser) = {
-      when(mockDeveloperConnector.removeMfa(*[UserId], *)(*)).thenReturn(successful(user))
+      when(mockDeveloperConnector.removeMfa(*[UserId], *)(using *)).thenReturn(successful(user))
     }
   }
 
@@ -362,7 +362,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val result = await(underTest.fetchDeveloper(developer.userId, FetchDeletedApplications.Include))
 
       result shouldBe Developer(developer, apps, xmlServiceNames, List(orgOne), List(organisation))
-      verify(mockDeveloperConnector).fetchByUserId(eqTo(developer.userId))(*)
+      verify(mockDeveloperConnector).fetchByUserId(eqTo(developer.userId))(using *)
     }
 
     "remove MFA" in new Setup {
@@ -414,10 +414,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       intercept[UpstreamErrorResponse](
         await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include))
-      ) match {
-        case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
-      }
+      )
     }
 
     "returns UpstreamErrorResponse when call to get xml organisations fails" in new Setup {
@@ -429,10 +426,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       intercept[UpstreamErrorResponse](
         await(underTest.fetchDeveloper(user.userId, FetchDeletedApplications.Include))
-      ) match {
-        case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
-      }
+      )
     }
   }
 
@@ -450,7 +444,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(using *)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
       OrganisationConnectorMock.RemoveCollaboratorFromOrganisation.verifyNotCalled()
@@ -466,7 +460,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(using *)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
       OrganisationConnectorMock.RemoveCollaboratorFromOrganisation.verifyCalled(organisation.id, developerId, user.email)
@@ -490,7 +484,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
       verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(using *)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
     }
 
@@ -508,7 +502,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+      verify(mockDeveloperConnector, never).deleteDeveloper(*)(using *)
       verify(apiPlatformDeskproConnector, never).markPersonInactive(*[LaxEmailAddress], *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
@@ -526,7 +520,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+      verify(mockDeveloperConnector, never).deleteDeveloper(*)(using *)
       verify(apiPlatformDeskproConnector, never).markPersonInactive(*[LaxEmailAddress], *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
@@ -540,7 +534,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteFailureResult
 
-      verify(mockDeveloperConnector, never).deleteDeveloper(*)(*)
+      verify(mockDeveloperConnector, never).deleteDeveloper(*)(using *)
       verify(apiPlatformDeskproConnector, never).markPersonInactive(*[LaxEmailAddress], *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
@@ -555,7 +549,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(*)
+      verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(using *)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)
       CommandConnectorMock.IssueCommand.verifyNoCommandsIssued()
     }
@@ -736,7 +730,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       result shouldBe List(productionUser)
 
       verify(mockProductionApplicationConnector).searchCollaborators(apiContext, apiVersion)
-      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)
+      verify(mockSandboxApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(using *)
     }
 
     "find by api context and version and Sandbox environment" in new Setup {
@@ -755,7 +749,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(sandboxUser)
 
-      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)
+      verify(mockProductionApplicationConnector, never).searchCollaborators(*[ApiContext], *[ApiVersionNbr])(using *)
       verify(mockSandboxApplicationConnector).searchCollaborators(apiContext, apiVersion)
     }
   }
@@ -778,7 +772,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Set(category1))), *)(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), *, eqTo(Some(Set(category1))), *)(using *)
     }
 
     "call the connector correctly passed a topic, a sequence of categories and apis" in new Setup {
@@ -788,7 +782,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(false))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(false))(using *)
     }
 
     "call the connector correctly passed a topic, a sequence of categories and apis and private match is set" in new Setup {
@@ -798,7 +792,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe List(sandboxUser)
 
-      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(true))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferences(eqTo(topic), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(true))(using *)
     }
   }
 
@@ -820,7 +814,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(using *)
     }
 
     "call the connector correctly when only passed a topic" in new Setup {
@@ -830,7 +824,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(eqTo(Some(topic)), *, *, eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(eqTo(Some(topic)), *, *, eqTo(false), eqTo(offset), eqTo(limit))(using *)
     }
 
     "call the connector correctly when only passed a service" in new Setup {
@@ -840,7 +834,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(eqTo(Some(topic)), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(eqTo(Some(topic)), eqTo(Some(apis)), eqTo(Some(categories)), eqTo(false), eqTo(offset), eqTo(limit))(using *)
     }
   }
 
@@ -853,7 +847,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, *, eqTo(Some(Set(category1))), eqTo(false), eqTo(offset), eqTo(limit))(using *)
     }
   }
 
@@ -868,7 +862,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
 
       result shouldBe UserPaginatedResponse(1, List(sandboxUser))
 
-      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, eqTo(Some(Seq(apiName1))), *, eqTo(false), eqTo(offset), eqTo(limit))(*)
+      verify(mockDeveloperConnector).fetchByEmailPreferencesPaginated(*, eqTo(Some(Seq(apiName1))), *, eqTo(false), eqTo(offset), eqTo(limit))(using *)
     }
   }
 }

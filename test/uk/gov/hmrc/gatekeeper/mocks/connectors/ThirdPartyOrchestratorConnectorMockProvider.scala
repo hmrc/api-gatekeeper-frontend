@@ -29,49 +29,49 @@ import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
 
 trait ThirdPartyOrchestratorConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   object TPOConnectorMock {
     val aMock = mock[ThirdPartyOrchestratorConnector]
 
     object GetApplicationsByEmails {
 
-      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(aMock.getApplicationsByEmails(eqTo(emails))(*))
+      def returns(emails: List[LaxEmailAddress])(application: ApplicationWithCollaborators*) = when(aMock.getApplicationsByEmails(eqTo(emails))(using *))
         .thenReturn(successful(application.toList))
     }
 
     object ValidateName {
 
       def succeedsWith(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(response: ApplicationNameValidationResult) = {
-        when(aMock.validateName(eqTo(name), eqTo(selfApplicationId), eqTo(environment))(*)).thenReturn(successful(response))
+        when(aMock.validateName(eqTo(name), eqTo(selfApplicationId), eqTo(environment))(using *)).thenReturn(successful(response))
       }
     }
 
     object ValidateApplicationName {
 
       def succeeds() =
-        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
+        when(aMock.validateName(*, *, *)(using *)).thenReturn(successful(ApplicationNameValidationResult.Valid))
 
       def invalid() =
-        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
+        when(aMock.validateName(*, *, *)(using *)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
 
       def duplicate() =
-        when(aMock.validateName(*, *, *)(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
+        when(aMock.validateName(*, *, *)(using *)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
     }
 
     object Query {
-      def returnsFor[T](env: Environment)(t: T) = when(aMock.query[T](eqTo(env))(*)(*, *)).thenReturn(successful(t))
+      def returnsFor[T](env: Environment)(t: T) = when(aMock.query[T](eqTo(env))(*)(using *, *)).thenReturn(successful(t))
 
-      def returnsForQry[T](env: Environment)(query: ApplicationQuery, t: T) = when(aMock.query[T](eqTo(env))(eqTo(query))(*, *)).thenReturn(successful(t))
+      def returnsForQry[T](env: Environment)(query: ApplicationQuery, t: T) = when(aMock.query[T](eqTo(env))(eqTo(query))(using *, *)).thenReturn(successful(t))
 
-      def verify[T](query: ApplicationQuery)                   = mockitoVerify(aMock, atLeastOnce).query[T](*)(eqTo(query))(*, *)
-      def verify[T](env: Environment, query: ApplicationQuery) = mockitoVerify(aMock, atLeastOnce).query[T](eqTo(env))(eqTo(query))(*, *)
+      def verify[T](query: ApplicationQuery)                   = mockitoVerify(aMock, atLeastOnce).query[T](*)(eqTo(query))(using *, *)
+      def verify[T](env: Environment, query: ApplicationQuery) = mockitoVerify(aMock, atLeastOnce).query[T](eqTo(env))(eqTo(query))(using *, *)
     }
 
     object RawQuery {
-      def returnsFor[T](env: Environment)(t: T) = when(aMock.rawQuery[T](eqTo(env))(*)(*, *)).thenReturn(successful(t))
+      def returnsFor[T](env: Environment)(t: T) = when(aMock.rawQuery[T](eqTo(env))(*)(using *, *)).thenReturn(successful(t))
 
-      def returnsForParams[T](env: Environment)(params: Map[ParamName, String], t: T) = when(aMock.rawQuery[T](eqTo(env))(eqTo(params))(*, *)).thenReturn(successful(t))
+      def returnsForParams[T](env: Environment)(params: Map[ParamName, String], t: T) = when(aMock.rawQuery[T](eqTo(env))(eqTo(params))(using *, *)).thenReturn(successful(t))
     }
   }
 }

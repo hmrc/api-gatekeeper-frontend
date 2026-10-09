@@ -57,12 +57,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   running(app) {
 
     trait Setup extends ControllerSetupBase {
-      when(mockEmailLandingView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailLandingView.apply()(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailInformationView.apply(*)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersView.apply(*, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectApiView.apply(*, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -237,7 +237,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(using *, *, *)
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
@@ -245,7 +245,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(using *, *, *)
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {
@@ -267,7 +267,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
@@ -277,7 +277,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should render correctly when no verified users are retrieved from the developer service" in new Setup {
@@ -286,31 +286,31 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(using *, *, *)
       }
     }
 
     "email preferences select api page" should {
       "return ok on initial load" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val result: Future[Result] = underTest.selectSpecificApi(None)(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty))(using *, *, *)
       }
 
       "return ok when filters provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val result: Future[Result] = underTest.selectSpecificApi(Some(List(combinedRestApi.serviceName)))(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)))(using *, *, *)
       }
     }
 
@@ -329,7 +329,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when selected api filters are selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val selectedAPIs = List(combinedXmlApi)
 
@@ -337,15 +337,15 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(using *, *, *)
 
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
         DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users*)
 
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
@@ -356,20 +356,20 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic))(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.Customs)), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.Customs)), eqTo(List(serviceNameThree)), eqTo(true))(using *)
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
           eqTo(selectedTopic),
           eqTo(Set(ApiCategory.Customs, ApiCategory.Vat)),
           eqTo(List(serviceNameOne, serviceNameTwo)),
           eqTo(false)
-        )(*)
+        )(using *)
         verify(mockEmailPreferencesSpecificApiView).apply(
           eqTo(verified2Users),
           eqTo(expectedEmailString),
           eqTo(selectedAPIs),
           eqTo(Some(selectedTopic))
-        )(*, *, *)
+        )(using *, *, *)
       }
 
     }
