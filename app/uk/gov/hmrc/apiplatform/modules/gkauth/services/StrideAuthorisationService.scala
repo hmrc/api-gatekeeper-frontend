@@ -72,7 +72,7 @@ class StrideAuthorisationService @Inject() (
           case _               => Left(forbiddenHandler.handle(msgRequest))
         }
 
-      case None ~ authorisedEnrolments => Left(forbiddenHandler.handle(msgRequest))
+      case None ~ _ => Left(forbiddenHandler.handle(msgRequest))
     } recover {
       case _: NoActiveSession        => Left(loginRedirect)
       case _: InsufficientEnrolments => Left(forbiddenHandler.handle(msgRequest))

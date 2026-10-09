@@ -60,7 +60,6 @@ class ApplicationController @Inject() (
     val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
-    apiDefinitionService: ApiDefinitionService,
     developerService: DeveloperService,
     termsOfUseService: TermsOfUseService,
     mcc: MessagesControllerComponents,
@@ -78,7 +77,6 @@ class ApplicationController @Inject() (
     blockApplicationSuccessView: BlockApplicationSuccessView,
     unblockApplicationView: UnblockApplicationView,
     unblockApplicationSuccessView: UnblockApplicationSuccessView,
-    approvedView: ApprovedView,
     createApplicationView: CreateApplicationView,
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
@@ -283,7 +281,7 @@ class ApplicationController @Inject() (
 
       def checkEligibleForTermsOfUseInvite(app: ApplicationWithCollaborators, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
-          case std: Access.Standard
+          case _: Access.Standard
               if (app.state.isInProduction &&
                 app.isProduction &&
                 !hasSubmissions &&

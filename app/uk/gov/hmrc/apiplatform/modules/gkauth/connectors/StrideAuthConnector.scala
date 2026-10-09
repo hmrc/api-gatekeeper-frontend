@@ -27,5 +27,5 @@ object StrideAuthConnector {
 
 @Singleton
 class StrideAuthConnector @Inject() (val httpClientV2: HttpClientV2, config: StrideAuthConnector.Config) extends PlayAuthConnector {
-  lazy val serviceUrl = config.baseUrl
+  val serviceUrl = config.baseUrl
 }

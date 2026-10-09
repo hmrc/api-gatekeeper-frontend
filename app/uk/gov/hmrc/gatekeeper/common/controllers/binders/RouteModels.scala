@@ -45,7 +45,7 @@ object RouteModels {
       def apply(x: ServiceName): SimpleServiceName = x.toString
 
     given Conversion[OrganisationId, SimpleOrganisationId] with
-      def apply(x: OrganisationId): SimpleOrganisationId = SimpleOrganisationId(x.value)
+      def apply(x: OrganisationId): SimpleOrganisationId = SimpleOrganisationId.apply(x.value)
 
     given Conversion[ApiContext, SimpleApiContext] with
       def apply(x: ApiContext): SimpleApiContext = x.value

@@ -40,11 +40,11 @@ class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit
     hc.authorization.fold({
       logger.debug("No Header Carrier Authoriation")
       successful(notAuthenticatedOrAuthorized)
-    })(authorization => {
+    })(_ => {
       auth.authConnector.authenticate(predicate = None, Retrieval.username ~ Retrieval.hasPredicate(LdapAuthorisationPredicate.gatekeeperReadPermission))
         .map {
           case (name ~ true)  => Right(new LoggedInRequest(Some(name.value), GatekeeperRoles.READ_ONLY, msgRequest))
-          case (name ~ false) =>
+          case (_ ~ false) =>
             logger.debug("No LDAP predicate matched")
             notAuthenticatedOrAuthorized
           case _              =>
