@@ -36,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, Sub
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 @Singleton
 class SubscriptionConfigurationController @Inject() (
@@ -110,7 +110,7 @@ class SubscriptionConfigurationController @Inject() (
 
             subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.details, apiContext, versionNbr, fields)
               .map({
-                case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
+                case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId.simpleApp))
                 case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)
               })
           }

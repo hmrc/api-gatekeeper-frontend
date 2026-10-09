@@ -35,17 +35,20 @@ object RouteModels {
   type SimpleApiCategory   = String
 
   object ToRouteTypes {
-    given Conversion[ApplicationId, SimpleApplicationId] with
-      def apply(x: ApplicationId): SimpleApplicationId = SimpleApplicationId(x.value)
+    extension (x: ApplicationId) {
+      def simpleApp = SimpleApplicationId(x.value)
+    }
+    
+    extension (x: UserId) {
+      def simpleUser = SimpleUserId(x.value)
+    }
 
-    given Conversion[UserId, SimpleUserId] with
-      def apply(x: UserId): SimpleUserId = SimpleUserId(x.value)
+    extension (x: OrganisationId) {
+      def simpleOrg= SimpleOrganisationId(x.value)
+    }
 
     given Conversion[ServiceName, SimpleServiceName] with
       def apply(x: ServiceName): SimpleServiceName = x.toString
-
-    given Conversion[OrganisationId, SimpleOrganisationId] with
-      def apply(x: OrganisationId): SimpleOrganisationId = SimpleOrganisationId.apply(x.value)
 
     given Conversion[ApiContext, SimpleApiContext] with
       def apply(x: ApiContext): SimpleApiContext = x.value

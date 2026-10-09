@@ -37,7 +37,7 @@ import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 object SubscriptionController {
 
@@ -105,17 +105,17 @@ class SubscriptionController @Inject() (
 
   def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     def handleFormError(form: Form[SubsForm]): Future[Result] = {
-      Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
+      Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp)))
     }
 
     def handleValidForm(app: ApplicationWithCollaborators)(form: SubsForm): Future[Result] = {
       if (form.subscribed) {
         subscriptionService.subscribeToApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-          Redirect(routes.SubscriptionController.manageSubscription(appId))
+          Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp))
         )
       } else {
         subscriptionService.unsubscribeFromApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-          Redirect(routes.SubscriptionController.manageSubscription(appId))
+          Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp))
         )
       }
     }

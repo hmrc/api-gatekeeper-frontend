@@ -33,12 +33,12 @@
     breadcrumbs = Seq(
     Crumb(
       "Manage subscriptions",
-      s"${routes.SubscriptionController.manageSubscription(model.applicationId)}",
+      s"${routes.SubscriptionController.manageSubscription(model.applicationId.simpleApp)}",
       Some("data-breadcrumb-manage-api-subscriptions")
     ),
     Crumb(
       s"${model.applicationName}",
-      s"${routes.ApplicationController.applicationPage(model.applicationId)}",
+      s"${routes.ApplicationController.applicationPage(model.applicationId.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -78,7 +78,7 @@
                   <div class="slider">
                     <fieldset id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-toggle">
                       <div class="slider__radios slider__radios--font-fix">
-                        @helper.form(action = routes.SubscriptionController.updateSubscription(model.applicationId, apiSubscription.context, version.version.versionNbr), Symbol("class") -> "form") {
+                        @helper.form(action = routes.SubscriptionController.updateSubscription(model.applicationId.simpleApp, apiSubscription.context, version.version.versionNbr), Symbol("class") -> "form") {
                           @helper.CSRF.formField
                           <input class="slider__on slider__on-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-on" name="subscribed" type="radio" value="true" @if(version.subscribed) {checked disabled} else {}>
                           <label class="govuk-label govuk-radios__label slider__on--label" for="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-on" aria-label="Subscribed to @{
@@ -110,7 +110,7 @@
   </div>
 
   <div>
-      <a href="@routes.ApplicationController.applicationPage(model.applicationId)" class="govuk-link">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(model.applicationId.simpleApp)" class="govuk-link">Cancel</a>
   </div>
 
 }

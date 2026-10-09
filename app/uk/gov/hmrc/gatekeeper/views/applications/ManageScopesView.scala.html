@@ -33,7 +33,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -51,7 +51,7 @@
     If multiple scopes are required, use a comma to separate them.
   </p>
 
-  @helper.form(action = routes.ApplicationController.updateScopes(application.id), Symbol("class") -> "form") {
+  @helper.form(action = routes.ApplicationController.updateScopes(application.id.simpleApp), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
     <div class="govuk-form-group @if(form.errors("scopes").nonEmpty) {govuk-form-group--error}">
@@ -68,7 +68,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

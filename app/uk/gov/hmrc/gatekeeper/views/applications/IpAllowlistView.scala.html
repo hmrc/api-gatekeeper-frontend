@@ -30,7 +30,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(

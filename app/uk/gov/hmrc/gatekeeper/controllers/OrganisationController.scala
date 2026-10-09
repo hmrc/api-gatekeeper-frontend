@@ -35,7 +35,7 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 @Singleton
 class OrganisationController @Inject() (
@@ -63,7 +63,7 @@ class OrganisationController @Inject() (
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
-        routes.ApplicationController.applicationPage(appId).url
+        routes.ApplicationController.applicationPage(appId.simpleApp).url
       }
 
     organisationService.fetchOrganisationWithApplications(orgId)

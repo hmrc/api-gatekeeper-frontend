@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 @Singleton
 class UpdateApplicationNameController @Inject() (
@@ -81,7 +81,7 @@ class UpdateApplicationNameController @Inject() (
         } else {
           applicationService.validateApplicationName(app, form.applicationName).map(_ match {
             case ApplicationNameValidationResult.Valid =>
-              Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
+              Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId.simpleApp))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
 
             case ApplicationNameValidationResult.Invalid =>
@@ -121,7 +121,7 @@ class UpdateApplicationNameController @Inject() (
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
         applicationService.updateApplicationName(app, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
-          case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
+          case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId.simpleApp))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
             val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName.value))

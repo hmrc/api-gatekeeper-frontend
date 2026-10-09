@@ -36,7 +36,7 @@
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
-            s"${routes.ApplicationController.applicationPage(application.id)}",
+            s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
             Some("data-breadcrumb-view-application")
         ),
         Crumb(
@@ -55,7 +55,7 @@
         This means it cannot be deleted even if it's not used to make API calls for a while.
     </p>
 
-    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id.simpleApp)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
 
@@ -90,7 +90,7 @@
                 inputType = Some("submit"),
                 preventDoubleClick = Some(true)
             ))
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+            <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
         </div>
     </div>
     }

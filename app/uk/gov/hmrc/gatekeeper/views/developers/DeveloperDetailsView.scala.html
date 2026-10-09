@@ -143,7 +143,7 @@
     @if(MfaDetailHelper.isMfaVerified(developer.mfaDetails)) {
         @if(loggedInRequest.role.isUser) {
             <p class="govuk-body">
-                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId)}"
+                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId.simpleUser)}"
                 class="govuk-link">Remove multi-factor authentication</a>
             </p><br><br>
         }
@@ -159,7 +159,7 @@
             @for((app, idx) <- developer.applications.zipWithIndex) {
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__value" id="app-@idx">
-                        <a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a>
+                        <a href="@{routes.ApplicationController.applicationPage(app.id.simpleApp)}">@app.name</a>
                     </dt>
                     <dd class="govuk-summary-list__value" id="app-name-@idx">@app.deployedTo.displayText</dd>
                     <dd class="govuk-summary-list__value" id="collaborator-@idx">
@@ -199,7 +199,7 @@
     <br>
     @if(loggedInRequest.role.isAdvancedUser) {
         <a id="delete-developer"
-           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId)}"
+           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId.simpleUser)}"
            class="govuk-button govuk-button--secondary">Remove developer
         </a>
     }

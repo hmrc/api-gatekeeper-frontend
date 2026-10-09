@@ -34,7 +34,7 @@
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
-            s"${routes.ApplicationController.applicationPage(application.id)}",
+            s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
             Some("data-breadcrumb-view-application")
         ),
         Crumb(
@@ -69,7 +69,7 @@
         </div>
     </dl>
 
-    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyEnabled(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyEnabled(application.id.simpleApp)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
@@ -108,7 +108,7 @@
                 inputType = Some("submit"),
                 preventDoubleClick = Some(true)
             ))
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+            <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
         </div>
     </div>
     }

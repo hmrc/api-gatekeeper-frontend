@@ -51,7 +51,7 @@ import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 @Singleton
 class ApplicationController @Inject() (
@@ -105,7 +105,7 @@ class ApplicationController @Inject() (
       if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
-        routes.ApplicationController.applicationPage(appId).url
+        routes.ApplicationController.applicationPage(appId.simpleApp).url
       }
 
     for {
@@ -337,7 +337,7 @@ class ApplicationController @Inject() (
 
   def resendVerification(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      val result = Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
       applicationService.resendVerification(app, loggedIn.userFullName.get) map {
         case ApplicationUpdateSuccessResult =>
           result.flashing("success" -> "Verification email has been sent")
@@ -377,7 +377,7 @@ class ApplicationController @Inject() (
             )
 
             BadRequest(manageAccessOverridesView(app, form, request.role.isSuperUser))
-          case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId))
+          case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -410,7 +410,7 @@ class ApplicationController @Inject() (
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
             BadRequest(manageScopesView(app, form))
 
-          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -445,7 +445,7 @@ class ApplicationController @Inject() (
           Future.successful(BadRequest(manageIpAllowlistView(app, formWithErrors)))
         } else {
           applicationService.manageIpAllowlist(app, form.required, form.allowlist, loggedIn.userFullName.get).map { _ =>
-            Redirect(routes.ApplicationController.applicationPage(appId))
+            Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
           }
         }
       }
@@ -470,7 +470,7 @@ class ApplicationController @Inject() (
       def handleValidForm(form: UpdateRateLimitForm) = {
         RateLimitTier.apply(form.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get).map { _ =>
-              Redirect(routes.ApplicationController.applicationPage(appId))
+              Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
             }
           case None       => Future.successful(BadRequest(manageRateLimitView(app, UpdateRateLimitForm.form.fill(form))))
         }
@@ -546,7 +546,7 @@ class ApplicationController @Inject() (
         form.confirm match {
           case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
           case "no"  => handleUpdateDeleteRestriction(allowDelete = false, form.reason)
-          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId.simpleApp).url))
         }
       }
 
@@ -570,7 +570,7 @@ class ApplicationController @Inject() (
         form.confirm match {
           case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
           case "no"  => Future.successful(Ok(manageDeleteRestrictionSuccessView(app, allowDelete = false)))
-          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId.simpleApp).url))
         }
       }
 
@@ -686,7 +686,7 @@ class ApplicationController @Inject() (
 
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      val result = Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
 
       if (request.role.isSuperUser) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {

@@ -34,12 +34,12 @@
     breadcrumbs = Seq(
     Crumb(
       "Manage team members",
-      s"${routes.TeamMembersController.manageTeamMembers(application.id)}",
+      s"${routes.TeamMembersController.manageTeamMembers(application.id.simpleApp)}",
       Some("data-breadcrumb-manage-team-members")
     ),
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -53,7 +53,7 @@
 
   <h1 class="govuk-heading-l">Remove Team Member</h1>
 
-  @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id)) {
+  @helper.form(action = controllers.routes.TeamMembersController.removeTeamMemberAction(application.id.simpleApp)) {
     @helper.CSRF.formField
     <input type="hidden" name="email" value="@email">
     <div class="govuk-form-group @if(form.errors("confirm").nonEmpty) {govuk-form-group--error}">
@@ -92,7 +92,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.TeamMembersController.manageTeamMembers(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.TeamMembersController.manageTeamMembers(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

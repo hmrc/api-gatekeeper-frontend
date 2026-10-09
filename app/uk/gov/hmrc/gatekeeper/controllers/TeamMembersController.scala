@@ -42,7 +42,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, Dev
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
@@ -98,7 +98,7 @@ class TeamMembersController @Inject() (
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
         val emailAddress       = LaxEmailAddress(form.email)
-        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId.simpleApp))
         lazy val failureResult = BadRequest(addTeamMemberView(
           app,
           AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
@@ -142,7 +142,7 @@ class TeamMembersController @Inject() (
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         val emailAddress       = LaxEmailAddress(form.email)
-        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId.simpleApp))
         lazy val failureResult = BadRequest(removeTeamMemberView(
           app,
           RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),

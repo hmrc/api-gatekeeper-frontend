@@ -30,7 +30,7 @@
   breadcrumbs = Seq(
     Crumb(
       s"${queryModel.applicationName}",
-      s"${routes.ApplicationController.applicationPage(queryModel.applicationId)}",
+      s"${routes.ApplicationController.applicationPage(queryModel.applicationId.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -45,7 +45,7 @@
 
   <h2 class="govuk-heading-m">Filters</h2>
 
-  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), Symbol("class") -> "form") {
+  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId.simpleApp), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
     <div class="govuk-grid-row">

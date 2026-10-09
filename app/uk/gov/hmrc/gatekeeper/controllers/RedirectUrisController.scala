@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html._
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 
 @Singleton
 class RedirectUrisController @Inject() (
@@ -85,7 +85,7 @@ class RedirectUrisController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: LoginRedirectUriForm) = {
         redirectUriService.manageLoginRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+          Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -101,7 +101,7 @@ class RedirectUrisController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: PostLogoutRedirectUriForm) = {
         redirectUriService.managePostLogoutRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+          Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 

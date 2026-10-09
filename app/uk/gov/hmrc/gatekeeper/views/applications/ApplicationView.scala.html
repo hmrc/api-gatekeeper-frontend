@@ -61,7 +61,7 @@
     </dd>
     @if(request.role.isAdvancedUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-scopes" class="govuk-link" href="@{routes.ApplicationController.manageScopes(applicationId)}">
+        <a id="manage-scopes" class="govuk-link" href="@{routes.ApplicationController.manageScopes(applicationId.simpleApp)}">
           Manage<span class="govuk-visually-hidden"> scopes</span>
         </a>
       </dd>
@@ -119,7 +119,7 @@
     }
     @if(request.role.isSuperUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId)}">
+        <a id="manage-access-overrides" class="govuk-link" href="@{routes.ApplicationController.manageAccessOverrides(applicationId.simpleApp)}">
           Manage<span class="govuk-visually-hidden"> access overrides</span>
         </a>
       </dd>
@@ -145,7 +145,7 @@
     }
     @if(request.role.isAdvancedUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-login-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageLoginRedirectUriPage(application.id)}">
+        <a id="manage-login-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.manageLoginRedirectUriPage(application.id.simpleApp)}">
           Manage<span class="govuk-visually-hidden"> Login redirect Uris</span>
         </a>
       </dd>
@@ -171,7 +171,7 @@
     }
     @if(request.role.isAdvancedUser && !application.state.isDeleted) {
       <dd class="govuk-summary-list__actions">
-        <a id="manage-logout-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.managePostLogoutRedirectUriPage(application.id)}">
+        <a id="manage-logout-redirect-uris" class="govuk-link" href="@{routes.RedirectUrisController.managePostLogoutRedirectUriPage(application.id.simpleApp)}">
           Manage<span class="govuk-visually-hidden"> Post logout redirect Uris</span>
         </a>
       </dd>
@@ -292,7 +292,7 @@
         </dd>
         <dd class="govuk-summary-list__actions">
         @if(application.isProduction && application.state.name.isApproved) {
-            <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId).url}" class="button--link" role="button">Manage</a>
+            <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId.simpleApp).url}" class="button--link" role="button">Manage</a>
         }
         </dd>
     </div>
@@ -311,7 +311,7 @@
               <a href={model.gatekeeperApprovalsUrl} class="govuk-link" role="button" id="review">Check application</a>
             }
           } else if (application.state.isPendingRequesterVerification) {
-            <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId).url}>Resend verify email</a>)</span>
+            <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId.simpleApp).url}>Resend verify email</a>)</span>
           }
         }
       </dd>
@@ -345,7 +345,7 @@
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-rate-limit" class="govuk-link" href="@{routes.ApplicationController.manageRateLimitTier(applicationId)}">
+          <a id="manage-rate-limit" class="govuk-link" href="@{routes.ApplicationController.manageRateLimitTier(applicationId.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> Rate limit tier</span>
           </a>
         </dd>
@@ -409,7 +409,7 @@
       </dd>
       @if(request.role.isAdmin && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-grant-length" class="govuk-link" href="@{routes.ApplicationController.manageGrantLength(applicationId)}">
+          <a id="manage-grant-length" class="govuk-link" href="@{routes.ApplicationController.manageGrantLength(applicationId.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> application grant Length</span>
           </a>
         </dd>
@@ -447,7 +447,7 @@
       </dd>
       @if(request.role.isAdvancedUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-application-protected-from-deletion" class="govuk-link" href="@{routes.ApplicationController.manageDeleteRestriction(applicationId)}">
+          <a id="manage-application-protected-from-deletion" class="govuk-link" href="@{routes.ApplicationController.manageDeleteRestriction(applicationId.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> application protected from being deleted/span>
           </a>
         </dd>
@@ -470,14 +470,14 @@
       </dd>
       @if(request.role.isSuperUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id)}">
+          <a id="manage-ip-allowlist" class="govuk-link" href="@{routes.ApplicationController.manageIpAllowlistPage(application.id.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> IP allow list</span>
           </a>
         </dd>
       } else {
         @if(application.details.ipAllowlist.allowlist.nonEmpty) {
           <dd class="govuk-summary-list__actions">
-            <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id)}" class="govuk-link">View</a>
+            <a id="view-ip-allowlist" href="@{routes.ApplicationController.viewIpAllowlistPage(application.id.simpleApp)}" class="govuk-link">View</a>
           </dd>
         }
       }
@@ -493,7 +493,7 @@
       </dd>
       @if(request.role.isAdvancedUser && !application.state.isDeleted) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-subscriptions" class="govuk-link" href="@{routes.SubscriptionController.manageSubscription(applicationId)}">
+          <a id="manage-subscriptions" class="govuk-link" href="@{routes.SubscriptionController.manageSubscription(applicationId.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> API subscriptions</span>
           </a>
         </dd>
@@ -511,7 +511,7 @@
         </dd>
         @if(request.role.isAdvancedUser && !application.state.isDeleted) {
           <dd class="govuk-summary-list__actions">
-            <a id="manage-subscriptions-configuration" class="govuk-link" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId)}">
+            <a id="manage-subscriptions-configuration" class="govuk-link" href="@{routes.SubscriptionConfigurationController.listConfigurations(applicationId.simpleApp)}">
               Manage<span class="govuk-visually-hidden"> API subscription configuration</span>
             </a>
           </dd>
@@ -522,7 +522,7 @@
       <h2 class="govuk-heading-m govuk-!-margin-top-8">Application changes</h2>
       <p class="govuk-body">
         <a id="application-events" href="@{
-          routes.ApplicationEventsController.page(applicationId)
+          routes.ApplicationEventsController.page(applicationId.simpleApp)
         }" class="govuk-button govuk-button--secondary">Check application changes</a>
       </p>
     </div>
@@ -545,7 +545,7 @@
               <tr class="govuk-table__row">
                 <td class="govuk-table__cell" data-collaborator-email>
                   @if(model.developers.exists(dev => dev.email == collaborator.emailAddress)) {
-                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(collaborator.userId)}">@collaborator.emailAddress.text</a>
+                    <a class="govuk-link" href="@{routes.DeveloperController.developerPage(collaborator.userId.simpleUser)}">@collaborator.emailAddress.text</a>
                   } else {
                     @collaborator.emailAddress.text
                   }
@@ -577,7 +577,7 @@
       </dd>
       @if(!application.state.isDeleted && (request.role.isAdvancedUser || access.accessType == AccessType.Standard)) {
         <dd class="govuk-summary-list__actions">
-          <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId)}">
+          <a id="manage-team-members" class="govuk-link" href="@{routes.TeamMembersController.manageTeamMembers(applicationId.simpleApp)}">
             Manage<span class="govuk-visually-hidden"> team members</span>
           </a>
         </dd>
@@ -689,14 +689,14 @@
 
   <br>
   @if(request.role.isSuperUser && !application.state.isDeleted) {
-    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Delete application</a>
+    <a id="delete-application" href="@{routes.ApplicationController.deleteApplicationPage(applicationId.simpleApp)}" class="govuk-button govuk-button--secondary">Delete application</a>
   }
   @if(request.role.isAdmin && !application.state.isDeleted) {
     @if(application.state.name.isApproved && !application.details.blocked) {
-      <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Block application</a>
+      <a id="block-application" href="@{routes.ApplicationController.blockApplicationPage(applicationId.simpleApp)}" class="govuk-button govuk-button--secondary">Block application</a>
     }
     @if(application.state.name.isApproved && application.details.blocked) {
-      <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId)}" class="govuk-button govuk-button--secondary">Unblock application</a>
+      <a id="unblock-application" href="@{routes.ApplicationController.unblockApplicationPage(applicationId.simpleApp)}" class="govuk-button govuk-button--secondary">Unblock application</a>
     }
   }
 

@@ -31,7 +31,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -66,7 +66,7 @@
             @if(collaboratorIsVerifiedAdmin(collaboratorUsers, teamMember) && oneOnlyVerifiedAdmin(collaboratorUsers, application.collaborators)){
               Not Available
               } else {
-              @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id), Symbol("class") -> "form inline-controls", Symbol("name") -> "remove-team-member-form") {
+              @helper.form(action = controllers.routes.TeamMembersController.removeTeamMember(application.id.simpleApp), Symbol("class") -> "form inline-controls", Symbol("name") -> "remove-team-member-form") {
               @helper.CSRF.formField
               <label class="govuk-visually-hidden" for="@{teamMember.emailAddress.text}" aria-hidden="true">
                   Auto filled team members email
@@ -95,8 +95,8 @@
     }
   <br>
   <div class="govuk-button-group">
-    <a href="@routes.TeamMembersController.addTeamMember(application.id)" class="govuk-button">Add a team member</a>
-    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+    <a href="@routes.TeamMembersController.addTeamMember(application.id.simpleApp)" class="govuk-button">Add a team member</a>
+    <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
   </div>
     @views.html.helper.script(args = Symbol("type") -> "module") {
         function submitTeamMemberRemovalForm(id) {

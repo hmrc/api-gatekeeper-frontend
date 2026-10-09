@@ -22,7 +22,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits._
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 trait ApmConnectorPpnsModule extends ApmConnectorModule {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone.given
   import play.api.libs.json._
   import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
 

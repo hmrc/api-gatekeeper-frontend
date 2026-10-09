@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, Dev
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 
 @Singleton
 class DeveloperController @Inject() (
@@ -90,7 +90,7 @@ class DeveloperController @Inject() (
     def handleValidForm(form: RemoveMfaConfirmationForm): Future[Result] = {
       form.confirm match {
         case "yes" => handleRemoveMfa()
-        case _     => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier).url))
+        case _     => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier.simpleUser).url))
       }
     }
 

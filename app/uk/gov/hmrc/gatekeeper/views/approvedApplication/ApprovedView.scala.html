@@ -68,7 +68,7 @@
       </summary>
       <div>
         <p data-summary class="govuk-details__text">
-          The submitter has not verified that they still have access to the email address associated with this application. (<a resend-email class="govuk-link" href="@routes.ApplicationController.resendVerification(application.details.id)">Resend verify email</a>)
+          The submitter has not verified that they still have access to the email address associated with this application. (<a resend-email class="govuk-link" href="@routes.ApplicationController.resendVerification(application.details.id.simpleApp)">Resend verify email</a>)
         </p>
       </div>
     }
@@ -83,7 +83,7 @@
   }
 
   @if(application.details.rateLimitTier.isDefined) {
-    @helper.form(action = routes.ApplicationController.handleUpdateRateLimitTier(application.details.id)) {
+    @helper.form(action = routes.ApplicationController.handleUpdateRateLimitTier(application.details.id.simpleApp)) {
       <details class="govuk-details" data-module="govuk-details">
         <summary class="govuk-details__summary">
           <span id="rate-limit-tier" class="govuk-details__summary-text">Rate limit tier: @application.details.rateLimitTier</span>

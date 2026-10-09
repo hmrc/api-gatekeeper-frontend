@@ -30,7 +30,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -47,6 +47,6 @@
         </h1>
       </div>
 
-      <a id="back-button" class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Back to application page</a>
+      <a id="back-button" class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id.simpleApp)}">Back to application page</a>
   </div>
 }

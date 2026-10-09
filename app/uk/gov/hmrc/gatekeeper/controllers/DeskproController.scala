@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 
 @Singleton
 class DeskproController @Inject() (
@@ -58,7 +58,7 @@ class DeskproController @Inject() (
       for {
         ticket <- apiPlatformDeskproService.getDeskproTicket(ticketId)
         user   <- developerService.fetchUser(ticket.personEmail)
-      } yield Redirect(routes.DeveloperController.developerPage(user.userId))
+      } yield Redirect(routes.DeveloperController.developerPage(user.userId.simpleUser))
     } recover {
       case e: UpstreamErrorResponse if e.statusCode == NOT_FOUND =>
         logger.error(s"Failed to find Deskpro ticket: $ticketId", e)

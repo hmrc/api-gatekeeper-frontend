@@ -76,7 +76,7 @@
   breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -88,7 +88,7 @@
 ) {
   <h1 class="govuk-heading-l">Manage access overrides</h1>
 
-  @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id), Symbol("class") -> "form") {
+  @helper.form(action = routes.ApplicationController.updateAccessOverrides(application.id.simpleApp), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
     <table class="govuk-table">
@@ -167,7 +167,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

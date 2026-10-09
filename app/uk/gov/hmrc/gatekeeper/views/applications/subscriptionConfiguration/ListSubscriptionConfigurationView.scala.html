@@ -34,7 +34,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -59,7 +59,7 @@
           <th scope="col" class="govuk-table__header col-35">Name</th>
           <th scope="col" class="govuk-table__header col-60">Configuration</th>
           <th scope="col" class="govuk-table__header">
-            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id, subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}" class="govuk-link govuk-link--no-visited-state" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}-submit">Edit</a>
+            <a href="@{routes.SubscriptionConfigurationController.editConfigurations(application.id.simpleApp, subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}" class="govuk-link govuk-link--no-visited-state" id="@{IdFormatter.identifier(subscriptionVersion.apiContext, subscriptionVersion.versionNbr)}-submit">Edit</a>
           </th>
         </tr>
       </thead>
@@ -78,6 +78,6 @@
   </br>
 
   <p class="govuk-body">
-    <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+    <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
   </p>
 }

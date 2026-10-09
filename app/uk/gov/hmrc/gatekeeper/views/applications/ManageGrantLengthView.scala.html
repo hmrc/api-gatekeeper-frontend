@@ -36,7 +36,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -56,7 +56,7 @@
 
   <p class="govuk-body">The current application grant length is  <strong class="govuk-!-font-weight-bold">@{GrantLengthDisplayer.display(application.details.grantLength)}</strong>.</p>
 
-  @helper.form(action = routes.ApplicationController.updateGrantLength(application.id)) {
+  @helper.form(action = routes.ApplicationController.updateGrantLength(application.id.simpleApp)) {
     @helper.CSRF.formField
     <div class="govuk-form-group @if(form.errors("grantLength").nonEmpty) {govuk-form-group--error}">
       <fieldset id="grantLength" class="govuk-fieldset" aria-describedby="application-grant-hint">
@@ -88,7 +88,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

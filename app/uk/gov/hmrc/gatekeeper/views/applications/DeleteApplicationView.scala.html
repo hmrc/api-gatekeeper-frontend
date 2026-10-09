@@ -80,7 +80,7 @@
   <p class="govuk-body">You must check with all administrators before deleting this application.</p>
 
   @if(isSuperUser) {
-    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id), Symbol("class") -> "form") {
+    @helper.form(action = routes.ApplicationController.deleteApplicationAction(application.id.simpleApp), Symbol("class") -> "form") {
 
       <div class="govuk-form-group @if(form.errors("collaboratorEmail").nonEmpty) {govuk-form-group--error}">
         <fieldset class="govuk-fieldset">
@@ -130,7 +130,7 @@
           inputType = Some("submit"),
           preventDoubleClick = Some(true)
         ))
-        <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
+        <a href="@{routes.ApplicationController.applicationPage(application.id.simpleApp)}" class="govuk-button govuk-button--secondary">Cancel</a>
       </div>
     }
   }
