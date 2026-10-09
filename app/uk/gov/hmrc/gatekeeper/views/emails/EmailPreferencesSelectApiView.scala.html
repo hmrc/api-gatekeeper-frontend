@@ -25,7 +25,7 @@
 @(apis: Seq[CombinedApi], filteredApis: Seq[CombinedApi])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
-  if(api.apiType == ApiType.XML_API) {
+  if(api.apiType == ApiType.XmlApi) {
     api.displayName + " - XML API"
   } else { api.displayName }
 }

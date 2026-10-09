@@ -71,8 +71,8 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def handleXmlAppendValue(api: CombinedApi) = {
     api.apiType match {
-      case ApiType.XML_API  => api.displayName + " - XML API"
-      case ApiType.REST_API => api.displayName
+      case ApiType.XmlApi  => api.displayName + " - XML API"
+      case ApiType.RestApi => api.displayName
     }
   }
 
