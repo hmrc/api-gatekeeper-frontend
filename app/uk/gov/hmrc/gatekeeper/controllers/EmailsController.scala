@@ -136,7 +136,7 @@ class EmailsController @Inject() (
   }
 
   def emailPreferencesSpecificApis(selectedAPIs: List[ServiceName], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = anyStrideUserAction { implicit request =>
-    if (selectedAPIs.forall(_.value.isEmpty)) {
+    if (selectedAPIs.forall(_.isEmpty)) {
       Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
     } else {
       for {

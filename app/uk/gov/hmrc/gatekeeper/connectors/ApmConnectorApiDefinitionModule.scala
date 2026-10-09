@@ -41,7 +41,7 @@ trait ApmConnectorApiDefinitionModule extends ApmConnectorModule {
     )
     http.get(url"${baseUrl}?$queryParams")
       .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
+      .map(_.values.toList)
   }
 
   def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
@@ -52,6 +52,6 @@ trait ApmConnectorApiDefinitionModule extends ApmConnectorModule {
   def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.get(url"${baseUrl}/all?environment=$environment")
       .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
+      .map(_.values.toList)
   }
 }

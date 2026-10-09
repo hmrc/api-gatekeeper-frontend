@@ -36,6 +36,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, Sub
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
 @Singleton
 class SubscriptionConfigurationController @Inject() (

@@ -35,9 +35,10 @@ import uk.gov.hmrc.gatekeeper.models.{
   RemoveAllCollaboratorsForUserIdResult,
   RemoveAllCollaboratorsForUserIdSuccessResult
 }
+import play.libs.ws.JsonBodyWritables
 
 @Singleton
-class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging {
+class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging with JsonBodyWritables {
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 

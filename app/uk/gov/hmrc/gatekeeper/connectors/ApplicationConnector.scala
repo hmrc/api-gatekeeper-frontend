@@ -32,6 +32,7 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.TermsOfUseInvitationResponse
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import play.api.libs.ws.JsonBodyWritables
 
 object ApplicationConnector {
   import play.api.libs.json.Json
@@ -49,7 +50,7 @@ object ApplicationConnector {
   implicit val appWithSubscriptionsForCsvResponseReads: Reads[AppWithSubscriptionsForCsvResponse] = Json.reads[AppWithSubscriptionsForCsvResponse]
 }
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters {
+abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with JsonBodyWritables {
   import ApplicationConnector._
 
   val environment: Environment

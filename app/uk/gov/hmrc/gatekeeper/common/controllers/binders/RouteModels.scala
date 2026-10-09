@@ -34,7 +34,7 @@ object RouteModels {
   type SimpleApiContext    = String
   type SimpleApiCategory   = String
 
-  object Controllers {
+  object ToRouteTypes {
     given Conversion[ApplicationId, SimpleApplicationId] with
       def apply(x: ApplicationId): SimpleApplicationId = SimpleApplicationId(x.value)
 

@@ -26,6 +26,7 @@ import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, _
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, _}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
 class ApplicationCommandConnector @Inject() (
@@ -33,7 +34,8 @@ class ApplicationCommandConnector @Inject() (
     val config: ApmConnector.Config
   )(implicit val ec: ExecutionContext
   ) extends CommandHandlerTypes[DispatchSuccessResult]
-    with ApplicationLogger {
+    with ApplicationLogger
+    with JsonBodyWritables {
 
   def dispatch(
       applicationId: ApplicationId,
@@ -42,7 +44,7 @@ class ApplicationCommandConnector @Inject() (
     )(implicit hc: HeaderCarrier
     ): AppCmdResult = {
 
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
     import play.api.libs.json._
     import uk.gov.hmrc.http.HttpReads.Implicits._
     import play.api.http.Status._

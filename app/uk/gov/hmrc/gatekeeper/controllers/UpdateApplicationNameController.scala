@@ -38,6 +38,7 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
 @Singleton
 class UpdateApplicationNameController @Inject() (
@@ -64,7 +65,7 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNamePage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.name.value))
+      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.name))
       Future.successful(Ok(manageApplicationNameView(app, form)))
     }
   }

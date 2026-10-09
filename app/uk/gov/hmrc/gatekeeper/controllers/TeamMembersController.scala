@@ -42,6 +42,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, Dev
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
 trait WithRestrictedApp {
   self: TeamMembersController =>

@@ -37,6 +37,7 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption._
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.DeveloperStatusFilter
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
+import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
 class DeveloperConnector @Inject() (
@@ -44,7 +45,7 @@ class DeveloperConnector @Inject() (
     http: HttpClientV2,
     @Named("ThirdPartyDeveloper") val payloadEncryption: PayloadEncryption
   )(implicit ec: ExecutionContext
-  ) extends SendsSecretRequest with Logging {
+  ) extends SendsSecretRequest with Logging with JsonBodyWritables {
 
   private def fetchUserId(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[CoreUserDetails]] = {
     http.post(url"${appConfig.developerBaseUrl}/developers/find-user-id")
@@ -116,7 +117,7 @@ class DeveloperConnector @Inject() (
     val privateapimatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams                    =
       Seq("topic" -> topic.toString) ++ regimes ++
-        maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _.value))) ++ privateapimatchParams
+        maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams
 
     http.get(url"${appConfig.developerBaseUrl}/developers/email-preferences?$queryParams")
       .execute[List[RegisteredUser]]
@@ -134,7 +135,7 @@ class DeveloperConnector @Inject() (
     logger.info(s"fetchByEmailPreferencesPaginated topic is $maybeTopic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String, String)] =
       maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString())))
-    val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _.value)))
+    val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
     val topic                          = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
     val privateApiMatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams                     = Seq("offset" -> s"$offset", "limit" -> s"$limit")

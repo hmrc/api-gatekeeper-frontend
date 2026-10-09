@@ -55,7 +55,7 @@ class ApplicationService @Inject() (
     def buildChanges(appId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem]): List[ApplicationStateHistoryChange] = {
       stateHistory match {
         case state1 :: state2 :: others => ApplicationStateHistoryChange(
-            appId.value.toString(),
+            appId.toString(),
             appName,
             journeyVersion.toString,
             state1.state.toString,
@@ -186,7 +186,7 @@ class ApplicationService @Inject() (
       newName: ValidatedApplicationName
     )(implicit hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
-    if (application.name.value.equalsIgnoreCase(newName.value)) {
+    if (application.name.equalsIgnoreCase(newName.value)) {
       Future.successful(ApplicationUpdateSuccessResult)
     } else {
       application.collaborators.find(_.emailAddress == adminEmail).map(_.userId) match {

@@ -52,6 +52,7 @@ import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
 import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
 @Singleton
 class ApplicationController @Inject() (
@@ -129,7 +130,7 @@ class ApplicationController @Inject() (
 
   private def toCsvContent(paginatedApplications: PaginatedApplications, isStrideUser: Boolean, showDeletionDataColumns: Boolean): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
-      s"${role.displayText}:${emailAddress.text}"
+      s"${role.toString}:${emailAddress.text}"
     }
 
     val nbrOfLoginRedirectUris = (app: ApplicationWithCollaborators) =>
@@ -145,7 +146,7 @@ class ApplicationController @Inject() (
       }
 
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithCollaborators]](
-      ColumnDefinition("Name", (app => app.name.value)),
+      ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
       ColumnDefinition("Environment", (app => app.deployedTo.toString)),
@@ -683,7 +684,7 @@ class ApplicationController @Inject() (
       version <- api.versionsAsList
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.versionNbr))
 
-    versions.groupBy(_.status.displayText)
+    versions.groupBy(_.status.toString)
   }
 
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>

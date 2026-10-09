@@ -36,6 +36,8 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
@@ -44,7 +46,7 @@ object ApplicationsByRequest {
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) extends JsonBodyWritables {
 
   def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
@@ -78,9 +80,12 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     rawQuery[T](environment)(qryStringMap)
   }
 
-  def rawQuery[T](environment: Environment)(qryStringMap: Map[String, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+  def rawQuery[T](environment: Environment)(qryStringMap: Map[ParamName, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+    val rawQryStringMap = qryStringMap.map {
+      case (k,v) => (k.text -> v)
+    }
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
       .execute[T]
   }
 
@@ -98,9 +103,14 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     rawQueryStream[S, S](environment)(params)(identity)
   }
 
-  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[ParamName, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+    val rawQryStringMap = qryStringMap.map {
+      case (k,v) => (k.text -> v)
+    }
+    import uk.gov.hmrc.http.client.readSource
+    
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
       .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
       .stream[Source[ByteString, ?]]

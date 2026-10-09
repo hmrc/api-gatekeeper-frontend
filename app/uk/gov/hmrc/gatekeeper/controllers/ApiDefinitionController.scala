@@ -82,7 +82,7 @@ class ApiDefinitionController @Inject() (
     apiDefinition.versions.values.map(v =>
       ApiDefinitionView(
         apiDefinition.name,
-        apiDefinition.serviceName.value,
+        apiDefinition.serviceName,
         apiDefinition.context,
         v.versionNbr,
         v.versionSource,

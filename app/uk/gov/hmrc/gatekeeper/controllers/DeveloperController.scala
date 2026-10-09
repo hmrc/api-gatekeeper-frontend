@@ -38,6 +38,7 @@ import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, Applic
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
 @Singleton
 class DeveloperController @Inject() (
