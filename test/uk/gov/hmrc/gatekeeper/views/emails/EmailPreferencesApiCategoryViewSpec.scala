@@ -26,7 +26,7 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
@@ -68,9 +68,9 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
-    val category1 = ApiCategory.VAT
-    val category2 = ApiCategory.AGENTS
-    val category3 = ApiCategory.RELIEF_AT_SOURCE
+    val category1 = ApiCategory.Vat
+    val category2 = ApiCategory.Agents
+    val category3 = ApiCategory.ReliefAtSource
 
     val categories = Set[ApiCategory](category1, category2, category3)
 

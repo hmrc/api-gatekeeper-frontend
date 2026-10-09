@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collabor
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 
 trait CollaboratorsBuilder {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+  import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 
   def buildCollaborators(collaborators: Seq[(String, Collaborator.Role)]): Set[Collaborator] = {
     collaborators.map {

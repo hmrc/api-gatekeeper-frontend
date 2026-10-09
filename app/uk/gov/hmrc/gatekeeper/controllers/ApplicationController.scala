@@ -77,6 +77,7 @@ class ApplicationController @Inject() (
     blockApplicationSuccessView: BlockApplicationSuccessView,
     unblockApplicationView: UnblockApplicationView,
     unblockApplicationSuccessView: UnblockApplicationSuccessView,
+    approvedView: ApprovedView,
     createApplicationView: CreateApplicationView,
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
