@@ -58,7 +58,7 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName.value) shouldBe true
+        elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
         elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true

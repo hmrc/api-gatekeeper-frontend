@@ -95,7 +95,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val inputs = Map("status" -> "ALL")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value shouldBe Map.empty
     }
@@ -103,10 +103,10 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "ignores valid params (e.g. accessType) when empty" in new Setup {
       TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
-      val inputs = Map(ParamName.AccessType -> "")
+      val inputs = Map(ParamName.AccessType.toString -> "")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value shouldBe Map.empty
     }
@@ -117,7 +117,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val inputs = Map("page" -> "2")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value should contain("pageNbr" -> "2")
     }
@@ -129,7 +129,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value should contain(ParamName.ApiContext -> "Hello")
       paramCaptor.value should contain(ParamName.ApiVersionNbr -> "1.0")
@@ -141,7 +141,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val inputs = Map("apiSubscription" -> "ANY")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value should contain(ParamName.HasSubscriptions -> "")
     }
@@ -152,7 +152,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val inputs = Map("apiSubscription" -> "NONE")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
@@ -163,7 +163,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       val inputs = Map("apiSubscription" -> "NONE", "submit" -> "", "bobbins" -> "hello")
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
@@ -338,7 +338,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       ApplicationConnectorMock.Prod.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
+      val result = await(underTest.createPrivApp(environment, name, description, admin))
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
@@ -359,7 +359,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       ApplicationConnectorMock.Sandbox.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
+      val result = await(underTest.createPrivApp(environment, name, description, admin))
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 

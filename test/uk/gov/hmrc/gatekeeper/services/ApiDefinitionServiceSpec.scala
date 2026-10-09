@@ -39,9 +39,9 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     val publicDefinition = ApiDefinition(
       ServiceName("publicAPI"),
-      "http://localhost/",
-      "publicAPI",
-      "public api.",
+      ApiDefinition.ServiceBaseUrl("http://localhost/"),
+      ApiDefinition.Name("publicAPI"),
+      ApiDefinition.Description("public api."),
       ApiContext.random,
       Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
@@ -51,9 +51,9 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     val privateDefinition = ApiDefinition(
       ServiceName("privateAPI"),
-      "http://localhost/",
-      "privateAPI",
-      "private api.",
+      ApiDefinition.ServiceBaseUrl("http://localhost/"),
+      ApiDefinition.Name("privateAPI"),
+      ApiDefinition.Description("private api."),
       ApiContext.random,
       Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
@@ -67,22 +67,26 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     val customsDeclarations1 = ApiDefinition(
       serviceName = ServiceName("customs-declarations"),
-      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
-      name = "Customs Declarations",
-      description = "Single WCO-compliant Customs Declarations API",
+      serviceBaseUrl = ApiDefinition.ServiceBaseUrl("https://customs-declarations.protected.mdtp"),
+      name = ApiDefinition.Name("Customs Declarations"),
+      description = ApiDefinition.Description("Single WCO-compliant Customs Declarations API"),
       context = ApiContext("customs/declarations"),
       versions = Map(version1.versionNbr -> version1),
-      categories = List(ApiCategory.Customs)
+      categories = List(ApiCategory.Customs),
+      isTestSupport = false,
+      lastPublishedAt = None
     )
 
     val customsDeclarations2 = ApiDefinition(
       serviceName = ServiceName("customs-declarations"),
-      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
-      name = "Customs Declarations",
-      description = "Single WCO-compliant Customs Declarations API",
+      serviceBaseUrl = ApiDefinition.ServiceBaseUrl("https://customs-declarations.protected.mdtp"),
+      name = ApiDefinition.Name("Customs Declarations"),
+      description = ApiDefinition.Description("Single WCO-compliant Customs Declarations API"),
       context = ApiContext("customs/declarations"),
       versions = Map(version2.versionNbr -> version2.copy(), version3.versionNbr -> version3.copy()),
-      categories = List(ApiCategory.Customs)
+      categories = List(ApiCategory.Customs),
+      isTestSupport = false,
+      lastPublishedAt = None
     )
   }
 
@@ -147,8 +151,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   "apis" when {
     "get all apis" in new Setup {
 
-      val publicSandbox  = publicDefinition.copy(name = "sandbox-public")
-      val privateSandbox = privateDefinition.copy(name = "sandbox-private")
+      val publicSandbox  = publicDefinition.copy(name = ApiDefinition.Name("sandbox-public"))
+      val privateSandbox = privateDefinition.copy(name = ApiDefinition.Name("sandbox-private"))
 
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
       ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicSandbox, privateSandbox)

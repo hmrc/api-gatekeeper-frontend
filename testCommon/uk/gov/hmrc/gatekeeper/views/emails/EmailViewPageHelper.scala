@@ -304,7 +304,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
       selectedTopic: TopicOptionChoice,
       users: Seq[RegisteredUser]
     ) = {
-    validateStaticPageElements(document, ApiCategory.values)
+    validateStaticPageElements(document, ApiCategory.values.toSet)
 
     mayBeSelectedCategory.map { selectedCategory =>
       elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true

@@ -34,7 +34,7 @@ import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationQueryService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.developers._
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -45,7 +45,6 @@ class DeveloperController @Inject() (
     developerService: DeveloperService,
     val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
-    apiDefinitionService: ApiDefinitionService,
     mcc: MessagesControllerComponents,
     developerDetailsView: DeveloperDetailsView,
     removeMfaView: RemoveMfaView,

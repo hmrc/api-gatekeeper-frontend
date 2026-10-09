@@ -101,8 +101,8 @@ class ApplicationEventsController @Inject() (
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
-      def handleFormError(form: Form[QueryForm]): Future[Result] = {
-        val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
+      def handleFormError(queryForm: Form[QueryForm]): Future[Result] = {
+        // val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
           qv     <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
           events <- eventsConnector.query(appId, application.deployedTo, None, None)

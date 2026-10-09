@@ -38,7 +38,7 @@ trait ApiBuilder {
   implicit class ApiDefinitionSyntax(apiDefinition: ApiDefinition) {
     def testSupport = apiDefinition.copy(isTestSupport = true)
 
-    def withName(newName: String) = apiDefinition.copy(name = newName)
+    def withName(newName: String) = apiDefinition.copy(name = ApiDefinition.Name(newName))
 
     def withVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiDefinition.copy(versions = Map(versionNbr -> data))
 
@@ -47,10 +47,10 @@ trait ApiBuilder {
     def withContext(apiContext: ApiContext) = apiDefinition.copy(context = apiContext)
   }
 
-  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.Stable, ApiAccessType.Public, List.empty)
+  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.Stable, ApiAccessType.Public, List.empty, true, None, ApiVersionSource.OAS)
 
   val DefaultServiceName = ServiceName("A-Service")
-  val DefaultName        = "API Name"
+  val DefaultName        = ApiDefinition.Name("API Name")
 
   val VersionOne   = ApiVersionNbr("1.0")
   val VersionTwo   = ApiVersionNbr("2.0")
@@ -58,12 +58,13 @@ trait ApiBuilder {
 
   val DefaultApiDefinition = ApiDefinition(
     serviceName = DefaultServiceName,
-    serviceBaseUrl = "http://serviceBaseUrl",
+    serviceBaseUrl = ApiDefinition.ServiceBaseUrl("http://serviceBaseUrl"),
     name = DefaultName,
-    description = "Description",
+    description = ApiDefinition.Description("Description"),
     context = ApiContext("context/name"),
     versions = Map(VersionOne -> DefaultVersionData),
     isTestSupport = false,
-    categories = List.empty
+    categories = List.empty,
+    lastPublishedAt = None
   )
 }

@@ -26,6 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.Applic
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
 import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
 
 trait ThirdPartyOrchestratorConnectorMockProvider {
   self: MockitoSugar with ArgumentMatchersSugar =>
@@ -70,7 +71,7 @@ trait ThirdPartyOrchestratorConnectorMockProvider {
     object RawQuery {
       def returnsFor[T](env: Environment)(t: T) = when(aMock.rawQuery[T](eqTo(env))(*)(*, *)).thenReturn(successful(t))
 
-      def returnsForParams[T](env: Environment)(params: Map[String, String], t: T) = when(aMock.rawQuery[T](eqTo(env))(eqTo(params))(*, *)).thenReturn(successful(t))
+      def returnsForParams[T](env: Environment)(params: Map[ParamName, String], t: T) = when(aMock.rawQuery[T](eqTo(env))(eqTo(params))(*, *)).thenReturn(successful(t))
     }
   }
 }

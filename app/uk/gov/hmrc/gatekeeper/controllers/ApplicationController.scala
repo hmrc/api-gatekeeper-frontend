@@ -50,7 +50,6 @@ import uk.gov.hmrc.gatekeeper.services._
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
 import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.given
 
@@ -77,7 +76,6 @@ class ApplicationController @Inject() (
     blockApplicationSuccessView: BlockApplicationSuccessView,
     unblockApplicationView: UnblockApplicationView,
     unblockApplicationSuccessView: UnblockApplicationSuccessView,
-    approvedView: ApprovedView,
     createApplicationView: CreateApplicationView,
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,

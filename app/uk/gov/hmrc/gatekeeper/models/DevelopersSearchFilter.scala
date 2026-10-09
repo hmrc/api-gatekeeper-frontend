@@ -55,7 +55,7 @@ case object DeveloperStatusFilter {
 
     override def isMatch(user: AbstractUser): Boolean = user match {
       case r: RegisteredUser   => r.verified
-      case u: UnregisteredUser => true // TODO - really true ??
+      case _: UnregisteredUser => true // TODO - really true ??
     }
   }
 

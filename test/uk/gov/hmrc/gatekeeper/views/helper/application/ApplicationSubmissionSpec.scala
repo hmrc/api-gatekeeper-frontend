@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 
 class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsSubmission" when {

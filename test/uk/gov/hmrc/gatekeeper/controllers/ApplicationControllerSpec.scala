@@ -79,7 +79,6 @@ class ApplicationControllerSpec
   private lazy val blockApplicationSuccessView          = app.injector.instanceOf[BlockApplicationSuccessView]
   private lazy val unblockApplicationView               = app.injector.instanceOf[UnblockApplicationView]
   private lazy val unblockApplicationSuccessView        = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val approvedView                         = app.injector.instanceOf[ApprovedView]
   private lazy val createApplicationView                = app.injector.instanceOf[CreateApplicationView]
   private lazy val createApplicationSuccessView         = app.injector.instanceOf[CreateApplicationSuccessView]
   private lazy val manageGrantLengthView                = app.injector.instanceOf[ManageGrantLengthView]
@@ -124,7 +123,6 @@ class ApplicationControllerSpec
         mockApplicationService,
         ApplicationQueryServiceMock.aMock,
         forbiddenView,
-        mockApiDefinitionService,
         mockDeveloperService,
         mockTermsOfUseService,
         mcc,
@@ -142,7 +140,6 @@ class ApplicationControllerSpec
         blockApplicationSuccessView,
         unblockApplicationView,
         unblockApplicationSuccessView,
-        approvedView,
         createApplicationView,
         createApplicationSuccessView,
         manageGrantLengthView,
@@ -908,7 +905,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
         contentAsString(result) should include("You cannot delete")
-        contentAsString(result) should include(appWithDeleteRestrictionEnabled.name.value)
+        contentAsString(result) should include(appWithDeleteRestrictionEnabled.name)
         contentAsString(result) should include(appWithDeleteRestrictionEnabled.details.deleteRestriction.asInstanceOf[DoNotDelete].reason)
       }
     }
@@ -1289,7 +1286,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", ""),
-              ("applicationName", appName.value),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
             )
@@ -1480,7 +1477,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
-              ("applicationName", appName.value),
+              ("applicationName", appName),
               ("applicationDescription", ""),
               ("adminEmail", adminEmail.text)
             )
@@ -1498,7 +1495,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
-              ("applicationName", appName.value),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", "")
             )
@@ -1515,7 +1512,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           val result = addToken(underTest.createPrivApplicationAction())(
             aSuperUserLoggedInRequest.withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
-              ("applicationName", appName.value),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", "notAValidEmailAddress")
             )
@@ -1538,7 +1535,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", email)
               )
@@ -1559,7 +1556,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1567,7 +1564,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName.value)
+            contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1588,7 +1585,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
               aSuperUserLoggedInRequest.withFormUrlEncodedBody(
                 ("environment", Environment.Sandbox.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1596,7 +1593,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName.value)
+            contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1635,7 +1632,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name.value)
+        contentAsString(result) should include(application2.name)
         contentAsString(result) should include("Manage")
         contentAsString(result) should include("v2 agreed by ri@example.com on 12 March 2023")
         contentAsString(result) should include("Delete application")
@@ -1662,7 +1659,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name.value)
+        contentAsString(result) should include(application2.name)
         contentAsString(result) shouldNot include("Manage")
         contentAsString(result) shouldNot include("Delete application")
         contentAsString(result) shouldNot include("Block application")
@@ -1699,7 +1696,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1709,13 +1706,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
       }
 
       "call the service to block application when a valid form is submitted for an admin even when app name has trailing spaces" in new Setup {
-        val applicationWithSpaces = basicApplication.modify(_.copy(name = ApplicationName(application.name.value + "  ")))
+        val applicationWithSpaces = basicApplication.modify(_.copy(name = ApplicationName(application.name + "  ")))
         ApplicationQueryServiceMock.FetchApplication.returns(applicationWithSpaces)
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1743,7 +1740,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1784,7 +1781,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UnblockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
@@ -1812,7 +1809,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 

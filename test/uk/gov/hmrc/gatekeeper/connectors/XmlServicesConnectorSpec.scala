@@ -165,7 +165,7 @@ class XmlServicesConnectorSpec
       )
       intercept[UpstreamErrorResponse] {
         await(connector.getApisForCategories(List(badCategory)))
-      }.getMessage contains badCategory
+      }.getMessage.contains(badCategory)
     }
 
     "throw UpstreamErrorResponse when backend returns server error" in new Setup {

@@ -123,7 +123,7 @@ class DevelopersController @Inject() (
 
   def developersPage() = anyAuthenticatedUserAction { implicit request =>
     DevelopersSearchForm.form.bindFromRequest().fold(
-      formWithErrors => {
+      _ => {
         logger.warn("Errors found trying to bind request for developers search")
         // binding failure, you retrieve the form containing errors:
         Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None, None, None, None)))))

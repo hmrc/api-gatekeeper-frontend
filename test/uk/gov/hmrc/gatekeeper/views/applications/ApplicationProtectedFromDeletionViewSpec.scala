@@ -63,7 +63,7 @@ class ApplicationProtectedFromDeletionViewSpec extends CommonViewSpec {
 
       result.contentType should include("text/html")
       elementExistsByText(document, "h1", "Application cannot be deleted") shouldBe true
-      elementExistsByText(document, "p", s"You cannot delete ${application.name.value} because:") shouldBe true
+      elementExistsByText(document, "p", s"You cannot delete ${application.name} because:") shouldBe true
       elementExistsByText(document, "dd", reason)
     }
   }

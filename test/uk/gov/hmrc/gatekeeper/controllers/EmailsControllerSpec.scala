@@ -113,9 +113,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       val api1    = ApiDefinition(
         ServiceName("service1"),
-        "/",
-        "serviceName",
-        "serviceDesc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("serviceName"),
+        ApiDefinition.Description("serviceDesc"),
         ApiContext("service1"),
         Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
@@ -124,9 +124,9 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       )
       val api2    = ApiDefinition(
         ServiceName("service2"),
-        "/",
-        "service2Name",
-        "service2Desc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("service2Name"),
+        ApiDefinition.Description("service2Desc"),
         ApiContext("service2"),
         Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,

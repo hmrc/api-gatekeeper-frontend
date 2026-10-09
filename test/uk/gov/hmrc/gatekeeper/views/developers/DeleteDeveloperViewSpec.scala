@@ -34,6 +34,7 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
+import play.api.i18n.Messages
 
 class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
@@ -41,7 +42,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
 
   "delete developer view" should {
     implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
+    implicit val messages: Messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
@@ -70,7 +71,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
       elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
       elementExistsByText(document, "h2", "email@example.com is the only administrator for one or more applications.") shouldBe true
-      elementExistsByText(document, "a", standardApp.details.name.value) shouldBe true
+      elementExistsByText(document, "a", standardApp.details.name) shouldBe true
     }
 
     "not show the controls to delete the developer when the developer has orgs that they are the responsible individual on" in {

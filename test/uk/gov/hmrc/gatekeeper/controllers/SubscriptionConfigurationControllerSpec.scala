@@ -85,7 +85,7 @@ class SubscriptionConfigurationControllerSpec
     def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request: FakeRequest[?]) = {
       request.withFormUrlEncodedBody(
         "fields[0].name"  -> fieldName.value,
-        "fields[0].value" -> fieldValue.value
+        "fields[0].value" -> fieldValue.toString
       )
     }
   }
@@ -109,7 +109,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(apiVersion.value)
       responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
-      responseBody should include(fields.head._2.value)
+      responseBody should include(fields.head._2.toString)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
@@ -155,7 +155,7 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.description)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
-      responseBody should include(fields.head._2.value)
+      responseBody should include(fields.head._2.toString)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
       ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)

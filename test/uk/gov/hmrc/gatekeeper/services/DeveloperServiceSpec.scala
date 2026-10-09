@@ -37,7 +37,6 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.{Collaborators, Organisation, OrganisationName}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, OrganisationConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
@@ -87,10 +86,8 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       with XmlServiceMockProvider
       with ApiPlatformDeskproConnectorMockProvider
       with OrganisationConnectorMockProvider {
-    val mockAppConfig = mock[AppConfig]
 
     val underTest = new DeveloperService(
-      mockAppConfig,
       mockDeveloperConnector,
       mockSandboxApplicationConnector,
       mockProductionApplicationConnector,

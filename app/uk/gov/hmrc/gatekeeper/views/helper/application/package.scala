@@ -16,9 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.{Instant, LocalDate, LocalDateTime, ZoneId, ZoneOffset}
+import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CheckInformation, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter

@@ -74,7 +74,6 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         mockDeveloperService,
         ApplicationQueryServiceMock.aMock,
         forbiddenView,
-        mockApiDefinitionService,
         mcc,
         developerDetailsView,
         removeMfaView,

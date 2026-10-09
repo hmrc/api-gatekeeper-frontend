@@ -59,10 +59,10 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
     implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      ApiStatus.Stable.displayText     -> Seq(VersionSummary("Dummy API", ApiStatus.Stable, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
-      ApiStatus.Beta.displayText       -> Seq(VersionSummary("Beta API", ApiStatus.Beta, ApiIdentifier(ApiContext("beta-api"), ApiVersionNbr.random))),
-      ApiStatus.Retired.displayText    -> Seq(VersionSummary("Retired API", ApiStatus.Retired, ApiIdentifier(ApiContext("ret-api"), ApiVersionNbr.random))),
-      ApiStatus.Deprecated.displayText -> Seq(VersionSummary("Deprecated API", ApiStatus.Deprecated, ApiIdentifier(ApiContext("dep-api"), ApiVersionNbr.random)))
+      ApiStatus.Stable.toString     -> Seq(VersionSummary("Dummy API", ApiStatus.Stable, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
+      ApiStatus.Beta.toString       -> Seq(VersionSummary("Beta API", ApiStatus.Beta, ApiIdentifier(ApiContext("beta-api"), ApiVersionNbr.random))),
+      ApiStatus.Retired.toString    -> Seq(VersionSummary("Retired API", ApiStatus.Retired, ApiIdentifier(ApiContext("ret-api"), ApiVersionNbr.random))),
+      ApiStatus.Deprecated.toString -> Seq(VersionSummary("Deprecated API", ApiStatus.Deprecated, ApiIdentifier(ApiContext("dep-api"), ApiVersionNbr.random)))
     )
 
     val collaborators: Set[Collaborator] = Set(

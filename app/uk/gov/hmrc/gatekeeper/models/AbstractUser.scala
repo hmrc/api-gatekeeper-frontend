@@ -46,7 +46,7 @@ object AbstractUser {
 
   def status(user: AbstractUser): StatusFilter = user match {
     case u: RegisteredUser if (u.verified) => VerifiedStatus
-    case u: RegisteredUser                 => UnverifiedStatus
+    case _: RegisteredUser                 => UnverifiedStatus
     case _: UnregisteredUser               => UnregisteredStatus
   }
 }

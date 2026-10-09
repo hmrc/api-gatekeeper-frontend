@@ -27,9 +27,9 @@ trait APIDefinitionHelper {
 
     ApiDefinition(
       ServiceName(serviceName),
-      "url1",
-      name,
-      "desc",
+      ApiDefinition.ServiceBaseUrl("url1"),
+      ApiDefinition.Name(name),
+      ApiDefinition.Description("desc"),
       ApiContext(context),
       Map(versionNbr -> ApiVersion(versionNbr, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
       false,

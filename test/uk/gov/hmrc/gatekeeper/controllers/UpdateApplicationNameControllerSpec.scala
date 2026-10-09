@@ -106,7 +106,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> basicApplication.name.value))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> basicApplication.name))
 
       status(result) shouldBe OK
       contentAsString(result) should include("The application already has the specified name")

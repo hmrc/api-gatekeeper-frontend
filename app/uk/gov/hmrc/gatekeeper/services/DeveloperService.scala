@@ -31,13 +31,11 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, Environment, LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models._
 
 @Singleton
 class DeveloperService @Inject() (
-    appConfig: AppConfig,
     developerConnector: DeveloperConnector,
     sandboxApplicationConnector: SandboxApplicationConnector,
     productionApplicationConnector: ProductionApplicationConnector,

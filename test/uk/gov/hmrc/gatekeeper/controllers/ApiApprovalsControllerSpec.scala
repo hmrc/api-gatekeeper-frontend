@@ -94,7 +94,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       status(result) shouldBe OK
       contentAsString(result) should include("API approval")
-      contentAsString(result) should include(serviceName.value)
+      contentAsString(result) should include(serviceName)
       contentAsString(result) should include("Production")
       contentAsString(result) should include("Sandbox")
       contentAsString(result) should include("New")
@@ -172,7 +172,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include("Approved")
       contentAsString(result) should include("aName")
       contentAsString(result) should include("aDescription")
-      contentAsString(result) should include(serviceName.value)
+      contentAsString(result) should include(serviceName)
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 
@@ -204,7 +204,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include("API approvals")
       contentAsString(result) should include("aName")
       contentAsString(result) should include("aDescription")
-      contentAsString(result) should include(serviceName.value)
+      contentAsString(result) should include(serviceName)
       contentAsString(result) should not include ("Sandbox")
       contentAsString(result) should include("Production")
 
