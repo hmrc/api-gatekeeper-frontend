@@ -52,7 +52,7 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
         given loggedInUser: LoggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
-          () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider, fakeRequest)
+          () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(using loggedInUser, messagesProvider, fakeRequest)
 
         page().contentType should include("text/html")
 

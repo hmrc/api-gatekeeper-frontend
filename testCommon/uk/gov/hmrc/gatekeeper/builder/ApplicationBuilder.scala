@@ -152,82 +152,82 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
     )
   }
 
-  implicit class ApplicationViewModelExtension(applicationViewModel: ApplicationViewModel) {
-    def withApplication(application: ApplicationWithCollaborators) = applicationViewModel.copy(application = application)
-
-    def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) = applicationViewModel.copy(subscriptions = subscriptions)
-
-    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]) =
-      applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
-
-    def withDeveloper(developer: RegisteredUser) = {
-      val newAppWithDev = this.applicationViewModel.application.withDeveloper(developer)
-      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
-    }
-
-    def withAdmin(developer: RegisteredUser) = {
-      val newAppWithDev = this.applicationViewModel.application.withAdmin(developer)
-      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
-    }
-
-    def withMaybeLatestTOUAgreement(maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]) =
-      applicationViewModel.copy(maybeLatestTOUAgreement = maybeLatestTOUAgreement)
-
-    def withHasSubmissions(hasSubmissions: Boolean) = applicationViewModel.copy(hasSubmissions = hasSubmissions)
-  }
-
-  implicit class ApplicationStateExtension(applicationState: ApplicationState) {
+  extension (applicationState: ApplicationState) {
     def inProduction        = applicationState.copy(name = State.Production)
     def inTesting           = applicationState.copy(name = State.Testing)
     def pendingGKApproval   = applicationState.copy(name = State.PendingGatekeeperApproval)
     def pendingVerification = applicationState.copy(name = State.PendingRequesterVerification)
   }
 
-  implicit class ApplicationExtension(app: ApplicationWithCollaborators) {
-    def deployedToProduction = app.withEnvironment(Environment.Production)
-    def deployedToSandbox    = app.withEnvironment(Environment.Sandbox)
-
-    def withoutCollaborator(email: LaxEmailAddress)         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
-    def withCollaborators(collaborators: Set[Collaborator]) = app.copy(collaborators = collaborators)
-
-    def withId(id: ApplicationId)        = app.modify(_.copy(id = id))
-    def withClientId(clientId: ClientId) = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
-
-    def withName(name: ApplicationName)      = app.modify(_.copy(name = name))
-    def withDescription(description: String) = app.modify(_.copy(description = Some(description)))
-
-    def withAdmin(developer: RegisteredUser) = {
+  extension (app: ApplicationWithCollaborators) {
+    def deployedToProduction: ApplicationWithCollaborators = app.withEnvironment(Environment.Production)
+    def deployedToSandbox: ApplicationWithCollaborators    = app.withEnvironment(Environment.Sandbox)
+    //
+    def withoutCollaborator(email: LaxEmailAddress): ApplicationWithCollaborators         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
+    def withCollaborators(collaborators: Set[Collaborator]): ApplicationWithCollaborators = app.copy(collaborators = collaborators)
+    //
+    def withId(id: ApplicationId): ApplicationWithCollaborators        = app.modify(_.copy(id = id))
+    def withClientId(clientId: ClientId): ApplicationWithCollaborators = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
+    //
+    def withName(name: ApplicationName): ApplicationWithCollaborators      = app.modify(_.copy(name = name))
+    def withDescription(description: String): ApplicationWithCollaborators = app.modify(_.copy(description = Some(description)))
+    //
+    def withAdmin(developer: RegisteredUser): ApplicationWithCollaborators = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Administrator(developer.userId, developer.email))
     }
-
-    def withDeveloper(developer: RegisteredUser) = {
+    //
+    def withDeveloper(developer: RegisteredUser): ApplicationWithCollaborators = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
-
-    def withAccess(access: Access) = app.withAccess(access)
-    def asStandard                 = app.withAccess(Access.Standard())
-    def asPrivileged               = app.withAccess(Access.Privileged())
-    def asROPC                     = app.withAccess(Access.Ropc())
-
-    def withState(state: ApplicationState) = app.withState(state)
-
-    def withBlocked(isBlocked: Boolean) = app.modify(_.copy(blocked = isBlocked))
-    def blocked                         = app.modify(_.copy(blocked = true))
-    def unblocked                       = app.modify(_.copy(blocked = false))
-
-    def withCheckInformation(checkInfo: CheckInformation) = app.modify(_.copy(checkInformation = Some(checkInfo)))
-    def withEmptyCheckInformation                         = app.modify(_.copy(checkInformation = Some(CheckInformation())))
-    def noCheckInformation                                = app.modify(_.copy(checkInformation = None))
-
-    def withIpAllowlist(ipAllowlist: IpAllowlist) = app.modify(_.copy(ipAllowlist = ipAllowlist))
-
-    def withCreatedOn(createdOnDate: Instant)   = app.modify(_.copy(createdOn = createdOnDate))
-    def withLastAccess(lastAccessDate: Instant) = app.modify(_.copy(lastAccess = Some(lastAccessDate)))
-
-    def withRateLimitTier(rateLimitTier: RateLimitTier) = app.modify(_.copy(rateLimitTier = rateLimitTier))
+    //
+    def withAccess(access: Access): ApplicationWithCollaborators = app.withAccess(access)
+    def asStandard: ApplicationWithCollaborators                 = app.withAccess(Access.Standard())
+    def asPrivileged: ApplicationWithCollaborators               = app.withAccess(Access.Privileged())
+    def asROPC: ApplicationWithCollaborators                     = app.withAccess(Access.Ropc())
+    //
+    def withState(state: ApplicationState): ApplicationWithCollaborators = app.withState(state)
+    //
+    def withBlocked(isBlocked: Boolean): ApplicationWithCollaborators = app.modify(_.copy(blocked = isBlocked))
+    def blocked: ApplicationWithCollaborators                         = app.modify(_.copy(blocked = true))
+    def unblocked: ApplicationWithCollaborators                       = app.modify(_.copy(blocked = false))
+    //
+    def withCheckInformation(checkInfo: CheckInformation): ApplicationWithCollaborators = app.modify(_.copy(checkInformation = Some(checkInfo)))
+    def withEmptyCheckInformation: ApplicationWithCollaborators                         = app.modify(_.copy(checkInformation = Some(CheckInformation())))
+    def noCheckInformation: ApplicationWithCollaborators                                = app.modify(_.copy(checkInformation = None))
+    //
+    def withIpAllowlist(ipAllowlist: IpAllowlist): ApplicationWithCollaborators = app.modify(_.copy(ipAllowlist = ipAllowlist))
+    //
+    def withCreatedOn(createdOnDate: Instant): ApplicationWithCollaborators   = app.modify(_.copy(createdOn = createdOnDate))
+    def withLastAccess(lastAccessDate: Instant): ApplicationWithCollaborators = app.modify(_.copy(lastAccess = Some(lastAccessDate)))
+    //
+    def withRateLimitTier(rateLimitTier: RateLimitTier): ApplicationWithCollaborators = app.modify(_.copy(rateLimitTier = rateLimitTier))
 
     def toSeq = Seq(app)
+  }
+
+  extension (applicationViewModel: ApplicationViewModel) {
+    def withApplication(application: ApplicationWithCollaborators): ApplicationViewModel = applicationViewModel.copy(application = application)
+
+    def withSubscriptions(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]): ApplicationViewModel = applicationViewModel.copy(subscriptions = subscriptions)
+
+    def withSubscriptionsThatHaveFieldDefns(subscriptions: List[(String, List[(ApiVersionNbr, ApiStatus)])]): ApplicationViewModel =
+      applicationViewModel.copy(subscriptionsThatHaveFieldDefns = subscriptions)
+
+    def withDeveloper(developer: RegisteredUser): ApplicationViewModel = {
+      val newAppWithDev = applicationViewModel.application.withDeveloper(developer)
+      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
+    }
+
+    def withAdmin(developer: RegisteredUser): ApplicationViewModel = {
+      val newAppWithDev = applicationViewModel.application.withAdmin(developer)
+      applicationViewModel.copy(developers = List(developer), application = newAppWithDev)
+    }
+
+    def withMaybeLatestTOUAgreement(maybeLatestTOUAgreement: Option[TermsOfUseAgreementDisplayDetails]): ApplicationViewModel =
+      applicationViewModel.copy(maybeLatestTOUAgreement = maybeLatestTOUAgreement)
+
+    def withHasSubmissions(hasSubmissions: Boolean): ApplicationViewModel = applicationViewModel.copy(hasSubmissions = hasSubmissions)
   }
 }

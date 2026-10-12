@@ -25,7 +25,7 @@
 @this(main: MainView, applicationConfig: AppConfig)
 
 @(applicationId: ApplicationId, applicationName: ApplicationName, environment: Environment, accessType: Option[AccessType], totpSecret: Option[TotpSecrets], clientId: ClientId
-)(implicit loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
+)(using loggedInUser: LoggedInUser, messagesProvider: MessagesProvider, requestHeader: RequestHeader)
 
 @main(title = s"${applicationConfig.title} - Create privileged application success"  ,  submenuItems = SubmenuItem.ApplicationsMenu) {
 

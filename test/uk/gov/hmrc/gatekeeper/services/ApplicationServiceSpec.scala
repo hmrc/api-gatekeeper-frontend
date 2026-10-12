@@ -96,7 +96,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value shouldBe Map.empty
     }
 
@@ -107,8 +107,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
       paramCaptor.value shouldBe Map.empty
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
     }
 
     "converts page to pageNbr" in new Setup {
@@ -118,7 +118,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value should contain("pageNbr" -> "2")
     }
 
@@ -130,7 +130,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value should contain(ParamName.ApiContext -> "Hello")
       paramCaptor.value should contain(ParamName.ApiVersionNbr -> "1.0")
     }
@@ -142,7 +142,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value should contain(ParamName.HasSubscriptions -> "")
     }
 
@@ -153,7 +153,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
 
@@ -164,7 +164,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
   }
@@ -350,8 +350,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         admin.toSet,
         None,
         None
-      )))(*)
-      verify(mockSandboxApplicationConnector, never).createPrivApp(*)(*)
+      )))(using *)
+      verify(mockSandboxApplicationConnector, never).createPrivApp(*)(using *)
     }
 
     "call the sandbox connector to create a new app in sandbox" in new Setup {
@@ -363,8 +363,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None, None)))(*)
-      verify(mockProductionApplicationConnector, never).createPrivApp(*)(*)
+      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None, None)))(using *)
+      verify(mockProductionApplicationConnector, never).createPrivApp(*)(using *)
     }
   }
 

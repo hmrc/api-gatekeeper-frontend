@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@()(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@()(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 

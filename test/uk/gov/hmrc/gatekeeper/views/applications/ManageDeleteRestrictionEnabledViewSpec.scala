@@ -59,7 +59,7 @@ class ManageDeleteRestrictionEnabledViewSpec extends CommonViewSpec {
   "Delete Restriction Enabled view" should {
     "show reason, date and radio buttons when deletion restriction is enabled for application" in new Setup {
       val result: Appendable =
-        manageDeleteRestrictionEnabledView(application, reason, reasonDate, DeleteRestrictionPreviouslyEnabledForm.form)(request, LoggedInUser(None), messagesProvider)
+        manageDeleteRestrictionEnabledView(application, reason, reasonDate, DeleteRestrictionPreviouslyEnabledForm.form)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

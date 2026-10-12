@@ -46,14 +46,14 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
     case Environment.Sandbox    => subordinate
   }
 
-  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(implicit hc: HeaderCarrier): Future[QueryableValues] =
+  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(using hc: HeaderCarrier): Future[QueryableValues] =
     connectorFor(deployedTo).fetchQueryableValues(appId)
 
-  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
+  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(using hc: HeaderCarrier): Future[List[DisplayEvent]] =
     connectorFor(deployedTo).query(appId, tag, actorType)
 }
 
-abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends ApplicationLogger {
+abstract class ApiPlatformEventsConnector()(using  ec: ExecutionContext) extends ApplicationLogger {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -65,7 +65,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
   private lazy val applicationEventsUri = s"$serviceBaseUrl/application-event"
 
-  def fetchQueryableValues(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[QueryableValues] = {
+  def fetchQueryableValues(appId: ApplicationId)(using hc: HeaderCarrier): Future[QueryableValues] = {
     configureEbridgeIfRequired(http.get(url"$applicationEventsUri/${appId.value.toString()}/values")).execute[Option[QueryableValues]]
       .map {
         case None     => QueryableValues(List.empty, List.empty)
@@ -73,7 +73,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
       }
   }
 
-  def query(appId: ApplicationId, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] = {
+  def query(appId: ApplicationId, tag: Option[String], actorType: Option[String])(using hc: HeaderCarrier): Future[List[DisplayEvent]] = {
     val queryParams =
       Seq(
         tag.map(et => "eventTag" -> et),

@@ -21,7 +21,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiVers
 
 trait ApiBuilder {
 
-  implicit class VersionDataExtension(versionData: ApiVersion) {
+  extension (versionData: ApiVersion) {
     def withStatus(newStatus: ApiStatus) = versionData.copy(status = newStatus)
     def alpha                            = versionData.copy(status = ApiStatus.Alpha)
     def beta                             = versionData.copy(status = ApiStatus.Beta)
@@ -30,12 +30,12 @@ trait ApiBuilder {
     def retired                          = versionData.copy(status = ApiStatus.Retired)
 
     def withAccess(newAccess: ApiAccessType) = versionData.copy(access = newAccess)
-    def publicAccess                         = this.withAccess(ApiAccessType.Public)
-    def controlledAccess                     = this.withAccess(ApiAccessType.Controlled)
-    def internalAccess                       = this.withAccess(ApiAccessType.Internal)
+    def publicAccess                         = versionData.withAccess(ApiAccessType.Public)
+    def controlledAccess                     = versionData.withAccess(ApiAccessType.Controlled)
+    def internalAccess                       = versionData.withAccess(ApiAccessType.Internal)
   }
 
-  implicit class ApiDefinitionSyntax(apiDefinition: ApiDefinition) {
+  extension (apiDefinition: ApiDefinition) {
     def testSupport = apiDefinition.copy(isTestSupport = true)
 
     def withName(newName: String) = apiDefinition.copy(name = ApiDefinition.Name(newName))

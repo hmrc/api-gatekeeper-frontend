@@ -31,11 +31,11 @@ object SecretRequest {
 trait SendsSecretRequest {
   def payloadEncryption: PayloadEncryption
 
-  def secretRequest[I, R](input: I)(block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
+  def secretRequest[I, R](input: I)(block: SecretRequest => Future[R])(using w: Writes[I]) = {
     block(toSecretRequest(w.writes(input)))
   }
 
-  private def toSecretRequest[T](payload: T)(implicit writes: Writes[T]): SecretRequest = {
+  private def toSecretRequest[T](payload: T)(using writes: Writes[T]): SecretRequest = {
     SecretRequest(payloadEncryption.encrypt(payload).as[String])
   }
 }
@@ -46,12 +46,12 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 
   given crypto: LocalCrypto = new LocalCrypto(jsonEncryptionKey)
 
-  def encrypt[T](payload: T)(implicit writes: Writes[T]): JsValue = {
+  def encrypt[T](payload: T)(using writes: Writes[T]): JsValue = {
     val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
     encrypter.writes(SensitiveT(payload))
   }
 
-  def decrypt[T](payload: JsValue)(implicit reads: Reads[T]): T = {
+  def decrypt[T](payload: JsValue)(using reads: Reads[T]): T = {
     val encryptedValue: JsValue = payload
     val decrypter               = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
     decrypter.reads(encryptedValue)

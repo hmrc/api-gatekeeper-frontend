@@ -44,7 +44,7 @@ class ApplicationCommandConnector @Inject() (
       applicationId: ApplicationId,
       command: ApplicationCommand,
       adminsToEmail: Set[LaxEmailAddress]
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): AppCmdResult = {
 
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
@@ -53,7 +53,7 @@ class ApplicationCommandConnector @Inject() (
 
     def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/applications/${applicationId.value.toString()}"
 
-    def parseWithLogAndThrow[T](input: String)(implicit reads: Reads[T]): T = {
+    def parseWithLogAndThrow[T](input: String)(using reads: Reads[T]): T = {
       Json.parse(input).validate[T] match {
         case JsSuccess(t, _) => t
         case JsError(err)    =>

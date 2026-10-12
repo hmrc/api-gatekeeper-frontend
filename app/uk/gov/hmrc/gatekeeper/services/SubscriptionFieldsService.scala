@@ -35,7 +35,7 @@ class SubscriptionFieldsService @Inject() (apmConnectorSubsFieldModule: ApmConne
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
     apmConnectorSubsFieldModule.saveFieldValues(application.deployedTo, application.token.clientId, apiContext, apiVersion, fields)
   }

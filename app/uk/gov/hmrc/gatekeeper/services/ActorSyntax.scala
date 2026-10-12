@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxE
 
 object ActorSyntax {
 
-  implicit class ActorSyntaxImp(actor: Actor) {
+  extension (actor: Actor) {
 
     def id: String = actor match {
       case Actors.AppCollaborator(emailAddress)               => emailAddress.text

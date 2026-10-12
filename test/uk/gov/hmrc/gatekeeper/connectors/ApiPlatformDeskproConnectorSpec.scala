@@ -112,7 +112,7 @@ class ApiPlatformDeskproConnectorSpec
       val result = intercept[UpstreamErrorResponse] {
         await(underTest.getDeskproTicket(ticketId, hc))
       }
-      result.message contains "404" shouldBe true
+      result.message should include("404")
     }
   }
 

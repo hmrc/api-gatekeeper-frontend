@@ -17,7 +17,7 @@
 @import uk.gov.hmrc.gatekeeper.models._
 @import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
-@(maybeTopicFilter: Option[TopicOptionChoice])(implicit messages: Messages)
+@(maybeTopicFilter: Option[TopicOptionChoice])(using messages: Messages)
 
 @handleTopicPreselection = @{
     if(maybeTopicFilter.isEmpty) {

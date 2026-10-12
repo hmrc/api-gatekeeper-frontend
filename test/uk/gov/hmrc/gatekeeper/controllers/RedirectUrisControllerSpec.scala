@@ -136,7 +136,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage the Redirect Uri using the app service for a super user" in new Setup {
@@ -149,7 +149,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage multiple Redirect Uri using the app service" in new Setup {
@@ -170,7 +170,7 @@ class RedirectUrisControllerSpec
           eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://otherexample.com"))),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "manage duplicate Redirect Uri using the app service" in new Setup {
@@ -191,7 +191,7 @@ class RedirectUrisControllerSpec
           eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "manage gaps in Redirect Uri using the app service" in new Setup {
@@ -212,7 +212,7 @@ class RedirectUrisControllerSpec
           eqTo(application),
           eqTo(List(redirectUriToUpdate, LoginRedirectUri.unsafeApply("https://example.com"), LoginRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "clear the Redirect Uri when redirectUris is empty" in new Setup {
@@ -225,7 +225,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString}")
-        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).manageLoginRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(using *)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -242,7 +242,7 @@ class RedirectUrisControllerSpec
           val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockRedirectUrisService, times(0)).manageLoginRedirectUris(*, *, *)(*)
+          verify(mockRedirectUrisService, times(0)).manageLoginRedirectUris(*, *, *)(using *)
         }
       }
 
@@ -307,7 +307,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage the post logout redirect uri using the app service for a super user" in new Setup {
@@ -321,7 +321,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List(redirectUriToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage multiple post logout redirect uris using the app service" in new Setup {
@@ -354,7 +354,7 @@ class RedirectUrisControllerSpec
             )
           ),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "manage duplicate post logout redirect uris using the app service" in new Setup {
@@ -375,7 +375,7 @@ class RedirectUrisControllerSpec
           eqTo(application),
           eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"))),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "manage gaps in post logout redirect uris using the app service" in new Setup {
@@ -396,7 +396,7 @@ class RedirectUrisControllerSpec
           eqTo(application),
           eqTo(List(redirectUriToUpdate, PostLogoutRedirectUri.unsafeApply("https://example.com"), PostLogoutRedirectUri.unsafeApply("https://example2.com"))),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
       }
 
       "clear the post logout redirect uri when redirectUris is empty" in new Setup {
@@ -409,7 +409,7 @@ class RedirectUrisControllerSpec
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/$applicationId")
-        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(*)
+        verify(mockRedirectUrisService).managePostLogoutRedirectUris(eqTo(application), eqTo(List()), eqTo("Bobby Example"))(using *)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -426,7 +426,7 @@ class RedirectUrisControllerSpec
           val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockRedirectUrisService, times(0)).managePostLogoutRedirectUris(*, *, *)(*)
+          verify(mockRedirectUrisService, times(0)).managePostLogoutRedirectUris(*, *, *)(using *)
         }
       }
 

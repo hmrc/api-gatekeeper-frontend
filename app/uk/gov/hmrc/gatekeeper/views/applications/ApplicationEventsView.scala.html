@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[?], flash: Flash)
+@(queryModel: QueryModel, form: Form[QueryForm])(using request: LoggedInRequest[?], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Application Events",

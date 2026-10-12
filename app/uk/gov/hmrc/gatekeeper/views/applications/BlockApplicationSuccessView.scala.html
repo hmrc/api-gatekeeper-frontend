@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators)(implicit request: LoggedInRequest[?], flash: Flash)
+@(application: ApplicationWithCollaborators)(using request: LoggedInRequest[?], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Application Blocked",

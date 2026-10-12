@@ -21,7 +21,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(form: Form[CreatePrivAppForm])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[CreatePrivAppForm])(using uest: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Add privileged application",    submenuItems = SubmenuItem.ApplicationsMenu) {
 

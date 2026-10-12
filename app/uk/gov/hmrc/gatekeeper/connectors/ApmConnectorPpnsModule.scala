@@ -33,7 +33,7 @@ trait ApmConnectorPpnsModule extends ApmConnectorModule {
   private given readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
   private given readsBox: Reads[Box]                     = Json.reads[Box]
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(using hc: HeaderCarrier): Future[List[Box]] = {
     http.get(url"${baseUrl}/boxes")
       .execute[List[Box]]
   }

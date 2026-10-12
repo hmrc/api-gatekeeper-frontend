@@ -47,7 +47,7 @@
 )(
         mainContent: Html
 )(
-        implicit loggedInUser: LoggedInUser = LoggedInUser(None),
+        using loggedInUser: LoggedInUser = LoggedInUser(None),
         messages: Messages,
         messagesProvider: MessagesProvider,
         requestHeader: RequestHeader

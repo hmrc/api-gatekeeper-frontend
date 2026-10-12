@@ -29,7 +29,7 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models._
 import play.api.libs.ws.JsonBodyWritables
 
-abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends JsonBodyWritables {
+abstract class ApiScopeConnector(using ec: ExecutionContext) extends JsonBodyWritables {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -42,7 +42,7 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends JsonBody
       case e: UpstreamErrorResponse if (is5xx(e.statusCode)) => throw ex
     }
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[List[ApiScope]] = {
+  def fetchAll()(using hc: HeaderCarrier): Future[List[ApiScope]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/scope")).execute[List[ApiScope]]
       .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
   }

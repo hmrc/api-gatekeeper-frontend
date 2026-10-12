@@ -66,7 +66,7 @@ abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefin
 
   import uk.gov.hmrc.http.HttpReads.Implicits._
 
-  def createPrivApp(request: CreateApplicationRequestV1)(implicit hc: HeaderCarrier): Future[CreatePrivAppResult] = {
+  def createPrivApp(request: CreateApplicationRequestV1)(using hc: HeaderCarrier): Future[CreatePrivAppResult] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application"))
       .withBody(Json.toJson(request))
       .execute[Either[UpstreamErrorResponse, CreatePrivAppSuccessResult]]
@@ -76,7 +76,7 @@ abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefin
       })
   }
 
-  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr)(implicit hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
+  def searchCollaborators(apiContext: ApiContext, apiVersion: ApiVersionNbr)(using hc: HeaderCarrier): Future[List[LaxEmailAddress]] = {
     val request = SearchCollaboratorsRequest(apiContext, apiVersion)
 
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/collaborators"))
@@ -84,7 +84,7 @@ abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefin
       .execute[List[LaxEmailAddress]]
   }
 
-  def fetchApplicationsByAnswer(question: String)(implicit hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] = {
+  def fetchApplicationsByAnswer(question: String)(using hc: HeaderCarrier): Future[List[ApplicationsByAnswer]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/submissions/answers/$question")).execute[List[ApplicationsByAnswer]]
   }
 }
@@ -118,7 +118,7 @@ class ProductionApplicationConnector @Inject() (
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder
 
-  def fetchAllApplicationsWithStateHistories()(implicit hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
+  def fetchAllApplicationsWithStateHistories()(using hc: HeaderCarrier): Future[List[ApplicationStateHistory]] = {
     http.get(url"$serviceBaseUrl/gatekeeper/applications/stateHistory")
       .execute[List[ApplicationStateHistory]]
       .recover {
@@ -126,7 +126,7 @@ class ProductionApplicationConnector @Inject() (
       }
   }
 
-  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def doesApplicationHaveSubmissions(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[Boolean] = {
     http.get(url"$serviceBaseUrl/submissions/latestiscompleted/${applicationId}")
       .execute[Option[Boolean]]
       .map(_ match {
@@ -135,7 +135,7 @@ class ProductionApplicationConnector @Inject() (
       })
   }
 
-  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Boolean] = {
+  def doesApplicationHaveTermsOfUseInvitation(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[Boolean] = {
     http.get(url"$serviceBaseUrl/terms-of-use/application/${applicationId}")
       .execute[Option[TermsOfUseInvitationResponse]]
       .map(_ match {

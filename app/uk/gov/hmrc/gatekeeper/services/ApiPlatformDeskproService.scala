@@ -29,7 +29,7 @@ import uk.gov.hmrc.gatekeeper.connectors._
 class ApiPlatformDeskproService @Inject() (apiPlatformDeskproConnector: ApiPlatformDeskproConnector)
     extends ApplicationLogger {
 
-  def getDeskproTicket(ticketId: Int)(implicit hc: HeaderCarrier): Future[DeskproTicket] = {
+  def getDeskproTicket(ticketId: Int)(using hc: HeaderCarrier): Future[DeskproTicket] = {
     apiPlatformDeskproConnector.getDeskproTicket(ticketId, hc)
   }
 }

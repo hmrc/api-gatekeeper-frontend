@@ -722,7 +722,7 @@ class ApplicationController @Inject() (
     type ValidationResult[A]      = ValidatedNec[(FieldName, ErrorCode), A]
     type FieldValidationResult[A] = ValidatedNec[ErrorCode, A]
 
-    implicit class WithFieldSyntax[T](v: FieldValidationResult[T]) {
+    extension [T] (v: FieldValidationResult[T]) {
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 

@@ -45,7 +45,7 @@ class DeveloperService @Inject() (
     organisationConnector: OrganisationConnector,
     xmlService: XmlService,
     val clock: Clock
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ClockNow {
 
   private def matchTextFilter(user: RegisteredUser, maybeTextFilter: Option[String]): Boolean = {
@@ -56,7 +56,7 @@ class DeveloperService @Inject() (
     )
   }
 
-  def searchDevelopers(filter: DevelopersSearchFilter)(implicit hc: HeaderCarrier): Future[List[AbstractUser]] = {
+  def searchDevelopers(filter: DevelopersSearchFilter)(using hc: HeaderCarrier): Future[List[AbstractUser]] = {
 
     val unsortedResults: Future[List[AbstractUser]] = (filter.maybeTextFilter, filter.maybeApiFilter) match {
       case (emailFilter, None)                => developerConnector.searchDevelopers(emailFilter, filter.developerStatusFilter)
@@ -78,7 +78,7 @@ class DeveloperService @Inject() (
   private def getCollaboratorsByApplicationEnvironments(
       environmentFilter: ApiSubscriptionInEnvironmentFilter,
       apiFilter: ApiContextVersion
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[Set[LaxEmailAddress]] = {
 
     val environmentApplicationConnectors = environmentFilter match {
@@ -149,27 +149,27 @@ class DeveloperService @Inject() (
     })
   }
 
-  def fetchUsers()(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchUsers()(using hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchAll().map(_.sortBy(_.sortField))
   }
 
-  def fetchUsersPaginated(offset: Int, limit: Int)(implicit hc: HeaderCarrier): Future[UserPaginatedResponse] = {
+  def fetchUsersPaginated(offset: Int, limit: Int)(using hc: HeaderCarrier): Future[UserPaginatedResponse] = {
     developerConnector.fetchAllPaginated(offset, limit)
   }
 
-  def seekUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Option[AbstractUser]] = {
+  def seekUser(email: LaxEmailAddress)(using hc: HeaderCarrier): Future[Option[AbstractUser]] = {
     developerConnector.seekUserByEmail(email)
   }
 
-  def fetchOrCreateUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
+  def fetchOrCreateUser(email: LaxEmailAddress)(using hc: HeaderCarrier): Future[AbstractUser] = {
     developerConnector.fetchOrCreateUser(email)
   }
 
-  def fetchUser(email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[AbstractUser] = {
+  def fetchUser(email: LaxEmailAddress)(using hc: HeaderCarrier): Future[AbstractUser] = {
     developerConnector.fetchByEmail(email)
   }
 
-  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(implicit hc: HeaderCarrier): Future[Developer] = {
+  def fetchDeveloper(userId: UserId, includingDeleted: FetchDeletedApplications)(using hc: HeaderCarrier): Future[Developer] = {
 
     def fetchApplicationsByUserId(env: Environment, userId: UserId, includingDeleted: FetchDeletedApplications): Future[List[ApplicationWithCollaborators]] = {
       val qry = ApplicationQueries.applicationsByUserId(userId, includeDeleted = (includingDeleted == FetchDeletedApplications.Include))
@@ -186,11 +186,11 @@ class DeveloperService @Inject() (
     } yield Developer(user, (sandboxApplications ++ productionApplications).distinct, xmlServiceNames, xmlOrganisations, organisations)
   }
 
-  def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchDevelopersByEmails(emails: Iterable[LaxEmailAddress])(using hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmails(emails)
   }
 
-  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[ApiCategory] = None)(implicit hc: HeaderCarrier): Future[List[RegisteredUser]] = {
+  def fetchDevelopersByEmailPreferences(topic: TopicOptionChoice, maybeApiCategory: Option[ApiCategory] = None)(using hc: HeaderCarrier): Future[List[RegisteredUser]] = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategories = maybeApiCategory.map(Set(_)))
   }
 
@@ -201,12 +201,12 @@ class DeveloperService @Inject() (
       privateApiMatch: Boolean = false,
       offset: Int,
       limit: Int
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[UserPaginatedResponse] = {
     developerConnector.fetchByEmailPreferencesPaginated(topic, maybeApis, maybeApiCategories = maybeApiCategory, privateApiMatch, offset, limit)
   }
 
-  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: ApiCategory)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersByAPICategoryEmailPreferences(topic: TopicOptionChoice, apiCategory: ApiCategory)(using hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferences(topic, maybeApiCategories = Some(Set(apiCategory)))
   }
 
@@ -215,29 +215,29 @@ class DeveloperService @Inject() (
       apiCategories: Set[ApiCategory],
       apiNames: List[ServiceName],
       privateApiMatch: Boolean
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ) = {
     developerConnector.fetchByEmailPreferences(topic, Some(apiNames), Some(apiCategories), privateApiMatch)
   }
 
-  def fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(apiCategories: Set[ApiCategory], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(apiCategories: Set[ApiCategory], offset: Int, limit: Int)(using hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferencesPaginated(None, None, Some(apiCategories), privateapimatch = false, offset, limit)
   }
 
-  def fetchDevelopersBySpecificApisEmailPreferences(apis: List[ServiceName], offset: Int, limit: Int)(implicit hc: HeaderCarrier) = {
+  def fetchDevelopersBySpecificApisEmailPreferences(apis: List[ServiceName], offset: Int, limit: Int)(using hc: HeaderCarrier) = {
     developerConnector.fetchByEmailPreferencesPaginated(None, Some(apis.distinct), None, privateapimatch = false, offset, limit)
   }
 
-  def removeMfa(userId: UserId, loggedInUser: String)(implicit hc: HeaderCarrier): Future[RegisteredUser] = {
+  def removeMfa(userId: UserId, loggedInUser: String)(using hc: HeaderCarrier): Future[RegisteredUser] = {
     developerConnector.removeMfa(userId, loggedInUser)
   }
 
-  def removeEmailPreferencesByService(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
+  def removeEmailPreferencesByService(serviceName: ServiceName)(using hc: HeaderCarrier): Future[EmailPreferencesDeleteResult] = {
     developerConnector.removeEmailPreferencesByService(serviceName)
   }
 
-  def partitionDeveloperApps(developer: Developer)(implicit hc: HeaderCarrier): Future[(List[ApplicationWithCollaborators], List[ApplicationWithCollaborators])] = {
-    def isSoleVerifiedAdmin(email: LaxEmailAddress, app: ApplicationWithCollaborators)(implicit hc: HeaderCarrier) = {
+  def partitionDeveloperApps(developer: Developer)(using hc: HeaderCarrier): Future[(List[ApplicationWithCollaborators], List[ApplicationWithCollaborators])] = {
+    def isSoleVerifiedAdmin(email: LaxEmailAddress, app: ApplicationWithCollaborators)(using hc: HeaderCarrier) = {
       for {
         collaboratorUsers <- developerConnector.fetchByEmails(app.collaborators.map(_.emailAddress))
       } yield app.isSoleAdmin(collaboratorUsers, email)
@@ -252,7 +252,7 @@ class DeveloperService @Inject() (
     }
   }
 
-  def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(implicit hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
+  def deleteDeveloper(userId: UserId, gatekeeperUserName: String)(using hc: HeaderCarrier): Future[(DeveloperDeleteResult, Developer)] = {
 
     def fetchAdminsToEmail(filterOutThisEmail: LaxEmailAddress)(app: ApplicationWithCollaborators): Future[Set[LaxEmailAddress]] = {
       if (app.isSandbox) {

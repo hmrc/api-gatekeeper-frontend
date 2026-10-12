@@ -22,7 +22,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developerEmailAddress: String)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developerEmailAddress: String)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Delete Developer",

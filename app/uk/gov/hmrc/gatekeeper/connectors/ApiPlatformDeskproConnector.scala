@@ -34,7 +34,7 @@ import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 class ApiPlatformDeskproConnector @Inject() (
     config: ApiPlatformDeskproConnector.Config,
     http: HttpClientV2
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
   def getOrganisation(organisationId: OrganisationId, hc: HeaderCarrier): Future[DeskproOrganisation] = {

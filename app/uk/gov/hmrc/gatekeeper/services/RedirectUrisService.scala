@@ -33,14 +33,14 @@ import uk.gov.hmrc.gatekeeper.models.{ApplicationUpdateFailureResult, Applicatio
 class RedirectUrisService @Inject() (
     commandConnector: ApplicationCommandConnector,
     val clock: Clock
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
   def manageLoginRedirectUris(
       application: ApplicationWithCollaborators,
       redirectUris: List[LoginRedirectUri],
       gatekeeperUser: String
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
 
     commandConnector.dispatch(
@@ -59,7 +59,7 @@ class RedirectUrisService @Inject() (
       application: ApplicationWithCollaborators,
       redirectUris: List[PostLogoutRedirectUri],
       gatekeeperUser: String
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[ApplicationUpdateResult] = {
 
     commandConnector.dispatch(

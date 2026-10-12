@@ -40,16 +40,16 @@ trait CommandConnectorMockProvider {
     object IssueCommand {
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
-      def succeeds()(implicit ec: ExecutionContext) = {
+      def succeeds()(using ec: ExecutionContext) = {
         val mockResult = mock[DispatchSuccessResult]
         when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(mockResult.asSuccess)
       }
 
-      def succeedsReturning(app: ApplicationWithCollaborators)(implicit ec: ExecutionContext) = {
+      def succeedsReturning(app: ApplicationWithCollaborators)(using ec: ExecutionContext) = {
         when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(DispatchSuccessResult(app).asSuccess)
       }
 
-      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext) = {
+      def failsWith(failure: CommandFailure)(using ec: ExecutionContext) = {
         when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(failure.asFailure)
       }
 
@@ -66,15 +66,15 @@ trait CommandConnectorMockProvider {
       object ToRemoveCollaborator {
         val mockResult = mock[DispatchSuccessResult]
 
-        def succeeds()(implicit ec: ExecutionContext) = {
+        def succeeds()(using ec: ExecutionContext) = {
           when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(mockResult.asSuccess)
         }
 
-        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress])(implicit ec: ExecutionContext) = {
+        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress])(using ec: ExecutionContext) = {
           when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(using *)).thenReturn(mockResult.asSuccess)
         }
 
-        def failsWithLastAdmin()(implicit ec: ExecutionContext) = {
+        def failsWithLastAdmin()(using ec: ExecutionContext) = {
           val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
           when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(using *)).thenReturn(mockResult.asFailure)
         }

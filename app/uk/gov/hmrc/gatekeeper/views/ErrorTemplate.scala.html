@@ -16,7 +16,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader, messagesProvider: MessagesProvider)
+@(pageTitle: String, heading: String, message: String)(using request: RequestHeader, messagesProvider: MessagesProvider)
 
 @main(title = pageTitle) {
   <h1 class="govuk-heading-l">@heading</h1>

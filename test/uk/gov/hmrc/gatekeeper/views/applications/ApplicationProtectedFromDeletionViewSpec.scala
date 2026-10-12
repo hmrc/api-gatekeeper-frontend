@@ -57,7 +57,7 @@ class ApplicationProtectedFromDeletionViewSpec extends CommonViewSpec {
   "Delete Restriction Enabled view" should {
     "show reason, date and radio buttons when deletion restriction is enabled for application" in new Setup {
       val result: Appendable =
-        applicationProtectedFromDeletionView(application, reason)(request, LoggedInUser(None), messagesProvider)
+        applicationProtectedFromDeletionView(application, reason)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

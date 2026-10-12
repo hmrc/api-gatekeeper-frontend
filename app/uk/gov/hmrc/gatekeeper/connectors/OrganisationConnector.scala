@@ -33,17 +33,17 @@ import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 class OrganisationConnector @Inject() (
     config: OrganisationConnector.Config,
     http: HttpClientV2
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
   import OrganisationConnector._
 
-  def fetchOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[Organisation]] = {
+  def fetchOrganisationsByUserId(userId: UserId)(using hc: HeaderCarrier): Future[List[Organisation]] = {
     http.get(url"${config.serviceBaseUrl}/organisation/user/$userId")
       .execute[List[Organisation]]
   }
 
-  def removeCollaboratorFromOrganisation(id: OrganisationId, userId: UserId, email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Organisation] = {
+  def removeCollaboratorFromOrganisation(id: OrganisationId, userId: UserId, email: LaxEmailAddress)(using hc: HeaderCarrier): Future[Organisation] = {
     http.delete(url"${config.serviceBaseUrl}/organisation/${id.value}/member/$userId")
       .withBody(Json.toJson(RemoveMemberRequest(userId, email)))
       .execute[HttpResponse]

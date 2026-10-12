@@ -36,25 +36,25 @@ class ErrorHandler @Inject() (
     val ec: ExecutionContext
   ) extends FrontendErrorHandler {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader) = {
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(using request: RequestHeader) = {
     Future.successful(errorTemplate(pageTitle, heading, message))
   }
 
-  def notFoundTemplate(message: String)(implicit request: RequestHeader) =
+  def notFoundTemplate(message: String)(using request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.pageNotFound404.title"),
       Messages("global.error.pageNotFound404.heading"),
       Messages(message)
     )
 
-  def badRequestTemplate(message: String)(implicit request: RequestHeader) =
+  def badRequestTemplate(message: String)(using request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.badRequest400.title"),
       Messages("global.error.badRequest400.heading"),
       Messages(message)
     )
 
-  def publishErrorTemplate()(implicit request: RequestHeader) =
+  def publishErrorTemplate()(using request: RequestHeader) =
     standardErrorTemplate(
       "API Publishing error",
       "API Publishing error",

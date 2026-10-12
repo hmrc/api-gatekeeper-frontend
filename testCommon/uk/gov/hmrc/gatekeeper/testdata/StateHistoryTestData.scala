@@ -59,7 +59,7 @@ trait StateHistoryTestData extends FixedClock with StateHistoryBuilder with Comm
     )
   )
 
-  implicit class StateHistoryExtension(stateHistories: List[StateHistory]) {
+  extension (stateHistories: List[StateHistory]) {
     def toJson       = Json.toJson(stateHistories)
     def toJsonString = Json.toJson(stateHistories).toString
 

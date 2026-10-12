@@ -30,10 +30,10 @@ import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 class OrganisationService @Inject() (
     apiPlatformDeskproConnector: ApiPlatformDeskproConnector,
     tpoConnector: ThirdPartyOrchestratorConnector
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationLogger {
 
-  def fetchOrganisationWithApplications(organisationId: OrganisationId)(implicit hc: HeaderCarrier): Future[OrganisationWithApps] = {
+  def fetchOrganisationWithApplications(organisationId: OrganisationId)(using hc: HeaderCarrier): Future[OrganisationWithApps] = {
     for {
       organisation <- apiPlatformDeskproConnector.getOrganisation(organisationId, hc)
       applications <- tpoConnector.getApplicationsByEmails(organisation.people.map(_.email))

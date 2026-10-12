@@ -46,7 +46,7 @@ import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteType
 trait WithRestrictedApp {
   self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[?], ec: ExecutionContext, hc: HeaderCarrier) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(using request: LoggedInRequest[?], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.access match {
         case _: Access.Standard               => f(app)

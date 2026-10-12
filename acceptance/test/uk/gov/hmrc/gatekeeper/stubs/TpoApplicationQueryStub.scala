@@ -57,7 +57,7 @@ trait TpoApplicationQueryStub {
 
   def stubBoth(requestTransformer: MappingBuilder => MappingBuilder, response: String): StubMapping = stubBoth(requestTransformer, aResponse().withBody(response).withStatus(OK))
 
-  def stubBoth[T](requestTransformer: MappingBuilder => MappingBuilder, body: T)(implicit wrts: Writes[T]): StubMapping =
+  def stubBoth[T](requestTransformer: MappingBuilder => MappingBuilder, body: T)(using wrts: Writes[T]): StubMapping =
     stubBoth(requestTransformer, aResponse().withJsonBody(body).withStatus(OK))
 
   def stubPaginatedApplicationList() = {

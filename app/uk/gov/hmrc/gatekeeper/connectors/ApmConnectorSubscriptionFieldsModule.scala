@@ -41,7 +41,7 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
 
   private val baseUrl = s"${config.serviceBaseUrl}/subscription-fields"
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
+  def getAllFieldDefinitions(environment: Environment)(using hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
     http.get((url"${baseUrl}?environment=$environment"))
       .execute[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]]
   }
@@ -52,7 +52,7 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
 
     val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(baseUrl)(environment, clientId, apiContext, apiVersion)
@@ -72,7 +72,7 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
       })
   }
 
-  def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
+  def subsFieldsCsv(environment: Environment)(using hc: HeaderCarrier): Future[String] = {
     http.get(url"${baseUrl}/csv?environment=$environment")
       .setHeader(HeaderNames.ACCEPT -> "text/csv")
       .execute[HttpResponse]

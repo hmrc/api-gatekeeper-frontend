@@ -38,7 +38,7 @@ import uk.gov.hmrc.gatekeeper.models.{
 import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
-class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends Logging with JsonBodyWritables {
+class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(using ec: ExecutionContext) extends Logging with JsonBodyWritables {
 
   val baseUrl = s"${config.serviceBaseUrl}/api-platform-xml-services"
 
@@ -53,17 +53,17 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
       case e: Throwable                                          => throw e
     }
 
-  def getAllApis()(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+  def getAllApis()(using hc: HeaderCarrier): Future[List[XmlApi]] = {
     http.get(url"$baseUrl/xml/apis").execute[List[XmlApi]]
   }
 
-  def getApisForCategories(categories: List[String])(implicit hc: HeaderCarrier): Future[List[XmlApi]] = {
+  def getApisForCategories(categories: List[String])(using hc: HeaderCarrier): Future[List[XmlApi]] = {
     val queryParams = categories.map("categoryFilter" -> _)
     http.get(url"$baseUrl/xml/apis/filtered?$queryParams").execute[List[XmlApi]]
       .recover(handleUpstream404s[List[XmlApi]](List.empty[XmlApi]))
   }
 
-  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+  def findOrganisationsByUserId(userId: UserId)(using hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     val userIdParams = Seq("userId" -> userId.value.toString)
     val sortByParams = Seq("sortBy" -> "ORGANISATION_NAME")
 
@@ -72,14 +72,14 @@ class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(implic
     http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
-  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+  def getAllOrganisations()(using hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     val sortByParams = Seq("sortBy" -> "VENDOR_ID")
     val queryParams  = sortByParams
 
     http.get(url"$baseUrl/organisations?$queryParams").execute[List[XmlOrganisation]]
   }
 
-  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
+  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(using hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
     val request = RemoveAllCollaboratorsForUserIdRequest(userId, gatekeeperUser)
     http.post(url"$baseUrl/organisations/all/remove-collaborators")
       .withBody(Json.toJson(request))

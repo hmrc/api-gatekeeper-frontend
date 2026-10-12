@@ -101,10 +101,7 @@ class XmlServicesConnectorSpec
               .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
-      intercept[UpstreamErrorResponse](await(connector.getAllApis())) match {
-        case (e: UpstreamErrorResponse) => succeed
-        case _                          => fail()
-      }
+      intercept[UpstreamErrorResponse](await(connector.getAllApis()))
     }
   }
 

@@ -215,7 +215,7 @@ class ApiApprovalsController @Inject() (
     requestForm.fold(errors, addCommentWithValidForm)
   }
 
-  private def fetchApiDefinitionSummary(serviceName: ServiceName, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  private def fetchApiDefinitionSummary(serviceName: ServiceName, environment: Environment)(using hc: HeaderCarrier): Future[APIApprovalSummary] = {
     deploymentApprovalService.fetchApprovalSummary(serviceName, environment)
   }
 }

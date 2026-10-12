@@ -32,27 +32,27 @@ import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 @Singleton
 class ApmService @Inject() (apmConnector: ApmConnector) {
 
-  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apmConnector.fetchAllPossibleSubscriptions(applicationId)
   }
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
+  def getAllFieldDefinitions(environment: Environment)(using hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
     apmConnector.getAllFieldDefinitions(environment)
   }
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchAllCombinedApis()(using hc: HeaderCarrier): Future[List[CombinedApi]] = {
     apmConnector.fetchAllCombinedApis()
   }
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(using hc: HeaderCarrier): Future[List[Box]] = {
     apmConnector.fetchAllBoxes()
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchNonOpenApis(environment: Environment)(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     apmConnector.fetchNonOpenApis(environment)
   }
 
-  def subsFieldsCsv()(implicit hc: HeaderCarrier): Future[String] = {
+  def subsFieldsCsv()(using hc: HeaderCarrier): Future[String] = {
     apmConnector.subsFieldsCsv(Environment.Production)
   }
 
@@ -61,7 +61,7 @@ class ApmService @Inject() (apmConnector: ApmConnector) {
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
     apmConnector.saveFieldValues(application.deployedTo, application.token.clientId, apiContext, apiVersion, fields)
   }

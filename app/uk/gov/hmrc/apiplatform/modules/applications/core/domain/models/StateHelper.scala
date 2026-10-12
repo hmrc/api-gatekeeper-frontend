@@ -18,9 +18,9 @@ package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
 object StateHelper {
 
-  implicit class StateSyntax(state: State) {
+  extension (state: State) {
 
-    val displayText: String = state match {
+    def displayText: String = state match {
       case State.Testing                                     => "Created"
       case State.PendingResponsibleIndividualVerification => "Pending Responsible Individual Verification"
       case State.PendingGatekeeperApproval                 => "Pending gatekeeper check"
@@ -30,7 +30,7 @@ object StateHelper {
       case State.Deleted                                     => "Deleted"
     }
 
-    val additionalInformation: String = state match {
+    def additionalInformation: String = state match {
       case State.Testing                                     =>
         "A production application that its admin has created but not submitted for checking"
       case State.PendingResponsibleIndividualVerification =>

@@ -75,7 +75,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
       def givenViewIsPassedCorrectUsers(users: List[RegisteredUser], emailString: String) = {
-        when(mockEmailApiSubscriptionsView.apply(*, eqTo(users), eqTo(emailString), *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+        when(mockEmailApiSubscriptionsView.apply(*, eqTo(users), eqTo(emailString), *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       }
 
       val api1    = ApiDefinition(
@@ -145,7 +145,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
+        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(using *, *, *)
       }
 
       "render correctly when no filter provided and not logged in via Stride" in new Setup {
@@ -175,7 +175,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
           eqTo(users),
           eqTo(users.map(_.email.text).sorted.mkString("; ")),
           eqTo(Map("apiVersionFilter" -> "service2__3"))
-        )(*, *, *)
+        )(using *, *, *)
       }
     }
   }

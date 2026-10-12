@@ -26,7 +26,7 @@
 @(apiVersions: Seq[DropDownValue],
   users: Seq[RegisteredUser],
   emails: String,
-  params: Map[String, String])(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
+  params: Map[String, String])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
 )
 
 @main(

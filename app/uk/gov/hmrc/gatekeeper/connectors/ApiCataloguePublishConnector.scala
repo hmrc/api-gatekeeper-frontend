@@ -30,9 +30,9 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
 
 @Singleton
-class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends ApplicationLogger {
+class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClientV2)(using ec: ExecutionContext) extends ApplicationLogger {
 
-  def publishByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
+  def publishByServiceName(serviceName: ServiceName)(using hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
     handleResult(http.post(url"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName")
       .execute[PublishResponse])
 

@@ -30,7 +30,7 @@ trait ApplicationWithSubscriptionDataTestData extends CommonTestData with Subscr
   val pendingApprovalApplicationWithSubscriptionData =
     ApplicationWithSubscriptionFields(pendingApprovalApplication.details, pendingApprovalApplication.collaborators, defaultSubscriptions, Map.empty)
 
-  implicit class ApplicationWithSubscriptionDataExtension(applicationWithSubscriptionData: ApplicationWithSubscriptionFields) {
+  extension (applicationWithSubscriptionData: ApplicationWithSubscriptionFields) {
     def toJson       = Json.toJson(applicationWithSubscriptionData)
     def toJsonString = Json.toJson(applicationWithSubscriptionData).toString
   }

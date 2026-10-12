@@ -43,7 +43,7 @@ class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAd
 
     trait Setup extends ControllerSetupBase {
       val mockEmailLandingView = mock[EmailLandingView]
-      when(mockEmailLandingView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailLandingView.apply()(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -84,7 +84,7 @@ class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(result) shouldBe OK
 
-        verify(mockEmailLandingView).apply()(*, *, *)
+        verify(mockEmailLandingView).apply()(using *, *, *)
       }
 
       "on initial request with user not logged in should returned forbidden" in new Setup {

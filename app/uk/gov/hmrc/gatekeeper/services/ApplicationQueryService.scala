@@ -37,10 +37,10 @@ import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHi
 class ApplicationQueryService @Inject() (
     tpoConnector: ThirdPartyOrchestratorConnector,
     val clock: Clock
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def fetchApplication(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     val qry = ApplicationQuery.ById(appId, Nil)
 
     OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.Production)(qry)).orElse(
@@ -49,7 +49,7 @@ class ApplicationQueryService @Inject() (
       .value
   }
 
-  def fetchApplicationWithSubscriptionFields(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
+  def fetchApplicationWithSubscriptionFields(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
 
     OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Production)(qry)).orElse(
@@ -58,7 +58,7 @@ class ApplicationQueryService @Inject() (
       .value
   }
 
-  def fetchApplicationWithSubscriptionFieldsAndHistory(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFieldsAndStateHistory]] = {
+  def fetchApplicationWithSubscriptionFieldsAndHistory(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFieldsAndStateHistory]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true, wantStateHistory = true)
 
     OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.Production)(qry)).orElse(

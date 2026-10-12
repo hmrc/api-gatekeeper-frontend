@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithUsers
 
 @Singleton
-class ApiPlatformAdminApiConnector @Inject() (http: HttpClientV2, config: ApiPlatformAdminApiConnector.Config)(implicit ec: ExecutionContext) {
+class ApiPlatformAdminApiConnector @Inject() (http: HttpClientV2, config: ApiPlatformAdminApiConnector.Config)(using ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId, hc: HeaderCarrier): Future[Option[ApplicationWithUsers]] = {
     given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))

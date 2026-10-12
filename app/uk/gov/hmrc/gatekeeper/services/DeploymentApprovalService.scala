@@ -31,10 +31,10 @@ import uk.gov.hmrc.gatekeeper.models.APIApprovalSummary
 class DeploymentApprovalService @Inject() (
     sandboxApiPublisherConnector: SandboxApiPublisherConnector,
     productionApiPublisherConnector: ProductionApiPublisherConnector
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) {
 
-  def fetchAllServices()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+  def fetchAllServices()(using hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     val sandboxFuture    = sandboxApiPublisherConnector.fetchAll()
     val productionFuture = productionApiPublisherConnector.fetchAll()
 
@@ -44,7 +44,7 @@ class DeploymentApprovalService @Inject() (
     } yield (sandbox ++ production).distinct
   }
 
-  def searchServices(params: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+  def searchServices(params: Seq[(String, String)])(using hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     val sandboxFuture    = sandboxApiPublisherConnector.searchServices(params)
     val productionFuture = productionApiPublisherConnector.searchServices(params)
 
@@ -54,19 +54,19 @@ class DeploymentApprovalService @Inject() (
     } yield (sandbox ++ production).distinct.sortBy(_.createdOn)(using Ordering[Option[Instant]].reverse)
   }
 
-  def fetchApprovalSummary(serviceName: ServiceName, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  def fetchApprovalSummary(serviceName: ServiceName, environment: Environment)(using hc: HeaderCarrier): Future[APIApprovalSummary] = {
     connectorFor(environment).fetchApprovalSummary(serviceName)
   }
 
-  def approveService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def approveService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(using hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).approveService(serviceName, actor, notes)
   }
 
-  def declineService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def declineService(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: Option[String] = None)(using hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).declineService(serviceName, actor, notes)
   }
 
-  def addComment(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def addComment(serviceName: ServiceName, environment: Environment, actor: Actors.GatekeeperUser, notes: String)(using hc: HeaderCarrier): Future[Unit] = {
     connectorFor(environment).addComment(serviceName, actor, notes)
   }
 

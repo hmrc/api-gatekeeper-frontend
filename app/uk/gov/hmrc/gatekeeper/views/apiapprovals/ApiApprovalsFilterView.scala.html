@@ -25,7 +25,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukTable: GovukTable)
 
-@(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(using request: LoggedInRequest[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @buildApiLinkHtml(api: APIApprovalSummary, isUser: Boolean) = {
     @if(isUser) {

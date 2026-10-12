@@ -112,7 +112,7 @@ class EmailsController @Inject() (
       apis: List[CombinedApi],
       selectedTopic: Option[TopicOptionChoice],
       apiAccessType: ApiAccessType
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[List[RegisteredUser]] = {
     // APSR-1418 - the accesstype inside combined api is option as a temporary measure until APM version which conatins the change to
     // return this is deployed out to all environments

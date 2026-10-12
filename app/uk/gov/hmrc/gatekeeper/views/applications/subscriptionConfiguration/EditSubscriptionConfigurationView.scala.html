@@ -28,7 +28,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[?], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(using request: Request[?], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.versionNbr.value} ${subscriptionViewModel.displayedStatus}"}
 

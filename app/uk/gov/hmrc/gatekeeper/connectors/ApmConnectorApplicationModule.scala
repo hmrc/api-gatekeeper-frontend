@@ -30,7 +30,7 @@ trait ApmConnectorApplicationModule extends ApmConnectorModule {
 
   // TODO - better return type
   // TODO - better error handling for expected errors
-  def update(applicationId: ApplicationId, cmd: ApplicationCommand)(implicit hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
+  def update(applicationId: ApplicationId, cmd: ApplicationCommand)(using hc: HeaderCarrier): Future[Either[UpstreamErrorResponse, Unit]] = {
     http.patch(url"${baseUrl}/${applicationId.value.toString()}")
       .withBody(Json.toJson(cmd))
       .execute[Either[UpstreamErrorResponse, Unit]]

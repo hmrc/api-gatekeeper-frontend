@@ -51,7 +51,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
 
-      verify(mockProductionApiPublisherConnector).fetchAll()(*)
+      verify(mockProductionApiPublisherConnector).fetchAll()(using *)
     }
   }
 
@@ -66,7 +66,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       result shouldBe expectedSandboxSummaries ++ expectedProductionSummaries
 
-      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
+      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(using *)
     }
 
     "returns results sorted in order of newest first (created date descending)" in new Setup {
@@ -107,7 +107,7 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       result shouldBe List(sandboxSummary2, prodSummary2, sandboxSummary1, prodSummary1, sandboxSummary3)
 
-      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(*)
+      verify(mockProductionApiPublisherConnector).searchServices(eqTo(Seq("status" -> "NEW", "status" -> "APPROVED")))(using *)
     }
   }
 
@@ -120,8 +120,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       result shouldBe expectedSummary
 
-      verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
-      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(*)
+      verify(mockSandboxApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(using *)
+      verify(mockProductionApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(using *)
     }
 
     "fetch the Api definition summary for production" in new Setup {
@@ -132,8 +132,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       result shouldBe expectedSummary
 
-      verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(*)
-      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(*)
+      verify(mockProductionApiPublisherConnector).fetchApprovalSummary(eqTo(serviceName))(using *)
+      verify(mockSandboxApiPublisherConnector, never).fetchApprovalSummary(*[ServiceName])(using *)
     }
 
   }
@@ -146,8 +146,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.approveService(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
-      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
+      verify(mockSandboxApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockProductionApiPublisherConnector, never).approveService(*[ServiceName], *, *)(using *)
     }
 
     "approve the service in production" in new Setup {
@@ -155,8 +155,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.approveService(serviceName, Environment.Production, gatekeeperUser, notes))
 
-      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).approveService(*[ServiceName], *, *)(*)
+      verify(mockProductionApiPublisherConnector).approveService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockSandboxApiPublisherConnector, never).approveService(*[ServiceName], *, *)(using *)
     }
   }
 
@@ -168,8 +168,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.declineService(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
-      verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
+      verify(mockSandboxApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockProductionApiPublisherConnector, never).declineService(*[ServiceName], *, *)(using *)
     }
 
     "decline the service in production" in new Setup {
@@ -177,8 +177,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.declineService(serviceName, Environment.Production, gatekeeperUser, notes))
 
-      verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).declineService(*[ServiceName], *, *)(*)
+      verify(mockProductionApiPublisherConnector).declineService(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockSandboxApiPublisherConnector, never).declineService(*[ServiceName], *, *)(using *)
     }
   }
 
@@ -191,8 +191,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.addComment(serviceName, Environment.Sandbox, gatekeeperUser, notes))
 
-      verify(mockSandboxApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockProductionApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
+      verify(mockSandboxApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockProductionApiPublisherConnector, never).addComment(*[ServiceName], *, *)(using *)
     }
 
     "add comment in production" in new Setup {
@@ -200,8 +200,8 @@ class DeploymentApprovalServiceSpec extends AsyncHmrcSpec {
 
       await(underTest.addComment(serviceName, Environment.Production, gatekeeperUser, notes))
 
-      verify(mockProductionApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(*)
-      verify(mockSandboxApiPublisherConnector, never).addComment(*[ServiceName], *, *)(*)
+      verify(mockProductionApiPublisherConnector).addComment(eqTo(serviceName), eqTo(gatekeeperUser), eqTo(notes))(using *)
+      verify(mockSandboxApiPublisherConnector, never).addComment(*[ServiceName], *, *)(using *)
     }
   }
 

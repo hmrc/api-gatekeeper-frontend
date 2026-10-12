@@ -34,12 +34,12 @@ class SubscriptionsService @Inject() (
   ) extends CommandHandlerTypes[DispatchSuccessResult]
     with ClockNow {
 
-  def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, instant)
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 
-  def unsubscribeFromApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  def unsubscribeFromApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, instant)
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }

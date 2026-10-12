@@ -26,7 +26,7 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.CombinedApi
 trait ApmConnectoCombinedApisModule extends ApmConnectorModule {
   val baseUrl = s"${config.serviceBaseUrl}/combined-rest-xml-apis"
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchAllCombinedApis()(using hc: HeaderCarrier): Future[List[CombinedApi]] = {
     http.get(url"${baseUrl}")
       .execute[List[CombinedApi]]
   }

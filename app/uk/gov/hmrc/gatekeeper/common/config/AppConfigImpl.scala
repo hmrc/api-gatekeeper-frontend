@@ -28,7 +28,7 @@ class AppConfigImpl @Inject() (config: Configuration) extends ServicesConfig(con
 
   def title = "HMRC API Gatekeeper"
 
-  def getConfigDefaulted[A](key: String, default: A)(implicit loader: ConfigLoader[A]) = config.getOptional[A](key)(using loader).getOrElse(default)
+  def getConfigDefaulted[A](key: String, default: A)(using loader: ConfigLoader[A]) = config.getOptional[A](key)(using loader).getOrElse(default)
 
   val appName = getString("appName")
 

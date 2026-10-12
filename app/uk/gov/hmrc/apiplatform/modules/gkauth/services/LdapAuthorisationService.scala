@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, LoggedInRequest}
 
 @Singleton
-class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(implicit ec: ExecutionContext) extends ApplicationLogger {
+class LdapAuthorisationService @Inject() (auth: FrontendAuthComponents)(using ec: ExecutionContext) extends ApplicationLogger {
 
   def refineLdap[A]: (MessagesRequest[A]) => Future[Either[MessagesRequest[A], LoggedInRequest[A]]] = (msgRequest) => {
 

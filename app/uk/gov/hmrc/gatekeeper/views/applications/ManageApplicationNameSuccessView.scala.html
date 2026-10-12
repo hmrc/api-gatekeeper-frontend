@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators)(implicit request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Application name changed successfully",

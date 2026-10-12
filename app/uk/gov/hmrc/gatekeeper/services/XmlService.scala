@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
 @Singleton
 class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(using ec: ExecutionContext) extends XmlServicesHelper {
 
-  def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
+  def getXmlServicesForUser(user: RegisteredUser)(using hc: HeaderCarrier): Future[Set[String]] = {
 
     def categoriesWhereUserSelectedAllForCategory(user: RegisteredUser) =
       user.emailPreferences.interests
@@ -49,15 +49,15 @@ class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(using ec
     } yield allApis ++ specificApis
   }
 
-  def findOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+  def findOrganisationsByUserId(userId: UserId)(using hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     xmlServicesConnector.findOrganisationsByUserId(userId)
   }
 
-  def getAllOrganisations()(implicit hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
+  def getAllOrganisations()(using hc: HeaderCarrier): Future[List[XmlOrganisation]] = {
     xmlServicesConnector.getAllOrganisations()
   }
 
-  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(implicit hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
+  def removeCollaboratorsForUserId(userId: UserId, gatekeeperUser: String)(using hc: HeaderCarrier): Future[RemoveAllCollaboratorsForUserIdResult] = {
     xmlServicesConnector.removeCollaboratorsForUserId(userId, gatekeeperUser)
   }
 }

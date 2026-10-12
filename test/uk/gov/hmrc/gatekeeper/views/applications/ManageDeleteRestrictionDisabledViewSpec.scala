@@ -53,7 +53,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
 
   "Manage Delete Restriction Disabled view" should {
     "show radio button 'No' checked when no delete restriction for application (allow delete is enabled)" in new Setup {
-      val result: Appendable = manageDeleteRestrictionDisabledView(application, DeleteRestrictionPreviouslyDisabledForm.form)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = manageDeleteRestrictionDisabledView(application, DeleteRestrictionPreviouslyDisabledForm.form)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -74,7 +74,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
         manageDeleteRestrictionDisabledView(
           application.modify(_.copy(deleteRestriction = DeleteRestriction.DoNotDelete("", Actors.GatekeeperUser("User"), instant))),
           DeleteRestrictionPreviouslyDisabledForm.form
-        )(request, LoggedInUser(None), messagesProvider)
+        )(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

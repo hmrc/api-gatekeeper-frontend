@@ -46,19 +46,19 @@ object ApplicationsByRequest {
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) extends JsonBodyWritables {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(using ec: ExecutionContext, mat: Materializer) extends JsonBodyWritables {
 
-  def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def getApplication(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
   }
 
-  def getApplicationsByEmails(emails: List[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+  def getApplicationsByEmails(emails: List[LaxEmailAddress])(using hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     http.post(url"${config.serviceBaseUrl}/developer/applications")
       .withBody(Json.toJson(ApplicationsByRequest(emails)))
       .execute[List[ApplicationWithCollaborators]]
   }
 
-  def validateName(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(implicit hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
+  def validateName(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(using hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
 
     val body = selfApplicationId.fold[ApplicationNameValidationRequest](NewApplicationNameValidationRequest(name))(appId => ChangeApplicationNameValidationRequest(name, appId))
 
@@ -71,7 +71,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       }
   }
 
-  def query[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+  def query[T](environment: Environment)(qry: ApplicationQuery)(using hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
 
     val qryStringMap = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
@@ -80,7 +80,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     rawQuery[T](environment)(qryStringMap)
   }
 
-  def rawQuery[T](environment: Environment)(qryStringMap: Map[ParamName, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+  def rawQuery[T](environment: Environment)(qryStringMap: Map[ParamName, String])(using hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
     val rawQryStringMap = qryStringMap.map {
       case (k,v) => (k.text -> v)
     }
@@ -89,21 +89,21 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       .execute[T]
   }
 
-  def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+  def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
     rawQueryStream[S, T](environment)(params)(fn)
   }
 
-  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
+  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
     rawQueryStream[S, S](environment)(params)(identity)
   }
 
-  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[ParamName, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[ParamName, String])(fn: S => T)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val rawQryStringMap = qryStringMap.map {
       case (k,v) => (k.text -> v)
     }
