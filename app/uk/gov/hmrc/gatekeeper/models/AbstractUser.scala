@@ -18,15 +18,15 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.Instant
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{Reads, _}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Reads, *}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User.{DefaultInstantReads, DefaultInstantWrites}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
-import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
@@ -79,7 +79,7 @@ object RegisteredUser {
       (JsPath \ "lastLogin").readNullable[Instant]
   )(RegisteredUser.apply)
 
-  val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
+  val registeredUserWrites: OWrites[RegisteredUser]  = Json.writes[RegisteredUser]
   given registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
 }
 

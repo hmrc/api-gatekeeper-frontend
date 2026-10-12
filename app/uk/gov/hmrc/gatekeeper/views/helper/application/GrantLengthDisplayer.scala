@@ -17,7 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength.*
 
 object GrantLengthDisplayer {
 

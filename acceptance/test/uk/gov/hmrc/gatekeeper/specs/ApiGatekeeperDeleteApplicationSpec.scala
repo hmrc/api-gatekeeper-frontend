@@ -17,16 +17,16 @@
 package uk.gov.hmrc.gatekeeper.specs
 
 import cats.data.NonEmptyList
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandFailure, CommandFailures, DispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId}
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.pages.*
 
 class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
 
@@ -76,7 +76,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
     stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
 
     When("I select to navigate to the Automated Test Application page")
-    ApplicationsPage.clickApplicationNameLink(applicationName.value)
+    ApplicationsPage.clickApplicationNameLink(applicationName)
 
     Then("I am successfully navigated to the Automated Test Application page")
     on(ApplicationPage)
@@ -92,7 +92,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
     stubApplicationToDelete(applicationId)
 
     When("I fill out the Delete Application Form correctly")
-    DeleteApplicationPage.completeForm(applicationName.value)
+    DeleteApplicationPage.completeForm(applicationName)
 
     And("I click the Delete Application Button")
     DeleteApplicationPage.clickDeleteButton()
@@ -110,7 +110,7 @@ class ApiGatekeeperDeleteApplicationSpec extends ApiGatekeeperBaseSpec {
   }
 
   def stubApplicationForDeleteFailure() = {
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
     val response: NonEmptyList[CommandFailure] = NonEmptyList.one(CommandFailures.ApplicationNotFound)
     stubFor(patch(urlEqualTo(s"/applications/${applicationId.toString()}/dispatch")).willReturn(aResponse().withStatus(BAD_REQUEST).withBody(Json.toJson(response).toString())))
   }

@@ -21,7 +21,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{MessagesRequest, Result}
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,7 +37,7 @@ class StrideAuthorisationService @Inject() (
     strideAuthConnector: StrideAuthConnector,
     forbiddenHandler: ForbiddenHandler,
     strideAuthConfig: StrideAuthConfig
-  )(using ec: ExecutionContext
+  )(using ExecutionContext
   ) {
 
   import strideAuthConfig.roles._

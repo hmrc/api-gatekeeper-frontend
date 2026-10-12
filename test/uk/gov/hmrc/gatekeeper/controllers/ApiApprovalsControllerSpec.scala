@@ -23,23 +23,23 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import org.apache.pekko.stream.Materializer
 
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models.{ApprovalStatus, _}
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.{ApprovalStatus, *}
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.apiapprovals._
+import uk.gov.hmrc.gatekeeper.views.html.apiapprovals.*
 
 class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
-  given materializer: Materializer = app.materializer
+  given Materializer = app.materializer
 
   private lazy val errorTemplateView               = app.injector.instanceOf[ErrorTemplate]
   private lazy val errorHandler                    = app.injector.instanceOf[ErrorHandler]

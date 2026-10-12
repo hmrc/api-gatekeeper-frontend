@@ -21,10 +21,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import mocks.services.SubscriptionFieldsServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
@@ -39,7 +39,7 @@ class SubscriptionConfigurationControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  given materializer: Materializer            = app.materializer
+  given materializer: Materializer                   = app.materializer
   private lazy val errorTemplateView                 = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                     = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]

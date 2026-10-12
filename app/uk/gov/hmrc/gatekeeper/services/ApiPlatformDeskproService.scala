@@ -22,8 +22,8 @@ import scala.concurrent.Future
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.connectors.*
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.DeskproTicket
-import uk.gov.hmrc.gatekeeper.connectors._
 
 @Singleton
 class ApiPlatformDeskproService @Inject() (apiPlatformDeskproConnector: ApiPlatformDeskproConnector)

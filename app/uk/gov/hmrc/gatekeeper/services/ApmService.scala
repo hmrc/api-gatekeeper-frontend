@@ -23,10 +23,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.CoreApplication
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, *}
 import uk.gov.hmrc.gatekeeper.connectors.ApmConnector
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsResponse}
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.Box
 
 @Singleton

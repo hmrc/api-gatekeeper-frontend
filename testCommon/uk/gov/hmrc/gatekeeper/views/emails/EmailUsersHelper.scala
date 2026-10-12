@@ -22,8 +22,8 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType,
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, TopicOptionChoice, _}
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, TopicOptionChoice, *}
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>

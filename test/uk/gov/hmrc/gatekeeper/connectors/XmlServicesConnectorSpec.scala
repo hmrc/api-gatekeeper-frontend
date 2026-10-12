@@ -19,16 +19,16 @@ package uk.gov.hmrc.gatekeeper.connectors
 import java.util.UUID
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, _}
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, UserId, *}
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
 import uk.gov.hmrc.gatekeeper.models.xml.{Collaborator, VendorId, XmlApi, XmlOrganisation, XmlOrganisationId}
 import uk.gov.hmrc.gatekeeper.models.{RemoveAllCollaboratorsForUserIdFailureResult, RemoveAllCollaboratorsForUserIdRequest, RemoveAllCollaboratorsForUserIdSuccessResult}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
@@ -43,7 +43,7 @@ class XmlServicesConnectorSpec
   val applicationId = ApplicationId.random
 
   trait Setup {
-    val authToken                  = "Bearer Token"
+    val authToken           = "Bearer Token"
     given hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
     val httpClient                                 = app.injector.instanceOf[HttpClientV2]

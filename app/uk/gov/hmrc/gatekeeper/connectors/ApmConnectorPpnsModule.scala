@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 trait ApmConnectorPpnsModule extends ApmConnectorModule {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone.given

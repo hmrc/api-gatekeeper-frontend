@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
-import uk.gov.hmrc.http.client.HttpClientV2
 import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.client.HttpClientV2
 
 object ApmConnector {
 

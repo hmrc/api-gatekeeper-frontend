@@ -19,10 +19,10 @@ package uk.gov.hmrc.gatekeeper.views.helper.application
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDateTime, ZoneOffset}
 
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 
 class ApplicationReviewSpec extends AsyncHmrcSpec with ApplicationBuilder with FixedClock {
   "ApplicationsReview" when {

@@ -21,11 +21,11 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.gatekeeper.connectors.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
 

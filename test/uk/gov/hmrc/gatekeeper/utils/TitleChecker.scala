@@ -21,9 +21,9 @@ import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
 
 trait TitleChecker extends AsyncHmrcSpec {
 

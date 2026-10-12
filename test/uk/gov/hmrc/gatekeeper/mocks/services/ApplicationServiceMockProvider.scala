@@ -21,10 +21,10 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ValidatedApplicationName}
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
@@ -42,7 +42,7 @@ trait ApplicationServiceMockProvider {
     }
 
     object FetchApplications {
-      def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(using*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(using *)).thenReturn(successful(apps.toList))
 
       def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: ApplicationWithCollaborators*) =
         when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(using *)).thenReturn(successful(apps.toList))
@@ -134,14 +134,18 @@ trait ApplicationServiceMockProvider {
     object UpdateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(successful(
-          ApplicationUpdateSuccessResult
-        ))
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(
+          successful(
+            ApplicationUpdateSuccessResult
+          )
+        )
 
       def fails() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(successful(
-          ApplicationUpdateFailureResult
-        ))
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(
+          successful(
+            ApplicationUpdateFailureResult
+          )
+        )
     }
 
     object FetchProdAppStateHistories {

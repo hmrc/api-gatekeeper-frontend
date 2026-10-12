@@ -26,18 +26,17 @@ import org.apache.pekko.stream.scaladsl.{JsonFraming, Sink, Source}
 import org.apache.pekko.util.ByteString
 
 import play.api.libs.json.{Json, OFormat, Reads}
+import play.api.libs.ws.JsonBodyWritables
 import play.mvc.Http
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.{ApplicationQuery, ParamName}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import play.api.libs.ws.JsonBodyWritables
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
@@ -46,7 +45,8 @@ object ApplicationsByRequest {
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(using ec: ExecutionContext, mat: Materializer) extends JsonBodyWritables {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(using ec: ExecutionContext, mat: Materializer)
+    extends JsonBodyWritables {
 
   def getApplication(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
@@ -82,7 +82,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
 
   def rawQuery[T](environment: Environment)(qryStringMap: Map[ParamName, String])(using hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
     val rawQryStringMap = qryStringMap.map {
-      case (k,v) => (k.text -> v)
+      case (k, v) => (k.text -> v)
     }
     http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
@@ -105,10 +105,10 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
 
   def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[ParamName, String])(fn: S => T)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val rawQryStringMap = qryStringMap.map {
-      case (k,v) => (k.text -> v)
+      case (k, v) => (k.text -> v)
     }
     import uk.gov.hmrc.http.client.readSource
-    
+
     http
       .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
       .transform(_.withRequestTimeout(1.minutes))

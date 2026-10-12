@@ -21,7 +21,7 @@ import java.time.Instant
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.*
 
 class MfaDetailHelperSpec extends AnyWordSpec with Matchers {
 
@@ -29,7 +29,7 @@ class MfaDetailHelperSpec extends AnyWordSpec with Matchers {
     def generateDetail(verified: Boolean, mfaType: MfaType): MfaDetail = {
       mfaType match {
         case MfaType.AuthenticatorApp => AuthenticatorAppMfaDetail(MfaId.random, "name", Instant.now(), verified = verified)
-        case MfaType.Sms               => SmsMfaDetail(name = "****6789", createdOn = Instant.now(), verified = verified, mobileNumber = "0123456789")
+        case MfaType.Sms              => SmsMfaDetail(name = "****6789", createdOn = Instant.now(), verified = verified, mobileNumber = "0123456789")
       }
     }
 

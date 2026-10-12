@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 class TermsOfUseControllerSpec extends ControllerBaseSpec {
   given materializer: Materializer = app.materializer

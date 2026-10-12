@@ -22,9 +22,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
 import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveResult}
@@ -34,7 +34,7 @@ import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 class ApiPlatformDeskproConnector @Inject() (
     config: ApiPlatformDeskproConnector.Config,
     http: HttpClientV2
-  )(using ec: ExecutionContext
+  )(using ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
   def getOrganisation(organisationId: OrganisationId, hc: HeaderCarrier): Future[DeskproOrganisation] = {
@@ -59,8 +59,8 @@ class ApiPlatformDeskproConnector @Inject() (
   private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
     logger.warn("Exception occurred when calling Deskpro", err)
     err match {
-      case _ : HttpException         => returnIfError
-      case _ : UpstreamErrorResponse => returnIfError
+      case _: HttpException         => returnIfError
+      case _: UpstreamErrorResponse => returnIfError
       case e: Throwable             => throw e
     }
   }

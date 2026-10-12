@@ -20,7 +20,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.pages.*
 import uk.gov.hmrc.gatekeeper.stubs.ThirdPartyApplicationStub
 
 class ApiGatekeeperUnblockApplicationSpec
@@ -40,7 +40,7 @@ class ApiGatekeeperUnblockApplicationSpec
       stubApplicationForUnblockSuccess(blockedApplicationId, defaultApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(blockedApplicationName.value, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
 
       And("I choose to unblock the application")
       selectToUnblockApplication()
@@ -53,7 +53,7 @@ class ApiGatekeeperUnblockApplicationSpec
       stubApplication(applicationWithSubscriptionData, developers, stateHistories.withApplicationId(applicationId), applicationId)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(applicationName.value, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
 
       Then("I cannot see the unblock button")
       ApplicationPage.bodyText.contains("Unblock application") shouldBe false
@@ -69,7 +69,7 @@ class ApiGatekeeperUnblockApplicationSpec
     on(UnblockApplicationPage)
 
     When("I fill out the Unblock Application Form correctly")
-    UnblockApplicationPage.completeForm(blockedApplicationName.value)
+    UnblockApplicationPage.completeForm(blockedApplicationName)
 
     And("I select the Unblock Application Button")
     UnblockApplicationPage.selectUnblockButton()

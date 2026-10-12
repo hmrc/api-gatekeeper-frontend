@@ -23,8 +23,8 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.xml._
+import uk.gov.hmrc.gatekeeper.connectors.*
+import uk.gov.hmrc.gatekeeper.models.xml.*
 
 trait XmlServicesConnectorMockProvider {
   self: MockitoSugar & ArgumentMatchersSugar =>
@@ -41,7 +41,9 @@ trait XmlServicesConnectorMockProvider {
     }
 
     object GetApisForCategory {
-      def returnsApis(xmlApis: List[XmlApi], categories: List[String]) = when(mockXmlServicesConnector.getApisForCategories(eqTo(categories))(using *)).thenReturn(successful(xmlApis))
+
+      def returnsApis(xmlApis: List[XmlApi], categories: List[String]) =
+        when(mockXmlServicesConnector.getApisForCategories(eqTo(categories))(using *)).thenReturn(successful(xmlApis))
 
       def returnsError() =
         when(mockXmlServicesConnector.getApisForCategories(*)(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))

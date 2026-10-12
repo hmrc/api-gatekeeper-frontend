@@ -37,7 +37,7 @@ class LdapController @Inject() (
       predicate = LdapAuthorisationPredicate.gatekeeperReadPermission
     ).async { _ =>
       successful(Redirect(uk.gov.hmrc.gatekeeper.controllers.routes.ApplicationController.applicationsPage()))
-    }( initialRequest)
+    }(initialRequest)
   }
 
 }

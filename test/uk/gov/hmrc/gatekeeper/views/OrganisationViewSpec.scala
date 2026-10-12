@@ -34,7 +34,7 @@ package uk.gov.hmrc.gatekeeper.views
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, *}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig

@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models.pushpullnotifications
 
 import java.time.Instant
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 case class BoxId(value: String) extends AnyVal
 

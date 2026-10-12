@@ -17,7 +17,7 @@
 package uk.gov.hmrc.apiplatform.modules.gkauth.utils
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.*
 
 trait GatekeeperAuthorisationHelper {
   implicit def loggedIn(using request: LoggedInRequest[?]): LoggedInUser = LoggedInUser(request.name)

@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import play.api.http.Status._
-import uk.gov.hmrc.http.UpstreamErrorResponse
+import play.api.http.Status.*
 import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.UpstreamErrorResponse
 
 trait CommonResponseHandlers extends JsonBodyWritables {
 

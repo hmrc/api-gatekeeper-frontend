@@ -16,12 +16,12 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{ApiPlatformEventsConnector, DisplayEvent, FilterValue, QueryableValues}
 

@@ -18,9 +18,9 @@ package uk.gov.hmrc.gatekeeper.specs
 
 import org.scalatest.Assertions
 
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar

@@ -23,7 +23,7 @@ import org.mockito.captor.ArgCaptor
 
 import play.api.data.Form
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
@@ -31,9 +31,9 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.models.Forms.UpdateApplicationNameForm
 import uk.gov.hmrc.gatekeeper.services.ApmService
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html._
+import uk.gov.hmrc.gatekeeper.views.html.*
 import uk.gov.hmrc.gatekeeper.views.html.applications.{
   ManageApplicationNameAdminListView,
   ManageApplicationNameSingleAdminView,

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.support
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
 import play.api.libs.json.Json
 

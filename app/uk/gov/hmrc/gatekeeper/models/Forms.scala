@@ -22,17 +22,17 @@ import org.apache.commons.net.util.SubnetUtils
 import org.apache.commons.validator.routines.EmailValidator
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.data.format.Formatter
-import play.api.data.validation._
+import play.api.data.validation.*
 import play.api.data.{Form, FormError}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
+import uk.gov.hmrc.gatekeeper.models.Forms.FormFields.*
 
 object Forms {
 
@@ -231,19 +231,19 @@ object Forms {
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
       collaboratorEmail           -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
-    )(DeleteApplicationForm.apply)(f => Some(f.applicationNameConfirmation, f.collaboratorEmail))
+    )(DeleteApplicationForm.apply)(f => Some((f.applicationNameConfirmation, f.collaboratorEmail)))
   )
 
   val blockApplicationForm = Form(
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
-    )(BlockApplicationForm.apply)(f => Some(f.applicationNameConfirmation))
+    )(BlockApplicationForm.apply)(f => Some((f.applicationNameConfirmation)))
   )
 
   val unblockApplicationForm = Form(
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
-    )(UnblockApplicationForm.apply)(f => Some(f.applicationNameConfirmation))
+    )(UnblockApplicationForm.apply)(f => Some((f.applicationNameConfirmation)))
   )
 
   val createPrivAppForm = Form(
@@ -252,7 +252,7 @@ object Forms {
       applicationName        -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
       adminEmail             -> emailValidator()
-    )(CreatePrivAppForm.apply)(f => Some(f.environment, f.applicationName, f.applicationDescription, f.adminEmail))
+    )(CreatePrivAppForm.apply)(f => Some((f.environment, f.applicationName, f.applicationDescription, f.adminEmail)))
   )
 
   implicit def environmentFormat: Formatter[Environment] = new Formatter[Environment] {
@@ -281,7 +281,7 @@ object Forms {
       mapping(
         "email" -> emailValidator(),
         "role"  -> optional(text).verifying("team.member.error.role.invalid", _.isDefined)
-      )(AddTeamMemberForm.apply)(f => Some(f.email, f.role))
+      )(AddTeamMemberForm.apply)(f => Some((f.email, f.role)))
     )
   }
 
@@ -292,7 +292,7 @@ object Forms {
     val form: Form[RemoveTeamMemberForm] = Form(
       mapping(
         "email" -> emailValidator()
-      )(RemoveTeamMemberForm.apply)(f => Some(f.email))
+      )(RemoveTeamMemberForm.apply)(f => Some((f.email)))
     )
   }
 
@@ -304,7 +304,7 @@ object Forms {
       mapping(
         "email"   -> emailValidator(),
         "confirm" -> optional(text).verifying("team.member.error.confirmation.no.choice.field", _.isDefined)
-      )(RemoveTeamMemberConfirmationForm.apply)(f => Some(f.email, f.confirm))
+      )(RemoveTeamMemberConfirmationForm.apply)(f => Some((f.email, f.confirm)))
     )
   }
 
@@ -332,7 +332,7 @@ object Forms {
     val form: Form[SendEmailPreferencesChoice] = Form(
       mapping(
         sendEmailPreferences -> of[EmailPreferencesChoice]
-      )(SendEmailPreferencesChoice.apply)(f => Some(f.sendEmailPreferences))
+      )(SendEmailPreferencesChoice.apply)(f => Some((f.sendEmailPreferences)))
     )
   }
 
@@ -353,7 +353,7 @@ object Forms {
     val form: Form[UpdateGrantLengthForm] = Form(
       mapping(
         "grantLength" -> optional(number).verifying("grantLength.required", _.isDefined)
-      )(UpdateGrantLengthForm.apply)(f => Some(f.grantLength))
+      )(UpdateGrantLengthForm.apply)(f => Some((f.grantLength)))
     )
   }
 
@@ -366,7 +366,7 @@ object Forms {
         "confirm"    -> text,
         "reason"     -> text,
         "reasonDate" -> text
-      )(DeleteRestrictionPreviouslyEnabledForm.apply)(f => Some(f.confirm, f.reason, f.reasonDate))
+      )(DeleteRestrictionPreviouslyEnabledForm.apply)(f => Some((f.confirm, f.reason, f.reasonDate)))
         .verifying(
           "auto.delete.option.required",
           fields =>
@@ -385,7 +385,7 @@ object Forms {
       mapping(
         "confirm" -> text,
         "reason"  -> text
-      )(DeleteRestrictionPreviouslyDisabledForm.apply)(f => Some(f.confirm, f.reason))
+      )(DeleteRestrictionPreviouslyDisabledForm.apply)(f => Some((f.confirm, f.reason)))
         .verifying(
           "auto.delete.reason.required",
           fields =>
@@ -404,7 +404,7 @@ object Forms {
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
         "applicationName" -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid)
-      )(UpdateApplicationNameForm.apply)(f => Some(f.applicationName))
+      )(UpdateApplicationNameForm.apply)(f => Some((f.applicationName)))
     )
   }
 
@@ -415,7 +415,7 @@ object Forms {
     val form: Form[UpdateApplicationNameAdminEmailForm] = Form(
       mapping(
         "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined)
-      )(UpdateApplicationNameAdminEmailForm.apply)(f => Some(f.adminEmail))
+      )(UpdateApplicationNameAdminEmailForm.apply)(f => Some((f.adminEmail)))
     )
   }
 
@@ -426,7 +426,7 @@ object Forms {
     val form: Form[RemoveMfaConfirmationForm] = Form(
       mapping(
         "confirm" -> text
-      )(RemoveMfaConfirmationForm.apply)(f => Some(f.confirm))
+      )(RemoveMfaConfirmationForm.apply)(f => Some((f.confirm)))
     )
   }
 
@@ -437,7 +437,7 @@ object Forms {
     val form: Form[RemoveEmailPreferencesForm] = Form(
       mapping(
         "serviceName" -> text.verifying("serviceName.required", _.nonEmpty)
-      )(RemoveEmailPreferencesForm.apply)(f => Some(f.serviceName))
+      )(RemoveEmailPreferencesForm.apply)(f => Some((f.serviceName)))
     )
   }
 }

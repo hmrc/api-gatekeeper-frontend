@@ -18,14 +18,14 @@ package uk.gov.hmrc.gatekeeper.encryption
 
 import scala.concurrent.Future
 
-import play.api.libs.json._
-import uk.gov.hmrc.crypto._
+import play.api.libs.json.*
+import uk.gov.hmrc.crypto.*
 import uk.gov.hmrc.crypto.json.JsonEncryption
 
 case class SecretRequest(data: String)
 
 object SecretRequest {
-  given format: OFormat[SecretRequest] = Json.format[SecretRequest]
+  given OFormat[SecretRequest] = Json.format[SecretRequest]
 }
 
 trait SendsSecretRequest {
@@ -63,7 +63,7 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 
 private[encryption] class LocalCrypto(anEncryptionKey: String) extends Encrypter with Decrypter {
 
-  given aesCrypto: (Encrypter with Decrypter) = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
+  given aesCrypto: (Encrypter & Decrypter) = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
 
   override def encrypt(plain: PlainContent): Crypted = aesCrypto.encrypt(plain)
 

@@ -41,13 +41,13 @@ import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRole, GatekeeperRoles, LoggedInRequest, LoggedInUser}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks {
@@ -194,8 +194,8 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
 
       "Display the 'Add privileged application' button on for appropriate user roles" in new Setup {
         for (r <- rolesTable) {
-          given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
-          val applicationView: () => HtmlFormat.Appendable     = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
+          given currentLoggedInUser: LoggedInRequest[?]    = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
+          val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
           if (r._2)
             applicationView().body should include("""Add privileged application""")
           else

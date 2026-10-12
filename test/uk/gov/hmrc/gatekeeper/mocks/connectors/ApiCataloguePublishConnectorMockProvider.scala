@@ -24,7 +24,7 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector.*
 
 trait ApiCataloguePublishConnectorMockProvider {
   self: MockitoSugar & ArgumentMatchersSugar =>

@@ -22,9 +22,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.Logging
 import play.api.http.Status.{NOT_FOUND, NO_CONTENT}
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse, _}
+import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException, UpstreamErrorResponse, *}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.connectors.XmlServicesConnector.Config
@@ -35,7 +36,6 @@ import uk.gov.hmrc.gatekeeper.models.{
   RemoveAllCollaboratorsForUserIdResult,
   RemoveAllCollaboratorsForUserIdSuccessResult
 }
-import play.api.libs.ws.JsonBodyWritables
 
 @Singleton
 class XmlServicesConnector @Inject() (config: Config, http: HttpClientV2)(using ec: ExecutionContext) extends Logging with JsonBodyWritables {

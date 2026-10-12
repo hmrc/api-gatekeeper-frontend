@@ -20,16 +20,16 @@ import scala.concurrent.ExecutionContext
 
 import com.google.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, _}
-
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, _}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import play.api.http.Status.*
+import play.api.libs.json.*
 import play.api.libs.ws.JsonBodyWritables
-import play.api.libs.json._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import play.api.http.Status._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, *}
+
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, *}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 @Singleton
 class ApplicationCommandConnector @Inject() (
@@ -61,8 +61,8 @@ class ApplicationCommandConnector @Inject() (
           throw new InternalServerException("Failed parsing response to dispatch")
       }
     }
-    val url                                                                 = url"${baseApplicationUrl(applicationId)}/dispatch"
-    val request                                                             = DispatchRequest(command, adminsToEmail)
+    val url                                                              = url"${baseApplicationUrl(applicationId)}/dispatch"
+    val request                                                          = DispatchRequest(command, adminsToEmail)
     import cats.syntax.either._
 
     http.patch(url)

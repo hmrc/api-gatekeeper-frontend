@@ -24,7 +24,6 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 @Singleton
@@ -32,9 +31,10 @@ class ErrorHandler @Inject() (
     val messagesApi: MessagesApi,
     val configuration: Configuration,
     errorTemplate: ErrorTemplate
-  )(using appConfig: AppConfig,
-    val ec: ExecutionContext
+  )(using ecOuter: ExecutionContext
   ) extends FrontendErrorHandler {
+
+  protected implicit val ec = ecOuter
 
   override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(using request: RequestHeader) = {
     Future.successful(errorTemplate(pageTitle, heading, message))

@@ -18,14 +18,14 @@ package uk.gov.hmrc.apiplatform.modules.events.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
 import uk.gov.hmrc.gatekeeper.testdata.{DisplayEventTestDataBuilder, DisplayEventsTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -39,7 +39,7 @@ class SubordinateApiPlatformEventsConnectorSpec
     with FixedClock {
 
   trait Setup {
-    val authToken                  = "Bearer Token"
+    val authToken           = "Bearer Token"
     given hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
     val httpClient                                             = app.injector.instanceOf[HttpClientV2]

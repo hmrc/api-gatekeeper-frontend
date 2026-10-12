@@ -18,20 +18,20 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 class ApmConnectorSubscriptionFieldsModuleSpec
     extends AsyncHmrcSpec
@@ -44,7 +44,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
 
   trait Setup {
     given hc: HeaderCarrier = HeaderCarrier()
-    val httpClient                 = app.injector.instanceOf[HttpClientV2]
+    val httpClient          = app.injector.instanceOf[HttpClientV2]
 
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)

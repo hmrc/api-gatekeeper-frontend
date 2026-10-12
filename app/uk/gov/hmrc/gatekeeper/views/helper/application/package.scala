@@ -20,7 +20,7 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, CheckInformation, StateHistory, StateHistoryHelper}
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.DateFormatter
-import uk.gov.hmrc.gatekeeper.services.ActorSyntax._
+import uk.gov.hmrc.gatekeeper.services.ActorSyntax.*
 
 object ViewFormat {
   def formatWithTime(instant: Instant): String = DateFormatter.twoDigitDayWithTimeFormatter.format(instant.atOffset(ZoneOffset.UTC))

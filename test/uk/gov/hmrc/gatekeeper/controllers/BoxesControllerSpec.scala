@@ -22,9 +22,9 @@ import scala.concurrent.Future
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
@@ -34,8 +34,8 @@ import uk.gov.hmrc.gatekeeper.views.html.ppns.BoxesView
 class BoxesControllerSpec extends ControllerBaseSpec {
 
   given materializer: Materializer = app.materializer
-  val anAppId                             = ApplicationId.random
-  val appIdText                           = anAppId.value.toString()
+  val anAppId                      = ApplicationId.random
+  val appIdText                    = anAppId.value.toString()
 
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {

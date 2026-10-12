@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition, ApiVersion, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice}
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
     with EmailInformationViewHelper

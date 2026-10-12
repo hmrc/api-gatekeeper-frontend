@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessFixtures with ApplicationStateTestData {

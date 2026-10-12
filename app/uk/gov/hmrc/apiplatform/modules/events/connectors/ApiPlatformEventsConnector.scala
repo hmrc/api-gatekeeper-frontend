@@ -20,11 +20,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.EbridgeConfigurator
 
@@ -53,7 +53,7 @@ class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: Subordi
     connectorFor(deployedTo).query(appId, tag, actorType)
 }
 
-abstract class ApiPlatformEventsConnector()(using  ec: ExecutionContext) extends ApplicationLogger {
+abstract class ApiPlatformEventsConnector()(using ec: ExecutionContext) extends ApplicationLogger {
   val environment: Environment
   val serviceBaseUrl: String
 

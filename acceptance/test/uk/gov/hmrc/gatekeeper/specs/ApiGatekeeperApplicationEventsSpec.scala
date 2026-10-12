@@ -22,9 +22,9 @@ import java.time.{Instant, ZoneOffset}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.pages.*
 import uk.gov.hmrc.gatekeeper.stubs.{ApiPlatformEventsStub, XmlServicesStub}
-import uk.gov.hmrc.gatekeeper.testdata._
+import uk.gov.hmrc.gatekeeper.testdata.*
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApiGatekeeperApplicationEventsSpec

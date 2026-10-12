@@ -20,7 +20,7 @@ import java.time.Instant
 
 import play.api.libs.json.{Json, OFormat}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 case class DisplayEvent(
     applicationId: ApplicationId,

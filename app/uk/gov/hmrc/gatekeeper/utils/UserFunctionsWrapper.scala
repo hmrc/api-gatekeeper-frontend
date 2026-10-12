@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 
 trait UserFunctionsWrapper {
 

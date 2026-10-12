@@ -20,7 +20,7 @@ import java.time.{Clock, Instant, ZoneOffset}
 import java.util.UUID
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 
 trait DisplayEventTestDataBuilder {

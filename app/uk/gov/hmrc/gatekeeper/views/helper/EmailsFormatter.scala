@@ -24,7 +24,7 @@ object EmailsFormatter {
     (maybeFilter match {
       case Some(Collaborator.Role.Administrator) => collaborators.filter(_.isAdministrator)
       case Some(Collaborator.Role.Developer)     => collaborators.filter(_.isDeveloper)
-      case _                                      => collaborators
+      case _                                     => collaborators
     }).map(_.emailAddress.text).mkString("; ")
   }
 }

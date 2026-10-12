@@ -23,8 +23,8 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonForm
 // TODO - Remove Enumeration
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
-  val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS   = Value
-  given emailOptionsFormat: Format[EmailOptionChoice] = Json.formatEnum(EmailOptionChoice)
+  val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
+  given emailOptionsFormat: Format[EmailOptionChoice]      = Json.formatEnum(EmailOptionChoice)
 
   val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email preferences"

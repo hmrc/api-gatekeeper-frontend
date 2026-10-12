@@ -19,15 +19,15 @@ package uk.gov.hmrc.gatekeeper.connectors
 import scala.concurrent.Future
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
-import uk.gov.hmrc.http.HttpErrorFunctions._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
+import play.api.http.Status.*
+import uk.gov.hmrc.http.HttpErrorFunctions.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 object ApmConnectorSubscriptionFieldsModule {
 
@@ -37,7 +37,7 @@ object ApmConnectorSubscriptionFieldsModule {
 
 trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
   import play.api.libs.json._
-  private given formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
+  given formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
 
   private val baseUrl = s"${config.serviceBaseUrl}/subscription-fields"
 

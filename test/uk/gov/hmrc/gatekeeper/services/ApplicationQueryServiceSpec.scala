@@ -23,10 +23,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.ApiFieldMap
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -47,7 +47,7 @@ class ApplicationQueryServiceSpec
       with ThirdPartyOrchestratorConnectorMockProvider
       with ApplicationBuilder {
 
-    val qryService                 = new ApplicationQueryService(
+    val qryService          = new ApplicationQueryService(
       TPOConnectorMock.aMock,
       FixedClock.clock
     )

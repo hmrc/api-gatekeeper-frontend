@@ -20,21 +20,21 @@ import java.time.{Instant, LocalDateTime}
 
 import org.jsoup.Jsoup
 
+import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.{Organisation, OrganisationName}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
-import play.api.i18n.Messages
 
 class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
@@ -42,7 +42,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
 
   "delete developer view" should {
     given userName: LoggedInUser = LoggedInUser(Some("gate.keeper"))
-    given messages: Messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
+    given messages: Messages     = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 

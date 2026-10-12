@@ -19,8 +19,8 @@ package uk.gov.hmrc.gatekeeper.specs
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.gatekeeper.common.WebPage
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.pages.*
 
 class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec {
 
@@ -32,7 +32,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec {
       stubApplicationForBlockSuccess(applicationId, defaultApplication)
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(applicationName.value, ApplicationPage)
+      navigateToApplicationPageAsAdminFor(applicationName, ApplicationPage)
 
       And("I choose to block the application")
       selectToBlockApplication()
@@ -51,7 +51,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec {
       )
 
       When("I navigate to the application page")
-      navigateToApplicationPageAsAdminFor(blockedApplicationName.value, BlockedApplicationPage)
+      navigateToApplicationPageAsAdminFor(blockedApplicationName, BlockedApplicationPage)
 
       Then("I cannot see the block button")
       BlockedApplicationPage.bodyText.contains("Block application") shouldBe false
@@ -68,7 +68,7 @@ class ApiGatekeeperBlockApplicationSpec extends ApiGatekeeperBaseSpec {
     on(BlockApplicationPage)
 
     When("I fill out the Block Application Form correctly")
-    BlockApplicationPage.completeForm(applicationName.value)
+    BlockApplicationPage.completeForm(applicationName)
 
     And("I select the Block Application Button")
     BlockApplicationPage.selectBlockButton()

@@ -32,11 +32,11 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuth
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.apiapprovals._
+import uk.gov.hmrc.gatekeeper.views.html.apiapprovals.*
 
 object ApiApprovalsController {
 
@@ -53,7 +53,7 @@ object ApiApprovalsController {
       "approvedStatus"    -> optional(text),
       "failedStatus"      -> optional(text),
       "resubmittedStatus" -> optional(text)
-    )(FilterForm.apply)(ff => Some(ff.newStatus, ff.approvedStatus, ff.failedStatus, ff.resubmittedStatus))
+    )(FilterForm.apply)(ff => Some((ff.newStatus, ff.approvedStatus, ff.failedStatus, ff.resubmittedStatus)))
   )
 
   case class ReviewForm(
@@ -67,7 +67,7 @@ object ApiApprovalsController {
       "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
       "approveDetail" -> optional(text(maxLength = 500)),
       "declineDetail" -> optional(text(maxLength = 500))
-    )(ReviewForm.apply)(rf => Some(rf.approve, rf.approveDetail, rf.declineDetail))
+    )(ReviewForm.apply)(rf => Some((rf.approve, rf.approveDetail, rf.declineDetail)))
       .verifying(
         "api.approvals.review.decline.reason.required",
         fields =>
@@ -85,7 +85,7 @@ object ApiApprovalsController {
   val commentForm: Form[CommentForm] = Form(
     mapping(
       "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined)
-    )(CommentForm.apply)(cf => Some(cf.comment))
+    )(CommentForm.apply)(cf => Some((cf.comment)))
   )
 }
 

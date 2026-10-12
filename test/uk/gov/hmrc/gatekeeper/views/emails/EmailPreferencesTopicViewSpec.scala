@@ -27,16 +27,16 @@ import play.twirl.api.HtmlFormat
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesTopicView
 
 class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
   trait Setup extends AppConfigMock {
-    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailPreferencesTopicView: EmailPreferencesTopicView  = app.injector.instanceOf[EmailPreferencesTopicView]
+    given request: FakeRequest[AnyContentAsEmpty.type]       = FakeRequest().withCSRFToken
+    val emailPreferencesTopicView: EmailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   }
 
   "email preferences topic view" must {

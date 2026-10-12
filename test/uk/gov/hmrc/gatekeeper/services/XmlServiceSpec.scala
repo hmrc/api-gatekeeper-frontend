@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.Stri
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlApi, XmlOrganisation, XmlOrganisationId}
 
 class XmlServiceSpec extends AsyncHmrcSpec {
@@ -106,20 +106,14 @@ class XmlServiceSpec extends AsyncHmrcSpec {
         XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
         XmlServicesConnectorMock.GetApisForCategory.returnsError()
 
-        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user)))
       }
 
       "Return UpstreamErrorResponse when call to connector fails getting all apis" in new Setup {
         XmlServicesConnectorMock.GetAllApis.returnsError()
         XmlServicesConnectorMock.GetApisForCategory.returnsApis(xmlApisWithCategories, List("VAT"))
 
-        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user)))
       }
     }
 
@@ -137,10 +131,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       "Return UpstreamErrorResponse when call to connector fails" in new Setup {
         XmlServicesConnectorMock.GetOrganisations.returnsError()
 
-        intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId)))
       }
     }
   }

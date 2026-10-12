@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
-import play.api.libs.json.Json
+import play.api.http.Status.*
+import play.api.libs.json.{Json, OWrites}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -43,8 +43,8 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
   }
 
   protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
-    given format = Json.writes[FindUserIdResponse]
-    val responseJson    = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
+    given OWrites[FindUserIdResponse] = Json.writes[FindUserIdResponse]
+    val responseJson                  = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
     stubFor(post(urlEqualTo("/developers/find-user-id"))
       .willReturn(aResponse().withStatus(OK).withBody(responseJson)))
@@ -107,7 +107,7 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
 
   def stubDeveloper(): Unit = {
 
-    given format = Json.writes[FindUserIdResponse]
+    given OWrites[FindUserIdResponse] = Json.writes[FindUserIdResponse]
 
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))

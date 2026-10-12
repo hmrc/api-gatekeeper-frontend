@@ -18,16 +18,16 @@ package uk.gov.hmrc.gatekeeper.common.controllers.binders
 
 import java.util.UUID
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 // Workaround for Play unable to path bind opaque types
 
 object RouteModels {
   case class SimpleApplicationId(value: UUID)  extends AnyVal
-  case class SimpleOrganisationId(value: UUID)  extends AnyVal
+  case class SimpleOrganisationId(value: UUID) extends AnyVal
   case class SimpleUserId(value: UUID)         extends AnyVal
-  
+
   type SimpleClientId      = String
   type SimpleServiceName   = String
   type SimpleApiVersionNbr = String
@@ -35,16 +35,17 @@ object RouteModels {
   type SimpleApiCategory   = String
 
   object ToRouteTypes {
+
     extension (x: ApplicationId) {
       def simpleApp = SimpleApplicationId(x.value)
     }
-    
+
     extension (x: UserId) {
       def simpleUser = SimpleUserId(x.value)
     }
 
     extension (x: OrganisationId) {
-      def simpleOrg= SimpleOrganisationId(x.value)
+      def simpleOrg = SimpleOrganisationId(x.value)
     }
 
     given Conversion[ServiceName, SimpleServiceName] with
@@ -55,9 +56,10 @@ object RouteModels {
 
     given Conversion[ApiVersionNbr, SimpleApiVersionNbr] with
       def apply(x: ApiVersionNbr): SimpleApiVersionNbr = x.value
-  }  
+  }
 
   object Conversions {
+
     given Conversion[SimpleApplicationId, ApplicationId] with
       def apply(x: SimpleApplicationId): ApplicationId = ApplicationId(x.value)
 
@@ -74,10 +76,10 @@ object RouteModels {
       def apply(x: SimpleServiceName): ServiceName = ServiceName(x)
 
     given Conversion[List[SimpleServiceName], List[ServiceName]] with
-      def apply(xs: List[SimpleServiceName]): List[ServiceName] = xs.map(x =>ServiceName(x))
+      def apply(xs: List[SimpleServiceName]): List[ServiceName] = xs.map(x => ServiceName(x))
 
     given olsn: Conversion[Option[List[SimpleServiceName]], Option[List[ServiceName]]] with
-      def apply(oxs: Option[List[SimpleServiceName]]): Option[List[ServiceName]] = oxs.map(xs => xs.map(x =>ServiceName(x)))
+      def apply(oxs: Option[List[SimpleServiceName]]): Option[List[ServiceName]] = oxs.map(xs => xs.map(x => ServiceName(x)))
 
     given Conversion[SimpleApiVersionNbr, ApiVersionNbr] with
       def apply(x: SimpleApiVersionNbr): ApiVersionNbr = ApiVersionNbr(x)

@@ -23,7 +23,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.connectors.*
 import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 
 @Singleton

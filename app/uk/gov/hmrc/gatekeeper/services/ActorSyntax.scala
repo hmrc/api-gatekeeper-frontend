@@ -23,11 +23,11 @@ object ActorSyntax {
   extension (actor: Actor) {
 
     def id: String = actor match {
-      case Actors.AppCollaborator(emailAddress)               => emailAddress.text
-      case Actors.GatekeeperUser(user)                        => user
-      case Actors.ScheduledJob(jobId)                         => jobId
-      case Actors.Process(name)                               => name
-      case Actors.Unknown                                     => "Unknown"
+      case Actors.AppCollaborator(emailAddress) => emailAddress.text
+      case Actors.GatekeeperUser(user)          => user
+      case Actors.ScheduledJob(jobId)           => jobId
+      case Actors.Process(name)                 => name
+      case Actors.Unknown                       => "Unknown"
     }
   }
 }

@@ -18,15 +18,14 @@ package uk.gov.hmrc.gatekeeper.mocks.connectors
 
 import scala.concurrent.Future.successful
 
-import org.mockito.Mockito.{verify => mockitoVerify}
+import org.mockito.Mockito.verify as mockitoVerify
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, _}
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamName
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.{ApplicationQuery, ParamName}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, *}
+import uk.gov.hmrc.gatekeeper.connectors.*
 
 trait ThirdPartyOrchestratorConnectorMockProvider {
   self: MockitoSugar & ArgumentMatchersSugar =>

@@ -21,13 +21,13 @@ import java.time.Instant
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators.Administrator
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.view.ApplicationViewModel
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
 
@@ -160,49 +160,51 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
   }
 
   extension (app: ApplicationWithCollaborators) {
-    def deployedToProduction: ApplicationWithCollaborators = app.withEnvironment(Environment.Production)
-    def deployedToSandbox: ApplicationWithCollaborators    = app.withEnvironment(Environment.Sandbox)
+    def deployedToProduction: ApplicationWithCollaborators                                = app.withEnvironment(Environment.Production)
+    def deployedToSandbox: ApplicationWithCollaborators                                   = app.withEnvironment(Environment.Sandbox)
     //
     def withoutCollaborator(email: LaxEmailAddress): ApplicationWithCollaborators         = app.copy(collaborators = app.collaborators.filterNot(c => c.emailAddress == email))
     def withCollaborators(collaborators: Set[Collaborator]): ApplicationWithCollaborators = app.copy(collaborators = collaborators)
     //
-    def withId(id: ApplicationId): ApplicationWithCollaborators        = app.modify(_.copy(id = id))
-    def withClientId(clientId: ClientId): ApplicationWithCollaborators = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
+    def withId(id: ApplicationId): ApplicationWithCollaborators                           = app.modify(_.copy(id = id))
+    def withClientId(clientId: ClientId): ApplicationWithCollaborators                    = app.modify(_.copy(token = app.details.token.copy(clientId = clientId)))
     //
-    def withName(name: ApplicationName): ApplicationWithCollaborators      = app.modify(_.copy(name = name))
-    def withDescription(description: String): ApplicationWithCollaborators = app.modify(_.copy(description = Some(description)))
+    def withName(name: ApplicationName): ApplicationWithCollaborators                     = app.modify(_.copy(name = name))
+    def withDescription(description: String): ApplicationWithCollaborators                = app.modify(_.copy(description = Some(description)))
+
     //
     def withAdmin(developer: RegisteredUser): ApplicationWithCollaborators = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Administrator(developer.userId, developer.email))
     }
+
     //
-    def withDeveloper(developer: RegisteredUser): ApplicationWithCollaborators = {
+    def withDeveloper(developer: RegisteredUser): ApplicationWithCollaborators          = {
       val app1 = app.withoutCollaborator(developer.email)
       app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
     //
-    def withAccess(access: Access): ApplicationWithCollaborators = app.withAccess(access)
-    def asStandard: ApplicationWithCollaborators                 = app.withAccess(Access.Standard())
-    def asPrivileged: ApplicationWithCollaborators               = app.withAccess(Access.Privileged())
-    def asROPC: ApplicationWithCollaborators                     = app.withAccess(Access.Ropc())
+    def withAccess(access: Access): ApplicationWithCollaborators                        = app.withAccess(access)
+    def asStandard: ApplicationWithCollaborators                                        = app.withAccess(Access.Standard())
+    def asPrivileged: ApplicationWithCollaborators                                      = app.withAccess(Access.Privileged())
+    def asROPC: ApplicationWithCollaborators                                            = app.withAccess(Access.Ropc())
     //
-    def withState(state: ApplicationState): ApplicationWithCollaborators = app.withState(state)
+    def withState(state: ApplicationState): ApplicationWithCollaborators                = app.withState(state)
     //
-    def withBlocked(isBlocked: Boolean): ApplicationWithCollaborators = app.modify(_.copy(blocked = isBlocked))
-    def blocked: ApplicationWithCollaborators                         = app.modify(_.copy(blocked = true))
-    def unblocked: ApplicationWithCollaborators                       = app.modify(_.copy(blocked = false))
+    def withBlocked(isBlocked: Boolean): ApplicationWithCollaborators                   = app.modify(_.copy(blocked = isBlocked))
+    def blocked: ApplicationWithCollaborators                                           = app.modify(_.copy(blocked = true))
+    def unblocked: ApplicationWithCollaborators                                         = app.modify(_.copy(blocked = false))
     //
     def withCheckInformation(checkInfo: CheckInformation): ApplicationWithCollaborators = app.modify(_.copy(checkInformation = Some(checkInfo)))
     def withEmptyCheckInformation: ApplicationWithCollaborators                         = app.modify(_.copy(checkInformation = Some(CheckInformation())))
     def noCheckInformation: ApplicationWithCollaborators                                = app.modify(_.copy(checkInformation = None))
     //
-    def withIpAllowlist(ipAllowlist: IpAllowlist): ApplicationWithCollaborators = app.modify(_.copy(ipAllowlist = ipAllowlist))
+    def withIpAllowlist(ipAllowlist: IpAllowlist): ApplicationWithCollaborators         = app.modify(_.copy(ipAllowlist = ipAllowlist))
     //
-    def withCreatedOn(createdOnDate: Instant): ApplicationWithCollaborators   = app.modify(_.copy(createdOn = createdOnDate))
-    def withLastAccess(lastAccessDate: Instant): ApplicationWithCollaborators = app.modify(_.copy(lastAccess = Some(lastAccessDate)))
+    def withCreatedOn(createdOnDate: Instant): ApplicationWithCollaborators             = app.modify(_.copy(createdOn = createdOnDate))
+    def withLastAccess(lastAccessDate: Instant): ApplicationWithCollaborators           = app.modify(_.copy(lastAccess = Some(lastAccessDate)))
     //
-    def withRateLimitTier(rateLimitTier: RateLimitTier): ApplicationWithCollaborators = app.modify(_.copy(rateLimitTier = rateLimitTier))
+    def withRateLimitTier(rateLimitTier: RateLimitTier): ApplicationWithCollaborators   = app.modify(_.copy(rateLimitTier = rateLimitTier))
 
     def toSeq = Seq(app)
   }

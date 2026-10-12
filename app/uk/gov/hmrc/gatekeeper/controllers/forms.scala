@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.gatekeeper.controllers
 
-import uk.gov.voa.play.form.ConditionalMappings._
+import uk.gov.voa.play.form.ConditionalMappings.*
 
-import play.api.data.Forms._
-import play.api.data._
+import play.api.data.*
+import play.api.data.Forms.*
 
 import uk.gov.hmrc.gatekeeper.models.UpliftAction
 
@@ -35,7 +35,7 @@ object HandleUpliftForm {
     mapping(
       "action" -> actionValidator,
       "reason" -> mandatoryIfEqual("action", "REJECT", nonEmptyText)
-    )(HandleUpliftForm.apply)(f => Some(Some(f.action), f.reason))
+    )(HandleUpliftForm.apply)(f => Some((Some(f.action), f.reason)))
   )
 }
 
@@ -65,7 +65,7 @@ object UpdateRateLimitForm {
   val form: Form[UpdateRateLimitForm] = Form(
     mapping(
       "tier" -> nonEmptyText
-    )(UpdateRateLimitForm.apply)(f => Some(f.tier))
+    )(UpdateRateLimitForm.apply)(f => Some((f.tier)))
   )
 }
 
@@ -76,7 +76,7 @@ object HandleApprovalForm {
   lazy val form = Form(
     mapping(
       "approval_confirmation" -> text(0, 20)
-    )(HandleApprovalForm.apply)(f => Some(f.approval_confirmation))
+    )(HandleApprovalForm.apply)(f => Some((f.approval_confirmation)))
   )
 
   def unrecognisedAction(form: Form[HandleApprovalForm]) = {

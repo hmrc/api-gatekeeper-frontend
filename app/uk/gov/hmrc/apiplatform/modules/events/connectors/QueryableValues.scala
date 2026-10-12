@@ -27,7 +27,7 @@ object FilterValue {
   import play.api.libs.json._
 
   given format: OFormat[FilterValue] = ((__ \ "description").format[String] and
-    (__ \ "type").format[String])(FilterValue.apply, unlift(fv => Some(fv.description, fv.t)))
+    (__ \ "type").format[String])(FilterValue.apply, fv => (fv.description, fv.t))
 }
 
 case class QueryableValues(eventTags: List[FilterValue], actorTypes: List[FilterValue])

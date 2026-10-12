@@ -23,7 +23,7 @@ import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 
 object BlockedApplicationPage extends WebPage with CommonTestData {
 
-  override val pageHeading: String = blockedApplicationName.value
+  override val pageHeading: String = blockedApplicationName
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/fa38d130-7c8e-47d8-abc0-0374c7f73217"
 

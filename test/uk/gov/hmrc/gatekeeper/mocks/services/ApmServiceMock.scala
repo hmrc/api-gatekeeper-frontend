@@ -22,7 +22,7 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiDefinition
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, *}
 import uk.gov.hmrc.gatekeeper.models.ApiDefinitionFields
 import uk.gov.hmrc.gatekeeper.services.ApmService
 
