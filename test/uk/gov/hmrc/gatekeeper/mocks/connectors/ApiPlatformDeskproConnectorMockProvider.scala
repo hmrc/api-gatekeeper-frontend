@@ -24,7 +24,7 @@ import play.api.http.Status.NOT_FOUND
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveResult}
 import uk.gov.hmrc.gatekeeper.connectors._
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
@@ -48,9 +48,9 @@ trait ApiPlatformDeskproConnectorMockProvider {
     }
 
     object MarkPersonInactive {
-      def suceeds() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveSuccess))
+      def suceeds() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveResult.Success))
 
-      def fails() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveFailed))
+      def fails() = when(apiPlatformDeskproConnector.markPersonInactive(*[LaxEmailAddress], *)).thenReturn(successful(MarkPersonInactiveResult.Failed))
     }
   }
 }

@@ -113,7 +113,7 @@ class DeveloperConnector @Inject() (
     ): Future[List[RegisteredUser]] = {
     logger.info(s"fetchByEmailPreferences topic is $topic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String, String)] =
-      maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString())))
+      maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString().toUpperCase())))
     val privateapimatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams                    =
       Seq("topic" -> topic.toString) ++ regimes ++
@@ -134,9 +134,9 @@ class DeveloperConnector @Inject() (
     ): Future[UserPaginatedResponse] = {
     logger.info(s"fetchByEmailPreferencesPaginated topic is $maybeTopic maybeApis: $maybeApis maybeApuCategories $maybeApiCategories privateapimatch $privateapimatch")
     val regimes: Seq[(String, String)] =
-      maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString())))
+      maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.toString().toUpperCase())))
     val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
-    val topic                          = Seq("topic" -> maybeTopic.map(_.toString).getOrElse(""))
+    val topic                          = Seq("topic" -> maybeTopic.map(_.toString.toUpperCase()).getOrElse(""))
     val privateApiMatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams                     = Seq("offset" -> s"$offset", "limit" -> s"$limit")
     val params                         = privateApiMatchParams ++ pageParams

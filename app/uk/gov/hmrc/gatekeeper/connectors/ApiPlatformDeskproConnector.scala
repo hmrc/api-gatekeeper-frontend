@@ -27,7 +27,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, _}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveResult, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveResult}
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 @Singleton
@@ -47,8 +47,8 @@ class ApiPlatformDeskproConnector @Inject() (
     http.post(url"${config.serviceBaseUrl}/person/mark-inactive")
       .withBody(Json.toJson(ApiPlatformDeskproConnector.MarkPersonInactiveRequest(email)))
       .execute[Either[UpstreamErrorResponse, Unit]]
-      .map(throwOr(MarkPersonInactiveSuccess))
-      .recover(handleUpstreamErrors[MarkPersonInactiveResult](MarkPersonInactiveFailed))
+      .map(throwOr(MarkPersonInactiveResult.Success))
+      .recover(handleUpstreamErrors[MarkPersonInactiveResult](MarkPersonInactiveResult.Failed))
   }
 
   def getDeskproTicket(ticketId: Int, hc: HeaderCarrier): Future[DeskproTicket] = {
@@ -97,7 +97,7 @@ object ApiPlatformDeskproConnector {
     given format: OFormat[DeskproTicket] = Json.format[DeskproTicket]
   }
 
-  sealed trait MarkPersonInactiveResult
-  case object MarkPersonInactiveSuccess extends MarkPersonInactiveResult
-  case object MarkPersonInactiveFailed  extends MarkPersonInactiveResult
+  enum MarkPersonInactiveResult {
+    case Success, Failed
+  }
 }

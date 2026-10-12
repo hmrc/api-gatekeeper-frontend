@@ -31,4 +31,4 @@ abstract class GatekeeperBaseController(
     val strideAuthorisationService: StrideAuthorisationService,
     mcc: MessagesControllerComponents
   )(using ec: ExecutionContext
-  ) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper with WithUrlEncodedOnlyFormBinding
+  ) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper with WithUnsafeDefaultFormBinding    // TODO - change later
