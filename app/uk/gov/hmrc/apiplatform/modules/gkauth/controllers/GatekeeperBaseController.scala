@@ -25,9 +25,10 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperStri
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
 import uk.gov.hmrc.play.bootstrap.controller.WithUrlEncodedOnlyFormBinding
+import uk.gov.hmrc.play.bootstrap.controller.WithUnsafeDefaultFormBinding
 
 abstract class GatekeeperBaseController(
     val strideAuthorisationService: StrideAuthorisationService,
     mcc: MessagesControllerComponents
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends FrontendController(mcc) with GatekeeperStrideAuthorisationActions with GatekeeperAuthorisationHelper with WithUrlEncodedOnlyFormBinding

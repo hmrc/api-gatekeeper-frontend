@@ -36,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.views.html.emails.EmailApiSubscriptionsView
 class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
     val emailApiSubscriptionsView: EmailApiSubscriptionsView  = app.injector.instanceOf[EmailApiSubscriptionsView]
   }
 

@@ -47,7 +47,7 @@ class SubscriptionsServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTes
     )
     val underTest           = spy(subscriptionService)
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val stdApp1 = standardApp
 

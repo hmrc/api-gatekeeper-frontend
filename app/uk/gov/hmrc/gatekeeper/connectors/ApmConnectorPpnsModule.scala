@@ -28,10 +28,10 @@ trait ApmConnectorPpnsModule extends ApmConnectorModule {
 
   private val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
 
-  private implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
-  private implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
-  private implicit val readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
-  private implicit val readsBox: Reads[Box]                     = Json.reads[Box]
+  private given readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
+  private given readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
+  private given readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
+  private given readsBox: Reads[Box]                     = Json.reads[Box]
 
   def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
     http.get(url"${baseUrl}/boxes")

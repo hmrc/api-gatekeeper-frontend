@@ -42,7 +42,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ParamNam
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
 object ApplicationsByRequest {
-  implicit val format: OFormat[ApplicationsByRequest] = Json.format[ApplicationsByRequest]
+  given format: OFormat[ApplicationsByRequest] = Json.format[ApplicationsByRequest]
 }
 
 @Singleton

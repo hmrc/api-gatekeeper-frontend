@@ -36,7 +36,7 @@ import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesSpecificApiView
 class EmailPreferencesSpecificApiViewSpec extends CommonViewSpec with EmailPreferencesSpecificAPIViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView = app.injector.instanceOf[EmailPreferencesSpecificApiView]
   }

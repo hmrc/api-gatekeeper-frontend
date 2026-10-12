@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, Deskpro
 class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with OrganisationIdFixtures {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val organisationService = new OrganisationService(apiPlatformDeskproConnector, TPOConnectorMock.aMock)
 

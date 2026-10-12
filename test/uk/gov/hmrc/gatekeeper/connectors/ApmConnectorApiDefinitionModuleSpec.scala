@@ -39,7 +39,7 @@ class ApmConnectorApiDefintionModuleSpec
     with FixedClock {
 
   trait Setup extends ApiBuilder {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 

@@ -49,7 +49,7 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) extends JsonBody
 }
 
 @Singleton
-class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiScopeConnector {
 
   val environment    = Environment.Sandbox
@@ -63,7 +63,7 @@ class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: Ht
 }
 
 @Singleton
-class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiScopeConnector {
 
   val environment    = Environment.Production

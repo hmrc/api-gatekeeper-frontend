@@ -29,7 +29,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.models.ApplicationStateHistoryChange
 
 class ApplicationStatesControllerSpec extends ControllerBaseSpec {
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {

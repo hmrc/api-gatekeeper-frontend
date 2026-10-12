@@ -61,8 +61,8 @@ object OrganisationConnector {
   case class Config(serviceBaseUrl: String)
 
   case class RemoveMemberRequest(userId: UserId, email: LaxEmailAddress)
-  implicit val writesRemoveMemberRequest: Writes[RemoveMemberRequest] = Json.writes[RemoveMemberRequest]
+  given writesRemoveMemberRequest: Writes[RemoveMemberRequest] = Json.writes[RemoveMemberRequest]
 
   case class ErrorMessage(message: String)
-  implicit val readsErrorMessage: Reads[ErrorMessage] = Json.reads[ErrorMessage]
+  given readsErrorMessage: Reads[ErrorMessage] = Json.reads[ErrorMessage]
 }

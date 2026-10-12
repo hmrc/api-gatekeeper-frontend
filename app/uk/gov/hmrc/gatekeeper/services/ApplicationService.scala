@@ -374,7 +374,7 @@ class ApplicationService @Inject() (
     import play.api.libs.json._
     import play.api.libs.functional.syntax._
 
-    implicit val rds: Reads[AppWithSubscriptionsForCsvResponse] = (
+    given rds: Reads[AppWithSubscriptionsForCsvResponse] = (
       (JsPath \ "details" \ "id").read[ApplicationId] and
         (JsPath \ "details" \ "name").read[ApplicationName] and
         (JsPath \ "details" \ "lastAccess").readNullable[Instant] and

@@ -31,7 +31,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val definitionService = new ApiDefinitionService(ApmConnectorMock.aMock)
 

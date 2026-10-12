@@ -48,7 +48,7 @@ class ApplicationCommandConnectorSpec
   val developer     = Collaborators.Developer(UserId.random, "someone@example.com".toLaxEmail)
 
   val authToken                  = "Bearer Token"
-  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  given hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
 

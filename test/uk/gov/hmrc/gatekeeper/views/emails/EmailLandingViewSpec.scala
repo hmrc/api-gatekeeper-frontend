@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.views.html.emails.EmailLandingView
 class EmailLandingViewSpec extends CommonEmailViewSpec with EmailLandingViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailLandingView: EmailLandingView = app.injector.instanceOf[EmailLandingView]
   }

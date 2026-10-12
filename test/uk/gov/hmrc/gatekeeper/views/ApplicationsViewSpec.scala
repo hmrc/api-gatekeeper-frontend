@@ -55,8 +55,8 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
   trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
-    implicit val mockConfig: AppConfig      = mock[AppConfig]
-    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
+    given mockConfig: AppConfig      = mock[AppConfig]
+    given loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
       ApiStatus.Stable.toString     -> Seq(VersionSummary("Dummy API", ApiStatus.Stable, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
@@ -88,17 +88,17 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     def applicationViewWithNoApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
     }
 
     def applicationViewWithApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), apis, Map.empty, getApprovalsUrl)
     }
 
     def applicationViewWithApplication(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(applications, 1, 4, 4, 4), Map.empty, Map.empty, getApprovalsUrl)
     }
 
@@ -194,7 +194,7 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
 
       "Display the 'Add privileged application' button on for appropriate user roles" in new Setup {
         for (r <- rolesTable) {
-          implicit val currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
+          given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
           val applicationView: () => HtmlFormat.Appendable     = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
           if (r._2)
             applicationView().body should include("""Add privileged application""")

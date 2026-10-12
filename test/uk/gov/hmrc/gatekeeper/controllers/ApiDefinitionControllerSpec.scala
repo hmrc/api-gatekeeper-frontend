@@ -36,7 +36,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()
   implicit lazy val materializer: Materializer   = app.materializer
-  implicit val hc: HeaderCarrier                 = HeaderCarrier()
+  given hc: HeaderCarrier                 = HeaderCarrier()
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]

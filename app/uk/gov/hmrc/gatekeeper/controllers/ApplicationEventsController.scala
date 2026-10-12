@@ -32,7 +32,6 @@ import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, Environm
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
@@ -89,8 +88,7 @@ class ApplicationEventsController @Inject() (
     val applicationQueryService: ApplicationQueryService,
     val errorTemplate: ErrorTemplate,
     val errorHandler: ErrorHandler
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper

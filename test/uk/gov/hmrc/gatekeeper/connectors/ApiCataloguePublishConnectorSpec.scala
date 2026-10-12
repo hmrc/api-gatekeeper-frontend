@@ -38,7 +38,7 @@ class ApiCataloguePublishConnectorSpec
     with UrlEncoding {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient: HttpClientV2 = app.injector.instanceOf[HttpClientV2]
 

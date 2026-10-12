@@ -42,7 +42,7 @@ class DeskproControllerSpec
     with CollaboratorTracker
     with FixedClock {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val errorHandler      = app.injector.instanceOf[ErrorHandler]

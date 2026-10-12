@@ -35,7 +35,7 @@ import uk.gov.hmrc.gatekeeper.views.html.emails.EmailAllUsersView
 class EmailAllUsersViewSpec extends CommonViewSpec with EmailAllUsersViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
     val emailAllUsersView: EmailAllUsersView                  = app.injector.instanceOf[EmailAllUsersView]
   }
 

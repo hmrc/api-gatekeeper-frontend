@@ -43,7 +43,7 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
   }
 
   protected def stubGetDeveloper(email: LaxEmailAddress, userJsonText: String, userId: UserId = UserId.random) = {
-    implicit val format = Json.writes[FindUserIdResponse]
+    given format = Json.writes[FindUserIdResponse]
     val responseJson    = Json.stringify(Json.toJson(FindUserIdResponse(userId)))
 
     stubFor(post(urlEqualTo("/developers/find-user-id"))
@@ -107,7 +107,7 @@ trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData wit
 
   def stubDeveloper(): Unit = {
 
-    implicit val format = Json.writes[FindUserIdResponse]
+    given format = Json.writes[FindUserIdResponse]
 
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))

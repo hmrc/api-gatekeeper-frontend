@@ -29,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models._
@@ -65,14 +64,13 @@ class SubscriptionController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
 
   import SubscriptionController._
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
-    implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
+    given versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
       Ordering.by[VersionSubscriptionWithoutFields, ApiVersionNbr](_.version.versionNbr).reverse
 
     def convertToVersionSubscription(apiDefinition: ApiDefinition, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
@@ -103,7 +101,7 @@ class SubscriptionController @Inject() (
   }
 
   def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
-    def handleFormError(form: Form[SubsForm]): Future[Result] = {
+    def handleFormError(): Future[Result] = {
       Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp)))
     }
 
@@ -120,7 +118,7 @@ class SubscriptionController @Inject() (
     }
 
     withApp(appId) { app =>
-      SubsForm.form.bindFromRequest().fold(handleFormError, handleValidForm(app))
+      SubsForm.form.bindFromRequest().fold(_ => handleFormError(), handleValidForm(app))
     }
   }
 }

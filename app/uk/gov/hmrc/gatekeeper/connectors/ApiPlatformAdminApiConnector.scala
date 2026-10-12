@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithUsers
 class ApiPlatformAdminApiConnector @Inject() (http: HttpClientV2, config: ApiPlatformAdminApiConnector.Config)(implicit ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId, hc: HeaderCarrier): Future[Option[ApplicationWithUsers]] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId")
       .execute[Option[ApplicationWithUsers]]
   }

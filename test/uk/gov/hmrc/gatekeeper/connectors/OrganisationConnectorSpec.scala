@@ -40,8 +40,8 @@ class OrganisationConnectorSpec
     with FixedClock {
 
   trait Setup {
-    implicit val hc: HeaderCarrier                        = HeaderCarrier()
-    implicit val writesErrorMessage: Writes[ErrorMessage] = Json.writes[ErrorMessage]
+    given hc: HeaderCarrier                        = HeaderCarrier()
+    given writesErrorMessage: Writes[ErrorMessage] = Json.writes[ErrorMessage]
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 

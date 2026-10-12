@@ -44,7 +44,7 @@ class RedirectUrisControllerSpec
     with CollaboratorTracker
     with ApplicationWithCollaboratorsFixtures {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView               = app.injector.instanceOf[ErrorTemplate]
   private lazy val manageLoginRedirectUriView      = app.injector.instanceOf[ManageLoginRedirectUriView]

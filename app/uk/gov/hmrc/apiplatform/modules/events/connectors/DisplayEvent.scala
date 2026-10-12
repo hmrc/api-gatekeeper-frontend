@@ -33,5 +33,5 @@ case class DisplayEvent(
 
 object DisplayEvent {
   import Actor.given
-  implicit val format: OFormat[DisplayEvent] = Json.format[DisplayEvent]
+  given format: OFormat[DisplayEvent] = Json.format[DisplayEvent]
 }

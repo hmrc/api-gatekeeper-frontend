@@ -31,7 +31,7 @@ class AuthConnectorSpec
     with GuiceOneAppPerSuite {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val mockAppConfig = mock[AppConfig]
     val httpClient    = app.injector.instanceOf[HttpClientV2]

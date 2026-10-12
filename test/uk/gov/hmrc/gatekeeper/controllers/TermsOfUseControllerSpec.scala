@@ -23,7 +23,7 @@ import org.apache.pekko.stream.Materializer
 import play.api.test.Helpers._
 
 class TermsOfUseControllerSpec extends ControllerBaseSpec {
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {

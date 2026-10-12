@@ -28,7 +28,7 @@ import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, RemoveAllCollaboratorsForU
 import uk.gov.hmrc.gatekeeper.utils.XmlServicesHelper
 
 @Singleton
-class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(implicit val ec: ExecutionContext) extends XmlServicesHelper {
+class XmlService @Inject() (xmlServicesConnector: XmlServicesConnector)(using ec: ExecutionContext) extends XmlServicesHelper {
 
   def getXmlServicesForUser(user: RegisteredUser)(implicit hc: HeaderCarrier): Future[Set[String]] = {
 

@@ -33,7 +33,7 @@ import uk.gov.hmrc.gatekeeper.views.html.ppns.BoxesView
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
   val anAppId                             = ApplicationId.random
   val appIdText                           = anAppId.value.toString()
 

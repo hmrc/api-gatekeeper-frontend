@@ -41,7 +41,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationView
 class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with ApiBuilder with ApplicationWithCollaboratorsFixtures with FixedClock with ApplicationBuilder {
 
   trait Setup {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest()
     val applicationView                                       = app.injector.instanceOf[ApplicationView]
 
     val developers = List[RegisteredUser] {

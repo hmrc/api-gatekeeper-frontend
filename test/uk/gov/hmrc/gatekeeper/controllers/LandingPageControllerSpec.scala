@@ -41,7 +41,7 @@ class LandingPageControllerSpec
     with CollaboratorTracker
     with ApplicationWithCollaboratorsFixtures {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val landingPageView = app.injector.instanceOf[LandingPageView]
   private lazy val errorHandler    = app.injector.instanceOf[ErrorHandler]

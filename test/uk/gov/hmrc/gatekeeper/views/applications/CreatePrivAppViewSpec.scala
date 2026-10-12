@@ -34,7 +34,7 @@ class CreatePrivAppViewSpec extends CommonViewSpec {
   trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
 
-    implicit val userFullName: LoggedInUser = LoggedInUser(Some("firstName lastName"))
+    given userFullName: LoggedInUser = LoggedInUser(Some("firstName lastName"))
     val page: () => HtmlFormat.Appendable   = () => createApplicationView(createPrivAppForm)
   }
 

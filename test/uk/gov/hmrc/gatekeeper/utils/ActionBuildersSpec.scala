@@ -42,8 +42,8 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 class ActionBuildersSpec extends ControllerBaseSpec {
 
   trait Setup extends ControllerSetupBase {
-    implicit val materializer: Materializer = app.materializer
-    implicit val hc: HeaderCarrier          = HeaderCarrier()
+    given materializer: Materializer = app.materializer
+    given hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
       val applicationQueryService: ApplicationQueryService = ApplicationQueryServiceMock.aMock
@@ -53,8 +53,8 @@ class ActionBuildersSpec extends ControllerBaseSpec {
 
     val fakeRequest                                                            = FakeRequest()
     val msgRequest                                                             = new MessagesRequest(fakeRequest, stubMessagesApi())
-    implicit val aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
-    implicit val messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
+    given aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
+    given messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
     val actionReturns200Body: Request[?] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 

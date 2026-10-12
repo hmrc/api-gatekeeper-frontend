@@ -24,7 +24,7 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonForm
 object EmailOptionChoice extends Enumeration {
   type EmailOptionChoice = Value
   val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS   = Value
-  implicit val emailOptionsFormat: Format[EmailOptionChoice] = Json.formatEnum(EmailOptionChoice)
+  given emailOptionsFormat: Format[EmailOptionChoice] = Json.formatEnum(EmailOptionChoice)
 
   val optionLabel: EmailOptionChoice => String = {
     case EMAIL_PREFERENCES => "Email preferences"
@@ -44,7 +44,7 @@ object EmailPreferencesChoice extends Enumeration {
 
   val TOPIC, TAX_REGIME, SPECIFIC_API = Value
 
-  implicit val emailPreferencesChoiceFormat: Format[EmailPreferencesChoice] = Json.formatEnum(EmailPreferencesChoice)
+  given emailPreferencesChoiceFormat: Format[EmailPreferencesChoice] = Json.formatEnum(EmailPreferencesChoice)
 
   val optionLabel: EmailPreferencesChoice => String = {
     case EmailPreferencesChoice.SPECIFIC_API => "Users interested in a specific API or APIs"
@@ -79,7 +79,7 @@ object TopicOptionChoice {
   def unsafeApply(text: String): TopicOptionChoice =
     apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Topic Option Choice"))
 
-  implicit val formatTopicOptionAndChoice: Format[TopicOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
+  given formatTopicOptionAndChoice: Format[TopicOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
 
   val optionLabel: TopicOptionChoice => String = {
     case TopicOptionChoice.BUSINESS_AND_POLICY => "Business and policy"

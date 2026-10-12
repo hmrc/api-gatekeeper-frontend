@@ -51,7 +51,7 @@ object SubscriptionType {
 
   import play.api.libs.json.Format
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
-  implicit val format: Format[SubscriptionType] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[SubscriptionType]("Subscription Type", SubscriptionType.apply)
+  given format: Format[SubscriptionType] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[SubscriptionType]("Subscription Type", SubscriptionType.apply)
 }
 
 sealed trait Subscriber {

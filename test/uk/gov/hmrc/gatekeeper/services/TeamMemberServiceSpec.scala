@@ -53,7 +53,7 @@ class TeamMemberServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest {
     )
     val underTest         = spy(teamMemberService)
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val stdApp1          = standardApp
     val gatekeeperUserId = "loggedin.gatekeeper"

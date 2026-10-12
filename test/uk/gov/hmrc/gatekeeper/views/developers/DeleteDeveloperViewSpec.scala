@@ -41,8 +41,8 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
   "delete developer view" should {
-    implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages: Messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
+    given userName: LoggedInUser = LoggedInUser(Some("gate.keeper"))
+    given messages: Messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 

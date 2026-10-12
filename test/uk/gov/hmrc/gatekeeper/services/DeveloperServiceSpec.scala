@@ -118,7 +118,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     val offset          = 0
     val limit           = 4
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     def fetchDeveloperWillReturn(
         user: RegisteredUser,

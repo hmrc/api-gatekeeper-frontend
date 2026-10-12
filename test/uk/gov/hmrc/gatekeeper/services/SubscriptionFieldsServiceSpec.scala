@@ -37,7 +37,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
   trait Setup extends SubscriptionsBuilder {
     val mockApmConnectorModule: ApmConnectorSubscriptionFieldsModule = mock[ApmConnectorSubscriptionFieldsModule]
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val service = new SubscriptionFieldsService(mockApmConnectorModule)
   }

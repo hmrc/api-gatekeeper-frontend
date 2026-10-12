@@ -22,15 +22,15 @@ import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefini
 
 trait APIDefinitionFormatters {
 
-  implicit val formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
-  implicit val formatSubscriptionFieldValue: OFormat[SubscriptionFieldValue]           = Json.format[SubscriptionFieldValue]
-  implicit val formatSubscriptionFields: OFormat[SubscriptionFieldsWrapper]            = Json.format[SubscriptionFieldsWrapper]
-  implicit val formatVersionSubscription: OFormat[VersionSubscription]                 = Json.format[VersionSubscription]
+  given formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
+  given formatSubscriptionFieldValue: OFormat[SubscriptionFieldValue]           = Json.format[SubscriptionFieldValue]
+  given formatSubscriptionFields: OFormat[SubscriptionFieldsWrapper]            = Json.format[SubscriptionFieldsWrapper]
+  given formatVersionSubscription: OFormat[VersionSubscription]                 = Json.format[VersionSubscription]
 
-  implicit val versionSubscriptionWithoutFieldsJsonFormatter: OFormat[VersionSubscriptionWithoutFields] = Json.format[VersionSubscriptionWithoutFields]
-  implicit val subscriptionWithoutFieldsJsonFormatter: OFormat[SubscriptionWithoutFields]               = Json.format[SubscriptionWithoutFields]
+  given versionSubscriptionWithoutFieldsJsonFormatter: OFormat[VersionSubscriptionWithoutFields] = Json.format[VersionSubscriptionWithoutFields]
+  given subscriptionWithoutFieldsJsonFormatter: OFormat[SubscriptionWithoutFields]               = Json.format[SubscriptionWithoutFields]
 
-  implicit val formatSubscriptionResponse: OFormat[SubscriptionResponse] = Json.format[SubscriptionResponse]
+  given formatSubscriptionResponse: OFormat[SubscriptionResponse] = Json.format[SubscriptionResponse]
 }
 
 object APIDefinitionFormatters extends APIDefinitionFormatters

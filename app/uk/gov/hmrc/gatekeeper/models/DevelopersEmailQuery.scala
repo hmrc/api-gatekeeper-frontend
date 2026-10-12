@@ -33,7 +33,7 @@ case class DevelopersEmailQuery(
   )
 
 object DevelopersEmailQuery {
-  implicit val emailOverrideFormatter: OFormat[EmailOverride]            = Json.format[EmailOverride]
+  given emailOverrideFormatter: OFormat[EmailOverride]            = Json.format[EmailOverride]
   import ServiceName.given_Format_ServiceName
-  implicit val formatDevelopersEmailQuery: OFormat[DevelopersEmailQuery] = Json.format[DevelopersEmailQuery]
+  given formatDevelopersEmailQuery: OFormat[DevelopersEmailQuery] = Json.format[DevelopersEmailQuery]
 }

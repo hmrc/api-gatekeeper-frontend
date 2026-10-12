@@ -80,7 +80,7 @@ object RegisteredUser {
   )(RegisteredUser.apply)
 
   val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
-  implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
+  given registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
 }
 
 case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends AbstractUser {
@@ -146,5 +146,5 @@ case class Developer(
 case class UserPaginatedResponse(totalCount: Int, users: List[RegisteredUser])
 
 object UserPaginatedResponse {
-  implicit val format: Format[UserPaginatedResponse] = Json.format
+  given format: Format[UserPaginatedResponse] = Json.format
 }

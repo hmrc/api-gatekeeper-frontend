@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.{HeaderCarrier, NotFoundException}
 
@@ -30,7 +29,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.Forms._
 import uk.gov.hmrc.gatekeeper.models.{TopicOptionChoice, _}
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationService, DeveloperService}
@@ -57,8 +55,7 @@ class EmailsController @Inject() (
     override val errorTemplate: ErrorTemplate,
     val apmService: ApmService,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with UserFunctionsWrapper
@@ -77,10 +74,10 @@ class EmailsController @Inject() (
       }
     }
 
-    def handleInvalidForm(formWithErrors: Form[SendEmailChoice]) =
+    def handleInvalidForm() =
       Future.successful(BadRequest(emailLandingView()))
 
-    SendEmailChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    SendEmailChoiceForm.form.bindFromRequest().fold(_ => handleInvalidForm(), handleValidForm)
   }
 
   def emailPreferencesChoice(): Action[AnyContent] = anyStrideUserAction { implicit request =>
@@ -95,10 +92,10 @@ class EmailsController @Inject() (
         case EmailPreferencesChoice.TOPIC        => Future.successful(Redirect(routes.EmailsController.emailPreferencesTopic(None)))
       }
     }
-    def handleInvalidForm(formWithErrors: Form[SendEmailPreferencesChoice]) =
+    def handleInvalidForm() =
       Future.successful(BadRequest(emailPreferencesChoiceView()))
 
-    SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    SendEmailPrefencesChoiceForm.form.bindFromRequest().fold(_ => handleInvalidForm(), handleValidForm)
   }
 
   def selectSpecificApi(selectedAPIs: Option[List[ServiceName]]): Action[AnyContent] = anyStrideUserAction { implicit request =>

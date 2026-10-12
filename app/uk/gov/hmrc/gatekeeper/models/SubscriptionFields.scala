@@ -60,7 +60,7 @@ object SubscriptionFields {
   case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias)
 
   object SubscriptionFieldsPutRequest extends APIDefinitionFormatters {
-    implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
+    given format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }
 
   // TODO - Remove Enumeration

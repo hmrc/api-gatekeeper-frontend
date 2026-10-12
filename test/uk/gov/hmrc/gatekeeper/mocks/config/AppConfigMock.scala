@@ -21,7 +21,7 @@ import org.mockito.MockitoSugar
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 trait AppConfigMock extends MockitoSugar {
-  implicit val mockConfig: AppConfig = mock[AppConfig]
+  given mockConfig: AppConfig = mock[AppConfig]
 
   when(mockConfig.title).thenReturn("Unit Test Title")
   when(mockConfig.strideLoginUrl).thenReturn("https://loginUri")

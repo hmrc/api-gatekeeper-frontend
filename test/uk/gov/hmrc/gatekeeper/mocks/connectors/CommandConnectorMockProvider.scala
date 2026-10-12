@@ -33,7 +33,7 @@ trait CommandConnectorMockProvider {
   object CommandConnectorMock {
     val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
 
-    import CHT.Implicits._
+    import CHT.Implicits.*
 
     val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
 

@@ -36,7 +36,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with XmlServicesConnectorMockProvider {
 
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val objectInTest = new XmlService(mockXmlServicesConnector)
 

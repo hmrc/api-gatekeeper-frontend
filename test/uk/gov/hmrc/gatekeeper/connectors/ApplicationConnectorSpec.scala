@@ -55,7 +55,7 @@ class ApplicationConnectorSpec
   val apiKey        = "apiKey"
   val authToken     = "Bearer Token"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  given hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
   class Setup(proxyEnabled: Boolean = false) {
     val httpClient               = app.injector.instanceOf[HttpClientV2]

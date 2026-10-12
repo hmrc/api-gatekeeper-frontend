@@ -47,8 +47,8 @@ class OrganisationViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationBuilder {
     val organisationView = app.injector.instanceOf[OrganisationView]
 
-    implicit val mockConfig: AppConfig      = mock[AppConfig]
-    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
+    given mockConfig: AppConfig      = mock[AppConfig]
+    given loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
     val organisationName     = "Organisation Name"

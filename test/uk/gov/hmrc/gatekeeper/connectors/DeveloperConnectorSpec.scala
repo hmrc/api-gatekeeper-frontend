@@ -38,6 +38,7 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.encryption.PayloadEncryption
 import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.utils._
+import play.api.libs.json.OWrites
 
 class DeveloperConnectorSpec
     extends AsyncHmrcSpec
@@ -47,7 +48,7 @@ class DeveloperConnectorSpec
     with UrlEncoding {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val mockAppConfig         = mock[AppConfig]
     val mockPayloadEncryption = new PayloadEncryption("gvBoGdgzqG1AarzF1LY0zQ==")
@@ -59,7 +60,7 @@ class DeveloperConnectorSpec
   }
 
   def mockFetchUserId(email: LaxEmailAddress, userId: UserId) = {
-    implicit val writer = Json.writes[FindUserIdResponse]
+    given OWrites[FindUserIdResponse] = Json.writes[FindUserIdResponse]
 
     stubFor(
       post(urlEqualTo("/developers/find-user-id"))

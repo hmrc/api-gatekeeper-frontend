@@ -44,8 +44,8 @@ class ThirdPartyOrchestratorConnectorSpec
     with FixedClock {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    implicit val mat: Materializer = NoMaterializer
+    given hc: HeaderCarrier = HeaderCarrier()
+    given mat: Materializer = NoMaterializer
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 
@@ -84,7 +84,7 @@ class ThirdPartyOrchestratorConnectorSpec
 
   "getApplicationsByEmails" should {
     "return applications" in new Setup {
-      val url     = s"/developer/applications"
+      val url     = "/developer/applications"
       val email   = "test@email.com".toLaxEmail
       val payload = Json.toJson(List(application))
 
@@ -105,7 +105,7 @@ class ThirdPartyOrchestratorConnectorSpec
   }
 
   "validateName" should {
-    val url = s"/environment/PRODUCTION/application/name/validate"
+    val url = "/environment/PRODUCTION/application/name/validate"
 
     "returns a valid response" in new Setup {
       val applicationName                                   = "my valid application name"

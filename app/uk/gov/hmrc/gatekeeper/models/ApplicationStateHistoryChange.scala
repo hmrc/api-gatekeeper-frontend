@@ -29,5 +29,5 @@ case class ApplicationStateHistoryChange(
   )
 
 object ApplicationStateHistoryChange {
-  implicit val formatApplicationStateHistoryChange: OFormat[ApplicationStateHistoryChange] = Json.format[ApplicationStateHistoryChange]
+  given formatApplicationStateHistoryChange: OFormat[ApplicationStateHistoryChange] = Json.format[ApplicationStateHistoryChange]
 }

@@ -51,7 +51,7 @@ class ApplicationQueryServiceSpec
       TPOConnectorMock.aMock,
       FixedClock.clock
     )
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
   }
 
   "fetchApplication" should {

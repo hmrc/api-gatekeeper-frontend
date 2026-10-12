@@ -52,7 +52,7 @@ class RedirectUrisController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper

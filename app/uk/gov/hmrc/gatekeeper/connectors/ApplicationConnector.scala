@@ -39,18 +39,18 @@ object ApplicationConnector {
 
   case class SearchCollaboratorsRequest(apiContext: ApiContext, apiVersion: ApiVersionNbr)
 
-  implicit val writes: OWrites[SearchCollaboratorsRequest] = Json.writes[SearchCollaboratorsRequest]
+  given writes: OWrites[SearchCollaboratorsRequest] = Json.writes[SearchCollaboratorsRequest]
 
   case class TermsOfUseInvitationResponse(applicationId: ApplicationId)
 
-  implicit val termsOfUseInvitationResponseReads: Reads[TermsOfUseInvitationResponse] = Json.reads[TermsOfUseInvitationResponse]
+  given termsOfUseInvitationResponseReads: Reads[TermsOfUseInvitationResponse] = Json.reads[TermsOfUseInvitationResponse]
 
   case class AppWithSubscriptionsForCsvResponse(id: ApplicationId, name: ApplicationName, lastAccess: Option[Instant], apiIdentifiers: Set[ApiIdentifier])
 
-  implicit val appWithSubscriptionsForCsvResponseReads: Reads[AppWithSubscriptionsForCsvResponse] = Json.reads[AppWithSubscriptionsForCsvResponse]
+  given appWithSubscriptionsForCsvResponseReads: Reads[AppWithSubscriptionsForCsvResponse] = Json.reads[AppWithSubscriptionsForCsvResponse]
 }
 
-abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends APIDefinitionFormatters with JsonBodyWritables {
+abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefinitionFormatters with JsonBodyWritables {
   import ApplicationConnector._
 
   val environment: Environment
@@ -93,7 +93,7 @@ abstract class ApplicationConnector(implicit val ec: ExecutionContext) extends A
 class SandboxApplicationConnector @Inject() (
     val appConfig: AppConfig,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationConnector {
 
   val environment    = Environment.Sandbox
@@ -110,7 +110,7 @@ class SandboxApplicationConnector @Inject() (
 class ProductionApplicationConnector @Inject() (
     val appConfig: AppConfig,
     val http: HttpClientV2
-  )(implicit override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationConnector {
 
   val environment    = Environment.Production

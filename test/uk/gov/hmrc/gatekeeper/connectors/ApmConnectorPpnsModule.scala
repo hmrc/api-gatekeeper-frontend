@@ -39,7 +39,7 @@ class ApmConnectorPpnsModuleSpec
     with FixedClock {
 
   trait Setup extends ApplicationIdFixtures {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 

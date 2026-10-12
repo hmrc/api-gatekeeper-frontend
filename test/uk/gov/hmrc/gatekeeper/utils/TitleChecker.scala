@@ -27,7 +27,7 @@ import uk.gov.hmrc.apiplatform.modules.common.utils._
 
 trait TitleChecker extends AsyncHmrcSpec {
 
-  implicit val materializer: Materializer
+  given materializer: Materializer
 
   def titleOf(result: Future[Result]): String = {
     val titleRegEx = """<title[^>]*>(.*)</title>""".r

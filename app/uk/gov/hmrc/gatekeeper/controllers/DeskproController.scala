@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services._
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.services._
@@ -45,8 +44,7 @@ class DeskproController @Inject() (
     val ldapAuthorisationService: LdapAuthorisationService,
     val apiPlatformDeskproService: ApiPlatformDeskproService,
     val developerService: DeveloperService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper

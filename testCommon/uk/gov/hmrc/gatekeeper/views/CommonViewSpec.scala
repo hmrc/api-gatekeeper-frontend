@@ -34,11 +34,11 @@ import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
   val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]
   val messagesApi                                 = mcc.messagesApi
-  implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
+  given messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
 
   val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", true), List.empty)
 
-  implicit val fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
+  given fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
 
   val msgRequest          = new MessagesRequest(fakeRequest, messagesApi)
   val strideUserRequest   = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)

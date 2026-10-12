@@ -33,7 +33,7 @@ object ApiPlatformEventsConnector {
   case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
-    implicit val format: OFormat[QueryResponse] = Json.format[QueryResponse]
+    given format: OFormat[QueryResponse] = Json.format[QueryResponse]
   }
 
 }
@@ -104,7 +104,7 @@ object SubordinateApiPlatformEventsConnector {
 class SubordinateApiPlatformEventsConnector @Inject() (
     val config: SubordinateApiPlatformEventsConnector.Config,
     val http: HttpClientV2
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApiPlatformEventsConnector {
 
   val serviceBaseUrl: String = config.serviceBaseUrl
@@ -125,7 +125,7 @@ object PrincipalApiPlatformEventsConnector {
 class PrincipalApiPlatformEventsConnector @Inject() (
     val config: PrincipalApiPlatformEventsConnector.Config,
     val http: HttpClientV2
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApiPlatformEventsConnector {
 
   val environment    = Environment.Production

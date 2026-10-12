@@ -32,7 +32,7 @@ class ErrorHandler @Inject() (
     val messagesApi: MessagesApi,
     val configuration: Configuration,
     errorTemplate: ErrorTemplate
-  )(implicit val appConfig: AppConfig,
+  )(using appConfig: AppConfig,
     val ec: ExecutionContext
   ) extends FrontendErrorHandler {
 

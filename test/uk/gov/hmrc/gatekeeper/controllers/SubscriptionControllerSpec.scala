@@ -40,7 +40,7 @@ class SubscriptionControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]

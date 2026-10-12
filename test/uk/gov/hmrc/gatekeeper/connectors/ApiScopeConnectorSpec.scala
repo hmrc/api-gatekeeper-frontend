@@ -36,7 +36,7 @@ class ApiScopeConnectorSpec
     with GuiceOneAppPerSuite {
 
   class Setup(proxyEnabled: Boolean = false) {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 

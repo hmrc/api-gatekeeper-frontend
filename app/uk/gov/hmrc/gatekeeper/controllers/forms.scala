@@ -54,7 +54,7 @@ object DevelopersSearchForm {
       "apiVersionFilter"      -> optional(nonEmptyText),
       "environmentFilter"     -> optional(nonEmptyText),
       "developerStatusFilter" -> optional(nonEmptyText)
-    )(DevelopersSearchForm.apply)(f => Some(f.maybeTextFilter, f.maybeApiVersionFilter, f.maybeEnvironmentFilter, f.maybeDeveloperStatusFilter))
+    )(DevelopersSearchForm.apply)(f => Some((f.maybeTextFilter, f.maybeApiVersionFilter, f.maybeEnvironmentFilter, f.maybeDeveloperStatusFilter)))
   )
 }
 

@@ -43,7 +43,7 @@ import uk.gov.hmrc.gatekeeper.views.html.applications.{
 
 class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCSRFAddToken {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   val forbiddenView        = mock[ForbiddenView]
   val errorTemplate        = mock[ErrorTemplate]

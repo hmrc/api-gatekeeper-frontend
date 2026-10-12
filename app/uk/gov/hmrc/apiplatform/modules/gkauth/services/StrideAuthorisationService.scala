@@ -37,13 +37,13 @@ class StrideAuthorisationService @Inject() (
     strideAuthConnector: StrideAuthConnector,
     forbiddenHandler: ForbiddenHandler,
     strideAuthConfig: StrideAuthConfig
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) {
 
   import strideAuthConfig.roles._
 
   def refineStride[A](strideRoleRequired: GatekeeperStrideRole): (MessagesRequest[A]) => Future[Either[Result, LoggedInRequest[A]]] = (msgRequest) => {
-    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
+    given hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
 
     lazy val loginRedirect =
       Redirect(
@@ -51,7 +51,7 @@ class StrideAuthorisationService @Inject() (
         Map("successURL" -> Seq(strideAuthConfig.successUrl), "origin" -> Seq(strideAuthConfig.origin))
       )
 
-    implicit val request = msgRequest
+    given request: MessagesRequest[A] = msgRequest
 
     authorise(strideRoleRequired) map {
       case Some(name) ~ authorisedEnrolments =>

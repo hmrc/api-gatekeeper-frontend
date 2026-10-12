@@ -32,11 +32,11 @@ object ApmConnector {
 trait ApmConnectorModule extends JsonBodyWritables {
   def http: HttpClientV2
   def config: ApmConnector.Config
-  implicit def ec: ExecutionContext
+  given ec: ExecutionContext
 }
 
 @Singleton
-class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(implicit val ec: ExecutionContext)
+class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(using val ec: ExecutionContext)
     extends ApmConnectoCombinedApisModule
     with ApmConnectorApiDefinitionModule
     with ApmConnectorApplicationModule

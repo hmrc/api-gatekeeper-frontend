@@ -40,7 +40,7 @@ class SubordinateApiPlatformEventsConnectorSpec
 
   trait Setup {
     val authToken                  = "Bearer Token"
-    implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+    given hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
     val httpClient                                             = app.injector.instanceOf[HttpClientV2]
     val mockConfig: PrincipalApiPlatformEventsConnector.Config = mock[PrincipalApiPlatformEventsConnector.Config]

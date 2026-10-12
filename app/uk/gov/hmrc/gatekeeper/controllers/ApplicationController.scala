@@ -87,15 +87,15 @@ class ApplicationController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using appConfig: AppConfig,
+    ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
+  given dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     val env                                                   = environment.getOrElse(Environment.Sandbox)

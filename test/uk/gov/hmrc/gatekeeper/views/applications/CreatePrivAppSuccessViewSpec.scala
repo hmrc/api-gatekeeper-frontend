@@ -49,7 +49,7 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
         val accessType = Some(AccessType.Privileged)
         val totp       = Some(TotpSecrets(totpSecret))
 
-        implicit val loggedInUser: LoggedInUser = LoggedInUser(Some(""))
+        given loggedInUser: LoggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
           () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider, fakeRequest)

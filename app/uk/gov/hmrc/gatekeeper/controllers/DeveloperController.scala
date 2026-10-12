@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -56,8 +55,8 @@ class DeveloperController @Inject() (
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using appConfig: AppConfig,
+    ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
@@ -94,11 +93,11 @@ class DeveloperController @Inject() (
       }
     }
 
-    def handleInvalidForm(form: Form[RemoveMfaConfirmationForm]): Future[Result] = {
+    def handleInvalidForm(): Future[Result] = {
       successful(BadRequest)
     }
 
-    RemoveMfaConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    RemoveMfaConfirmationForm.form.bindFromRequest().fold(_ => handleInvalidForm(), handleValidForm)
   }
 
   def deleteDeveloperPage(developerIdentifier: UserId) = atLeastAdvancedUserAction { implicit request =>

@@ -27,12 +27,15 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{Comm
 import uk.gov.hmrc.apiplatform.modules.common.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import play.api.libs.ws.JsonBodyWritables
+import play.api.libs.json._
+import uk.gov.hmrc.http.HttpReads.Implicits._
+import play.api.http.Status._
 
 @Singleton
 class ApplicationCommandConnector @Inject() (
     val http: HttpClientV2,
     val config: ApmConnector.Config
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends CommandHandlerTypes[DispatchSuccessResult]
     with ApplicationLogger
     with JsonBodyWritables {
@@ -45,9 +48,6 @@ class ApplicationCommandConnector @Inject() (
     ): AppCmdResult = {
 
     import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
-    import play.api.libs.json._
-    import uk.gov.hmrc.http.HttpReads.Implicits._
-    import play.api.http.Status._
 
     val serviceBaseUrl = config.serviceBaseUrl
 

@@ -25,7 +25,7 @@ import uk.gov.hmrc.crypto.json.JsonEncryption
 case class SecretRequest(data: String)
 
 object SecretRequest {
-  implicit val format: OFormat[SecretRequest] = Json.format[SecretRequest]
+  given format: OFormat[SecretRequest] = Json.format[SecretRequest]
 }
 
 trait SendsSecretRequest {
@@ -44,7 +44,7 @@ case class SensitiveT[T](override val decryptedValue: T) extends Sensitive[T]
 
 class PayloadEncryption(jsonEncryptionKey: String) {
 
-  implicit val crypto: LocalCrypto = new LocalCrypto(jsonEncryptionKey)
+  given crypto: LocalCrypto = new LocalCrypto(jsonEncryptionKey)
 
   def encrypt[T](payload: T)(implicit writes: Writes[T]): JsValue = {
     val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
@@ -63,7 +63,7 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 
 private[encryption] class LocalCrypto(anEncryptionKey: String) extends Encrypter with Decrypter {
 
-  implicit val aesCrypto: Encrypter & Decrypter = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
+  given aesCrypto: (Encrypter with Decrypter) = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
 
   override def encrypt(plain: PlainContent): Crypted = aesCrypto.encrypt(plain)
 

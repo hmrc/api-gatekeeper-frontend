@@ -26,12 +26,12 @@ object FilterValue {
   import play.api.libs.json.Reads._
   import play.api.libs.json._
 
-  implicit val format: OFormat[FilterValue] = ((__ \ "description").format[String] and
+  given format: OFormat[FilterValue] = ((__ \ "description").format[String] and
     (__ \ "type").format[String])(FilterValue.apply, unlift(fv => Some(fv.description, fv.t)))
 }
 
 case class QueryableValues(eventTags: List[FilterValue], actorTypes: List[FilterValue])
 
 object QueryableValues {
-  implicit val format: OFormat[QueryableValues] = Json.format[QueryableValues]
+  given format: OFormat[QueryableValues] = Json.format[QueryableValues]
 }

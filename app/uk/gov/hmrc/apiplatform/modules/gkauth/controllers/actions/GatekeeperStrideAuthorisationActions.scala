@@ -29,12 +29,10 @@ trait ForbiddenHandler {
   def handle(msgResult: MessagesRequest[?]): Result
 }
 
-trait GatekeeperStrideAuthorisationActions {
+trait GatekeeperStrideAuthorisationActions(using ec: ExecutionContext) {
   self: FrontendBaseController =>
 
   def strideAuthorisationService: StrideAuthorisationService
-
-  implicit def ec: ExecutionContext
 
   def gatekeeperRoleActionRefiner(minimumRoleRequired: GatekeeperStrideRole): ActionRefiner[MessagesRequest, LoggedInRequest] =
     new ActionRefiner[MessagesRequest, LoggedInRequest] {
@@ -63,7 +61,7 @@ trait GatekeeperStrideAuthorisationActions {
     gatekeeperRoleAction(GatekeeperRoles.ADMIN)(block)
 }
 
-trait GatekeeperAuthorisationActions {
+trait GatekeeperAuthorisationActions(using ec: ExecutionContext) {
   self: FrontendBaseController & GatekeeperStrideAuthorisationActions =>
 
   def ldapAuthorisationService: LdapAuthorisationService

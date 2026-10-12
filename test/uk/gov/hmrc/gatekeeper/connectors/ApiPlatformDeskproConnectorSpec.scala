@@ -42,7 +42,7 @@ class ApiPlatformDeskproConnectorSpec
     with FixedClock {
 
   trait Setup extends OrganisationIdFixtures {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 

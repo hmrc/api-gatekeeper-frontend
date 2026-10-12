@@ -79,7 +79,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) extends Json
 }
 
 @Singleton
-class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiPublisherConnector {
 
   val environment    = Environment.Sandbox
@@ -93,7 +93,7 @@ class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http
 }
 
 @Singleton
-class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiPublisherConnector {
 
   val environment    = Environment.Production
