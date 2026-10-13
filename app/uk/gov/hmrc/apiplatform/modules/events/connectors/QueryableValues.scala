@@ -22,9 +22,9 @@ case class FilterValue(description: String, t: String)
 
 object FilterValue {
 
-  import play.api.libs.functional.syntax._
-  import play.api.libs.json.Reads._
-  import play.api.libs.json._
+  import play.api.libs.functional.syntax.*
+  import play.api.libs.json.Reads.*
+  import play.api.libs.json.*
 
   given format: OFormat[FilterValue] = ((__ \ "description").format[String] and
     (__ \ "type").format[String])(FilterValue.apply, fv => (fv.description, fv.t))

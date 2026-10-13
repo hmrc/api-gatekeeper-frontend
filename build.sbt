@@ -1,7 +1,7 @@
-import com.typesafe.sbt.digest.Import._
-import net.ground5hark.sbt.concat.Import._
+import com.typesafe.sbt.digest.Import.*
+import net.ground5hark.sbt.concat.Import.*
 import uk.gov.hmrc.DefaultBuildSettings
-import uk.gov.hmrc.DefaultBuildSettings._
+import uk.gov.hmrc.DefaultBuildSettings.*
 
 lazy val appName = "api-gatekeeper-frontend"
 

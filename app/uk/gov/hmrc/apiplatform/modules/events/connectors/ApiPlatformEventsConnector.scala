@@ -29,13 +29,11 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.EbridgeConfigurator
 
 object ApiPlatformEventsConnector {
-
   case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
     given format: OFormat[QueryResponse] = Json.format[QueryResponse]
   }
-
 }
 
 @Singleton

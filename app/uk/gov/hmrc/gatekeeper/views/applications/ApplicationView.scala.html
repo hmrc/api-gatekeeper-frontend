@@ -14,16 +14,16 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
+@import uk.gov.hmrc.gatekeeper.models.*
+@import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+@import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper.*
 @import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{PrivacyPolicyLocation, TermsAndConditionsLocation}
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
-@import uk.gov.hmrc.gatekeeper.models.view._
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper.*
+@import uk.gov.hmrc.gatekeeper.models.view.*
 @import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
-@import uk.gov.hmrc.gatekeeper.views.helper.application._
+@import uk.gov.hmrc.gatekeeper.views.helper.application.*
 @import java.time.format.DateTimeFormatter
 @import uk.gov.hmrc.gatekeeper.views.helper.EmailsFormatter
 @import uk.gov.hmrc.gatekeeper.views.helper.application.GrantLengthDisplayer
@@ -34,6 +34,7 @@
 @import java.time.{Clock, LocalDateTime, Instant}
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.GrantLength
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DoNotDelete
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State.*
 
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles.ADMIN.isAdvancedUser
 
@@ -287,7 +288,7 @@
             @application.name
         </dd>
         <dd class="govuk-summary-list__actions">
-        @if(application.isProduction && application.state.isApproved) {
+        @if(application.isProduction && application.isApproved) {
             <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId.simpleApp).url}" class="button--link" role="button">Manage</a>
         }
         </dd>
