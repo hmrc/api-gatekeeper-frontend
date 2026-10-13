@@ -105,7 +105,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
     //     StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
     //     when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
-    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "")))
+    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("serviceName", "")))
 
     //     contentAsString(result) should include("Provide a service name")
     //   }
@@ -114,7 +114,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
     //     StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
     //     when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteSuccessResult))
 
-    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
+    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 
     //     contentAsString(result) should include("mtd-vat-1 deleted from all developers")
     //   }
@@ -123,7 +123,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
     //     StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
     //     when(mockDeveloperService.removeEmailPreferencesByService(eqTo(ServiceName("mtd-vat-1")))(using *)).thenReturn(Future.successful(EmailPreferencesDeleteFailureResult))
 
-    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
+    //     val result = developersController.removeEmailPreferencesAction()(aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("serviceName", "mtd-vat-1")))
 
     //     contentAsString(result) should include("Sorry, we’re experiencing technical difficulties")
     //   }
@@ -242,7 +242,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       //     StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
       //     givenNoDataSuppliedDelegateServices()
 
-      //     val result = developersController.developersPage()(aLoggedInRequest.withFormUrlEncodedBody())
+      //     val result = developersController.developersPage()(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody())
 
       //     contentAsString(result) should include("Developers")
 
@@ -256,7 +256,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       //     DeveloperServiceMock.SearchDevelopers.returns()
 
-      //     val request = aLoggedInRequest.withFormUrlEncodedBody(
+      //     val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
       //       "textFilter"            -> EMPTY,
       //       "apiVersionFilter"      -> EMPTY,
       //       "environmentFilter"     -> EMPTY,
@@ -280,7 +280,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       //     // Note: Developers is both users and collaborators
       //     DeveloperServiceMock.SearchDevelopers.returns(user)
 
-      //     val request = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> partialEmailAddress)
+      //     val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("textFilter" -> partialEmailAddress)
       //     val result  = developersController.developersPage()(request)
 
       //     contentAsString(result) should include(emailAddress)
@@ -297,7 +297,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       //     DeveloperServiceMock.SearchDevelopers.returns()
 
-      //     val request = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> searchFilter)
+      //     val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("textFilter" -> searchFilter)
       //     val result  = developersController.developersPage()(request)
 
       //     contentAsString(result) should include(s"""value="$searchFilter"""")
@@ -313,7 +313,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       //     DeveloperServiceMock.SearchDevelopers.returns(aUser(email1, true), aUser(email2, true), aUser(email3))
 
-      //     given request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
+      //     given request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("developerStatusFilter" -> "ALL")
       //     val result                                                    = developersController.developersPage()(request)
 
       //     contentAsString(result) should include(s"${email1.text}; ${email2.text}")
@@ -330,7 +330,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       //     // Note: Developers is both users and collaborators
       //     DeveloperServiceMock.SearchDevelopers.returns(user)
 
-      //     val request = aLoggedInRequest.withFormUrlEncodedBody("apiVersionFilter" -> apiDefinitionValueFromDropDown)
+      //     val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("apiVersionFilter" -> apiDefinitionValueFromDropDown)
       //     val result  = developersController.developersPage()(request)
 
       //     contentAsString(result) should include(emailAddress)
@@ -400,7 +400,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
 
       //     DeveloperServiceMock.SearchDevelopers.returns(aUser(email1.toLaxEmail), aUser(email2.toLaxEmail))
 
-      //     given request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withFormUrlEncodedBody("textFilter" -> "not relevant")
+      //     given request: FakeRequest[AnyContentAsFormUrlEncoded] = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("textFilter" -> "not relevant")
       //     val result                                                    = developersController.developersPage()(request)
 
       //     contentAsString(result) should include("Showing 2 entries")
@@ -417,7 +417,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
       //     // Note: Developers is both users and collaborators
       //     DeveloperServiceMock.SearchDevelopers.returns(user)
 
-      //     val request = aLoggedInRequest.withFormUrlEncodedBody("developerStatusFilter" -> statusFilter)
+      //     val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("developerStatusFilter" -> statusFilter)
       //     val result  = developersController.developersPage()(request)
 
       //     contentAsString(result) should include(emailAddress)
@@ -437,7 +437,7 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         // Note: Developers is both users and collaborators
         DeveloperServiceMock.SearchDevelopers.returns(user)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("environmentFilter" -> environmentFilter)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("environmentFilter" -> environmentFilter)
         val result  = developersController.developersPage()(request)
 
         println("****" + request)

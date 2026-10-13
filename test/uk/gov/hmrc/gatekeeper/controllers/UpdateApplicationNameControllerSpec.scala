@@ -96,7 +96,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "my app name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> "my app name"))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.toString()}/name/admin-email")
@@ -106,7 +106,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationQueryServiceMock.FetchApplication.returns(basicApplication)
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> basicApplication.name))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> basicApplication.name))
 
       status(result) shouldBe OK
       contentAsString(result) should include("The application already has the specified name")
@@ -117,7 +117,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.ValidateApplicationName.invalid()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some invalid name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> "some invalid name"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("The application name is invalid")
@@ -128,7 +128,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "s"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> "s"))
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
@@ -139,7 +139,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.ValidateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "sgfjkgfkfk£"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> "sgfjkgfkfk£"))
 
       status(result) shouldBe BAD_REQUEST
       contentAsString(result) should include("Application name must be between 2 and 50 characters and only use ASCII characters excluding")
@@ -150,7 +150,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.ValidateApplicationName.duplicate()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withFormUrlEncodedBody("applicationName" -> "some duplicate name"))
+      val result = underTest.updateApplicationNameAction(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationName" -> "some duplicate name"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("An application with this name already exists")
@@ -194,7 +194,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.UpdateApplicationName.succeeds()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
+      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withMethod("POST").withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe SEE_OTHER
       redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.toString()}/name/updated")
@@ -206,7 +206,7 @@ class UpdateApplicationNameControllerSpec extends ControllerBaseSpec with WithCS
       ApplicationServiceMock.UpdateApplicationName.fails()
       StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
+      val result = underTest.updateApplicationNameAdminEmailAction(applicationId)(appNameRequest.withMethod("POST").withFormUrlEncodedBody("adminEmail" -> "admin@example.com"))
 
       status(result) shouldBe OK
       contentAsString(result) should include("Failed to update the application name")

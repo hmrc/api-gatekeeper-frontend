@@ -23,8 +23,8 @@ import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 trait ApmConnectorPpnsModule extends ApmConnectorModule {
   import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone.given
-  import play.api.libs.json._
-  import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+  import play.api.libs.json.*
+  import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.*
 
   private val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
 

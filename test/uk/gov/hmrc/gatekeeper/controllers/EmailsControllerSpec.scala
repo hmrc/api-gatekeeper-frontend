@@ -74,13 +74,13 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
-          .withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
+          .withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
 
       def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice.EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
-          .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
+          .withMethod("POST").withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
       def createGetRequest(path: String) = {
         FakeRequest("GET", path)

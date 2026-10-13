@@ -140,7 +140,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.RemoveMfa.returns(user)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "yes"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe OK
@@ -150,7 +150,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
       "allow a normal user to access the page and not confirm removal" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "no"))
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "no"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe SEE_OTHER
@@ -170,7 +170,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "yes"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR

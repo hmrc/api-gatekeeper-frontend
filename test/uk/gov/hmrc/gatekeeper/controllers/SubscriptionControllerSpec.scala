@@ -86,7 +86,9 @@ class SubscriptionControllerSpec
         SubscriptionsServiceMock.SubscribeToApi.succeeds()
 
         val result =
-          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "true"))
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "true")
+          )
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
@@ -99,7 +101,8 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "true"))
+        val result =
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "true"))
 
         status(result) shouldBe FORBIDDEN
 
@@ -113,7 +116,9 @@ class SubscriptionControllerSpec
         SubscriptionsServiceMock.UnsubscribeFromApi.succeeds()
 
         val result =
-          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "false"))
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "false")
+          )
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")

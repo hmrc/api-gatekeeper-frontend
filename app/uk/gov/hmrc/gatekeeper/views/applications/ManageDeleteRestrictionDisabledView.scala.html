@@ -19,8 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyDisabledForm
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DoNotDelete
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NoRestriction
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Button
@@ -62,13 +61,13 @@
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="no-protect-allow-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestriction.NoRestriction) {checked}>
+                    <input class="govuk-radios__input" id="no-protect-allow-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction) {checked}>
                     <label class="govuk-label govuk-radios__label" for="no-protect-allow-delete-yes">
                         No
                     </label>
                 </div>
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="yes-protect-allow-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestriction.DoNotDelete) {checked}>
+                    <input class="govuk-radios__input" id="yes-protect-allow-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DoNotDelete) {checked}>
                     <label class="govuk-label govuk-radios__label" for="yes-protect-allow-delete-no">
                         Yes
                     </label>

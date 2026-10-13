@@ -83,7 +83,7 @@ class SubscriptionConfigurationControllerSpec
   trait EditSaveFormData extends AppWithSubscriptionDataAndFieldDefinitionsSetup {
 
     def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request: FakeRequest[?]) = {
-      request.withFormUrlEncodedBody(
+      request.withMethod("POST").withFormUrlEncodedBody(
         "fields[0].name"  -> fieldName.value,
         "fields[0].value" -> fieldValue.toString
       )

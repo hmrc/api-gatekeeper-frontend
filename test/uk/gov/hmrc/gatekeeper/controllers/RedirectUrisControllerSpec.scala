@@ -130,7 +130,7 @@ class RedirectUrisControllerSpec
 
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
@@ -143,7 +143,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
@@ -156,7 +156,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
           "redirectUri3" -> "https://otherexample.com"
@@ -177,7 +177,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
           "redirectUri3" -> "https://example.com"
@@ -198,7 +198,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri3" -> "https://example.com",
           "redirectUri5" -> "https://example2.com"
@@ -219,7 +219,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManageLoginRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
@@ -237,7 +237,7 @@ class RedirectUrisControllerSpec
         invalidRedirectUris.foreach { invalidRedirectUri =>
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
+          val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
 
           val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
@@ -250,7 +250,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
-        val request = aLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
 
         val result = underTest.manageLoginRedirectUriAction(applicationId)(request)
 
@@ -301,7 +301,7 @@ class RedirectUrisControllerSpec
 
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
@@ -315,7 +315,7 @@ class RedirectUrisControllerSpec
 
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> redirectUriToUpdate.toString)
 
         val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
@@ -328,7 +328,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
           "redirectUri3" -> "https://otherexample.com",
@@ -361,7 +361,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri2" -> "https://example.com",
           "redirectUri3" -> "https://example.com"
@@ -382,7 +382,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "redirectUri1" -> redirectUriToUpdate.toString,
           "redirectUri3" -> "https://example.com",
           "redirectUri5" -> "https://example2.com"
@@ -403,7 +403,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         RedirectUrisServiceMock.ManagePostLogoutRedirectUris.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody()
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
@@ -421,7 +421,7 @@ class RedirectUrisControllerSpec
         invalidRedirectUris.foreach { invalidRedirectUri =>
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
+          val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUri1" -> invalidRedirectUri)
 
           val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 
@@ -434,7 +434,7 @@ class RedirectUrisControllerSpec
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
-        val request = aLoggedInRequest.withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("redirectUris" -> redirectUriToUpdate.toString)
 
         val result = underTest.managePostLogoutRedirectUriAction(applicationId)(request)
 

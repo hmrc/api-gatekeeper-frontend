@@ -46,7 +46,7 @@ class BoxesController @Inject() (
   def getAll(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     apmService.fetchAllBoxes().map(boxes => {
       val columnDefinitions: Seq[ColumnDefinition[Box]] = Seq(
-        ColumnDefinition("environment", (box => box.environment.toString())),
+        ColumnDefinition("environment", (box => box.environment.toString().toUpperCase())),
         ColumnDefinition("applicationId", (box => box.applicationId.fold("")(_.value.toString()))),
         ColumnDefinition("clientId", (box => box.boxCreator.clientId.value)),
         ColumnDefinition("name", (box => box.boxName)),

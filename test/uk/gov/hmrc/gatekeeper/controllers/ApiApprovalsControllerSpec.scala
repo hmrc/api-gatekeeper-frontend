@@ -137,7 +137,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       DeploymentApprovalServiceMock.SearchServices.thenReturn()
 
-      val request = aLoggedInRequest.withCSRFToken.withFormUrlEncodedBody("approvedStatus" -> "true", "failedStatus" -> "true")
+      val request = aLoggedInRequest.withCSRFToken.withMethod("POST").withFormUrlEncodedBody("approvedStatus" -> "true", "failedStatus" -> "true")
 
       val result = underTest.filterPage(false)(request)
 
@@ -256,7 +256,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       DeploymentApprovalServiceMock.ApproveService.succeeds()
       ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
+      val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
       val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
@@ -273,7 +273,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       DeploymentApprovalServiceMock.DeclineService.succeeds()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false", "declineDetail" -> declineNote)
+      val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("approve" -> "false", "declineDetail" -> declineNote)
 
       val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
@@ -311,7 +311,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Sandbox), status = ApprovalStatus.NEW)
       )
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "false")
+      val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("approve" -> "false")
 
       val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
@@ -330,7 +330,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       DeploymentApprovalServiceMock.ApproveService.fails()
       DeploymentApprovalServiceMock.AddComment.succeeds()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
+      val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("approve" -> "true", "approveDetail" -> approveNote)
 
       val result = underTest.reviewAction(serviceName, Environment.Sandbox)(request.withCSRFToken)
 
@@ -360,7 +360,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
 
       DeploymentApprovalServiceMock.AddComment.succeeds()
 
-      val request = aLoggedInRequest.withFormUrlEncodedBody("comment" -> comment)
+      val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("comment" -> comment)
 
       val result = underTest.addComment(serviceName, Environment.Sandbox)(request.withCSRFToken)
 

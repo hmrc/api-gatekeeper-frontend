@@ -524,7 +524,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateScopes.succeeds()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
@@ -539,7 +539,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
@@ -553,7 +553,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateScopes.failsWithInvalidScopes()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "hello")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
@@ -564,7 +564,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody()
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
@@ -627,7 +627,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateGrantLength.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -641,7 +641,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -655,7 +655,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
@@ -729,7 +729,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
@@ -745,7 +745,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
@@ -759,7 +759,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
@@ -773,7 +773,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes")
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
@@ -795,7 +795,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -811,7 +811,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -825,7 +825,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -840,7 +840,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -855,7 +855,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -869,7 +869,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
@@ -952,7 +952,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -965,7 +965,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -978,7 +978,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -991,7 +991,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> "true", "allowlistedIps" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> "true", "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -1017,7 +1017,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         invalidAllowlistedIps.foreach { invalidAllowlistedIp =>
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
+          val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
 
           val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -1030,7 +1030,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
-        val request = aLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -1083,7 +1083,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateOverrides.succeeds()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "persistLoginEnabled"               -> "true",
           "originOverrideEnabled"             -> "true",
           "originOverrideValue"               -> "ngc",
@@ -1121,7 +1121,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "persistLoginEnabled"        -> "true",
           "grantWithoutConsentEnabled" -> "true",
           "grantWithoutConsentScopes"  -> ""
@@ -1140,7 +1140,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("persistLoginEnabled" -> "true")
 
         val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
@@ -1191,7 +1191,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateRateLimitTier.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("tier" -> "GOLD")
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
@@ -1206,7 +1206,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
@@ -1220,7 +1220,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("tier" -> "GOLD")
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
@@ -1245,7 +1245,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(using hcCaptor.capture()))
           .thenReturn(successful(ApplicationUpdateSuccessResult))
 
-        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
 
         appCaptor.getValue shouldBe basicApplication
@@ -1260,7 +1260,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 
-        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
         verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
@@ -1283,7 +1283,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", ""),
               ("applicationName", appName),
               ("applicationDescription", description),
@@ -1300,7 +1300,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
@@ -1320,7 +1320,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.ValidateNewApplicationName.duplicate()
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
@@ -1339,7 +1339,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.ValidateNewApplicationName.invalid()
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", "HMRC"),
               ("applicationDescription", description),
@@ -1357,7 +1357,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", "P"),
               ("applicationDescription", description),
@@ -1375,7 +1375,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", "Pete£"),
               ("applicationDescription", description),
@@ -1402,7 +1402,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
@@ -1429,7 +1429,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
@@ -1456,7 +1456,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
@@ -1474,7 +1474,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", appName),
               ("applicationDescription", ""),
@@ -1492,7 +1492,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
@@ -1509,7 +1509,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", Environment.Production.toString),
               ("applicationName", appName),
               ("applicationDescription", description),
@@ -1531,7 +1531,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aLoggedInRequest.withFormUrlEncodedBody(
+              aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
                 ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
@@ -1552,7 +1552,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Production, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
                 ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
@@ -1581,7 +1581,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Sandbox, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+              aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
                 ("environment", Environment.Sandbox.toString),
                 ("accessType", privilegedAccessType.toString),
                 ("applicationName", appName),
@@ -1695,7 +1695,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1711,7 +1711,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1725,7 +1725,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1739,7 +1739,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
@@ -1780,7 +1780,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UnblockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
@@ -1794,7 +1794,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
@@ -1808,7 +1808,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 

@@ -36,11 +36,11 @@ class AuthConnectorSpec
     val mockAppConfig = mock[AppConfig]
     val httpClient    = app.injector.instanceOf[HttpClientV2]
 
-    val connector = new AuthConnector(httpClient, mockAppConfig)
-
     val url = "AUrl"
 
     when(mockAppConfig.authBaseUrl).thenReturn(url)
+
+    val connector = new AuthConnector(httpClient, mockAppConfig)
   }
 
   "auth connector" should {

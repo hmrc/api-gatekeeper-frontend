@@ -25,5 +25,5 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 @Singleton
 class AuthConnector @Inject() (val httpClientV2: HttpClientV2, appConfig: AppConfig) extends PlayAuthConnector {
-  val serviceUrl = appConfig.authBaseUrl
+  override val serviceUrl = appConfig.authBaseUrl
 }
