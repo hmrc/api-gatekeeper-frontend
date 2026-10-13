@@ -21,6 +21,8 @@ import play.api.mvc.{PathBindable, QueryStringBindable}
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.SimpleUserId
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 package object binders extends ApplicationLogger {
@@ -170,22 +172,41 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
+  // implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
+  //   override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
+  //     for {
+  //       textOrBindError <- textBinder.bind("developerId", params)
+  //     } yield textOrBindError match {
+  //       case Right(idText) =>
+  //         for {
+  //           id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a userId")
+  //         } yield id
+  //       case _             => Left("Unable to bind a UserId")
+  //     }
+  //   }
+
+  //   override def unbind(key: String, userId: UserId): String = {
+  //     textBinder.unbind("developerId", userId.value.toString)
+  //   }
+  // }
+
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[SimpleUserId] = new QueryStringBindable[SimpleUserId] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SimpleUserId]] = {
       for {
         textOrBindError <- textBinder.bind("developerId", params)
       } yield textOrBindError match {
         case Right(idText) =>
           for {
             id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a userId")
-          } yield id
+          } yield id.simpleUser
         case _             => Left("Unable to bind a UserId")
       }
     }
 
-    override def unbind(key: String, userId: UserId): String = {
-      textBinder.unbind("developerId", userId.value.toString)
+    override def unbind(key: String, userId: SimpleUserId): String = {
+      textBinder.unbind("developerId", userId.value.toString())
     }
   }
 

@@ -62,7 +62,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
 
     val body = selfApplicationId.fold[ApplicationNameValidationRequest](NewApplicationNameValidationRequest(name))(appId => ChangeApplicationNameValidationRequest(name, appId))
 
-    http.post(url"${config.serviceBaseUrl}/environment/$environment/application/name/validate")
+    http.post(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/application/name/validate")
       .withBody(Json.toJson[ApplicationNameValidationRequest](body))
       .execute[Option[ApplicationNameValidationResult]]
       .map {
@@ -85,7 +85,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       case (k, v) => (k.text -> v)
     }
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/query?$rawQryStringMap")
       .execute[T]
   }
 
@@ -110,7 +110,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     import uk.gov.hmrc.http.client.readSource
 
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$rawQryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/query?$rawQryStringMap")
       .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
       .stream[Source[ByteString, ?]]

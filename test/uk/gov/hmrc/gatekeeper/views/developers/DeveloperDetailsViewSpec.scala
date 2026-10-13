@@ -249,8 +249,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollab
       result.contentType should include("text/html")
 
       document.getElementById("mfa-heading").text shouldBe "Multi-factor authentication"
-      document.getElementById("mfa-type-0").text shouldBe MfaType.AuthenticatorApp.toString
-      document.getElementById("mfa-type-1").text shouldBe MfaType.Sms.toString
+      document.getElementById("mfa-type-0").text shouldBe MfaType.AuthenticatorApp.displayText
+      document.getElementById("mfa-type-1").text shouldBe MfaType.Sms.displayText
       document.getElementById("mfa-name-0").text shouldBe s"On (${authAppMfaDetailVerified.name})"
       document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.name})"
       document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"

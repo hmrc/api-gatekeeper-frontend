@@ -35,9 +35,9 @@ import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 class ApplicationCommandConnector @Inject() (
     val http: HttpClientV2,
     val config: ApmConnector.Config
-  )(using ec: ExecutionContext
-  ) extends CommandHandlerTypes[DispatchSuccessResult]
-    with ApplicationLogger
+  )(using ExecutionContext
+  ) extends ApplicationLogger
+    with CommandHandlerTypes[DispatchSuccessResult]
     with JsonBodyWritables {
 
   def dispatch(

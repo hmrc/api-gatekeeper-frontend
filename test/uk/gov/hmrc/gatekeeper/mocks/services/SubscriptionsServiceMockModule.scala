@@ -27,12 +27,12 @@ import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
 
 trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersSugar {
 
-  trait AbstractSubscriptionsServiceMock {
+  object SubscriptionsServiceMock {
+    val aMock = mock[SubscriptionsService]
+
     val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
 
     import CHT.Implicits._
-
-    def aMock: SubscriptionsService
 
     object SubscribeToApi {
 
@@ -61,9 +61,5 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
       def verifyNotCalled() =
         verify(aMock, never).unsubscribeFromApi(*, *, *)(using *)
     }
-  }
-
-  object SubscriptionsServiceMock extends AbstractSubscriptionsServiceMock {
-    val aMock = mock[SubscriptionsService]
   }
 }

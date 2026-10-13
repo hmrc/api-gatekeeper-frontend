@@ -27,15 +27,14 @@ import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 
-trait CommandConnectorMockProvider {
-  self: MockitoSugar & ArgumentMatchersSugar =>
+trait CommandConnectorMockProvider extends MockitoSugar with ArgumentMatchersSugar {
 
   object CommandConnectorMock {
+    val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
+
     val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
 
     import CHT.Implicits.*
-
-    val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
 
     object IssueCommand {
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
@@ -55,7 +54,7 @@ trait CommandConnectorMockProvider {
 
       def verifyCommand(id: ApplicationId) = {
         val cmdCaptor = ArgCaptor[ApplicationCommand]
-        verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(using *)
+        verify(aMock).dispatch(eqTo(id), cmdCaptor, *)(using *)
         cmdCaptor.value
       }
 
