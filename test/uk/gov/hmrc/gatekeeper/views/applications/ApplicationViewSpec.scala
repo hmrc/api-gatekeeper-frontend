@@ -177,14 +177,17 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
 
     "show application information, including link to check application" in new Setup {
       val applicationPendingCheck = application.modifyState(s => s.pendingGKApproval)
+      val viewModel = DefaultApplicationViewModel.withApplication(applicationPendingCheck).withHasSubmissions(true)
 
       val result = applicationView.render(
-        DefaultApplicationViewModel.withApplication(applicationPendingCheck).withHasSubmissions(true),
+        viewModel,
         strideUserRequest,
         Flash.emptyCookie
       )
 
       val document = Jsoup.parse(result.body)
+
+      println(document)
 
       result.contentType should include("text/html")
       elementExistsByAttr(document, "span", "data-status") shouldBe true

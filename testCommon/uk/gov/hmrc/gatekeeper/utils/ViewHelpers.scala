@@ -56,8 +56,6 @@ object ViewHelpers {
   }
 
   def elementIdentifiedByIdContainsText(doc: Document, elementType: String, id: String, text: String): Boolean = {
-    println("XXXXXXX")
-    doc.select(s"#$id").asScala.foreach(element => println(s"WANT $text GOT " + element.text))
     doc.select(s"#$id").asScala.exists(element => element.text.equals(text))
   }
 
