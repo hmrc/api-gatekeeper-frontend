@@ -122,8 +122,6 @@ class DevelopersController @Inject() (
   def developersPage() = anyAuthenticatedUserAction { implicit request =>
     DevelopersSearchForm.form.bindFromRequest().fold(
       _ => {
-        println("***********")
-        println("No form values")
         logger.warn("Errors found trying to bind request for developers search")
         // binding failure, you retrieve the form containing errors:
         Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None, None, None, None)))))
@@ -131,16 +129,9 @@ class DevelopersController @Inject() (
       searchParams => {
         val allFoundUsers = searchParams match {
           case DevelopersSearchForm(None, None, None, None)                                                                      =>
-            println("***********")
-            println("None all across the board")
             logger.info("Not performing a query for empty parameters")
             Future.successful(List.empty)
           case DevelopersSearchForm(maybeEmailFilter, maybeApiVersionFilter, maybeEnvironmentFilter, maybeDeveloperStatusFilter) =>
-            println("***********")
-            println(maybeEmailFilter)
-            println(maybeApiVersionFilter)
-            println(maybeEnvironmentFilter)
-            println(maybeDeveloperStatusFilter)
             logger.info("Searching developers")
             val filters =
               DevelopersSearchFilter(

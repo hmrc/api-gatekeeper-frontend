@@ -30,9 +30,8 @@ trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersS
   object SubscriptionsServiceMock {
     val aMock = mock[SubscriptionsService]
 
-    val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
-
-    import CHT.Implicits._
+    import CommandHandlerTypesForDispatchSuccessResult.types.*
+    import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
     object SubscribeToApi {
 

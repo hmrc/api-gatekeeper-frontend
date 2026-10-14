@@ -146,10 +146,10 @@ class ApplicationController @Inject() (
       ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
-      ColumnDefinition("Environment", (app => app.deployedTo.toString)),
+      ColumnDefinition("Environment", (app => app.deployedTo.toString.toUpperCase())),
       ColumnDefinition("Status", (app => app.state.name.displayText)),
-      ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),
-      ColumnDefinition("Access type", (app => app.access.accessType.toString())),
+      ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString().toUpperCase())),
+      ColumnDefinition("Access type", (app => app.access.accessType.toString().toUpperCase())),
       ColumnDefinition(
         "Overrides",
         app =>
@@ -183,7 +183,7 @@ class ApplicationController @Inject() (
     ) ++ (
       if (showDeletionDataColumns)
         Seq(
-          ColumnDefinition[ApplicationWithCollaborators]("Deleted by", app => app.details.lastActionActor.toString()),
+          ColumnDefinition[ApplicationWithCollaborators]("Deleted by", app => app.details.lastActionActor.toString().toUpperCase()),
           ColumnDefinition[ApplicationWithCollaborators]("When deleted", app => if (app.state.isDeleted) app.state.updatedOn.toString else "N/A")
         )
       else Seq.empty
@@ -212,7 +212,7 @@ class ApplicationController @Inject() (
     val csvColumnDefinitions = Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]](
       ColumnDefinition("Name", _.name.toString),
       ColumnDefinition("App ID", _.id.toString),
-      ColumnDefinition("Environment", _ => env.toString),
+      ColumnDefinition("Environment", _ => env.toString.toUpperCase()),
       ColumnDefinition("Last API call", _.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 

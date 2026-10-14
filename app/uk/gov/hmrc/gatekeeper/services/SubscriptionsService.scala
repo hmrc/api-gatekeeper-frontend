@@ -22,7 +22,7 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypes, DispatchSuccessResult}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypesForDispatchSuccessResult}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, *}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
@@ -31,8 +31,10 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 class SubscriptionsService @Inject() (
     applicationCommandConnector: ApplicationCommandConnector,
     val clock: Clock
-  ) extends CommandHandlerTypes[DispatchSuccessResult]
-    with ClockNow {
+  ) extends ClockNow {
+
+  import CommandHandlerTypesForDispatchSuccessResult.types.*
+  import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
   def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, instant)

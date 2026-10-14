@@ -27,7 +27,8 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, *}
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, *}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandHandlerTypesForDispatchSuccessResult.types.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
@@ -37,7 +38,6 @@ class ApplicationCommandConnector @Inject() (
     val config: ApmConnector.Config
   )(using ExecutionContext
   ) extends ApplicationLogger
-    with CommandHandlerTypes[DispatchSuccessResult]
     with JsonBodyWritables {
 
   def dispatch(

@@ -26,15 +26,15 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
+import uk.gov.hmrc.gatekeeper.utils.SubclassMockSupport
 
-trait CommandConnectorMockProvider extends MockitoSugar with ArgumentMatchersSugar {
+trait CommandConnectorMockProvider extends MockitoSugar with ArgumentMatchersSugar with SubclassMockSupport {
 
   object CommandConnectorMock {
     val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
 
-    val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
-
-    import CHT.Implicits.*
+    import CommandHandlerTypesForDispatchSuccessResult.types.*
+    import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
     object IssueCommand {
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult

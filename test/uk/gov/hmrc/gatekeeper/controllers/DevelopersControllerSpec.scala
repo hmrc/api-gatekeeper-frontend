@@ -440,8 +440,6 @@ class DevelopersControllerSpec extends ControllerBaseSpec {
         val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("environmentFilter" -> environmentFilter)
         val result  = developersController.developersPage()(request)
 
-        println("****" + request)
-
         contentAsString(result) should include(emailAddress)
 
         val expectedFilter = DevelopersSearchFilter(environmentFilter = ProductionEnvironment)

@@ -31,8 +31,8 @@ trait ApmConnectorMockProvider {
 
   val mockApmConnectorConfig = mock[ApmConnector.Config]
 
-  trait ApmConnectorMock {
-    def aMock: ApmConnector
+  object ApmConnectorMock {
+    val aMock = mock[ApmConnector]
 
     object FetchAllCombinedApis {
       def returns(combinedApis: List[CombinedApi]) = when(aMock.fetchAllCombinedApis()(using *)).thenReturn(successful(combinedApis))
@@ -63,10 +63,6 @@ trait ApmConnectorMockProvider {
       def verifyCalledFor(env: Environment) =
         verify(aMock, atLeastOnce).fetchAllApis(eqTo(env))(using *)
     }
-  }
-
-  object ApmConnectorMock extends ApmConnectorMock {
-    val aMock = mock[ApmConnector]
   }
 
   object ApmConnectorConfigMock {

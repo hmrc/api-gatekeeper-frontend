@@ -40,6 +40,7 @@ import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMo
 import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import uk.gov.hmrc.gatekeeper.utils.SubclassMockSupport
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
 
@@ -49,7 +50,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       with ThirdPartyOrchestratorConnectorMockProvider
       with CommandConnectorMockProvider
       with ApiScopeConnectorMockProvider
-      with ApplicationBuilder {
+      with ApplicationBuilder
+      with SubclassMockSupport {
 
     val applicationService = new ApplicationService(
       mockSandboxApplicationConnector,
@@ -107,8 +109,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       await(underTest.searchApplications(Environment.Sandbox, inputs))
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
-      paramCaptor.value shouldBe Map.empty
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value shouldBe Map.empty
     }
 
     "converts page to pageNbr" in new Setup {
@@ -119,7 +121,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
 
       val paramCaptor = ArgCaptor[Map[ParamName, String]]
       verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
-      paramCaptor.value should contain("pageNbr" -> "2")
+      paramCaptor.value should contain(ParamName.PageNbr -> "2")
     }
 
     "split apiSubscription" in new Setup {

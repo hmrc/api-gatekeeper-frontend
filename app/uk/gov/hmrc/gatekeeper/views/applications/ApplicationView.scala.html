@@ -288,7 +288,7 @@
             @application.name
         </dd>
         <dd class="govuk-summary-list__actions">
-        @if(application.isProduction && application.isApproved) {
+        @if(application.isProduction && application.state.name.isApproved) {
             <a id="manage-app-name" href="@{routes.UpdateApplicationNameController.updateApplicationNamePage(applicationId.simpleApp).url}" class="button--link" role="button">Manage</a>
         }
         </dd>

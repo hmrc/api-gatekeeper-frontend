@@ -66,10 +66,10 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("serviceName", (vm => vm.serviceName)),
         ColumnDefinition("context", (vm => vm.apiContext.value)),
         ColumnDefinition("version", (vm => vm.apiVersion.value)),
-        ColumnDefinition("source", (vm => vm.versionSource.toString())),
+        ColumnDefinition("source", (vm => vm.versionSource.toString().toUpperCase())),
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
-        ColumnDefinition("environment", (vm => vm.environment.toString))
+        ColumnDefinition("environment", (vm => vm.environment.toString.toUpperCase()))
       )
 
       Ok(toCsvString(columnDefinitions, allDefinitionsAsRows))

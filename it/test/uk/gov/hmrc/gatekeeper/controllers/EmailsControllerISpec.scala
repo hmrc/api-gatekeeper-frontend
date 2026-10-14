@@ -348,7 +348,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page correctly when only category filter is provided" in {
         primeAuthServiceSuccess()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedCategory=${categories.head}", validHeaders)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedCategory=${categories.head.toString.toUpperCase()}", validHeaders)
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, categories.head)
@@ -358,7 +358,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeAuthServiceSuccess()
         primeDeveloperServiceEmailPreferencesByTopicAndCategory(Seq.empty, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head.toString.toUpperCase()}",
           validHeaders
         )
         result.status shouldBe OK
@@ -370,7 +370,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeAuthServiceSuccess()
         primeDeveloperServiceEmailPreferencesByTopicAndCategory(allUsers, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head.toString.toUpperCase()}",
           validHeaders
         )
         result.status shouldBe OK
