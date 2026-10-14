@@ -31,7 +31,7 @@ class ApiGatekeeperRemoveMfaSpec
     with XmlServicesStub
     with OrganisationStub {
 
-  import MockDataSugar._
+  import MockDataSugar.*
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")

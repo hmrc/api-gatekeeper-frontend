@@ -34,7 +34,7 @@ trait TeamMemberServiceMockProvider {
   object TeamMemberServiceMock {
 
     object AddTeamMember {
-      import cats.syntax.either._
+      import cats.syntax.either.*
 
       def succeeds() = when(mockTeamMemberService.addTeamMember(*, *, *)(using *)).thenReturn(successful(().asRight[NonEmptyList[CommandFailure]]))
 
@@ -47,7 +47,7 @@ trait TeamMemberServiceMockProvider {
     }
 
     object RemoveTeamMember {
-      import cats.syntax.either._
+      import cats.syntax.either.*
 
       def succeeds() =
         when(mockTeamMemberService.removeTeamMember(*, *[LaxEmailAddress], *)(using *))

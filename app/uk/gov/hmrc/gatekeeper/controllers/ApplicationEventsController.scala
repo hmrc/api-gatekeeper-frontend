@@ -66,7 +66,7 @@ object ApplicationEventsController {
   case class QueryForm(eventTag: Option[String], actorType: Option[String])
 
   object QueryForm {
-    import play.api.data.Forms._
+    import play.api.data.Forms.*
 
     val form: Form[QueryForm] = Form(
       mapping(
@@ -95,12 +95,11 @@ class ApplicationEventsController @Inject() (
     with ActionBuilders
     with ApplicationLogger {
 
-  import ApplicationEventsController._
+  import ApplicationEventsController.*
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
       def handleFormError(queryForm: Form[QueryForm]): Future[Result] = {
-        // val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
         for {
           qv     <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
           events <- eventsConnector.query(appId, application.deployedTo, None, None)

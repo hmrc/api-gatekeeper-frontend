@@ -36,7 +36,7 @@ class OrganisationConnector @Inject() (
   )(using ec: ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
-  import OrganisationConnector._
+  import OrganisationConnector.*
 
   def fetchOrganisationsByUserId(userId: UserId)(using hc: HeaderCarrier): Future[List[Organisation]] = {
     http.get(url"${config.serviceBaseUrl}/organisation/user/$userId")

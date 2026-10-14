@@ -30,7 +30,7 @@ object ApmConnectorApiDefinitionModule {
 }
 
 trait ApmConnectorApiDefinitionModule extends ApmConnectorModule {
-  import ApmConnectorApiDefinitionModule._
+  import ApmConnectorApiDefinitionModule.*
 
   private val baseUrl = s"${config.serviceBaseUrl}/api-definitions"
 

@@ -294,7 +294,7 @@ class ApplicationService @Inject() (
 
 // ---------------------------------------------------------------------------------------
 
-  import uk.gov.hmrc.http.HttpReads.Implicits._
+  import uk.gov.hmrc.http.HttpReads.Implicits.*
 
   val validSearchParams = List(
     ParamName.AccessType,
@@ -369,8 +369,8 @@ class ApplicationService @Inject() (
   }
 
   def fetchApplicationsWithSubscriptions(env: Environment)(using hc: HeaderCarrier): Future[List[AppWithSubscriptionsForCsvResponse]] = {
-    import play.api.libs.json._
-    import play.api.libs.functional.syntax._
+    import play.api.libs.json.*
+    import play.api.libs.functional.syntax.*
 
     given rds: Reads[AppWithSubscriptionsForCsvResponse] = (
       (JsPath \ "details" \ "id").read[ApplicationId] and

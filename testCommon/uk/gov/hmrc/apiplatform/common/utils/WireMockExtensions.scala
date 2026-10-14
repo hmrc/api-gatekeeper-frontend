@@ -21,8 +21,8 @@ import com.github.tomakehurst.wiremock.client.{MappingBuilder, ResponseDefinitio
 trait WireMockExtensions {
 
   implicit class withJsonRequestBodySyntax(bldr: MappingBuilder) {
-    import com.github.tomakehurst.wiremock.client.WireMock._
-    import play.api.libs.json._
+    import com.github.tomakehurst.wiremock.client.WireMock.*
+    import play.api.libs.json.*
 
     def withJsonRequestBody[T](t: T)(using writes: Writes[T]): MappingBuilder = {
       bldr.withRequestBody(equalTo(Json.toJson(t).toString))
@@ -30,7 +30,7 @@ trait WireMockExtensions {
   }
 
   implicit class withJsonBodySyntax(bldr: ResponseDefinitionBuilder) {
-    import play.api.libs.json._
+    import play.api.libs.json.*
 
     def withJsonBody[T](t: T)(using writes: Writes[T]): ResponseDefinitionBuilder = {
       bldr.withBody(Json.toJson(t).toString)

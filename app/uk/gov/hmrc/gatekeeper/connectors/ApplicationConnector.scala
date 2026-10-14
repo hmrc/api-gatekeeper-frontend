@@ -51,7 +51,7 @@ object ApplicationConnector {
 }
 
 abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefinitionFormatters with JsonBodyWritables {
-  import ApplicationConnector._
+  import ApplicationConnector.*
 
   val environment: Environment
   val serviceBaseUrl: String
@@ -64,7 +64,7 @@ abstract class ApplicationConnector(using ec: ExecutionContext) extends APIDefin
 
   def baseTpaGatekeeperUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/gatekeeper/application/${applicationId}"
 
-  import uk.gov.hmrc.http.HttpReads.Implicits._
+  import uk.gov.hmrc.http.HttpReads.Implicits.*
 
   def createPrivApp(request: CreateApplicationRequestV1)(using hc: HeaderCarrier): Future[CreatePrivAppResult] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/application"))

@@ -231,7 +231,7 @@ object CreatePrivAppSuccessResult {
     CreatePrivAppSuccessResult(app.id, app.name, app.deployedTo, app.token.clientId, totp, asAppAccess(app.access))
   }
 
-  import play.api.libs.functional.syntax._
+  import play.api.libs.functional.syntax.*
 
   private val newLayoutReads: Reads[CreatePrivAppSuccessResult] = (
     (JsPath \ "details").read[CoreApplication] and

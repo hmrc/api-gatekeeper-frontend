@@ -49,7 +49,7 @@ class StrideAuthorisationServiceSpec extends AsyncHmrcSpec with StrideAuthConnec
   "refineStride" should {
 
     "return the appropriate results" in new Setup {
-      import GatekeeperRoles._
+      import GatekeeperRoles.*
 
       val cases = Table(
         ("requiredRole", "user has role", "expected outcome"),

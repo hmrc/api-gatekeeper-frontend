@@ -43,7 +43,7 @@ object SubscriptionController {
   case class SubsForm(subscribed: Boolean)
 
   object SubsForm {
-    import play.api.data.Forms._
+    import play.api.data.Forms.*
 
     lazy val form = Form[SubsForm](
       mapping(
@@ -67,7 +67,7 @@ class SubscriptionController @Inject() (
   )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
 
-  import SubscriptionController._
+  import SubscriptionController.*
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     given versionOrdering: Ordering[VersionSubscriptionWithoutFields] =

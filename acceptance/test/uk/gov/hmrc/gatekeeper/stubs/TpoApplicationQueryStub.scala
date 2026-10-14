@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, MockDataSug
 trait TpoApplicationQueryStub {
   self: WireMockExtensions & ApplicationResponseTestData & StateHistoryTestData =>
 
-  import MockDataSugar._
+  import MockDataSugar.*
 
   val applicationsList =
     List(

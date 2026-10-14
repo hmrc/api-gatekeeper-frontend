@@ -38,7 +38,7 @@ trait StrideAuthConnectorMockModule {
 
     object Authorise {
       private val defaultName = Name(Some("Bobby"), Some("Example"))
-      import strideAuthRoles._
+      import strideAuthRoles.*
 
       private lazy val predicateUserRole         = StrideAuthorisationPredicateForGatekeeperRole(strideAuthRoles)(USER)
       private lazy val predicateSuperUserRole    = StrideAuthorisationPredicateForGatekeeperRole(strideAuthRoles)(SUPERUSER)

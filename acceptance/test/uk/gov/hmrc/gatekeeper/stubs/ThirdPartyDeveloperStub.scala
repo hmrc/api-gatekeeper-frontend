@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.testdata.{CommonTestData, MockDataSugar}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 trait ThirdPartyDeveloperStub extends WireMockExtensions with CommonTestData with UrlEncoding {
-  import MockDataSugar._
+  import MockDataSugar.*
 
   def stubDeveloper(user: RegisteredUser) = {
     stubFor(

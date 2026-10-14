@@ -68,7 +68,7 @@ class DeveloperConnector @Inject() (
   }
 
   def seekUserByEmail(email: LaxEmailAddress)(using hc: HeaderCarrier): Future[Option[AbstractUser]] = {
-    import cats.implicits._
+    import cats.implicits.*
     (
       for {
         coreUserDetails <- OptionT(fetchUserId(email))

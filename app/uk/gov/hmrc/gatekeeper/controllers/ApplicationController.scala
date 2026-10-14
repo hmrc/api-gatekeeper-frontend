@@ -713,9 +713,9 @@ class ApplicationController @Inject() (
       Future.successful(BadRequest(createApplicationView(form)))
     }
 
-    import cats.data._
-    import cats.implicits._
-    import cats.data.Validated._
+    import cats.data.*
+    import cats.implicits.*
+    import cats.data.Validated.*
 
     type FieldName                = String
     type ErrorCode                = String

@@ -40,7 +40,7 @@ class StrideAuthorisationService @Inject() (
   )(using ExecutionContext
   ) {
 
-  import strideAuthConfig.roles._
+  import strideAuthConfig.roles.*
 
   def refineStride[A](strideRoleRequired: GatekeeperStrideRole): (MessagesRequest[A]) => Future[Either[Result, LoggedInRequest[A]]] = (msgRequest) => {
     given hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)

@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRoles, Ga
 object StrideAuthorisationPredicateForGatekeeperRole {
 
   def apply(strideAuthRoles: StrideAuthRoles)(strideRoleRequired: GatekeeperStrideRole): Predicate = {
-    import strideAuthRoles._
+    import strideAuthRoles.*
 
     val adminEnrolment        = Enrolment(adminRole)
     val superUserEnrolment    = Enrolment(superUserRole)

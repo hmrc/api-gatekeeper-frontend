@@ -108,7 +108,7 @@ class ApiApprovalsController @Inject() (
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper {
-  import ApiApprovalsController._
+  import ApiApprovalsController.*
 
   def filterPage(defaultFiltering: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     def getQueryParamsFromForm(form: FilterForm): Seq[(String, String)] = {

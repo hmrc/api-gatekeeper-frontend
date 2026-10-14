@@ -63,7 +63,7 @@ class ApplicationCommandConnector @Inject() (
     }
     val url                                                              = url"${baseApplicationUrl(applicationId)}/dispatch"
     val request                                                          = DispatchRequest(command, adminsToEmail)
-    import cats.syntax.either._
+    import cats.syntax.either.*
 
     http.patch(url)
       .withBody(Json.toJson(request))

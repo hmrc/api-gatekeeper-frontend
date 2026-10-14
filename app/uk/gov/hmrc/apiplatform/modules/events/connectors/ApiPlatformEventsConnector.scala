@@ -59,7 +59,7 @@ abstract class ApiPlatformEventsConnector()(using ec: ExecutionContext) extends 
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
-  import ApiPlatformEventsConnector._
+  import ApiPlatformEventsConnector.*
 
   private lazy val applicationEventsUri = s"$serviceBaseUrl/application-event"
 

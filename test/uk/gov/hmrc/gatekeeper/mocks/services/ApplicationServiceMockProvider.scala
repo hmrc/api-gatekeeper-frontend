@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.services.ApplicationService
 trait ApplicationServiceMockProvider {
   self: MockitoSugar & ArgumentMatchersSugar =>
 
-  import mocks.PaginatedApplicationsBuilder._
+  import mocks.PaginatedApplicationsBuilder.*
 
   val mockApplicationService = mock[ApplicationService]
 
