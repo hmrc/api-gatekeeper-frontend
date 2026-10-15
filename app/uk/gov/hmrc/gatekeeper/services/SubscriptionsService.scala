@@ -34,7 +34,6 @@ class SubscriptionsService @Inject() (
   ) extends ClockNow {
 
   import CommandHandlerTypesForDispatchSuccessResult.types.*
-  import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
   def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, instant)

@@ -184,12 +184,9 @@ trait ApplicationBuilder extends StateHistoryBuilder with CollaboratorsBuilder w
       app1.copy(collaborators = app1.collaborators + Collaborators.Developer(developer.userId, developer.email))
     }
     //
-    def withAccess(access: Access): ApplicationWithCollaborators                        = app.withAccess(access)
     def asStandard: ApplicationWithCollaborators                                        = app.withAccess(Access.Standard())
     def asPrivileged: ApplicationWithCollaborators                                      = app.withAccess(Access.Privileged())
     def asROPC: ApplicationWithCollaborators                                            = app.withAccess(Access.Ropc())
-    //
-    def withState(state: ApplicationState): ApplicationWithCollaborators                = app.withState(state)
     //
     def withBlocked(isBlocked: Boolean): ApplicationWithCollaborators                   = app.modify(_.copy(blocked = isBlocked))
     def blocked: ApplicationWithCollaborators                                           = app.modify(_.copy(blocked = true))

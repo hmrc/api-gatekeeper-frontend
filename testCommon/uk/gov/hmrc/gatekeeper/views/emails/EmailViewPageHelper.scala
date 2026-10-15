@@ -41,10 +41,10 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
   def validateLandingPage(document: Document): Unit = {
     validatePageHeader(document, "Send emails to users based on")
 
-    verifyEmailOptions(EmailOptionChoice.EMAIL_PREFERENCES, document, isDisabled = false)
-    verifyEmailOptions(EmailOptionChoice.API_SUBSCRIPTION, document, isDisabled = false)
-    verifyEmailOptions(EmailOptionChoice.EMAIL_ALL_USERS, document, isDisabled = false)
-    elementExistsByIdWithAttr(document, EmailOptionChoice.EMAIL_PREFERENCES.toString, "checked") shouldBe true
+    verifyEmailOptions(EmailOptionChoice.EmailPreferences, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.ApiSubscription, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.EmailAllUsers, document, isDisabled = false)
+    elementExistsByIdWithAttr(document, EmailOptionChoice.EmailPreferences.toString, "checked") shouldBe true
 
     validateButtonText(document, "submit", "Continue")
   }

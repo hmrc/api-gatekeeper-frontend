@@ -132,21 +132,21 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     }
 
     "POST /api-gatekeeper/emails" should {
-      "redirect to subscription information page when EMAIL_PREFERENCES passed in the form" in {
+      "redirect to subscription information page when EmailPreferences passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_PREFERENCES")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EmailPreferences")
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences")
       }
 
-      "redirect to subscription information page when API_SUBSCRIPTION passed in the form" in {
+      "redirect to subscription information page when ApiSubscription passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=API_SUBSCRIPTION")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=ApiSubscription")
         validateRedirect(result, "/api-gatekeeper/emails/api-subscription/information")
       }
 
-      "redirect to email all users information page when EMAIL_ALL_USERS passed in the form" in {
+      "redirect to email all users information page when EmailAllUsers passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EMAIL_ALL_USERS")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails", validHeaders, "sendEmailChoice=EmailAllUsers")
         validateRedirect(result, "/api-gatekeeper/emails/all-users/information")
       }
 

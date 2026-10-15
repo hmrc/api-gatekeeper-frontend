@@ -70,7 +70,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice.EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
@@ -179,26 +179,26 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
     "choose email option" should {
-      "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
+      "redirect to the all users information page when EmailAllUsers option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_ALL_USERS))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EmailAllUsers))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/all-users/information")
       }
 
-      "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
+      "redirect to the API Subscriptions information page when ApiSubscription option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.API_SUBSCRIPTION))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.ApiSubscription))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/api-subscription/information")
       }
 
-      "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
+      "redirect to the Email Preferences page when EmailPreferences option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_PREFERENCES))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EmailPreferences))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences")
@@ -237,7 +237,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(using *, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EmailAllUsers))(using *, *, *)
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
@@ -245,7 +245,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(using *, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.ApiSubscription))(using *, *, *)
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {

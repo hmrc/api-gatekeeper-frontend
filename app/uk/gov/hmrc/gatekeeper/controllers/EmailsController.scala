@@ -68,9 +68,9 @@ class EmailsController @Inject() (
   def chooseEmailOption(): Action[AnyContent] = anyStrideUserAction { implicit request =>
     def handleValidForm(form: SendEmailChoice): Future[Result] = {
       form.sendEmailChoice match {
-        case EmailOptionChoice.EMAIL_PREFERENCES => Future.successful(Redirect(routes.EmailsController.emailPreferencesChoice()))
-        case EmailOptionChoice.API_SUBSCRIPTION  => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
-        case EmailOptionChoice.EMAIL_ALL_USERS   => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
+        case EmailOptionChoice.EmailPreferences => Future.successful(Redirect(routes.EmailsController.emailPreferencesChoice()))
+        case EmailOptionChoice.ApiSubscription  => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "api-subscription")))
+        case EmailOptionChoice.EmailAllUsers    => Future.successful(Redirect(routes.EmailsController.showEmailInformation(emailChoice = "all-users")))
       }
     }
 
@@ -182,8 +182,8 @@ class EmailsController @Inject() (
 
   def showEmailInformation(emailChoice: String): Action[AnyContent] = anyStrideUserAction { implicit request =>
     emailChoice match {
-      case "all-users"        => Future.successful(Ok(emailInformationView(EmailOptionChoice.EMAIL_ALL_USERS)))
-      case "api-subscription" => Future.successful(Ok(emailInformationView(EmailOptionChoice.API_SUBSCRIPTION)))
+      case "all-users"        => Future.successful(Ok(emailInformationView(EmailOptionChoice.EmailAllUsers)))
+      case "api-subscription" => Future.successful(Ok(emailInformationView(EmailOptionChoice.ApiSubscription)))
       case _                  => Future.failed(new NotFoundException("Page Not Found"))
     }
   }

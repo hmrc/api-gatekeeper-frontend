@@ -31,8 +31,6 @@ import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullNam
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 
 case class BearerToken(authToken: String, expiry: LocalDateTime) {
@@ -390,9 +388,6 @@ object ApiApprovalRequest {
 }
 
 class UpdateApiDefinitionsFailed extends Throwable
-
-case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)
-case class SendEmailPreferencesChoice(sendEmailPreferences: EmailPreferencesChoice)
 
 case class RemoveAllCollaboratorsForUserIdRequest(userId: UserId, gatekeeperUserId: String)
 

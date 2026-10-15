@@ -20,24 +20,40 @@ import play.api.libs.json.{Format, Json}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
 
-// TODO - Remove Enumeration
-object EmailOptionChoice extends Enumeration {
-  type EmailOptionChoice = Value
-  val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS = Value
-  given emailOptionsFormat: Format[EmailOptionChoice]      = Json.formatEnum(EmailOptionChoice)
+enum EmailOptionChoice {
+  case EmailPreferences, ApiSubscription, EmailAllUsers
+}
 
-  val optionLabel: EmailOptionChoice => String = {
-    case EMAIL_PREFERENCES => "Email preferences"
-    case API_SUBSCRIPTION  => "API subscription"
-    case EMAIL_ALL_USERS   => "Email all users"
+object EmailOptionChoice {
+
+  def apply(text: String): Option[EmailOptionChoice] = {
+    EmailOptionChoice.values.find(e => e.toString.equalsIgnoreCase(text))
   }
 
-  val optionHint: EmailOptionChoice => String = {
-    case EMAIL_PREFERENCES => "Email users based on their preferences"
-    case API_SUBSCRIPTION  => "Email users mandatory information about APIs they subscribe to"
-    case EMAIL_ALL_USERS   => "Email all users with a Developer Hub account"
+  def unsafeApply(text: String): EmailOptionChoice = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Email Option Choice"))
+
+  given Format[EmailOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor("emailOptionChoice", apply)
+
+  extension (eoc: EmailOptionChoice) {
+
+    def label: String = eoc match {
+      case EmailPreferences => "Email preferences"
+      case ApiSubscription  => "API subscription"
+      case EmailAllUsers    => "Email all users"
+    }
+
+    def hint: String = eoc match {
+      case EmailPreferences => "Email users based on their preferences"
+      case ApiSubscription  => "Email users mandatory information about APIs they subscribe to"
+      case EmailAllUsers    => "Email all users with a Developer Hub account"
+    }
   }
 }
+
+// enum EmailPreferencesChoice {
+// case Topic, TaxRegime, SpecificApi
+// case TOPIC, TAX_REGIME, SPECIFIC_API
+// }
 
 object EmailPreferencesChoice extends Enumeration {
   type EmailPreferencesChoice = Value

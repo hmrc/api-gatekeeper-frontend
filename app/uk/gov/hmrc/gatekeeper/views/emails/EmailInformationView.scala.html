@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models.*
-@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -54,13 +54,13 @@
         )
     )
 ) {
-  @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
+  @if(emailOptionChoice.equals(EmailOptionChoice.EmailAllUsers)) {
     @helper.CSRF.formField
     @drawEmailAllUsersInformation()
 
     <a id="continue-link" href="@routes.EmailsController.emailAllUsersPage()" class="govuk-button">Continue</a>
   }
-  @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
+  @if(emailOptionChoice.equals(EmailOptionChoice.ApiSubscription)) {
     @helper.CSRF.formField
     @drawEmailApiSubscribersInformation()
 

@@ -482,8 +482,4 @@ class ApplicationViewSpec extends CommonViewSpec with SubscriptionsBuilder with 
       elementExistsById(document, "manage-ip-allowlist") shouldBe false
     }
   }
-
-  private def formatTermsOfUseAgreedDateTime(termsOfUseAgreement: TermsOfUseAgreement) = {
-    DateFormatter.formatTwoDigitDay(termsOfUseAgreement.timeStamp)
-  }
 }

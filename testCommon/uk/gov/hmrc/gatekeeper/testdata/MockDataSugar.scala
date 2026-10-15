@@ -300,12 +300,11 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures with Organisat
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private val DeveloperGenerator: Gen[RegisteredUser] = for {
-    forename  <- StringGenerator(5)
-    surname   <- StringGenerator(5)
-    id         = UserId.random.value
-    email      = randomEmail
-    verified   = true
-    registered = None
+    forename <- StringGenerator(5)
+    surname  <- StringGenerator(5)
+    id        = UserId.random.value
+    email     = randomEmail
+    verified  = true
   } yield RegisteredUser(email.toLaxEmail, UserId(id), forename, surname, verified)
 
   def userListGenerator(number: Int): Gen[List[RegisteredUser]] = Gen.listOfN(number, DeveloperGenerator)

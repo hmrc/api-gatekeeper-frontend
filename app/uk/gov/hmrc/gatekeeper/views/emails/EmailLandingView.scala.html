@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.gatekeeper.models.*
-@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 
@@ -30,10 +30,10 @@
   <div class="govuk-radios__item">
     <input class="govuk-radios__input" id="@optionChoice.toString" name="sendEmailChoice" type="radio" value="@optionChoice.toString" @disabledFlag(enabled)@checkedFlag(checked)>
     <label class="govuk-label govuk-radios__label" for="@optionChoice.toString">
-      @EmailOptionChoice.optionLabel(optionChoice)
+      @optionChoice.label
     </label>
     <div id="option-hint" class="govuk-hint govuk-radios__hint">
-      @EmailOptionChoice.optionHint(optionChoice)
+      @optionChoice.hint
     </div>
   </div>
 }
@@ -50,10 +50,10 @@
           </h1>
         </legend>
         <div class="govuk-radios" data-module="govuk-radios">
-          @buildOptionRow(EmailOptionChoice.EMAIL_PREFERENCES, enabled = true, checked = true)
-          @buildOptionRow(EmailOptionChoice.API_SUBSCRIPTION, enabled = true)
+          @buildOptionRow(EmailOptionChoice.EmailPreferences, enabled = true, checked = true)
+          @buildOptionRow(EmailOptionChoice.ApiSubscription, enabled = true)
           <div class="govuk-radios__divider">or</div>
-          @buildOptionRow(EmailOptionChoice.EMAIL_ALL_USERS, enabled = true)
+          @buildOptionRow(EmailOptionChoice.EmailAllUsers, enabled = true)
         </div>
       </fieldset>
     </div>

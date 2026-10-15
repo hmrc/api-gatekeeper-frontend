@@ -30,7 +30,7 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
 import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.Forms.FormFields.*
 
@@ -308,6 +308,18 @@ object Forms {
     )
   }
 
+  given Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
+
+    override def bind(key: String, data: Map[String, String]) =
+      data.get(key)
+        .flatMap(name => EmailOptionChoice(name))
+        .toRight(Seq(FormError(key, "application.emailOption.required", Nil)))
+
+    override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
+  }
+
+  case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)
+
   object SendEmailChoiceForm {
 
     val form: Form[SendEmailChoice] = Form(
@@ -317,14 +329,16 @@ object Forms {
     )
   }
 
-  implicit def emailOptionChoiceFormat: Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
+  case class SendEmailPreferencesChoice(sendEmailPreferences: EmailPreferencesChoice)
+
+  given Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
 
     override def bind(key: String, data: Map[String, String]) =
       data.get(key)
-        .flatMap(name => Try(EmailOptionChoice.withName(name)).toOption)
-        .toRight(Seq(FormError(key, "application.emailOption.required", Nil)))
+        .flatMap(name => Try(EmailPreferencesChoice.withName(name)).toOption)
+        .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
 
-    override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
+    override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
   }
 
   object SendEmailPrefencesChoiceForm {
@@ -334,16 +348,6 @@ object Forms {
         sendEmailPreferences -> of[EmailPreferencesChoice]
       )(SendEmailPreferencesChoice.apply)(f => Some((f.sendEmailPreferences)))
     )
-  }
-
-  implicit def emailPreferencesChoiceFormat: Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
-
-    override def bind(key: String, data: Map[String, String]) =
-      data.get(key)
-        .flatMap(name => Try(EmailPreferencesChoice.withName(name)).toOption)
-        .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
-
-    override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
   }
 
   final case class UpdateGrantLengthForm(grantLength: Option[Int])

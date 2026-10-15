@@ -165,8 +165,7 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
     def verifyCollaboratorRemovedFromApp(
         app: ApplicationWithCollaborators,
         userToRemove: LaxEmailAddress,
-        gatekeeperUserName: String,
-        adminsToEmail: Set[LaxEmailAddress]
+        gatekeeperUserName: String
       ) = {
       inside(CommandConnectorMock.IssueCommand.verifyCommand(app.id)) {
         case cmd @ ApplicationCommands.RemoveCollaborator(_, _, _) =>
@@ -480,9 +479,9 @@ class DeveloperServiceSpec extends AsyncHmrcSpec with CollaboratorTracker with A
       val (result, _) = await(underTest.deleteDeveloper(developerId, gatekeeperUserId))
       result shouldBe DeveloperDeleteSuccessResult
 
-      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
-      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId, Set.empty)
-      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId, Set(verifiedAdminCollaborator.emailAddress))
+      verifyCollaboratorRemovedFromApp(app1, user.email, gatekeeperUserId)
+      verifyCollaboratorRemovedFromApp(app2, user.email, gatekeeperUserId)
+      verifyCollaboratorRemovedFromApp(app3, user.email, gatekeeperUserId)
 
       verify(mockDeveloperConnector).deleteDeveloper(eqTo(DeleteDeveloperRequest(gatekeeperUserId, user.email.text)))(using *)
       verify(apiPlatformDeskproConnector).markPersonInactive(eqTo(user.email), *)

@@ -19,14 +19,12 @@ package uk.gov.hmrc.gatekeeper.utils
 import scala.collection.mutable
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 
 trait UserIdTracker {
   private val idsByEmail = mutable.Map[LaxEmailAddress, UserId]()
 
-  def idOf(email: Any): UserId = email match {
-    case s: String            => idsByEmail.getOrElseUpdate(s.toLaxEmail, UserId.random)
+  def idOf(email: LaxEmailAddress): UserId = email match {
     case lea: LaxEmailAddress => idsByEmail.getOrElseUpdate(lea, UserId.random)
   }
 }
