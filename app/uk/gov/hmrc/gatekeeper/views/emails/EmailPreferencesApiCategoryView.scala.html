@@ -46,7 +46,7 @@
             </legend>
             <div class="govuk-form-group">
                 <label class="govuk-label govuk-!-font-weight-bold" for="selectedCategory">Select a tax regime from the list </label>
-                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value='@{maybeSelectedCategory.fold("")(x => x.toString())}'>
+                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value='@{maybeSelectedCategory.fold("")(x => x.toString().toUpperCase())}'>
                     <option value="">Select tax regime</option>
                     @for(category <- ApiCategory.values.toList.sortBy(_.displayText)) {
                         <option @if(maybeSelectedCategory == Some(category)) {selected} value="@category">@category.displayText </option>
