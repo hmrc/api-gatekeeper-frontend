@@ -20,8 +20,8 @@ import org.jsoup.nodes.{Document, Element}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, RegisteredUser, TopicOptionChoice, *}
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.*
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice, *}
 import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
@@ -173,8 +173,8 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) shouldBe true
-    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) shouldBe true
-    elementExistsContainsText(document, "div", EmailPreferencesChoice.optionHint(option)) shouldBe true
+    elementExistsContainsText(document, "label", option.label) shouldBe true
+    elementExistsContainsText(document, "div", option.hint) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 

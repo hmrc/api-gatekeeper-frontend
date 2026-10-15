@@ -276,28 +276,27 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
     "POST /emails/email-preferences " should {
       "redirect to select page when SPECIFIC_API passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=SPECIFIC_API")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=SpecificApi")
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/select-api")
       }
 
       "redirect to select page when TAX_REGIME passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TAX_REGIME")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TaxRegime")
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-api-category")
       }
 
       "redirect to select page when TOPIC passed in the form" in {
         primeAuthServiceSuccess()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=Topic")
         validateRedirect(result, "/api-gatekeeper/emails/email-preferences/by-topic")
       }
 
       "respond with 403 when not authorised" in {
         primeAuthServiceFail()
-        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=TOPIC")
+        val result = callPostEndpoint(s"$url/api-gatekeeper/emails/email-preferences", validHeaders, "sendEmailPreferences=Topic")
         result.status shouldBe FORBIDDEN
       }
-
     }
 
     "GET /emails/email-preferences/by-topic" should {
@@ -348,7 +347,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page correctly when only category filter is provided" in {
         primeAuthServiceSuccess()
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedCategory=${categories.head.toString.toUpperCase()}", validHeaders)
+        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedCategory=${categories.head}", validHeaders)
         result.status shouldBe OK
 
         validateEmailPreferencesAPICategoryPageWithCategoryFilter(Jsoup.parse(result.body), categories, categories.head)
@@ -358,7 +357,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeAuthServiceSuccess()
         primeDeveloperServiceEmailPreferencesByTopicAndCategory(Seq.empty, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head.toString.toUpperCase()}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
           validHeaders
         )
         result.status shouldBe OK
@@ -370,7 +369,7 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeAuthServiceSuccess()
         primeDeveloperServiceEmailPreferencesByTopicAndCategory(allUsers, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head.toString.toUpperCase()}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
           validHeaders
         )
         result.status shouldBe OK

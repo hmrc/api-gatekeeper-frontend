@@ -28,7 +28,7 @@
 }
 
 <div class="govuk-radios__item">
-  <input class="govuk-radios__input" id="@topic.toString" name="selectedTopic" type="radio" value="@topic.toString.toUpperCase()" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
+  <input class="govuk-radios__input" id="@topic.toString" name="selectedTopic" type="radio" value="@topic.toString" @checkedFlag(maybeTopicFilter.exists(_.equals(topic)))>
   <label class="govuk-label govuk-radios__label" for="@topic.toString">
     @TopicOptionChoice.optionLabel(topic)
   </label>

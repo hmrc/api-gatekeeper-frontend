@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Format
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
 
@@ -50,28 +50,33 @@ object EmailOptionChoice {
   }
 }
 
-// enum EmailPreferencesChoice {
-// case Topic, TaxRegime, SpecificApi
-// case TOPIC, TAX_REGIME, SPECIFIC_API
-// }
+enum EmailPreferencesChoice {
+  case Topic, TaxRegime, SpecificApi
+}
 
-object EmailPreferencesChoice extends Enumeration {
-  type EmailPreferencesChoice = Value
+object EmailPreferencesChoice {
 
-  val TOPIC, TAX_REGIME, SPECIFIC_API = Value
-
-  given emailPreferencesChoiceFormat: Format[EmailPreferencesChoice] = Json.formatEnum(EmailPreferencesChoice)
-
-  val optionLabel: EmailPreferencesChoice => String = {
-    case EmailPreferencesChoice.SPECIFIC_API => "Users interested in a specific API or APIs"
-    case EmailPreferencesChoice.TAX_REGIME   => "Users interested in a tax regime"
-    case EmailPreferencesChoice.TOPIC        => "Users interested in a topic"
+  def apply(text: String): Option[EmailPreferencesChoice] = {
+    EmailPreferencesChoice.values.find(e => e.toString.equalsIgnoreCase(text))
   }
 
-  val optionHint: EmailPreferencesChoice => String = {
-    case EmailPreferencesChoice.SPECIFIC_API => "For example, VAT MTD, PAYE Online"
-    case EmailPreferencesChoice.TAX_REGIME   => "For example, Income Tax"
-    case EmailPreferencesChoice.TOPIC        => "For example, event invites"
+  def unsafeApply(text: String): EmailPreferencesChoice = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Email Option Choice"))
+
+  given Format[EmailPreferencesChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor("emailPreferencesChoice", apply)
+
+  extension (epc: EmailPreferencesChoice) {
+
+    def label: String = epc match {
+      case EmailPreferencesChoice.SpecificApi => "Users interested in a specific API or APIs"
+      case EmailPreferencesChoice.TaxRegime   => "Users interested in a tax regime"
+      case EmailPreferencesChoice.Topic       => "Users interested in a topic"
+    }
+
+    def hint: String = epc match {
+      case EmailPreferencesChoice.SpecificApi => "For example, VAT MTD, PAYE Online"
+      case EmailPreferencesChoice.TaxRegime   => "For example, Income Tax"
+      case EmailPreferencesChoice.Topic       => "For example, event invites"
+    }
   }
 }
 

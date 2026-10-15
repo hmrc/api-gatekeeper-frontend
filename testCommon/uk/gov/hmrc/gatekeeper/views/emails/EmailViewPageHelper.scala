@@ -159,9 +159,9 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
   def validateEmailPreferencesChoicePage(document: Document): Unit = {
     validatePageHeader(document, "Who do you want to email?")
 
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.SPECIFIC_API, document)
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TAX_REGIME, document)
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TOPIC, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.SpecificApi, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TaxRegime, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.Topic, document)
   }
 
   def validateEmailPreferencesChoiceNewPage(document: Document): Unit = {

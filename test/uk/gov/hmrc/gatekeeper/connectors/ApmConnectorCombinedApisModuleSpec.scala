@@ -47,7 +47,7 @@ class ApmConnectorCombinedApisModuleSpec
 
     val underTest: ApmConnectoCombinedApisModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.Customs), ApiType.RestApi, ApiAccessType.Public)
+    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.SelfAssessment), ApiType.RestApi, ApiAccessType.Public)
     val combinedXmlApi2  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.Vat), ApiType.XmlApi, ApiAccessType.Public)
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
   }
@@ -72,7 +72,7 @@ class ApmConnectorCombinedApisModuleSpec
     "handles legacy access type" in new Setup {
       val url = "/combined-rest-xml-apis"
 
-      val legacyJsonText = """[{"displayName":"displayName1","serviceName":"serviceName1","categories":["CUSTOMS"],"apiType":"REST_API","accessType":"PRIVATE"}]"""
+      val legacyJsonText = """[{"displayName":"displayName1","serviceName":"serviceName1","categories":["SELF_ASSESSMENT"],"apiType":"REST_API","accessType":"PRIVATE"}]"""
 
       stubFor(
         get(urlPathEqualTo(url))

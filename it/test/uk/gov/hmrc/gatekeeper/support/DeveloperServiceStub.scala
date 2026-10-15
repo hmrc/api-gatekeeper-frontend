@@ -22,6 +22,7 @@ import play.api.http.Status
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition, ServiceName}
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 import uk.gov.hmrc.gatekeeper.models.*
 
 trait DeveloperServiceStub {
@@ -72,7 +73,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: ApiCategory): Unit = {
-    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + "?topic=" + topic.toString + "&regime=" + category.toString.toUpperCase
+    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + "?topic=" + topic.toString + "&regime=" + category.asScreamingSnakeCase
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
         aResponse()
@@ -85,7 +86,7 @@ trait DeveloperServiceStub {
     val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _).toSet
 
     val topicParam    = s"topic=${topic.toString}"
-    val regimeParams  = categories.map(category => s"&regime=${category.toString.toUpperCase}").mkString
+    val regimeParams  = categories.map(category => s"&regime=${category.asScreamingSnakeCase}").mkString
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
     val emailpreferencesByTopicAndCategoryUrl = s"$emailPreferencesUrl?$topicParam$regimeParams$serviceParams"

@@ -32,7 +32,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Applicati
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, *}
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.emails.*
@@ -76,7 +76,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
           .withCSRFToken.withMethod("POST")
           .withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
 
-      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice.EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
@@ -208,7 +208,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TOPIC))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.Topic))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-topic")
@@ -216,7 +216,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.SPECIFIC_API))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.SpecificApi))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api")
@@ -224,7 +224,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TAX_REGIME))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TaxRegime))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")

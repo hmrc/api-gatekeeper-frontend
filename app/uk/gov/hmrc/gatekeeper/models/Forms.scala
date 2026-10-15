@@ -30,9 +30,8 @@ import play.api.data.{Form, FormError}
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
 import uk.gov.hmrc.gatekeeper.models.Forms.FormFields.*
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice}
 
 object Forms {
 
@@ -335,7 +334,7 @@ object Forms {
 
     override def bind(key: String, data: Map[String, String]) =
       data.get(key)
-        .flatMap(name => Try(EmailPreferencesChoice.withName(name)).toOption)
+        .flatMap(name => EmailPreferencesChoice(name))
         .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
 
     override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
