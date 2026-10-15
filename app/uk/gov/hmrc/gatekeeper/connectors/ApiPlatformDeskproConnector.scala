@@ -18,6 +18,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.Instant
 import javax.inject.{Inject, Singleton}
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
@@ -56,6 +57,7 @@ class ApiPlatformDeskproConnector @Inject() (
     http.get(url"${config.serviceBaseUrl}/ticket/$ticketId").execute[DeskproTicket]
   }
 
+  @nowarn
   private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
     logger.warn("Exception occurred when calling Deskpro", err)
     err match {

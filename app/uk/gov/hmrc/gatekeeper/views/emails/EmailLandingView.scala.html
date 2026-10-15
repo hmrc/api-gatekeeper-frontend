@@ -26,7 +26,7 @@
 @disabledFlag(enabled: Boolean) = @{if(!enabled){" disabled"} else {""}}
 @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
-@buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean = false, checked: Boolean = false) = {
+@buildOptionRow(optionChoice: EmailOptionChoice, enabled: Boolean, checked: Boolean = false) = {
   <div class="govuk-radios__item">
     <input class="govuk-radios__input" id="@optionChoice.toString" name="sendEmailChoice" type="radio" value="@optionChoice.toString" @disabledFlag(enabled)@checkedFlag(checked)>
     <label class="govuk-label govuk-radios__label" for="@optionChoice.toString">

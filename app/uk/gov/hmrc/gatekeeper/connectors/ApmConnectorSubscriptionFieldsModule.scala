@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import scala.annotation.nowarn
 import scala.concurrent.Future
 
 import play.api.http.HeaderNames
@@ -57,17 +58,20 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
 
     val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(baseUrl)(environment, clientId, apiContext, apiVersion)
 
+    @nowarn("msg=cannot be checked at runtime")
+    def parse(body: String) =
+      Json.parse(body).validate[Map[String, String]] match {
+        case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
+        case _                                 => SaveSubscriptionFieldsFailureResponse(Map.empty)
+      }
+
     http.put(url)
       .withBody(Json.toJson(SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)))
       .execute[HttpResponse]
       .map(_ match {
         case resp: HttpResponse if (is2xx(resp.status)) => SaveSubscriptionFieldsSuccessResponse
 
-        case HttpResponse(BAD_REQUEST, body, _) =>
-          Json.parse(body).validate[Map[String, String]] match {
-            case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
-            case _                                 => SaveSubscriptionFieldsFailureResponse(Map.empty)
-          }
+        case HttpResponse(BAD_REQUEST, body, _) => parse(body)
         case HttpResponse(status, body, _)      => throw UpstreamErrorResponse(body, status)
       })
   }

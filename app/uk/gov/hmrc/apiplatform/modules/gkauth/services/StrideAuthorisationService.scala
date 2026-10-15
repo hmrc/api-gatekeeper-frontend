@@ -17,6 +17,7 @@
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import javax.inject.{Inject, Singleton}
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.mvc.Results.Redirect
@@ -80,8 +81,8 @@ class StrideAuthorisationService @Inject() (
   }
 
   private def authorise(strideRoleRequired: GatekeeperStrideRole)(using hc: HeaderCarrier): Future[~[Option[Name], Enrolments]] = {
-    val predicate = StrideAuthorisationPredicateForGatekeeperRole(strideAuthConfig.roles)(strideRoleRequired)
-    val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
+    val predicate         = StrideAuthorisationPredicateForGatekeeperRole(strideAuthConfig.roles)(strideRoleRequired)
+    @nowarn val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
     strideAuthConnector.authorise(predicate, retrieval)
   }
