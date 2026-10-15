@@ -21,14 +21,13 @@ import scala.concurrent.ExecutionContext
 
 import play.api.mvc.MessagesControllerComponents
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.services.ApiDefinitionService
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper.*
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
@@ -51,8 +50,7 @@ class ApiDefinitionController @Inject() (
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper {
@@ -68,10 +66,10 @@ class ApiDefinitionController @Inject() (
         ColumnDefinition("serviceName", (vm => vm.serviceName)),
         ColumnDefinition("context", (vm => vm.apiContext.value)),
         ColumnDefinition("version", (vm => vm.apiVersion.value)),
-        ColumnDefinition("source", (vm => vm.versionSource.toString())),
+        ColumnDefinition("source", (vm => vm.versionSource.toString().toUpperCase())),
         ColumnDefinition("status", (vm => vm.status)),
         ColumnDefinition("access", (vm => vm.access)),
-        ColumnDefinition("environment", (vm => vm.environment.toString))
+        ColumnDefinition("environment", (vm => vm.environment.toString.toUpperCase()))
       )
 
       Ok(toCsvString(columnDefinitions, allDefinitionsAsRows))
@@ -82,12 +80,12 @@ class ApiDefinitionController @Inject() (
     apiDefinition.versions.values.map(v =>
       ApiDefinitionView(
         apiDefinition.name,
-        apiDefinition.serviceName.value,
+        apiDefinition.serviceName,
         apiDefinition.context,
         v.versionNbr,
         v.versionSource,
-        v.status.displayText,
-        v.access.displayText,
+        v.status.toString,
+        v.access.toString,
         environment
       )
     )

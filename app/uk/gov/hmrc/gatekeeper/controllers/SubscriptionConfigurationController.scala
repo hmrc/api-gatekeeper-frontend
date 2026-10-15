@@ -24,17 +24,17 @@ import play.api.data
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SaveSubscriptionFieldsFailureResponse, SaveSubscriptionFieldsSuccessResponse}
 import uk.gov.hmrc.gatekeeper.models.view.{EditApiMetadataForm, SubscriptionFieldValueForm, SubscriptionVersion}
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, SubscriptionFieldsService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration._
+import uk.gov.hmrc.gatekeeper.views.html.applications.subscriptionConfiguration.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -49,11 +49,10 @@ class SubscriptionConfigurationController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ErrorHelper with ActionBuilders {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  given dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def listConfigurations(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     withAppAndSubscriptionsAndFieldDefinitions(appId) {
@@ -86,7 +85,7 @@ class SubscriptionConfigurationController @Inject() (
         {
           val requestForm: Form[EditApiMetadataForm] = EditApiMetadataForm.form.bindFromRequest()
 
-          def errors(errors: Form[EditApiMetadataForm]) = {
+          def errors() = {
             Future.successful(technicalDifficulties)
           }
 
@@ -109,12 +108,12 @@ class SubscriptionConfigurationController @Inject() (
 
             subscriptionFieldsService.saveFieldValues(app.applicationWithSubscriptionData.details, apiContext, versionNbr, fields)
               .map({
-                case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId))
+                case SaveSubscriptionFieldsSuccessResponse              => Redirect(routes.SubscriptionConfigurationController.listConfigurations(appId.simpleApp))
                 case SaveSubscriptionFieldsFailureResponse(fieldErrors) => validationErrorResult(fieldErrors, form)
               })
           }
 
-          requestForm.fold(errors, doSaveConfigurations)
+          requestForm.fold(_ => errors(), doSaveConfigurations)
         }
     }
   }

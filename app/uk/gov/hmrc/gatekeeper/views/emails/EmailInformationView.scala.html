@@ -14,15 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.*
+@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(emailOptionChoice: EmailOptionChoice)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(emailOptionChoice: EmailOptionChoice)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 @drawEmailAllUsersInformation() = @{
   <h1 id="pageTitle" class="govuk-heading-l">Check you can email all users</h1>
   <p class="govuk-body">You can only email all users if your message is about:</p>
@@ -54,13 +54,13 @@
         )
     )
 ) {
-  @if(emailOptionChoice.equals(EmailOptionChoice.EMAIL_ALL_USERS)) {
+  @if(emailOptionChoice.equals(EmailOptionChoice.EmailAllUsers)) {
     @helper.CSRF.formField
     @drawEmailAllUsersInformation()
 
     <a id="continue-link" href="@routes.EmailsController.emailAllUsersPage()" class="govuk-button">Continue</a>
   }
-  @if(emailOptionChoice.equals(EmailOptionChoice.API_SUBSCRIPTION)) {
+  @if(emailOptionChoice.equals(EmailOptionChoice.ApiSubscription)) {
     @helper.CSRF.formField
     @drawEmailApiSubscribersInformation()
 

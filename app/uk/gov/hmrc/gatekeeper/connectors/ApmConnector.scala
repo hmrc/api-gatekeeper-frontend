@@ -19,6 +19,7 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.ExecutionContext
 
+import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.client.HttpClientV2
 
 object ApmConnector {
@@ -28,14 +29,14 @@ object ApmConnector {
     )
 }
 
-trait ApmConnectorModule {
+trait ApmConnectorModule extends JsonBodyWritables {
   def http: HttpClientV2
   def config: ApmConnector.Config
-  implicit def ec: ExecutionContext
+  given ec: ExecutionContext
 }
 
 @Singleton
-class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(implicit val ec: ExecutionContext)
+class ApmConnector @Inject() (val http: HttpClientV2, val config: ApmConnector.Config)(using val ec: ExecutionContext)
     extends ApmConnectoCombinedApisModule
     with ApmConnectorApiDefinitionModule
     with ApmConnectorApplicationModule

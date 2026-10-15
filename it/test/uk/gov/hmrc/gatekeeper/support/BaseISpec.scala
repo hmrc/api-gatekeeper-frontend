@@ -38,13 +38,14 @@ abstract class BaseISpec
     givenCleanMetricRegistry()
   }
 
-  implicit protected def materializer: Materializer = app.materializer
+  given Materializer = app.materializer
 
-  private lazy val messagesApi            = app.injector.instanceOf[MessagesApi]
-  implicit private def messages: Messages = messagesApi.preferred(Seq.empty[Lang])
+  private lazy val messagesApi = app.injector.instanceOf[MessagesApi]
+  given Messages               = messagesApi.preferred(Seq.empty[Lang])
 
   protected def htmlEscapedMessage(key: String): String = HtmlFormat.escape(Messages(key)).toString
 
-  implicit def hc(implicit request: FakeRequest[_]): HeaderCarrier =
-    HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+  given Conversion[FakeRequest[?], HeaderCarrier] with {
+    def apply(request: FakeRequest[?]) = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+  }
 }

@@ -14,9 +14,9 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models.view._
+@import uk.gov.hmrc.gatekeeper.models.view.*
 @import uk.gov.hmrc.gatekeeper.models.view.SubscriptionVersion
-@import uk.gov.hmrc.gatekeeper.views.helper._
+@import uk.gov.hmrc.gatekeeper.views.helper.*
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -28,7 +28,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(implicit request: Request[_], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, subscriptionViewModel: SubscriptionVersion, form: Form[EditApiMetadataForm])(using request: Request[?], loggedInUser: LoggedInUser,  messagesProvider: MessagesProvider)
 
 @pageTitle = @{s"${subscriptionViewModel.apiName} ${subscriptionViewModel.versionNbr.value} ${subscriptionViewModel.displayedStatus}"}
 
@@ -39,12 +39,12 @@
     breadcrumbs = Seq(
     Crumb(
       "Subscription configuration",
-      s"${routes.SubscriptionConfigurationController.listConfigurations(application.id)}",
+      s"${routes.SubscriptionConfigurationController.listConfigurations(application.id.simpleApp)}",
       Some("data-breadcrumb-subscription-configuration")
     ),
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -56,7 +56,7 @@
 ) {
   <h1 class="govuk-heading-l">@pageTitle</h1>
 
-  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id, subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr), Symbol("class") -> "fields-subscription") {
+  @helper.form(action = routes.SubscriptionConfigurationController.saveConfigurations(application.id.simpleApp, subscriptionViewModel.apiContext, subscriptionViewModel.versionNbr), Symbol("class") -> "fields-subscription") {
     @helper.CSRF.formField
     @helper.repeatWithIndex(form("fields")) { (field, index) =>
       @defining(field("name").value.getOrElse("")) { formFieldId =>
@@ -87,7 +87,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.SubscriptionConfigurationController.listConfigurations(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

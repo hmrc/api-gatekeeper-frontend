@@ -14,12 +14,12 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.*
 
 @import play.api.libs.json.JsValue
 @import play.api.libs.json.Json
 
-@(users: Seq[AbstractUser], emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(implicit messages: Messages, request: RequestHeader)
+@(users: Seq[AbstractUser], emails: String, tpdQuery: DevelopersEmailQuery, config: AppConfig, userSelection: Map[String, String])(using messages: Messages, request: RequestHeader)
 
 @if(users.nonEmpty) {
   <div class="govuk-button-group">

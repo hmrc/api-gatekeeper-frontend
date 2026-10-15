@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -25,7 +25,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(implicit request: LoggedInRequest[_], flash: Flash)
+@(application: ApplicationWithCollaborators, form: Form[UnblockApplicationForm])(using request: LoggedInRequest[?], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Unblock Application",
@@ -57,7 +57,7 @@
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Application type</dt>
-      <dd class="govuk-summary-list__value">@application.access.accessType.displayText</dd>
+      <dd class="govuk-summary-list__value">@application.access.accessType.toString</dd>
     </div>
     <div class="govuk-summary-list__row">
       <dt class="govuk-summary-list__key">Status</dt>
@@ -67,7 +67,7 @@
     </div>
   </dl>
 
-  @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id), Symbol("class") -> "form") {
+  @helper.form(action = routes.ApplicationController.unblockApplicationAction(application.id.simpleApp), Symbol("class") -> "form") {
     <div class="govuk-form-group @if(form.errors("applicationNameConfirmation").nonEmpty) {govuk-form-group--error}">
       <h1 class="govuk-label-wrapper">
         <label class="govuk-label govuk-label--m" for="applicationNameConfirmation">
@@ -88,7 +88,7 @@
       inputType = Some("submit"),
       preventDoubleClick = Some(true)
     ))
-      <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@{routes.ApplicationController.applicationPage(application.id.simpleApp)}" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

@@ -21,133 +21,137 @@ import scala.concurrent.Future.successful
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ValidatedApplicationName}
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.services.ApplicationService
 
 trait ApplicationServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
-  import mocks.PaginatedApplicationsBuilder._
+  import mocks.PaginatedApplicationsBuilder.*
 
   val mockApplicationService = mock[ApplicationService]
 
   object ApplicationServiceMock {
 
     object FetchApplicationsByAnswer {
-      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(mockApplicationService.fetchApplicationsByAnswer(*)(*)).thenReturn(successful(appsByAnswer))
+      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(mockApplicationService.fetchApplicationsByAnswer(*)(using *)).thenReturn(successful(appsByAnswer))
     }
 
     object FetchApplications {
-      def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(*)).thenReturn(successful(apps.toList))
+      def returns(apps: ApplicationWithCollaborators*) = when(mockApplicationService.fetchApplications(using *)).thenReturn(successful(apps.toList))
 
       def returnsFor(apiFilter: ApiFilter[String], envFilter: ApiSubscriptionInEnvironmentFilter, apps: ApplicationWithCollaborators*) =
-        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(*)).thenReturn(successful(apps.toList))
+        when(mockApplicationService.fetchApplications(eqTo(apiFilter), eqTo(envFilter))(using *)).thenReturn(successful(apps.toList))
     }
 
     object BlockApplication {
-      def succeeds() = when(mockApplicationService.blockApplication(*, *)(*)).thenReturn(successful(ApplicationBlockSuccessResult))
+      def succeeds() = when(mockApplicationService.blockApplication(*, *)(using *)).thenReturn(successful(ApplicationBlockSuccessResult))
     }
 
     object CreatePrivApp {
-      def returns(result: CreatePrivAppResult) = when(mockApplicationService.createPrivApp(*, *, *, *)(*)).thenReturn(successful(result))
+      def returns(result: CreatePrivAppResult) = when(mockApplicationService.createPrivApp(*, *, *, *)(using *)).thenReturn(successful(result))
     }
 
     object SearchApplications {
 
       def returns(apps: ApplicationWithCollaborators*) =
-        when(mockApplicationService.searchApplications(*, *)(*)).thenReturn(successful(buildPaginatedApplications(apps.toList)))
+        when(mockApplicationService.searchApplications(*, *)(using *)).thenReturn(successful(buildPaginatedApplications(apps.toList)))
     }
 
     object FetchApplicationsWithSubscriptions {
-      def returns(apps: AppWithSubscriptionsForCsvResponse*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(*)).thenReturn(successful(apps.toList))
+      def returns(apps: AppWithSubscriptionsForCsvResponse*) = when(mockApplicationService.fetchApplicationsWithSubscriptions(*)(using *)).thenReturn(successful(apps.toList))
     }
 
     object UpdateScopes {
-      def succeeds()               = when(mockApplicationService.updateScopes(*, *, *)(*)).thenReturn(successful(UpdateScopesSuccessResult))
-      def failsWithInvalidScopes() = when(mockApplicationService.updateScopes(*, *, *)(*)).thenReturn(successful(UpdateScopesInvalidScopesResult))
+      def succeeds()               = when(mockApplicationService.updateScopes(*, *, *)(using *)).thenReturn(successful(UpdateScopesSuccessResult))
+      def failsWithInvalidScopes() = when(mockApplicationService.updateScopes(*, *, *)(using *)).thenReturn(successful(UpdateScopesInvalidScopesResult))
     }
 
     object ManageIpAllowlist {
-      def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.manageIpAllowlist(*, *, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UpdateOverrides {
-      def succeeds() = when(mockApplicationService.updateOverrides(*, *, *)(*)).thenReturn(successful(UpdateOverridesSuccessResult))
+      def succeeds() = when(mockApplicationService.updateOverrides(*, *, *)(using *)).thenReturn(successful(UpdateOverridesSuccessResult))
     }
 
     object UpdateRateLimitTier {
-      def succeeds() = when(mockApplicationService.updateRateLimitTier(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.updateRateLimitTier(*, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UpdateGrantLength {
-      def succeeds() = when(mockApplicationService.updateGrantLength(*, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.updateGrantLength(*, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UpdateAllowDelete {
-      def succeeds() = when(mockApplicationService.updateDeleteRestriction(*[ApplicationId], *, *, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+      def succeeds() = when(mockApplicationService.updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
     }
 
     object UnblockApplication {
-      def succeeds() = when(mockApplicationService.unblockApplication(*, *)(*)).thenReturn(successful(ApplicationUnblockSuccessResult))
+      def succeeds() = when(mockApplicationService.unblockApplication(*, *)(using *)).thenReturn(successful(ApplicationUnblockSuccessResult))
     }
 
     object DoesApplicationHaveSubmissions {
 
       def succeedsFalse() =
-        when(mockApplicationService.doesApplicationHaveSubmissions(*[ApplicationId])(*))
+        when(mockApplicationService.doesApplicationHaveSubmissions(*[ApplicationId])(using *))
           .thenReturn(successful(false))
     }
 
     object DoesApplicationHaveTermsOfUseInvitation {
 
       def succeedsFalse() =
-        when(mockApplicationService.doesApplicationHaveTermsOfUseInvitation(*[ApplicationId])(*))
+        when(mockApplicationService.doesApplicationHaveTermsOfUseInvitation(*[ApplicationId])(using *))
           .thenReturn(successful(false))
     }
 
     object ValidateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Valid))
 
       def invalid() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
 
       def duplicate() =
-        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
+        when(mockApplicationService.validateApplicationName(*[ApplicationWithCollaborators], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
     }
 
     object ValidateNewApplicationName {
-      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Valid))
+      def succeeds() = when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Valid))
 
       def invalid() =
-        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Invalid))
 
       def duplicate() =
-        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(*)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
+        when(mockApplicationService.validateNewApplicationName(*[Environment], *[String])(using *)).thenReturn(successful(ApplicationNameValidationResult.Duplicate))
     }
 
     object UpdateApplicationName {
 
       def succeeds() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
-          ApplicationUpdateSuccessResult
-        ))
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(
+          successful(
+            ApplicationUpdateSuccessResult
+          )
+        )
 
       def fails() =
-        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(*)).thenReturn(successful(
-          ApplicationUpdateFailureResult
-        ))
+        when(mockApplicationService.updateApplicationName(*[ApplicationWithCollaborators], *[LaxEmailAddress], *[String], *[ValidatedApplicationName])(using *)).thenReturn(
+          successful(
+            ApplicationUpdateFailureResult
+          )
+        )
     }
 
     object FetchProdAppStateHistories {
 
       def thenReturn(applicationStateHistoryChanges: ApplicationStateHistoryChange*) =
-        when(mockApplicationService.fetchProdAppStateHistories()(*)).thenReturn(successful(applicationStateHistoryChanges.toList))
+        when(mockApplicationService.fetchProdAppStateHistories()(using *)).thenReturn(successful(applicationStateHistoryChanges.toList))
     }
   }
 }

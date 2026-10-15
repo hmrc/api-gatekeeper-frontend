@@ -20,10 +20,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 class XmlServicesControllerSpec extends ControllerBaseSpec {
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   running(app) {
     trait Setup extends ControllerSetupBase {

@@ -16,21 +16,21 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, StateHistoryTestData}
 
 trait ThirdPartyApplicationStub {
-  self: WireMockExtensions with ApplicationResponseTestData with StateHistoryTestData =>
+  self: WireMockExtensions & ApplicationResponseTestData & StateHistoryTestData =>
 
   def stubHasTermsOfUseInvitation(appId: ApplicationId, has: Boolean = false): Unit = {
     if (has) {
@@ -104,11 +104,7 @@ trait ThirdPartyApplicationStub {
     )
   }
 
-  def stubSubmissionLatestIsNotCompleted(appId: ApplicationId) = {
-    stubFor(get(urlPathMatching("/submissions/latestiscompleted/.*")).willReturn(aResponse().withBody("false").withStatus(OK)))
-  }
-
-  def stubSubmissionLatestIsNotFound(appId: ApplicationId) = {
+  def stubSubmissionLatestIsNotFound() = {
     stubFor(get(urlPathMatching("/submissions/latestiscompleted/.*")).willReturn(aResponse().withStatus(NOT_FOUND)))
   }
 

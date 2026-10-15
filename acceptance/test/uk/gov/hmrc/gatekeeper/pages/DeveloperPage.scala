@@ -49,7 +49,7 @@ object DeveloperPage extends WebPage {
   }
 
   def selectByEnvironment(environment: Environment) = {
-    getSelectBox(By.id("environmentFilter")).selectByValue(environment.toString)
+    getSelectBox(By.id("environmentFilter")).selectByValue(environment.toString.toUpperCase())
   }
 
   def selectByDeveloperStatus(status: String) = {

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper.application
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
@@ -24,7 +24,7 @@ class ApplicationSubmissionSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "ApplicationsSubmission" when {
     "submittedBy" should {
       "is present" in {
-        val stateHistories = List(aStateHistory(PENDING_GATEKEEPER_APPROVAL))
+        val stateHistories = List(aStateHistory(State.PendingGatekeeperApproval))
         ApplicationSubmission.getSubmittedBy(stateHistories) shouldBe Some("Unknown")
       }
       "is not present" in {

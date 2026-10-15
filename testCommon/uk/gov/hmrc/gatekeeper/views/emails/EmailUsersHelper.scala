@@ -20,18 +20,15 @@ import org.jsoup.nodes.{Document, Element}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiType, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.{EmailOptionChoice, optionHint, optionLabel}
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.{RegisteredUser, TopicOptionChoice, _}
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.*
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice, *}
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   self: HmrcSpec =>
 
   def validatePageHeader(document: Document, expectedTitle: String) = {
     val maybeTitleText = getElementBySelector(document, "#pageTitle")
-
-    if (maybeTitleText.isEmpty) println(document.html())
 
     maybeTitleText.fold(fail("page title not present in page"))(_.text shouldBe expectedTitle)
   }
@@ -71,14 +68,14 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
 
   def handleXmlAppendValue(api: CombinedApi) = {
     api.apiType match {
-      case ApiType.XML_API  => api.displayName + " - XML API"
-      case ApiType.REST_API => api.displayName
+      case ApiType.XmlApi  => api.displayName + " - XML API"
+      case ApiType.RestApi => api.displayName
     }
   }
 
   def validateNonSelectedApiDropDown(document: Document, apis: Seq[CombinedApi], defaultOption: String) = {
 
-    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName.value, handleXmlAppendValue(x))))
+    val combinedTuples = Seq(("", defaultOption)) ++ apis.flatMap(x => Seq((x.serviceName, handleXmlAppendValue(x))))
     validateNonSelectedDropDown(document, "#selectedAPIs", combinedTuples, defaultOption)
 
   }
@@ -130,7 +127,7 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
   def validateHiddenSelectedApiValues(document: Document, selectedAPIs: Seq[CombinedApi], numberOfSets: Int = 1): Unit = {
     val elements: List[Element] = getElementsBySelector(document, "input[name=selectedAPIs][type=hidden]")
     elements.size shouldBe selectedAPIs.size * numberOfSets
-    elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName.value)
+    elements.map(_.attr("value")).toSet should contain allElementsOf selectedAPIs.map(_.serviceName)
   }
 
   def validateHiddenSelectedTaxRegimeValues(document: Document, selectedCategories: Set[ApiCategory], numberOfSets: Int = 1): Unit = {
@@ -164,20 +161,20 @@ trait EmailUsersHelper extends APIDefinitionHelper with CombinedApiHelper {
     val hiddenApiInputs = getElementsBySelector(document, "form#apiFilters input[type=hidden]")
 
     hiddenApiInputs.size shouldBe apis.size * hiddenInputSizeInto
-    hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName.value)
+    hiddenApiInputs.map(_.attr("value")) should contain allElementsOf apis.map(_.serviceName)
   }
 
   def verifyEmailOptions(option: EmailOptionChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) shouldBe true
-    elementExistsContainsText(document, "label", optionLabel(option)) shouldBe true
-    elementExistsContainsText(document, "div", optionHint(option)) shouldBe true
+    elementExistsContainsText(document, "label", option.label) shouldBe true
+    elementExistsContainsText(document, "div", option.hint) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 
   def verifyEmailPreferencesChoiceOptions(option: EmailPreferencesChoice, document: Document, isDisabled: Boolean = false): Unit = {
     elementExistsById(document, option.toString) shouldBe true
-    elementExistsContainsText(document, "label", EmailPreferencesChoice.optionLabel(option)) shouldBe true
-    elementExistsContainsText(document, "div", EmailPreferencesChoice.optionHint(option)) shouldBe true
+    elementExistsContainsText(document, "label", option.label) shouldBe true
+    elementExistsContainsText(document, "div", option.hint) shouldBe true
     elementExistsByIdWithAttr(document, option.toString, "disabled") shouldBe isDisabled
   }
 

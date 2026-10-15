@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.DeveloperStatusFilter.{AllStatus, DeveloperStatusFilter}
 
 case class DevelopersSearchFilter(
@@ -55,7 +55,7 @@ case object DeveloperStatusFilter {
 
     override def isMatch(user: AbstractUser): Boolean = user match {
       case r: RegisteredUser   => r.verified
-      case u: UnregisteredUser => true // TODO - really true ??
+      case _: UnregisteredUser => true // TODO - really true ??
     }
   }
 

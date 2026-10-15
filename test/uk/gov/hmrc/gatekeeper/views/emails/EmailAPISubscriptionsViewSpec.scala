@@ -25,19 +25,19 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailApiSubscriptionsView
 
 class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscriptionsViewHelper with APIDefinitionHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailApiSubscriptionsView: EmailApiSubscriptionsView  = app.injector.instanceOf[EmailApiSubscriptionsView]
+    given request: FakeRequest[AnyContentAsEmpty.type]       = FakeRequest().withCSRFToken
+    val emailApiSubscriptionsView: EmailApiSubscriptionsView = app.injector.instanceOf[EmailApiSubscriptionsView]
   }
 
   "email api subscriptions view" must {
@@ -45,8 +45,8 @@ class EmailAPISubscriptionsViewSpec extends CommonViewSpec with EmailAPISubscrip
     val user1         = RegisteredUser("user1@hmrc.com".toLaxEmail, UserId.random, "userA", "1", verified = true)
     val user2         = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users         = Seq(user1, user2)
-    val api1          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.OTHER), "1")
-    val api2          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.OTHER), "2")
+    val api1          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.Other), "1")
+    val api2          = simpleAPIDefinition("api", "Magical API", "magical", Set(ApiCategory.Other), "2")
     val dropdownview1 = DropDownValue("magical__2", "Magical API (ALPHA)")
     val dropdownview2 = DropDownValue("magical__1", "Magical API (BETA)")
     val queryParams   = Map("apiVersionFilter" -> dropdownview1.value)

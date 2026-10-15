@@ -19,18 +19,18 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{Authorization, HeaderCarrier, _}
+import uk.gov.hmrc.http.{Authorization, HeaderCarrier, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationWithUsers
 
 @Singleton
-class ApiPlatformAdminApiConnector @Inject() (http: HttpClientV2, config: ApiPlatformAdminApiConnector.Config)(implicit ec: ExecutionContext) {
+class ApiPlatformAdminApiConnector @Inject() (http: HttpClientV2, config: ApiPlatformAdminApiConnector.Config)(using ec: ExecutionContext) {
 
   def getApplication(applicationId: ApplicationId, hc: HeaderCarrier): Future[Option[ApplicationWithUsers]] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId")
       .execute[Option[ApplicationWithUsers]]
   }

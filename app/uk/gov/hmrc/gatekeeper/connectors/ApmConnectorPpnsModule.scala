@@ -18,22 +18,22 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 trait ApmConnectorPpnsModule extends ApmConnectorModule {
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone._
-  import play.api.libs.json._
-  import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.InstantJsonFormatter.WithTimeZone.given
+  import play.api.libs.json.*
+  import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.*
 
-  private[this] val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
+  private val baseUrl = s"${config.serviceBaseUrl}/push-pull-notifications"
 
-  private[this] implicit val readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
-  private[this] implicit val readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
-  private[this] implicit val readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
-  private[this] implicit val readsBox: Reads[Box]                     = Json.reads[Box]
+  private given readsBoxId: Format[BoxId]                = Json.valueFormat[BoxId]
+  private given readsBoxCreator: Reads[BoxCreator]       = Json.reads[BoxCreator]
+  private given readsBoxSubscriber: Reads[BoxSubscriber] = Json.reads[BoxSubscriber]
+  private given readsBox: Reads[Box]                     = Json.reads[Box]
 
-  def fetchAllBoxes()(implicit hc: HeaderCarrier): Future[List[Box]] = {
+  def fetchAllBoxes()(using hc: HeaderCarrier): Future[List[Box]] = {
     http.get(url"${baseUrl}/boxes")
       .execute[List[Box]]
   }

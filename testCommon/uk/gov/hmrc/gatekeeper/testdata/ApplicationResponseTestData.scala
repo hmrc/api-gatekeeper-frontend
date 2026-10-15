@@ -22,7 +22,7 @@ import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsTestData with AccessFixtures with ApplicationStateTestData {
@@ -37,7 +37,7 @@ trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsT
     .withState(stateForFetchAppResponseByEmail)
     .withAccess(standardAccessOne)
     .unblocked
-    .withRateLimitTier(RateLimitTier.BRONZE)
+    .withRateLimitTier(RateLimitTier.Bronze)
     .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))
     .withLastAccess(Instant.parse("2019-07-01T00:00:00.000Z"))
 
@@ -51,12 +51,12 @@ trait ApplicationResponseTestData extends ApplicationBuilder with CollaboratorsT
     .withName(pendingApprovalApplicationName)
     .withState(pendingApprovalState)
 
-  implicit class ApplicationResponseExtension(applicationResponse: ApplicationWithCollaborators) {
+  extension (applicationResponse: ApplicationWithCollaborators) {
     def toJson       = Json.toJson(applicationResponse)
     def toJsonString = Json.toJson(applicationResponse).toString
   }
 
-  implicit class ApplicationResponseSeqExtension(applicationResponses: Seq[ApplicationWithCollaborators]) {
+  extension (applicationResponses: Seq[ApplicationWithCollaborators]) {
     def toJson       = Json.toJson(applicationResponses)
     def toJsonString = Json.toJson(applicationResponses).toString
   }

@@ -28,21 +28,21 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailure}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, LaxEmailAddress}
 import uk.gov.hmrc.apiplatform.modules.common.services.{ApplicationLogger, ClockNow}
-import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.connectors.*
 
 @Singleton
 class TeamMemberService @Inject() (
     commandConnector: ApplicationCommandConnector,
     developerConnector: DeveloperConnector,
     val clock: Clock
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
   def addTeamMember(
       app: ApplicationWithCollaborators,
       collaborator: Collaborator,
       user: Actors.GatekeeperUser
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     for {
@@ -56,7 +56,7 @@ class TeamMemberService @Inject() (
       app: ApplicationWithCollaborators,
       teamMemberToRemove: LaxEmailAddress,
       user: Actors.GatekeeperUser
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[Either[NonEmptyList[CommandFailure], Unit]] = {
 
     val collaborator = app.collaborators.find(_.emailAddress == teamMemberToRemove).get // Safe to do here.
@@ -68,7 +68,7 @@ class TeamMemberService @Inject() (
     } yield response.map(_ => ())
   }
 
-  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[Set[LaxEmailAddress]] = {
+  private def getAdminsToEmail(collaborators: Set[Collaborator], excludes: Set[LaxEmailAddress])(using hc: HeaderCarrier): Future[Set[LaxEmailAddress]] = {
     val adminEmails = collaborators.filter(_.isAdministrator).map(_.emailAddress).filterNot(excludes.contains(_))
 
     developerConnector.fetchByEmails(adminEmails)

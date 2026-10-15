@@ -22,10 +22,10 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.gatekeeper.connectors.{ApiPublisherConnector, ProductionApiPublisherConnector, SandboxApiPublisherConnector}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 
 trait ApiPublisherConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockProductionApiPublisherConnector = mock[ProductionApiPublisherConnector]
   val mockSandboxApiPublisherConnector    = mock[SandboxApiPublisherConnector]
@@ -34,27 +34,27 @@ trait ApiPublisherConnectorMockProvider {
     def mock: ApiPublisherConnector
 
     object FetchAll {
-      def returns(summaries: APIApprovalSummary*) = when(mock.fetchAll()(*)).thenReturn(successful(summaries.toList))
+      def returns(summaries: APIApprovalSummary*) = when(mock.fetchAll()(using *)).thenReturn(successful(summaries.toList))
     }
 
     object SearchServices {
-      def returns(summaries: APIApprovalSummary*) = when(mock.searchServices(*)(*)).thenReturn(successful(summaries.toList))
+      def returns(summaries: APIApprovalSummary*) = when(mock.searchServices(*)(using *)).thenReturn(successful(summaries.toList))
     }
 
     object FetchApprovalSummary {
-      def returns(summary: APIApprovalSummary) = when(mock.fetchApprovalSummary(*[ServiceName])(*)).thenReturn(successful(summary))
+      def returns(summary: APIApprovalSummary) = when(mock.fetchApprovalSummary(*[ServiceName])(using *)).thenReturn(successful(summary))
     }
 
     object ApproveService {
-      def succeeds() = when(mock.approveService(*[ServiceName], *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.approveService(*[ServiceName], *, *)(using *)).thenReturn(successful(()))
     }
 
     object DeclineService {
-      def succeeds() = when(mock.declineService(*[ServiceName], *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.declineService(*[ServiceName], *, *)(using *)).thenReturn(successful(()))
     }
 
     object AddComment {
-      def succeeds() = when(mock.addComment(*[ServiceName], *, *)(*)).thenReturn(successful(()))
+      def succeeds() = when(mock.addComment(*[ServiceName], *, *)(using *)).thenReturn(successful(()))
     }
   }
 

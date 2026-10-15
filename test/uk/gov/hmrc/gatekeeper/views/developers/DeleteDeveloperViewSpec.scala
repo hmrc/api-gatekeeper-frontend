@@ -20,18 +20,19 @@ import java.time.{Instant, LocalDateTime}
 
 import org.jsoup.Jsoup
 
+import play.api.i18n.Messages
 import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaboratorsFixtures, Collaborators, State}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.{Organisation, OrganisationName}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeleteDeveloperView
 
@@ -40,8 +41,8 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
   def admin(email: LaxEmailAddress) = Collaborators.Administrator(UserId.random, email)
 
   "delete developer view" should {
-    implicit val userName = LoggedInUser(Some("gate.keeper"))
-    implicit val messages = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
+    given userName: LoggedInUser = LoggedInUser(Some("gate.keeper"))
+    given messages: Messages     = app.injector.instanceOf[MessagesControllerComponents].messagesApi.preferred(fakeRequest)
 
     val deleteDeveloper = app.injector.instanceOf[DeleteDeveloperView]
 
@@ -70,7 +71,7 @@ class DeleteDeveloperViewSpec extends CommonViewSpec with ApplicationWithCollabo
       elementExistsByText(document, "h2", "Are you sure you want to delete this developer?") shouldBe false
       elementExistsByText(document, "h1", "You cannot delete this developer") shouldBe true
       elementExistsByText(document, "h2", "email@example.com is the only administrator for one or more applications.") shouldBe true
-      elementExistsByText(document, "a", standardApp.details.name.value) shouldBe true
+      elementExistsByText(document, "a", standardApp.details.name) shouldBe true
     }
 
     "not show the controls to delete the developer when the developer has orgs that they are the responsible individual on" in {

@@ -23,18 +23,18 @@ import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.emails._
+import uk.gov.hmrc.gatekeeper.views.html.emails.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
@@ -43,7 +43,7 @@ class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAd
 
     trait Setup extends ControllerSetupBase {
       val mockEmailLandingView = mock[EmailLandingView]
-      when(mockEmailLandingView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailLandingView.apply()(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -84,7 +84,7 @@ class EmailsControllerLandingPageSpec extends ControllerBaseSpec with WithCSRFAd
         val result: Future[Result] = underTest.landing()(aLoggedInRequest)
         status(result) shouldBe OK
 
-        verify(mockEmailLandingView).apply()(*, *, *)
+        verify(mockEmailLandingView).apply()(using *, *, *)
       }
 
       "on initial request with user not logged in should returned forbidden" in new Setup {

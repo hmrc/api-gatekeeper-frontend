@@ -16,13 +16,12 @@
 
 package uk.gov.hmrc.apiplatform.modules.applications.core.domain.models
 
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 
 object ApplicationResponseHelper {
 
-  implicit class AdminsSyntax(application: ApplicationWithCollaborators) {
+  extension (application: ApplicationWithCollaborators) {
 
     def isSoleAdmin(collaboratorUsers: Seq[RegisteredUser], emailAddress: LaxEmailAddress): Boolean = {
       val adminEmails: Set[LaxEmailAddress] = application.admins.map(_.emailAddress)
@@ -36,10 +35,4 @@ object ApplicationResponseHelper {
     }
   }
 
-  implicit class LocationsSyntax(application: ApplicationWithCollaborators) {
-
-    def privacyPolicyLocation: PrivacyPolicyLocation = application.privacyPolicyLocation.getOrElse(PrivacyPolicyLocations.NoneProvided)
-
-    def termsAndConditionsLocation: TermsAndConditionsLocation = application.termsAndConditionsLocation.getOrElse(TermsAndConditionsLocations.NoneProvided)
-  }
 }

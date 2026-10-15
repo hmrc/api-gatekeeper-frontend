@@ -18,15 +18,15 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.CombinedApi
 
 trait ApmConnectoCombinedApisModule extends ApmConnectorModule {
   val baseUrl = s"${config.serviceBaseUrl}/combined-rest-xml-apis"
 
-  def fetchAllCombinedApis()(implicit hc: HeaderCarrier): Future[List[CombinedApi]] = {
+  def fetchAllCombinedApis()(using hc: HeaderCarrier): Future[List[CombinedApi]] = {
     http.get(url"${baseUrl}")
       .execute[List[CombinedApi]]
   }

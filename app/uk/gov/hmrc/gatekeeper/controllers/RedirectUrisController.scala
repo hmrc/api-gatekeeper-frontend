@@ -20,8 +20,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.data.Forms._
-import play.api.data.validation._
+import play.api.data.Forms.*
+import play.api.data.validation.*
 import play.api.mvc.MessagesControllerComponents
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
@@ -30,14 +30,15 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services._
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.*
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.RedirectUrisController.{LoginRedirectUriForm, PostLogoutRedirectUriForm}
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.services._
+import uk.gov.hmrc.gatekeeper.services.*
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html._
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.*
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 
 @Singleton
 class RedirectUrisController @Inject() (
@@ -51,7 +52,7 @@ class RedirectUrisController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
@@ -84,7 +85,7 @@ class RedirectUrisController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: LoginRedirectUriForm) = {
         redirectUriService.manageLoginRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+          Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -100,7 +101,7 @@ class RedirectUrisController @Inject() (
     withApp(appId) { app =>
       def handleValidForm(form: PostLogoutRedirectUriForm) = {
         redirectUriService.managePostLogoutRedirectUris(app, form.redirectUris, loggedIn.userFullName.get).map { _ =>
-          Redirect(routes.ApplicationController.applicationPage(appId))
+          Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 

@@ -14,8 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.controllers._
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.controllers.*
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
@@ -25,7 +25,7 @@
 @(users: Seq[AbstractUser],
 emails: String,
 apiVersions : Seq[DropDownValue],
-form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+form: Form[DevelopersSearchForm])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Developers") {
   <h1 class="govuk-heading-l">Developers</h1>
@@ -118,7 +118,7 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
       @for((user, index) <- users.zipWithIndex) {
         <tr class="govuk-table__row">
           <td id="dev-email-@index" class="govuk-table__cell">
-            <a href="@{routes.DeveloperController.developerPage(user.userId)}">@user.email.text</a>
+            <a href="@{routes.DeveloperController.developerPage(user.userId.simpleUser)}">@user.email.text</a>
           </td>
           <td class="govuk-table__cell" id="dev-fn-@index">@user.firstName</td>
           <td class="govuk-table__cell" id="dev-sn-@index">@user.lastName</td>
@@ -136,8 +136,8 @@ form: Form[DevelopersSearchForm])(implicit request: Request[_], loggedInUser: Lo
             })
           </td>
         </tr>
+        </tbody>
       }
-    </tbody>
   </table>
 
   @if(users.nonEmpty) {

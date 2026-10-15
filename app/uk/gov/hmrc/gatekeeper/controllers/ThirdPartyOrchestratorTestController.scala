@@ -33,7 +33,7 @@ class ThirdPartyOrchestratorTestController @Inject() (
     tpoConnector: ThirdPartyOrchestratorConnector,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with GatekeeperAuthorisationActions {
 
   def page(applicationId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>

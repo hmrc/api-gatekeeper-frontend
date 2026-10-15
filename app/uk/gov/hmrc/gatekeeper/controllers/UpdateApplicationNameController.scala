@@ -20,23 +20,23 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.data.Form
-import play.api.mvc._
+import play.api.mvc.*
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ValidatedApplicationName}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.services._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.Forms.*
+import uk.gov.hmrc.gatekeeper.services.*
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -53,8 +53,7 @@ class UpdateApplicationNameController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with ActionBuilders
@@ -64,7 +63,7 @@ class UpdateApplicationNameController @Inject() (
 
   def updateApplicationNamePage(appId: ApplicationId) = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.name.value))
+      val form = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(app.name))
       Future.successful(Ok(manageApplicationNameView(app, form)))
     }
   }
@@ -80,7 +79,7 @@ class UpdateApplicationNameController @Inject() (
         } else {
           applicationService.validateApplicationName(app, form.applicationName).map(_ match {
             case ApplicationNameValidationResult.Valid =>
-              Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId))
+              Redirect(routes.UpdateApplicationNameController.updateApplicationNameAdminEmailPage(appId.simpleApp))
                 .withSession(request.session + (newAppNameSessionKey -> form.applicationName))
 
             case ApplicationNameValidationResult.Invalid =>
@@ -120,7 +119,7 @@ class UpdateApplicationNameController @Inject() (
         val gatekeeperUser     = loggedIn.userFullName.get
         val adminEmail         = form.adminEmail.get
         applicationService.updateApplicationName(app, adminEmail.toLaxEmail, gatekeeperUser, newApplicationName).map(_ match {
-          case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId))
+          case ApplicationUpdateSuccessResult => Redirect(routes.UpdateApplicationNameController.updateApplicationNameSuccessPage(appId.simpleApp))
               .withSession(request.session - newAppNameSessionKey)
           case ApplicationUpdateFailureResult => {
             val formWithErrors = UpdateApplicationNameForm.form.fill(UpdateApplicationNameForm(newApplicationName.value))

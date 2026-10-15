@@ -21,11 +21,11 @@ import scala.concurrent.Future.successful
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.gatekeeper.connectors.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
 
@@ -37,7 +37,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
   trait Setup extends SubscriptionsBuilder {
     val mockApmConnectorModule: ApmConnectorSubscriptionFieldsModule = mock[ApmConnectorSubscriptionFieldsModule]
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val service = new SubscriptionFieldsService(mockApmConnectorModule)
   }
@@ -45,7 +45,7 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
   "When application is deployedTo production then principal connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
@@ -53,20 +53,20 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       await(service.saveFieldValues(productionApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockApmConnectorModule).saveFieldValues(
-        eqTo(Environment.PRODUCTION),
+        eqTo(Environment.Production),
         eqTo(productionApplication.clientId),
         eqTo(apiIdentifier.context),
         eqTo(apiIdentifier.versionNbr),
         eqTo(fields)
-      )(*)
-      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.SANDBOX), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+      )(using *)
+      verify(mockApmConnectorModule, never).saveFieldValues(eqTo(Environment.Sandbox), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *)
     }
   }
 
   "When application is deployed to sandbox then subordinate connector is called" should {
 
     "saveFieldValues" in new Setup {
-      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*))
+      when(mockApmConnectorModule.saveFieldValues(*[Environment], *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *))
         .thenReturn(successful(SaveSubscriptionFieldsSuccessResponse))
 
       val fields: Fields.Alias = mock[Fields.Alias]
@@ -74,9 +74,9 @@ class SubscriptionFieldsServiceSpec extends AsyncHmrcSpec with ApplicationWithCo
       await(service.saveFieldValues(sandboxApplication.details, apiIdentifier.context, apiIdentifier.versionNbr, fields))
 
       verify(mockApmConnectorModule)
-        .saveFieldValues(eqTo(Environment.SANDBOX), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(*)
+        .saveFieldValues(eqTo(Environment.Sandbox), eqTo(productionApplication.clientId), eqTo(apiIdentifier.context), eqTo(apiIdentifier.versionNbr), eqTo(fields))(using *)
       verify(mockApmConnectorModule, never)
-        .saveFieldValues(eqTo(Environment.PRODUCTION), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(*)
+        .saveFieldValues(eqTo(Environment.Production), *[ClientId], *[ApiContext], *[ApiVersionNbr], *)(using *)
     }
   }
 }

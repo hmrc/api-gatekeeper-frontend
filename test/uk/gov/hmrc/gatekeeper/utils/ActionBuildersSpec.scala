@@ -23,14 +23,14 @@ import org.apache.pekko.stream.Materializer
 
 import play.api.i18n.Messages
 import play.api.mvc.Results.Ok
-import play.api.mvc.{MessagesRequest, _}
+import play.api.mvc.{MessagesRequest, *}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.State
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{LoggedInRequest, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{LoggedInRequest, *}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
@@ -42,8 +42,8 @@ import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 class ActionBuildersSpec extends ControllerBaseSpec {
 
   trait Setup extends ControllerSetupBase {
-    implicit val materializer: Materializer = app.materializer
-    implicit val hc: HeaderCarrier          = HeaderCarrier()
+    given materializer: Materializer = app.materializer
+    given hc: HeaderCarrier          = HeaderCarrier()
 
     val underTest = new ActionBuilders {
       val applicationQueryService: ApplicationQueryService = ApplicationQueryServiceMock.aMock
@@ -51,12 +51,12 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       val errorHandler: ErrorHandler                       = app.injector.instanceOf[ErrorHandler]
     }
 
-    val fakeRequest                                                            = FakeRequest()
-    val msgRequest                                                             = new MessagesRequest(fakeRequest, stubMessagesApi())
-    implicit val aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
-    implicit val messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
+    val fakeRequest                                                     = FakeRequest()
+    val msgRequest                                                      = new MessagesRequest(fakeRequest, stubMessagesApi())
+    given aUserLoggedInRequest: LoggedInRequest[AnyContentAsEmpty.type] = new LoggedInRequest[AnyContentAsEmpty.type](Some("username"), GatekeeperRoles.USER, msgRequest)
+    given messages: Messages                                            = mcc.messagesApi.preferred(aUserLoggedInRequest)
 
-    val actionReturns200Body: Request[_] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
+    val actionReturns200Body: Request[?] => HeaderCarrier => Future[Result] = _ => _ => Future.successful(Results.Ok)
 
     val expectedResult = "result text"
   }
@@ -148,13 +148,13 @@ class ActionBuildersSpec extends ControllerBaseSpec {
       status(result) shouldBe OK
       contentAsString(result) shouldBe expectedResult
 
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
     }
   }
 
   "withAppAndSubscriptionsAndStateHistory" should {
     "fetch Application with Subscription Fields and State History" in new AppWithSubscriptionDataSetup {
-      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.PRODUCTION))
+      val stateHistory = List(buildStateHistory(applicationWithSubsFields.id, State.Production))
       val app          = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubsFields, stateHistory)
       ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(app)
 

@@ -25,32 +25,32 @@ import scala.concurrent.{ExecutionContext, Future}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.StateHelper.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.ApplicationNameValidationResult
 import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.{ImportantSubmissionData, TermsOfUseAcceptance}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services._
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.*
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.Forms.*
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.Fields.Alias
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.models.view.{ApplicationViewModel, ResponsibleIndividualHistoryItem}
-import uk.gov.hmrc.gatekeeper.services._
-import uk.gov.hmrc.gatekeeper.utils.CsvHelper._
+import uk.gov.hmrc.gatekeeper.services.*
+import uk.gov.hmrc.gatekeeper.utils.CsvHelper.*
 import uk.gov.hmrc.gatekeeper.utils.{ErrorHelper, MfaDetailHelper}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -59,7 +59,6 @@ class ApplicationController @Inject() (
     val applicationService: ApplicationService,
     val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
-    apiDefinitionService: ApiDefinitionService,
     developerService: DeveloperService,
     termsOfUseService: TermsOfUseService,
     mcc: MessagesControllerComponents,
@@ -77,7 +76,6 @@ class ApplicationController @Inject() (
     blockApplicationSuccessView: BlockApplicationSuccessView,
     unblockApplicationView: UnblockApplicationView,
     unblockApplicationSuccessView: UnblockApplicationSuccessView,
-    approvedView: ApprovedView,
     createApplicationView: CreateApplicationView,
     createApplicationSuccessView: CreateApplicationSuccessView,
     manageGrantLengthView: ManageGrantLengthView,
@@ -89,25 +87,25 @@ class ApplicationController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using appConfig: AppConfig,
+    ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
 
-  implicit val dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ isBefore _)
+  given dateTimeOrdering: Ordering[LocalDateTime] = Ordering.fromLessThan(_ `isBefore` _)
 
   def applicationsPage(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                                                   = environment.getOrElse(Environment.SANDBOX)
+    val env                                                   = environment.getOrElse(Environment.Sandbox)
     val defaults                                              = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                                                = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     val buildAppUrlFn: (ApplicationId, Environment) => String = (appId, deployedTo) =>
-      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.PRODUCTION) {
+      if (appConfig.gatekeeperApprovalsEnabled && deployedTo == Environment.Production) {
         s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/applications/$appId"
       } else {
-        routes.ApplicationController.applicationPage(appId).url
+        routes.ApplicationController.applicationPage(appId.simpleApp).url
       }
 
     for {
@@ -117,7 +115,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationsPageCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env                       = environment.getOrElse(Environment.SANDBOX)
+    val env                       = environment.getOrElse(Environment.Sandbox)
     val defaults                  = Map("page" -> "1", "pageSize" -> "100", "sort" -> "NAME_ASC", "status" -> "EXCLUDING_DELETED")
     val params                    = defaults ++ request.queryString.map { case (k, v) => k -> v.mkString }
     def showDeletionData: Boolean = {
@@ -129,7 +127,7 @@ class ApplicationController @Inject() (
 
   private def toCsvContent(paginatedApplications: PaginatedApplications, isStrideUser: Boolean, showDeletionDataColumns: Boolean): String = {
     def formatRoleAndEmailAddress(role: Collaborator.Role, emailAddress: LaxEmailAddress) = {
-      s"${role.displayText}:${emailAddress.text}"
+      s"${role.toString}:${emailAddress.text}"
     }
 
     val nbrOfLoginRedirectUris = (app: ApplicationWithCollaborators) =>
@@ -145,13 +143,13 @@ class ApplicationController @Inject() (
       }
 
     val csvColumnDefinitions = Seq[ColumnDefinition[ApplicationWithCollaborators]](
-      ColumnDefinition("Name", (app => app.name.value)),
+      ColumnDefinition("Name", (app => app.name)),
       ColumnDefinition("App ID", (app => app.id.toString())),
       ColumnDefinition("Client ID", (app => app.clientId.value)),
-      ColumnDefinition("Environment", (app => app.deployedTo.toString)),
+      ColumnDefinition("Environment", (app => app.deployedTo.toString.toUpperCase())),
       ColumnDefinition("Status", (app => app.state.name.displayText)),
-      ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString())),
-      ColumnDefinition("Access type", (app => app.access.accessType.toString())),
+      ColumnDefinition("Rate limit tier", (app => app.details.rateLimitTier.toString().toUpperCase())),
+      ColumnDefinition("Access type", (app => app.access.accessType.toString().toUpperCase())),
       ColumnDefinition(
         "Overrides",
         app =>
@@ -165,7 +163,7 @@ class ApplicationController @Inject() (
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
       ColumnDefinition("Last API call with server token", (app => app.details.token.lastAccessTokenUsage.fold("")(_.toString))),
-      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DO_NOT_DELETE).toString)),
+      ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DoNotDelete).toString)),
       ColumnDefinition("Number of Redirect URIs", (nbrOfLoginRedirectUris(_).toString)),
       ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))
     ) ++ (
@@ -185,7 +183,7 @@ class ApplicationController @Inject() (
     ) ++ (
       if (showDeletionDataColumns)
         Seq(
-          ColumnDefinition[ApplicationWithCollaborators]("Deleted by", app => app.details.lastActionActor.toString()),
+          ColumnDefinition[ApplicationWithCollaborators]("Deleted by", app => app.details.lastActionActor.toString().toUpperCase()),
           ColumnDefinition[ApplicationWithCollaborators]("When deleted", app => if (app.state.isDeleted) app.state.updatedOn.toString else "N/A")
         )
       else Seq.empty
@@ -214,7 +212,7 @@ class ApplicationController @Inject() (
     val csvColumnDefinitions = Seq[ColumnDefinition[AppWithSubscriptionsForCsvResponse]](
       ColumnDefinition("Name", _.name.toString),
       ColumnDefinition("App ID", _.id.toString),
-      ColumnDefinition("Environment", _ => env.toString),
+      ColumnDefinition("Environment", _ => env.toString.toUpperCase()),
       ColumnDefinition("Last API call", _.lastAccess.fold("")(_.toString))
     ) ++ apiColumns
 
@@ -222,7 +220,7 @@ class ApplicationController @Inject() (
   }
 
   def applicationWithSubscriptionsCsv(environment: Option[Environment] = None): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
-    val env = environment.getOrElse(Environment.SANDBOX)
+    val env = environment.getOrElse(Environment.Sandbox)
     for {
       appsWithSubs <- applicationService.fetchApplicationsWithSubscriptions(env)
     } yield Ok(toCsvContent(appsWithSubs, env))
@@ -282,7 +280,7 @@ class ApplicationController @Inject() (
 
       def checkEligibleForTermsOfUseInvite(app: ApplicationWithCollaborators, hasSubmissions: Boolean, hasTermsOfUseInvite: Boolean): Boolean = {
         app.access match {
-          case std: Access.Standard
+          case _: Access.Standard
               if (app.state.isInProduction &&
                 app.isProduction &&
                 !hasSubmissions &&
@@ -339,7 +337,7 @@ class ApplicationController @Inject() (
 
   def resendVerification(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      val result = Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
       applicationService.resendVerification(app, loggedIn.userFullName.get) map {
         case ApplicationUpdateSuccessResult =>
           result.flashing("success" -> "Verification email has been sent")
@@ -379,7 +377,7 @@ class ApplicationController @Inject() (
             )
 
             BadRequest(manageAccessOverridesView(app, form, request.role.isSuperUser))
-          case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId))
+          case UpdateOverridesSuccessResult                     => Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -412,7 +410,7 @@ class ApplicationController @Inject() (
             val form = scopesForm.fill(scopes).withError("scopes", messagesApi.preferred(request)("invalid.scope"))
             BadRequest(manageScopesView(app, form))
 
-          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId))
+          case UpdateScopesSuccessResult => Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
         }
       }
 
@@ -447,7 +445,7 @@ class ApplicationController @Inject() (
           Future.successful(BadRequest(manageIpAllowlistView(app, formWithErrors)))
         } else {
           applicationService.manageIpAllowlist(app, form.required, form.allowlist, loggedIn.userFullName.get).map { _ =>
-            Redirect(routes.ApplicationController.applicationPage(appId))
+            Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
           }
         }
       }
@@ -472,7 +470,7 @@ class ApplicationController @Inject() (
       def handleValidForm(form: UpdateRateLimitForm) = {
         RateLimitTier.apply(form.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get).map { _ =>
-              Redirect(routes.ApplicationController.applicationPage(appId))
+              Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
             }
           case None       => Future.successful(BadRequest(manageRateLimitView(app, UpdateRateLimitForm.form.fill(form))))
         }
@@ -528,7 +526,7 @@ class ApplicationController @Inject() (
         )))
       }
 
-      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION) {
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction) {
         Future.successful(Ok(manageDeleteRestrictionDisabledView(app, DeleteRestrictionPreviouslyDisabledForm.form)))
       } else {
         handleDeleteRestrictionEnabled(app)
@@ -548,7 +546,7 @@ class ApplicationController @Inject() (
         form.confirm match {
           case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
           case "no"  => handleUpdateDeleteRestriction(allowDelete = false, form.reason)
-          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId.simpleApp).url))
         }
       }
 
@@ -572,7 +570,7 @@ class ApplicationController @Inject() (
         form.confirm match {
           case "yes" => handleUpdateDeleteRestriction(allowDelete = true, "No reasons given")
           case "no"  => Future.successful(Ok(manageDeleteRestrictionSuccessView(app, allowDelete = false)))
-          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId).url))
+          case _     => successful(Redirect(routes.ApplicationController.applicationPage(appId.simpleApp).url))
         }
       }
 
@@ -586,7 +584,7 @@ class ApplicationController @Inject() (
 
   def deleteApplicationPage(appId: ApplicationId) = atLeastSuperUserAction { implicit request =>
     withApp(appId) { app =>
-      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NO_RESTRICTION)
+      if (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction)
         Future.successful(Ok(deleteApplicationView(app, request.role.isSuperUser, deleteApplicationForm.fill(DeleteApplicationForm("", Option(""))))))
       else
         Future.successful(Ok(applicationProtectedFromDeletionView(
@@ -683,18 +681,18 @@ class ApplicationController @Inject() (
       version <- api.versionsAsList
     } yield VersionSummary(api.name, version.status, ApiIdentifier(api.context, version.versionNbr))
 
-    versions.groupBy(_.status.displayText)
+    versions.groupBy(_.status.toString)
   }
 
   def handleUpdateRateLimitTier(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withApp(appId) { app =>
-      val result = Redirect(routes.ApplicationController.applicationPage(appId))
+      val result = Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
 
       if (request.role.isSuperUser) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>
-                result.flashing("success" -> s"Rate limit tier has been changed to ${tier.displayText}")
+                result.flashing("success" -> s"Rate limit tier has been changed to $tier}")
               case _                              =>
                 result.flashing("failed" -> "Rate limit tier was not changed successfully") // Don't expect this as an error is thrown
             }
@@ -715,16 +713,16 @@ class ApplicationController @Inject() (
       Future.successful(BadRequest(createApplicationView(form)))
     }
 
-    import cats.data._
-    import cats.implicits._
-    import cats.data.Validated._
+    import cats.data.*
+    import cats.implicits.*
+    import cats.data.Validated.*
 
     type FieldName                = String
     type ErrorCode                = String
     type ValidationResult[A]      = ValidatedNec[(FieldName, ErrorCode), A]
     type FieldValidationResult[A] = ValidatedNec[ErrorCode, A]
 
-    implicit class WithFieldSyntax[T](v: FieldValidationResult[T]) {
+    extension [T](v: FieldValidationResult[T]) {
       def withField(fn: FieldName): ValidationResult[T] = v.leftMap(_.map(err => (fn, err)))
     }
 

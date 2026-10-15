@@ -22,9 +22,9 @@ import scala.concurrent.Future
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, BoxCreator, BoxId, BoxSubscriber, SubscriptionType}
@@ -33,9 +33,9 @@ import uk.gov.hmrc.gatekeeper.views.html.ppns.BoxesView
 
 class BoxesControllerSpec extends ControllerBaseSpec {
 
-  implicit val materializer: Materializer = app.materializer
-  val anAppId                             = ApplicationId.random
-  val appIdText                           = anAppId.value.toString()
+  given materializer: Materializer = app.materializer
+  val anAppId                      = ApplicationId.random
+  val appIdText                    = anAppId.value.toString()
 
   running(app) {
     trait Setup extends ControllerSetupBase with StrideAuthorisationServiceMockModule {
@@ -64,7 +64,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         BoxCreator(ClientId("clientId")),
         Some(anAppId),
         Some(boxSubscriber),
-        Environment.PRODUCTION
+        Environment.Production
       )
 
       val expectedCsv = s"""|environment,applicationId,clientId,name,boxId,subscriptionType,callbackUrl
@@ -74,7 +74,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
       "return a CSV of all boxes" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
+        when(apmService.fetchAllBoxes()(using *)).thenReturn(Future.successful(List(box)))
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK
@@ -85,7 +85,7 @@ class BoxesControllerSpec extends ControllerBaseSpec {
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
         LdapAuthorisationServiceMock.Auth.succeeds
 
-        when(apmService.fetchAllBoxes()((*))).thenReturn(Future.successful(List(box)))
+        when(apmService.fetchAllBoxes()(using *)).thenReturn(Future.successful(List(box)))
 
         val result = controller.getAll()(aLoggedInRequest)
         status(result) shouldBe OK

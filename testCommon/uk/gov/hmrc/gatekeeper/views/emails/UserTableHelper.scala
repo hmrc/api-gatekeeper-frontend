@@ -20,7 +20,7 @@ import org.jsoup.nodes.Document
 import org.scalatest.matchers.should.Matchers
 
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait UserTableHelper {
   self: Matchers =>

@@ -20,14 +20,14 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actor, Actors, LaxE
 
 object ActorSyntax {
 
-  implicit class ActorSyntaxImp(actor: Actor) {
+  extension (actor: Actor) {
 
-    def id = actor match {
-      case Actors.AppCollaborator(LaxEmailAddress(emailText)) => emailText
-      case Actors.GatekeeperUser(user)                        => user
-      case Actors.ScheduledJob(jobId)                         => jobId
-      case Actors.Process(name)                               => name
-      case Actors.Unknown                                     => "Unknown"
+    def id: String = actor match {
+      case Actors.AppCollaborator(emailAddress) => emailAddress.text
+      case Actors.GatekeeperUser(user)          => user
+      case Actors.ScheduledJob(jobId)           => jobId
+      case Actors.Process(name)                 => name
+      case Actors.Unknown                       => "Unknown"
     }
   }
 }

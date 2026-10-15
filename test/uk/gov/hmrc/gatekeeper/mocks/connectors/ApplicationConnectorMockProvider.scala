@@ -20,13 +20,13 @@ import scala.concurrent.Future.successful
 
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.connectors.{ApplicationConnector, ProductionApplicationConnector, SandboxApplicationConnector}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 
 trait ApplicationConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockProductionApplicationConnector = mock[ProductionApplicationConnector]
   val mockSandboxApplicationConnector    = mock[SandboxApplicationConnector]
@@ -35,19 +35,19 @@ trait ApplicationConnectorMockProvider {
     def aMock: ApplicationConnector
 
     object SearchCollaborators {
-      def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersionNbr])(*)).thenReturn(successful(emails.toList))
+      def returns(emails: LaxEmailAddress*) = when(aMock.searchCollaborators(*[ApiContext], *[ApiVersionNbr])(using *)).thenReturn(successful(emails.toList))
 
       def returnsFor(apiContext: ApiContext, apiVersion: ApiVersionNbr)(collaboratorEmails: LaxEmailAddress*): Any =
-        when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion))(*))
+        when(aMock.searchCollaborators(eqTo(apiContext), eqTo(apiVersion))(using *))
           .thenReturn(successful(collaboratorEmails.toList))
     }
 
     object FetchApplicationsByAnswer {
-      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(aMock.fetchApplicationsByAnswer(*)(*)).thenReturn(successful(appsByAnswer))
+      def returns(appsByAnswer: List[ApplicationsByAnswer]) = when(aMock.fetchApplicationsByAnswer(*)(using *)).thenReturn(successful(appsByAnswer))
     }
 
     object CreatePrivApp {
-      def returns(result: CreatePrivAppResult) = when(aMock.createPrivApp(*)(*)).thenReturn(successful(result))
+      def returns(result: CreatePrivAppResult) = when(aMock.createPrivApp(*)(using *)).thenReturn(successful(result))
     }
   }
 

@@ -18,9 +18,11 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import play.api.mvc.{PathBindable, QueryStringBindable}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.SimpleUserId
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 
 package object binders extends ApplicationLogger {
@@ -29,16 +31,16 @@ package object binders extends ApplicationLogger {
     ApplicationId.apply(text).toRight(s"Cannot accept $text as ApplicationId")
   }
 
-  implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
+  // implicit def applicationIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApplicationId] = new PathBindable[ApplicationId] {
 
-    override def bind(key: String, value: String): Either[String, ApplicationId] = {
-      textBinder.bind(key, value).flatMap(applicationIdFromString)
-    }
+  //   override def bind(key: String, value: String): Either[String, ApplicationId] = {
+  //     textBinder.bind(key, value).flatMap(applicationIdFromString)
+  //   }
 
-    override def unbind(key: String, applicationId: ApplicationId): String = {
-      applicationId.value.toString()
-    }
-  }
+  //   override def unbind(key: String, applicationId: ApplicationId): String = {
+  //     applicationId.value.toString()
+  //   }
+  // }
 
   implicit def applicationIdQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApplicationId] = new QueryStringBindable[ApplicationId] {
 
@@ -51,16 +53,16 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
+  // implicit def apiContextPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiContext] = new PathBindable[ApiContext] {
 
-    override def bind(key: String, value: String): Either[String, ApiContext] = {
-      textBinder.bind(key, value).map(ApiContext(_))
-    }
+  //   override def bind(key: String, value: String): Either[String, ApiContext] = {
+  //     textBinder.bind(key, value).map(ApiContext(_))
+  //   }
 
-    override def unbind(key: String, apiContext: ApiContext): String = {
-      apiContext.value
-    }
-  }
+  //   override def unbind(key: String, apiContext: ApiContext): String = {
+  //     apiContext.value
+  //   }
+  // }
 
   implicit def apiContextQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiContext] = new QueryStringBindable[ApiContext] {
 
@@ -80,16 +82,16 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
+  // implicit def apiVersionPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiVersionNbr] = new PathBindable[ApiVersionNbr] {
 
-    override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
-      textBinder.bind(key, value).map(ApiVersionNbr(_))
-    }
+  //   override def bind(key: String, value: String): Either[String, ApiVersionNbr] = {
+  //     textBinder.bind(key, value).map(ApiVersionNbr(_))
+  //   }
 
-    override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
-      apiVersion.value
-    }
-  }
+  //   override def unbind(key: String, apiVersion: ApiVersionNbr): String = {
+  //     apiVersion.value
+  //   }
+  // }
 
   implicit def apiVersionQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiVersionNbr] = new QueryStringBindable[ApiVersionNbr] {
 
@@ -113,30 +115,30 @@ package object binders extends ApplicationLogger {
     UserId.apply(text).toRight(s"Cannot accept $text as userId")
   }
 
-  implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+  // implicit def userIdPathBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
 
-    override def bind(key: String, value: String): Either[String, UserId] = {
-      textBinder.bind(key, value).flatMap(eitherFromString)
-    }
+  //   override def bind(key: String, value: String): Either[String, UserId] = {
+  //     textBinder.bind(key, value).flatMap(eitherFromString)
+  //   }
 
-    override def unbind(key: String, userId: UserId): String = {
-      userId.value.toString()
-    }
-  }
+  //   override def unbind(key: String, userId: UserId): String = {
+  //     userId.value.toString()
+  //   }
+  // }
 
-  implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
+  // implicit def developerIdentifierBinder(implicit textBinder: PathBindable[String]): PathBindable[UserId] = new PathBindable[UserId] {
 
-    override def bind(key: String, value: String): Either[String, UserId] = {
-      for {
-        text <- textBinder.bind(key, value)
-        id   <- UserId.apply(value).toRight(s"Cannot accept $text as a UserId")
-      } yield id
-    }
+  //   override def bind(key: String, value: String): Either[String, UserId] = {
+  //     for {
+  //       text <- textBinder.bind(key, value)
+  //       id   <- UserId.apply(value).toRight(s"Cannot accept $text as a UserId")
+  //     } yield id
+  //   }
 
-    override def unbind(key: String, userId: UserId): String = {
-      textBinder.unbind("developerId", userId.value.toString)
-    }
-  }
+  //   override def unbind(key: String, userId: UserId): String = {
+  //     textBinder.unbind("developerId", userId.value.toString)
+  //   }
+  // }
 
   implicit def environmentQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[Environment] = new QueryStringBindable[Environment] {
 
@@ -170,22 +172,41 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
+  // implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[UserId] = new QueryStringBindable[UserId] {
 
-    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
+  //   override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, UserId]] = {
+  //     for {
+  //       textOrBindError <- textBinder.bind("developerId", params)
+  //     } yield textOrBindError match {
+  //       case Right(idText) =>
+  //         for {
+  //           id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a userId")
+  //         } yield id
+  //       case _             => Left("Unable to bind a UserId")
+  //     }
+  //   }
+
+  //   override def unbind(key: String, userId: UserId): String = {
+  //     textBinder.unbind("developerId", userId.value.toString)
+  //   }
+  // }
+
+  implicit def queryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[SimpleUserId] = new QueryStringBindable[SimpleUserId] {
+
+    override def bind(key: String, params: Map[String, Seq[String]]): Option[Either[String, SimpleUserId]] = {
       for {
         textOrBindError <- textBinder.bind("developerId", params)
       } yield textOrBindError match {
         case Right(idText) =>
           for {
             id <- UserId.apply(idText).toRight(s"Cannot accept $idText as a userId")
-          } yield id
+          } yield id.simpleUser
         case _             => Left("Unable to bind a UserId")
       }
     }
 
-    override def unbind(key: String, userId: UserId): String = {
-      textBinder.unbind("developerId", userId.value.toString)
+    override def unbind(key: String, userId: SimpleUserId): String = {
+      textBinder.unbind("developerId", userId.value.toString())
     }
   }
 
@@ -193,16 +214,16 @@ package object binders extends ApplicationLogger {
     ApiCategory(text).toRight(s"Cannot accept $text as ApiCategoryId")
   }
 
-  implicit def apiCategoryPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiCategory] = new PathBindable[ApiCategory] {
+  // implicit def apiCategoryPathBinder(implicit textBinder: PathBindable[String]): PathBindable[ApiCategory] = new PathBindable[ApiCategory] {
 
-    override def bind(key: String, value: String): Either[String, ApiCategory] = {
-      textBinder.bind(key, value).flatMap(apiCategoryFromString)
-    }
+  //   override def bind(key: String, value: String): Either[String, ApiCategory] = {
+  //     textBinder.bind(key, value).flatMap(apiCategoryFromString)
+  //   }
 
-    override def unbind(key: String, apiCategory: ApiCategory): String = {
-      apiCategory.toString()
-    }
-  }
+  //   override def unbind(key: String, apiCategory: ApiCategory): String = {
+  //     apiCategory.toString()
+  //   }
+  // }
 
   implicit def apiCategoryQueryStringBindable(implicit textBinder: QueryStringBindable[String]): QueryStringBindable[ApiCategory] = new QueryStringBindable[ApiCategory] {
 
@@ -253,18 +274,18 @@ package object binders extends ApplicationLogger {
     }
   }
 
-  implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
+  // implicit def serviceNamePathBinder(implicit textBinder: PathBindable[String]): PathBindable[ServiceName] = new PathBindable[ServiceName] {
 
-    override def bind(key: String, value: String): Either[String, ServiceName] = {
-      for {
-        text        <- textBinder.bind(key, value)
-        serviceName <- Right(ServiceName(text))
-      } yield serviceName
-    }
+  //   override def bind(key: String, value: String): Either[String, ServiceName] = {
+  //     for {
+  //       text        <- textBinder.bind(key, value)
+  //       serviceName <- Right(ServiceName(text))
+  //     } yield serviceName
+  //   }
 
-    override def unbind(key: String, serviceName: ServiceName): String = {
-      serviceName.value
-    }
-  }
+  //   override def unbind(key: String, serviceName: ServiceName): String = {
+  //     serviceName.value
+  //   }
+  // }
 
 }

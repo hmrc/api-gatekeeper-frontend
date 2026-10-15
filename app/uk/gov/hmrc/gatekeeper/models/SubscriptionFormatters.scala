@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.models
 import play.api.libs.json.{Json, OFormat}
 
 trait SubscriptionFormatters extends APIDefinitionFormatters {
-  implicit val subscriptionJsonFormatter: OFormat[Subscription] = Json.format[Subscription]
+  given subscriptionJsonFormatter: OFormat[Subscription] = Json.format[Subscription]
 }
 
 object SubscriptionFormatters extends SubscriptionFormatters

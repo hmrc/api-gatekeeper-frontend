@@ -25,13 +25,13 @@ import org.jsoup.nodes.Document
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationName, ApplicationWithCollaboratorsFixtures, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
-import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlOrganisation, XmlOrganisationId}
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.developers.DeveloperDetailsView
 
@@ -249,8 +249,8 @@ class DeveloperDetailsViewSpec extends CommonViewSpec with ApplicationWithCollab
       result.contentType should include("text/html")
 
       document.getElementById("mfa-heading").text shouldBe "Multi-factor authentication"
-      document.getElementById("mfa-type-0").text shouldBe MfaType.AUTHENTICATOR_APP.displayText
-      document.getElementById("mfa-type-1").text shouldBe MfaType.SMS.displayText
+      document.getElementById("mfa-type-0").text shouldBe MfaType.AuthenticatorApp.displayText
+      document.getElementById("mfa-type-1").text shouldBe MfaType.Sms.displayText
       document.getElementById("mfa-name-0").text shouldBe s"On (${authAppMfaDetailVerified.name})"
       document.getElementById("mfa-name-1").text shouldBe s"On (${smsMfaDetailVerified.name})"
       document.getElementById("remove-2SV").text shouldBe "Remove multi-factor authentication"

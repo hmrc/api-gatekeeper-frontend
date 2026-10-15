@@ -22,17 +22,16 @@ import org.apache.commons.net.util.SubnetUtils
 import org.apache.commons.validator.routines.EmailValidator
 import uk.gov.voa.play.form.ConditionalMappings.mandatoryIfTrue
 
-import play.api.data.Forms._
+import play.api.data.Forms.*
 import play.api.data.format.Formatter
-import play.api.data.validation._
+import play.api.data.validation.*
 import play.api.data.{Form, FormError}
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ValidatedApplicationName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
-import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
-import uk.gov.hmrc.gatekeeper.models.Forms.FormFields._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.Forms.FormFields.*
+import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice}
 
 object Forms {
 
@@ -102,10 +101,10 @@ object Forms {
 
       val persistLogin               = if (persistLoginEnabled) Some(OverrideFlag.PersistLogin) else None
       val originOverride             = if (originOverrideEnabled) Some(OverrideFlag.OriginOverride(originOverrideValue.get)) else None
-      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent)
-      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents)
-      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations)
-      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals)
+      val grantWithoutConsent        = overrideWithScopes(grantWithoutConsentEnabled, grantWithoutConsentScopes, OverrideFlag.GrantWithoutConsent.apply)
+      val suppressIvForAgents        = overrideWithScopes(suppressIvForAgentsEnabled, suppressIvForAgentsScopes, OverrideFlag.SuppressIvForAgents.apply)
+      val suppressIvForOrganisations = overrideWithScopes(suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes, OverrideFlag.SuppressIvForOrganisations.apply)
+      val suppressIvForIndividuals   = overrideWithScopes(suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes, OverrideFlag.SuppressIvForIndividuals.apply)
 
       Set(persistLogin, originOverride, grantWithoutConsent, suppressIvForAgents, suppressIvForOrganisations, suppressIvForIndividuals).flatten
     }
@@ -123,22 +122,22 @@ object Forms {
         }
       }
 
-      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PERSIST_LOGIN_AFTER_GRANT)
+      val persistLoginEnabled = overrides.exists(_.overrideType == OverrideType.PersistLoginAfterGrant)
 
       val (originOverrideEnabled, originOverrideValue) =
-        overrideWithScopes(overrides, OverrideType.ORIGIN_OVERRIDE)
+        overrideWithScopes(overrides, OverrideType.OriginOverride)
 
       val (grantWithoutConsentEnabled, grantWithoutConsentScopes) =
-        overrideWithScopes(overrides, OverrideType.GRANT_WITHOUT_TAXPAYER_CONSENT)
+        overrideWithScopes(overrides, OverrideType.GrantWithoutTaxpayerConsent)
 
       val (suppressIvForAgentsEnabled, suppressIvForAgentsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_AGENTS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForAgents)
 
       val (suppressIvForOrganisationsEnabled, suppressIvForOrganisationsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_ORGANISATIONS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForOrganisations)
 
       val (suppressIvForIndividualsEnabled, suppressIvForIndividualsScopes) =
-        overrideWithScopes(overrides, OverrideType.SUPPRESS_IV_FOR_INDIVIDUALS)
+        overrideWithScopes(overrides, OverrideType.SuppressIvForIndividuals)
 
       Some((
         persistLoginEnabled,
@@ -231,19 +230,19 @@ object Forms {
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty),
       collaboratorEmail           -> optional(email).verifying("application.administrator.missing", _.nonEmpty)
-    )(DeleteApplicationForm.apply)(DeleteApplicationForm.unapply)
+    )(DeleteApplicationForm.apply)(f => Some((f.applicationNameConfirmation, f.collaboratorEmail)))
   )
 
   val blockApplicationForm = Form(
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
-    )(BlockApplicationForm.apply)(BlockApplicationForm.unapply)
+    )(BlockApplicationForm.apply)(f => Some((f.applicationNameConfirmation)))
   )
 
   val unblockApplicationForm = Form(
     mapping(
       applicationNameConfirmation -> text.verifying("application.confirmation.missing", _.nonEmpty)
-    )(UnblockApplicationForm.apply)(UnblockApplicationForm.unapply)
+    )(UnblockApplicationForm.apply)(f => Some((f.applicationNameConfirmation)))
   )
 
   val createPrivAppForm = Form(
@@ -252,7 +251,7 @@ object Forms {
       applicationName        -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid),
       applicationDescription -> text.verifying("application.description.required", _.nonEmpty),
       adminEmail             -> emailValidator()
-    )(CreatePrivAppForm.apply)(CreatePrivAppForm.unapply)
+    )(CreatePrivAppForm.apply)(f => Some((f.environment, f.applicationName, f.applicationDescription, f.adminEmail)))
   )
 
   implicit def environmentFormat: Formatter[Environment] = new Formatter[Environment] {
@@ -281,7 +280,7 @@ object Forms {
       mapping(
         "email" -> emailValidator(),
         "role"  -> optional(text).verifying("team.member.error.role.invalid", _.isDefined)
-      )(AddTeamMemberForm.apply)(AddTeamMemberForm.unapply)
+      )(AddTeamMemberForm.apply)(f => Some((f.email, f.role)))
     )
   }
 
@@ -292,7 +291,7 @@ object Forms {
     val form: Form[RemoveTeamMemberForm] = Form(
       mapping(
         "email" -> emailValidator()
-      )(RemoveTeamMemberForm.apply)(RemoveTeamMemberForm.unapply)
+      )(RemoveTeamMemberForm.apply)(f => Some((f.email)))
     )
   }
 
@@ -304,27 +303,41 @@ object Forms {
       mapping(
         "email"   -> emailValidator(),
         "confirm" -> optional(text).verifying("team.member.error.confirmation.no.choice.field", _.isDefined)
-      )(RemoveTeamMemberConfirmationForm.apply)(RemoveTeamMemberConfirmationForm.unapply)
+      )(RemoveTeamMemberConfirmationForm.apply)(f => Some((f.email, f.confirm)))
     )
   }
+
+  given Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
+
+    override def bind(key: String, data: Map[String, String]) =
+      data.get(key)
+        .flatMap(name => EmailOptionChoice(name))
+        .toRight(Seq(FormError(key, "application.emailOption.required", Nil)))
+
+    override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
+  }
+
+  case class SendEmailChoice(sendEmailChoice: EmailOptionChoice)
 
   object SendEmailChoiceForm {
 
     val form: Form[SendEmailChoice] = Form(
       mapping(
         sendEmailChoice -> of[EmailOptionChoice]
-      )(SendEmailChoice.apply)(SendEmailChoice.unapply)
+      )(SendEmailChoice.apply)(f => Some(f.sendEmailChoice))
     )
   }
 
-  implicit def emailOptionChoiceFormat: Formatter[EmailOptionChoice] = new Formatter[EmailOptionChoice] {
+  case class SendEmailPreferencesChoice(sendEmailPreferences: EmailPreferencesChoice)
+
+  given Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
 
     override def bind(key: String, data: Map[String, String]) =
       data.get(key)
-        .flatMap(name => Try(EmailOptionChoice.withName(name)).toOption)
-        .toRight(Seq(FormError(key, "application.emailOption.required", Nil)))
+        .flatMap(name => EmailPreferencesChoice(name))
+        .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
 
-    override def unbind(key: String, value: EmailOptionChoice) = Map(key -> value.toString)
+    override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
   }
 
   object SendEmailPrefencesChoiceForm {
@@ -332,18 +345,8 @@ object Forms {
     val form: Form[SendEmailPreferencesChoice] = Form(
       mapping(
         sendEmailPreferences -> of[EmailPreferencesChoice]
-      )(SendEmailPreferencesChoice.apply)(SendEmailPreferencesChoice.unapply)
+      )(SendEmailPreferencesChoice.apply)(f => Some((f.sendEmailPreferences)))
     )
-  }
-
-  implicit def emailPreferencesChoiceFormat: Formatter[EmailPreferencesChoice] = new Formatter[EmailPreferencesChoice] {
-
-    override def bind(key: String, data: Map[String, String]) =
-      data.get(key)
-        .flatMap(name => Try(EmailPreferencesChoice.withName(name)).toOption)
-        .toRight(Seq(FormError(key, "application.emailPreferencesOption.required", Nil)))
-
-    override def unbind(key: String, value: EmailPreferencesChoice) = Map(key -> value.toString)
   }
 
   final case class UpdateGrantLengthForm(grantLength: Option[Int])
@@ -353,7 +356,7 @@ object Forms {
     val form: Form[UpdateGrantLengthForm] = Form(
       mapping(
         "grantLength" -> optional(number).verifying("grantLength.required", _.isDefined)
-      )(UpdateGrantLengthForm.apply)(UpdateGrantLengthForm.unapply)
+      )(UpdateGrantLengthForm.apply)(f => Some((f.grantLength)))
     )
   }
 
@@ -366,7 +369,7 @@ object Forms {
         "confirm"    -> text,
         "reason"     -> text,
         "reasonDate" -> text
-      )(DeleteRestrictionPreviouslyEnabledForm.apply)(DeleteRestrictionPreviouslyEnabledForm.unapply)
+      )(DeleteRestrictionPreviouslyEnabledForm.apply)(f => Some((f.confirm, f.reason, f.reasonDate)))
         .verifying(
           "auto.delete.option.required",
           fields =>
@@ -385,7 +388,7 @@ object Forms {
       mapping(
         "confirm" -> text,
         "reason"  -> text
-      )(DeleteRestrictionPreviouslyDisabledForm.apply)(DeleteRestrictionPreviouslyDisabledForm.unapply)
+      )(DeleteRestrictionPreviouslyDisabledForm.apply)(f => Some((f.confirm, f.reason)))
         .verifying(
           "auto.delete.reason.required",
           fields =>
@@ -404,7 +407,7 @@ object Forms {
     val form: Form[UpdateApplicationNameForm] = Form(
       mapping(
         "applicationName" -> text.verifying("application.name.required", s => ValidatedApplicationName.validate(s).isValid)
-      )(UpdateApplicationNameForm.apply)(UpdateApplicationNameForm.unapply)
+      )(UpdateApplicationNameForm.apply)(f => Some((f.applicationName)))
     )
   }
 
@@ -415,7 +418,7 @@ object Forms {
     val form: Form[UpdateApplicationNameAdminEmailForm] = Form(
       mapping(
         "adminEmail" -> optional(text).verifying("admin.email.required", _.isDefined)
-      )(UpdateApplicationNameAdminEmailForm.apply)(UpdateApplicationNameAdminEmailForm.unapply)
+      )(UpdateApplicationNameAdminEmailForm.apply)(f => Some((f.adminEmail)))
     )
   }
 
@@ -426,7 +429,7 @@ object Forms {
     val form: Form[RemoveMfaConfirmationForm] = Form(
       mapping(
         "confirm" -> text
-      )(RemoveMfaConfirmationForm.apply)(RemoveMfaConfirmationForm.unapply)
+      )(RemoveMfaConfirmationForm.apply)(f => Some((f.confirm)))
     )
   }
 
@@ -437,7 +440,7 @@ object Forms {
     val form: Form[RemoveEmailPreferencesForm] = Form(
       mapping(
         "serviceName" -> text.verifying("serviceName.required", _.nonEmpty)
-      )(RemoveEmailPreferencesForm.apply)(RemoveEmailPreferencesForm.unapply)
+      )(RemoveEmailPreferencesForm.apply)(f => Some((f.serviceName)))
     )
   }
 }

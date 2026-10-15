@@ -37,7 +37,7 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
 
   trait Setup {
     val mockStubBehaviour = mock[StubBehaviour]
-    val frontendAuth      = FrontendAuthComponentsStub(mockStubBehaviour)(cc, implicitly)
+    val frontendAuth      = FrontendAuthComponentsStub(mockStubBehaviour)(using cc, implicitly)
     val underTest         = new LdapAuthorisationService(frontendAuth)
 
     protected def stub(
@@ -55,13 +55,13 @@ class LdapAuthorisationServiceSpec extends AsyncHmrcSpec with StubControllerComp
   }
 
   trait Authorised {
-    self: Setup with SessionPresent =>
+    self: Setup & SessionPresent =>
 
     stub(true)
   }
 
   trait Unauthorised {
-    self: Setup with SessionPresent =>
+    self: Setup & SessionPresent =>
 
     stub(false)
   }

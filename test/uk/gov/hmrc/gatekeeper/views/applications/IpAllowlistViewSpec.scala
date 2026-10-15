@@ -26,10 +26,10 @@ import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators, IpAllowlist}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.IpAllowlistView
 
@@ -44,7 +44,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
 
   "IP allowlist view" should {
     "show IP allowlist information when the allowlist is not required" in new Setup {
-      val result: Appendable = ipAllowlistView(application)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = ipAllowlistView(application)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -55,7 +55,7 @@ class IpAllowlistViewSpec extends CommonViewSpec {
 
     "show IP allowlist information when the allowlist is required" in new Setup {
       val result: Appendable =
-        ipAllowlistView(application.modify(_.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24")))))(request, LoggedInUser(None), messagesProvider)
+        ipAllowlistView(application.modify(_.copy(ipAllowlist = IpAllowlist(required = true, Set("1.1.1.1/24")))))(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

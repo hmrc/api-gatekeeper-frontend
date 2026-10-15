@@ -30,7 +30,7 @@ import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockP
 class ApiPlatformDeskproServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with FixedClock {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val apiPlatformDeskproService = new ApiPlatformDeskproService(apiPlatformDeskproConnector)
 

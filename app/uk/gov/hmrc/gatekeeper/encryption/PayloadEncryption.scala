@@ -18,24 +18,24 @@ package uk.gov.hmrc.gatekeeper.encryption
 
 import scala.concurrent.Future
 
-import play.api.libs.json._
-import uk.gov.hmrc.crypto._
+import play.api.libs.json.*
+import uk.gov.hmrc.crypto.*
 import uk.gov.hmrc.crypto.json.JsonEncryption
 
 case class SecretRequest(data: String)
 
 object SecretRequest {
-  implicit val format: OFormat[SecretRequest] = Json.format[SecretRequest]
+  given OFormat[SecretRequest] = Json.format[SecretRequest]
 }
 
 trait SendsSecretRequest {
   def payloadEncryption: PayloadEncryption
 
-  def secretRequest[I, R](input: I)(block: SecretRequest => Future[R])(implicit w: Writes[I]) = {
+  def secretRequest[I, R](input: I)(block: SecretRequest => Future[R])(using w: Writes[I]) = {
     block(toSecretRequest(w.writes(input)))
   }
 
-  private def toSecretRequest[T](payload: T)(implicit writes: Writes[T]): SecretRequest = {
+  private def toSecretRequest[T](payload: T)(using writes: Writes[T]): SecretRequest = {
     SecretRequest(payloadEncryption.encrypt(payload).as[String])
   }
 }
@@ -44,14 +44,14 @@ case class SensitiveT[T](override val decryptedValue: T) extends Sensitive[T]
 
 class PayloadEncryption(jsonEncryptionKey: String) {
 
-  implicit val crypto: LocalCrypto = new LocalCrypto(jsonEncryptionKey)
+  given crypto: LocalCrypto = new LocalCrypto(jsonEncryptionKey)
 
-  def encrypt[T](payload: T)(implicit writes: Writes[T]): JsValue = {
+  def encrypt[T](payload: T)(using writes: Writes[T]): JsValue = {
     val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
     encrypter.writes(SensitiveT(payload))
   }
 
-  def decrypt[T](payload: JsValue)(implicit reads: Reads[T]): T = {
+  def decrypt[T](payload: JsValue)(using reads: Reads[T]): T = {
     val encryptedValue: JsValue = payload
     val decrypter               = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
     decrypter.reads(encryptedValue)
@@ -63,7 +63,7 @@ class PayloadEncryption(jsonEncryptionKey: String) {
 
 private[encryption] class LocalCrypto(anEncryptionKey: String) extends Encrypter with Decrypter {
 
-  implicit val aesCrypto: Encrypter with Decrypter = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
+  given aesCrypto: (Encrypter & Decrypter) = SymmetricCryptoFactory.aesCrypto(anEncryptionKey)
 
   override def encrypt(plain: PlainContent): Crypted = aesCrypto.encrypt(plain)
 

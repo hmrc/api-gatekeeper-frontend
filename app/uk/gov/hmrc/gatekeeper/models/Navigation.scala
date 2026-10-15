@@ -21,7 +21,7 @@ import play.api.libs.json.{Json, OFormat}
 case class NavLink(label: String, href: Option[String])
 
 object NavLink {
-  implicit val format: OFormat[NavLink] = Json.format[NavLink]
+  given format: OFormat[NavLink] = Json.format[NavLink]
 }
 
 case object UserNavLinks {

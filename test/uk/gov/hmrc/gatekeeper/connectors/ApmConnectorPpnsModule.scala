@@ -19,16 +19,16 @@ package uk.gov.hmrc.gatekeeper.connectors
 import java.time.{LocalDateTime, ZoneOffset}
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.gatekeeper.models.pushpullnotifications._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
+import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.*
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorPpnsModuleSpec
@@ -39,7 +39,7 @@ class ApmConnectorPpnsModuleSpec
     with FixedClock {
 
   trait Setup extends ApplicationIdFixtures {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 
@@ -49,7 +49,7 @@ class ApmConnectorPpnsModuleSpec
     val underTest: ApmConnectorPpnsModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
     val boxSubscriber = BoxSubscriber("callbackUrl", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)
-    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationIdOne), Some(boxSubscriber), Environment.PRODUCTION)
+    val box           = Box(BoxId("boxId"), "boxName", BoxCreator(ClientId("clientId")), Some(applicationIdOne), Some(boxSubscriber), Environment.Production)
 
   }
 
@@ -63,7 +63,7 @@ class ApmConnectorPpnsModuleSpec
         BoxCreator(ClientId("myClientIs6")),
         None,
         Some(BoxSubscriber("testurl.co.uk", LocalDateTime.parse("2001-01-01T01:02:03").toInstant(ZoneOffset.UTC), SubscriptionType.API_PUSH_SUBSCRIBER)),
-        Environment.PRODUCTION
+        Environment.Production
       )
 
       val text = """[{

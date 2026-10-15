@@ -24,7 +24,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators, grantLength: GrantLength)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, grantLength: GrantLength)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage application grant length success",
@@ -32,7 +32,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -52,5 +52,5 @@
     </div>
   </div>
 
-  <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id)}">Check application page</a>
+  <a class="govuk-link govuk-link--no-visited-state" href="@{routes.ApplicationController.applicationPage(application.id.simpleApp)}">Check application page</a>
 }

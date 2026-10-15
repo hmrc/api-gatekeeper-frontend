@@ -32,12 +32,12 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{
   Collaborators,
   DeleteRestriction
 }
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationProtectedFromDeletionView
 
@@ -57,13 +57,13 @@ class ApplicationProtectedFromDeletionViewSpec extends CommonViewSpec {
   "Delete Restriction Enabled view" should {
     "show reason, date and radio buttons when deletion restriction is enabled for application" in new Setup {
       val result: Appendable =
-        applicationProtectedFromDeletionView(application, reason)(request, LoggedInUser(None), messagesProvider)
+        applicationProtectedFromDeletionView(application, reason)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
       result.contentType should include("text/html")
       elementExistsByText(document, "h1", "Application cannot be deleted") shouldBe true
-      elementExistsByText(document, "p", s"You cannot delete ${application.name.value} because:") shouldBe true
+      elementExistsByText(document, "p", s"You cannot delete ${application.name} because:") shouldBe true
       elementExistsByText(document, "dd", reason)
     }
   }

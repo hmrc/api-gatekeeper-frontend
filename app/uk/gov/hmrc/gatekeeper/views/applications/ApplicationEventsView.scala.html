@@ -15,14 +15,14 @@
  *@
 
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-@import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController._
+@import uk.gov.hmrc.gatekeeper.controllers.ApplicationEventsController.*
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(queryModel: QueryModel, form: Form[QueryForm])(implicit request: LoggedInRequest[_], flash: Flash)
+@(queryModel: QueryModel, form: Form[QueryForm])(using request: LoggedInRequest[?], flash: Flash)
 
 @main(
   title = s"${applicationConfig.title} - Application Events",
@@ -30,7 +30,7 @@
   breadcrumbs = Seq(
     Crumb(
       s"${queryModel.applicationName}",
-      s"${routes.ApplicationController.applicationPage(queryModel.applicationId)}",
+      s"${routes.ApplicationController.applicationPage(queryModel.applicationId.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -45,7 +45,7 @@
 
   <h2 class="govuk-heading-m">Filters</h2>
 
-  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId), Symbol("class") -> "form") {
+  @helper.form(action = controllers.routes.ApplicationEventsController.page(queryModel.applicationId.simpleApp), Symbol("class") -> "form") {
   @helper.CSRF.formField
 
     <div class="govuk-grid-row">

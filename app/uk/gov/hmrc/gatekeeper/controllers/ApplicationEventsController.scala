@@ -23,22 +23,21 @@ import scala.concurrent.{ExecutionContext, Future}
 import com.google.inject.{Inject, Singleton}
 
 import play.api.data.Form
-import play.api.mvc._
+import play.api.mvc.*
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.events.connectors.{DisplayEvent, EnvironmentAwareApiPlatformEventsConnector, QueryableValues}
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 
 object ApplicationEventsController {
   case class EventModel(eventDateTime: String, eventTag: String, eventDetails: List[String], actor: String)
@@ -67,13 +66,13 @@ object ApplicationEventsController {
   case class QueryForm(eventTag: Option[String], actorType: Option[String])
 
   object QueryForm {
-    import play.api.data.Forms._
+    import play.api.data.Forms.*
 
     val form: Form[QueryForm] = Form(
       mapping(
         "eventTag"  -> optional(text),
         "actorType" -> optional(text)
-      )(QueryForm.apply)(QueryForm.unapply)
+      )(QueryForm.apply)(qf => Some((qf.eventTag, qf.actorType)))
     )
   }
 }
@@ -89,20 +88,18 @@ class ApplicationEventsController @Inject() (
     val applicationQueryService: ApplicationQueryService,
     val errorTemplate: ErrorTemplate,
     val errorHandler: ErrorHandler
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
     with ActionBuilders
     with ApplicationLogger {
 
-  import ApplicationEventsController._
+  import ApplicationEventsController.*
 
   def page(appId: ApplicationId): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     withApp(appId) { application =>
-      def handleFormError(form: Form[QueryForm]): Future[Result] = {
-        val queryForm = QueryForm.form.fill(QueryForm.form.bindFromRequest().get)
+      def handleFormError(queryForm: Form[QueryForm]): Future[Result] = {
         for {
           qv     <- eventsConnector.fetchQueryableValues(appId, application.deployedTo)
           events <- eventsConnector.query(appId, application.deployedTo, None, None)

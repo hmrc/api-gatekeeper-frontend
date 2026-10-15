@@ -30,14 +30,13 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.Environment
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.services.DeploymentApprovalService
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.apiapprovals._
+import uk.gov.hmrc.gatekeeper.views.html.apiapprovals.*
 
 object ApiApprovalsController {
 
@@ -54,7 +53,7 @@ object ApiApprovalsController {
       "approvedStatus"    -> optional(text),
       "failedStatus"      -> optional(text),
       "resubmittedStatus" -> optional(text)
-    )(FilterForm.apply)(FilterForm.unapply)
+    )(FilterForm.apply)(ff => Some((ff.newStatus, ff.approvedStatus, ff.failedStatus, ff.resubmittedStatus)))
   )
 
   case class ReviewForm(
@@ -68,7 +67,7 @@ object ApiApprovalsController {
       "approve"       -> optional(text).verifying("api.approvals.review.action.required", _.isDefined),
       "approveDetail" -> optional(text(maxLength = 500)),
       "declineDetail" -> optional(text(maxLength = 500))
-    )(ReviewForm.apply)(ReviewForm.unapply)
+    )(ReviewForm.apply)(rf => Some((rf.approve, rf.approveDetail, rf.declineDetail)))
       .verifying(
         "api.approvals.review.decline.reason.required",
         fields =>
@@ -86,7 +85,7 @@ object ApiApprovalsController {
   val commentForm: Form[CommentForm] = Form(
     mapping(
       "comment" -> optional(text).verifying("api.approvals.comment.required", _.isDefined)
-    )(CommentForm.apply)(CommentForm.unapply)
+    )(CommentForm.apply)(cf => Some((cf.comment)))
   )
 }
 
@@ -105,12 +104,11 @@ class ApiApprovalsController @Inject() (
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper {
-  import ApiApprovalsController._
+  import ApiApprovalsController.*
 
   def filterPage(defaultFiltering: Boolean): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     def getQueryParamsFromForm(form: FilterForm): Seq[(String, String)] = {
@@ -171,7 +169,7 @@ class ApiApprovalsController @Inject() (
         case true  => deploymentApprovalService.approveService(serviceName, environment, gatekeeperUser.get, approveDetail)
             .flatMap(_ =>
               environment match {
-                case (environment) if (environment == Environment.PRODUCTION) && approve => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
+                case (environment) if (environment == Environment.Production) && approve => apiCataloguePublishConnector.publishByServiceName(serviceName).map(_ => ())
                 case _                                                                   => successful(())
               }
             )
@@ -217,7 +215,7 @@ class ApiApprovalsController @Inject() (
     requestForm.fold(errors, addCommentWithValidForm)
   }
 
-  private def fetchApiDefinitionSummary(serviceName: ServiceName, environment: Environment)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  private def fetchApiDefinitionSummary(serviceName: ServiceName, environment: Environment)(using hc: HeaderCarrier): Future[APIApprovalSummary] = {
     deploymentApprovalService.fetchApprovalSummary(serviceName, environment)
   }
 }

@@ -23,60 +23,59 @@ import org.mockito.captor.ArgCaptor
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress}
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
+import uk.gov.hmrc.gatekeeper.utils.SubclassMockSupport
 
-trait CommandConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+trait CommandConnectorMockProvider extends MockitoSugar with ArgumentMatchersSugar with SubclassMockSupport {
 
   object CommandConnectorMock {
-    val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
-
-    import CHT.Implicits._
-
     val aMock: ApplicationCommandConnector = mock[ApplicationCommandConnector]
+
+    import CommandHandlerTypesForDispatchSuccessResult.types.*
+    import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
     object IssueCommand {
       import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.DispatchSuccessResult
 
-      def succeeds()(implicit ec: ExecutionContext) = {
+      def succeeds()(using ec: ExecutionContext) = {
         val mockResult = mock[DispatchSuccessResult]
-        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(mockResult.asSuccess)
+        when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(mockResult.asSuccess)
       }
 
-      def succeedsReturning(app: ApplicationWithCollaborators)(implicit ec: ExecutionContext) = {
-        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(DispatchSuccessResult(app).asSuccess)
+      def succeedsReturning(app: ApplicationWithCollaborators)(using ec: ExecutionContext) = {
+        when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(DispatchSuccessResult(app).asSuccess)
       }
 
-      def failsWith(failure: CommandFailure)(implicit ec: ExecutionContext) = {
-        when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(failure.asFailure)
+      def failsWith(failure: CommandFailure)(using ec: ExecutionContext) = {
+        when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(failure.asFailure)
       }
 
       def verifyCommand(id: ApplicationId) = {
         val cmdCaptor = ArgCaptor[ApplicationCommand]
-        verify(aMock).dispatch(eqTo(id), cmdCaptor.capture, *)(*)
+        verify(aMock).dispatch(eqTo(id), cmdCaptor, *)(using *)
         cmdCaptor.value
       }
 
       def verifyNoCommandsIssued() = {
-        verify(aMock, never).dispatch(*[ApplicationId], *, *)(*)
+        verify(aMock, never).dispatch(*[ApplicationId], *, *)(using *)
       }
 
       object ToRemoveCollaborator {
         val mockResult = mock[DispatchSuccessResult]
 
-        def succeeds()(implicit ec: ExecutionContext) = {
-          when(aMock.dispatch(*[ApplicationId], *, *)(*)).thenReturn(mockResult.asSuccess)
+        def succeeds()(using ec: ExecutionContext) = {
+          when(aMock.dispatch(*[ApplicationId], *, *)(using *)).thenReturn(mockResult.asSuccess)
         }
 
-        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress])(implicit ec: ExecutionContext) = {
-          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(*)).thenReturn(mockResult.asSuccess)
+        def succeedsFor(id: ApplicationId, adminsToEmail: Set[LaxEmailAddress])(using ec: ExecutionContext) = {
+          when(aMock.dispatch(eqTo(id), *, eqTo(adminsToEmail))(using *)).thenReturn(mockResult.asSuccess)
         }
 
-        def failsWithLastAdmin()(implicit ec: ExecutionContext) = {
+        def failsWithLastAdmin()(using ec: ExecutionContext) = {
           val mockResult = NonEmptyList.one(CommandFailures.CannotRemoveLastAdmin)
-          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(*)).thenReturn(mockResult.asFailure)
+          when(aMock.dispatch(*[ApplicationId], *[ApplicationCommands.RemoveCollaborator], *)(using *)).thenReturn(mockResult.asFailure)
         }
       }
     }

@@ -18,11 +18,11 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.Future
 
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, MappedApiDefinitions}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 object ApmConnectorApiDefinitionModule {
   val ApplicationIdQueryParam = "applicationId"
@@ -30,28 +30,28 @@ object ApmConnectorApiDefinitionModule {
 }
 
 trait ApmConnectorApiDefinitionModule extends ApmConnectorModule {
-  import ApmConnectorApiDefinitionModule._
+  import ApmConnectorApiDefinitionModule.*
 
-  private[this] val baseUrl = s"${config.serviceBaseUrl}/api-definitions"
+  private val baseUrl = s"${config.serviceBaseUrl}/api-definitions"
 
-  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllPossibleSubscriptions(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     val queryParams = Seq(
       ApplicationIdQueryParam -> applicationId.value.toString(),
       RestrictedQueryParam    -> "false"
     )
     http.get(url"${baseUrl}?$queryParams")
       .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
+      .map(_.values.toList)
   }
 
-  def fetchNonOpenApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchNonOpenApis(environment: Environment)(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.get(url"${baseUrl}/nonopen?environment=$environment")
       .execute[List[ApiDefinition]]
   }
 
-  def fetchAllApis(environment: Environment)(implicit hc: HeaderCarrier): Future[List[ApiDefinition]] = {
+  def fetchAllApis(environment: Environment)(using hc: HeaderCarrier): Future[List[ApiDefinition]] = {
     http.get(url"${baseUrl}/all?environment=$environment")
       .execute[MappedApiDefinitions]
-      .map(_.wrapped.values.toList)
+      .map(_.values.toList)
   }
 }

@@ -19,20 +19,20 @@ package uk.gov.hmrc.gatekeeper.controllers
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-import mocks.services._
+import mocks.services.*
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, _}
+import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, *}
 
 class LandingPageControllerSpec
     extends ControllerBaseSpec
@@ -41,7 +41,7 @@ class LandingPageControllerSpec
     with CollaboratorTracker
     with ApplicationWithCollaboratorsFixtures {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val landingPageView = app.injector.instanceOf[LandingPageView]
   private lazy val errorHandler    = app.injector.instanceOf[ErrorHandler]

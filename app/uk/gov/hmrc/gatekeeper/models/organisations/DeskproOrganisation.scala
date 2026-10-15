@@ -23,11 +23,11 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, Or
 case class DeskproOrganisation(organisationId: OrganisationId, organisationName: String, people: List[DeskproPerson])
 
 object DeskproOrganisation {
-  implicit val format: OFormat[DeskproOrganisation] = Json.format[DeskproOrganisation]
+  given format: OFormat[DeskproOrganisation] = Json.format[DeskproOrganisation]
 }
 
 case class DeskproPerson(name: String, email: LaxEmailAddress)
 
 object DeskproPerson {
-  implicit val format: OFormat[DeskproPerson] = Json.format[DeskproPerson]
+  given format: OFormat[DeskproPerson] = Json.format[DeskproPerson]
 }

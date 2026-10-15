@@ -20,11 +20,11 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.{Json, Reads, Writes}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId, UserId}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
@@ -33,17 +33,17 @@ import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 class OrganisationConnector @Inject() (
     config: OrganisationConnector.Config,
     http: HttpClientV2
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
-  import OrganisationConnector._
+  import OrganisationConnector.*
 
-  def fetchOrganisationsByUserId(userId: UserId)(implicit hc: HeaderCarrier): Future[List[Organisation]] = {
+  def fetchOrganisationsByUserId(userId: UserId)(using hc: HeaderCarrier): Future[List[Organisation]] = {
     http.get(url"${config.serviceBaseUrl}/organisation/user/$userId")
       .execute[List[Organisation]]
   }
 
-  def removeCollaboratorFromOrganisation(id: OrganisationId, userId: UserId, email: LaxEmailAddress)(implicit hc: HeaderCarrier): Future[Organisation] = {
+  def removeCollaboratorFromOrganisation(id: OrganisationId, userId: UserId, email: LaxEmailAddress)(using hc: HeaderCarrier): Future[Organisation] = {
     http.delete(url"${config.serviceBaseUrl}/organisation/${id.value}/member/$userId")
       .withBody(Json.toJson(RemoveMemberRequest(userId, email)))
       .execute[HttpResponse]
@@ -61,8 +61,8 @@ object OrganisationConnector {
   case class Config(serviceBaseUrl: String)
 
   case class RemoveMemberRequest(userId: UserId, email: LaxEmailAddress)
-  implicit val writesRemoveMemberRequest: Writes[RemoveMemberRequest] = Json.writes[RemoveMemberRequest]
+  given writesRemoveMemberRequest: Writes[RemoveMemberRequest] = Json.writes[RemoveMemberRequest]
 
   case class ErrorMessage(message: String)
-  implicit val readsErrorMessage: Reads[ErrorMessage] = Json.reads[ErrorMessage]
+  given readsErrorMessage: Reads[ErrorMessage] = Json.reads[ErrorMessage]
 }

@@ -26,7 +26,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[IpAllowlistForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[IpAllowlistForm])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Manage IP allow list",
@@ -34,7 +34,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -48,7 +48,7 @@
 
   <h1 class="govuk-heading-l">Manage IP allow list</h1>
 
-  @helper.form(action = controllers.routes.ApplicationController.manageIpAllowlistAction(application.id)) {
+  @helper.form(action = controllers.routes.ApplicationController.manageIpAllowlistAction(application.id.simpleApp)) {
 
     <p class="govuk-body">The IP allow list controls where traffic is allowed to originate from. The IP addresses below restrict traffic for this application.</p>
     <p class="govuk-body">The permitted IP address range is represented as a CIDR block, made up of an IP address and a netmask:</p>
@@ -93,7 +93,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

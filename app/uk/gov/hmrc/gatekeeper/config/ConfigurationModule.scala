@@ -20,7 +20,7 @@ import play.api.inject.Module
 import play.api.{Configuration, Environment}
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.ForbiddenHandler
-import uk.gov.hmrc.gatekeeper.connectors._
+import uk.gov.hmrc.gatekeeper.connectors.*
 import uk.gov.hmrc.gatekeeper.controllers.HandleForbiddenWithView
 
 class ConfigurationModule extends Module {

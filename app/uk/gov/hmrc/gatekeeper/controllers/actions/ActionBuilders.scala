@@ -25,10 +25,10 @@ import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService}
 
 trait ActionBuilders extends ApplicationLogger {
@@ -40,7 +40,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithCollaborators => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(using request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -54,7 +54,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: (ApplicationWithCollaborators, Access.Standard) => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(using request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -70,7 +70,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithSubscriptionFields => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(using request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -84,7 +84,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       f: ApplicationWithSubscriptionFieldsAndStateHistory => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(using request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {
@@ -110,7 +110,7 @@ trait ActionBuilders extends ApplicationLogger {
       appId: ApplicationId
     )(
       action: ApplicationWithSubscriptionDataAndFieldDefinitions => Future[Result]
-    )(implicit request: MessagesRequest[_],
+    )(using request: MessagesRequest[?],
       ec: ExecutionContext,
       hc: HeaderCarrier
     ): Future[Result] = {

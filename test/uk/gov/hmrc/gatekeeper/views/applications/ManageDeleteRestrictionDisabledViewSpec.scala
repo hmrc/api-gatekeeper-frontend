@@ -32,13 +32,13 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{
   Collaborators,
   DeleteRestriction
 }
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyDisabledForm
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionDisabledView
 
@@ -53,7 +53,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
 
   "Manage Delete Restriction Disabled view" should {
     "show radio button 'No' checked when no delete restriction for application (allow delete is enabled)" in new Setup {
-      val result: Appendable = manageDeleteRestrictionDisabledView(application, DeleteRestrictionPreviouslyDisabledForm.form)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = manageDeleteRestrictionDisabledView(application, DeleteRestrictionPreviouslyDisabledForm.form)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -74,7 +74,7 @@ class ManageDeleteRestrictionDisabledViewSpec extends CommonViewSpec {
         manageDeleteRestrictionDisabledView(
           application.modify(_.copy(deleteRestriction = DeleteRestriction.DoNotDelete("", Actors.GatekeeperUser("User"), instant))),
           DeleteRestrictionPreviouslyDisabledForm.form
-        )(request, LoggedInUser(None), messagesProvider)
+        )(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

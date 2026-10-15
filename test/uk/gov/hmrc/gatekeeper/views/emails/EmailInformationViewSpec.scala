@@ -24,28 +24,28 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailInformationView
 
 class EmailInformationViewSpec extends CommonViewSpec with EmailInformationViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
 
     val emailInformationPageView: EmailInformationView = app.injector.instanceOf[EmailInformationView]
   }
 
   "email information view" must {
-    "show correct title and content for EMAIL_ALL_USERS" in new Setup {
-      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EMAIL_ALL_USERS, request, LoggedInUser(None), messagesProvider)
+    "show correct title and content for EmailAllUsers" in new Setup {
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.EmailAllUsers, request, LoggedInUser(None), messagesProvider)
 
       validateAllUsersInformationPage(Jsoup.parse(result.body))
     }
 
-    "show correct title and content for API_SUBSCRIPTION" in new Setup {
-      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.API_SUBSCRIPTION, request, LoggedInUser(None), messagesProvider)
+    "show correct title and content for ApiSubscription" in new Setup {
+      val result: HtmlFormat.Appendable = emailInformationPageView.render(EmailOptionChoice.ApiSubscription, request, LoggedInUser(None), messagesProvider)
 
       validateApiSubcriptionInformationPage(Jsoup.parse(result.body))
     }

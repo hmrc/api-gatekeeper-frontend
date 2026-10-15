@@ -18,9 +18,9 @@ package uk.gov.hmrc.gatekeeper.specs
 
 import org.scalatest.Assertions
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.pages.DeveloperPage.APIFilter
 import uk.gov.hmrc.gatekeeper.pages.{ApplicationsPage, DeveloperPage}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
@@ -29,7 +29,7 @@ class ApiGatekeeperDeveloperSpec
     extends ApiGatekeeperBaseSpec
     with Assertions {
 
-  import MockDataSugar._
+  import MockDataSugar.*
 
   info("AS A Product Owner")
   info("I WANT The SDST (Software Developer Support Team) to be able to select developers with an interest in a particular API")
@@ -82,7 +82,7 @@ class ApiGatekeeperDeveloperSpec
       DeveloperPage.selectBySubscription(APIFilter.EMPLOYERSPAYE)
 
       And("I pick an environment")
-      DeveloperPage.selectByEnvironment(Environment.PRODUCTION)
+      DeveloperPage.selectByEnvironment(Environment.Production)
 
       And("I pick a Developer Status")
       DeveloperPage.selectByDeveloperStatus("VERIFIED")

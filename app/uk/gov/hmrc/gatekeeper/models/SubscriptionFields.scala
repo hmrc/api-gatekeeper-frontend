@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.models
 
 import play.api.libs.json.{Format, Json}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 
 object SubscriptionFields {
@@ -31,7 +31,7 @@ object SubscriptionFields {
     type Alias = Map[FieldName, FieldValue]
   }
 
-  def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl: _*)
+  def fields(tpl: (FieldName, FieldValue)*): Map[FieldName, FieldValue] = Map[FieldName, FieldValue](tpl*)
 
   case class SubscriptionFieldsWrapper(applicationId: ApplicationId, clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: List[SubscriptionFieldValue])
 
@@ -60,13 +60,7 @@ object SubscriptionFields {
   case class SubscriptionFieldsPutRequest(clientId: ClientId, apiContext: ApiContext, apiVersion: ApiVersionNbr, fields: Fields.Alias)
 
   object SubscriptionFieldsPutRequest extends APIDefinitionFormatters {
-    implicit val format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
-  }
-
-  // TODO - Remove Enumeration
-  object SubscriptionRedirect extends Enumeration {
-    type SubscriptionRedirectType = Value
-    val MANAGE_PAGE, APPLICATION_CHECK_PAGE, API_SUBSCRIPTIONS_PAGE = Value
+    given format: Format[SubscriptionFieldsPutRequest] = Json.format[SubscriptionFieldsPutRequest]
   }
 
   sealed trait SaveSubscriptionFieldsResponse

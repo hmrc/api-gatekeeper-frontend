@@ -19,8 +19,7 @@
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.models.Forms.DeleteRestrictionPreviouslyDisabledForm
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.DO_NOT_DELETE
-@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType.NO_RESTRICTION
+@import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestrictionType
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 @import uk.gov.hmrc.govukfrontend.views.html.components.GovukButton
 @import uk.gov.hmrc.govukfrontend.views.Aliases.Button
@@ -28,7 +27,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[DeleteRestrictionPreviouslyDisabledForm])(using uest: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
     title = s"Do you want ${application.name} to be deleted if it is inactive? - HMRC API Gatekeeper",
@@ -36,7 +35,7 @@
     breadcrumbs = Seq(
         Crumb(
             s"${application.name}",
-            s"${routes.ApplicationController.applicationPage(application.id)}",
+            s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
             Some("data-breadcrumb-view-application")
         ),
         Crumb(
@@ -55,20 +54,20 @@
         This means it cannot be deleted even if it's not used to make API calls for a while.
     </p>
 
-    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id)) {
+    @helper.form(action = routes.ApplicationController.updateDeleteRestrictionPreviouslyDisabled(application.id.simpleApp)) {
         @helper.CSRF.formField
         <div class="govuk-form-group @if(form.errors("reason").nonEmpty) {govuk-form-group--error}">
 
             @fieldError(form.errors, "confirm", form.error("submissionError").isEmpty)
             <div class="govuk-radios" data-module="govuk-radios">
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="no-protect-allow-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.deleteRestriction.deleteRestrictionType == NO_RESTRICTION) {checked}>
+                    <input class="govuk-radios__input" id="no-protect-allow-delete-yes" name="confirm" type="radio" value="yes" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.NoRestriction) {checked}>
                     <label class="govuk-label govuk-radios__label" for="no-protect-allow-delete-yes">
                         No
                     </label>
                 </div>
                 <div class="govuk-radios__item">
-                    <input class="govuk-radios__input" id="yes-protect-allow-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(application.details.deleteRestriction.deleteRestrictionType == DO_NOT_DELETE) {checked}>
+                    <input class="govuk-radios__input" id="yes-protect-allow-delete-no" name="confirm" type="radio" data-aria-controls="conditional-reason" value="no" @if(application.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DoNotDelete) {checked}>
                     <label class="govuk-label govuk-radios__label" for="yes-protect-allow-delete-no">
                         Yes
                     </label>
@@ -90,7 +89,7 @@
                 inputType = Some("submit"),
                 preventDoubleClick = Some(true)
             ))
-            <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
+            <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-link govuk-link--no-visited-state">Cancel</a>
         </div>
     </div>
     }

@@ -16,29 +16,29 @@
 
 package uk.gov.hmrc.gatekeeper.builder
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApiContext, ApiVersionNbr}
 
 trait ApiBuilder {
 
-  implicit class VersionDataExtension(versionData: ApiVersion) {
+  extension (versionData: ApiVersion) {
     def withStatus(newStatus: ApiStatus) = versionData.copy(status = newStatus)
-    def alpha                            = versionData.copy(status = ApiStatus.ALPHA)
-    def beta                             = versionData.copy(status = ApiStatus.BETA)
-    def stable                           = versionData.copy(status = ApiStatus.STABLE)
-    def deprecated                       = versionData.copy(status = ApiStatus.DEPRECATED)
-    def retired                          = versionData.copy(status = ApiStatus.RETIRED)
+    def alpha                            = versionData.copy(status = ApiStatus.Alpha)
+    def beta                             = versionData.copy(status = ApiStatus.Beta)
+    def stable                           = versionData.copy(status = ApiStatus.Stable)
+    def deprecated                       = versionData.copy(status = ApiStatus.Deprecated)
+    def retired                          = versionData.copy(status = ApiStatus.Retired)
 
     def withAccess(newAccess: ApiAccessType) = versionData.copy(access = newAccess)
-    def publicAccess                         = this.withAccess(ApiAccessType.PUBLIC)
-    def controlledAccess                     = this.withAccess(ApiAccessType.CONTROLLED)
-    def internalAccess                       = this.withAccess(ApiAccessType.INTERNAL)
+    def publicAccess                         = versionData.withAccess(ApiAccessType.Public)
+    def controlledAccess                     = versionData.withAccess(ApiAccessType.Controlled)
+    def internalAccess                       = versionData.withAccess(ApiAccessType.Internal)
   }
 
-  implicit class ApiDefinitionSyntax(apiDefinition: ApiDefinition) {
+  extension (apiDefinition: ApiDefinition) {
     def testSupport = apiDefinition.copy(isTestSupport = true)
 
-    def withName(newName: String) = apiDefinition.copy(name = newName)
+    def withName(newName: String) = apiDefinition.copy(name = ApiDefinition.Name(newName))
 
     def withVersion(versionNbr: ApiVersionNbr, data: ApiVersion = DefaultVersionData) = apiDefinition.copy(versions = Map(versionNbr -> data))
 
@@ -47,10 +47,10 @@ trait ApiBuilder {
     def withContext(apiContext: ApiContext) = apiDefinition.copy(context = apiContext)
   }
 
-  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty)
+  val DefaultVersionData = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.Stable, ApiAccessType.Public, List.empty, true, None, ApiVersionSource.OAS)
 
   val DefaultServiceName = ServiceName("A-Service")
-  val DefaultName        = "API Name"
+  val DefaultName        = ApiDefinition.Name("API Name")
 
   val VersionOne   = ApiVersionNbr("1.0")
   val VersionTwo   = ApiVersionNbr("2.0")
@@ -58,12 +58,13 @@ trait ApiBuilder {
 
   val DefaultApiDefinition = ApiDefinition(
     serviceName = DefaultServiceName,
-    serviceBaseUrl = "http://serviceBaseUrl",
+    serviceBaseUrl = ApiDefinition.ServiceBaseUrl("http://serviceBaseUrl"),
     name = DefaultName,
-    description = "Description",
+    description = ApiDefinition.Description("Description"),
     context = ApiContext("context/name"),
     versions = Map(VersionOne -> DefaultVersionData),
     isTestSupport = false,
-    categories = List.empty
+    categories = List.empty,
+    lastPublishedAt = None
   )
 }

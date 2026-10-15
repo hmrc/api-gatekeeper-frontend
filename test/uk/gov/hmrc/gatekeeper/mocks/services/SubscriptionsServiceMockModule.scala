@@ -21,49 +21,44 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.services.SubscriptionsService
 
 trait SubscriptionsServiceMockModule extends MockitoSugar with ArgumentMatchersSugar {
 
-  trait AbstractSubscriptionsServiceMock {
-    val CHT = new CommandHandlerTypes[DispatchSuccessResult] {}
+  object SubscriptionsServiceMock {
+    val aMock = mock[SubscriptionsService]
 
-    import CHT.Implicits._
-
-    def aMock: SubscriptionsService
+    import CommandHandlerTypesForDispatchSuccessResult.types.*
+    import CommandHandlerTypesForDispatchSuccessResult.types.Implicits.*
 
     object SubscribeToApi {
 
       def succeeds() = {
         val mockApp = mock[ApplicationWithCollaborators]
-        when(aMock.subscribeToApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
+        when(aMock.subscribeToApi(*, *, *)(using *)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
       def verifyCalledWith(app: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
-        verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
+        verify(aMock).subscribeToApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(using *)
 
       def verifyNotCalled() =
-        verify(aMock, never).subscribeToApi(*, *, *)(*)
+        verify(aMock, never).subscribeToApi(*, *, *)(using *)
     }
 
     object UnsubscribeFromApi {
 
       def succeeds() = {
         val mockApp = mock[ApplicationWithCollaborators]
-        when(aMock.unsubscribeFromApi(*, *, *)(*)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
+        when(aMock.unsubscribeFromApi(*, *, *)(using *)).thenReturn(DispatchSuccessResult(mockApp).asSuccess)
       }
 
       def verifyCalledWith(app: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser) =
-        verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(*)
+        verify(aMock).unsubscribeFromApi(eqTo(app), eqTo(apiIdentifier), eqTo(user))(using *)
 
       def verifyNotCalled() =
-        verify(aMock, never).unsubscribeFromApi(*, *, *)(*)
+        verify(aMock, never).unsubscribeFromApi(*, *, *)(using *)
     }
-  }
-
-  object SubscriptionsServiceMock extends AbstractSubscriptionsServiceMock {
-    val aMock = mock[SubscriptionsService]
   }
 }

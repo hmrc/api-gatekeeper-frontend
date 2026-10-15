@@ -20,25 +20,25 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.WithCSRFAddToken
-import uk.gov.hmrc.gatekeeper.views.html.developers._
+import uk.gov.hmrc.gatekeeper.views.html.developers.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with ApplicationBuilder {
 
-  implicit val materializer: Materializer     = app.materializer
+  given materializer: Materializer            = app.materializer
   private lazy val errorTemplateView          = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView              = app.injector.instanceOf[ForbiddenView]
   private lazy val developerDetailsView       = app.injector.instanceOf[DeveloperDetailsView]
@@ -74,7 +74,6 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         mockDeveloperService,
         ApplicationQueryServiceMock.aMock,
         forbiddenView,
-        mockApiDefinitionService,
         mcc,
         developerDetailsView,
         removeMfaView,
@@ -97,12 +96,12 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         val environmentFilter = ApiSubscriptionInEnvironmentFilter(Some(""))
         val statusFilter      = StatusFilter(None)
         val users             = developers.map(developer => RegisteredUser(developer.email, UserId.random, developer.firstName, developer.lastName, developer.verified))
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, environmentFilter, apps*)
         FetchAllApiDefinitions.inAny.returns()
-        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps: _*)(developers: _*)
-        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers: _*)
-        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps: _*)(users: _*)(developers: _*)
-        DeveloperServiceMock.FetchUsers.returns(users: _*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(apiFilter, apps*)(developers*)
+        DeveloperServiceMock.FilterUsersBy.returnsFor(statusFilter)(developers*)
+        DeveloperServiceMock.GetDevelopersWithApps.returnsFor(apps*)(users*)(developers*)
+        DeveloperServiceMock.FetchUsers.returns(users*)
       }
 
       DeveloperServiceMock.RemoveMfa.returns(user)
@@ -141,22 +140,22 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.RemoveMfa.returns(user)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "yes"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe OK
-        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+        verify(mockDeveloperService).removeMfa(eqTo(developerId), eqTo(loggedInUser))(using *)
       }
 
       "allow a normal user to access the page and not confirm removal" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody(("confirm", "no"))
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "no"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/developer?developerId=${developerId}")
-        verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(*)
+        verify(mockDeveloperService, times(0)).removeMfa(eqTo(developerId), eqTo(loggedInUser))(using *)
       }
 
       "return an internal server error when no radio buttons are selected" in new Setup {
@@ -171,7 +170,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         DeveloperServiceMock.RemoveMfa.throws(new RuntimeException("Failed to remove MFA"))
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(("confirm", "yes"))
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("confirm", "yes"))
         val result  = developersController.removeMfaAction(developerId)(request)
 
         status(result) shouldBe INTERNAL_SERVER_ERROR
@@ -192,7 +191,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         DeveloperServiceMock.PartitionDeveloperApps.returnsFor(developer = developer, result = (List.empty, developer.applications))
         val result = addToken(developersController.deleteDeveloperPage(developerId))(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(*)
+        verify(mockDeveloperService).fetchDeveloper(eqTo(developerId), eqTo(FetchDeletedApplications.Exclude))(using *)
       }
     }
 
@@ -209,7 +208,7 @@ class DeveloperControllerSpec extends ControllerBaseSpec with WithCSRFAddToken w
         DeveloperServiceMock.DeleteDeveloper.returnsFor(developer, DeveloperDeleteSuccessResult)
         val result = developersController.deleteDeveloperAction(developerId)(aSuperUserLoggedInRequest)
         status(result) shouldBe OK
-        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(*)
+        verify(mockDeveloperService).deleteDeveloper(eqTo(developerId), eqTo("Bobby Example"))(using *)
       }
 
       "return an internal server error when the delete fails" in new Setup {

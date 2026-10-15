@@ -31,7 +31,7 @@ import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 trait ControllerBaseSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
 
-  implicit val appConfig: AppConfig                    = app.injector.instanceOf[AppConfig]
+  given appConfig: AppConfig                           = app.injector.instanceOf[AppConfig]
   implicit lazy val strideAuthConfig: StrideAuthConfig = app.injector.instanceOf[StrideAuthConfig]
   lazy val forbiddenHandler                            = app.injector.instanceOf[ForbiddenHandler]
   lazy val mcc: MessagesControllerComponents           = app.injector.instanceOf[MessagesControllerComponents]

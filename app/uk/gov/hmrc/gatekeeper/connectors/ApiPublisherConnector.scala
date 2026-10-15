@@ -20,16 +20,17 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.Json
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http._
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 
-abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
+abstract class ApiPublisherConnector(using ec: ExecutionContext) extends JsonBodyWritables {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -37,22 +38,22 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+  def fetchAll()(using hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services")).execute[List[APIApprovalSummary]]
       .map(_.map(_.copy(environment = Some(environment))))
   }
 
-  def searchServices(params: Seq[(String, String)])(implicit hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
+  def searchServices(params: Seq[(String, String)])(using hc: HeaderCarrier): Future[List[APIApprovalSummary]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/services/search?$params")).execute[List[APIApprovalSummary]]
       .map(_.map(_.copy(environment = Some(environment))))
   }
 
-  def fetchApprovalSummary(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[APIApprovalSummary] = {
+  def fetchApprovalSummary(serviceName: ServiceName)(using hc: HeaderCarrier): Future[APIApprovalSummary] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/service/$serviceName/summary")).execute[APIApprovalSummary]
       .map(_.copy(environment = Some(environment)))
   }
 
-  def approveService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def approveService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(using hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/approve"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
@@ -60,7 +61,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.fold(err => throw err, _ => ()))
   }
 
-  def declineService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def declineService(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: Option[String] = None)(using hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/decline"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, notes)))
       .setHeader("Content-Type" -> "application/json")
@@ -68,7 +69,7 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
       .map(_.fold(err => throw err, _ => ()))
   }
 
-  def addComment(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+  def addComment(serviceName: ServiceName, actor: Actors.GatekeeperUser, notes: String)(using hc: HeaderCarrier): Future[Unit] = {
     configureEbridgeIfRequired(http.post(url"$serviceBaseUrl/service/$serviceName/comment"))
       .withBody(Json.toJson(ApiApprovalRequest(serviceName, actor, Some(notes))))
       .setHeader("Content-Type" -> "application/json")
@@ -78,10 +79,10 @@ abstract class ApiPublisherConnector(implicit ec: ExecutionContext) {
 }
 
 @Singleton
-class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiPublisherSandboxBaseUrl
   val useProxy       = appConfig.apiPublisherSandboxUseProxy
   val bearerToken    = appConfig.apiPublisherSandboxBearerToken
@@ -92,10 +93,10 @@ class SandboxApiPublisherConnector @Inject() (val appConfig: AppConfig, val http
 }
 
 @Singleton
-class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class ProductionApiPublisherConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiPublisherConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiPublisherProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

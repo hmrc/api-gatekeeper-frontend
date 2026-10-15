@@ -26,7 +26,6 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Envi
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.models.pushpullnotifications.{Box, SubscriptionType}
 import uk.gov.hmrc.gatekeeper.services.ApmService
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper
@@ -40,15 +39,14 @@ class BoxesController @Inject() (
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService,
     boxesView: BoxesView
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions {
 
   def getAll(): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
     apmService.fetchAllBoxes().map(boxes => {
       val columnDefinitions: Seq[ColumnDefinition[Box]] = Seq(
-        ColumnDefinition("environment", (box => box.environment.toString())),
+        ColumnDefinition("environment", (box => box.environment.toString().toUpperCase())),
         ColumnDefinition("applicationId", (box => box.applicationId.fold("")(_.value.toString()))),
         ColumnDefinition("clientId", (box => box.boxCreator.clientId.value)),
         ColumnDefinition("name", (box => box.boxName)),
@@ -70,8 +68,8 @@ class BoxesController @Inject() (
     }
 
     apmService.fetchAllBoxes().map(boxes => {
-      val sandboxMetrics: (Int, Int, Int)             = getMetrics(boxes, Environment.SANDBOX)
-      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.PRODUCTION)
+      val sandboxMetrics: (Int, Int, Int)             = getMetrics(boxes, Environment.Sandbox)
+      val productionMetrics: (Int, Int, Int)          = getMetrics(boxes, Environment.Production)
       val appBoxMap: List[(ApplicationId, List[Box])] = boxes.filter(_.applicationId.isDefined).groupBy(_.applicationId.get).toList.sortBy(_._2.size).reverse
 
       Ok(boxesView(sandboxMetrics, productionMetrics, appBoxMap))

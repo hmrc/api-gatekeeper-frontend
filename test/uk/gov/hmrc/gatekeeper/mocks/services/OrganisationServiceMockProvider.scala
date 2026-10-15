@@ -27,7 +27,7 @@ import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
 import uk.gov.hmrc.gatekeeper.services.OrganisationService
 
 trait OrganisationServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockOrganisationService = mock[OrganisationService]
 
@@ -36,9 +36,9 @@ trait OrganisationServiceMockProvider {
     object FetchApplicationsForOrganisation {
 
       def returns(organisationId: OrganisationId)(organisationWithApps: OrganisationWithApps) =
-        when(mockOrganisationService.fetchOrganisationWithApplications(eqTo(organisationId))(*)).thenReturn(successful(organisationWithApps))
+        when(mockOrganisationService.fetchOrganisationWithApplications(eqTo(organisationId))(using *)).thenReturn(successful(organisationWithApps))
 
-      def returnsNotFound() = when(mockOrganisationService.fetchOrganisationWithApplications(*[OrganisationId])(*)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
+      def returnsNotFound() = when(mockOrganisationService.fetchOrganisationWithApplications(*[OrganisationId])(using *)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
 
     }
 

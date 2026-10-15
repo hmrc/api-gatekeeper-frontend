@@ -25,7 +25,7 @@ class PayloadEncryptionSpec extends HmrcSpec {
   case class EncryptMe(word: String = "demo", number: Int = 5)
 
   object EncryptMe {
-    implicit val formatter: OFormat[EncryptMe] = Json.format[EncryptMe]
+    given formatter: OFormat[EncryptMe] = Json.format[EncryptMe]
   }
 
   "PayloadEncryption" should {

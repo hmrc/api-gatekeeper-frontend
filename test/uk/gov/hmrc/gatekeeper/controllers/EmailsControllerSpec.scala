@@ -22,25 +22,25 @@ import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Result}
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.NotFoundException
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, _}
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.emails._
+import uk.gov.hmrc.gatekeeper.views.html.emails.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView                   = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                       = app.injector.instanceOf[ForbiddenView]
@@ -57,12 +57,12 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
   running(app) {
 
     trait Setup extends ControllerSetupBase {
-      when(mockEmailLandingView.apply()(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailInformationView.apply(*)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailAllUsersView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailPreferencesSelectApiView.apply(*, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
-      when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailLandingView.apply()(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailInformationView.apply(*)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailAllUsersView.apply(*, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSpecificApiView.apply(*, *, *, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailPreferencesSelectApiView.apply(*, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+      when(mockEmailApiSubscriptionsView.apply(*, *, *, *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
 
       val csrfToken: (String, String)                                             = "csrfToken" -> app.injector.instanceOf[TokenProvider].generateToken
       override val aLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]          = FakeRequest().withSession(csrfToken, authToken, userToken).withCSRFToken
@@ -70,17 +70,17 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         FakeRequest().withSession(csrfToken, authToken, superUserToken).withCSRFToken
       override val anAdminLoggedInRequest: FakeRequest[AnyContentAsEmpty.type]    = FakeRequest().withSession(csrfToken, authToken, adminToken).withCSRFToken
 
-      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice.EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailOptionRequest(selectedOption: EmailOptionChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
-          .withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
+          .withMethod("POST").withFormUrlEncodedBody("sendEmailChoice" -> selectedOption.toString)
 
-      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice.EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
+      def selectedEmailPreferencesRequest(selectedOption: EmailPreferencesChoice): FakeRequest[AnyContentAsFormUrlEncoded] =
         FakeRequest()
           .withSession(csrfToken, authToken, userToken)
           .withCSRFToken.withMethod("POST")
-          .withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
+          .withMethod("POST").withFormUrlEncodedBody("sendEmailPreferences" -> selectedOption.toString)
 
       def createGetRequest(path: String) = {
         FakeRequest("GET", path)
@@ -95,40 +95,40 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val users                     = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val users3Verified1Unverified = List(verifiedUser1, verifiedUser2, verifiedUser3, unVerifiedUser1)
       val verified2Users            = List(verifiedUser1, verifiedUser2)
-      val category1                 = ApiCategory.EXAMPLE
-      val category2                 = ApiCategory.VAT
-      val category3                 = ApiCategory.AGENTS
+      val category1                 = ApiCategory.Example
+      val category2                 = ApiCategory.Vat
+      val category3                 = ApiCategory.Agents
       val categorySet               = Set(category1, category2, category3)
 
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
 
-      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
-      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified: _*)
+      def given3VerifiedDevelopers1Unverified() = DeveloperServiceMock.FetchUsers.returns(users3Verified1Unverified*)
 
-      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users: _*)
+      def given3VerifiedDevelopers1UnverifiedSearchDevelopers() = DeveloperServiceMock.SearchDevelopers.returns(users*)
 
       def givenNoVerifiedDevelopers() = DeveloperServiceMock.FetchUsers.returns(unVerifiedUser1)
 
       val api1    = ApiDefinition(
         ServiceName("service1"),
-        "/",
-        "serviceName",
-        "serviceDesc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("serviceName"),
+        ApiDefinition.Description("serviceDesc"),
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category1)
       )
       val api2    = ApiDefinition(
         ServiceName("service2"),
-        "/",
-        "service2Name",
-        "service2Desc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("service2Name"),
+        ApiDefinition.Description("service2Desc"),
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category2)
@@ -136,25 +136,25 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
       val twoApis = List(api1, api2)
 
       def givenApiDefinition2Apis() = {
-        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis*)
       }
 
       def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications*)
       }
 
       def givenDevelopersByEmail(users: List[RegisteredUser]) = {
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users*)
       }
 
       val serviceNameOne   = ServiceName("serviceNameOne")
       val serviceNameTwo   = ServiceName("serviceNameTwo")
       val serviceNameThree = ServiceName("serviceNameThree")
 
-      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
-      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.INTERNAL)
+      val combinedRestApi         = CombinedApi("displayName1", serviceNameOne, Set(ApiCategory.Customs), ApiType.RestApi, ApiAccessType.Public)
+      val combinedXmlApi          = CombinedApi("displayName2", serviceNameTwo, Set(ApiCategory.Vat), ApiType.XmlApi, ApiAccessType.Public)
+      val combinedInternalRestApi = CombinedApi("displayName3", serviceNameThree, Set(ApiCategory.Customs), ApiType.RestApi, ApiAccessType.Internal)
       val combinedApisList        = List(combinedRestApi, combinedXmlApi, combinedInternalRestApi)
 
       val underTest = new EmailsController(
@@ -179,26 +179,26 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     }
 
     "choose email option" should {
-      "redirect to the all users information page when EMAIL_ALL_USERS option chosen" in new Setup {
+      "redirect to the all users information page when EmailAllUsers option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_ALL_USERS))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EmailAllUsers))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/all-users/information")
       }
 
-      "redirect to the API Subscriptions information page when API_SUBSCRIPTION option chosen" in new Setup {
+      "redirect to the API Subscriptions information page when ApiSubscription option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.API_SUBSCRIPTION))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.ApiSubscription))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/api-subscription/information")
       }
 
-      "redirect to the Email Preferences page when EMAIL_PREFERENCES option chosen" in new Setup {
+      "redirect to the Email Preferences page when EmailPreferences option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EMAIL_PREFERENCES))
+        val result = underTest.chooseEmailOption()(selectedEmailOptionRequest(EmailOptionChoice.EmailPreferences))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences")
@@ -208,7 +208,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
     "choose email preferences" should {
       "redirect to Topic page when TOPIC option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TOPIC))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.Topic))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-topic")
@@ -216,7 +216,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to API page when SPECIFIC_API option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.SPECIFIC_API))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.SpecificApi))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/select-api")
@@ -224,7 +224,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "redirect to Tax Regime page when TAX_REGIME option chosen" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TAX_REGIME))
+        val result = underTest.chooseEmailPreferences()(selectedEmailPreferencesRequest(EmailPreferencesChoice.TaxRegime))
 
         status(result) shouldBe SEE_OTHER
         headers(result).get("Location") shouldBe Some("/api-gatekeeper/emails/email-preferences/by-api-category")
@@ -237,7 +237,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("all-users")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EMAIL_ALL_USERS))(*, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.EmailAllUsers))(using *, *, *)
       }
 
       "on request with 'api-subscription' in uri path should render correctly" in new Setup {
@@ -245,7 +245,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.showEmailInformation("api-subscription")(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.API_SUBSCRIPTION))(*, *, *)
+        verify(mockEmailInformationView).apply(eqTo(EmailOptionChoice.ApiSubscription))(using *, *, *)
       }
 
       "on request with invalid or empty path will return NOT FOUND" in new Setup {
@@ -267,7 +267,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
         val filteredUsers       = users3Verified1Unverified.filter(_.verified)
         val expectedEmailString = filteredUsers.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(filteredUsers), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should render correctly when 2 users are retrieved from the developer service" in new Setup {
@@ -277,7 +277,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
         status(result) shouldBe OK
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
-        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(verified2Users), eqTo(expectedEmailString))(using *, *, *)
       }
 
       "on request should render correctly when no verified users are retrieved from the developer service" in new Setup {
@@ -286,31 +286,31 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val result: Future[Result] = underTest.emailAllUsersPage()(aLoggedInRequest)
 
         status(result) shouldBe OK
-        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(*, *, *)
+        verify(mockEmailAllUsersView).apply(eqTo(List.empty), eqTo(""))(using *, *, *)
       }
     }
 
     "email preferences select api page" should {
       "return ok on initial load" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val result: Future[Result] = underTest.selectSpecificApi(None)(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List.empty))(using *, *, *)
       }
 
       "return ok when filters provided" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val result: Future[Result] = underTest.selectSpecificApi(Some(List(combinedRestApi.serviceName)))(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSelectApiView).apply(eqTo(combinedApisList.sortBy(_.displayName)), eqTo(List(combinedRestApi)))(using *, *, *)
       }
     }
 
@@ -329,7 +329,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when selected api filters are selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
 
         val selectedAPIs = List(combinedXmlApi)
 
@@ -337,39 +337,41 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         status(result) shouldBe OK
 
         verifyZeroInteractions(mockDeveloperService)
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(*, *, *)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockEmailPreferencesSpecificApiView).apply(eqTo(List.empty), eqTo(""), eqTo(selectedAPIs), eqTo(None))(using *, *, *)
 
       }
 
       "render the view with results correctly when apis and topic filters have been selected" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
 
-        when(mockApmService.fetchAllCombinedApis()(*)).thenReturn(Future.successful(combinedApisList))
-        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users: _*)
+        when(mockApmService.fetchAllCombinedApis()(using *)).thenReturn(Future.successful(combinedApisList))
+        DeveloperServiceMock.FetchDevelopersBySpecificAPIEmailPreferences.returns(verified2Users*)
 
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
 
         val selectedAPIs  = combinedApisList
-        val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
+        val selectedTopic = TopicOptionChoice.BusinessAndPolicy
 
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic))(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockApmService).fetchAllCombinedApis()(*)
-        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.CUSTOMS)), eqTo(List(serviceNameThree)), eqTo(true))(*)
+        verify(mockApmService).fetchAllCombinedApis()(using *)
+        verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(eqTo(selectedTopic), eqTo(Set(ApiCategory.Customs)), eqTo(List(serviceNameThree)), eqTo(true))(
+          using *
+        )
         verify(mockDeveloperService).fetchDevelopersBySpecificAPIEmailPreferences(
           eqTo(selectedTopic),
-          eqTo(Set(ApiCategory.CUSTOMS, ApiCategory.VAT)),
+          eqTo(Set(ApiCategory.Customs, ApiCategory.Vat)),
           eqTo(List(serviceNameOne, serviceNameTwo)),
           eqTo(false)
-        )(*)
+        )(using *)
         verify(mockEmailPreferencesSpecificApiView).apply(
           eqTo(verified2Users),
           eqTo(expectedEmailString),
           eqTo(selectedAPIs),
           eqTo(Some(selectedTopic))
-        )(*, *, *)
+        )(using *, *, *)
       }
 
     }
@@ -390,7 +392,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns()
         val request = createGetRequest("/emails/api-subscribers/email-preferences/by-topic")
 
-        val result = underTest.emailPreferencesTopic(Some(TopicOptionChoice.TECHNICAL))(request)
+        val result = underTest.emailPreferencesTopic(Some(TopicOptionChoice.Technical))(request)
         status(result) shouldBe OK
 
         val responseBody = contentAsString(result)
@@ -400,10 +402,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when filter selected and users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users*)
 
-        val request                = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
-        val result: Future[Result] = underTest.emailPreferencesTopic(Some(TopicOptionChoice.TECHNICAL))(request)
+        val request                = createGetRequest("/emails/api-subscribers/email-preferences/topic?TopicOptionChoice.Technical")
+        val result: Future[Result] = underTest.emailPreferencesTopic(Some(TopicOptionChoice.Technical))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -428,7 +430,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.TECHNICAL), Some(category1))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.Technical), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -438,10 +440,10 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
 
       "render the view correctly when Topic filter TECHNICAL selected and users returned" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
-        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users*)
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.TECHNICAL), Some(category1))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.Technical), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)

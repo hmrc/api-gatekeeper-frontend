@@ -25,7 +25,7 @@ import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHi
 import uk.gov.hmrc.gatekeeper.services.ApplicationQueryService
 
 trait ApplicationQueryServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   trait BaseApplicationQueryServiceMock {
     def aMock: ApplicationQueryService
@@ -33,19 +33,19 @@ trait ApplicationQueryServiceMockProvider {
     object FetchApplication {
 
       def returns(app: ApplicationWithCollaborators) =
-        when(aMock.fetchApplication(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+        when(aMock.fetchApplication(eqTo(app.id))(using *)).thenReturn(successful(Some(app)))
     }
 
     object FetchAppWithSubsFields {
 
       def returns(app: ApplicationWithSubscriptionFields) =
-        when(aMock.fetchApplicationWithSubscriptionFields(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+        when(aMock.fetchApplicationWithSubscriptionFields(eqTo(app.id))(using *)).thenReturn(successful(Some(app)))
     }
 
     object FetchAppWithSubsFieldsAndHistory {
 
       def returns(app: ApplicationWithSubscriptionFieldsAndStateHistory) =
-        when(aMock.fetchApplicationWithSubscriptionFieldsAndHistory(eqTo(app.id))(*)).thenReturn(successful(Some(app)))
+        when(aMock.fetchApplicationWithSubscriptionFieldsAndHistory(eqTo(app.id))(using *)).thenReturn(successful(Some(app)))
     }
   }
 

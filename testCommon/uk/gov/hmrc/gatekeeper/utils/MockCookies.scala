@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import org.openqa.selenium.{Cookie => SeleniumCookie}
+import org.openqa.selenium.Cookie as SeleniumCookie
 
 import play.api.Application
 import play.api.libs.ws.WSCookie

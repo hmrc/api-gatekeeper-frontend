@@ -14,10 +14,10 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.*
 @import uk.gov.hmrc.gatekeeper.controllers.ApiApprovalsController.FilterForm
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.govukfrontend.views.html.components.{GovukTable, Table, Text}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.table.{HeadCell, TableRow}
 @import uk.gov.hmrc.govukfrontend.views.viewmodels.content.HtmlContent
@@ -25,7 +25,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukTable: GovukTable)
 
-@(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(implicit request: LoggedInRequest[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(form: Form[FilterForm], apis: Seq[APIApprovalSummary])(using request: LoggedInRequest[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @buildApiLinkHtml(api: APIApprovalSummary, isUser: Boolean) = {
     @if(isUser) {
@@ -114,7 +114,7 @@
         )),
         rows = apis.map(api =>  Seq(
             TableRow(content = HtmlContent(buildApiLinkHtml(api, request.role.isUser))),
-            TableRow(content = Text(api.serviceName.value)),
+            TableRow(content = Text(api.serviceName)),
             TableRow(content = Text(api.env)),
             TableRow(content = HtmlContent(buildApiApprovalStatusHtml(api.status)))
             ))

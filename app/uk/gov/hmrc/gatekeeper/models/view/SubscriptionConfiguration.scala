@@ -17,9 +17,9 @@
 package uk.gov.hmrc.gatekeeper.models.view
 
 import play.api.data.Form
-import play.api.data.Forms.{nonEmptyText, _}
+import play.api.data.Forms.{nonEmptyText, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionDataAndFieldDefinitions
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{Fields, SubscriptionFieldDefinition}
@@ -46,7 +46,7 @@ object SubscriptionVersion {
           apiDefinition.name,
           contextMap._1,
           versionMap._1,
-          apiDefinition.versions(versionMap._1).status.displayText,
+          apiDefinition.versions(versionMap._1).status.toString,
           toSubscriptionFields(versionMap._2)
         )
       })
@@ -67,10 +67,10 @@ object EditApiMetadataForm {
       "fields" -> list(
         mapping(
           "name"  -> nonEmptyText.transform[FieldName](FieldName(_), fieldName => fieldName.value),
-          "value" -> text.transform[FieldValue](FieldValue(_), fieldValue => fieldValue.value)
-        )(SubscriptionFieldValueForm.apply)(SubscriptionFieldValueForm.unapply)
+          "value" -> text.transform[FieldValue](FieldValue(_), _.toString)
+        )(SubscriptionFieldValueForm.apply)(sf => Some((sf.name, sf.value)))
       )
-    )(EditApiMetadataForm.apply)(EditApiMetadataForm.unapply)
+    )(EditApiMetadataForm.apply)(f => Some((f.fields)))
   )
 
   def toFields(form: EditApiMetadataForm): Fields.Alias = {

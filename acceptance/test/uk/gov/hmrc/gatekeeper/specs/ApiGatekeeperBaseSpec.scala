@@ -28,7 +28,7 @@ import uk.gov.hmrc.apiplatform.modules.events.connectors.DisplayEvent
 import uk.gov.hmrc.gatekeeper.common.{BaseSpec, SignInSugar, WebPage}
 import uk.gov.hmrc.gatekeeper.matchers.CustomMatchers
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
-import uk.gov.hmrc.gatekeeper.stubs._
+import uk.gov.hmrc.gatekeeper.stubs.*
 import uk.gov.hmrc.gatekeeper.testdata.{AllSubscribeableApisTestData, ApiDefinitionTestData, ApplicationResponseTestData, StateHistoryTestData}
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -62,7 +62,7 @@ class ApiGatekeeperBaseSpec
     stubDevelopers(developers)
     stubHasTermsOfUseInvitation(appId, false)
     stubGetDeveloper(developers.head.email, Json.stringify(Json.toJson(developers.head)))
-    stubSubmissionLatestIsNotFound(appId)
+    stubSubmissionLatestIsNotFound()
   }
 
   def isCurrentPage(page: WebPage): Unit = {

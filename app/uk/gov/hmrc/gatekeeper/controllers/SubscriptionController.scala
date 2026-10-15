@@ -23,16 +23,16 @@ import com.google.inject.{Inject, Singleton}
 import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
 import uk.gov.hmrc.apiplatform.modules.gkauth.utils.GatekeeperAuthorisationHelper
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.view.SubscriptionViewModel
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, SubscriptionsService}
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
@@ -43,13 +43,12 @@ object SubscriptionController {
   case class SubsForm(subscribed: Boolean)
 
   object SubsForm {
-    import play.api.data.Forms._
-    import play.api.data._
+    import play.api.data.Forms.*
 
     lazy val form = Form[SubsForm](
       mapping(
         "subscribed" -> boolean
-      )(SubsForm.apply)(SubsForm.unapply)
+      )(SubsForm.apply)(f => Some((f.subscribed)))
     )
   }
 }
@@ -65,14 +64,13 @@ class SubscriptionController @Inject() (
     val apmService: ApmService,
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc) with ActionBuilders with GatekeeperAuthorisationHelper {
 
-  import SubscriptionController._
+  import SubscriptionController.*
 
   def manageSubscription(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
-    implicit val versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
+    given versionOrdering: Ordering[VersionSubscriptionWithoutFields] =
       Ordering.by[VersionSubscriptionWithoutFields, ApiVersionNbr](_.version.versionNbr).reverse
 
     def convertToVersionSubscription(apiDefinition: ApiDefinition, apiVersions: List[ApiVersionNbr]): List[VersionSubscriptionWithoutFields] = {
@@ -103,24 +101,24 @@ class SubscriptionController @Inject() (
   }
 
   def updateSubscription(appId: ApplicationId, apiContext: ApiContext, versionNbr: ApiVersionNbr): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
-    def handleFormError(form: Form[SubsForm]): Future[Result] = {
-      Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId)))
+    def handleFormError(): Future[Result] = {
+      Future.successful(Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp)))
     }
 
     def handleValidForm(app: ApplicationWithCollaborators)(form: SubsForm): Future[Result] = {
       if (form.subscribed) {
         subscriptionService.subscribeToApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-          Redirect(routes.SubscriptionController.manageSubscription(appId))
+          Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp))
         )
       } else {
         subscriptionService.unsubscribeFromApi(app, ApiIdentifier(apiContext, versionNbr), gatekeeperUser.get).map(_ =>
-          Redirect(routes.SubscriptionController.manageSubscription(appId))
+          Redirect(routes.SubscriptionController.manageSubscription(appId.simpleApp))
         )
       }
     }
 
     withApp(appId) { app =>
-      SubsForm.form.bindFromRequest().fold(handleFormError, handleValidForm(app))
+      SubsForm.form.bindFromRequest().fold(_ => handleFormError(), handleValidForm(app))
     }
   }
 }

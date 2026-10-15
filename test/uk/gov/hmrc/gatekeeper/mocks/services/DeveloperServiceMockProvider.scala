@@ -25,12 +25,12 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.{AuthenticatorAppMfaDetail, MfaId}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.services.DeveloperService
 import uk.gov.hmrc.gatekeeper.utils.UserIdTracker
 
 trait DeveloperServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar with UserIdTracker =>
+  self: MockitoSugar & ArgumentMatchersSugar & UserIdTracker =>
 
   val mockDeveloperService = mock[DeveloperService]
 
@@ -63,59 +63,59 @@ trait DeveloperServiceMockProvider {
     object FetchUsers {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchUsers()(*))
+        when(mockDeveloperService.fetchUsers()(using *))
           .thenReturn(successful(users.toList))
     }
 
     object FetchUsersPaginated {
 
       def returns(totalCount: Int, users: RegisteredUser*) =
-        when(mockDeveloperService.fetchUsersPaginated(*, *)(*))
+        when(mockDeveloperService.fetchUsersPaginated(*, *)(using *))
           .thenReturn(successful(UserPaginatedResponse(totalCount, users.toList)))
     }
 
     object FetchDeveloper {
-      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(developer.user.userId), *)(*)).thenReturn(successful(developer))
+      def handles(developer: Developer) = when(mockDeveloperService.fetchDeveloper(eqTo(developer.user.userId), *)(using *)).thenReturn(successful(developer))
     }
 
     object RemoveMfa {
-      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(successful(user))
-      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*[UserId], *)(*)).thenReturn(failed(t))
+      def returns(user: RegisteredUser) = when(mockDeveloperService.removeMfa(*[UserId], *)(using *)).thenReturn(successful(user))
+      def throws(t: Throwable)          = when(mockDeveloperService.removeMfa(*[UserId], *)(using *)).thenReturn(failed(t))
     }
 
     object PartitionDeveloperApps {
 
       def returnsFor(developer: Developer, result: (List[ApplicationWithCollaborators], List[ApplicationWithCollaborators])) =
-        when(mockDeveloperService.partitionDeveloperApps(eqTo(developer))(*))
+        when(mockDeveloperService.partitionDeveloperApps(eqTo(developer))(using *))
           .thenReturn(successful(result))
     }
 
     object DeleteDeveloper {
 
       def returnsFor(developer: Developer, result: DeveloperDeleteResult) =
-        when(mockDeveloperService.deleteDeveloper(eqTo(developer.user.userId), *)(*))
+        when(mockDeveloperService.deleteDeveloper(eqTo(developer.user.userId), *)(using *))
           .thenReturn(successful((result, developer)))
     }
 
     object FetchDevelopersByEmails {
-      def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmails(*)(*)).thenReturn(successful(developers.toList))
+      def returns(developers: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmails(*)(using *)).thenReturn(successful(developers.toList))
     }
 
     object FetchDevelopersBySpecificTaxRegimesEmailPreferences {
 
       def returns(developers: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, developers.toList)))
+        when(mockDeveloperService.fetchDevelopersBySpecificTaxRegimesEmailPreferencesPaginated(*, *, *)(using *)).thenReturn(successful(UserPaginatedResponse(10, developers.toList)))
     }
 
     object SearchDevelopers {
-      def returns(users: AbstractUser*) = when(mockDeveloperService.searchDevelopers(*)(*)).thenReturn(successful(users.toList))
+      def returns(users: AbstractUser*) = when(mockDeveloperService.searchDevelopers(*)(using *)).thenReturn(successful(users.toList))
     }
 
     object SeekRegisteredUser {
 
       def returnsFor(email: LaxEmailAddress, verified: Boolean = true, mfaEnabled: Boolean = true) = {
 
-        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(RegisteredUser(
+        when(mockDeveloperService.seekUser(eqTo(email))(using *)).thenReturn(successful(Some(RegisteredUser(
           email,
           idOf(email),
           "first",
@@ -129,13 +129,13 @@ trait DeveloperServiceMockProvider {
     object SeekUnregisteredUser {
 
       def returnsFor(email: LaxEmailAddress) =
-        when(mockDeveloperService.seekUser(eqTo(email))(*)).thenReturn(successful(Some(UnregisteredUser(email, idOf(email)))))
+        when(mockDeveloperService.seekUser(eqTo(email))(using *)).thenReturn(successful(Some(UnregisteredUser(email, idOf(email)))))
     }
 
     object FetchOrCreateUser {
 
       def handles(email: LaxEmailAddress, verified: Boolean = true, mfaEnabled: Boolean = true) =
-        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(*)).thenReturn(successful(RegisteredUser(
+        when(mockDeveloperService.fetchOrCreateUser(eqTo(email))(using *)).thenReturn(successful(RegisteredUser(
           email,
           idOf(email),
           "first",
@@ -146,39 +146,39 @@ trait DeveloperServiceMockProvider {
     }
 
     object FetchDevelopersByEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersByEmailPreferences(*, *)(using *)).thenReturn(successful(users.toList))
     }
 
     object FetchDevelopersByEmailPreferencesPaginated {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersByEmailPreferencesPaginated(*, *, *, *, *, *)(*)).thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
+        when(mockDeveloperService.fetchDevelopersByEmailPreferencesPaginated(*, *, *, *, *, *)(using *)).thenReturn(successful(UserPaginatedResponse(users.size, users.toList)))
     }
 
     object FetchDevelopersBySpecificAPIEmailPreferences {
-      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*, *, *, *)(*)).thenReturn(successful(users.toList))
+      def returns(users: RegisteredUser*) = when(mockDeveloperService.fetchDevelopersBySpecificAPIEmailPreferences(*, *, *, *)(using *)).thenReturn(successful(users.toList))
     }
 
     object FetchDevelopersBySpecificApisEmailPreferences {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*, *, *)(*)).thenReturn(successful(UserPaginatedResponse(10, users.toList)))
+        when(mockDeveloperService.fetchDevelopersBySpecificApisEmailPreferences(*, *, *)(using *)).thenReturn(successful(UserPaginatedResponse(10, users.toList)))
     }
 
     object FetchDevelopersByAPICategoryEmailPreferences {
 
       def returns(users: RegisteredUser*) =
-        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[ApiCategory])(*)).thenReturn(successful(users.toList))
+        when(mockDeveloperService.fetchDevelopersByAPICategoryEmailPreferences(*[TopicOptionChoice], *[ApiCategory])(using *)).thenReturn(successful(users.toList))
     }
 
     object FetchUser {
 
       def returnsFor(email: LaxEmailAddress): Unit = {
-        when(mockDeveloperService.fetchUser(eqTo(email))(*)).thenReturn(successful(aUser(email)))
+        when(mockDeveloperService.fetchUser(eqTo(email))(using *)).thenReturn(successful(aUser(email)))
       }
 
       def returnsNotFound(): Unit = {
-        when(mockDeveloperService.fetchUser(*[LaxEmailAddress])(*)).thenReturn(failed(new IllegalArgumentException("Email was not found, unexpectedly")))
+        when(mockDeveloperService.fetchUser(*[LaxEmailAddress])(using *)).thenReturn(failed(new IllegalArgumentException("Email was not found, unexpectedly")))
       }
     }
 

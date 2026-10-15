@@ -24,19 +24,19 @@ import play.api.mvc.AnyContentAsEmpty
 import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesTopicView
 
 class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferencesTopicViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken
-    val emailPreferencesTopicView: EmailPreferencesTopicView  = app.injector.instanceOf[EmailPreferencesTopicView]
+    given request: FakeRequest[AnyContentAsEmpty.type]       = FakeRequest().withCSRFToken
+    val emailPreferencesTopicView: EmailPreferencesTopicView = app.injector.instanceOf[EmailPreferencesTopicView]
   }
 
   "email preferences topic view" must {
@@ -57,20 +57,20 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
         emailPreferencesTopicView.render(
           users,
           s"${user1.email.text}; ${user2.email.text}",
-          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
+          Some(TopicOptionChoice.BusinessAndPolicy),
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BusinessAndPolicy, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.ReleaseSchedules), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.ReleaseSchedules, Seq.empty)
     }
 
   }

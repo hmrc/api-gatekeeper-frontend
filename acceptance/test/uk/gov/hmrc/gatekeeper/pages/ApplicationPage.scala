@@ -22,7 +22,7 @@ import uk.gov.hmrc.gatekeeper.common.{Env, WebPage}
 import uk.gov.hmrc.gatekeeper.testdata.CommonTestData
 
 object ApplicationPage extends WebPage with CommonTestData {
-  override val pageHeading: String = applicationName.value
+  override val pageHeading: String = applicationName
 
   override val url: String = s"http://localhost:${Env.port}/api-gatekeeper/applications/$applicationId" // a97541e8-f93d-4d0a-ab0b-862e63204b7d
 

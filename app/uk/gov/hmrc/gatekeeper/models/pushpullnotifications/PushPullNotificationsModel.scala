@@ -17,9 +17,8 @@
 package uk.gov.hmrc.gatekeeper.models.pushpullnotifications
 
 import java.time.Instant
-import scala.collection.immutable.ListSet
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 case class BoxId(value: String) extends AnyVal
 
@@ -40,18 +39,16 @@ case class BoxSubscriber(
     subscriptionType: SubscriptionType
   )
 
-sealed trait SubscriptionType
+enum SubscriptionType {
+  case API_PUSH_SUBSCRIBER, API_PULL_SUBSCRIBER
+}
 
 object SubscriptionType {
-  case object API_PUSH_SUBSCRIBER extends SubscriptionType
-  case object API_PULL_SUBSCRIBER extends SubscriptionType
-
-  val values: ListSet[SubscriptionType]             = ListSet[SubscriptionType](API_PUSH_SUBSCRIBER, API_PULL_SUBSCRIBER)
-  def apply(text: String): Option[SubscriptionType] = SubscriptionType.values.find(_.toString() == text.toUpperCase)
+  def apply(text: String): Option[SubscriptionType] = SubscriptionType.values.find(_.toString.equalsIgnoreCase(text))
 
   import play.api.libs.json.Format
-  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
-  implicit val format: Format[SubscriptionType] = SealedTraitJsonFormatting.createFormatFor[SubscriptionType]("Subscription Type", SubscriptionType.apply)
+  import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
+  given format: Format[SubscriptionType] = SimpleEnumJsonFormatting.createStringFormatFor[SubscriptionType]("Subscription Type", SubscriptionType.apply, _.toString().toUpperCase())
 }
 
 sealed trait Subscriber {

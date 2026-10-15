@@ -22,37 +22,36 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 import scala.concurrent.Future.successful
 
-import mocks.connectors._
-import mocks.services._
+import mocks.connectors.*
+import mocks.services.*
 import org.apache.pekko.stream.Materializer
 import org.jsoup.Jsoup
 import org.mockito.ArgumentCaptor
 import org.mockito.captor.ArgCaptor
 
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.DeleteRestriction.DoNotDelete
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationConnector.AppWithSubscriptionsForCsvResponse
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService
 import uk.gov.hmrc.gatekeeper.services.TermsOfUseService.TermsOfUseAgreementDisplayDetails
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.applications._
-import uk.gov.hmrc.gatekeeper.views.html.approvedApplication.ApprovedView
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class ApplicationControllerSpec
@@ -62,7 +61,7 @@ class ApplicationControllerSpec
     with CollaboratorTracker
     with ApplicationWithCollaboratorsFixtures {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView                    = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                        = app.injector.instanceOf[ForbiddenView]
@@ -79,7 +78,6 @@ class ApplicationControllerSpec
   private lazy val blockApplicationSuccessView          = app.injector.instanceOf[BlockApplicationSuccessView]
   private lazy val unblockApplicationView               = app.injector.instanceOf[UnblockApplicationView]
   private lazy val unblockApplicationSuccessView        = app.injector.instanceOf[UnblockApplicationSuccessView]
-  private lazy val approvedView                         = app.injector.instanceOf[ApprovedView]
   private lazy val createApplicationView                = app.injector.instanceOf[CreateApplicationView]
   private lazy val createApplicationSuccessView         = app.injector.instanceOf[CreateApplicationSuccessView]
   private lazy val manageGrantLengthView                = app.injector.instanceOf[ManageGrantLengthView]
@@ -124,7 +122,6 @@ class ApplicationControllerSpec
         mockApplicationService,
         ApplicationQueryServiceMock.aMock,
         forbiddenView,
-        mockApiDefinitionService,
         mockDeveloperService,
         mockTermsOfUseService,
         mcc,
@@ -142,7 +139,6 @@ class ApplicationControllerSpec
         blockApplicationSuccessView,
         unblockApplicationView,
         unblockApplicationSuccessView,
-        approvedView,
         createApplicationView,
         createApplicationSuccessView,
         manageGrantLengthView,
@@ -182,8 +178,8 @@ class ApplicationControllerSpec
         val responseBody = Helpers.contentAsString(eventualResult)
         responseBody should include("<h1 class=\"govuk-heading-l\" id=\"applications-title\">Applications</h1>")
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.SANDBOX))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(using *)
       }
 
       "on request for production all except deleted production applications supplied" in new Setup {
@@ -196,24 +192,24 @@ class ApplicationControllerSpec
           "status"   -> "EXCLUDING_DELETED"
         )
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.PRODUCTION))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.Production))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.PRODUCTION), eqTo(expectedParams))(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.PRODUCTION))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Production), eqTo(expectedParams))(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Production))(using *)
       }
 
       "on request for sandbox all sandbox applications supplied" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         givenThePaginatedApplicationsWillBeReturned
 
-        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.SANDBOX))(aLoggedInRequest)
+        val eventualResult: Future[Result] = underTest.applicationsPage(environment = Some(Environment.Sandbox))(aLoggedInRequest)
 
         status(eventualResult) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), *)(*)
-        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.SANDBOX))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), *)(using *)
+        verify(mockApmService).fetchNonOpenApis(eqTo(Environment.Sandbox))(using *)
       }
 
       "pass requested params with default params and default environment of SANDBOX to the service" in new Setup {
@@ -236,7 +232,7 @@ class ApplicationControllerSpec
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).searchApplications(eqTo(Environment.SANDBOX), eqTo(expectedParams))(*)
+        verify(mockApplicationService).searchApplications(eqTo(Environment.Sandbox), eqTo(expectedParams))(using *)
       }
 
       "redirect to the login page if the user is not logged in" in new Setup {
@@ -295,11 +291,11 @@ class ApplicationControllerSpec
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
-            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
-            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Role.Administrator, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Role.Developer, userId = UserId(UUID.randomUUID()))
           ),
           createdOn = Instant.parse("2001-02-03T12:01:02Z"),
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
@@ -335,11 +331,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
-            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
-            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Role.Administrator, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Role.Developer, userId = UserId(UUID.randomUUID()))
           ),
           createdOn = Instant.parse("2001-02-03T12:01:02Z"),
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
@@ -375,11 +371,11 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
-            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
-            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Role.Administrator, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Role.Developer, userId = UserId(UUID.randomUUID()))
           ),
           createdOn = Instant.parse("2001-02-03T12:01:02Z"),
           lastAccess = Some(Instant.parse("2002-02-03T12:01:02Z")),
@@ -392,20 +388,20 @@ App Name,c702a8f8-9b7c-4ddb-8228-e812f26a2f1e,9ee77d73-a65a-4e87-9cda-67863911e0
           ApplicationId(UUID.fromString("c702a8f8-9b7c-4ddb-8228-e812f26a2f1e")),
           ClientId("9ee77d73-a65a-4e87-9cda-67863911e02f"),
           Some("App Name"),
-          deployedTo = Environment.SANDBOX,
+          deployedTo = Environment.Sandbox,
           description = None,
           collaborators = Set(
-            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Roles.ADMINISTRATOR, userId = UserId(UUID.randomUUID())),
-            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Roles.DEVELOPER, userId = UserId(UUID.randomUUID()))
+            Collaborator(emailAddress = LaxEmailAddress("some@something.com"), role = Collaborator.Role.Administrator, userId = UserId(UUID.randomUUID())),
+            Collaborator(emailAddress = LaxEmailAddress("another@somethingelse.com"), role = Collaborator.Role.Developer, userId = UserId(UUID.randomUUID()))
           ),
           createdOn = Instant.parse("2001-02-03T12:01:02Z"),
           lastAccess = Some(Instant.parse("2002-02-03T13:02:01Z")),
           lastAccessTokenUsage = Some(Instant.parse("2003-02-03T14:02:03Z")),
           access = Access.Standard(),
-          state = ApplicationState(name = State.DELETED, updatedOn = instant),
-          lastActionActor = ActorType.GATEKEEPER
+          state = ApplicationState(name = State.Deleted, updatedOn = instant),
+          lastActionActor = ActorType.Gatekeeper
         )
-        ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse): _*)
+        ApplicationServiceMock.SearchApplications.returns(List(applicationResponse, secondApplicationResponse)*)
 
         val eventualResult: Future[Result] = underTest.applicationsPageCsv()(aLoggedInRequestForDeletedApps)
 
@@ -472,11 +468,11 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         val appCaptor          = ArgCaptor[ApplicationWithCollaborators]
         val gatekeeperIdCaptor = ArgCaptor[String]
-        when(mockApplicationService.resendVerification(*, *)(*)).thenReturn(successful(ApplicationUpdateSuccessResult))
+        when(mockApplicationService.resendVerification(*, *)(using *)).thenReturn(successful(ApplicationUpdateSuccessResult))
 
         await(underTest.resendVerification(applicationId)(aLoggedInRequest))
 
-        verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(*)
+        verify(mockApplicationService).resendVerification(appCaptor, gatekeeperIdCaptor)(using *)
         appCaptor hasCaptured basicApplication
         gatekeeperIdCaptor hasCaptured "Bobby Example"
       }
@@ -528,14 +524,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateScopes.succeeds()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "hello, individual-benefits")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
         verify(mockApplicationService)
-          .updateScopes(eqTo(application), eqTo(Set("hello", "individual-benefits")), eqTo("Bobby Example"))(*)
+          .updateScopes(eqTo(application), eqTo(Set("hello", "individual-benefits")), eqTo("Bobby Example"))(using *)
 
       }
 
@@ -543,12 +539,12 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(using *)
       }
 
       "return a bad request when the service indicates that the scopes are invalid" in new Setup {
@@ -557,7 +553,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateScopes.failsWithInvalidScopes()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("scopes" -> "hello")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("scopes" -> "hello")
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
@@ -568,12 +564,12 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody()
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
         val result  = addToken(underTest.updateScopes(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateScopes(*, *, *)(*)
+        verify(mockApplicationService, never).updateScopes(*, *, *)(using *)
       }
     }
 
@@ -631,13 +627,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateGrantLength.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), *, *)(*)
+        verify(mockApplicationService).updateGrantLength(eqTo(basicApplication), *, *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -645,13 +641,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -659,13 +655,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("grantLength" -> GrantLength.EIGHTEEN_MONTHS.period.getDays.toString)
 
         val result = addToken(underTest.updateGrantLength(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateGrantLength(*, *, *)(*)
+        verify(mockApplicationService, never).updateGrantLength(*, *, *)(using *)
       }
     }
 
@@ -733,13 +729,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> "")
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "call the service to enable deletion restriction when a valid form is submitted for a super user" in new Setup {
@@ -749,13 +745,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(false), *, eqTo(reason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(applicationId), eqTo(false), *, eqTo(reason))(using *)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -763,13 +759,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a normal user" in new Setup {
@@ -777,13 +773,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes")
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyDisabled(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, eqTo(noReason))(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, eqTo(noReason))(using *)
       }
     }
 
@@ -799,13 +795,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "call the service to disable deletion restriction when a valid form is submitted for a super user" in new Setup {
@@ -815,13 +811,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateAllowDelete.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(*)
+        verify(mockApplicationService).updateDeleteRestriction(eqTo(basicAppWithDeleteRestrictionEnabledId), eqTo(true), *, eqTo(noReason))(using *)
       }
 
       "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by an admin user" in new Setup {
@@ -829,14 +825,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
         contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "show manageDeleteRestrictionSuccessView when user selects 'no' on valid form by a super user" in new Setup {
@@ -844,14 +840,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "no", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe OK
         contentAsString(result) should include(s"${basicAppWithDeleteRestrictionEnabled.name} will not be deleted if it is inactive")
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for a super user" in new Setup {
@@ -859,13 +855,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
 
       "return a forbidden when form submitted for a normal user" in new Setup {
@@ -873,13 +869,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationQueryServiceMock.FetchApplication.returns(appWithDeleteRestrictionEnabled)
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("confirm" -> "yes", "reason" -> reason, "reasonDate" -> date)
 
         val result = addToken(underTest.updateDeleteRestrictionPreviouslyEnabled(basicAppWithDeleteRestrictionEnabledId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(*)
+        verify(mockApplicationService, never).updateDeleteRestriction(*[ApplicationId], *, *, *)(using *)
       }
     }
 
@@ -908,7 +904,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe OK
         contentAsString(result) should include("You cannot delete")
-        contentAsString(result) should include(appWithDeleteRestrictionEnabled.name.value)
+        contentAsString(result) should include(appWithDeleteRestrictionEnabled.name)
         contentAsString(result) should include(appWithDeleteRestrictionEnabled.details.deleteRestriction.asInstanceOf[DoNotDelete].reason)
       }
     }
@@ -956,52 +952,52 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "manage the IP allowlist using the app service for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set(allowlistedIpToUpdate)), eqTo("Bobby Example"))(using *)
       }
 
       "clear the IP allowlist when allowlistedIps is empty" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
-        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set()), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).manageIpAllowlist(eqTo(application), eqTo(required), eqTo(Set()), eqTo("Bobby Example"))(using *)
       }
 
       "fail validation when clearing a required IP allowlist" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
         ApplicationServiceMock.ManageIpAllowlist.succeeds()
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> "true", "allowlistedIps" -> "")
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> "true", "allowlistedIps" -> "")
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
         status(result) shouldBe BAD_REQUEST
         contentAsString(result) should include("The IP allow list is mandatory for this application")
-        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
+        verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(using *)
       }
 
       "return bad request for invalid values" in new Setup {
@@ -1021,12 +1017,12 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         invalidAllowlistedIps.foreach { invalidAllowlistedIp =>
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
           givenTheAppWillBeReturned()
-          val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
+          val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> invalidAllowlistedIp)
 
           val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
           status(result) shouldBe BAD_REQUEST
-          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(*)
+          verify(mockApplicationService, times(0)).manageIpAllowlist(*, *, *, *)(using *)
         }
       }
 
@@ -1034,7 +1030,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
         givenTheAppWillBeReturned()
-        val request = aLoggedInRequest.withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("required" -> required.toString, "allowlistedIps" -> allowlistedIpToUpdate)
 
         val result = underTest.manageIpAllowlistAction(applicationId)(request)
 
@@ -1087,7 +1083,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateOverrides.succeeds()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "persistLoginEnabled"               -> "true",
           "originOverrideEnabled"             -> "true",
           "originOverrideValue"               -> "ngc",
@@ -1117,7 +1113,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             OverrideFlag.OriginOverride("ngc")
           )),
           eqTo("Bobby Example")
-        )(*)
+        )(using *)
 
       }
 
@@ -1125,7 +1121,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
           "persistLoginEnabled"        -> "true",
           "grantWithoutConsentEnabled" -> "true",
           "grantWithoutConsentScopes"  -> ""
@@ -1135,7 +1131,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(using *)
 
       }
 
@@ -1144,13 +1140,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("persistLoginEnabled" -> "true")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("persistLoginEnabled" -> "true")
 
         val result = addToken(underTest.updateAccessOverrides(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateOverrides(*, *, *)(*)
+        verify(mockApplicationService, never).updateOverrides(*, *, *)(using *)
       }
     }
 
@@ -1195,14 +1191,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UpdateRateLimitTier.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("tier" -> "GOLD")
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}")
 
-        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.GOLD), eqTo("Bobby Example"))(*)
+        verify(mockApplicationService).updateRateLimitTier(eqTo(basicApplication), eqTo(RateLimitTier.Gold), eqTo("Bobby Example"))(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1210,13 +1206,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1224,18 +1220,18 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aLoggedInRequest.withFormUrlEncodedBody("tier" -> "GOLD")
+        val request = aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("tier" -> "GOLD")
 
         val result = addToken(underTest.updateRateLimitTier(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
       }
     }
 
     "handleUpdateRateLimitTier" should {
-      val tier = RateLimitTier.GOLD
+      val tier = RateLimitTier.Gold
 
       "change the rate limit for a super user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
@@ -1246,17 +1242,17 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
-        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(hcCaptor.capture()))
+        when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(using hcCaptor.capture()))
           .thenReturn(successful(ApplicationUpdateSuccessResult))
 
-        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", tier.toString)))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
 
         appCaptor.getValue shouldBe basicApplication
         newTierCaptor.getValue shouldBe tier
         userCaptor.getValue() shouldBe "Bobby Example"
 
-        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(hcCaptor.getValue)
+        verify(mockApplicationService, times(1)).updateRateLimitTier(basicApplication, tier, "Bobby Example")(using hcCaptor.getValue)
 
       }
 
@@ -1264,32 +1260,32 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 
-        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withFormUrlEncodedBody(("tier", "GOLD")))
+        val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", "GOLD")))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(*)
+        verify(mockApplicationService, never).updateRateLimitTier(*, *, *)(using *)
 
       }
     }
 
     "createPrivApp" should {
       val appName              = ApplicationName("My New App")
-      val privilegedAccessType = AccessType.PRIVILEGED
+      val privilegedAccessType = AccessType.Privileged
       val description          = "An application description"
       val adminEmail           = "emailAddress@example.com".toLaxEmail
       val clientId             = ClientId.random
       val totpSecret           = "THISISATOTPSECRETFORPRODUCTION"
       val totp                 = Some(TotpSecrets(totpSecret))
-      val privAccess           = AppAccess(AccessType.PRIVILEGED, List.empty)
+      val privAccess           = AppAccess(AccessType.Privileged, List.empty)
 
       "with invalid form fields" can {
         "show the correct error message when no environment is chosen" in new Setup {
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
               ("environment", ""),
-              ("applicationName", appName.value),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
             )
@@ -1304,8 +1300,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", ""),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1324,8 +1320,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.ValidateNewApplicationName.duplicate()
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1343,8 +1339,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.ValidateNewApplicationName.invalid()
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", "HMRC"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1361,8 +1357,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", "P"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1379,8 +1375,8 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", "Pete£"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1399,15 +1395,15 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.SANDBOX,
+            Environment.Sandbox,
             clientId,
             totp,
             privAccess
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.SANDBOX.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1426,15 +1422,15 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.SANDBOX,
+            Environment.Sandbox,
             clientId,
             totp,
             privAccess
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.SANDBOX.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Sandbox.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1453,15 +1449,15 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(
             applicationId,
             ApplicationName("I Already Exist"),
-            Environment.PRODUCTION,
+            Environment.Production,
             clientId,
             totp,
             privAccess
           ))
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
               ("applicationName", "I Already Exist"),
               ("applicationDescription", description),
               ("adminEmail", adminEmail.text)
@@ -1478,9 +1474,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
-              ("applicationName", appName.value),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
+              ("applicationName", appName),
               ("applicationDescription", ""),
               ("adminEmail", adminEmail.text)
             )
@@ -1496,9 +1492,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
-              ("applicationName", appName.value),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", "")
             )
@@ -1513,9 +1509,9 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
           StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
 
           val result = addToken(underTest.createPrivApplicationAction())(
-            aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-              ("environment", Environment.PRODUCTION.toString),
-              ("applicationName", appName.value),
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+              ("environment", Environment.Production.toString),
+              ("applicationName", appName),
               ("applicationDescription", description),
               ("adminEmail", "notAValidEmailAddress")
             )
@@ -1535,10 +1531,10 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.PRODUCTION.toString),
+              aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+                ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", email)
               )
@@ -1553,13 +1549,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.PRODUCTION, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Production, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.PRODUCTION.toString),
+              aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+                ("environment", Environment.Production.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1567,7 +1563,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName.value)
+            contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1582,13 +1578,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
             DeveloperServiceMock.SeekRegisteredUser.returnsFor("a@example.com".toLaxEmail)
             StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
             ApplicationServiceMock.ValidateNewApplicationName.succeeds()
-            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.SANDBOX, clientId, totp, privAccess))
+            ApplicationServiceMock.CreatePrivApp.returns(CreatePrivAppSuccessResult(applicationId, appName, Environment.Sandbox, clientId, totp, privAccess))
 
             val result = addToken(underTest.createPrivApplicationAction())(
-              aSuperUserLoggedInRequest.withFormUrlEncodedBody(
-                ("environment", Environment.SANDBOX.toString),
+              aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(
+                ("environment", Environment.Sandbox.toString),
                 ("accessType", privilegedAccessType.toString),
-                ("applicationName", appName.value),
+                ("applicationName", appName),
                 ("applicationDescription", description),
                 ("adminEmail", "a@example.com")
               )
@@ -1596,7 +1592,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
             status(result) shouldBe OK
 
-            contentAsString(result) should include(appName.value)
+            contentAsString(result) should include(appName)
             contentAsString(result) should include("Application added")
             contentAsString(result) should include("This is your only chance to copy and save this application's TOTP.")
             contentAsString(result) should include(applicationId.value.toString())
@@ -1618,14 +1614,14 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.Production)))
         ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
         when(mockTermsOfUseService.getAgreementDetails(application2.details)).thenReturn(Some(TermsOfUseAgreementDisplayDetails(
           "ri@example.com",
           "12 March 2023",
@@ -1635,7 +1631,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name.value)
+        contentAsString(result) should include(application2.name)
         contentAsString(result) should include("Manage")
         contentAsString(result) should include("v2 agreed by ri@example.com on 12 March 2023")
         contentAsString(result) should include("Delete application")
@@ -1644,25 +1640,25 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
       "return the details for a deleted application" in new Setup with ApplicationBuilder with ApiBuilder {
 
-        val application2                    = DefaultApplication.withState(ApplicationState(State.DELETED, updatedOn = instant))
+        val application2                    = DefaultApplication.withState(ApplicationState(State.Deleted, updatedOn = instant))
         val applicationWithSubscriptionData = ApplicationWithSubscriptionFields(application2.details, application2.collaborators, Set.empty, Map.empty)
         val apiDefinition                   = DefaultApiDefinition.withName("API NAme").addVersion(VersionOne, DefaultVersionData)
         val possibleSubs                    = List(apiDefinition)
 
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
-        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.PRODUCTION)))
+        val appFull = ApplicationWithSubscriptionFieldsAndStateHistory(applicationWithSubscriptionData, List(buildStateHistory(application2.id, State.Production)))
         ApplicationQueryServiceMock.FetchAppWithSubsFieldsAndHistory.returns(appFull)
 
         ApmServiceMock.fetchAllPossibleSubscriptionsReturns(possibleSubs)
         ApplicationServiceMock.DoesApplicationHaveSubmissions.succeedsFalse()
         ApplicationServiceMock.DoesApplicationHaveTermsOfUseInvitation.succeedsFalse()
 
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(developers*)
 
         val result = addToken(underTest.applicationPage(appFull.id))(aLoggedInRequest)
 
         status(result) shouldBe OK
-        contentAsString(result) should include(application2.name.value)
+        contentAsString(result) should include(application2.name)
         contentAsString(result) shouldNot include("Manage")
         contentAsString(result) shouldNot include("Delete application")
         contentAsString(result) shouldNot include("Block application")
@@ -1699,29 +1695,29 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(*)
+        verify(mockApplicationService).blockApplication(eqTo(basicApplication), *)(using *)
       }
 
       "call the service to block application when a valid form is submitted for an admin even when app name has trailing spaces" in new Setup {
-        val applicationWithSpaces = basicApplication.modify(_.copy(name = ApplicationName(application.name.value + "  ")))
+        val applicationWithSpaces = basicApplication.modify(_.copy(name = ApplicationName(application.name + "  ")))
         ApplicationQueryServiceMock.FetchApplication.returns(applicationWithSpaces)
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADMIN)
 
         ApplicationServiceMock.BlockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).blockApplication(eqTo(applicationWithSpaces), *)(*)
+        verify(mockApplicationService).blockApplication(eqTo(applicationWithSpaces), *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1729,13 +1725,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*)
+        verify(mockApplicationService, never).blockApplication(*, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1743,13 +1739,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.blockApplicationAction(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).blockApplication(*, *)(*)
+        verify(mockApplicationService, never).blockApplication(*, *)(using *)
       }
 
     }
@@ -1784,13 +1780,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         ApplicationServiceMock.UnblockApplication.succeeds()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe OK
 
-        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(*)
+        verify(mockApplicationService).unblockApplication(eqTo(basicApplication), *)(using *)
       }
 
       "return a bad request when an invalid form is submitted for an admin user" in new Setup {
@@ -1798,13 +1794,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = anAdminLoggedInRequest.withFormUrlEncodedBody()
+        val request = anAdminLoggedInRequest.withMethod("POST").withFormUrlEncodedBody()
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe BAD_REQUEST
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*)
+        verify(mockApplicationService, never).unblockApplication(*, *)(using *)
       }
 
       "return forbidden when a form is submitted for a non-admin user" in new Setup {
@@ -1812,13 +1808,13 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         givenTheAppWillBeReturned()
 
-        val request = aSuperUserLoggedInRequest.withFormUrlEncodedBody("applicationNameConfirmation" -> application.name.value)
+        val request = aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("applicationNameConfirmation" -> application.name)
 
         val result = addToken(underTest.unblockApplicationAction(applicationId))(request)
 
         status(result) shouldBe FORBIDDEN
 
-        verify(mockApplicationService, never).unblockApplication(*, *)(*)
+        verify(mockApplicationService, never).unblockApplication(*, *)(using *)
       }
     }
 

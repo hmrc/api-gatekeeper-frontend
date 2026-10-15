@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(model: SubscriptionViewModel)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(model: SubscriptionViewModel)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @subscriptions = @{model.subscriptions}
 
@@ -33,12 +33,12 @@
     breadcrumbs = Seq(
     Crumb(
       "Manage subscriptions",
-      s"${routes.SubscriptionController.manageSubscription(model.applicationId)}",
+      s"${routes.SubscriptionController.manageSubscription(model.applicationId.simpleApp)}",
       Some("data-breadcrumb-manage-api-subscriptions")
     ),
     Crumb(
       s"${model.applicationName}",
-      s"${routes.ApplicationController.applicationPage(model.applicationId)}",
+      s"${routes.ApplicationController.applicationPage(model.applicationId.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -69,7 +69,7 @@
               <div class="govuk-grid-column-one-half">
                 <div class="govuk-form-group govuk-!-margin-bottom-0">
                   <p class='govuk-body govuk-!-padding-top-2'>
-                    @{version.version.versionNbr.value} (@{version.version.status.displayText})
+                    @{version.version.versionNbr.value} (@{version.version.status.toString})
                   </p>
                 </div>
               </div>
@@ -78,7 +78,7 @@
                   <div class="slider">
                     <fieldset id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-toggle">
                       <div class="slider__radios slider__radios--font-fix">
-                        @helper.form(action = routes.SubscriptionController.updateSubscription(model.applicationId, apiSubscription.context, version.version.versionNbr), Symbol("class") -> "form") {
+                        @helper.form(action = routes.SubscriptionController.updateSubscription(model.applicationId.simpleApp, apiSubscription.context, version.version.versionNbr), Symbol("class") -> "form") {
                           @helper.CSRF.formField
                           <input class="slider__on slider__on-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-on" name="subscribed" type="radio" value="true" @if(version.subscribed) {checked disabled} else {}>
                           <label class="govuk-label govuk-radios__label slider__on--label" for="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-on" aria-label="Subscribed to @{
@@ -86,7 +86,7 @@
                           } version @{
                               version.version.versionNbr.value
                           } @{
-                              version.version.status.displayText
+                              version.version.status.toString
                           }">Yes</label>
                           <input class="slider__off slider__off-submit" id="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-off" name="subscribed" type="radio" value="false" @if(!version.subscribed) {checked disabled} else {}>
                           <label class="govuk-label govuk-radios__label slider__off--label" for="@IdFormatter.identifier(apiSubscription.context, version.version.versionNbr)-off" aria-label="Unsubscribe from @{
@@ -94,7 +94,7 @@
                           } version @{
                               version.version.versionNbr
                           } @{
-                              version.version.status.displayText
+                              version.version.status.toString
                           }">No</label>
                         }
                       </div>
@@ -110,7 +110,7 @@
   </div>
 
   <div>
-      <a href="@routes.ApplicationController.applicationPage(model.applicationId)" class="govuk-link">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(model.applicationId.simpleApp)" class="govuk-link">Cancel</a>
   </div>
 
 }

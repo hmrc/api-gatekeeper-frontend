@@ -23,7 +23,7 @@ import org.scalacheck.Gen
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithSubscriptionsFixtures, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, LaxEmailAddress, OrganisationIdFixtures, UserId}
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
@@ -300,12 +300,11 @@ object MockDataSugar extends ApplicationWithSubscriptionsFixtures with Organisat
   val StringGenerator = (n: Int) => Gen.listOfN(n, Gen.alphaChar).map(_.mkString)
 
   private val DeveloperGenerator: Gen[RegisteredUser] = for {
-    forename  <- StringGenerator(5)
-    surname   <- StringGenerator(5)
-    id         = UserId.random.value
-    email      = randomEmail
-    verified   = true
-    registered = None
+    forename <- StringGenerator(5)
+    surname  <- StringGenerator(5)
+    id        = UserId.random.value
+    email     = randomEmail
+    verified  = true
   } yield RegisteredUser(email.toLaxEmail, UserId(id), forename, surname, verified)
 
   def userListGenerator(number: Int): Gen[List[RegisteredUser]] = Gen.listOfN(number, DeveloperGenerator)

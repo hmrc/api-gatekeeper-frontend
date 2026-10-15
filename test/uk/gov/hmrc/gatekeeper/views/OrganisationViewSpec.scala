@@ -34,7 +34,7 @@ package uk.gov.hmrc.gatekeeper.views
 
 import play.twirl.api.HtmlFormat
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, _}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{OrganisationId, *}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
@@ -47,8 +47,8 @@ class OrganisationViewSpec extends CommonViewSpec {
   trait Setup extends ApplicationBuilder {
     val organisationView = app.injector.instanceOf[OrganisationView]
 
-    implicit val mockConfig: AppConfig      = mock[AppConfig]
-    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
+    given mockConfig: AppConfig      = mock[AppConfig]
+    given loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val applicationResponse  = ApplicationResponseBuilder.buildApplication(ApplicationId.random, ClientId.random, UserId.random)
     val organisationName     = "Organisation Name"

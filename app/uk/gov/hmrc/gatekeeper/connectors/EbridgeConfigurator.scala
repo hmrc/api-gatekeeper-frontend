@@ -25,7 +25,7 @@ object EbridgeConfigurator {
     if (useProxy)
       requestBuilder
         .withProxy
-        .setHeader(buildHeaders(bearerToken, apiKey): _*)
+        .setHeader(buildHeaders(bearerToken, apiKey)*)
     else
       requestBuilder
 

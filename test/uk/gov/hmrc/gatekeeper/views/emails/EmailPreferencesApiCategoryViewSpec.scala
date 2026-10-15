@@ -26,20 +26,20 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BUSINESS_AND_POLICY
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice.BusinessAndPolicy
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.emails.EmailPreferencesApiCategoryView
 
 class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPreferencesAPICategoryViewHelper {
 
   trait Setup extends AppConfigMock {
-    implicit val request: FakeRequest[AnyContentAsEmpty.type]            = FakeRequest().withCSRFToken
+    given request: FakeRequest[AnyContentAsEmpty.type]                   = FakeRequest().withCSRFToken
     val emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView = app.injector.instanceOf[EmailPreferencesApiCategoryView]
   }
 
@@ -68,15 +68,15 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
     val user2 = RegisteredUser("user2@hmrc.com".toLaxEmail, UserId.random, "userB", "2", verified = true)
     val users = Seq(user1, user2)
 
-    val category1 = ApiCategory.VAT
-    val category2 = ApiCategory.AGENTS
-    val category3 = ApiCategory.RELIEF_AT_SOURCE
+    val category1 = ApiCategory.Vat
+    val category2 = ApiCategory.Agents
+    val category3 = ApiCategory.ReliefAtSource
 
     val categories = Set[ApiCategory](category1, category2, category3)
 
     "show correct title and options when no filter provided and empty list of users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BusinessAndPolicy), None, "", request, LoggedInUser(None), messagesProvider)
 
       validateEmailPreferencesAPICategoryPage(Jsoup.parse(result.body), categories)
     }
@@ -85,9 +85,9 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
 
       // If adding errors to the page we need to add tests in here for that message
       val result: HtmlFormat.Appendable =
-        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BUSINESS_AND_POLICY), None, "", request, LoggedInUser(None), messagesProvider)
+        emailPreferencesApiCategoryView.render(Seq.empty, "", Some(TopicOptionChoice.BusinessAndPolicy), None, "", request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), None, TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), None, TopicOptionChoice.BusinessAndPolicy, users)
     }
 
     "show correct title and options when only Category filter provided" in new Setup {
@@ -103,7 +103,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
         emailPreferencesApiCategoryView.render(
           users,
           s"${user1.email.text}; ${user2.email.text}",
-          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
+          Some(TopicOptionChoice.BusinessAndPolicy),
           Some(category2),
           "",
           request,
@@ -111,7 +111,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
           messagesProvider
         )
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.BusinessAndPolicy, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
@@ -119,7 +119,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
         emailPreferencesApiCategoryView.render(
           Seq.empty,
           "",
-          Some(TopicOptionChoice.RELEASE_SCHEDULES),
+          Some(TopicOptionChoice.ReleaseSchedules),
           Some(category2),
           "",
           request,
@@ -127,7 +127,7 @@ class EmailPreferencesApiCategoryViewSpec extends CommonViewSpec with EmailPrefe
           messagesProvider
         )
 
-      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
+      validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(category2), TopicOptionChoice.ReleaseSchedules, Seq.empty)
     }
 
   }

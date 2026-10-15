@@ -23,7 +23,7 @@ import scala.concurrent.{ExecutionContext, Future}
 import cats.data.OptionT
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, ApplicationWithSubscriptionFields}
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
@@ -37,32 +37,32 @@ import uk.gov.hmrc.gatekeeper.models.ApplicationWithSubscriptionFieldsAndStateHi
 class ApplicationQueryService @Inject() (
     tpoConnector: ThirdPartyOrchestratorConnector,
     val clock: Clock
-  )(implicit ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApplicationLogger with ClockNow {
 
-  def fetchApplication(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def fetchApplication(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     val qry = ApplicationQuery.ById(appId, Nil)
 
-    OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[ApplicationWithCollaborators]](Environment.Sandbox)(qry))
     )
       .value
   }
 
-  def fetchApplicationWithSubscriptionFields(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
+  def fetchApplicationWithSubscriptionFields(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFields]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true)
 
-    OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[ApplicationWithSubscriptionFields]](Environment.Sandbox)(qry))
     )
       .value
   }
 
-  def fetchApplicationWithSubscriptionFieldsAndHistory(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFieldsAndStateHistory]] = {
+  def fetchApplicationWithSubscriptionFieldsAndHistory(appId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithSubscriptionFieldsAndStateHistory]] = {
     val qry = ApplicationQuery.ById(appId, Nil, wantSubscriptions = true, wantSubscriptionFields = true, wantStateHistory = true)
 
-    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.PRODUCTION)(qry)).orElse(
-      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.SANDBOX)(qry))
+    OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.Production)(qry)).orElse(
+      OptionT(tpoConnector.query[Option[QueriedApplication]](Environment.Sandbox)(qry))
     )
       .map(qa => ApplicationWithSubscriptionFieldsAndStateHistory(qa.asAppSubsFields.get, qa.stateHistory.get))
       .value

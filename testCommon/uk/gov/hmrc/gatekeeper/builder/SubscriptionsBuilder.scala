@@ -18,8 +18,8 @@ package uk.gov.hmrc.gatekeeper.builder
 
 import scala.util.Random
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, _}
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, *}
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.{SubscriptionFieldDefinition, SubscriptionFieldValue, SubscriptionFieldsWrapper}
 import uk.gov.hmrc.gatekeeper.models.{Subscription, VersionSubscription}
@@ -36,7 +36,7 @@ trait SubscriptionsBuilder {
     val defaults = buildSubscriptionFieldsWrapper(applicationId)
 
     VersionSubscription(
-      ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
+      ApiVersion(versionNbr, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown),
       subscribed = subscribed,
       fields = fields.getOrElse(defaults)
     )

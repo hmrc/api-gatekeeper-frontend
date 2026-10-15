@@ -23,5 +23,5 @@ import uk.gov.hmrc.apiplatform.modules.common.domain.models.ApplicationId
 case class ApplicationsByAnswer(answer: String, applicationIds: List[ApplicationId])
 
 object ApplicationsByAnswer {
-  implicit val applicationsByAnswerFormat: OFormat[ApplicationsByAnswer] = Json.format[ApplicationsByAnswer]
+  given applicationsByAnswerFormat: OFormat[ApplicationsByAnswer] = Json.format[ApplicationsByAnswer]
 }

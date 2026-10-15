@@ -19,16 +19,17 @@ package uk.gov.hmrc.gatekeeper.connectors
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.HttpErrorFunctions.is5xx
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 
-abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
+abstract class ApiScopeConnector(using ec: ExecutionContext) extends JsonBodyWritables {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -41,17 +42,17 @@ abstract class ApiScopeConnector(implicit ec: ExecutionContext) {
       case e: UpstreamErrorResponse if (is5xx(e.statusCode)) => throw ex
     }
 
-  def fetchAll()(implicit hc: HeaderCarrier): Future[List[ApiScope]] = {
+  def fetchAll()(using hc: HeaderCarrier): Future[List[ApiScope]] = {
     configureEbridgeIfRequired(http.get(url"$serviceBaseUrl/scope")).execute[List[ApiScope]]
       .recover(for5xx(new FetchApiDefinitionsFailed)) // TODO - odd choice of exception
   }
 }
 
 @Singleton
-class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.SANDBOX
+  val environment    = Environment.Sandbox
   val serviceBaseUrl = appConfig.apiScopeSandboxBaseUrl
   val useProxy       = appConfig.apiScopeSandboxUseProxy
   val bearerToken    = appConfig.apiScopeSandboxBearerToken
@@ -62,10 +63,10 @@ class SandboxApiScopeConnector @Inject() (val appConfig: AppConfig, val http: Ht
 }
 
 @Singleton
-class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(implicit val ec: ExecutionContext)
+class ProductionApiScopeConnector @Inject() (val appConfig: AppConfig, val http: HttpClientV2)(using ec: ExecutionContext)
     extends ApiScopeConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = appConfig.apiScopeProductionBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

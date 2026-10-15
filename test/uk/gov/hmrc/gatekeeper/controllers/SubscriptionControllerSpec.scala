@@ -18,21 +18,21 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import mocks.services._
+import mocks.services.*
 import org.apache.pekko.stream.Materializer
 
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithSubscriptionFields
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder}
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html._
+import uk.gov.hmrc.gatekeeper.views.html.*
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageSubscriptionsView
 
 class SubscriptionControllerSpec
@@ -40,7 +40,7 @@ class SubscriptionControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView       = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView           = app.injector.instanceOf[ForbiddenView]
@@ -86,7 +86,9 @@ class SubscriptionControllerSpec
         SubscriptionsServiceMock.SubscribeToApi.succeeds()
 
         val result =
-          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "true"))
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "true")
+          )
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")
@@ -99,7 +101,8 @@ class SubscriptionControllerSpec
 
         givenTheAppWillBeReturned()
 
-        val result = addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "true"))
+        val result =
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr.random))(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "true"))
 
         status(result) shouldBe FORBIDDEN
 
@@ -113,7 +116,9 @@ class SubscriptionControllerSpec
         SubscriptionsServiceMock.UnsubscribeFromApi.succeeds()
 
         val result =
-          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(aSuperUserLoggedInRequest.withFormUrlEncodedBody("subscribed" -> "false"))
+          addToken(underTest.updateSubscription(applicationId, apiContext, ApiVersionNbr("1.0")))(
+            aSuperUserLoggedInRequest.withMethod("POST").withFormUrlEncodedBody("subscribed" -> "false")
+          )
 
         status(result) shouldBe SEE_OTHER
         redirectLocation(result) shouldBe Some(s"/api-gatekeeper/applications/${applicationId.value.toString()}/subscriptions")

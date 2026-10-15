@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.views.emails
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.*
 
 trait APIDefinitionHelper {
 
@@ -27,11 +27,11 @@ trait APIDefinitionHelper {
 
     ApiDefinition(
       ServiceName(serviceName),
-      "url1",
-      name,
-      "desc",
+      ApiDefinition.ServiceBaseUrl("url1"),
+      ApiDefinition.Name(name),
+      ApiDefinition.Description("desc"),
       ApiContext(context),
-      Map(versionNbr -> ApiVersion(versionNbr, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(versionNbr -> ApiVersion(versionNbr, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
       None,
       categories.toList

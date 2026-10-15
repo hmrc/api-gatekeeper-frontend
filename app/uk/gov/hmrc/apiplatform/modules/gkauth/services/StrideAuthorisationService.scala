@@ -17,11 +17,12 @@
 package uk.gov.hmrc.apiplatform.modules.gkauth.services
 
 import javax.inject.{Inject, Singleton}
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{MessagesRequest, Result}
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{Name, ~}
 import uk.gov.hmrc.http.HeaderCarrier
@@ -37,13 +38,13 @@ class StrideAuthorisationService @Inject() (
     strideAuthConnector: StrideAuthConnector,
     forbiddenHandler: ForbiddenHandler,
     strideAuthConfig: StrideAuthConfig
-  )(implicit val ec: ExecutionContext
+  )(using ExecutionContext
   ) {
 
-  import strideAuthConfig.roles._
+  import strideAuthConfig.roles.*
 
   def refineStride[A](strideRoleRequired: GatekeeperStrideRole): (MessagesRequest[A]) => Future[Either[Result, LoggedInRequest[A]]] = (msgRequest) => {
-    implicit val hc = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
+    given hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(msgRequest, msgRequest.session)
 
     lazy val loginRedirect =
       Redirect(
@@ -51,7 +52,7 @@ class StrideAuthorisationService @Inject() (
         Map("successURL" -> Seq(strideAuthConfig.successUrl), "origin" -> Seq(strideAuthConfig.origin))
       )
 
-    implicit val request = msgRequest
+    given request: MessagesRequest[A] = msgRequest
 
     authorise(strideRoleRequired) map {
       case Some(name) ~ authorisedEnrolments =>
@@ -72,16 +73,16 @@ class StrideAuthorisationService @Inject() (
           case _               => Left(forbiddenHandler.handle(msgRequest))
         }
 
-      case None ~ authorisedEnrolments => Left(forbiddenHandler.handle(msgRequest))
+      case None ~ _ => Left(forbiddenHandler.handle(msgRequest))
     } recover {
       case _: NoActiveSession        => Left(loginRedirect)
       case _: InsufficientEnrolments => Left(forbiddenHandler.handle(msgRequest))
     }
   }
 
-  private def authorise(strideRoleRequired: GatekeeperStrideRole)(implicit hc: HeaderCarrier): Future[~[Option[Name], Enrolments]] = {
-    val predicate = StrideAuthorisationPredicateForGatekeeperRole(strideAuthConfig.roles)(strideRoleRequired)
-    val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
+  private def authorise(strideRoleRequired: GatekeeperStrideRole)(using hc: HeaderCarrier): Future[~[Option[Name], Enrolments]] = {
+    val predicate         = StrideAuthorisationPredicateForGatekeeperRole(strideAuthConfig.roles)(strideRoleRequired)
+    @nowarn val retrieval = Retrievals.name and Retrievals.authorisedEnrolments
 
     strideAuthConnector.authorise(predicate, retrieval)
   }

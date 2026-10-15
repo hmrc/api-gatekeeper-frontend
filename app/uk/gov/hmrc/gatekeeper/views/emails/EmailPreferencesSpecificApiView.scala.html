@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.gatekeeper.models.TopicOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
@@ -23,10 +23,10 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(users: List[RegisteredUser], emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(users: List[RegisteredUser], emails: String,  filteredApis: List[CombinedApi], maybeTopicFilter: Option[TopicOptionChoice])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @handleAppendXmlTag(api: CombinedApi) =@{
-  if(api.apiType == ApiType.XML_API) {
+  if(api.apiType == ApiType.XmlApi) {
     api.displayName + " - XML API"
   } else { api.displayName }
 }
