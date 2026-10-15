@@ -31,18 +31,18 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
-      UpliftAction.from("approve") shouldBe Some(UpliftAction.APPROVE)
-      UpliftAction.from("reject") shouldBe Some(UpliftAction.REJECT)
+      UpliftAction("approve") shouldBe Some(UpliftAction.APPROVE)
+      UpliftAction("reject") shouldBe Some(UpliftAction.REJECT)
     }
 
     "convert string value to enum with mixed case" in {
-      UpliftAction.from("aPProve") shouldBe Some(UpliftAction.APPROVE)
-      UpliftAction.from("rEJect") shouldBe Some(UpliftAction.REJECT)
+      UpliftAction("aPProve") shouldBe Some(UpliftAction.APPROVE)
+      UpliftAction("rEJect") shouldBe Some(UpliftAction.REJECT)
     }
 
     "convert string value to None when undefined or empty" in {
-      UpliftAction.from("unknown") shouldBe None
-      UpliftAction.from("") shouldBe None
+      UpliftAction("unknown") shouldBe None
+      UpliftAction("") shouldBe None
     }
   }
 

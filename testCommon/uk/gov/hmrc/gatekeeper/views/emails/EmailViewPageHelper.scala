@@ -358,8 +358,8 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api")
     validateFormDestination(document, "topicFilter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
     validateButtonText(document, "filter", filterButtonText)
-    val topic = if (selectedTopic.isEmpty) Some(TopicOptionChoice.BUSINESS_AND_POLICY) else selectedTopic
-    validateTopicGrid(document, topic)
+    val topic = selectedTopic.getOrElse(TopicOptionChoice.BusinessAndPolicy)
+    validateTopicGrid(document, Some(topic))
   }
 
   def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {

@@ -57,20 +57,20 @@ class EmailPreferencesTopicViewSpec extends CommonViewSpec with EmailPreferences
         emailPreferencesTopicView.render(
           users,
           s"${user1.email.text}; ${user2.email.text}",
-          Some(TopicOptionChoice.BUSINESS_AND_POLICY),
+          Some(TopicOptionChoice.BusinessAndPolicy),
           request,
           LoggedInUser(None),
           messagesProvider
         )
 
-      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, users)
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BusinessAndPolicy, users)
     }
 
     "show correct title and select correct option when filter exists but no users" in new Setup {
       val result: HtmlFormat.Appendable =
-        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.RELEASE_SCHEDULES), request, LoggedInUser(None), messagesProvider)
+        emailPreferencesTopicView.render(Seq.empty, "", Some(TopicOptionChoice.ReleaseSchedules), request, LoggedInUser(None), messagesProvider)
 
-      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.RELEASE_SCHEDULES, Seq.empty)
+      validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.ReleaseSchedules, Seq.empty)
     }
 
   }

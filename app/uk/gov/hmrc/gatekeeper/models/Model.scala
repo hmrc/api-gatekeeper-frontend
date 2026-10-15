@@ -30,6 +30,7 @@ import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.{Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.SubscriptionFieldDefinition
 
@@ -102,14 +103,14 @@ sealed trait RejectUpliftSuccessful
 
 case object RejectUpliftSuccessful extends RejectUpliftSuccessful
 
-// TODO - Remove Enumeration
-object UpliftAction extends Enumeration {
-  type UpliftAction = Value
-  val APPROVE, REJECT = Value
+enum UpliftAction {
+  case APPROVE, REJECT
+}
 
-  def from(action: String): Option[Value] = UpliftAction.values.find(e => e.toString == action.toUpperCase)
+object UpliftAction {
+  def apply(text: String): Option[UpliftAction] = UpliftAction.values.find(e => e.toString().equalsIgnoreCase(text))
 
-  given format: Format[UpliftAction] = Json.formatEnum(UpliftAction)
+  given format: Format[UpliftAction] = SimpleEnumJsonFormatting.createStringFormatFor[UpliftAction]("Uplift Action", apply, _.toString.toUpperCase())
 }
 
 case class SubmissionDetails(submitterName: String, submitterEmail: String, submittedOn: Instant)

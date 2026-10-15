@@ -26,7 +26,7 @@
 @(users: Seq[RegisteredUser], emails: String, maybeTopicFilter: Option[TopicOptionChoice])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
     @handleTopicPreselection = @{
         if(maybeTopicFilter.isEmpty) {
-            Some(TopicOptionChoice.BUSINESS_AND_POLICY)
+            Some(TopicOptionChoice.BusinessAndPolicy)
         } else { maybeTopicFilter }
     }
 
@@ -50,10 +50,10 @@
             </h1>
           </legend>
           <div class="govuk-radios" data-module="govuk-radios">
-            @topicRadioOption(TopicOptionChoice.BUSINESS_AND_POLICY, handleTopicPreselection)
-            @topicRadioOption(TopicOptionChoice.TECHNICAL, handleTopicPreselection)
-            @topicRadioOption(TopicOptionChoice.RELEASE_SCHEDULES, handleTopicPreselection)
-            @topicRadioOption(TopicOptionChoice.EVENT_INVITES, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.BusinessAndPolicy, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.Technical, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.ReleaseSchedules, handleTopicPreselection)
+            @topicRadioOption(TopicOptionChoice.EventInvites, handleTopicPreselection)
           </div>
         </fieldset>
 <br/>

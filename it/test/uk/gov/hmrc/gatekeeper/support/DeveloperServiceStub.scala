@@ -63,7 +63,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesByTopic(users: Seq[RegisteredUser], topic: TopicOptionChoice): Unit = {
-    val emailpreferencesByTopicUrl = emailPreferencesUrl + "?topic=" + topic.toString
+    val emailpreferencesByTopicUrl = emailPreferencesUrl + s"?topic=${topic.asScreamingSnakeCase}"
     stubFor(get(urlEqualTo(emailpreferencesByTopicUrl))
       .willReturn(
         aResponse()
@@ -73,7 +73,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesByTopicAndCategory(users: Seq[RegisteredUser], topic: TopicOptionChoice, category: ApiCategory): Unit = {
-    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + "?topic=" + topic.toString + "&regime=" + category.asScreamingSnakeCase
+    val emailpreferencesByTopicAndCategoryUrl = emailPreferencesUrl + s"?topic=${topic.asScreamingSnakeCase}&regime=${category.asScreamingSnakeCase}"
     stubFor(get(urlEqualTo(emailpreferencesByTopicAndCategoryUrl))
       .willReturn(
         aResponse()
@@ -85,7 +85,7 @@ trait DeveloperServiceStub {
   def primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(users: Seq[RegisteredUser], selectedApis: Seq[ApiDefinition], topic: TopicOptionChoice): Unit = {
     val categories: Set[ApiCategory] = selectedApis.map(_.categories).reduce(_ ++ _).toSet
 
-    val topicParam    = s"topic=${topic.toString}"
+    val topicParam    = s"topic=${topic.asScreamingSnakeCase}"
     val regimeParams  = categories.map(category => s"&regime=${category.asScreamingSnakeCase}").mkString
     val serviceParams = selectedApis.map(api => s"&service=${api.serviceName}").mkString
 
@@ -99,7 +99,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesBySelectedTopicPaginated(users: Seq[RegisteredUser], topic: TopicOptionChoice, offset: Int, limit: Int): Unit = {
-    val topicParam       = s"topic=${topic.toString}"
+    val topicParam       = s"topic=${topic.asScreamingSnakeCase}"
     val paginationParams = s"offset=$offset&limit=$limit"
 
     val emailPreferencesByTopicUrl = s"$emailPreferencesPaginatedUrl?$topicParam&$paginationParams"
@@ -125,7 +125,7 @@ trait DeveloperServiceStub {
   }
 
   def primeDeveloperServiceEmailPreferencesBySelectedUserTaxRegimePaginated(users: Seq[RegisteredUser], regimes: Set[ApiCategory], offset: Int, limit: Int): Unit = {
-    val regimeParam      = s"regime=${regimes.head}"
+    val regimeParam      = s"regime=${regimes.head.asScreamingSnakeCase}"
     val paginationParams = s"offset=$offset&limit=$limit"
 
     val emailPreferencesBySelectedUserTaxRegimeUrl = s"$emailPreferencesPaginatedUrl?$regimeParam&$paginationParams"

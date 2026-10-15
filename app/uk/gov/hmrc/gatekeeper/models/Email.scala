@@ -80,39 +80,40 @@ object EmailPreferencesChoice {
   }
 }
 
+// TODO - this is in the TPD domain lib as EmailTopic
 sealed trait TopicOptionChoice {
   lazy val optionLabel = TopicOptionChoice.optionLabel(this)
   lazy val optionHint  = TopicOptionChoice.optionHint(this)
 }
 
 object TopicOptionChoice {
-  case object BUSINESS_AND_POLICY extends TopicOptionChoice
-  case object TECHNICAL           extends TopicOptionChoice
-  case object RELEASE_SCHEDULES   extends TopicOptionChoice
-  case object EVENT_INVITES       extends TopicOptionChoice
+  case object BusinessAndPolicy extends TopicOptionChoice
+  case object Technical         extends TopicOptionChoice
+  case object ReleaseSchedules  extends TopicOptionChoice
+  case object EventInvites      extends TopicOptionChoice
 
-  val values = Set[TopicOptionChoice](BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES)
+  val values = Set[TopicOptionChoice](BusinessAndPolicy, Technical, ReleaseSchedules, EventInvites)
 
   def apply(text: String): Option[TopicOptionChoice] = {
-    TopicOptionChoice.values.find(_.toString == text.toUpperCase)
+    TopicOptionChoice.values.find(_.toString.equalsIgnoreCase(text))
   }
 
   def unsafeApply(text: String): TopicOptionChoice =
     apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Topic Option Choice"))
 
-  given formatTopicOptionAndChoice: Format[TopicOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
+  given Format[TopicOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
 
   val optionLabel: TopicOptionChoice => String = {
-    case TopicOptionChoice.BUSINESS_AND_POLICY => "Business and policy"
-    case TopicOptionChoice.TECHNICAL           => "Technical"
-    case TopicOptionChoice.RELEASE_SCHEDULES   => "Release schedules"
-    case TopicOptionChoice.EVENT_INVITES       => "Event Invites"
+    case TopicOptionChoice.BusinessAndPolicy => "Business and policy"
+    case TopicOptionChoice.Technical         => "Technical"
+    case TopicOptionChoice.ReleaseSchedules  => "Release schedules"
+    case TopicOptionChoice.EventInvites      => "Event Invites"
   }
 
   val optionHint: TopicOptionChoice => String = {
-    case TopicOptionChoice.BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support."
-    case TopicOptionChoice.TECHNICAL           => "Specifications, service guides, bux fixes and known errors."
-    case TopicOptionChoice.RELEASE_SCHEDULES   => "Notifications about planned releases and outages."
-    case TopicOptionChoice.EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities."
+    case TopicOptionChoice.BusinessAndPolicy => "Policy compliance, legislative changes and business guidance support."
+    case TopicOptionChoice.Technical         => "Specifications, service guides, bux fixes and known errors."
+    case TopicOptionChoice.ReleaseSchedules  => "Notifications about planned releases and outages."
+    case TopicOptionChoice.EventInvites      => "Get invites to knowledge share events and user research opportunities."
   }
 }

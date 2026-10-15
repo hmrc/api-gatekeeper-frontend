@@ -17,7 +17,6 @@
 @import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-@import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
@@ -29,7 +28,7 @@
 
     @buildOptionRow(preferencesChoice: EmailPreferencesChoice, checked: Boolean = false) = {
         <div class="govuk-radios__item">
-            <input class="govuk-radios__input" id="@preferencesChoice.toString" name="sendEmailPreferences" type="radio" value="@preferencesChoice.asScreamingSnakeCase" @checkedFlag(checked)>
+            <input class="govuk-radios__input" id="@preferencesChoice.toString" name="sendEmailPreferences" type="radio" value="@preferencesChoice.toString" @checkedFlag(checked)>
             <label class="govuk-label govuk-radios__label" for="@preferencesChoice.toString">
             @preferencesChoice.label
             </label>

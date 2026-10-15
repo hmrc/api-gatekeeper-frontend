@@ -117,7 +117,7 @@ class DeveloperConnector @Inject() (
       maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.asScreamingSnakeCase)))
     val privateapimatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val queryParams                    =
-      Seq("topic" -> topic.toString) ++ regimes ++
+      Seq("topic" -> topic.asScreamingSnakeCase) ++ regimes ++
         maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _))) ++ privateapimatchParams
 
     http.get(url"${appConfig.developerBaseUrl}/developers/email-preferences?$queryParams")
@@ -137,7 +137,7 @@ class DeveloperConnector @Inject() (
     val regimes: Seq[(String, String)] =
       maybeApiCategories.fold(Seq.empty[(String, String)])(regimes => regimes.toSeq.flatMap(regime => Seq("regime" -> regime.asScreamingSnakeCase)))
     val apis                           = maybeApis.fold(Seq.empty[(String, String)])(apis => apis.map(("service" -> _)))
-    val topic                          = Seq("topic" -> maybeTopic.map(_.toString.toUpperCase()).getOrElse(""))
+    val topic                          = Seq("topic" -> maybeTopic.map(_.asScreamingSnakeCase).getOrElse(""))
     val privateApiMatchParams          = if (privateapimatch) Seq("privateapimatch" -> "true") else Seq.empty
     val pageParams                     = Seq("offset" -> s"$offset", "limit" -> s"$limit")
     val params                         = privateApiMatchParams ++ pageParams

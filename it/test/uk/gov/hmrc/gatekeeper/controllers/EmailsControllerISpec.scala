@@ -311,20 +311,22 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page correctly when selected topic provided" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceEmailPreferencesByTopic(allUsers, TopicOptionChoice.BUSINESS_AND_POLICY)
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}", validHeaders)
+        primeDeveloperServiceEmailPreferencesByTopic(allUsers, TopicOptionChoice.BusinessAndPolicy)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=BusinessAndPolicy", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
+        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BusinessAndPolicy, verifiedUsers)
       }
 
       "respond with 200 and render the page correctly when selected topic provided but no users returned" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceEmailPreferencesByTopic(Seq.empty, TopicOptionChoice.BUSINESS_AND_POLICY)
-        val result = callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}", validHeaders)
+        primeDeveloperServiceEmailPreferencesByTopic(Seq.empty, TopicOptionChoice.BusinessAndPolicy)
+        val result =
+          callGetEndpoint(s"$url/api-gatekeeper/emails/email-preferences/by-topic?selectedTopic=BusinessAndPolicy", validHeaders)
         result.status shouldBe OK
 
-        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
+        validateEmailPreferencesTopicResultsPage(Jsoup.parse(result.body), TopicOptionChoice.BusinessAndPolicy, Seq.empty)
       }
 
       "respond with 403 when not authorised" in {
@@ -355,26 +357,26 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
 
       "respond with 200 and render the page correctly when category and topic filter provided but no users returned" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceEmailPreferencesByTopicAndCategory(Seq.empty, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
+        primeDeveloperServiceEmailPreferencesByTopicAndCategory(Seq.empty, TopicOptionChoice.BusinessAndPolicy, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=BusinessAndPolicy&selectedCategory=${categories.head}",
           validHeaders
         )
         result.status shouldBe OK
 
-        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(categories.head), TopicOptionChoice.BUSINESS_AND_POLICY, Seq.empty)
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(categories.head), TopicOptionChoice.BusinessAndPolicy, Seq.empty)
       }
 
       "respond with 200 and render the page correctly when category and topic filter provided and some users returned" in {
         primeAuthServiceSuccess()
-        primeDeveloperServiceEmailPreferencesByTopicAndCategory(allUsers, TopicOptionChoice.BUSINESS_AND_POLICY, categories.head)
+        primeDeveloperServiceEmailPreferencesByTopicAndCategory(allUsers, TopicOptionChoice.BusinessAndPolicy, categories.head)
         val result = callGetEndpoint(
-          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY}&selectedCategory=${categories.head}",
+          s"$url/api-gatekeeper/emails/email-preferences/by-api-category?selectedTopic=BusinessAndPolicy&selectedCategory=${categories.head}",
           validHeaders
         )
         result.status shouldBe OK
 
-        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(categories.head), TopicOptionChoice.BUSINESS_AND_POLICY, verifiedUsers)
+        validateEmailPreferencesAPICategoryResultsPage(Jsoup.parse(result.body), Some(categories.head), TopicOptionChoice.BusinessAndPolicy, verifiedUsers)
       }
 
       "respond with 403 when not authorised" in {
@@ -441,15 +443,15 @@ class EmailsControllerISpec extends ServerBaseISpec with BeforeAndAfterEach with
         primeAuthServiceSuccess()
 
         primeFetchAllCombinedApisSuccess(combinedApis ++ selectedApis)
-        primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(allUsers, apis, TopicOptionChoice.BUSINESS_AND_POLICY)
+        primeDeveloperServiceEmailPreferencesBySelectedAPisTopicAndCategory(allUsers, apis, TopicOptionChoice.BusinessAndPolicy)
 
         val result =
           callGetEndpoint(
-            s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}${apis.map("&selectedAPIs=" + _.serviceName).mkString}",
+            s"$url/api-gatekeeper/emails/email-preferences/by-specific-api?selectedTopic=BusinessAndPolicy${apis.map("&selectedAPIs=" + _.serviceName).mkString}",
             validHeaders
           )
 
-        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BUSINESS_AND_POLICY, combinedApis)
+        validateEmailPreferencesSpecificAPIResults(Jsoup.parse(result.body), TopicOptionChoice.BusinessAndPolicy, combinedApis)
       }
 
       "respond with 403 when not authorised" in {

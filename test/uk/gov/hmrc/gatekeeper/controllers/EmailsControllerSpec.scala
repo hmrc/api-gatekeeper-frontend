@@ -351,7 +351,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         val expectedEmailString = verified2Users.map(_.email.text).mkString("; ")
 
         val selectedAPIs  = combinedApisList
-        val selectedTopic = TopicOptionChoice.BUSINESS_AND_POLICY
+        val selectedTopic = TopicOptionChoice.BusinessAndPolicy
 
         val result: Future[Result] = underTest.emailPreferencesSpecificApis(selectedAPIs.map(_.serviceName), Some(selectedTopic))(FakeRequest())
         status(result) shouldBe OK
@@ -392,7 +392,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns()
         val request = createGetRequest("/emails/api-subscribers/email-preferences/by-topic")
 
-        val result = underTest.emailPreferencesTopic(Some(TopicOptionChoice.TECHNICAL))(request)
+        val result = underTest.emailPreferencesTopic(Some(TopicOptionChoice.Technical))(request)
         status(result) shouldBe OK
 
         val responseBody = contentAsString(result)
@@ -404,8 +404,8 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
         DeveloperServiceMock.FetchDevelopersByEmailPreferences.returns(users*)
 
-        val request                = createGetRequest("/emails/api-subscribers/email-preferences/topic?topicOptionChoice=TECHNICAL")
-        val result: Future[Result] = underTest.emailPreferencesTopic(Some(TopicOptionChoice.TECHNICAL))(request)
+        val request                = createGetRequest("/emails/api-subscribers/email-preferences/topic?TopicOptionChoice.Technical")
+        val result: Future[Result] = underTest.emailPreferencesTopic(Some(TopicOptionChoice.Technical))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -430,7 +430,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns()
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.TECHNICAL), Some(category1))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.Technical), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)
@@ -443,7 +443,7 @@ class EmailsControllerSpec extends ControllerBaseSpec with WithCSRFAddToken with
         DeveloperServiceMock.FetchDevelopersByAPICategoryEmailPreferences.returns(users*)
 
         val request                = createGetRequest(s"/emails/email-preferences/by-api-category?topicChosen=TECHNICAL&categoryChosen=${category1}")
-        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.TECHNICAL), Some(category1))(request)
+        val result: Future[Result] = underTest.emailPreferencesApiCategory(Some(TopicOptionChoice.Technical), Some(category1))(request)
         status(result) shouldBe OK
 
         val responseBody = Helpers.contentAsString(result)

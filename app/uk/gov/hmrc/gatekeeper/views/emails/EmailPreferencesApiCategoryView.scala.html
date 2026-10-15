@@ -20,7 +20,6 @@
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-@import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 
 @this(main: MainView, applicationConfig: AppConfig)
 
@@ -47,7 +46,7 @@
             </legend>
             <div class="govuk-form-group">
                 <label class="govuk-label govuk-!-font-weight-bold" for="selectedCategory">Select a tax regime from the list </label>
-                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value='@{maybeSelectedCategory.fold("")(_.asScreamingSnakeCase)}'>
+                <select class="govuk-select govuk-select-width-full" id="selectedCategory" name="selectedCategory" value='@{maybeSelectedCategory.fold("")(_.toString)}'>
                     <option value="">Select tax regime</option>
                     @for(category <- ApiCategory.values.toList.sortBy(_.displayText)) {
                         <option @if(maybeSelectedCategory == Some(category)) {selected} value="@category">@category.displayText </option>

@@ -31,6 +31,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ServiceName}
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.EnumJsonHelper.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.*
 import uk.gov.hmrc.apiplatform.modules.tpd.core.dto.{FindUserIdRequest, FindUserIdResponse}
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.dto.RemoveAllMfaRequest
@@ -283,7 +284,7 @@ class DeveloperConnectorSpec
 
         stubFor(
           get(urlPathEqualTo(url))
-            .withQueryParam("topic", equalTo(TopicOptionChoice.BUSINESS_AND_POLICY.toString))
+            .withQueryParam("topic", equalTo(TopicOptionChoice.BusinessAndPolicy.asScreamingSnakeCase))
             .willReturn(
               aResponse()
                 .withStatus(OK)
@@ -291,7 +292,7 @@ class DeveloperConnectorSpec
             )
         )
 
-        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY))
+        val result = await(connector.fetchByEmailPreferences(TopicOptionChoice.BusinessAndPolicy))
 
         wireMockVerify(getRequestedFor(urlPathEqualTo(url)))
 
@@ -299,7 +300,8 @@ class DeveloperConnectorSpec
       }
 
       "make a call with topic and api category passed into the service and return users from response" in new Setup {
-        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=PAYE"""
+        val url      =
+          s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BusinessAndPolicy.asScreamingSnakeCase}&regime=${ApiCategory.BusinessRates.asScreamingSnakeCase}&regime=${ApiCategory.Paye.asScreamingSnakeCase}"""
         val user     = aUserResponse(developerEmail)
         val matching = urlMatching(url)
 
@@ -313,7 +315,7 @@ class DeveloperConnectorSpec
         )
 
         val result =
-          await(connector.fetchByEmailPreferences(TopicOptionChoice.BUSINESS_AND_POLICY, maybeApis = None, maybeApiCategories = Some(Set(ApiCategory.Vat, ApiCategory.Paye))))
+          await(connector.fetchByEmailPreferences(TopicOptionChoice.BusinessAndPolicy, maybeApis = None, maybeApiCategories = Some(Set(ApiCategory.BusinessRates, ApiCategory.Paye))))
 
         wireMockVerify(getRequestedFor(matching))
 
@@ -322,7 +324,8 @@ class DeveloperConnectorSpec
       }
 
       "make a call with topic, api categories and apis passed into the service and return users from response" in new Setup {
-        val url      = s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BUSINESS_AND_POLICY.toString}&regime=VAT&regime=AGENTS&service=service1&service=service2"""
+        val url      =
+          s"""/developers/email-preferences\\?topic=${TopicOptionChoice.BusinessAndPolicy.asScreamingSnakeCase}&regime=${ApiCategory.BusinessRates.asScreamingSnakeCase}&regime=${ApiCategory.Agents.asScreamingSnakeCase}&service=service1&service=service2"""
         val user     = aUserResponse(developerEmail)
         val matching = urlMatching(url)
 
@@ -336,9 +339,9 @@ class DeveloperConnectorSpec
         )
 
         val result = await(connector.fetchByEmailPreferences(
-          TopicOptionChoice.BUSINESS_AND_POLICY,
+          TopicOptionChoice.BusinessAndPolicy,
           maybeApis = Some(Seq(ServiceName("service1"), ServiceName("service2"))),
-          maybeApiCategories = Some(Set(ApiCategory.Vat, ApiCategory.Agents))
+          maybeApiCategories = Some(Set(ApiCategory.BusinessRates, ApiCategory.Agents))
         ))
 
         wireMockVerify(getRequestedFor(matching))

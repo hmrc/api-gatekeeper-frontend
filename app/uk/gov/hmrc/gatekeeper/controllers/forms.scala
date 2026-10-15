@@ -29,7 +29,7 @@ object HandleUpliftForm {
   def apply(action: Option[String], reason: Option[String]): HandleUpliftForm = new HandleUpliftForm(action.getOrElse(""), reason)
 
   private def actionValidator =
-    optional(text).verifying("invalid.action", action => UpliftAction.from(action.getOrElse("")).isDefined)
+    optional(text).verifying("invalid.action", action => UpliftAction(action.getOrElse("")).isDefined)
 
   lazy val form = Form(
     mapping(
