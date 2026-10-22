@@ -20,38 +20,40 @@ import scala.concurrent.ExecutionContext
 
 import com.google.inject.{Inject, Singleton}
 
+import play.api.http.Status.*
+import play.api.libs.json.*
+import play.api.libs.ws.JsonBodyWritables
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, _}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, InternalServerException, *}
 
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{CommandHandlerTypes, _}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandHandlerTypesForDispatchSuccessResult.types.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 
 @Singleton
 class ApplicationCommandConnector @Inject() (
     val http: HttpClientV2,
     val config: ApmConnector.Config
-  )(implicit val ec: ExecutionContext
-  ) extends CommandHandlerTypes[DispatchSuccessResult]
-    with ApplicationLogger {
+  )(using ExecutionContext
+  ) extends ApplicationLogger
+    with JsonBodyWritables {
 
   def dispatch(
       applicationId: ApplicationId,
       command: ApplicationCommand,
       adminsToEmail: Set[LaxEmailAddress]
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): AppCmdResult = {
 
-    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters._
-    import play.api.libs.json._
-    import uk.gov.hmrc.http.HttpReads.Implicits._
-    import play.api.http.Status._
+    import uk.gov.hmrc.apiplatform.modules.common.domain.services.NonEmptyListFormatters.given
 
     val serviceBaseUrl = config.serviceBaseUrl
 
     def baseApplicationUrl(applicationId: ApplicationId) = s"$serviceBaseUrl/applications/${applicationId.value.toString()}"
 
-    def parseWithLogAndThrow[T](input: String)(implicit reads: Reads[T]): T = {
+    def parseWithLogAndThrow[T](input: String)(using reads: Reads[T]): T = {
       Json.parse(input).validate[T] match {
         case JsSuccess(t, _) => t
         case JsError(err)    =>
@@ -59,9 +61,9 @@ class ApplicationCommandConnector @Inject() (
           throw new InternalServerException("Failed parsing response to dispatch")
       }
     }
-    val url                                                                 = url"${baseApplicationUrl(applicationId)}/dispatch"
-    val request                                                             = DispatchRequest(command, adminsToEmail)
-    import cats.syntax.either._
+    val url                                                              = url"${baseApplicationUrl(applicationId)}/dispatch"
+    val request                                                          = DispatchRequest(command, adminsToEmail)
+    import cats.syntax.either.*
 
     http.patch(url)
       .withBody(Json.toJson(request))

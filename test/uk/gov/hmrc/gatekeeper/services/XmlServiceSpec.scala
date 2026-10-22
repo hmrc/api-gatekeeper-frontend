@@ -25,18 +25,18 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.xml.{VendorId, XmlApi, XmlOrganisation, XmlOrganisationId}
 
 class XmlServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with XmlServicesConnectorMockProvider {
 
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val objectInTest = new XmlService(mockXmlServicesConnector)
 
@@ -51,15 +51,15 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       serviceName = "xml-api-one",
       context = "context",
       description = "description",
-      categories = Some(Set(ApiCategory.PAYE, ApiCategory.VAT))
+      categories = Some(Set(ApiCategory.Paye, ApiCategory.Vat))
     )
 
-    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two", categories = Some(Set(ApiCategory.CUSTOMS)))
-    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Set(ApiCategory.CUSTOMS)))
-    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Set(ApiCategory.OTHER)))
+    val xmlApiTwo   = xmlApiOne.copy(name = "xml api two", serviceName = "xml-api-two", categories = Some(Set(ApiCategory.Customs)))
+    val xmlApiThree = xmlApiOne.copy(name = "xml api three", serviceName = "xml-api-three", categories = Some(Set(ApiCategory.Customs)))
+    val xmlApiFour  = xmlApiOne.copy(name = "xml api four", serviceName = "xml-api-four", categories = Some(Set(ApiCategory.Other)))
 
-    val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Set(ApiCategory.VAT)))
-    val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Set(ApiCategory.VAT)))
+    val xmlApiWithCategory1 = xmlApiOne.copy(name = "xml api five", serviceName = "xml-api-five", categories = Some(Set(ApiCategory.Vat)))
+    val xmlApiWithCategory2 = xmlApiOne.copy(name = "xml api six", serviceName = "xml-api-six", categories = Some(Set(ApiCategory.Vat)))
 
     val xmlApis               = List(xmlApiOne, xmlApiTwo, xmlApiThree, xmlApiFour)
     val xmlApisWithCategories = List(xmlApiWithCategory1, xmlApiWithCategory2)
@@ -72,7 +72,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
         TaxRegimeInterests("CUSTOMS", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName)),
         TaxRegimeInterests("VAT", Set.empty)
       ),
-      topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
+      topics = Set(EmailTopic.Technical, EmailTopic.BusinessAndPolicy)
     )
 
     val user = aUser("Fred", emailPreferences = emailPreferences)
@@ -106,20 +106,14 @@ class XmlServiceSpec extends AsyncHmrcSpec {
         XmlServicesConnectorMock.GetAllApis.returnsApis(xmlApis)
         XmlServicesConnectorMock.GetApisForCategory.returnsError()
 
-        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user)))
       }
 
       "Return UpstreamErrorResponse when call to connector fails getting all apis" in new Setup {
         XmlServicesConnectorMock.GetAllApis.returnsError()
         XmlServicesConnectorMock.GetApisForCategory.returnsApis(xmlApisWithCategories, List("VAT"))
 
-        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.getXmlServicesForUser(user)))
       }
     }
 
@@ -137,10 +131,7 @@ class XmlServiceSpec extends AsyncHmrcSpec {
       "Return UpstreamErrorResponse when call to connector fails" in new Setup {
         XmlServicesConnectorMock.GetOrganisations.returnsError()
 
-        intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId))) match {
-          case (e: UpstreamErrorResponse) => succeed
-          case _                          => fail()
-        }
+        intercept[UpstreamErrorResponse](await(objectInTest.findOrganisationsByUserId(user.userId)))
       }
     }
   }

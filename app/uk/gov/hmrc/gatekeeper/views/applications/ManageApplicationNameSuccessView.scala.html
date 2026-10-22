@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(application: ApplicationWithCollaborators)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Application name changed successfully",
@@ -31,7 +31,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -54,7 +54,7 @@
     <p class="govuk-body">We will inform all team members about the application name change.</p>
 
     <p>
-      <a href="@{routes.ApplicationController.applicationPage(application.id)}" class="govuk-link govuk-link--no-visited-state">Review or manage @application.name</a>
+      <a href="@{routes.ApplicationController.applicationPage(application.id.simpleApp)}" class="govuk-link govuk-link--no-visited-state">Review or manage @application.name</a>
     </p>
 }
 

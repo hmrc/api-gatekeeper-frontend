@@ -18,20 +18,20 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Json
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
+import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.APIDefinitionFormatters
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 class ApmConnectorSubscriptionFieldsModuleSpec
     extends AsyncHmrcSpec
@@ -43,13 +43,13 @@ class ApmConnectorSubscriptionFieldsModuleSpec
     with APIDefinitionFormatters {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
-    val httpClient                 = app.injector.instanceOf[HttpClientV2]
+    given hc: HeaderCarrier = HeaderCarrier()
+    val httpClient          = app.injector.instanceOf[HttpClientV2]
 
     val mockApmConnectorConfig: ApmConnector.Config = mock[ApmConnector.Config]
     when(mockApmConnectorConfig.serviceBaseUrl).thenReturn(wireMockUrl)
 
-    implicit val ec: ExecutionContext = ExecutionContext.Implicits.global
+    given ec: ExecutionContext = ExecutionContext.Implicits.global
 
     val underTest: ApmConnectorSubscriptionFieldsModule = new ApmConnector(httpClient, mockApmConnectorConfig)
   }
@@ -57,21 +57,21 @@ class ApmConnectorSubscriptionFieldsModuleSpec
   "urlSubscriptionFieldValues" should {
     "return simple url" in {
       val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues("http://example.com/subscription-fields")(
-        Environment.PRODUCTION,
+        Environment.Production,
         ClientId("1"),
         ApiContext("path"),
         ApiVersionNbr("1")
       )
-      url.toString shouldBe "http://example.com/subscription-fields/field/application/1/context/path/version/1?environment=PRODUCTION"
+      url.toString shouldBe "http://example.com/subscription-fields/field/application/1/context/path/version/1?environment=Production"
     }
     "return complex encoded url" in {
       val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues("http://example.com/subscription-fields")(
-        Environment.PRODUCTION,
+        Environment.Production,
         ClientId("1 2"),
         ApiContext("path1/path2"),
         ApiVersionNbr("1.0 demo")
       )
-      url.toString shouldBe "http://example.com/subscription-fields/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo?environment=PRODUCTION"
+      url.toString shouldBe "http://example.com/subscription-fields/field/application/1%202/context/path1%2Fpath2/version/1.0%20demo?environment=Production"
     }
   }
 
@@ -80,7 +80,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
       val path = "/subscription-fields/csv"
       stubFor(
         get(urlPathEqualTo(path))
-          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withQueryParam("environment", equalToIgnoreCase("PRODUCTION"))
           .withHeader(HeaderNames.ACCEPT, equalTo("text/csv"))
           .willReturn(
             aResponse()
@@ -90,7 +90,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
           )
       )
 
-      await(underTest.subsFieldsCsv(Environment.PRODUCTION))
+      await(underTest.subsFieldsCsv(Environment.Production))
     }
   }
 
@@ -101,14 +101,14 @@ class ApmConnectorSubscriptionFieldsModuleSpec
       val path     = s"/subscription-fields"
       stubFor(
         get(urlPathEqualTo(path))
-          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withQueryParam("environment", equalToIgnoreCase("PRODUCTION"))
           .willReturn(
             aResponse()
               .withBody(Json.toJson(response).toString)
               .withStatus(OK)
           )
       )
-      val result   = await(underTest.getAllFieldDefinitions(Environment.PRODUCTION))
+      val result   = await(underTest.getAllFieldDefinitions(Environment.Production))
 
       result shouldBe response
     }
@@ -116,7 +116,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
 
   "saveFieldValues" should {
     val valuePath = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(wireMockUrl + "/subscription-fields")(
-      Environment.PRODUCTION,
+      Environment.Production,
       clientIdOne,
       apiContextOne,
       apiVersionNbrOne
@@ -128,14 +128,14 @@ class ApmConnectorSubscriptionFieldsModuleSpec
     "save the fields" in new Setup {
       stubFor(
         put(urlPathEqualTo(valuePath))
-          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withQueryParam("environment", equalToIgnoreCase("PRODUCTION"))
           .withRequestBody(equalTo(subFieldsPutRequest))
           .willReturn(
             aResponse()
               .withStatus(OK)
           )
       )
-      val result = await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+      val result = await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
 
       result shouldBe SaveSubscriptionFieldsSuccessResponse
     }
@@ -143,21 +143,21 @@ class ApmConnectorSubscriptionFieldsModuleSpec
     "fail when api-subscription-fields returns a 500" in new Setup {
       stubFor(
         put(urlPathEqualTo(valuePath))
-          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withQueryParam("environment", equalToIgnoreCase("PRODUCTION"))
           .willReturn(
             aResponse()
               .withStatus(INTERNAL_SERVER_ERROR)
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+        await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
       }
     }
 
     "fail when api-subscription-fields returns a 404" in new Setup {
       stubFor(
         put(urlPathEqualTo(valuePath))
-          .withQueryParam("environment", equalTo("PRODUCTION"))
+          .withQueryParam("environment", equalToIgnoreCase("PRODUCTION"))
           .withRequestBody(equalTo(subFieldsPutRequest))
           .willReturn(
             aResponse()
@@ -165,7 +165,7 @@ class ApmConnectorSubscriptionFieldsModuleSpec
           )
       )
       intercept[UpstreamErrorResponse] {
-        await(underTest.saveFieldValues(Environment.PRODUCTION, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
+        await(underTest.saveFieldValues(Environment.Production, clientIdOne, apiContextOne, apiVersionNbrOne, fieldsValues))
       }.statusCode shouldBe NOT_FOUND
     }
   }

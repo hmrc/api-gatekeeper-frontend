@@ -14,15 +14,15 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice.EmailPreferencesChoice
+@import uk.gov.hmrc.gatekeeper.models.*
+@import uk.gov.hmrc.gatekeeper.models.EmailPreferencesChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@()(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@()(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
     @checkedFlag(checked: Boolean) = @{if(checked){" checked"} else {""}}
 
@@ -30,10 +30,10 @@
         <div class="govuk-radios__item">
             <input class="govuk-radios__input" id="@preferencesChoice.toString" name="sendEmailPreferences" type="radio" value="@preferencesChoice.toString" @checkedFlag(checked)>
             <label class="govuk-label govuk-radios__label" for="@preferencesChoice.toString">
-            @EmailPreferencesChoice.optionLabel(preferencesChoice)
+            @preferencesChoice.label
             </label>
             <div id="sign-in-item-hint" class="govuk-hint govuk-radios__hint">
-            @EmailPreferencesChoice.optionHint(preferencesChoice)
+            @preferencesChoice.hint
             </div>
         </div>
     }
@@ -58,9 +58,9 @@
                         </h1>
                     </legend>
                     <div class="govuk-radios" data-module="govuk-radios">
-                        @buildOptionRow(EmailPreferencesChoice.SPECIFIC_API, checked = true)
-                        @buildOptionRow(EmailPreferencesChoice.TAX_REGIME)
-                        @buildOptionRow(EmailPreferencesChoice.TOPIC)
+                        @buildOptionRow(EmailPreferencesChoice.SpecificApi, checked = true)
+                        @buildOptionRow(EmailPreferencesChoice.TaxRegime)
+                        @buildOptionRow(EmailPreferencesChoice.Topic)
                     </div>
                 </fieldset>
             </div>

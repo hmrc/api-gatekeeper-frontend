@@ -18,7 +18,7 @@ package uk.gov.hmrc.gatekeeper.utils
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiDefinition, ApiVersion}
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 
 trait UserFunctionsWrapper {
 
@@ -29,7 +29,7 @@ trait UserFunctionsWrapper {
     }
   }
 
-  def getQueryParametersAsKeyValues(request: LoggedInRequest[_]) = {
+  def getQueryParametersAsKeyValues(request: LoggedInRequest[?]) = {
     request.queryString.map { case (k, v) => k -> v.mkString }
   }
 
@@ -40,7 +40,7 @@ trait UserFunctionsWrapper {
   def getApiVersionsDropDownValues(apiDefinitions: List[ApiDefinition]) = {
     def toKeyValue(api: ApiDefinition, version: ApiVersion) = {
       val value: String           = ApiContextVersion(api.context, version.versionNbr).toStringValue.trim
-      val displayedStatus: String = version.status.displayText
+      val displayedStatus: String = version.status.toString
       val description: String     = s"${api.name} (${version.versionNbr}) ($displayedStatus)"
 
       DropDownValue(value, description)

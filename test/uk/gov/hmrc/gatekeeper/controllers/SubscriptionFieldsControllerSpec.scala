@@ -20,7 +20,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 import play.api.http.Status.FORBIDDEN
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.services.ApmService
@@ -46,7 +46,7 @@ class SubscriptionFieldsControllerSpec extends ControllerBaseSpec {
                               |PRODUCTION,my-client-id,my-api-context,my-api-version,callbackUrl
                               |""".stripMargin
 
-      when(apmService.subsFieldsCsv()(*)).thenReturn(Future.successful(expectedValues))
+      when(apmService.subsFieldsCsv()(using *)).thenReturn(Future.successful(expectedValues))
 
       val result = controller.subscriptionFieldValues()(aLoggedInRequest)
 

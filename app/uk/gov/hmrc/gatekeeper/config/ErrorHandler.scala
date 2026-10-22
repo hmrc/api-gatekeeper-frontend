@@ -24,7 +24,6 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.mvc.RequestHeader
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
 @Singleton
@@ -32,29 +31,30 @@ class ErrorHandler @Inject() (
     val messagesApi: MessagesApi,
     val configuration: Configuration,
     errorTemplate: ErrorTemplate
-  )(implicit val appConfig: AppConfig,
-    val ec: ExecutionContext
+  )(using ecOuter: ExecutionContext
   ) extends FrontendErrorHandler {
 
-  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(implicit request: RequestHeader) = {
+  protected implicit val ec = ecOuter
+
+  override def standardErrorTemplate(pageTitle: String, heading: String, message: String)(using request: RequestHeader) = {
     Future.successful(errorTemplate(pageTitle, heading, message))
   }
 
-  def notFoundTemplate(message: String)(implicit request: RequestHeader) =
+  def notFoundTemplate(message: String)(using request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.pageNotFound404.title"),
       Messages("global.error.pageNotFound404.heading"),
       Messages(message)
     )
 
-  def badRequestTemplate(message: String)(implicit request: RequestHeader) =
+  def badRequestTemplate(message: String)(using request: RequestHeader) =
     standardErrorTemplate(
       Messages("global.error.badRequest400.title"),
       Messages("global.error.badRequest400.heading"),
       Messages(message)
     )
 
-  def publishErrorTemplate()(implicit request: RequestHeader) =
+  def publishErrorTemplate()(using request: RequestHeader) =
     standardErrorTemplate(
       "API Publishing error",
       "API Publishing error",

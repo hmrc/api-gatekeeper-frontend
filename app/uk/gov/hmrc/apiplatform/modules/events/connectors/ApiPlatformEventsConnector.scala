@@ -20,40 +20,38 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.gatekeeper.connectors.EbridgeConfigurator
 
 object ApiPlatformEventsConnector {
-
   case class QueryResponse(events: List[DisplayEvent])
 
   object QueryResponse {
-    implicit val format: OFormat[QueryResponse] = Json.format[QueryResponse]
+    given format: OFormat[QueryResponse] = Json.format[QueryResponse]
   }
-
 }
 
 @Singleton
 class EnvironmentAwareApiPlatformEventsConnector @Inject() (subordinate: SubordinateApiPlatformEventsConnector, principal: PrincipalApiPlatformEventsConnector) {
 
   protected def connectorFor(deployedTo: Environment): ApiPlatformEventsConnector = deployedTo match {
-    case Environment.PRODUCTION => principal
-    case Environment.SANDBOX    => subordinate
+    case Environment.Production => principal
+    case Environment.Sandbox    => subordinate
   }
 
-  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(implicit hc: HeaderCarrier): Future[QueryableValues] =
+  def fetchQueryableValues(appId: ApplicationId, deployedTo: Environment)(using hc: HeaderCarrier): Future[QueryableValues] =
     connectorFor(deployedTo).fetchQueryableValues(appId)
 
-  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] =
+  def query(appId: ApplicationId, deployedTo: Environment, tag: Option[String], actorType: Option[String])(using hc: HeaderCarrier): Future[List[DisplayEvent]] =
     connectorFor(deployedTo).query(appId, tag, actorType)
 }
 
-abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends ApplicationLogger {
+abstract class ApiPlatformEventsConnector()(using ec: ExecutionContext) extends ApplicationLogger {
   val environment: Environment
   val serviceBaseUrl: String
 
@@ -61,11 +59,11 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder
 
-  import ApiPlatformEventsConnector._
+  import ApiPlatformEventsConnector.*
 
   private lazy val applicationEventsUri = s"$serviceBaseUrl/application-event"
 
-  def fetchQueryableValues(appId: ApplicationId)(implicit hc: HeaderCarrier): Future[QueryableValues] = {
+  def fetchQueryableValues(appId: ApplicationId)(using hc: HeaderCarrier): Future[QueryableValues] = {
     configureEbridgeIfRequired(http.get(url"$applicationEventsUri/${appId.value.toString()}/values")).execute[Option[QueryableValues]]
       .map {
         case None     => QueryableValues(List.empty, List.empty)
@@ -73,7 +71,7 @@ abstract class ApiPlatformEventsConnector(implicit ec: ExecutionContext) extends
       }
   }
 
-  def query(appId: ApplicationId, tag: Option[String], actorType: Option[String])(implicit hc: HeaderCarrier): Future[List[DisplayEvent]] = {
+  def query(appId: ApplicationId, tag: Option[String], actorType: Option[String])(using hc: HeaderCarrier): Future[List[DisplayEvent]] = {
     val queryParams =
       Seq(
         tag.map(et => "eventTag" -> et),
@@ -104,11 +102,11 @@ object SubordinateApiPlatformEventsConnector {
 class SubordinateApiPlatformEventsConnector @Inject() (
     val config: SubordinateApiPlatformEventsConnector.Config,
     val http: HttpClientV2
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApiPlatformEventsConnector {
 
   val serviceBaseUrl: String = config.serviceBaseUrl
-  val environment            = Environment.SANDBOX
+  val environment            = Environment.Sandbox
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder =
     EbridgeConfigurator.configure(config.useProxy, config.bearerToken, config.apiKey)(requestBuilder)
@@ -125,10 +123,10 @@ object PrincipalApiPlatformEventsConnector {
 class PrincipalApiPlatformEventsConnector @Inject() (
     val config: PrincipalApiPlatformEventsConnector.Config,
     val http: HttpClientV2
-  )(implicit val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends ApiPlatformEventsConnector {
 
-  val environment    = Environment.PRODUCTION
+  val environment    = Environment.Production
   val serviceBaseUrl = config.serviceBaseUrl
 
   def configureEbridgeIfRequired(requestBuilder: RequestBuilder): RequestBuilder = requestBuilder

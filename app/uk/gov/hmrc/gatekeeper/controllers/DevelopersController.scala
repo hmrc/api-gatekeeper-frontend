@@ -32,14 +32,13 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailTopic
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveEmailPreferencesForm
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, DeveloperService, XmlService}
 import uk.gov.hmrc.gatekeeper.utils.CsvHelper.ColumnDefinition
 import uk.gov.hmrc.gatekeeper.utils.{CsvHelper, ErrorHelper, UserFunctionsWrapper}
-import uk.gov.hmrc.gatekeeper.views.html.developers.{DevelopersView, _}
+import uk.gov.hmrc.gatekeeper.views.html.developers.{DevelopersView, *}
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -54,8 +53,7 @@ class DevelopersController @Inject() (
     override val errorTemplate: ErrorTemplate,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
@@ -94,12 +92,12 @@ class DevelopersController @Inject() (
       def csvColumnDefinitions(orgs: List[XmlOrganisation]) = Seq[ColumnDefinition[RegisteredUser]](
         ColumnDefinition("UserId", (dev => dev.userId.toString())),
         ColumnDefinition("Email", (app => app.email.text)),
-        ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.SMS).toString())),
-        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AUTHENTICATOR_APP).toString())),
-        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, EmailTopic.BUSINESS_AND_POLICY).toString())),
-        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, EmailTopic.TECHNICAL).toString())),
-        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, EmailTopic.RELEASE_SCHEDULES).toString())),
-        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EmailTopic.EVENT_INVITES).toString())),
+        ColumnDefinition("SMS MFA Active", (dev => isMfaTypeActive(dev, MfaType.Sms).toString())),
+        ColumnDefinition("Authenticator MFA Active", (dev => isMfaTypeActive(dev, MfaType.AuthenticatorApp).toString())),
+        ColumnDefinition("Business And Policy Email", (dev => topicSubscribedTo(dev, EmailTopic.BusinessAndPolicy).toString())),
+        ColumnDefinition("Technical Email", (dev => topicSubscribedTo(dev, EmailTopic.Technical).toString())),
+        ColumnDefinition("Release Schedules Email", (dev => topicSubscribedTo(dev, EmailTopic.ReleaseSchedules).toString())),
+        ColumnDefinition("Event Invites Email", (dev => topicSubscribedTo(dev, EmailTopic.EventInvites).toString())),
         ColumnDefinition("Full Category Emails", (dev => categoriesSubscribedTo(dev).toString())),
         ColumnDefinition("Individual APIs Emails", (dev => individualApisSubscribedTo(dev).toString())),
         ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),
@@ -123,7 +121,7 @@ class DevelopersController @Inject() (
 
   def developersPage() = anyAuthenticatedUserAction { implicit request =>
     DevelopersSearchForm.form.bindFromRequest().fold(
-      formWithErrors => {
+      _ => {
         logger.warn("Errors found trying to bind request for developers search")
         // binding failure, you retrieve the form containing errors:
         Future.successful(BadRequest(developersView(Seq.empty, "", Seq.empty, DevelopersSearchForm.form.fill(DevelopersSearchForm(None, None, None, None)))))
@@ -150,7 +148,7 @@ class DevelopersController @Inject() (
     )
   }
 
-  def combineUsersIntoPage(allFoundUsers: Future[List[AbstractUser]], searchParams: DevelopersSearchForm)(implicit request: LoggedInRequest[_]) = {
+  def combineUsersIntoPage(allFoundUsers: Future[List[AbstractUser]], searchParams: DevelopersSearchForm)(using request: LoggedInRequest[?]) = {
     for {
       users          <- allFoundUsers
       registeredUsers = users.collect {

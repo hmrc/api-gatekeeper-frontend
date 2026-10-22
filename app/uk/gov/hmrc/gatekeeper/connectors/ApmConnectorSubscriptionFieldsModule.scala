@@ -16,18 +16,19 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
+import scala.annotation.nowarn
 import scala.concurrent.Future
 
 import play.api.http.HeaderNames
-import play.api.http.Status._
-import uk.gov.hmrc.http.HttpErrorFunctions._
-import uk.gov.hmrc.http.HttpReads.Implicits._
-import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, _}
+import play.api.http.Status.*
+import uk.gov.hmrc.http.HttpErrorFunctions.*
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse, *}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.FieldName
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 object ApmConnectorSubscriptionFieldsModule {
 
@@ -36,12 +37,12 @@ object ApmConnectorSubscriptionFieldsModule {
 }
 
 trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
-  import play.api.libs.json._
-  private[this] implicit val formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
+  import play.api.libs.json.*
+  given formatSubscriptionFieldDefinition: OFormat[SubscriptionFieldDefinition] = Json.format[SubscriptionFieldDefinition]
 
-  private[this] val baseUrl = s"${config.serviceBaseUrl}/subscription-fields"
+  private val baseUrl = s"${config.serviceBaseUrl}/subscription-fields"
 
-  def getAllFieldDefinitions(environment: Environment)(implicit hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
+  def getAllFieldDefinitions(environment: Environment)(using hc: HeaderCarrier): Future[ApiDefinitionFields.Alias] = {
     http.get((url"${baseUrl}?environment=$environment"))
       .execute[Map[ApiContext, Map[ApiVersionNbr, Map[FieldName, SubscriptionFieldDefinition]]]]
   }
@@ -52,10 +53,17 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
       apiContext: ApiContext,
       apiVersion: ApiVersionNbr,
       fields: Fields.Alias
-    )(implicit hc: HeaderCarrier
+    )(using hc: HeaderCarrier
     ): Future[SaveSubscriptionFieldsResponse] = {
 
     val url = ApmConnectorSubscriptionFieldsModule.urlSubscriptionFieldValues(baseUrl)(environment, clientId, apiContext, apiVersion)
+
+    @nowarn("msg=cannot be checked at runtime")
+    def parse(body: String) =
+      Json.parse(body).validate[Map[String, String]] match {
+        case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
+        case _                                 => SaveSubscriptionFieldsFailureResponse(Map.empty)
+      }
 
     http.put(url)
       .withBody(Json.toJson(SubscriptionFieldsPutRequest(clientId, apiContext, apiVersion, fields)))
@@ -63,16 +71,12 @@ trait ApmConnectorSubscriptionFieldsModule extends ApmConnectorModule {
       .map(_ match {
         case resp: HttpResponse if (is2xx(resp.status)) => SaveSubscriptionFieldsSuccessResponse
 
-        case HttpResponse(BAD_REQUEST, body, _) =>
-          Json.parse(body).validate[Map[String, String]] match {
-            case s: JsSuccess[Map[String, String]] => SaveSubscriptionFieldsFailureResponse(s.get)
-            case _                                 => SaveSubscriptionFieldsFailureResponse(Map.empty)
-          }
+        case HttpResponse(BAD_REQUEST, body, _) => parse(body)
         case HttpResponse(status, body, _)      => throw UpstreamErrorResponse(body, status)
       })
   }
 
-  def subsFieldsCsv(environment: Environment)(implicit hc: HeaderCarrier): Future[String] = {
+  def subsFieldsCsv(environment: Environment)(using hc: HeaderCarrier): Future[String] = {
     http.get(url"${baseUrl}/csv?environment=$environment")
       .setHeader(HeaderNames.ACCEPT -> "text/csv")
       .execute[HttpResponse]

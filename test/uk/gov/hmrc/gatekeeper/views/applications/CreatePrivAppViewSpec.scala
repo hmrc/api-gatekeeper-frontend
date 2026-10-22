@@ -23,9 +23,9 @@ import play.api.test.FakeRequest
 import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models.Forms._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.Forms.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationView
 
@@ -34,8 +34,8 @@ class CreatePrivAppViewSpec extends CommonViewSpec {
   trait Setup {
     val createApplicationView = app.injector.instanceOf[CreateApplicationView]
 
-    implicit val userFullName: LoggedInUser = LoggedInUser(Some("firstName lastName"))
-    val page: () => HtmlFormat.Appendable   = () => createApplicationView(createPrivAppForm)
+    given userFullName: LoggedInUser      = LoggedInUser(Some("firstName lastName"))
+    val page: () => HtmlFormat.Appendable = () => createApplicationView(createPrivAppForm)
   }
 
   "CreatePrivApp page" should {

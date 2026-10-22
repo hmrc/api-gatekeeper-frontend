@@ -26,7 +26,7 @@ import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.DeskproTick
 import uk.gov.hmrc.gatekeeper.services.ApiPlatformDeskproService
 
 trait ApiPlatformDeskproServiceMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockApiPlatformDeskproService = mock[ApiPlatformDeskproService]
 
@@ -35,9 +35,9 @@ trait ApiPlatformDeskproServiceMockProvider {
     object GetDeskproTicket {
 
       def returns(ticketId: Int)(deskproTicket: DeskproTicket) =
-        when(mockApiPlatformDeskproService.getDeskproTicket(eqTo(ticketId))(*)).thenReturn(successful(deskproTicket))
+        when(mockApiPlatformDeskproService.getDeskproTicket(eqTo(ticketId))(using *)).thenReturn(successful(deskproTicket))
 
-      def returnsNotFound() = when(mockApiPlatformDeskproService.getDeskproTicket(*)(*)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
+      def returnsNotFound() = when(mockApiPlatformDeskproService.getDeskproTicket(*)(using *)).thenReturn(failed(UpstreamErrorResponse("Not found", 404)))
 
     }
 

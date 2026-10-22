@@ -23,7 +23,7 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaboratorsFixtures
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.OrganisationIdFixtures
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.mocks.connectors.{ApiPlatformDeskproConnectorMockProvider, ThirdPartyOrchestratorConnectorMockProvider}
@@ -32,7 +32,7 @@ import uk.gov.hmrc.gatekeeper.models.organisations.{DeskproOrganisation, Deskpro
 class OrganisationServiceSpec extends AsyncHmrcSpec with ApplicationWithCollaboratorsFixtures with OrganisationIdFixtures {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApiPlatformDeskproConnectorMockProvider with ThirdPartyOrchestratorConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val organisationService = new OrganisationService(apiPlatformDeskproConnector, TPOConnectorMock.aMock)
 

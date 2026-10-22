@@ -18,10 +18,10 @@ package uk.gov.hmrc.gatekeeper.specs
 
 import org.scalatest.Assertions
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.MfaType
-import uk.gov.hmrc.gatekeeper.pages._
+import uk.gov.hmrc.gatekeeper.pages.*
 import uk.gov.hmrc.gatekeeper.stubs.{OrganisationStub, XmlServicesStub}
 import uk.gov.hmrc.gatekeeper.testdata.MockDataSugar
 
@@ -31,7 +31,7 @@ class ApiGatekeeperRemoveMfaSpec
     with XmlServicesStub
     with OrganisationStub {
 
-  import MockDataSugar._
+  import MockDataSugar.*
 
   info("As a Gatekeeper superuser")
   info("I WANT to be able to remove MFA for a developer")
@@ -88,9 +88,9 @@ class ApiGatekeeperRemoveMfaSpec
       navigateToDeveloperDetails()
 
       Then("I can see the MFA detail types and names")
-      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AUTHENTICATOR_APP.displayText)
+      assert(DeveloperDetailsPage.authAppMfaType() == MfaType.AuthenticatorApp.displayText)
       assert(DeveloperDetailsPage.authAppMfaName() == "On (Google Auth App)")
-      assert(DeveloperDetailsPage.smsMfaType() == MfaType.SMS.displayText)
+      assert(DeveloperDetailsPage.smsMfaType() == MfaType.Sms.displayText)
       assert(DeveloperDetailsPage.smsMfaName() == "On (****6789)")
 
       Then("I can see the link to remove MFA")

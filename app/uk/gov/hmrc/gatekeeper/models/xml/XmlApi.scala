@@ -23,5 +23,5 @@ import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiCategory
 case class XmlApi(name: String, serviceName: String, context: String, description: String, categories: Option[Set[ApiCategory]] = None)
 
 object XmlApi {
-  implicit val formatXmlApi: OFormat[XmlApi] = Json.format[XmlApi]
+  given formatXmlApi: OFormat[XmlApi] = Json.format[XmlApi]
 }

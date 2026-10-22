@@ -25,7 +25,7 @@ case class User(userId: UserId, email: LaxEmailAddress, firstName: String, lastN
 }
 
 object User {
-  implicit val userFormat: OFormat[User] = Json.format[User]
+  given userFormat: OFormat[User] = Json.format[User]
 }
 
 case class ApplicationWithUsers(applicationId: ApplicationId, name: String, environment: Environment, users: Set[User]) {
@@ -33,5 +33,5 @@ case class ApplicationWithUsers(applicationId: ApplicationId, name: String, envi
 }
 
 object ApplicationWithUsers {
-  implicit val applicationWithUsersFormat: OFormat[ApplicationWithUsers] = Json.format[ApplicationWithUsers]
+  given applicationWithUsersFormat: OFormat[ApplicationWithUsers] = Json.format[ApplicationWithUsers]
 }

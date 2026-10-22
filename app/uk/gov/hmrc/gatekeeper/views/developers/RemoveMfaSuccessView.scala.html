@@ -14,8 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.controllers._
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.controllers.*
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -23,7 +23,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developerEmailAddress: String, userId: UserId)(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developerEmailAddress: String, userId: UserId)(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Remove multi-factor authentication",
@@ -44,6 +44,6 @@
   </div>
 
   <p class="govuk-body govuk-!-margin-bottom-9">
-    <a id="finish" href="@{routes.DeveloperController.developerPage(userId)}" class="govuk-link">Back to developer details</a>
+    <a id="finish" href="@{routes.DeveloperController.developerPage(userId.simpleUser)}" class="govuk-link">Back to developer details</a>
   </p>
 }

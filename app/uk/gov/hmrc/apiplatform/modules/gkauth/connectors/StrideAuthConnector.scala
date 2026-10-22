@@ -18,7 +18,7 @@ package uk.gov.hmrc.apiplatform.modules.gkauth.connectors
 
 import javax.inject.{Inject, Singleton}
 
-import uk.gov.hmrc.auth.core._
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.client.HttpClientV2
 
 object StrideAuthConnector {
@@ -27,5 +27,5 @@ object StrideAuthConnector {
 
 @Singleton
 class StrideAuthConnector @Inject() (val httpClientV2: HttpClientV2, config: StrideAuthConnector.Config) extends PlayAuthConnector {
-  lazy val serviceUrl = config.baseUrl
+  val serviceUrl = config.baseUrl
 }

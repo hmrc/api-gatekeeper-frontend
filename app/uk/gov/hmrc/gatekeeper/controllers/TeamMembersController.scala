@@ -29,24 +29,24 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationWithCollaborators, Collaborator, Collaborators}
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.CommandFailures
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationService
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleApp
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.models.Forms._
+import uk.gov.hmrc.gatekeeper.models.Forms.*
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService, TeamMemberService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 trait WithRestrictedApp {
   self: TeamMembersController =>
 
-  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(implicit request: LoggedInRequest[_], ec: ExecutionContext, hc: HeaderCarrier) = {
+  def withRestrictedApp(appId: ApplicationId)(f: ApplicationWithCollaborators => Future[Result])(using request: LoggedInRequest[?], ec: ExecutionContext, hc: HeaderCarrier) = {
     withApp(appId) { app =>
       app.access match {
         case _: Access.Standard               => f(app)
@@ -71,8 +71,7 @@ class TeamMembersController @Inject() (
     val forbiddenView: ForbiddenView,
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with ActionBuilders
@@ -97,7 +96,7 @@ class TeamMembersController @Inject() (
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
         val emailAddress       = LaxEmailAddress(form.email)
-        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId.simpleApp))
         lazy val failureResult = BadRequest(addTeamMemberView(
           app,
           AddTeamMemberForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.already.exists"))
@@ -105,8 +104,8 @@ class TeamMembersController @Inject() (
 
         for {
           user        <- developerService.fetchOrCreateUser(emailAddress)
-          role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Roles.DEVELOPER)
-          collaborator = if (role == Collaborator.Roles.DEVELOPER) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
+          role         = form.role.flatMap(Collaborator.Role.apply).getOrElse(Collaborator.Role.Developer)
+          collaborator = if (role == Collaborator.Role.Developer) Collaborators.Developer(user.userId, emailAddress) else Collaborators.Administrator(user.userId, emailAddress)
           result      <- teamMemberService.addTeamMember(app, collaborator, gatekeeperUser.get)
                            .map {
                              case Right(())                                                               => successResult
@@ -141,7 +140,7 @@ class TeamMembersController @Inject() (
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         val emailAddress       = LaxEmailAddress(form.email)
-        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId))
+        lazy val successResult = Redirect(routes.TeamMembersController.manageTeamMembers(appId.simpleApp))
         lazy val failureResult = BadRequest(removeTeamMemberView(
           app,
           RemoveTeamMemberConfirmationForm.form.fill(form).withError("email", messagesApi.preferred(request)("team.member.error.email.last.admin")),

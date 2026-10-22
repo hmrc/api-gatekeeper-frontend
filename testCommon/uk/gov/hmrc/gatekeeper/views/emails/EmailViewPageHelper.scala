@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.{ApiCategory, ApiDefinition, ApiVersion, CombinedApi}
 import uk.gov.hmrc.apiplatform.modules.common.utils.HmrcSpec
 import uk.gov.hmrc.gatekeeper.models.{EmailOptionChoice, EmailPreferencesChoice, RegisteredUser, TopicOptionChoice}
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 
 trait EmailsPagesHelper extends EmailLandingViewHelper
     with EmailInformationViewHelper
@@ -41,10 +41,10 @@ trait EmailLandingViewHelper extends EmailUsersHelper {
   def validateLandingPage(document: Document): Unit = {
     validatePageHeader(document, "Send emails to users based on")
 
-    verifyEmailOptions(EmailOptionChoice.EMAIL_PREFERENCES, document, isDisabled = false)
-    verifyEmailOptions(EmailOptionChoice.API_SUBSCRIPTION, document, isDisabled = false)
-    verifyEmailOptions(EmailOptionChoice.EMAIL_ALL_USERS, document, isDisabled = false)
-    elementExistsByIdWithAttr(document, EmailOptionChoice.EMAIL_PREFERENCES.toString, "checked") shouldBe true
+    verifyEmailOptions(EmailOptionChoice.EmailPreferences, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.ApiSubscription, document, isDisabled = false)
+    verifyEmailOptions(EmailOptionChoice.EmailAllUsers, document, isDisabled = false)
+    elementExistsByIdWithAttr(document, EmailOptionChoice.EmailPreferences.toString, "checked") shouldBe true
 
     validateButtonText(document, "submit", "Continue")
   }
@@ -159,9 +159,9 @@ trait EmailPreferencesChoiceViewHelper extends EmailUsersHelper with UserTableHe
   def validateEmailPreferencesChoicePage(document: Document): Unit = {
     validatePageHeader(document, "Who do you want to email?")
 
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.SPECIFIC_API, document)
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TAX_REGIME, document)
-    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TOPIC, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.SpecificApi, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.TaxRegime, document)
+    verifyEmailPreferencesChoiceOptions(EmailPreferencesChoice.Topic, document)
   }
 
   def validateEmailPreferencesChoiceNewPage(document: Document): Unit = {
@@ -304,7 +304,7 @@ trait EmailPreferencesAPICategoryViewHelper extends EmailUsersHelper with UserTa
       selectedTopic: TopicOptionChoice,
       users: Seq[RegisteredUser]
     ) = {
-    validateStaticPageElements(document, ApiCategory.values)
+    validateStaticPageElements(document, ApiCategory.values.toSet)
 
     mayBeSelectedCategory.map { selectedCategory =>
       elementExistsContainsText(document, "div", s"${users.size} results") shouldBe true
@@ -358,8 +358,8 @@ trait EmailPreferencesSpecificAPIViewHelper extends EmailUsersHelper with UserTa
     validateFormDestination(document, "apiFilters", "/api-gatekeeper/emails/email-preferences/select-api")
     validateFormDestination(document, "topicFilter", "/api-gatekeeper/emails/email-preferences/by-specific-api")
     validateButtonText(document, "filter", filterButtonText)
-    val topic = if (selectedTopic.isEmpty) Some(TopicOptionChoice.BUSINESS_AND_POLICY) else selectedTopic
-    validateTopicGrid(document, topic)
+    val topic = selectedTopic.getOrElse(TopicOptionChoice.BusinessAndPolicy)
+    validateTopicGrid(document, Some(topic))
   }
 
   def validateEmailPreferencesSpecificApiPage(document: Document, selectedApis: Seq[CombinedApi]) = {

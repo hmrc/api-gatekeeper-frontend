@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.utils
 
-import scala.jdk.CollectionConverters._
+import scala.jdk.CollectionConverters.*
 
 import org.jsoup.nodes.{Document, Element}
 
@@ -55,7 +55,9 @@ object ViewHelpers {
     doc.select(s"$elementType[$attr]").asScala.exists(element => element.text.equals(text))
   }
 
-  def elementIdentifiedByIdContainsText(doc: Document, elementType: String, id: String, text: String): Boolean = {
+  import scala.annotation.unused
+
+  def elementIdentifiedByIdContainsText(doc: Document, @unused elementType: String, id: String, text: String): Boolean = {
     doc.select(s"#$id").asScala.exists(element => element.text.equals(text))
   }
 

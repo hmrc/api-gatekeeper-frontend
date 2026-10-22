@@ -19,10 +19,10 @@ package uk.gov.hmrc.gatekeeper.models
 import play.api.libs.json.Json
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationResponseHelper.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Collaborator, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -31,18 +31,18 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
 
   "UpliftAction" should {
     "convert string value to enum with lowercase" in {
-      UpliftAction.from("approve") shouldBe Some(UpliftAction.APPROVE)
-      UpliftAction.from("reject") shouldBe Some(UpliftAction.REJECT)
+      UpliftAction("approve") shouldBe Some(UpliftAction.APPROVE)
+      UpliftAction("reject") shouldBe Some(UpliftAction.REJECT)
     }
 
     "convert string value to enum with mixed case" in {
-      UpliftAction.from("aPProve") shouldBe Some(UpliftAction.APPROVE)
-      UpliftAction.from("rEJect") shouldBe Some(UpliftAction.REJECT)
+      UpliftAction("aPProve") shouldBe Some(UpliftAction.APPROVE)
+      UpliftAction("rEJect") shouldBe Some(UpliftAction.REJECT)
     }
 
     "convert string value to None when undefined or empty" in {
-      UpliftAction.from("unknown") shouldBe None
-      UpliftAction.from("") shouldBe None
+      UpliftAction("unknown") shouldBe None
+      UpliftAction("") shouldBe None
     }
   }
 
@@ -91,18 +91,18 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
   "AccessType" should {
 
     "contain all access types" in {
-      AccessType.values shouldBe List(AccessType.STANDARD, AccessType.PRIVILEGED, AccessType.ROPC)
+      AccessType.values shouldBe List(AccessType.Standard, AccessType.Privileged, AccessType.Ropc)
     }
 
     "convert strings with any case to AccessType" in {
-      AccessType.apply("standard") shouldBe Some(AccessType.STANDARD)
-      AccessType.apply("Standard") shouldBe Some(AccessType.STANDARD)
+      AccessType.apply("standard") shouldBe Some(AccessType.Standard)
+      AccessType.apply("Standard") shouldBe Some(AccessType.Standard)
 
-      AccessType.apply("privileged") shouldBe Some(AccessType.PRIVILEGED)
-      AccessType.apply("priVILeged") shouldBe Some(AccessType.PRIVILEGED)
+      AccessType.apply("privileged") shouldBe Some(AccessType.Privileged)
+      AccessType.apply("priVILeged") shouldBe Some(AccessType.Privileged)
 
-      AccessType.apply("ropc") shouldBe Some(AccessType.ROPC)
-      AccessType.apply("ROPC") shouldBe Some(AccessType.ROPC)
+      AccessType.apply("ropc") shouldBe Some(AccessType.Ropc)
+      AccessType.apply("ROPC") shouldBe Some(AccessType.Ropc)
     }
 
     "convert unknown strings to None" in {
@@ -132,7 +132,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe Some(TotpSecrets(totp))
     }
 
@@ -150,7 +150,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe Some(TotpSecrets(totp))
     }
 
@@ -166,7 +166,7 @@ class ModelSpec extends AsyncHmrcSpec with ApplicationBuilder {
       result.name shouldBe privilegedCoreApp.name
       result.deployedTo shouldBe privilegedCoreApp.deployedTo
       result.clientId shouldBe privilegedCoreApp.token.clientId
-      result.access.accessType shouldBe AccessType.PRIVILEGED
+      result.access.accessType shouldBe AccessType.Privileged
       result.totp shouldBe None
     }
   }

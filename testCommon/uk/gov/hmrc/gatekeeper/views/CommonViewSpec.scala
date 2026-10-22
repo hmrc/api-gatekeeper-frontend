@@ -26,19 +26,19 @@ import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, MessagesRe
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
-import uk.gov.hmrc.apiplatform.modules.common.utils._
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models._
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
+import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 
 trait CommonViewSpec extends AsyncHmrcSpec with GuiceOneAppPerSuite {
-  val mcc                                         = app.injector.instanceOf[MessagesControllerComponents]
-  val messagesApi                                 = mcc.messagesApi
-  implicit val messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
+  val mcc                                  = app.injector.instanceOf[MessagesControllerComponents]
+  val messagesApi                          = mcc.messagesApi
+  given messagesProvider: MessagesProvider = MessagesImpl(Lang(Locale.ENGLISH), messagesApi)
 
   val developer = Developer(RegisteredUser(LaxEmailAddress("email@example.com"), UserId.random, "firstname", "lastName", true), List.empty)
 
-  implicit val fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
+  given fakeRequest: Request[AnyContentAsEmpty.type] = FakeRequest().withCSRFToken.addAttr(RequestAttrKey.CSPNonce, "fake-nonce")
 
   val msgRequest          = new MessagesRequest(fakeRequest, messagesApi)
   val strideUserRequest   = new LoggedInRequest(Some(developer.user.fullName), GatekeeperRoles.USER, msgRequest)

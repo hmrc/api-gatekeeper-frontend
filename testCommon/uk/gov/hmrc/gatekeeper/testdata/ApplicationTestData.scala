@@ -20,7 +20,7 @@ import java.time.Instant
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessFixtures
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{IpAllowlist, RateLimitTier}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 
 object ApplicationTestData extends ApplicationBuilder with CommonTestData with CollaboratorsTestData with ApplicationStateTestData with AccessFixtures {
@@ -37,7 +37,7 @@ object ApplicationTestData extends ApplicationBuilder with CommonTestData with C
     .withCheckInformation(defaultCheckInformation)
     .withIpAllowlist(IpAllowlist())
     .unblocked
-    .withRateLimitTier(RateLimitTier.BRONZE)
+    .withRateLimitTier(RateLimitTier.Bronze)
     .withCreatedOn(Instant.parse("2016-04-08T10:24:40.651Z"))
     .withLastAccess(Instant.parse("2019-07-01T00:00:00.000Z"))
 

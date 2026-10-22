@@ -22,8 +22,8 @@ import javax.inject.{Inject, Singleton}
 import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypes, DispatchSuccessResult}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, _}
+import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandHandlerTypesForDispatchSuccessResult}
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.{Actors, *}
 import uk.gov.hmrc.apiplatform.modules.common.services.ClockNow
 import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 
@@ -31,15 +31,16 @@ import uk.gov.hmrc.gatekeeper.connectors.ApplicationCommandConnector
 class SubscriptionsService @Inject() (
     applicationCommandConnector: ApplicationCommandConnector,
     val clock: Clock
-  ) extends CommandHandlerTypes[DispatchSuccessResult]
-    with ClockNow {
+  ) extends ClockNow {
 
-  def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  import CommandHandlerTypesForDispatchSuccessResult.types.*
+
+  def subscribeToApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.SubscribeToApi(user, apiIdentifier, instant)
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }
 
-  def unsubscribeFromApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(implicit hc: HeaderCarrier): AppCmdResult = {
+  def unsubscribeFromApi(application: ApplicationWithCollaborators, apiIdentifier: ApiIdentifier, user: Actors.GatekeeperUser)(using hc: HeaderCarrier): AppCmdResult = {
     val cmd = ApplicationCommands.UnsubscribeFromApi(user, apiIdentifier, instant)
     applicationCommandConnector.dispatch(application.id, cmd, Set.empty)
   }

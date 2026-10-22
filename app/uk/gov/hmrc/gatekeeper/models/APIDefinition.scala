@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 
 case class VersionSubscription(version: ApiVersion, subscribed: Boolean, fields: SubscriptionFieldsWrapper)
 

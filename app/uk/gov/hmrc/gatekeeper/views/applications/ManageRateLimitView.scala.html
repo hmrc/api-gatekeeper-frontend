@@ -15,7 +15,7 @@
  *@
 
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-@import uk.gov.hmrc.gatekeeper.controllers._
+@import uk.gov.hmrc.gatekeeper.controllers.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
@@ -27,7 +27,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[UpdateRateLimitForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[UpdateRateLimitForm])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Change the rate limit tier for this application",
@@ -35,7 +35,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -61,10 +61,10 @@
 
     </p>
 
-  @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id), Symbol("class") -> "form") {
+  @helper.form(action = routes.ApplicationController.updateRateLimitTier(application.id.simpleApp), Symbol("class") -> "form") {
     @helper.CSRF.formField
 
-    @for(t <- RateLimitTier.orderedForDisplay) {
+    @for(t <- RateLimitTier.values) {
       <div class="govuk-form-group">
         <fieldset class="govuk-fieldset">
           <legend class="govuk-visually-hidden">
@@ -74,7 +74,7 @@
             <div class="govuk-radios__item">
               <input class="govuk-radios__input" type="radio" id="@t" name="tier" value=@t @if(application.details.rateLimitTier == t) {checked}>
               <label class="govuk-label govuk-radios__label" for="@t">
-                @t.displayText
+                @t.toString
               </label>
             </div>
           </div>
@@ -89,7 +89,7 @@
         inputType = Some("submit"),
         preventDoubleClick = Some(true)
       ))
-      <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+      <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
     </div>
   }
 }

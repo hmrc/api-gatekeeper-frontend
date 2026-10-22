@@ -23,11 +23,11 @@ import org.apache.pekko.stream.Materializer
 import play.api.http.Status.FORBIDDEN
 import play.api.mvc.{AnyContent, Request}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.StrideAuthorisationServiceMockModule
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
@@ -36,7 +36,7 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
 
   implicit lazy val request: Request[AnyContent] = FakeRequest()
   implicit lazy val materializer: Materializer   = app.materializer
-  implicit val hc: HeaderCarrier                 = HeaderCarrier()
+  given hc: HeaderCarrier                        = HeaderCarrier()
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
@@ -63,12 +63,22 @@ class ApiDefinitionControllerSpec extends ControllerBaseSpec {
       val someContext = ApiContext.random
 
       val apiVersions   = Map(
-        apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.ALPHA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN),
-        apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.OAS)
+        apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Alpha, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown),
+        apiVersion2 -> ApiVersion(apiVersion2, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.OAS)
       )
-      val apiDefinition = ApiDefinition(ServiceName("aServiceName"), "", "MyApi", "", someContext, apiVersions, false, None, List(ApiCategory.OTHER))
+      val apiDefinition = ApiDefinition(
+        ServiceName("aServiceName"),
+        ApiDefinition.ServiceBaseUrl(""),
+        ApiDefinition.Name("MyApi"),
+        ApiDefinition.Description(""),
+        someContext,
+        apiVersions,
+        false,
+        None,
+        List(ApiCategory.Other)
+      )
 
-      Apis.returns((apiDefinition, Environment.PRODUCTION))
+      Apis.returns((apiDefinition, Environment.Production))
 
       val result = controller.apis()(aLoggedInRequest)
 

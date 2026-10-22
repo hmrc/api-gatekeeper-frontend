@@ -16,16 +16,17 @@
 
 package uk.gov.hmrc.gatekeeper.connectors
 
-import play.api.http.Status._
+import play.api.http.Status.*
+import play.api.libs.ws.JsonBodyWritables
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
-trait CommonResponseHandlers {
+trait CommonResponseHandlers extends JsonBodyWritables {
 
   type ErrorOr[A] = Either[UpstreamErrorResponse, A]
 
   type ErrorOrUnit = Either[UpstreamErrorResponse, Unit]
 
-  val throwOrUnit = throwOr(()) _
+  val throwOrUnit = throwOr(())
 
   def throwOr[A](successValue: A)(either: ErrorOrUnit): A =
     either match {

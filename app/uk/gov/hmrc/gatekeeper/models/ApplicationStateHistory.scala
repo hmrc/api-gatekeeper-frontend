@@ -27,6 +27,6 @@ case class ApplicationStateHistoryItem(state: State, timestamp: LocalDateTime)
 case class ApplicationStateHistory(applicationId: ApplicationId, appName: String, journeyVersion: Int, stateHistory: List[ApplicationStateHistoryItem])
 
 object ApplicationStateHistory {
-  implicit val formatApplicationStateHistoryItem: OFormat[ApplicationStateHistoryItem] = Json.format[ApplicationStateHistoryItem]
-  implicit val formatApplicationStateHistory: OFormat[ApplicationStateHistory]         = Json.format[ApplicationStateHistory]
+  given formatApplicationStateHistoryItem: OFormat[ApplicationStateHistoryItem] = Json.format[ApplicationStateHistoryItem]
+  given formatApplicationStateHistory: OFormat[ApplicationStateHistory]         = Json.format[ApplicationStateHistory]
 }

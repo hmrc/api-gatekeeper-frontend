@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.gatekeeper.testdata
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.gatekeeper.builder.SubscriptionsBuilder
 
 trait SubscriptionsTestData extends SubscriptionsBuilder {

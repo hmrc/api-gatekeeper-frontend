@@ -14,8 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.models._
-@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice.EmailOptionChoice
+@import uk.gov.hmrc.gatekeeper.models.*
+@import uk.gov.hmrc.gatekeeper.models.EmailOptionChoice
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import play.api.libs.json.JsValue
 @import uk.gov.hmrc.gatekeeper.controllers.routes
@@ -26,7 +26,7 @@
 @(apiVersions: Seq[DropDownValue],
   users: Seq[RegisteredUser],
   emails: String,
-  params: Map[String, String])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
+  params: Map[String, String])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider
 )
 
 @main(
@@ -41,7 +41,7 @@
 ){
   <div class="content__body full-width">
     <div><h1 class="govuk-heading-l" id="pageTitle">Email all users subscribed to an API</h1></div>
-      @defining(params.get("apiVersionFilter")) { apiVersionFilter: Option[String] =>
+      @defining(params.get("apiVersionFilter")) { (apiVersionFilter: Option[String]) =>
       <form name="developers-filters" action="@routes.EmailsController.emailApiSubscribersPage(None).url" method="get">
         <div class="govuk-form-group">
           <label class="govuk-label" for="apiVersionFilter">Select an API from the list</label>

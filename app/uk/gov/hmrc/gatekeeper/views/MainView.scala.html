@@ -18,11 +18,11 @@
 @import play.twirl.api.HtmlFormat
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.gatekeeper.models.view.SubmenuItem
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.govukfrontend.views.html.components._
-@import uk.gov.hmrc.hmrcfrontend.views.html.components._
+@import uk.gov.hmrc.govukfrontend.views.html.components.*
+@import uk.gov.hmrc.hmrcfrontend.views.html.components.*
 @import uk.gov.hmrc.hmrcfrontend.views.html.helpers.HmrcStandardHeader
 @import uk.gov.hmrc.hmrcfrontend.views.viewmodels.footer.Footer
 @import views.html.helper.CSPNonce
@@ -47,7 +47,7 @@
 )(
         mainContent: Html
 )(
-        implicit loggedInUser: LoggedInUser = LoggedInUser(None),
+        using loggedInUser: LoggedInUser = LoggedInUser(None),
         messages: Messages,
         messagesProvider: MessagesProvider,
         requestHeader: RequestHeader
@@ -99,7 +99,7 @@
 @beforeContent = {
   @if(submenuItems.nonEmpty){ @submenu }
     <div class="before-content-banner">
-        @include.breadcrumbs(breadcrumbs: _*)
+        @include.breadcrumbs(breadcrumbs*)
         @buildBackLink(backLink)
         @userBanner
     </div>

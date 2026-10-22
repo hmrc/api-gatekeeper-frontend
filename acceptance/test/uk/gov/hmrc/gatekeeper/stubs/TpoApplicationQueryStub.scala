@@ -16,23 +16,23 @@
 
 package uk.gov.hmrc.gatekeeper.stubs
 
-import com.github.tomakehurst.wiremock.client.WireMock._
-import com.github.tomakehurst.wiremock.client.{ResponseDefinitionBuilder, _}
+import com.github.tomakehurst.wiremock.client.WireMock.*
+import com.github.tomakehurst.wiremock.client.{ResponseDefinitionBuilder, *}
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
 
-import play.api.http.Status._
+import play.api.http.Status.*
 import play.api.libs.json.Writes
 
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.QueriedApplication
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.WireMockExtensions
 import uk.gov.hmrc.gatekeeper.testdata.{ApplicationResponseTestData, MockDataSugar, StateHistoryTestData}
 
 trait TpoApplicationQueryStub {
-  self: WireMockExtensions with ApplicationResponseTestData with StateHistoryTestData =>
+  self: WireMockExtensions & ApplicationResponseTestData & StateHistoryTestData =>
 
-  import MockDataSugar._
+  import MockDataSugar.*
 
   val applicationsList =
     List(
@@ -57,7 +57,7 @@ trait TpoApplicationQueryStub {
 
   def stubBoth(requestTransformer: MappingBuilder => MappingBuilder, response: String): StubMapping = stubBoth(requestTransformer, aResponse().withBody(response).withStatus(OK))
 
-  def stubBoth[T](requestTransformer: MappingBuilder => MappingBuilder, body: T)(implicit wrts: Writes[T]): StubMapping =
+  def stubBoth[T](requestTransformer: MappingBuilder => MappingBuilder, body: T)(using wrts: Writes[T]): StubMapping =
     stubBoth(requestTransformer, aResponse().withJsonBody(body).withStatus(OK))
 
   def stubPaginatedApplicationList() = {

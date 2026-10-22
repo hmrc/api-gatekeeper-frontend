@@ -22,10 +22,10 @@ import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationName
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.CreateApplicationSuccessView
 
@@ -39,26 +39,26 @@ class CreatePrivAppSuccessViewSpec extends CommonViewSpec {
 
     val appId      = ApplicationId.random
     val appName    = ApplicationName("This is my app name")
-    val env        = Environment.PRODUCTION
+    val env        = Environment.Production
     val clientId   = ClientId.random
     val totpSecret = "DSKL595KJDHK540K09421"
 
     "a privileged application is created" should {
       "render" in new Setup {
 
-        val accessType = Some(AccessType.PRIVILEGED)
+        val accessType = Some(AccessType.Privileged)
         val totp       = Some(TotpSecrets(totpSecret))
 
-        implicit val loggedInUser: LoggedInUser = LoggedInUser(Some(""))
+        given loggedInUser: LoggedInUser = LoggedInUser(Some(""))
 
         val page: () => HtmlFormat.Appendable =
-          () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(loggedInUser, messagesProvider, fakeRequest)
+          () => createApplicationSuccessView(appId, appName, env, accessType, totp, clientId)(using loggedInUser, messagesProvider, fakeRequest)
 
         page().contentType should include("text/html")
 
         val document = Jsoup.parse(page().body)
 
-        elementExistsByText(document, "h1", appName.value) shouldBe true
+        elementExistsByText(document, "h1", appName) shouldBe true
         elementExistsByText(document, "h2", "Application added") shouldBe true
         document.body().toString.contains("This is your only chance to copy and save this application's TOTP.") shouldBe true
         elementExistsByText(document, "div", s"Application ID ${appId.value}") shouldBe true

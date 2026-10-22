@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 @Singleton
-class XmlServicesController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {
+class XmlServicesController @Inject() (mcc: MessagesControllerComponents)(using appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {
 
   def organisationsSearchPage(): Action[AnyContent] = Action.async { _ =>
     Future.successful(Redirect(s"${appConfig.gatekeeperXmlServicesBaseUrl}/api-gatekeeper-xml-services/organisations"))

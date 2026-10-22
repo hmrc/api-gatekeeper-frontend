@@ -25,7 +25,7 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 class StrideAuthorisationPredicateForGatekeeperRoleSpec extends AsyncHmrcSpec {
   val roles = StrideAuthRoles("admin", "super", "advanced", "user")
 
-  import roles._
+  import roles.*
 
   "StrideAuthorisationPredicateForGatekeeperRole" should {
     "contain admin role only when looking for GK.ADMIN" in {

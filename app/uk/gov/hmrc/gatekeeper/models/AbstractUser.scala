@@ -18,15 +18,15 @@ package uk.gov.hmrc.gatekeeper.models
 
 import java.time.Instant
 
-import play.api.libs.functional.syntax._
-import play.api.libs.json.{Reads, _}
+import play.api.libs.functional.syntax.*
+import play.api.libs.json.{Reads, *}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, UserId}
 import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User.{DefaultInstantReads, DefaultInstantWrites}
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.EmailPreferences
-import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.*
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisation
 import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 
@@ -46,7 +46,7 @@ object AbstractUser {
 
   def status(user: AbstractUser): StatusFilter = user match {
     case u: RegisteredUser if (u.verified) => VerifiedStatus
-    case u: RegisteredUser                 => UnverifiedStatus
+    case _: RegisteredUser                 => UnverifiedStatus
     case _: UnregisteredUser               => UnregisteredStatus
   }
 }
@@ -77,10 +77,10 @@ object RegisteredUser {
       (JsPath \ "registrationTime").readNullable[Instant] and
       (JsPath \ "failedLogins").readWithDefault[Int](0) and
       (JsPath \ "lastLogin").readNullable[Instant]
-  )(RegisteredUser.apply _)
+  )(RegisteredUser.apply)
 
-  val registeredUserWrites: OWrites[RegisteredUser]         = Json.writes[RegisteredUser]
-  implicit val registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
+  val registeredUserWrites: OWrites[RegisteredUser]  = Json.writes[RegisteredUser]
+  given registeredUserFormat: Format[RegisteredUser] = Format(registeredUserReads, registeredUserWrites)
 }
 
 case class UnregisteredUser(email: LaxEmailAddress, userId: UserId) extends AbstractUser {
@@ -146,5 +146,5 @@ case class Developer(
 case class UserPaginatedResponse(totalCount: Int, users: List[RegisteredUser])
 
 object UserPaginatedResponse {
-  implicit val format: Format[UserPaginatedResponse] = Json.format
+  given format: Format[UserPaginatedResponse] = Json.format
 }

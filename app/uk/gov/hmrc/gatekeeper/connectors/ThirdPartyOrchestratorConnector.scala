@@ -26,41 +26,43 @@ import org.apache.pekko.stream.scaladsl.{JsonFraming, Sink, Source}
 import org.apache.pekko.util.ByteString
 
 import play.api.libs.json.{Json, OFormat, Reads}
+import play.api.libs.ws.JsonBodyWritables
 import play.mvc.Http
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models._
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.ApplicationQuery
+import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.{ApplicationQuery, ParamName}
 import uk.gov.hmrc.apiplatform.modules.applications.query.domain.services.QueryParamsToQueryStringMap
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 case class ApplicationsByRequest(emails: List[LaxEmailAddress])
 
 object ApplicationsByRequest {
-  implicit val format: OFormat[ApplicationsByRequest] = Json.format[ApplicationsByRequest]
+  given format: OFormat[ApplicationsByRequest] = Json.format[ApplicationsByRequest]
 }
 
 @Singleton
-class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(implicit ec: ExecutionContext, mat: Materializer) {
+class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: ThirdPartyOrchestratorConnector.Config)(using ec: ExecutionContext, mat: Materializer)
+    extends JsonBodyWritables {
 
-  def getApplication(applicationId: ApplicationId)(implicit hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
+  def getApplication(applicationId: ApplicationId)(using hc: HeaderCarrier): Future[Option[ApplicationWithCollaborators]] = {
     http.get(url"${config.serviceBaseUrl}/applications/$applicationId").execute[Option[ApplicationWithCollaborators]]
   }
 
-  def getApplicationsByEmails(emails: List[LaxEmailAddress])(implicit hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
+  def getApplicationsByEmails(emails: List[LaxEmailAddress])(using hc: HeaderCarrier): Future[List[ApplicationWithCollaborators]] = {
     http.post(url"${config.serviceBaseUrl}/developer/applications")
       .withBody(Json.toJson(ApplicationsByRequest(emails)))
       .execute[List[ApplicationWithCollaborators]]
   }
 
-  def validateName(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(implicit hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
+  def validateName(name: String, selfApplicationId: Option[ApplicationId], environment: Environment)(using hc: HeaderCarrier): Future[ApplicationNameValidationResult] = {
 
     val body = selfApplicationId.fold[ApplicationNameValidationRequest](NewApplicationNameValidationRequest(name))(appId => ChangeApplicationNameValidationRequest(name, appId))
 
-    http.post(url"${config.serviceBaseUrl}/environment/$environment/application/name/validate")
+    http.post(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/application/name/validate")
       .withBody(Json.toJson[ApplicationNameValidationRequest](body))
       .execute[Option[ApplicationNameValidationResult]]
       .map {
@@ -69,7 +71,7 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
       }
   }
 
-  def query[T](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+  def query[T](environment: Environment)(qry: ApplicationQuery)(using hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
 
     val qryStringMap = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
@@ -78,32 +80,40 @@ class ThirdPartyOrchestratorConnector @Inject() (http: HttpClientV2, config: Thi
     rawQuery[T](environment)(qryStringMap)
   }
 
-  def rawQuery[T](environment: Environment)(qryStringMap: Map[String, String])(implicit hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+  def rawQuery[T](environment: Environment)(qryStringMap: Map[ParamName, String])(using hc: HeaderCarrier, rds: HttpReads[T]): Future[T] = {
+    val rawQryStringMap = qryStringMap.map {
+      case (k, v) => (k.text -> v)
+    }
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/query?$rawQryStringMap")
       .execute[T]
   }
 
-  def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+  def queryStream[S, T](environment: Environment)(qry: ApplicationQuery)(fn: S => T)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
     rawQueryStream[S, T](environment)(params)(fn)
   }
 
-  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
+  def queryStream[S](environment: Environment)(qry: ApplicationQuery)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[S]] = {
     val params = QueryParamsToQueryStringMap.toQuery(qry).map {
       case (k, vs) => k -> vs.mkString
     }
     rawQueryStream[S, S](environment)(params)(identity)
   }
 
-  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[String, String])(fn: S => T)(implicit hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+  def rawQueryStream[S, T](environment: Environment)(qryStringMap: Map[ParamName, String])(fn: S => T)(using hc: HeaderCarrier, rds: Reads[S]): Future[List[T]] = {
+    val rawQryStringMap = qryStringMap.map {
+      case (k, v) => (k.text -> v)
+    }
+    import uk.gov.hmrc.http.client.readSource
+
     http
-      .get(url"${config.serviceBaseUrl}/environment/$environment/query?$qryStringMap")
+      .get(url"${config.serviceBaseUrl}/environment/${environment.toString.toUpperCase}/query?$rawQryStringMap")
       .transform(_.withRequestTimeout(1.minutes))
       .setHeader(Http.HeaderNames.ACCEPT -> "application/stream+json")
-      .stream[Source[ByteString, _]]
+      .stream[Source[ByteString, ?]]
       .map {
         _.via(JsonFraming.objectScanner(maximumObjectLength = Int.MaxValue))
           .map { bytestring =>

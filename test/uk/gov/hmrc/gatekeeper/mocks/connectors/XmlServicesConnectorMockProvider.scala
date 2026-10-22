@@ -23,37 +23,39 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
-import uk.gov.hmrc.gatekeeper.connectors._
-import uk.gov.hmrc.gatekeeper.models.xml._
+import uk.gov.hmrc.gatekeeper.connectors.*
+import uk.gov.hmrc.gatekeeper.models.xml.*
 
 trait XmlServicesConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
 
   val mockXmlServicesConnector = mock[XmlServicesConnector]
 
   object XmlServicesConnectorMock {
 
     object GetAllApis {
-      def returnsApis(xmlApis: List[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(*)).thenReturn(successful(xmlApis))
+      def returnsApis(xmlApis: List[XmlApi]) = when(mockXmlServicesConnector.getAllApis()(using *)).thenReturn(successful(xmlApis))
 
       def returnsError() =
-        when(mockXmlServicesConnector.getAllApis()(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+        when(mockXmlServicesConnector.getAllApis()(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
 
     object GetApisForCategory {
-      def returnsApis(xmlApis: List[XmlApi], categories: List[String]) = when(mockXmlServicesConnector.getApisForCategories(eqTo(categories))(*)).thenReturn(successful(xmlApis))
+
+      def returnsApis(xmlApis: List[XmlApi], categories: List[String]) =
+        when(mockXmlServicesConnector.getApisForCategories(eqTo(categories))(using *)).thenReturn(successful(xmlApis))
 
       def returnsError() =
-        when(mockXmlServicesConnector.getApisForCategories(*)(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+        when(mockXmlServicesConnector.getApisForCategories(*)(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
 
     object GetOrganisations {
 
       def returnsOrganisations(userId: UserId, xmlOrganisations: List[XmlOrganisation]) =
-        when(mockXmlServicesConnector.findOrganisationsByUserId(eqTo(userId))(*)).thenReturn(successful(xmlOrganisations))
+        when(mockXmlServicesConnector.findOrganisationsByUserId(eqTo(userId))(using *)).thenReturn(successful(xmlOrganisations))
 
       def returnsError() =
-        when(mockXmlServicesConnector.findOrganisationsByUserId(*[UserId])(*)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
+        when(mockXmlServicesConnector.findOrganisationsByUserId(*[UserId])(using *)).thenThrow(UpstreamErrorResponse("error", 500, 500, Map.empty))
     }
   }
 

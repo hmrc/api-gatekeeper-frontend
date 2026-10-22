@@ -25,11 +25,11 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseController
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
-import uk.gov.hmrc.apiplatform.modules.gkauth.services._
-import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.apiplatform.modules.gkauth.services.*
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
-import uk.gov.hmrc.gatekeeper.services._
+import uk.gov.hmrc.gatekeeper.services.*
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
 
@@ -44,8 +44,7 @@ class DeskproController @Inject() (
     val ldapAuthorisationService: LdapAuthorisationService,
     val apiPlatformDeskproService: ApiPlatformDeskproService,
     val developerService: DeveloperService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
@@ -57,7 +56,7 @@ class DeskproController @Inject() (
       for {
         ticket <- apiPlatformDeskproService.getDeskproTicket(ticketId)
         user   <- developerService.fetchUser(ticket.personEmail)
-      } yield Redirect(routes.DeveloperController.developerPage(user.userId))
+      } yield Redirect(routes.DeveloperController.developerPage(user.userId.simpleUser))
     } recover {
       case e: UpstreamErrorResponse if e.statusCode == NOT_FOUND =>
         logger.error(s"Failed to find Deskpro ticket: $ticketId", e)

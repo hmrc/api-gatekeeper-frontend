@@ -22,16 +22,16 @@ case class FilterValue(description: String, t: String)
 
 object FilterValue {
 
-  import play.api.libs.functional.syntax._
-  import play.api.libs.json.Reads._
-  import play.api.libs.json._
+  import play.api.libs.functional.syntax.*
+  import play.api.libs.json.Reads.*
+  import play.api.libs.json.*
 
-  implicit val format: OFormat[FilterValue] = ((__ \ "description").format[String] and
-    (__ \ "type").format[String])(FilterValue.apply, unlift(FilterValue.unapply))
+  given format: OFormat[FilterValue] = ((__ \ "description").format[String] and
+    (__ \ "type").format[String])(FilterValue.apply, fv => (fv.description, fv.t))
 }
 
 case class QueryableValues(eventTags: List[FilterValue], actorTypes: List[FilterValue])
 
 object QueryableValues {
-  implicit val format: OFormat[QueryableValues] = Json.format[QueryableValues]
+  given format: OFormat[QueryableValues] = Json.format[QueryableValues]
 }

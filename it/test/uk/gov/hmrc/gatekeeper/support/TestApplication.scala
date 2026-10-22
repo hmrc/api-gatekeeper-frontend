@@ -20,7 +20,7 @@ import play.api.Application
 import play.api.inject.guice.GuiceApplicationBuilder
 
 trait TestApplication {
-  _: BaseISpec =>
+  self: BaseISpec =>
 
   implicit override lazy val app: Application = appBuilder.build()
 

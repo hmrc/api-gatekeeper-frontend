@@ -18,16 +18,16 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, UpstreamErrorResponse}
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
 class ApmConnectorCombinedApisModuleSpec
@@ -38,7 +38,7 @@ class ApmConnectorCombinedApisModuleSpec
     with FixedClock {
 
   trait Setup {
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val httpClient = app.injector.instanceOf[HttpClientV2]
 
@@ -47,8 +47,8 @@ class ApmConnectorCombinedApisModuleSpec
 
     val underTest: ApmConnectoCombinedApisModule = new ApmConnector(httpClient, mockApmConnectorConfig)
 
-    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.CUSTOMS), ApiType.REST_API, ApiAccessType.PUBLIC)
-    val combinedXmlApi2  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.VAT), ApiType.XML_API, ApiAccessType.PUBLIC)
+    val combinedRestApi1 = CombinedApi("displayName1", ServiceName("serviceName1"), Set(ApiCategory.SelfAssessment), ApiType.RestApi, ApiAccessType.Public)
+    val combinedXmlApi2  = CombinedApi("displayName2", ServiceName("serviceName2"), Set(ApiCategory.Vat), ApiType.XmlApi, ApiAccessType.Public)
     val combinedList     = List(combinedRestApi1, combinedXmlApi2)
   }
 
@@ -72,7 +72,7 @@ class ApmConnectorCombinedApisModuleSpec
     "handles legacy access type" in new Setup {
       val url = "/combined-rest-xml-apis"
 
-      val legacyJsonText = """[{"displayName":"displayName1","serviceName":"serviceName1","categories":["CUSTOMS"],"apiType":"REST_API","accessType":"PRIVATE"}]"""
+      val legacyJsonText = """[{"displayName":"displayName1","serviceName":"serviceName1","categories":["SELF_ASSESSMENT"],"apiType":"REST_API","accessType":"PRIVATE"}]"""
 
       stubFor(
         get(urlPathEqualTo(url))
@@ -84,7 +84,7 @@ class ApmConnectorCombinedApisModuleSpec
       )
 
       val result = await(underTest.fetchAllCombinedApis())
-      result shouldBe List(combinedRestApi1.copy(accessType = ApiAccessType.INTERNAL))
+      result shouldBe List(combinedRestApi1.copy(accessType = ApiAccessType.Internal))
     }
 
     "returns exception when backend returns error" in new Setup {

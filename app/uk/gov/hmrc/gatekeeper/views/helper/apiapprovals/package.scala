@@ -16,8 +16,6 @@
 
 package uk.gov.hmrc.gatekeeper.views.helper
 
-import java.time.{Instant, ZoneOffset}
-
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actor
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.Actors.{GatekeeperUser, Process}
 import uk.gov.hmrc.gatekeeper.models.{ApiApprovalState, ApprovalStatus}

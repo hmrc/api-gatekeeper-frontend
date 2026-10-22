@@ -21,18 +21,18 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.apiplatform.modules.common.services.ApplicationLogger
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector.*
 
 @Singleton
-class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClientV2)(implicit ec: ExecutionContext) extends ApplicationLogger {
+class ApiCataloguePublishConnector @Inject() (appConfig: ApiCataloguePublishConnector.Config, http: HttpClientV2)(using ec: ExecutionContext) extends ApplicationLogger {
 
-  def publishByServiceName(serviceName: ServiceName)(implicit hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
+  def publishByServiceName(serviceName: ServiceName)(using hc: HeaderCarrier): Future[Either[Throwable, PublishResponse]] =
     handleResult(http.post(url"${appConfig.serviceBaseUrl}/api-platform-api-catalogue-publish/publish/$serviceName")
       .execute[PublishResponse])
 
@@ -51,5 +51,5 @@ object ApiCataloguePublishConnector {
   case class Config(serviceBaseUrl: String)
   // API Catalogue Publish
   case class PublishResponse(id: String, publisherReference: String)
-  implicit val formatPublishResponse: OFormat[PublishResponse] = Json.format[PublishResponse]
+  given formatPublishResponse: OFormat[PublishResponse] = Json.format[PublishResponse]
 }

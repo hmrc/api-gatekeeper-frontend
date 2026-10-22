@@ -24,23 +24,23 @@ import uk.gov.hmrc.http.UpstreamErrorResponse
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ServiceName
 import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector
-import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector._
+import uk.gov.hmrc.gatekeeper.connectors.ApiCataloguePublishConnector.*
 
 trait ApiCataloguePublishConnectorMockProvider {
-  self: MockitoSugar with ArgumentMatchersSugar =>
+  self: MockitoSugar & ArgumentMatchersSugar =>
   val mockApiCataloguePublishConnector = mock[ApiCataloguePublishConnector]
 
   object ApiCataloguePublishConnectorMock {
 
     object PublishByServiceName {
 
-      def returnRight() = when(mockApiCataloguePublishConnector.publishByServiceName(*[ServiceName])(*)).thenReturn(successful(Right(PublishResponse(
+      def returnRight() = when(mockApiCataloguePublishConnector.publishByServiceName(*[ServiceName])(using *)).thenReturn(successful(Right(PublishResponse(
         id = "id",
         publisherReference = "publisherReference"
       ))))
 
       def returnLeft() =
-        when(mockApiCataloguePublishConnector.publishByServiceName(*[ServiceName])(*)).thenReturn(successful(Left(UpstreamErrorResponse("error", 500, 500, Map.empty))))
+        when(mockApiCataloguePublishConnector.publishByServiceName(*[ServiceName])(using *)).thenReturn(successful(Left(UpstreamErrorResponse("error", 500, 500, Map.empty))))
     }
   }
 

@@ -19,22 +19,22 @@ package uk.gov.hmrc.gatekeeper.connectors
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import com.github.tomakehurst.wiremock.client.WireMock._
+import com.github.tomakehurst.wiremock.client.WireMock.*
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 
 import play.api.libs.json.Json
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.AccessType
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.utils._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
+import uk.gov.hmrc.apiplatform.modules.common.utils.*
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
 import uk.gov.hmrc.gatekeeper.utils.UrlEncoding
 
@@ -55,9 +55,9 @@ class ApplicationConnectorSpec
   val apiKey        = "apiKey"
   val authToken     = "Bearer Token"
 
-  implicit val hc: HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
+  given HeaderCarrier = HeaderCarrier().withExtraHeaders(("Authorization", authToken))
 
-  class Setup(proxyEnabled: Boolean = false) {
+  trait Setup {
     val httpClient               = app.injector.instanceOf[HttpClientV2]
     val mockAppConfig: AppConfig = mock[AppConfig]
     when(mockAppConfig.applicationProductionBaseUrl).thenReturn(wireMockUrl)
@@ -81,11 +81,11 @@ class ApplicationConnectorSpec
           "app 1 name",
           1,
           List(
-            ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now),
-            ApplicationStateHistoryItem(State.PRODUCTION, LocalDateTime.now)
+            ApplicationStateHistoryItem(State.Testing, LocalDateTime.now),
+            ApplicationStateHistoryItem(State.Production, LocalDateTime.now)
           )
         ),
-        ApplicationStateHistory(ApplicationId.random, "app 2 name", 2, List(ApplicationStateHistoryItem(State.TESTING, LocalDateTime.now)))
+        ApplicationStateHistory(ApplicationId.random, "app 2 name", 2, List(ApplicationStateHistoryItem(State.Testing, LocalDateTime.now)))
       )
       val payload                        = Json.toJson(applicationsWithStateHistories).toString
 
@@ -111,12 +111,12 @@ class ApplicationConnectorSpec
       val app            = privilegedCoreApp.copy(description = Some(appDescription))
       val admin          = List(administrator)
       val totpSecrets    = Some(TotpSecrets("secret"))
-      val appAccess      = AppAccess(AccessType.PRIVILEGED, List())
+      val appAccess      = AppAccess(AccessType.Privileged, List())
 
-      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.PRODUCTION, admin.toSet, None, None)
+      val createPrivAppRequest = CreateApplicationRequestV1(app.name, CreationAccess.Privileged, Some(appDescription), Environment.Production, admin.toSet, None, None)
 
       val request               = Json.toJson(createPrivAppRequest).toString
-      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.PRODUCTION, app.token.clientId, totpSecrets, appAccess)
+      val createPrivAppResponse = CreatePrivAppSuccessResult(app.id, app.name, Environment.Production, app.token.clientId, totpSecrets, appAccess)
       val response              =
         s"""{
            |  "details": ${Json.toJson(app).toString()},

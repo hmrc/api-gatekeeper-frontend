@@ -23,23 +23,23 @@ import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.{AnyContentAsEmpty, Result}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.filters.csrf.CSRF.TokenProvider
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
-import uk.gov.hmrc.gatekeeper.models._
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{TitleChecker, WithCSRFAddToken}
-import uk.gov.hmrc.gatekeeper.views.html.emails._
+import uk.gov.hmrc.gatekeeper.views.html.emails.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCSRFAddToken with TitleChecker {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView     = app.injector.instanceOf[ForbiddenView]
@@ -66,36 +66,36 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       val verifiedUser3  = RegisteredUser("user3@hmrc.com".toLaxEmail, UserId.random, "verifiedUserC", "3", true)
       val users          = List(verifiedUser1, verifiedUser2, verifiedUser3)
       val verified2Users = List(verifiedUser1, verifiedUser2)
-      val category1      = ApiCategory.EXAMPLE
-      val category2      = ApiCategory.VAT
+      val category1      = ApiCategory.Example
+      val category2      = ApiCategory.Vat
 
       val apiVersion1 = ApiVersionNbr("1.0")
       val apiVersion3 = ApiVersionNbr("3.0")
 
-      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users: _*)
+      def givenVerifiedDeveloper() = DeveloperServiceMock.FetchUsers.returns(verified2Users*)
 
       def givenViewIsPassedCorrectUsers(users: List[RegisteredUser], emailString: String) = {
-        when(mockEmailApiSubscriptionsView.apply(*, eqTo(users), eqTo(emailString), *)(*, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
+        when(mockEmailApiSubscriptionsView.apply(*, eqTo(users), eqTo(emailString), *)(using *, *, *)).thenReturn(play.twirl.api.HtmlFormat.empty)
       }
 
       val api1    = ApiDefinition(
         ServiceName("service1"),
-        "/",
-        "serviceName",
-        "serviceDesc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("serviceName"),
+        ApiDefinition.Description("serviceDesc"),
         ApiContext("service1"),
-        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category1)
       )
       val api2    = ApiDefinition(
         ServiceName("service2"),
-        "/",
-        "service2Name",
-        "service2Desc",
+        ApiDefinition.ServiceBaseUrl("/"),
+        ApiDefinition.Name("service2Name"),
+        ApiDefinition.Description("service2Desc"),
         ApiContext("service2"),
-        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+        Map(apiVersion3 -> ApiVersion(apiVersion3, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
         false,
         None,
         List(category2)
@@ -103,16 +103,16 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
       val twoApis = List(api1, api2)
 
       def givenApiDefinition2Apis() = {
-        FetchAllApiDefinitions.inAny.returns(twoApis: _*)
+        FetchAllApiDefinitions.inAny.returns(twoApis*)
       }
 
       def given2ApplicationsWithSubscriptions(apiFilter: ApiFilter[String], applications: List[ApplicationWithCollaborators]) = {
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications: _*)
-        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications: _*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, ProductionEnvironment, applications*)
+        ApplicationServiceMock.FetchApplications.returnsFor(apiFilter, SandboxEnvironment, applications*)
       }
 
       def givenDevelopersByEmail(users: List[RegisteredUser]) = {
-        DeveloperServiceMock.FetchDevelopersByEmails.returns(users: _*)
+        DeveloperServiceMock.FetchDevelopersByEmails.returns(users*)
       }
 
       val underTest = new EmailsController(
@@ -145,7 +145,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
         val result: Future[Result] = underTest.emailApiSubscribersPage()(FakeRequest())
         status(result) shouldBe OK
 
-        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(*, *, *)
+        verify(mockEmailApiSubscriptionsView).apply(eqTo(underTest.getApiVersionsDropDownValues(twoApis)), eqTo(List.empty), eqTo(""), eqTo(Map.empty))(using *, *, *)
       }
 
       "render correctly when no filter provided and not logged in via Stride" in new Setup {
@@ -175,7 +175,7 @@ class EmailsControllerApiSubscriptionSpec extends ControllerBaseSpec with WithCS
           eqTo(users),
           eqTo(users.map(_.email.text).sorted.mkString("; ")),
           eqTo(Map("apiVersionFilter" -> "service2__3"))
-        )(*, *, *)
+        )(using *, *, *)
       }
     }
   }

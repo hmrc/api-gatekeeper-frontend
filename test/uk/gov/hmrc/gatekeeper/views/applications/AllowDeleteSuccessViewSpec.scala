@@ -26,11 +26,11 @@ import play.twirl.api.HtmlFormat.Appendable
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{ApplicationState, ApplicationWithCollaborators, Collaborators}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.models.Forms.IpAllowlistForm.allowlistedIpsConstraint
-import uk.gov.hmrc.gatekeeper.utils.ViewHelpers._
+import uk.gov.hmrc.gatekeeper.utils.ViewHelpers.*
 import uk.gov.hmrc.gatekeeper.views.CommonViewSpec
 import uk.gov.hmrc.gatekeeper.views.html.applications.ManageDeleteRestrictionSuccessView
 
@@ -45,7 +45,7 @@ class AllowDeleteSuccessViewSpec extends CommonViewSpec {
 
   "Manage Delete Restriction Success view" should {
     "show Manage Delete Restriction success page when deletion was enabled for the application" in new Setup {
-      val result: Appendable = manageDeleteRestrictionSuccessView(application, true)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = manageDeleteRestrictionSuccessView(application, true)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 
@@ -55,7 +55,7 @@ class AllowDeleteSuccessViewSpec extends CommonViewSpec {
     }
 
     "show Manage Delete Restriction success page when auto deletion was disabled for the application" in new Setup {
-      val result: Appendable = manageDeleteRestrictionSuccessView(application, false)(request, LoggedInUser(None), messagesProvider)
+      val result: Appendable = manageDeleteRestrictionSuccessView(application, false)(using request, LoggedInUser(None), messagesProvider)
 
       val document: Document = Jsoup.parse(result.body)
 

@@ -26,7 +26,7 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 
-@(application: ApplicationWithCollaborators, form: Form[UpdateApplicationNameForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(application: ApplicationWithCollaborators, form: Form[UpdateApplicationNameForm])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(
   title = s"${applicationConfig.title} - Change the application name",
@@ -34,7 +34,7 @@
     breadcrumbs = Seq(
     Crumb(
       s"${application.name}",
-      s"${routes.ApplicationController.applicationPage(application.id)}",
+      s"${routes.ApplicationController.applicationPage(application.id.simpleApp)}",
       Some("data-breadcrumb-view-application")
     ),
     Crumb(
@@ -56,7 +56,7 @@
 
     <p class="govuk-body">Any new name must follow our <a class="govuk-link govuk-link--no-visited-state" rel="noreferrer noopener" target="_blank" href="https://developer.service.hmrc.gov.uk/api-documentation/docs/using-the-hub/name-guidelines">naming guidelines (opens in new tab)</a>.</p>
 
-    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id), Symbol("class") -> "form") {
+    @helper.form(action = routes.UpdateApplicationNameController.updateApplicationNameAction(application.id.simpleApp), Symbol("class") -> "form") {
       <div class="govuk-form-group @if(form.hasErrors) {govuk-form-group--error}">
         @helper.CSRF.formField
         @fieldError(form.errors, "applicationName")
@@ -69,7 +69,7 @@
           inputType = Some("submit"),
           preventDoubleClick = Some(true)
         ))
-        <a href="@routes.ApplicationController.applicationPage(application.id)" class="govuk-button govuk-button--secondary">Cancel</a>
+        <a href="@routes.ApplicationController.applicationPage(application.id.simpleApp)" class="govuk-button govuk-button--secondary">Cancel</a>
       </div>
     }
 }

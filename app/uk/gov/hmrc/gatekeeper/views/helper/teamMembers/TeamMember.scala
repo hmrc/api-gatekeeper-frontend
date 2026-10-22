@@ -17,12 +17,7 @@
 package uk.gov.hmrc.gatekeeper.views.helper.teamMembers
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator.Role
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborator.Roles.ADMINISTRATOR
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
-import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
-import uk.gov.hmrc.apiplatform.modules.tpd.core.domain.models.User
-import uk.gov.hmrc.apiplatform.modules.tpd.session.domain.models.UserSession
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
 
 object TeamMember {

@@ -41,13 +41,13 @@ import play.twirl.api.HtmlFormat
 
 import uk.gov.hmrc.apiplatform.modules.apis.domain.models.ApiStatus
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.{GatekeeperRole, GatekeeperRoles, LoggedInRequest, LoggedInUser}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.views.html.applications.ApplicationsView
 
 class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks {
@@ -55,14 +55,14 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
   trait Setup extends ApplicationBuilder {
     val applicationsView = app.injector.instanceOf[ApplicationsView]
 
-    implicit val mockConfig: AppConfig      = mock[AppConfig]
-    implicit val loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
+    given mockConfig: AppConfig      = mock[AppConfig]
+    given loggedInUser: LoggedInUser = LoggedInUser(Some("Bob Dole"))
 
     val apis = Map[String, Seq[VersionSummary]](
-      ApiStatus.STABLE.displayText     -> Seq(VersionSummary("Dummy API", ApiStatus.STABLE, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
-      ApiStatus.BETA.displayText       -> Seq(VersionSummary("Beta API", ApiStatus.BETA, ApiIdentifier(ApiContext("beta-api"), ApiVersionNbr.random))),
-      ApiStatus.RETIRED.displayText    -> Seq(VersionSummary("Retired API", ApiStatus.RETIRED, ApiIdentifier(ApiContext("ret-api"), ApiVersionNbr.random))),
-      ApiStatus.DEPRECATED.displayText -> Seq(VersionSummary("Deprecated API", ApiStatus.DEPRECATED, ApiIdentifier(ApiContext("dep-api"), ApiVersionNbr.random)))
+      ApiStatus.Stable.toString     -> Seq(VersionSummary("Dummy API", ApiStatus.Stable, ApiIdentifier(ApiContext("dummy-api"), ApiVersionNbr.random))),
+      ApiStatus.Beta.toString       -> Seq(VersionSummary("Beta API", ApiStatus.Beta, ApiIdentifier(ApiContext("beta-api"), ApiVersionNbr.random))),
+      ApiStatus.Retired.toString    -> Seq(VersionSummary("Retired API", ApiStatus.Retired, ApiIdentifier(ApiContext("ret-api"), ApiVersionNbr.random))),
+      ApiStatus.Deprecated.toString -> Seq(VersionSummary("Deprecated API", ApiStatus.Deprecated, ApiIdentifier(ApiContext("dep-api"), ApiVersionNbr.random)))
     )
 
     val collaborators: Set[Collaborator] = Set(
@@ -73,32 +73,32 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
     val applications    = List[ApplicationWithCollaborators](
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Testing App")).withState(ApplicationState(updatedOn = Instant.now())),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Gatekeeper Approval App")).withState(ApplicationState(
-        name = State.PENDING_GATEKEEPER_APPROVAL,
+        name = State.PendingGatekeeperApproval,
         updatedOn = Instant.now()
       )),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Pending Requester Verification App")).withState(ApplicationState(
-        name = State.PENDING_REQUESTER_VERIFICATION,
+        name = State.PendingRequesterVerification,
         updatedOn = Instant.now()
       )),
-      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState(ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())),
+      standardApp.withId(ApplicationId.random).withName(ApplicationName("Production App")).withState(ApplicationState(name = State.Production, updatedOn = Instant.now())),
       standardApp.withId(ApplicationId.random).withName(ApplicationName("Blocked Production App")).withState(
-        ApplicationState(name = State.PRODUCTION, updatedOn = Instant.now())
+        ApplicationState(name = State.Production, updatedOn = Instant.now())
       ).withBlocked(true)
     )
     val getApprovalsUrl = (appId: ApplicationId, deployedTo: Environment) => "approvals/url"
 
     def applicationViewWithNoApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
     }
 
     def applicationViewWithApis(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), apis, Map.empty, getApprovalsUrl)
     }
 
     def applicationViewWithApplication(role: GatekeeperRole = GatekeeperRoles.USER): HtmlFormat.Appendable = {
-      implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
+      given currentLoggedInUser: LoggedInRequest[?] = new LoggedInRequest(Some(developer.user.fullName), role, msgRequest)
       applicationsView(PaginatedApplications(applications, 1, 4, 4, 4), Map.empty, Map.empty, getApprovalsUrl)
     }
 
@@ -194,8 +194,8 @@ class ApplicationsViewSpec extends CommonViewSpec with TableDrivenPropertyChecks
 
       "Display the 'Add privileged application' button on for appropriate user roles" in new Setup {
         for (r <- rolesTable) {
-          implicit val currentLoggedInUser: LoggedInRequest[_] = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
-          val applicationView: () => HtmlFormat.Appendable     = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
+          given currentLoggedInUser: LoggedInRequest[?]    = new LoggedInRequest(Some(developer.user.fullName), r._1, msgRequest)
+          val applicationView: () => HtmlFormat.Appendable = () => applicationsView(PaginatedApplications(List.empty, 0, 0, 0, 0), Map.empty, Map.empty, getApprovalsUrl)
           if (r._2)
             applicationView().body should include("""Add privileged application""")
           else

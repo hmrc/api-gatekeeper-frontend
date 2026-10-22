@@ -20,7 +20,6 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future.successful
 import scala.concurrent.{ExecutionContext, Future}
 
-import play.api.data.Form
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
@@ -29,14 +28,15 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.GatekeeperBaseControll
 import uk.gov.hmrc.apiplatform.modules.gkauth.controllers.actions.GatekeeperAuthorisationActions
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationService, StrideAuthorisationService}
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
+import uk.gov.hmrc.gatekeeper.common.controllers.binders.RouteModels.ToRouteTypes.simpleUser
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.controllers.actions.ActionBuilders
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
-import uk.gov.hmrc.gatekeeper.models._
 import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
-import uk.gov.hmrc.gatekeeper.services.{ApiDefinitionService, ApmService, ApplicationQueryService, DeveloperService}
+import uk.gov.hmrc.gatekeeper.services.{ApmService, ApplicationQueryService, DeveloperService}
 import uk.gov.hmrc.gatekeeper.utils.ErrorHelper
-import uk.gov.hmrc.gatekeeper.views.html.developers._
+import uk.gov.hmrc.gatekeeper.views.html.developers.*
 import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
@@ -44,7 +44,6 @@ class DeveloperController @Inject() (
     developerService: DeveloperService,
     val applicationQueryService: ApplicationQueryService,
     val forbiddenView: ForbiddenView,
-    apiDefinitionService: ApiDefinitionService,
     mcc: MessagesControllerComponents,
     developerDetailsView: DeveloperDetailsView,
     removeMfaView: RemoveMfaView,
@@ -56,8 +55,8 @@ class DeveloperController @Inject() (
     val errorHandler: ErrorHandler,
     strideAuthorisationService: StrideAuthorisationService,
     val ldapAuthorisationService: LdapAuthorisationService
-  )(implicit val appConfig: AppConfig,
-    override val ec: ExecutionContext
+  )(using appConfig: AppConfig,
+    ec: ExecutionContext
   ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with GatekeeperAuthorisationActions
     with ErrorHelper
@@ -90,15 +89,15 @@ class DeveloperController @Inject() (
     def handleValidForm(form: RemoveMfaConfirmationForm): Future[Result] = {
       form.confirm match {
         case "yes" => handleRemoveMfa()
-        case _     => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier).url))
+        case _     => successful(Redirect(routes.DeveloperController.developerPage(developerIdentifier.simpleUser).url))
       }
     }
 
-    def handleInvalidForm(form: Form[RemoveMfaConfirmationForm]): Future[Result] = {
+    def handleInvalidForm(): Future[Result] = {
       successful(BadRequest)
     }
 
-    RemoveMfaConfirmationForm.form.bindFromRequest().fold(handleInvalidForm, handleValidForm)
+    RemoveMfaConfirmationForm.form.bindFromRequest().fold(_ => handleInvalidForm(), handleValidForm)
   }
 
   def deleteDeveloperPage(developerIdentifier: UserId) = atLeastAdvancedUserAction { implicit request =>

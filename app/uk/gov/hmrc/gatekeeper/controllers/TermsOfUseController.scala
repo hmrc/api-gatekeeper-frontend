@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.gatekeeper.common.config.AppConfig
 
 @Singleton
-class TermsOfUseController @Inject() (mcc: MessagesControllerComponents)(implicit val appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {
+class TermsOfUseController @Inject() (mcc: MessagesControllerComponents)(using appConfig: AppConfig, val ec: ExecutionContext) extends FrontendController(mcc) {
 
   def page(): Action[AnyContent] = Action.async { _ =>
     Future.successful(Redirect(s"${appConfig.gatekeeperApprovalsBaseUrl}/api-gatekeeper-approvals/terms-of-use"))

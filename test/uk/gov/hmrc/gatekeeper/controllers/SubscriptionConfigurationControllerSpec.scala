@@ -21,10 +21,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import mocks.services.SubscriptionFieldsServiceMockProvider
 import org.apache.pekko.stream.Materializer
 
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.apiplatform.modules.subscriptionfields.domain.models.{FieldName, FieldValue}
 import uk.gov.hmrc.gatekeeper.builder.{ApiBuilder, ApplicationBuilder, FieldDefinitionsBuilder, SubscriptionsBuilder}
@@ -39,7 +39,7 @@ class SubscriptionConfigurationControllerSpec
     with WithCSRFAddToken
     with TitleChecker {
 
-  implicit val materializer: Materializer            = app.materializer
+  given materializer: Materializer                   = app.materializer
   private lazy val errorTemplateView                 = app.injector.instanceOf[ErrorTemplate]
   private lazy val forbiddenView                     = app.injector.instanceOf[ForbiddenView]
   private lazy val listSubscriptionConfigurationView = app.injector.instanceOf[ListSubscriptionConfigurationView]
@@ -82,10 +82,10 @@ class SubscriptionConfigurationControllerSpec
 
   trait EditSaveFormData extends AppWithSubscriptionDataAndFieldDefinitionsSetup {
 
-    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request: FakeRequest[_]) = {
-      request.withFormUrlEncodedBody(
+    def requestWithFormData(fieldName: FieldName, fieldValue: FieldValue)(request: FakeRequest[?]) = {
+      request.withMethod("POST").withFormUrlEncodedBody(
         "fields[0].name"  -> fieldName.value,
-        "fields[0].value" -> fieldValue.value
+        "fields[0].value" -> fieldValue.toString
       )
     }
   }
@@ -107,12 +107,12 @@ class SubscriptionConfigurationControllerSpec
       responseBody should include("Subscription configuration")
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(versionData.status.displayText)
+      responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.shortDescription)
-      responseBody should include(fields.head._2.value)
+      responseBody should include(fields.head._2.toString)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
 
     }
 
@@ -146,19 +146,19 @@ class SubscriptionConfigurationControllerSpec
 
       status(result) shouldBe OK
 
-      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${versionData.status.displayText}"
+      titleOf(result) shouldBe s"${appConfig.title} - ${apiName} ${apiVersion.value} ${versionData.status.toString}"
 
       val responseBody = Helpers.contentAsString(result)
 
       responseBody should include(apiName)
       responseBody should include(apiVersion.value)
-      responseBody should include(versionData.status.displayText)
+      responseBody should include(versionData.status.toString)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.description)
       responseBody should include(allFieldDefinitions(apiContext)(apiVersion).head._2.hint)
-      responseBody should include(fields.head._2.value)
+      responseBody should include(fields.head._2.toString)
 
       ApmServiceMock.verifyAllPossibleSubscriptions(applicationWithSubscriptionData.id)
-      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.SANDBOX)
+      ApmServiceMock.verifyGetAllFieldDefinitionsReturns(Environment.Sandbox)
     }
 
     "When logged in as super user renders the page correctly" in new AppWithSubscriptionDataAndFieldDefinitionsSetup {

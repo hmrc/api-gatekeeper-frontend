@@ -22,9 +22,9 @@ object EmailsFormatter {
 
   def format(collaborators: Set[Collaborator], maybeFilter: Option[Collaborator.Role] = None): String = {
     (maybeFilter match {
-      case Some(Collaborator.Roles.ADMINISTRATOR) => collaborators.filter(_.isAdministrator)
-      case Some(Collaborator.Roles.DEVELOPER)     => collaborators.filter(_.isDeveloper)
-      case _                                      => collaborators
+      case Some(Collaborator.Role.Administrator) => collaborators.filter(_.isAdministrator)
+      case Some(Collaborator.Role.Developer)     => collaborators.filter(_.isDeveloper)
+      case _                                     => collaborators
     }).map(_.emailAddress.text).mkString("; ")
   }
 }

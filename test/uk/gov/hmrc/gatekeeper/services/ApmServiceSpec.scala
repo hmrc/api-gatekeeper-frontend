@@ -21,14 +21,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{ApplicationId, Environment}
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class ApmServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val apmService = new ApmService(ApmConnectorMock.aMock)
 
@@ -37,17 +37,17 @@ class ApmServiceSpec extends AsyncHmrcSpec {
     val combinedRestApi1 = CombinedApi(
       "displayName1",
       ServiceName("serviceName1"),
-      Set(ApiCategory.CUSTOMS),
-      ApiType.REST_API,
-      ApiAccessType.PUBLIC
+      Set(ApiCategory.Customs),
+      ApiType.RestApi,
+      ApiAccessType.Public
     )
 
     val combinedXmlApi2 = CombinedApi(
       "displayName2",
       ServiceName("serviceName2"),
-      Set(ApiCategory.VAT),
-      ApiType.XML_API,
-      ApiAccessType.PUBLIC
+      Set(ApiCategory.Vat),
+      ApiType.XmlApi,
+      ApiAccessType.Public
     )
     val combinedList    = List(combinedRestApi1, combinedXmlApi2)
 
@@ -71,7 +71,7 @@ class ApmServiceSpec extends AsyncHmrcSpec {
 
         ApmConnectorMock.GetAllFieldDefinitions.returns(Map.empty)
 
-        val result = await(apmService.getAllFieldDefinitions(Environment.PRODUCTION))
+        val result = await(apmService.getAllFieldDefinitions(Environment.Production))
 
         result shouldBe Map.empty
       }

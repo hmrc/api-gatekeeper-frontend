@@ -18,49 +18,51 @@ package uk.gov.hmrc.gatekeeper.connectors
 
 import java.time.Instant
 import javax.inject.{Inject, Singleton}
+import scala.annotation.nowarn
 import scala.concurrent.{ExecutionContext, Future}
 
 import play.api.Logging
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.http.HttpReads.Implicits._
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, _}
+import uk.gov.hmrc.http.{HeaderCarrier, *}
 
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.{LaxEmailAddress, OrganisationId}
-import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveFailed, MarkPersonInactiveResult, MarkPersonInactiveSuccess}
+import uk.gov.hmrc.gatekeeper.connectors.ApiPlatformDeskproConnector.{DeskproTicket, MarkPersonInactiveResult}
 import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 
 @Singleton
 class ApiPlatformDeskproConnector @Inject() (
     config: ApiPlatformDeskproConnector.Config,
     http: HttpClientV2
-  )(implicit ec: ExecutionContext
+  )(using ExecutionContext
   ) extends CommonResponseHandlers with Logging {
 
   def getOrganisation(organisationId: OrganisationId, hc: HeaderCarrier): Future[DeskproOrganisation] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.get(url"${config.serviceBaseUrl}/organisation/${organisationId.value}").execute[DeskproOrganisation]
   }
 
   def markPersonInactive(email: LaxEmailAddress, hc: HeaderCarrier): Future[MarkPersonInactiveResult] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.post(url"${config.serviceBaseUrl}/person/mark-inactive")
       .withBody(Json.toJson(ApiPlatformDeskproConnector.MarkPersonInactiveRequest(email)))
       .execute[Either[UpstreamErrorResponse, Unit]]
-      .map(throwOr(MarkPersonInactiveSuccess))
-      .recover(handleUpstreamErrors[MarkPersonInactiveResult](MarkPersonInactiveFailed))
+      .map(throwOr(MarkPersonInactiveResult.Success))
+      .recover(handleUpstreamErrors[MarkPersonInactiveResult](MarkPersonInactiveResult.Failed))
   }
 
   def getDeskproTicket(ticketId: Int, hc: HeaderCarrier): Future[DeskproTicket] = {
-    implicit val headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
+    given headerCarrier: HeaderCarrier = hc.copy(authorization = Some(Authorization(config.authToken)))
     http.get(url"${config.serviceBaseUrl}/ticket/$ticketId").execute[DeskproTicket]
   }
 
+  @nowarn
   private def handleUpstreamErrors[A](returnIfError: A): PartialFunction[Throwable, A] = (err: Throwable) => {
     logger.warn("Exception occurred when calling Deskpro", err)
     err match {
-      case e: HttpException         => returnIfError
-      case e: UpstreamErrorResponse => returnIfError
+      case _: HttpException         => returnIfError
+      case _: UpstreamErrorResponse => returnIfError
       case e: Throwable             => throw e
     }
   }
@@ -72,13 +74,13 @@ object ApiPlatformDeskproConnector {
   case class GetOrganisationsForUserRequest(email: LaxEmailAddress)
 
   object GetOrganisationsForUserRequest {
-    implicit val format: OFormat[GetOrganisationsForUserRequest] = Json.format[GetOrganisationsForUserRequest]
+    given format: OFormat[GetOrganisationsForUserRequest] = Json.format[GetOrganisationsForUserRequest]
   }
 
   case class MarkPersonInactiveRequest(email: LaxEmailAddress)
 
   object MarkPersonInactiveRequest {
-    implicit val format: OFormat[MarkPersonInactiveRequest] = Json.format[MarkPersonInactiveRequest]
+    given format: OFormat[MarkPersonInactiveRequest] = Json.format[MarkPersonInactiveRequest]
   }
 
   case class DeskproTicket(
@@ -94,10 +96,10 @@ object ApiPlatformDeskproConnector {
     )
 
   object DeskproTicket {
-    implicit val format: OFormat[DeskproTicket] = Json.format[DeskproTicket]
+    given format: OFormat[DeskproTicket] = Json.format[DeskproTicket]
   }
 
-  sealed trait MarkPersonInactiveResult
-  case object MarkPersonInactiveSuccess extends MarkPersonInactiveResult
-  case object MarkPersonInactiveFailed  extends MarkPersonInactiveResult
+  enum MarkPersonInactiveResult {
+    case Success, Failed
+  }
 }

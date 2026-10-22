@@ -14,8 +14,8 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.controllers._
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.controllers.*
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInUser
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.models.Forms.RemoveMfaConfirmationForm
@@ -25,13 +25,13 @@
 
 @this(main: MainView, applicationConfig: AppConfig, govukButton: GovukButton)
 @* TODO - simplify Developer to Id *@
-@(developer: Developer, form: Form[RemoveMfaConfirmationForm])(implicit request: Request[_], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
+@(developer: Developer, form: Form[RemoveMfaConfirmationForm])(using request: Request[?], loggedInUser: LoggedInUser, messagesProvider: MessagesProvider)
 
 @main(title = s"${applicationConfig.title} - Are you sure you want to remove multi-factor authentication?") {
 
     <h1 class="govuk-heading-l">Are you sure you want to remove multi-factor authentication?</h1>
 
-    @helper.form(action = routes.DeveloperController.removeMfaAction(developer.user.userId), Symbol("class") -> "form") {
+    @helper.form(action = routes.DeveloperController.removeMfaAction(developer.user.userId.simpleUser), Symbol("class") -> "form") {
         @helper.CSRF.formField
         <div id="confirm-removal-hint" class="govuk-hint"></div>
         <p class="govuk-body govuk-!-margin-top-6 govuk-!-margin-bottom-6">@developer.user.email.text will no longer get access codes.</p>

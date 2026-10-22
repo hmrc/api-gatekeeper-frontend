@@ -14,22 +14,22 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.gatekeeper.controllers._
-@import uk.gov.hmrc.gatekeeper.models._
+@import uk.gov.hmrc.gatekeeper.controllers.*
+@import uk.gov.hmrc.gatekeeper.models.*
 @import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.LoggedInRequest
 @import uk.gov.hmrc.gatekeeper.models.xml.XmlOrganisationId
 @import uk.gov.hmrc.gatekeeper.controllers.routes
 @import uk.gov.hmrc.gatekeeper.utils.MfaDetailHelper
 @import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.Collaborators
 @import uk.gov.hmrc.gatekeeper.views.models.Crumb
-@import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models._
+@import uk.gov.hmrc.apiplatform.modules.tpd.mfa.domain.models.*
 @import uk.gov.hmrc.gatekeeper.models.organisations.DeskproOrganisation
 @import uk.gov.hmrc.gatekeeper.views.helper.application.ViewFormat
 @import uk.gov.hmrc.apiplatform.modules.organisations.domain.models.Organisation
 
 @this(main: MainView, applicationConfig: AppConfig)
 
-@(developer: Developer, gatekeeperXmlServicesUrlFn: (XmlOrganisationId) => String)(implicit loggedInRequest: LoggedInRequest[_])
+@(developer: Developer, gatekeeperXmlServicesUrlFn: (XmlOrganisationId) => String)(using loggedInRequest: LoggedInRequest[?])
 
 @renderOrganisations(orgList: List[Organisation]) = {
     @for(org <- orgList) {
@@ -143,7 +143,7 @@
     @if(MfaDetailHelper.isMfaVerified(developer.mfaDetails)) {
         @if(loggedInRequest.role.isUser) {
             <p class="govuk-body">
-                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId)}"
+                <a id="remove-2SV" href="@{routes.DeveloperController.removeMfaPage(developer.user.userId.simpleUser)}"
                 class="govuk-link">Remove multi-factor authentication</a>
             </p><br><br>
         }
@@ -159,7 +159,7 @@
             @for((app, idx) <- developer.applications.zipWithIndex) {
                 <div class="govuk-summary-list__row">
                     <dt class="govuk-summary-list__value" id="app-@idx">
-                        <a href="@{routes.ApplicationController.applicationPage(app.id)}">@app.name</a>
+                        <a href="@{routes.ApplicationController.applicationPage(app.id.simpleApp)}">@app.name</a>
                     </dt>
                     <dd class="govuk-summary-list__value" id="app-name-@idx">@app.deployedTo.displayText</dd>
                     <dd class="govuk-summary-list__value" id="collaborator-@idx">
@@ -170,12 +170,12 @@
                     </dd>
                     <dd class="govuk-summary-list__value" id="production-status-@idx">
                         @defining(app.state.name match {
-                            case State.PRODUCTION => ("status status--verified", "Active")
-                            case State.PRE_PRODUCTION => ("status status--verified", "Active")
-                            case State.DELETED => ("status status--not-verified", "Deleted")
-                            case State.PENDING_RESPONSIBLE_INDIVIDUAL_VERIFICATION => ("status status--not-verified", "Pending responsible individual verification")
-                            case State.PENDING_GATEKEEPER_APPROVAL => ("status status--not-verified", "Pending gatekeeper check")
-                            case State.PENDING_REQUESTER_VERIFICATION => ("status status--not-verified", "Pending submitter verification")
+                            case State.Production => ("status status--verified", "Active")
+                            case State.PreProduction => ("status status--verified", "Active")
+                            case State.Deleted => ("status status--not-verified", "Deleted")
+                            case State.PendingResponsibleIndividualVerification => ("status status--not-verified", "Pending responsible individual verification")
+                            case State.PendingGatekeeperApproval => ("status status--not-verified", "Pending gatekeeper check")
+                            case State.PendingRequesterVerification => ("status status--not-verified", "Pending submitter verification")
                             case _ => ("status", "Created")
                         }) { case (cssStyle, text) => <span class="@cssStyle">@text</span> }
                     </dd>
@@ -199,7 +199,7 @@
     <br>
     @if(loggedInRequest.role.isAdvancedUser) {
         <a id="delete-developer"
-           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId)}"
+           href="@{routes.DeveloperController.deleteDeveloperPage(developer.user.userId.simpleUser)}"
            class="govuk-button govuk-button--secondary">Remove developer
         </a>
     }

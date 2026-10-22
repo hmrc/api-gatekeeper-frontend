@@ -16,82 +16,104 @@
 
 package uk.gov.hmrc.gatekeeper.models
 
-import play.api.libs.json.{Format, Json}
+import play.api.libs.json.Format
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.services.SealedTraitJsonFormatting
+import uk.gov.hmrc.apiplatform.modules.common.domain.services.SimpleEnumJsonFormatting
 
-// TODO - Remove Enumeration
-object EmailOptionChoice extends Enumeration {
-  type EmailOptionChoice = Value
-  val EMAIL_PREFERENCES, API_SUBSCRIPTION, EMAIL_ALL_USERS   = Value
-  implicit val emailOptionsFormat: Format[EmailOptionChoice] = Json.formatEnum(EmailOptionChoice)
+enum EmailOptionChoice {
+  case EmailPreferences, ApiSubscription, EmailAllUsers
+}
 
-  val optionLabel: EmailOptionChoice => String = {
-    case EMAIL_PREFERENCES => "Email preferences"
-    case API_SUBSCRIPTION  => "API subscription"
-    case EMAIL_ALL_USERS   => "Email all users"
+object EmailOptionChoice {
+
+  def apply(text: String): Option[EmailOptionChoice] = {
+    EmailOptionChoice.values.find(e => e.toString.equalsIgnoreCase(text))
   }
 
-  val optionHint: EmailOptionChoice => String = {
-    case EMAIL_PREFERENCES => "Email users based on their preferences"
-    case API_SUBSCRIPTION  => "Email users mandatory information about APIs they subscribe to"
-    case EMAIL_ALL_USERS   => "Email all users with a Developer Hub account"
+  def unsafeApply(text: String): EmailOptionChoice = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Email Option Choice"))
+
+  given Format[EmailOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor("emailOptionChoice", apply)
+
+  extension (eoc: EmailOptionChoice) {
+
+    def label: String = eoc match {
+      case EmailPreferences => "Email preferences"
+      case ApiSubscription  => "API subscription"
+      case EmailAllUsers    => "Email all users"
+    }
+
+    def hint: String = eoc match {
+      case EmailPreferences => "Email users based on their preferences"
+      case ApiSubscription  => "Email users mandatory information about APIs they subscribe to"
+      case EmailAllUsers    => "Email all users with a Developer Hub account"
+    }
   }
 }
 
-object EmailPreferencesChoice extends Enumeration {
-  type EmailPreferencesChoice = Value
+enum EmailPreferencesChoice {
+  case Topic, TaxRegime, SpecificApi
+}
 
-  val TOPIC, TAX_REGIME, SPECIFIC_API = Value
+object EmailPreferencesChoice {
 
-  implicit val emailPreferencesChoiceFormat: Format[EmailPreferencesChoice] = Json.formatEnum(EmailPreferencesChoice)
-
-  val optionLabel: EmailPreferencesChoice => String = {
-    case EmailPreferencesChoice.SPECIFIC_API => "Users interested in a specific API or APIs"
-    case EmailPreferencesChoice.TAX_REGIME   => "Users interested in a tax regime"
-    case EmailPreferencesChoice.TOPIC        => "Users interested in a topic"
+  def apply(text: String): Option[EmailPreferencesChoice] = {
+    EmailPreferencesChoice.values.find(e => e.toString.equalsIgnoreCase(text))
   }
 
-  val optionHint: EmailPreferencesChoice => String = {
-    case EmailPreferencesChoice.SPECIFIC_API => "For example, VAT MTD, PAYE Online"
-    case EmailPreferencesChoice.TAX_REGIME   => "For example, Income Tax"
-    case EmailPreferencesChoice.TOPIC        => "For example, event invites"
+  def unsafeApply(text: String): EmailPreferencesChoice = apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Email Option Choice"))
+
+  given Format[EmailPreferencesChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor("emailPreferencesChoice", apply)
+
+  extension (epc: EmailPreferencesChoice) {
+
+    def label: String = epc match {
+      case EmailPreferencesChoice.SpecificApi => "Users interested in a specific API or APIs"
+      case EmailPreferencesChoice.TaxRegime   => "Users interested in a tax regime"
+      case EmailPreferencesChoice.Topic       => "Users interested in a topic"
+    }
+
+    def hint: String = epc match {
+      case EmailPreferencesChoice.SpecificApi => "For example, VAT MTD, PAYE Online"
+      case EmailPreferencesChoice.TaxRegime   => "For example, Income Tax"
+      case EmailPreferencesChoice.Topic       => "For example, event invites"
+    }
   }
 }
 
+// TODO - this is in the TPD domain lib as EmailTopic
 sealed trait TopicOptionChoice {
   lazy val optionLabel = TopicOptionChoice.optionLabel(this)
   lazy val optionHint  = TopicOptionChoice.optionHint(this)
 }
 
 object TopicOptionChoice {
-  case object BUSINESS_AND_POLICY extends TopicOptionChoice
-  case object TECHNICAL           extends TopicOptionChoice
-  case object RELEASE_SCHEDULES   extends TopicOptionChoice
-  case object EVENT_INVITES       extends TopicOptionChoice
+  case object BusinessAndPolicy extends TopicOptionChoice
+  case object Technical         extends TopicOptionChoice
+  case object ReleaseSchedules  extends TopicOptionChoice
+  case object EventInvites      extends TopicOptionChoice
 
-  val values = Set[TopicOptionChoice](BUSINESS_AND_POLICY, TECHNICAL, RELEASE_SCHEDULES, EVENT_INVITES)
+  val values = Set[TopicOptionChoice](BusinessAndPolicy, Technical, ReleaseSchedules, EventInvites)
 
   def apply(text: String): Option[TopicOptionChoice] = {
-    TopicOptionChoice.values.find(_.toString == text.toUpperCase)
+    TopicOptionChoice.values.find(_.toString.equalsIgnoreCase(text))
   }
 
   def unsafeApply(text: String): TopicOptionChoice =
     apply(text).getOrElse(throw new RuntimeException(s"$text is not a valid Topic Option Choice"))
 
-  implicit val formatTopicOptionAndChoice: Format[TopicOptionChoice] = SealedTraitJsonFormatting.createFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
+  given Format[TopicOptionChoice] = SimpleEnumJsonFormatting.screamingSnakeCaseFormatFor[TopicOptionChoice]("Topic Option Choice", apply)
 
   val optionLabel: TopicOptionChoice => String = {
-    case TopicOptionChoice.BUSINESS_AND_POLICY => "Business and policy"
-    case TopicOptionChoice.TECHNICAL           => "Technical"
-    case TopicOptionChoice.RELEASE_SCHEDULES   => "Release schedules"
-    case TopicOptionChoice.EVENT_INVITES       => "Event Invites"
+    case TopicOptionChoice.BusinessAndPolicy => "Business and policy"
+    case TopicOptionChoice.Technical         => "Technical"
+    case TopicOptionChoice.ReleaseSchedules  => "Release schedules"
+    case TopicOptionChoice.EventInvites      => "Event Invites"
   }
 
   val optionHint: TopicOptionChoice => String = {
-    case TopicOptionChoice.BUSINESS_AND_POLICY => "Policy compliance, legislative changes and business guidance support."
-    case TopicOptionChoice.TECHNICAL           => "Specifications, service guides, bux fixes and known errors."
-    case TopicOptionChoice.RELEASE_SCHEDULES   => "Notifications about planned releases and outages."
-    case TopicOptionChoice.EVENT_INVITES       => "Get invites to knowledge share events and user research opportunities."
+    case TopicOptionChoice.BusinessAndPolicy => "Policy compliance, legislative changes and business guidance support."
+    case TopicOptionChoice.Technical         => "Specifications, service guides, bux fixes and known errors."
+    case TopicOptionChoice.ReleaseSchedules  => "Notifications about planned releases and outages."
+    case TopicOptionChoice.EventInvites      => "Get invites to knowledge share events and user research opportunities."
   }
 }

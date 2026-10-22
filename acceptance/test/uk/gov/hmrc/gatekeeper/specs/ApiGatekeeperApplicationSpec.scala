@@ -133,7 +133,7 @@ class ApiGatekeeperApplicationSpec
       stubApplication(applicationWithSubscriptionData, developers, stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.clickApplicationNameLink(applicationName.value)
+      ApplicationsPage.clickApplicationNameLink(applicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -164,7 +164,7 @@ class ApiGatekeeperApplicationSpec
       stubApplication(applicationWithSubscriptionData, List(verifiedAdminUser), stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.clickApplicationNameLink(applicationName.value)
+      ApplicationsPage.clickApplicationNameLink(applicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)
@@ -202,7 +202,7 @@ class ApiGatekeeperApplicationSpec
       stubApplication(applicationWithSubscriptionData2, List(verifiedAdminUser, verifiedAdminUser2), stateHistories, applicationId)
 
       When("I select to navigate to the Automated Test Application page")
-      ApplicationsPage.clickApplicationNameLink(applicationName.value)
+      ApplicationsPage.clickApplicationNameLink(applicationName)
 
       Then("I am successfully navigated to the Automated Test Application page")
       on(ApplicationPage)

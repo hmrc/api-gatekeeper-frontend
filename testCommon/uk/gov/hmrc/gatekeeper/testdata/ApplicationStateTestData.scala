@@ -23,21 +23,21 @@ import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{Applicat
 trait ApplicationStateTestData extends CommonTestData {
 
   val productionState: ApplicationState = ApplicationState(
-    name = State.PRODUCTION,
+    name = State.Production,
     requestedByEmailAddress = Some(administratorEmail.text),
     verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kd w"),
     updatedOn = LocalDateTime.parse("2016-04-08T11:11:18.463").toInstant(ZoneOffset.UTC)
   )
 
   val pendingApprovalState: ApplicationState = ApplicationState(
-    name = State.PENDING_GATEKEEPER_APPROVAL,
+    name = State.PendingGatekeeperApproval,
     requestedByEmailAddress = Some(administratorEmail.text),
     verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kd w"),
     updatedOn = LocalDateTime.parse("2016-04-08T11:11:18.463").toInstant(ZoneOffset.UTC)
   )
 
   val stateForFetchAppResponseByEmail: ApplicationState = ApplicationState(
-    name = State.PRODUCTION,
+    name = State.Production,
     requestedByEmailAddress = Some(developerEmail.text),
     verificationCode = Some("8mmsC_z9G-rRjt2cjnYP7q9r7aVbmS5cfGv_M-09kd w"),
     updatedOn = LocalDateTime.parse("2016-04-08T11:11:18.463").toInstant(ZoneOffset.UTC)

@@ -20,9 +20,9 @@ import java.time.{Instant, LocalDateTime, ZoneOffset}
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 
 object ApplicationResponseBuilder extends ApplicationTokenFixtures {
 
@@ -32,8 +32,8 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
         organisationUrl = Some("https://www.example.com"),
         responsibleIndividual = ResponsibleIndividual(FullName("Bob Fleming"), LaxEmailAddress("bob@example.com")),
         serverLocations = Set(ServerLocation.InUK),
-        termsAndConditionsLocation = TermsAndConditionsLocations.InDesktopSoftware,
-        privacyPolicyLocation = PrivacyPolicyLocations.InDesktopSoftware,
+        termsAndConditionsLocation = TermsAndConditionsLocation.InDesktopSoftware,
+        privacyPolicyLocation = PrivacyPolicyLocation.InDesktopSoftware,
         termsOfUseAcceptances = List(TermsOfUseAcceptance(
           responsibleIndividual = ResponsibleIndividual(FullName("Bob Fleming"), LaxEmailAddress("bob@example.com")),
           dateTime = LocalDateTime.parse("2022-10-08T12:24:31.123").toInstant(ZoneOffset.UTC),
@@ -46,7 +46,7 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
     def buildCollaborator(userId: UserId) = {
       Collaborator(
         emailAddress = LaxEmailAddress("bob@example.com"),
-        role = Collaborator.Roles.ADMINISTRATOR,
+        role = Collaborator.Role.Administrator,
         userId = userId
       )
     }
@@ -56,18 +56,18 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
         id = applicationId,
         applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
         name = ApplicationName("Petes test application"),
-        deployedTo = Environment.PRODUCTION,
+        deployedTo = Environment.Production,
         description = Some("Petes test application description"),
         createdOn = Instant.parse("2022-12-23T12:24:31.123Z"),
         lastAccess = Some(Instant.parse("2023-10-02T12:24:31.123Z")),
         grantLength = GrantLength.EIGHTEEN_MONTHS,
         access = standardAccess,
-        state = ApplicationState(name = State.TESTING, updatedOn = Instant.parse("2022-10-08T12:24:31.123Z")),
-        rateLimitTier = RateLimitTier.BRONZE,
+        state = ApplicationState(name = State.Testing, updatedOn = Instant.parse("2022-10-08T12:24:31.123Z")),
+        rateLimitTier = RateLimitTier.Bronze,
         checkInformation = None,
         blocked = false,
         ipAllowlist = IpAllowlist(false, Set.empty),
-        lastActionActor = ActorType.UNKNOWN,
+        lastActionActor = ActorType.Unknown,
         deleteRestriction = DeleteRestriction.NoRestriction,
         organisationId = None
       ),

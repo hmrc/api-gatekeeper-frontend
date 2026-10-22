@@ -22,7 +22,7 @@ import scala.concurrent.Future
 import org.apache.pekko.stream.Materializer
 
 import play.api.mvc.Result
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
 
@@ -33,10 +33,10 @@ import uk.gov.hmrc.apiplatform.modules.gkauth.domain.models.GatekeeperRoles
 import uk.gov.hmrc.gatekeeper.config.ErrorHandler
 import uk.gov.hmrc.gatekeeper.mocks.services.OrganisationServiceMockProvider
 import uk.gov.hmrc.gatekeeper.models.organisations.OrganisationWithApps
-import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport._
+import uk.gov.hmrc.gatekeeper.utils.FakeRequestCSRFSupport.*
 import uk.gov.hmrc.gatekeeper.utils.{CollaboratorTracker, TitleChecker, WithCSRFAddToken}
 import uk.gov.hmrc.gatekeeper.views.html.ErrorTemplate
-import uk.gov.hmrc.gatekeeper.views.html.applications._
+import uk.gov.hmrc.gatekeeper.views.html.applications.*
 
 class OrganisationControllerSpec
     extends ControllerBaseSpec
@@ -47,7 +47,7 @@ class OrganisationControllerSpec
     with OrganisationIdFixtures
     with FixedClock {
 
-  implicit val materializer: Materializer = app.materializer
+  given materializer: Materializer = app.materializer
 
   private lazy val errorTemplateView = app.injector.instanceOf[ErrorTemplate]
   private lazy val organisationView  = app.injector.instanceOf[OrganisationView]

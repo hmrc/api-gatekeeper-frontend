@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.Access
 import uk.gov.hmrc.apiplatform.modules.applications.common.domain.models.FullName
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.{CheckInformation, TermsOfUseAgreement}
-import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.submissions.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
@@ -42,7 +42,7 @@ class TermsOfUseServiceSpec extends AsyncHmrcSpec with ApplicationBuilder {
   val stdAppAgreement       = TermsOfUseAcceptance(responsibleIndividual, instant, SubmissionId.random)
 
   val importantSubmissionData    =
-    ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocations.InDesktopSoftware, PrivacyPolicyLocations.InDesktopSoftware, List(stdAppAgreement))
+    ImportantSubmissionData(None, responsibleIndividual, Set.empty, TermsAndConditionsLocation.InDesktopSoftware, PrivacyPolicyLocation.InDesktopSoftware, List(stdAppAgreement))
   val appWithCheckInfoAgreements = DefaultApplication.modify(_.copy(checkInformation = Some(checkInformation)))
   val appWithStdAppAgreements    = appWithNoAgreements.withAccess(Access.Standard(importantSubmissionData = Some(importantSubmissionData)))
   val nonStdApp                  = appWithNoAgreements.withAccess(Access.Privileged())

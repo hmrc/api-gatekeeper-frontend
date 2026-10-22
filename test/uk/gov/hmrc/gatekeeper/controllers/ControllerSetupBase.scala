@@ -18,20 +18,20 @@ package uk.gov.hmrc.gatekeeper.controllers
 
 import scala.concurrent.Future
 
-import mocks.connectors._
-import mocks.services._
+import mocks.connectors.*
+import mocks.services.*
 import org.mockito.stubbing.ScalaOngoingStubbing
 import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import play.api.test.FakeRequest
 
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.ApplicationWithCollaborators
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.utils.FixedClock
 import uk.gov.hmrc.apiplatform.modules.gkauth.services.{LdapAuthorisationServiceMockModule, StrideAuthorisationServiceMockModule}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.connectors.DeveloperConnector
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
 import uk.gov.hmrc.gatekeeper.utils.CollaboratorTracker
 
 trait ControllerSetupBase

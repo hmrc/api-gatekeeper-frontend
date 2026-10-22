@@ -19,7 +19,7 @@ package uk.gov.hmrc.gatekeeper.utils
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.domain.models.UserId
 import uk.gov.hmrc.apiplatform.modules.tpd.emailpreferences.domain.models.{EmailPreferences, EmailTopic, TaxRegimeInterests}
 import uk.gov.hmrc.gatekeeper.models.RegisteredUser
@@ -59,7 +59,7 @@ class XmlServicesHelperSpec extends AnyWordSpec with Matchers with XmlServicesHe
         TaxRegimeInterests("TestRegimeOne", Set(xmlApiOne.serviceName, restApiOne)),
         TaxRegimeInterests("TestRegimeTwo", Set(xmlApiTwo.serviceName, xmlApiThree.serviceName))
       ),
-      topics = Set(EmailTopic.TECHNICAL, EmailTopic.BUSINESS_AND_POLICY)
+      topics = Set(EmailTopic.Technical, EmailTopic.BusinessAndPolicy)
     )
 
     val restEmailPreferences = emailPreferences.copy(interests = restEmailPrefInterests)

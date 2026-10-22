@@ -27,19 +27,20 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models._
-import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.interface.models.{CreateApplicationRequestV1, CreationAccess}
-import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models._
+import uk.gov.hmrc.apiplatform.modules.applications.query.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.commands.applications.domain.models.{ApplicationCommands, CommandFailures}
-import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.LaxEmailAddress.StringSyntax.toLaxEmail
 import uk.gov.hmrc.apiplatform.modules.common.utils.{AsyncHmrcSpec, FixedClock}
 import uk.gov.hmrc.gatekeeper.builder.ApplicationBuilder
 import uk.gov.hmrc.gatekeeper.mocks.connectors.ThirdPartyOrchestratorConnectorMockProvider
-import uk.gov.hmrc.gatekeeper.models.SubscriptionFields._
-import uk.gov.hmrc.gatekeeper.models._
+import uk.gov.hmrc.gatekeeper.models.*
+import uk.gov.hmrc.gatekeeper.models.SubscriptionFields.*
 import uk.gov.hmrc.gatekeeper.models.applications.ApplicationsByAnswer
+import uk.gov.hmrc.gatekeeper.utils.SubclassMockSupport
 
 class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest with ApplicationWithCollaboratorsFixtures with ApiIdentifierFixtures {
 
@@ -49,7 +50,8 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
       with ThirdPartyOrchestratorConnectorMockProvider
       with CommandConnectorMockProvider
       with ApiScopeConnectorMockProvider
-      with ApplicationBuilder {
+      with ApplicationBuilder
+      with SubclassMockSupport {
 
     val applicationService = new ApplicationService(
       mockSandboxApplicationConnector,
@@ -62,7 +64,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     )
     val underTest          = spy(applicationService)
 
-    implicit val hc: HeaderCarrier = HeaderCarrier()
+    given hc: HeaderCarrier = HeaderCarrier()
 
     val collaborators = someCollaborators
 
@@ -90,82 +92,82 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val mockResult = Future.successful(mock[PaginatedApplications])
 
     "ignores status of ALL" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("status" -> "ALL")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value shouldBe Map.empty
     }
 
     "ignores valid params (e.g. accessType) when empty" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
-      val inputs = Map(ParamNames.AccessType -> "")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      val inputs = Map(ParamName.AccessType.toString -> "")
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
       paramCaptor.value shouldBe Map.empty
     }
 
     "converts page to pageNbr" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("page" -> "2")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
-      paramCaptor.value should contain("pageNbr" -> "2")
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value should contain(ParamName.PageNbr -> "2")
     }
 
     "split apiSubscription" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "Hello--1.0")
 
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
-      paramCaptor.value should contain(ParamNames.ApiContext -> "Hello")
-      paramCaptor.value should contain(ParamNames.ApiVersionNbr -> "1.0")
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value should contain(ParamName.ApiContext -> "Hello")
+      paramCaptor.value should contain(ParamName.ApiVersionNbr -> "1.0")
     }
 
     "converts ANY to HasSubscriptions" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "ANY")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
-      paramCaptor.value should contain(ParamNames.HasSubscriptions -> "")
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value should contain(ParamName.HasSubscriptions -> "")
     }
 
     "converts NONE to NoSubscriptions" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "NONE")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
-      paramCaptor.value should contain(ParamNames.NoSubscriptions -> "")
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
 
     "filters out irrelevant params" in new Setup {
-      TPOConnectorMock.RawQuery.returnsFor(Environment.SANDBOX)(mockResult)
+      TPOConnectorMock.RawQuery.returnsFor(Environment.Sandbox)(mockResult)
 
       val inputs = Map("apiSubscription" -> "NONE", "submit" -> "", "bobbins" -> "hello")
-      await(underTest.searchApplications(Environment.SANDBOX, inputs))
+      await(underTest.searchApplications(Environment.Sandbox, inputs))
 
-      val paramCaptor = ArgCaptor[Map[String, String]]
-      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(*, *)
-      paramCaptor.value should contain(ParamNames.NoSubscriptions -> "")
+      val paramCaptor = ArgCaptor[Map[ParamName, String]]
+      verify(TPOConnectorMock.aMock).rawQuery[PaginatedApplications](*)(paramCaptor)(using *, *)
+      paramCaptor.value should contain(ParamName.NoSubscriptions -> "")
     }
   }
 
@@ -311,14 +313,14 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     "call the service to update the rate limit tier" in new Setup {
       CommandConnectorMock.IssueCommand.succeeds()
 
-      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.COPPER, gatekeeperUserId))
+      val result = await(underTest.updateRateLimitTier(standardApp, RateLimitTier.Copper, gatekeeperUserId))
 
       result shouldBe ApplicationUpdateSuccessResult
 
       inside(CommandConnectorMock.IssueCommand.verifyCommand(standardApp.id)) {
         case ApplicationCommands.ChangeRateLimitTier(aUser, _, rateLimitTier) =>
           aUser shouldBe gatekeeperUserId
-          rateLimitTier shouldBe RateLimitTier.COPPER
+          rateLimitTier shouldBe RateLimitTier.Copper
       }
     }
   }
@@ -326,7 +328,7 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
   "createPrivApp" should {
     val admin       = List(Collaborators.Administrator(UserId.random, "admin@example.com".toLaxEmail))
     val totpSecrets = Some(TotpSecrets("secret"))
-    val appAccess   = AppAccess(AccessType.PRIVILEGED, List.empty)
+    val appAccess   = AppAccess(AccessType.Privileged, List.empty)
 
     val name        = ApplicationName("New app")
     val appId       = ApplicationId.random
@@ -334,11 +336,11 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
     val description = "App description"
 
     "call the production connector to create a new app in production" in new Setup {
-      val environment = Environment.PRODUCTION
+      val environment = Environment.Production
 
       ApplicationConnectorMock.Prod.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
+      val result = await(underTest.createPrivApp(environment, name, description, admin))
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
@@ -350,21 +352,29 @@ class ApplicationServiceSpec extends AsyncHmrcSpec with ResetMocksAfterEachTest 
         admin.toSet,
         None,
         None
-      )))(*)
-      verify(mockSandboxApplicationConnector, never).createPrivApp(*)(*)
+      )))(using *)
+      verify(mockSandboxApplicationConnector, never).createPrivApp(*)(using *)
     }
 
     "call the sandbox connector to create a new app in sandbox" in new Setup {
-      val environment = Environment.SANDBOX
+      val environment = Environment.Sandbox
 
       ApplicationConnectorMock.Sandbox.CreatePrivApp.returns(CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess))
 
-      val result = await(underTest.createPrivApp(environment, name.value, description, admin))
+      val result = await(underTest.createPrivApp(environment, name, description, admin))
 
       result shouldBe CreatePrivAppSuccessResult(appId, name, environment, clientId, totpSecrets, appAccess)
 
-      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(name, CreationAccess.Privileged, Some(description), environment, admin.toSet, None, None)))(*)
-      verify(mockProductionApplicationConnector, never).createPrivApp(*)(*)
+      verify(mockSandboxApplicationConnector).createPrivApp(eqTo(CreateApplicationRequestV1(
+        name,
+        CreationAccess.Privileged,
+        Some(description),
+        environment,
+        admin.toSet,
+        None,
+        None
+      )))(using *)
+      verify(mockProductionApplicationConnector, never).createPrivApp(*)(using *)
     }
   }
 

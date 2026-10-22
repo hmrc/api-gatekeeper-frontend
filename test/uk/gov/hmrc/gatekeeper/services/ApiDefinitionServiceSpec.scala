@@ -24,14 +24,14 @@ import org.mockito.{ArgumentMatchersSugar, MockitoSugar}
 
 import uk.gov.hmrc.http.HeaderCarrier
 
-import uk.gov.hmrc.apiplatform.modules.apis.domain.models._
-import uk.gov.hmrc.apiplatform.modules.common.domain.models._
+import uk.gov.hmrc.apiplatform.modules.apis.domain.models.*
+import uk.gov.hmrc.apiplatform.modules.common.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.common.utils.AsyncHmrcSpec
 
 class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
   trait Setup extends MockitoSugar with ArgumentMatchersSugar with ApmConnectorMockProvider {
-    implicit val hc: HeaderCarrier = new HeaderCarrier
+    given hc: HeaderCarrier = new HeaderCarrier
 
     val definitionService = new ApiDefinitionService(ApmConnectorMock.aMock)
 
@@ -39,50 +39,54 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
     val publicDefinition = ApiDefinition(
       ServiceName("publicAPI"),
-      "http://localhost/",
-      "publicAPI",
-      "public api.",
+      ApiDefinition.ServiceBaseUrl("http://localhost/"),
+      ApiDefinition.Name("publicAPI"),
+      ApiDefinition.Description("public api."),
       ApiContext.random,
-      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
       None,
-      List(ApiCategory.OTHER)
+      List(ApiCategory.Other)
     )
 
     val privateDefinition = ApiDefinition(
       ServiceName("privateAPI"),
-      "http://localhost/",
-      "privateAPI",
-      "private api.",
+      ApiDefinition.ServiceBaseUrl("http://localhost/"),
+      ApiDefinition.Name("privateAPI"),
+      ApiDefinition.Description("private api."),
       ApiContext.random,
-      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.STABLE, ApiAccessType.INTERNAL, List.empty, false, None, ApiVersionSource.UNKNOWN)),
+      Map(apiVersion1 -> ApiVersion(apiVersion1, ApiStatus.Stable, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.Unknown)),
       false,
       None,
-      List(ApiCategory.OTHER)
+      List(ApiCategory.Other)
     )
 
-    val version1 = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.BETA, ApiAccessType.PUBLIC, List.empty, false, None, ApiVersionSource.UNKNOWN)
-    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.BETA, ApiAccessType.CONTROLLED, List.empty, false, None, ApiVersionSource.UNKNOWN)
-    val version3 = ApiVersion(ApiVersionNbr("3.0"), ApiStatus.BETA, ApiAccessType.INTERNAL, List.empty, false, None, ApiVersionSource.UNKNOWN)
+    val version1 = ApiVersion(ApiVersionNbr("1.0"), ApiStatus.Beta, ApiAccessType.Public, List.empty, false, None, ApiVersionSource.Unknown)
+    val version2 = ApiVersion(ApiVersionNbr("2.0"), ApiStatus.Beta, ApiAccessType.Controlled, List.empty, false, None, ApiVersionSource.Unknown)
+    val version3 = ApiVersion(ApiVersionNbr("3.0"), ApiStatus.Beta, ApiAccessType.Internal, List.empty, false, None, ApiVersionSource.Unknown)
 
     val customsDeclarations1 = ApiDefinition(
       serviceName = ServiceName("customs-declarations"),
-      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
-      name = "Customs Declarations",
-      description = "Single WCO-compliant Customs Declarations API",
+      serviceBaseUrl = ApiDefinition.ServiceBaseUrl("https://customs-declarations.protected.mdtp"),
+      name = ApiDefinition.Name("Customs Declarations"),
+      description = ApiDefinition.Description("Single WCO-compliant Customs Declarations API"),
       context = ApiContext("customs/declarations"),
       versions = Map(version1.versionNbr -> version1),
-      categories = List(ApiCategory.CUSTOMS)
+      categories = List(ApiCategory.Customs),
+      isTestSupport = false,
+      lastPublishedAt = None
     )
 
     val customsDeclarations2 = ApiDefinition(
       serviceName = ServiceName("customs-declarations"),
-      serviceBaseUrl = "https://customs-declarations.protected.mdtp",
-      name = "Customs Declarations",
-      description = "Single WCO-compliant Customs Declarations API",
+      serviceBaseUrl = ApiDefinition.ServiceBaseUrl("https://customs-declarations.protected.mdtp"),
+      name = ApiDefinition.Name("Customs Declarations"),
+      description = ApiDefinition.Description("Single WCO-compliant Customs Declarations API"),
       context = ApiContext("customs/declarations"),
       versions = Map(version2.versionNbr -> version2.copy(), version3.versionNbr -> version3.copy()),
-      categories = List(ApiCategory.CUSTOMS)
+      categories = List(ApiCategory.Customs),
+      isTestSupport = false,
+      lastPublishedAt = None
     )
   }
 
@@ -94,8 +98,8 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)()
 
         val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -106,36 +110,36 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)()
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicDefinition, privateDefinition)
 
-        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.SANDBOX))
+        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.Sandbox))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
-        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.PRODUCTION)
-        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.SANDBOX)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.Production)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.Sandbox)
       }
 
       "Return a combination of public and private APIs in production" in new Setup {
 
         val expectedApiDefintions = Seq(publicDefinition, privateDefinition)
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)()
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)()
 
-        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.PRODUCTION))
+        val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(Some(Environment.Production))
 
         await(allDefinitions) shouldBe expectedApiDefintions
 
-        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.PRODUCTION)
-        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.SANDBOX)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyCalledFor(Environment.Production)
+        ApmConnectorMock.FetchAllApiDefinitions.verifyNeverCalledFor(Environment.Sandbox)
       }
 
       "Include no duplicates" in new Setup {
 
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+        ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicDefinition, privateDefinition)
 
         val allDefinitions: Future[List[ApiDefinition]] = definitionService.fetchAllApiDefinitions(None)
 
@@ -147,19 +151,19 @@ class ApiDefinitionServiceSpec extends AsyncHmrcSpec {
   "apis" when {
     "get all apis" in new Setup {
 
-      val publicSandbox  = publicDefinition.copy(name = "sandbox-public")
-      val privateSandbox = privateDefinition.copy(name = "sandbox-private")
+      val publicSandbox  = publicDefinition.copy(name = ApiDefinition.Name("sandbox-public"))
+      val privateSandbox = privateDefinition.copy(name = ApiDefinition.Name("sandbox-private"))
 
-      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.PRODUCTION)(publicDefinition, privateDefinition)
-      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.SANDBOX)(publicSandbox, privateSandbox)
+      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Production)(publicDefinition, privateDefinition)
+      ApmConnectorMock.FetchAllApiDefinitions.returnsFor(Environment.Sandbox)(publicSandbox, privateSandbox)
 
       val allDefinitions: List[(ApiDefinition, Environment)] = await(definitionService.apis)
 
       allDefinitions shouldBe Seq(
-        (privateDefinition, Environment.PRODUCTION),
-        (publicDefinition, Environment.PRODUCTION),
-        (privateSandbox, Environment.SANDBOX),
-        (publicSandbox, Environment.SANDBOX)
+        (privateDefinition, Environment.Production),
+        (publicDefinition, Environment.Production),
+        (privateSandbox, Environment.Sandbox),
+        (publicSandbox, Environment.Sandbox)
       )
     }
   }
