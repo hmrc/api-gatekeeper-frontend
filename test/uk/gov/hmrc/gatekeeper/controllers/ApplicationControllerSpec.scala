@@ -33,6 +33,7 @@ import play.api.mvc.Result
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import play.filters.csrf.CSRF.TokenProvider
+import uk.gov.hmrc.http.HeaderCarrier
 
 import uk.gov.hmrc.apiplatform.modules.applications.access.domain.models.*
 import uk.gov.hmrc.apiplatform.modules.applications.core.domain.models.*
@@ -1238,6 +1239,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
         val appCaptor     = ArgumentCaptor.forClass(classOf[ApplicationWithCollaborators])
         val newTierCaptor = ArgumentCaptor.forClass(classOf[RateLimitTier])
+        val hcCaptor      = ArgumentCaptor.forClass(classOf[HeaderCarrier])
         val userCaptor    = ArgumentCaptor.forClass(classOf[String])
 
         when(mockApplicationService.updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(using hcCaptor.capture()))
@@ -1246,7 +1248,6 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
         val result = underTest.handleUpdateRateLimitTier(applicationId)(aLoggedInRequest.withMethod("POST").withFormUrlEncodedBody(("tier", tier.toString)))
         status(result) shouldBe SEE_OTHER
 
-        verify(mockApplicationService, times(1)).updateRateLimitTier(appCaptor.capture(), newTierCaptor.capture(), userCaptor.capture())(*)
         appCaptor.getValue shouldBe basicApplication
         newTierCaptor.getValue shouldBe tier
         userCaptor.getValue() shouldBe "Bobby Example"

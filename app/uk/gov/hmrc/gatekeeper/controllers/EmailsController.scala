@@ -38,26 +38,25 @@ import uk.gov.hmrc.gatekeeper.views.html.{ErrorTemplate, ForbiddenView}
 
 @Singleton
 class EmailsController @Inject() (
-  developerService: DeveloperService,
-  apiDefinitionService: ApiDefinitionService,
-  emailLandingView: EmailLandingView,
-  emailInformationView: EmailInformationView,
-  emailsAllUsersView: EmailAllUsersView,
-  emailApiSubscriptionsView: EmailApiSubscriptionsView,
-  emailPreferencesChoiceView: EmailPreferencesChoiceView,
-  emailPreferencesTopicView: EmailPreferencesTopicView,
-  emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
-  emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
-  emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
-  val applicationService: ApplicationService,
-  val forbiddenView: ForbiddenView,
-  mcc: MessagesControllerComponents,
-  override val errorTemplate: ErrorTemplate,
-  val apmService: ApmService,
-  strideAuthorisationService: StrideAuthorisationService
-)(
-  using ec: ExecutionContext
-) extends GatekeeperBaseController(strideAuthorisationService, mcc)
+    developerService: DeveloperService,
+    apiDefinitionService: ApiDefinitionService,
+    emailLandingView: EmailLandingView,
+    emailInformationView: EmailInformationView,
+    emailsAllUsersView: EmailAllUsersView,
+    emailApiSubscriptionsView: EmailApiSubscriptionsView,
+    emailPreferencesChoiceView: EmailPreferencesChoiceView,
+    emailPreferencesTopicView: EmailPreferencesTopicView,
+    emailPreferencesApiCategoryView: EmailPreferencesApiCategoryView,
+    emailPreferencesSpecificApiView: EmailPreferencesSpecificApiView,
+    emailPreferencesSelectApiView: EmailPreferencesSelectApiView,
+    val applicationService: ApplicationService,
+    val forbiddenView: ForbiddenView,
+    mcc: MessagesControllerComponents,
+    override val errorTemplate: ErrorTemplate,
+    val apmService: ApmService,
+    strideAuthorisationService: StrideAuthorisationService
+  )(using ec: ExecutionContext
+  ) extends GatekeeperBaseController(strideAuthorisationService, mcc)
     with ErrorHelper
     with UserFunctionsWrapper
     with ApplicationLogger {
@@ -133,18 +132,20 @@ class EmailsController @Inject() (
     })
   }
 
-  def emailPreferencesSpecificApis(selectedAPIs: List[ServiceName], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
-    if (selectedAPIs.forall(_.isEmpty)) {
-      Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
-    } else {
-      for {
-        apis            <- apmService.fetchAllCombinedApis()
-        filteredApis     = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
-        publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Public)
-        controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Controlled)
-        internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Internal)
-        combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).sortBy(_.email.text).distinct
-      } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+  def emailPreferencesSpecificApis(selectedAPIs: List[ServiceName], selectedTopic: Option[TopicOptionChoice] = None): Action[AnyContent] =
+    atLeastAdvancedUserAction { implicit request =>
+      if (selectedAPIs.forall(_.isEmpty)) {
+        Future.successful(Redirect(routes.EmailsController.selectSpecificApi(None)))
+      } else {
+        for {
+          apis            <- apmService.fetchAllCombinedApis()
+          filteredApis     = filterSelectedApis(Some(selectedAPIs), apis).sortBy(_.displayName)
+          publicUsers     <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Public)
+          controlledUsers <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Controlled)
+          internalUsers   <- handleGettingApiUsers(filteredApis, selectedTopic, ApiAccessType.Internal)
+          combinedUsers    = (publicUsers ++ controlledUsers ++ internalUsers).sortBy(_.email.text).distinct
+        } yield Ok(emailPreferencesSpecificApiView(combinedUsers, usersToEmailCopyText(combinedUsers), filteredApis, selectedTopic))
+      }
     }
 
   def emailPreferencesTopic(maybeTopic: Option[TopicOptionChoice] = None): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
