@@ -1256,7 +1256,7 @@ $appNameTwo,$applicationIdTwo,SANDBOX,,false,true,false,true
 
       }
 
-      "not call the application connector for any other  user " in new Setup {
+      "not call the application connector for a non-admin user" in new Setup {
         StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.SUPERUSER)
         ApplicationQueryServiceMock.FetchApplication.returns(application)
 
