@@ -77,7 +77,7 @@ class TeamMembersController @Inject() (
     with ActionBuilders
     with WithRestrictedApp {
 
-  def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
+  def manageTeamMembers(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       val collaboratorUsers: Future[List[RegisteredUser]] = developerService.fetchDevelopersByEmails(app.collaborators.map(_.emailAddress))
       collaboratorUsers.flatMap { collabUsers =>
@@ -86,13 +86,13 @@ class TeamMembersController @Inject() (
     }
   }
 
-  def addTeamMember(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
+  def addTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       successful(Ok(addTeamMemberView(app, AddTeamMemberForm.form)))
     }
   }
 
-  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
+  def addTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: AddTeamMemberForm) = {
         val emailAddress       = LaxEmailAddress(form.email)
@@ -122,7 +122,7 @@ class TeamMembersController @Inject() (
     }
   }
 
-  def removeTeamMember(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
+  def removeTeamMember(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberForm) =
         successful(Ok(removeTeamMemberView(app, RemoveTeamMemberConfirmationForm.form, form.email)))
@@ -136,7 +136,7 @@ class TeamMembersController @Inject() (
     }
   }
 
-  def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
+  def removeTeamMemberAction(appId: ApplicationId): Action[AnyContent] = anyStrideUserAction { implicit request =>
     withRestrictedApp(appId) { app =>
       def handleValidForm(form: RemoveTeamMemberConfirmationForm): Future[Result] = {
         val emailAddress       = LaxEmailAddress(form.email)
