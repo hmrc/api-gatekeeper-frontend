@@ -305,11 +305,11 @@
       <dd class="govuk-summary-list__actions">
         @if(application.isPendingGatekeeperApproval) {
           @if(model.hasSubmissions) {
-            <a href="{model.gatekeeperApprovalsUrl}" class="govuk-link" role="button" id="review">Check application</a>
+            <a href="@{model.gatekeeperApprovalsUrl}" class="govuk-link" role="button" id="review">Check application</a>
           }
         } else {
           @if(application.state.isPendingRequesterVerification) {
-            <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href={routes.ApplicationController.resendVerification(applicationId.simpleApp).url}>Resend verify email</a>)</span>
+            <span>(<a id="resend-verify" data-resend-email="" class="govuk-link" href="@{routes.ApplicationController.resendVerification(applicationId.simpleApp).url}">Resend verify email</a>)</span>
           }
         }
       </dd>
