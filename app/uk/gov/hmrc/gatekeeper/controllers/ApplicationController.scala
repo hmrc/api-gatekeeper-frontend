@@ -688,7 +688,7 @@ class ApplicationController @Inject() (
     withApp(appId) { app =>
       val result = Redirect(routes.ApplicationController.applicationPage(appId.simpleApp))
 
-      if (request.role.isSuperUser) {
+      if (request.role.isAdmin) {
         RateLimitTier.apply(UpdateRateLimitForm.form.bindFromRequest().get.tier) match {
           case Some(tier) => applicationService.updateRateLimitTier(app, tier, loggedIn.userFullName.get) map {
               case ApplicationUpdateSuccessResult =>

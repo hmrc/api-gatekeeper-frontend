@@ -154,11 +154,11 @@ class ApiApprovalsController @Inject() (
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsHistoryView(apiDefinition)))
   }
 
-  def reviewPage(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyStrideUserAction { implicit request =>
+  def reviewPage(serviceName: ServiceName, environment: Environment): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     fetchApiDefinitionSummary(serviceName, environment).map(apiDefinition => Ok(apiApprovalsReviewView(reviewForm, apiDefinition)))
   }
 
-  def reviewAction(serviceName: ServiceName, environment: Environment): Action[AnyContent] = anyAuthenticatedUserAction { implicit request =>
+  def reviewAction(serviceName: ServiceName, environment: Environment): Action[AnyContent] = atLeastAdvancedUserAction { implicit request =>
     val requestForm: Form[ReviewForm] = reviewForm.bindFromRequest()
 
     def errors(errors: Form[ReviewForm]) =
