@@ -192,7 +192,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
   "reviewPage" should {
     "render the review page for an API in Production" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
-      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.returnsForEnv(Environment.Production)(
         APIApprovalSummary(serviceName, "aName", Option("aDescription"), Some(Environment.Production), status = ApprovalStatus.APPROVED)
@@ -209,6 +209,15 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       contentAsString(result) should include("Production")
 
       DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Production)
+    }
+
+    "fail if the user has insufficient enrolments" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+      val result = underTest.reviewPage(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
+
+      status(result) shouldBe FORBIDDEN
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
@@ -251,7 +260,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
   "reviewAction" should {
     "call approveService if approve is selected on the review page and show the approved success page" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
-      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.USER)
+      StrideAuthorisationServiceMock.Auth.succeeds(GatekeeperRoles.ADVANCEDUSER)
 
       DeploymentApprovalServiceMock.ApproveService.succeeds()
       ApiCataloguePublishConnectorMock.PublishByServiceName.returnRight()
@@ -340,6 +349,15 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(using *)
       verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(error))(using *)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
+    "fail if the user has insufficient enrolments" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+      val result = underTest.reviewAction(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
+
+      status(result) shouldBe FORBIDDEN
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
