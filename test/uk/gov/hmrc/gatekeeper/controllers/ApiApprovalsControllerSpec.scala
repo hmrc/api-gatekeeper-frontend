@@ -211,7 +211,7 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       DeploymentApprovalServiceMock.FetchApprovalSummary.verifyCalled(Environment.Production)
     }
 
-    "fail the user is not advanced or above" in new Setup {
+    "fail if the user has insufficient enrolments" in new Setup {
       LdapAuthorisationServiceMock.Auth.notAuthorised
       StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
 
@@ -349,6 +349,15 @@ class ApiApprovalsControllerSpec extends ControllerBaseSpec with WithCSRFAddToke
       verify(mockDeploymentApprovalService).approveService(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(Some(approveNote)))(using *)
       verify(mockDeploymentApprovalService).addComment(eqTo(serviceName), eqTo(Environment.Sandbox), eqTo(gatekeeperUser), eqTo(error))(using *)
       verifyZeroInteractions(mockApiCataloguePublishConnector)
+    }
+
+    "fail if the user has insufficient enrolments" in new Setup {
+      LdapAuthorisationServiceMock.Auth.notAuthorised
+      StrideAuthorisationServiceMock.Auth.hasInsufficientEnrolments
+
+      val result = underTest.reviewAction(serviceName, Environment.Production)(aLoggedInRequest.withCSRFToken)
+
+      status(result) shouldBe FORBIDDEN
     }
 
     "redirect to the login page if the user is not logged in" in new Setup {
