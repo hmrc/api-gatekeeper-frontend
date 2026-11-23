@@ -4,7 +4,7 @@ object AppDependencies {
 
   lazy val jsoupVersion      = "1.22.1"
   lazy val scalaCheckVersion = "1.19.0"
-  lazy val bootstrapVersion  = "10.9.0"
+  lazy val bootstrapVersion  = "10.8.0"
   lazy val playFrontendVersion = "13.16.0"
 
   val commonDomainVersion = "1.4.0"
