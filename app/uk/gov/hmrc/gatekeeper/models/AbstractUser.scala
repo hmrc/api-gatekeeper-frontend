@@ -61,7 +61,8 @@ case class RegisteredUser(
     emailPreferences: EmailPreferences = EmailPreferences.noPreferences,
     registrationTime: Option[Instant] = None,
     failedLogins: Int = 0,
-    lastLogin: Option[Instant] = None
+    lastLogin: Option[Instant] = None,
+    deliverable: Boolean = true
   ) extends AbstractUser {}
 
 object RegisteredUser {
@@ -76,7 +77,8 @@ object RegisteredUser {
       ((JsPath \ "emailPreferences").read[EmailPreferences] or Reads.pure(EmailPreferences.noPreferences)) and
       (JsPath \ "registrationTime").readNullable[Instant] and
       (JsPath \ "failedLogins").readWithDefault[Int](0) and
-      (JsPath \ "lastLogin").readNullable[Instant]
+      (JsPath \ "lastLogin").readNullable[Instant] and
+      ((JsPath \ "deliverable").read[Boolean] or Reads.pure(true))
   )(RegisteredUser.apply)
 
   val registeredUserWrites: OWrites[RegisteredUser]  = Json.writes[RegisteredUser]
