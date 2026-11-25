@@ -103,7 +103,8 @@ class DevelopersController @Inject() (
         ColumnDefinition("XML Vendors", (dev => getNumberOfXmlOrganisations(dev, orgs).toString())),
         ColumnDefinition("Failed login attempts", (dev => dev.failedLogins.toString())),
         ColumnDefinition("Last Login", (dev => getLastLogin(dev))),
-        ColumnDefinition("Developer Hub Registration Date", (dev => getRegistrationTime(dev)))
+        ColumnDefinition("Developer Hub Registration Date", (dev => getRegistrationTime(dev))),
+        ColumnDefinition("Email Deliverable", (dev => dev.deliverable.toString))
       )
 
       (

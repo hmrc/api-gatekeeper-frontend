@@ -8,7 +8,7 @@ object AppDependencies {
   lazy val playFrontendVersion = "13.16.0"
 
   val commonDomainVersion = "1.4.0"
-  val tpdDomainVersion    = "1.4.0"
+  val tpdDomainVersion    = "1.6.0"
   val apiDomainVersion    = "1.8.0"
   val appDomainVersion    = "1.6.0"
   val orgDomainVersion    = "1.26.0"
