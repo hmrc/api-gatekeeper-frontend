@@ -10,7 +10,7 @@ object AppDependencies {
   val commonDomainVersion = "1.4.0"
   val tpdDomainVersion    = "1.6.0"
   val apiDomainVersion    = "1.8.0"
-  val appDomainVersion    = "1.6.0"
+  val appDomainVersion    = "1.7.0"
   val orgDomainVersion    = "1.26.0"
 
   def apply(): Seq[ModuleID] = dependencies ++ testDependencies
@@ -20,7 +20,7 @@ object AppDependencies {
     "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"            % playFrontendVersion,
     "uk.gov.hmrc"       %% "play-conditional-form-mapping-play-30" % "3.5.0",
     "uk.gov.hmrc"       %% "crypto-json-play-30"                   % "8.4.0",
-    "commons-net"        % "commons-net"                           % "3.12.0",
+    "commons-net"        % "commons-net"                           % "3.13.0",
     "org.apache.commons" % "commons-csv"                           % "1.14.1",
     "uk.gov.hmrc"       %% "internal-auth-client-play-30"          % "4.4.0",
     "uk.gov.hmrc"       %% "api-platform-common-domain"            % commonDomainVersion,

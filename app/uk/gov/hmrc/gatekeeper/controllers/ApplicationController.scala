@@ -162,7 +162,6 @@ class ApplicationController @Inject() (
       ColumnDefinition("Has IP Allow List", (app => app.details.ipAllowlist.allowlist.nonEmpty.toString())),
       ColumnDefinition("Submitted/Created on", (app => app.details.createdOn.toString())),
       ColumnDefinition("Last API call", (app => app.details.lastAccess.fold("")(_.toString))),
-      ColumnDefinition("Last API call with server token", (app => app.details.token.lastAccessTokenUsage.fold("")(_.toString))),
       ColumnDefinition("Restricted from deletion", (app => (app.details.deleteRestriction.deleteRestrictionType == DeleteRestrictionType.DoNotDelete).toString)),
       ColumnDefinition("Number of Redirect URIs", (nbrOfLoginRedirectUris(_).toString)),
       ColumnDefinition("Number of Post Logout Redirect URIs", (nbrOfPostLogoutRedirectUris(_).toString))

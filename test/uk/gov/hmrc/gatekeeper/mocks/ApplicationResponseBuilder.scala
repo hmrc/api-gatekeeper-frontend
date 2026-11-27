@@ -54,7 +54,7 @@ object ApplicationResponseBuilder extends ApplicationTokenFixtures {
     ApplicationWithCollaborators(
       CoreApplication(
         id = applicationId,
-        applicationTokenOne.copy(clientId = clientId, lastAccessTokenUsage = None),
+        applicationTokenOne.copy(clientId = clientId),
         name = ApplicationName("Petes test application"),
         deployedTo = Environment.Production,
         description = Some("Petes test application description"),
